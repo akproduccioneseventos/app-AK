@@ -238,3 +238,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 71. **¿Algo tuyo corre solo?** Seguilo hasta lo que hace. Si manda afuera, cobra, cierra, toca permisos o gasta,
     va como propuesta para el OK del dueño. Y que su descripción diga lo que hace de verdad.
 72. **¿Agregaste una redirección?** Fijate que en el origen no haya una pantalla viva: si la hay, queda sin entrada.
+73. **¿Mandás un aviso a varios?** Si llega a todo el equipo, que no lleve importes ni deudas de un cliente.

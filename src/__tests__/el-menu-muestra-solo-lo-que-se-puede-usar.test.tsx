@@ -1,109 +1,129 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MainNav } from '@/components/main-nav';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { getMisPermisos } from '@/app/actions/sesion';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, PERMISOS_POR_PERFIL } from '@/lib/auth/perfiles';
 
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true });
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: jest.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
-});
-
-afterAll(() => {
-  Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT');
-});
-
+const getMisPermisosMock = jest.fn();
 jest.mock('@/app/actions/sesion', () => ({
-  getMisPermisos: jest.fn(),
+  getMisPermisos: (...args: any[]) => getMisPermisosMock(...args),
 }));
 
+jest.mock('@/components/app-logo', () => function MockAppLogo() {
+  return <div data-testid="app-logo">AK Logo</div>;
+});
+
 jest.mock('next/navigation', () => ({
-  usePathname: () => '/mi-dia',
+  usePathname: () => '/dashboard',
 }));
 
 jest.mock('@/app/actions/alertas.actions', () => ({
   getAlertasGlobalesConLeidas: jest.fn().mockResolvedValue([]),
 }));
 
-jest.mock('@/components/app-logo', () => ({
-  __esModule: true,
-  default: () => <div data-testid="app-logo">AK Logo</div>,
+jest.mock('@/components/ui/sidebar', () => ({
+  Sidebar: ({ children }: any) => <aside data-testid="sidebar">{children}</aside>,
+  SidebarHeader: ({ children }: any) => <header>{children}</header>,
+  SidebarContent: ({ children }: any) => <nav>{children}</nav>,
+  SidebarFooter: ({ children }: any) => <footer>{children}</footer>,
+  SidebarMenu: ({ children }: any) => <ul>{children}</ul>,
+  SidebarMenuItem: ({ children }: any) => <li>{children}</li>,
+  SidebarMenuButton: ({ children, asChild }: any) => <div>{children}</div>,
+  SidebarGroup: ({ children }: any) => <section>{children}</section>,
+  SidebarGroupLabel: ({ children }: any) => <h3>{children}</h3>,
+  SidebarGroupContent: ({ children }: any) => <div>{children}</div>,
 }));
 
-describe('Orden 180 - El menú muestra sólo lo que se puede usar', () => {
-  let host: HTMLDivElement;
-  let root: ReturnType<typeof createRoot>;
+beforeAll(() => {
+  Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true });
+});
 
+afterAll(() => {
+  Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT');
+});
+
+async function montar() {
+  const host = document.body.appendChild(document.createElement('div'));
+  const root = createRoot(host);
+  await act(async () => {
+    root.render(<MainNav />);
+  });
+  return {
+    host,
+    cerrar: () => {
+      act(() => root.unmount());
+      host.remove();
+    },
+  };
+}
+
+describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)', () => {
   beforeEach(() => {
-    host = document.body.appendChild(document.createElement('div'));
-    root = createRoot(host);
+    getMisPermisosMock.mockReset();
   });
 
-  afterEach(() => {
-    act(() => {
-      root.unmount();
+  it('secretaria: ve Plata y Clientes, pero no ve Empleados ni Ajustes Generales', async () => {
+    getMisPermisosMock.mockResolvedValue({
+      permisos: PERMISOS_POR_PERFIL.secretaria,
     });
-    host.remove();
+
+    const { host, cerrar } = await montar();
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    const text = host.textContent || '';
+    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Panel Contable');
+    expect(text).toContain('Facturas');
+    expect(text).not.toContain('Empleados');
+    expect(text).not.toContain('Ajustes Generales');
+    expect(text).not.toContain('Métricas del Negocio');
+
+    cerrar();
   });
 
-  it('con un operador, el menú no tiene opciones de contabilidad ni ganancias y sí eventos activos', async () => {
-    jest.mocked(getMisPermisos).mockResolvedValue({
-      permisos: [PERMISOS.NOCHE, PERMISOS.ORGANIZACION],
+  it('operador: ve Eventos Activos y Calendario, pero nada de plata', async () => {
+    getMisPermisosMock.mockResolvedValue({
+      permisos: PERMISOS_POR_PERFIL.operador,
     });
 
+    const { host, cerrar } = await montar();
     await act(async () => {
-      root.render(
-        <SidebarProvider>
-          <MainNav />
-        </SidebarProvider>
-      );
+      await new Promise((r) => setTimeout(r, 20));
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    const text = host.textContent || '';
+    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Calendario');
+    expect(text).toContain('Muro Social');
 
-    const textContent = host.textContent || '';
-    expect(textContent).toContain('Eventos Activos');
-    expect(textContent).not.toContain('Pagos Rápidos');
-    expect(textContent).not.toContain('Panel Contable');
-    expect(textContent).not.toContain('Facturas');
-    expect(textContent).not.toContain('Métricas del Negocio');
+    expect(text).not.toContain('Panel Contable');
+    expect(text).not.toContain('Facturas');
+    expect(text).not.toContain('Prospectos');
+    expect(text).not.toContain('Presupuestos');
+    expect(text).not.toContain('Pagos Rápidos');
+
+    cerrar();
   });
 
-  it('con el dueño, el menú muestra todas las opciones', async () => {
-    jest.mocked(getMisPermisos).mockResolvedValue({
-      permisos: Object.values(PERMISOS),
+  it('dueño: ve todos los módulos habilitados', async () => {
+    getMisPermisosMock.mockResolvedValue({
+      permisos: PERMISOS_POR_PERFIL.dueno,
     });
 
+    const { host, cerrar } = await montar();
     await act(async () => {
-      root.render(
-        <SidebarProvider>
-          <MainNav />
-        </SidebarProvider>
-      );
+      await new Promise((r) => setTimeout(r, 20));
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    const text = host.textContent || '';
+    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Panel Contable');
+    expect(text).toContain('Facturas');
+    expect(text).toContain('Ajustes Generales');
+    expect(text).toContain('Marketing y Redes');
+    expect(text).toContain('Empleados');
 
-    const textContent = host.textContent || '';
-    expect(textContent).toContain('Pagos Rápidos');
-    expect(textContent).toContain('Panel Contable');
-    expect(textContent).toContain('Facturas');
+    cerrar();
   });
 });

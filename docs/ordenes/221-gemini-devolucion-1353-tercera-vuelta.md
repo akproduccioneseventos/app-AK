@@ -60,7 +60,7 @@ Lo pedía la orden 183 y no está hecho; la prueba se ajustó a lo que había en
   no trae avisos `budget_balance_`. Comprobalo rompiéndolo: sacando `senia`/`saldo` de `sinCobros`, el
   caso 7 tiene que ponerse en rojo.
 
-## Bloque 5 — lo que sigue en FALTA de devoluciones anteriores
+## Devoluciones anteriores
 
 `npm run "ordenes?"` todavía marca:
 

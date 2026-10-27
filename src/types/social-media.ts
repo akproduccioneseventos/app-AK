@@ -2,7 +2,7 @@
 // Google, YouTube, Threads, X y Pinterest entran acá porque las tablas de colores e iconos del calendario
 // y el centro de redes los tienen: sin sumarlos al tipo, no compila.
 export type SocialPlatform = 'Facebook' | 'Instagram' | 'Google' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X' | 'Pinterest';
-export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador' | 'Falló' | 'Listo para copiar' | 'Error' | 'Aprobado' | 'Descartado';
+export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador' | 'Falló' | 'Listo para copiar' | 'Error' | 'Con error' | 'Aprobado' | 'Descartado';
 
 export interface PostPerformance {
     likes?: number;

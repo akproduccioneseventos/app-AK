@@ -256,9 +256,17 @@ export function detectarErroresHumanos(
 
     // Alergias registradas sin reflejar
     if (dias >= 0 && dias <= 15) {
-      const hayAlergias = (fiesta.invitados || []).some(
-        (i) => Boolean((i as any).alergias || (i as any).dietaEspecial || (i as any).menuEspecial)
-      );
+      let hayAlergias = false;
+      for (const i of (fiesta.invitados || [])) {
+        try {
+          if (Boolean((i as any).alergiasEspecificas || (i as any).dietaryRestriction || (i as any).isCeliac || (i as any).alergias || (i as any).dietaEspecial || (i as any).menuEspecial)) {
+            hayAlergias = true;
+            break;
+          }
+        } catch {
+          // un invitado roto no interrumpe el análisis
+        }
+      }
       const tieneNotasAlergias = Boolean(
         (fiesta as any).catering?.menuCeliecos ||
         (fiesta as any).catering?.menuVegetarianos ||

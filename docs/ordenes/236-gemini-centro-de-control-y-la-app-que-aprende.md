@@ -154,10 +154,6 @@ usa: Para tu OK en src/app/(app)/centro-de-control/page.tsx
 usa: Tus reglas en src/app/(app)/centro-de-control/page.tsx
 usa: Lo que hizo sola en src/app/(app)/centro-de-control/page.tsx
 usa: reglas-de-la-ia en src/lib/agentes/motor-agentes.ts
-# Bloque 3 — Darle órdenes en una frase
-usa: darOrdenPorVozOTexto en src/app/(app)/centro-de-control/page.tsx
-# Bloque 4 — La app aprende de lo que se hace
-archivo: src/lib/ia/aprender-de-lo-aprobado.ts
 usa: aprenderDeLoAprobado en src/ai/flows/armar-web-del-evento-flow.ts
 prueba: src/__tests__/el-centro-de-control-manda.test.ts
 prueba: tests/e2e/el-centro-de-control.spec.ts

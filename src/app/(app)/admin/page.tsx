@@ -91,8 +91,7 @@ const CATEGORIES = [
 
 const mainHubItems: HubItem[] = [
   // Comercial & CRM
-  { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false, category: 'comercial' },
-  { title: 'CRM / Seguimiento', description: 'Ver y gestionar todos los prospectos activos.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'comercial' },
+  { title: 'Prospectos', description: 'Ver, registrar y gestionar todos los prospectos activos del CRM.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'comercial' },
   { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true, category: 'comercial' },
   { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'comercial' },
   { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'comercial' },
@@ -110,8 +109,7 @@ const mainHubItems: HubItem[] = [
   { title: 'Activos Fijos', description: 'Inventario de equipos y bienes.', href: '/empresa/activos-fijos', icon: Package, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas' },
 
   // Marketing & Empresa
-  { title: 'Redes Sociales y Marketing', description: 'Contenido, campañas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false, category: 'marketing' },
-  { title: 'Marketing 360', description: 'Organiza venta, web pública, redes, demos y materiales comerciales.', href: '/marketing', icon: Wand2, lightColor: 'bg-pink-50 text-pink-600', featured: false, category: 'marketing' },
+  { title: 'Marketing y Redes', description: 'Contenido, campañas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false, category: 'marketing' },
   { title: 'Gestión de Empresa', description: 'Empleados, servicios, galería, landing page y más.', href: '/empresa', icon: Building2, lightColor: 'bg-cyan-50 text-cyan-600', featured: false, category: 'marketing' },
   { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false, category: 'marketing' },
   { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'marketing' },

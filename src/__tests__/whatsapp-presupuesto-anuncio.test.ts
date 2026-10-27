@@ -1,6 +1,6 @@
 /**
  * @fileOverview Pruebas para la atención del prospecto que llega por anuncio en WhatsApp
- * (Órdenes 105, 117 y 202 Bloque 3).
+ * (Órdenes 105, 117, 202, 222 Bloque 2).
  */
 
 const mockSaveScheduledMessage = jest.fn(async () => ({ success: true }));
@@ -8,12 +8,17 @@ jest.mock('@/app/actions/scheduled-messages', () => ({
   saveScheduledMessage: (...args: any[]) => mockSaveScheduledMessage(...args),
 }));
 
+const mockGenerateBudgetAndLeadFromSimulator = jest.fn();
+jest.mock('@/app/actions/armado-rapido', () => ({
+  generateBudgetAndLeadFromSimulator: (...args: any[]) => mockGenerateBudgetAndLeadFromSimulator(...args),
+}));
+
 import {
   extraerDatosPresupuestoProspecto,
   atenderProspectoAnuncioWhatsApp,
 } from '@/lib/asistente/por-whatsapp';
 
-describe('Atención a prospectos de anuncio por WhatsApp (Órdenes 105, 117, 202, 203)', () => {
+describe('Atención a prospectos de anuncio por WhatsApp (Órdenes 105, 117, 202, 203, 222)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -39,6 +44,7 @@ describe('Atención a prospectos de anuncio por WhatsApp (Órdenes 105, 117, 202
     expect(res1.faltantes).toContain('la fecha aproximada');
     expect(res1.faltantes).toContain('el salón o zona del evento');
     expect(mockSaveScheduledMessage).not.toHaveBeenCalled();
+    expect(mockGenerateBudgetAndLeadFromSimulator).not.toHaveBeenCalled();
 
     // Caso 2: sólo fecha y salón, faltan invitados
     const res2 = await atenderProspectoAnuncioWhatsApp({
@@ -50,9 +56,10 @@ describe('Atención a prospectos de anuncio por WhatsApp (Órdenes 105, 117, 202
     expect(res2.completo).toBe(false);
     expect(res2.faltantes).toContain('la cantidad estimada de invitados');
     expect(mockSaveScheduledMessage).not.toHaveBeenCalled();
+    expect(mockGenerateBudgetAndLeadFromSimulator).not.toHaveBeenCalled();
   });
 
-  it('con fecha, invitados y salón prepara el borrador con el enlace al simulador pre-cargado sin guardar presupuesto en cero', async () => {
+  it('con fecha, invitados y salón prepara el borrador con el enlace al simulador pre-cargado sin guardar presupuesto en cero ni llamar a generateBudgetAndLeadFromSimulator', async () => {
     const res = await atenderProspectoAnuncioWhatsApp({
       phone: '59899333444',
       name: 'Gonzalo',
@@ -61,6 +68,9 @@ describe('Atención a prospectos de anuncio por WhatsApp (Órdenes 105, 117, 202
 
     expect(res.completo).toBe(true);
     expect(res.faltantes).toEqual([]);
+
+    // No llama a generateBudgetAndLeadFromSimulator
+    expect(mockGenerateBudgetAndLeadFromSimulator).not.toHaveBeenCalled();
 
     // Prepara el borrador en la bandeja de salida (scheduled-messages)
     expect(mockSaveScheduledMessage).toHaveBeenCalledTimes(1);

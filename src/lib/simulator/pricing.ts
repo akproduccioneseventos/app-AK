@@ -7,6 +7,143 @@ import {
   calculatePricePerPerson,
   type AnnualAdjustmentProjection,
 } from '@/lib/budget/formal-budget';
+import { toSentenceCase } from '@/lib/utils/text';
+
+export type CateringItemLike = {
+  id?: string;
+  idServicioCatalogo?: string;
+  nombre?: string;
+  nombreServicio?: string;
+  subcategoria?: string;
+  categoria?: string;
+  categoriaServicio?: string;
+};
+
+/**
+ * Orden estricto de catering en presupuestos:
+ * 1º: Vajilla, mantelería y mobiliario
+ * 2º: Las entradas (recepción / finger food)
+ * 3º: El plato principal (con guarnición o mesa buffet)
+ * 4º: El menú de niños y adolescentes (y postres/mesa dulce al final)
+ */
+export function getCateringSortScore(item: CateringItemLike): number {
+  const id = (item.id || item.idServicioCatalogo || '').toLowerCase();
+  const rawName = (item.nombre || item.nombreServicio || '').toLowerCase();
+  const subcat = (item.subcategoria || '').toLowerCase();
+  const combined = `${rawName} ${subcat}`;
+
+  // 1º: Vajilla, mantelería y mobiliario
+  if (
+    combined.includes('vajilla') ||
+    combined.includes('manteler') ||
+    combined.includes('mobiliario') ||
+    combined.includes('moviliario') ||
+    combined.includes('livings') ||
+    combined.includes('sillas') ||
+    combined.includes('mesas')
+  ) {
+    return 1;
+  }
+
+  // 2º: Las entradas (recepción / finger food)
+  if (
+    id.startsWith('dish_entrada_') ||
+    subcat.includes('entrada') ||
+    subcat.includes('recepcion') ||
+    subcat.includes('recepción') ||
+    subcat.includes('finger') ||
+    combined.includes('entrada') ||
+    combined.includes('recepcion') ||
+    combined.includes('recepción') ||
+    combined.includes('finger food') ||
+    combined.includes('picada') ||
+    combined.includes('saladito') ||
+    combined.includes('tapa') ||
+    combined.includes('arrolladito')
+  ) {
+    return 2;
+  }
+
+  // 3º: El plato principal (con guarnición o mesa buffet)
+  if (
+    id.startsWith('dish_main_') ||
+    subcat.includes('principal') ||
+    combined.includes('plato principal') ||
+    combined.includes('con mesa buffet') ||
+    combined.includes('con mesa bufet') ||
+    combined.includes('c/ guarnic') ||
+    combined.includes('con guarnic') ||
+    combined.includes('asado') ||
+    combined.includes('cordero') ||
+    combined.includes('arrollado') ||
+    combined.includes('braseado')
+  ) {
+    return 3;
+  }
+
+  // 4º: El menú de niños y adolescentes
+  if (
+    id.startsWith('dish_child_') ||
+    id.startsWith('dish_infantil_') ||
+    subcat.includes('niñ') ||
+    subcat.includes('nin') ||
+    subcat.includes('infantil') ||
+    subcat.includes('adolescente') ||
+    combined.includes('niñ') ||
+    combined.includes('nin') ||
+    combined.includes('infantil') ||
+    combined.includes('adolescente') ||
+    combined.includes('hamburguesa') ||
+    combined.includes('nugget')
+  ) {
+    return 4;
+  }
+
+  // 5º: Postres / mesa dulce al final
+  if (
+    subcat.includes('postre') ||
+    subcat.includes('dulce') ||
+    combined.includes('postre') ||
+    combined.includes('mesa dulce') ||
+    combined.includes('torta')
+  ) {
+    return 5;
+  }
+
+  return 6;
+}
+
+export function getCateringDisplayName(
+  item: CateringItemLike,
+  categoria?: string,
+): string {
+  const cat = (categoria || item.categoria || item.categoriaServicio || '').toLowerCase();
+  const rawName = item.nombreServicio || item.nombre || '';
+  if (!cat.includes('catering') && !cat.includes('gastronom')) {
+    return toSentenceCase(rawName);
+  }
+
+  const cleanedRaw = rawName
+    .replace(/^(entradas?|plato principal|men[uú] de niñ[oó]s y adolescentes|men[uú] niñ[oó] y adolescente|men[uú] infantil):\s*/i, '')
+    .trim();
+
+  const formattedName = toSentenceCase(cleanedRaw);
+  const score = getCateringSortScore(item);
+
+  if (score === 1) {
+    return formattedName;
+  }
+  if (score === 2) {
+    return `Entrada: ${formattedName}`;
+  }
+  if (score === 3) {
+    return `Plato principal: ${formattedName}`;
+  }
+  if (score === 4) {
+    return `Menú de niños y adolescentes: ${formattedName}`;
+  }
+  return formattedName;
+}
 
 export type SimulatorSelectedService = {
   id: string;
@@ -192,13 +329,33 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
   detallados.sort((a, b) => {
     if (a.categoria === 'Regalos Incluidos') return 1;
     if (b.categoria === 'Regalos Incluidos') return -1;
-    return a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre);
+    const catComp = a.categoria.localeCompare(b.categoria);
+    if (catComp !== 0) return catComp;
+
+    const isCatering =
+      a.categoria.toLowerCase().includes('catering') ||
+      a.categoria.toLowerCase().includes('gastronom');
+    if (isCatering) {
+      const scoreDiff = getCateringSortScore(a) - getCateringSortScore(b);
+      if (scoreDiff !== 0) return scoreDiff;
+    }
+    return a.nombre.localeCompare(b.nombre);
   });
 
   const agrupados = detallados.reduce<Record<string, SimulatorDetailedService[]>>((groups, item) => {
     (groups[item.categoria] ||= []).push(item);
     return groups;
   }, {});
+
+  Object.keys(agrupados).forEach((categoria) => {
+    if (categoria.toLowerCase().includes('catering') || categoria.toLowerCase().includes('gastronom')) {
+      agrupados[categoria].sort((a, b) => {
+        const scoreDiff = getCateringSortScore(a) - getCateringSortScore(b);
+        if (scoreDiff !== 0) return scoreDiff;
+        return a.nombre.localeCompare(b.nombre);
+      });
+    }
+  });
 
   return {
     subtotalBruto,

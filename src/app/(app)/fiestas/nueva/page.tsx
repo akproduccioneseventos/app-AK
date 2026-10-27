@@ -34,6 +34,8 @@ import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PESTANAS_FIESTA, type PestanaFiesta, obtenerPestanaDeModulo } from '@/lib/fiesta/fiesta-modules';
 import { defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { ALWAYS_VISIBLE_PLANNER_MODULE_IDS } from '@/lib/planner-modules';
 import { cn } from '@/lib/utils';
@@ -63,75 +65,76 @@ interface ModuleDefinition {
   category: string;
   color: string;
   badge?: ModuleBadge;
+  pestana: PestanaFiesta;
 }
 
 const modules: ModuleDefinition[] = [
   // 1. CENTRO DE PRODUCCIÓN
-  { id: 'configuracion', title: "Configuración", href: "/fiestas/nueva/configuracion", icon: Settings2, description: "Datos maestros del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
-  { id: 'resumenPlanificacion', title: "Consolidado", href: "/fiestas/nueva/resumen-planificacion", icon: ClipboardCheck, description: "Visión total de lo pactado.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-primary/10 text-primary", badge: 'Interno' },
-  { id: 'tareas', title: "Tareas", href: "/fiestas/nueva/tareas", icon: ListChecks, description: "Checklist operativo del equipo.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
-  { id: 'reuniones', title: "Reuniones", href: "/fiestas/nueva/reuniones", icon: MessageSquare, description: "Minutas y acuerdos con el cliente.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-blue-100 text-blue-600", badge: 'Interno' },
-  { id: 'documentos', title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: Archive, description: "Contratos, recibos y expedientes.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
-  { id: 'costos', title: "Costos y Rentabilidad", href: "/fiestas/nueva/gestion-costos-rentabilidad", icon: DollarSign, description: "Márgenes y rentabilidad real del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-emerald-100 text-emerald-600", badge: 'Interno' },
-  { id: 'planPagos', title: "Pagos", href: "/fiestas/nueva/plan-pagos", icon: CreditCard, description: "Plan de pagos y cuotas del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-green-100 text-green-600", badge: 'Interno' },
+  { id: 'configuracion', pestana: obtenerPestanaDeModulo('configuracion'), title: "Configuración", href: "/fiestas/nueva/configuracion", icon: Settings2, description: "Datos maestros del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
+  { id: 'resumenPlanificacion', pestana: obtenerPestanaDeModulo('resumenPlanificacion'), title: "Consolidado", href: "/fiestas/nueva/resumen-planificacion", icon: ClipboardCheck, description: "Visión total de lo pactado.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-primary/10 text-primary", badge: 'Interno' },
+  { id: 'tareas', pestana: obtenerPestanaDeModulo('tareas'), title: "Tareas", href: "/fiestas/nueva/tareas", icon: ListChecks, description: "Checklist operativo del equipo.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
+  { id: 'reuniones', pestana: obtenerPestanaDeModulo('reuniones'), title: "Reuniones", href: "/fiestas/nueva/reuniones", icon: MessageSquare, description: "Minutas y acuerdos con el cliente.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-blue-100 text-blue-600", badge: 'Interno' },
+  { id: 'documentos', pestana: obtenerPestanaDeModulo('documentos'), title: "Documentos", href: "/fiestas/nueva/gestion-documental", icon: Archive, description: "Contratos, recibos y expedientes.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-slate-100 text-slate-600", badge: 'Interno' },
+  { id: 'costos', pestana: obtenerPestanaDeModulo('costos'), title: "Costos y Rentabilidad", href: "/fiestas/nueva/gestion-costos-rentabilidad", icon: DollarSign, description: "Márgenes y rentabilidad real del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-emerald-100 text-emerald-600", badge: 'Interno' },
+  { id: 'planPagos', pestana: obtenerPestanaDeModulo('planPagos'), title: "Pagos", href: "/fiestas/nueva/plan-pagos", icon: CreditCard, description: "Plan de pagos y cuotas del evento.", category: 'CENTRO DE PRODUCCIÓN', color: "bg-green-100 text-green-600", badge: 'Interno' },
 
   // 2. OPERATIVA Y LOGÍSTICA
-  { id: 'cargaOperativa', title: "Lista de Carga", href: "/fiestas/nueva/carga-operativa", icon: ClipboardList, description: "Lista operativa para utileros. Carga y retorno.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-amber-100 text-amber-700", badge: 'Operativo' },
-  { id: 'logistica', title: "Logística", href: "/fiestas/nueva/logistica", icon: Truck, description: "Accesibilidad, estacionamiento y protocolo de lluvia.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-indigo-100 text-indigo-600", badge: 'Operativo' },
-  { id: 'proveedoresPortal', title: "Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: Users2, description: "Acceso restringido y coordinación con externos.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-cyan-100 text-cyan-700", badge: 'Operativo' },
-  { id: 'personal', title: "Personal", href: "/fiestas/nueva/personal", icon: UserCheck, description: "Equipo asignado al evento y recibos.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-teal-100 text-teal-600", badge: 'Operativo' },
-  { id: 'accesosPersonal', title: "Accesos Personal", href: "/fiestas/nueva/accesos-personal", icon: Lock, description: "Credenciales y control de acceso del equipo.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
+  { id: 'cargaOperativa', pestana: obtenerPestanaDeModulo('cargaOperativa'), title: "Lista de Carga", href: "/fiestas/nueva/carga-operativa", icon: ClipboardList, description: "Lista operativa para utileros. Carga y retorno.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-amber-100 text-amber-700", badge: 'Operativo' },
+  { id: 'logistica', pestana: obtenerPestanaDeModulo('logistica'), title: "Logística", href: "/fiestas/nueva/logistica", icon: Truck, description: "Accesibilidad, estacionamiento y protocolo de lluvia.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-indigo-100 text-indigo-600", badge: 'Operativo' },
+  { id: 'proveedoresPortal', pestana: obtenerPestanaDeModulo('proveedoresPortal'), title: "Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: Users2, description: "Acceso restringido y coordinación con externos.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-cyan-100 text-cyan-700", badge: 'Operativo' },
+  { id: 'personal', pestana: obtenerPestanaDeModulo('personal'), title: "Personal", href: "/fiestas/nueva/personal", icon: UserCheck, description: "Equipo asignado al evento y recibos.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-teal-100 text-teal-600", badge: 'Operativo' },
+  { id: 'accesosPersonal', pestana: obtenerPestanaDeModulo('accesosPersonal'), title: "Accesos Personal", href: "/fiestas/nueva/accesos-personal", icon: Lock, description: "Credenciales y control de acceso del equipo.", category: 'OPERATIVA Y LOGÍSTICA', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
 
   // 3. EXPERIENCIA DEL CLIENTE VIP
-  { id: 'portalCliente', title: "Portal Cliente VIP", href: "/fiestas/nueva/portal-cliente", icon: KeyRound, description: "Centro de colaboración exclusivo para el cliente.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-amber-100 text-amber-600", badge: 'Cliente' },
-  { id: 'itinerario', title: "Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock, description: "Cronograma minuto a minuto, vista cliente e interna.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-blue-100 text-blue-600", badge: 'Cliente' },
-  { id: 'musica', title: "Música", href: "/fiestas/nueva/musica", icon: Music, description: "Lista de temas y pedidos musicales del cliente.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-purple-100 text-purple-600", badge: 'Cliente' },
-  { id: 'videoVida', title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Video, description: "Fotos de infancia y material para el video emotivo.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Cliente' },
-  { id: 'invitados', title: "Invitados", href: "/fiestas/nueva/invitados", icon: Users, description: "Lista completa, confirmaciones y gestión.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-violet-100 text-violet-600", badge: 'Cliente' },
+  { id: 'portalCliente', pestana: obtenerPestanaDeModulo('portalCliente'), title: "Portal Cliente VIP", href: "/fiestas/nueva/portal-cliente", icon: KeyRound, description: "Centro de colaboración exclusivo para el cliente.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-amber-100 text-amber-600", badge: 'Cliente' },
+  { id: 'itinerario', pestana: obtenerPestanaDeModulo('itinerario'), title: "Itinerario", href: "/fiestas/nueva/itinerario", icon: Clock, description: "Cronograma minuto a minuto, vista cliente e interna.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-blue-100 text-blue-600", badge: 'Cliente' },
+  { id: 'musica', pestana: obtenerPestanaDeModulo('musica'), title: "Música", href: "/fiestas/nueva/musica", icon: Music, description: "Lista de temas y pedidos musicales del cliente.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-purple-100 text-purple-600", badge: 'Cliente' },
+  { id: 'videoVida', pestana: obtenerPestanaDeModulo('videoVida'), title: "Video de Vida", href: "/fiestas/nueva/video-vida", icon: Video, description: "Fotos de infancia y material para el video emotivo.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Cliente' },
+  { id: 'invitados', pestana: obtenerPestanaDeModulo('invitados'), title: "Invitados", href: "/fiestas/nueva/invitados", icon: Users, description: "Lista completa, confirmaciones y gestión.", category: 'EXPERIENCIA DEL CLIENTE VIP', color: "bg-violet-100 text-violet-600", badge: 'Cliente' },
 
   // 4. PRODUCCIÓN MULTIMEDIA
-  { id: 'fotografia', title: "Foto y Video", href: "/fiestas/nueva/fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'entretenimiento', title: "Entretenimiento", href: "/fiestas/nueva/entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Vogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
-  { id: 'regalos', title: "Regalos", href: "/fiestas/nueva/regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
-  { id: 'buzon', title: "Buzón de Recuerdos", href: "/fiestas/nueva/buzon", icon: Mic, description: "Descarga de audios/videos del buzón y bienvenida.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-700", badge: 'Cliente' },
-  { id: 'postEvento', title: "Post-Evento", href: "/fiestas/nueva/post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },
+  { id: 'fotografia', pestana: obtenerPestanaDeModulo('fotografia'), title: "Foto y Video", href: "/fiestas/nueva/fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
+  { id: 'entretenimiento', pestana: obtenerPestanaDeModulo('entretenimiento'), title: "Entretenimiento", href: "/fiestas/nueva/entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Vogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
+  { id: 'regalos', pestana: obtenerPestanaDeModulo('regalos'), title: "Regalos", href: "/fiestas/nueva/regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'buzon', pestana: obtenerPestanaDeModulo('buzon'), title: "Buzón de Recuerdos", href: "/fiestas/nueva/buzon", icon: Mic, description: "Descarga de audios/videos del buzón y bienvenida.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-700", badge: 'Cliente' },
+  { id: 'postEvento', pestana: obtenerPestanaDeModulo('postEvento'), title: "Post-Evento", href: "/fiestas/nueva/post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },
 
   // 5. EXPERIENCIA DEL INVITADO VIP
-  { id: 'paginaWeb', title: "Invitación Web", href: "/fiestas/nueva/pagina-web", icon: Globe, description: "Web pública interactiva para invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-blue-100 text-blue-600", badge: 'Invitado' },
-  { id: 'moduloInvitado', title: "Portal Invitado", href: "/fiestas/nueva/modulo-invitado", icon: Users, description: "Controla qué ve cada invitado en su portal.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
-  { id: 'redSocial', title: "Red Social de la Fiesta", href: "/fiestas/nueva/social-fiesta-pro", icon: Smartphone, description: "Red social privada que funciona 30 días antes con interacción de invitados y feeds.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'VIP' },
-  { id: 'checkin', title: "QR / Check-in", href: "/fiestas/nueva/invitados/checkin-scanner", icon: QrCode, description: "Ingreso con QR y recepción de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-green-100 text-green-600", badge: 'Invitado' },
-  { id: 'disenoSalon', title: "Mesas Asignadas", href: "/fiestas/nueva/invitados/layout", icon: LayoutDashboard, description: "Plano de mesas y asignación de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Invitado' },
+  { id: 'paginaWeb', pestana: obtenerPestanaDeModulo('paginaWeb'), title: "Invitación Web", href: "/fiestas/nueva/pagina-web", icon: Globe, description: "Web pública interactiva para invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-blue-100 text-blue-600", badge: 'Invitado' },
+  { id: 'moduloInvitado', pestana: obtenerPestanaDeModulo('moduloInvitado'), title: "Portal Invitado", href: "/fiestas/nueva/modulo-invitado", icon: Users, description: "Controla qué ve cada invitado en su portal.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'redSocial', pestana: obtenerPestanaDeModulo('redSocial'), title: "Red Social de la Fiesta", href: "/fiestas/nueva/social-fiesta-pro", icon: Smartphone, description: "Red social privada que funciona 30 días antes con interacción de invitados y feeds.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'VIP' },
+  { id: 'checkin', pestana: obtenerPestanaDeModulo('checkin'), title: "QR / Check-in", href: "/fiestas/nueva/invitados/checkin-scanner", icon: QrCode, description: "Ingreso con QR y recepción de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-green-100 text-green-600", badge: 'Invitado' },
+  { id: 'disenoSalon', pestana: obtenerPestanaDeModulo('disenoSalon'), title: "Mesas Asignadas", href: "/fiestas/nueva/invitados/layout", icon: LayoutDashboard, description: "Plano de mesas y asignación de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Invitado' },
 
   // 6. PANTALLA GIGANTE AK
-  { id: 'enVivo', title: "Evento en Vivo", href: "/fiestas/nueva/en-vivo", icon: Zap, description: "Centro de operaciones para el día de la fiesta.", category: 'PANTALLA GIGANTE AK', color: "bg-primary text-white shadow-xl shadow-primary/30", badge: 'Pantalla' },
-  { id: 'centroFiesta', title: "Centro de Fiesta", href: "/fiestas/nueva/centro", icon: Activity, description: "La pantalla para dirigir la noche: el reloj y el cronograma, cuánta gente llegó, quién trabaja y los accesos a cada herramienta.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
-  { id: 'muroSocial', title: "Muro Social & Pantalla", href: "/fiestas/nueva/muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
-  { id: 'zonaDigital', title: "Zona Digital AK", href: "/fiestas/nueva/zona-digital", icon: Sparkles, description: "Retos, juegos, emojis, fotos, redes y experiencias para adolescentes.", category: 'PANTALLA GIGANTE AK', color: "bg-red-50 text-red-700", badge: 'Invitado' },
-  { id: 'pantallasTotem', title: "Pantallas Tótem", href: "/fiestas/nueva/pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
-  { id: 'playlistPantalla', title: "Playlist Pantalla", href: "/fiestas/nueva/playlist-pantalla", icon: ListVideo, description: "Lista de reproducción en vivo para la pantalla del salón.", category: 'PANTALLA GIGANTE AK', color: "bg-blue-100 text-blue-700", badge: 'Pantalla' },
-  { id: 'readiness', title: "Control Operativo", href: "/fiestas/nueva/readiness", icon: ShieldCheck, description: "Semáforo de preparación y riesgo operativo del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
-  { id: 'fiestaLista', title: "Calidad de Experiencia", href: "/fiestas/nueva/fiesta-lista", icon: ClipboardCheck, description: "Auditoría premium, checklist de demo y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
+  { id: 'enVivo', pestana: obtenerPestanaDeModulo('enVivo'), title: "Evento en Vivo", href: "/fiestas/nueva/en-vivo", icon: Zap, description: "Centro de operaciones para el día de la fiesta.", category: 'PANTALLA GIGANTE AK', color: "bg-primary text-white shadow-xl shadow-primary/30", badge: 'Pantalla' },
+  { id: 'centroFiesta', pestana: obtenerPestanaDeModulo('centroFiesta'), title: "Centro de Fiesta", href: "/fiestas/nueva/centro", icon: Activity, description: "La pantalla para dirigir la noche: el reloj y el cronograma, cuánta gente llegó, quién trabaja y los accesos a cada herramienta.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
+  { id: 'muroSocial', pestana: obtenerPestanaDeModulo('muroSocial'), title: "Muro Social & Pantalla", href: "/fiestas/nueva/muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
+  { id: 'zonaDigital', pestana: obtenerPestanaDeModulo('zonaDigital'), title: "Zona Digital AK", href: "/fiestas/nueva/zona-digital", icon: Sparkles, description: "Retos, juegos, emojis, fotos, redes y experiencias para adolescentes.", category: 'PANTALLA GIGANTE AK', color: "bg-red-50 text-red-700", badge: 'Invitado' },
+  { id: 'pantallasTotem', pestana: obtenerPestanaDeModulo('pantallasTotem'), title: "Pantallas Tótem", href: "/fiestas/nueva/pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
+  { id: 'playlistPantalla', pestana: obtenerPestanaDeModulo('playlistPantalla'), title: "Playlist Pantalla", href: "/fiestas/nueva/playlist-pantalla", icon: ListVideo, description: "Lista de reproducción en vivo para la pantalla del salón.", category: 'PANTALLA GIGANTE AK', color: "bg-blue-100 text-blue-700", badge: 'Pantalla' },
+  { id: 'readiness', pestana: obtenerPestanaDeModulo('readiness'), title: "Control Operativo", href: "/fiestas/nueva/readiness", icon: ShieldCheck, description: "Semáforo de preparación y riesgo operativo del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
+  { id: 'fiestaLista', pestana: obtenerPestanaDeModulo('fiestaLista'), title: "Calidad de Experiencia", href: "/fiestas/nueva/fiesta-lista", icon: ClipboardCheck, description: "Auditoría premium, checklist de demo y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
-  { id: 'decoracion', title: "Decoración", href: "/fiestas/nueva/decoracion", icon: Palette, description: "Estilo, moodboard y ambientación del salón.", category: 'DISEÑO, SALÓN Y AMBIENTACIÓN', color: "bg-pink-100 text-pink-600", badge: 'Interno' },
+  { id: 'decoracion', pestana: obtenerPestanaDeModulo('decoracion'), title: "Decoración", href: "/fiestas/nueva/decoracion", icon: Palette, description: "Estilo, moodboard y ambientación del salón.", category: 'DISEÑO, SALÓN Y AMBIENTACIÓN', color: "bg-pink-100 text-pink-600", badge: 'Interno' },
 
   // 8. GASTRONOMÍA Y SERVICIO
-  { id: 'catering', title: "Gastronomía / Catering", href: "/fiestas/nueva/catering", icon: UtensilsCrossed, description: "Cálculo de menú, insumos y porciones.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
-  { id: 'listaCompras', title: "Lista de Compras", href: "/fiestas/nueva/catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
-  { id: 'alergias', title: "Gestión Alimentaria", href: "/fiestas/nueva/alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
-  { id: 'cartaTragos', title: "Carta de Tragos", href: "/fiestas/nueva/carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
-  { id: 'plannerCostoFiesta', title: "Planificador Gastronómico", href: "/fiestas/nueva/planner-costo-fiesta", icon: Calculator, description: "Gastos por categoría y armado de mesas.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
-  { id: 'barraTecnologica', title: "Barra Tecnológica", href: "/fiestas/nueva/barra-tecnologica", icon: Wine, description: "Pantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-700", badge: 'Invitado' },
+  { id: 'catering', pestana: obtenerPestanaDeModulo('catering'), title: "Gastronomía / Catering", href: "/fiestas/nueva/catering", icon: UtensilsCrossed, description: "Cálculo de menú, insumos y porciones.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
+  { id: 'listaCompras', pestana: obtenerPestanaDeModulo('listaCompras'), title: "Lista de Compras", href: "/fiestas/nueva/catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
+  { id: 'alergias', pestana: obtenerPestanaDeModulo('alergias'), title: "Gestión Alimentaria", href: "/fiestas/nueva/alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
+  { id: 'cartaTragos', pestana: obtenerPestanaDeModulo('cartaTragos'), title: "Carta de Tragos", href: "/fiestas/nueva/carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
+  { id: 'plannerCostoFiesta', pestana: obtenerPestanaDeModulo('plannerCostoFiesta'), title: "Planificador Gastronómico", href: "/fiestas/nueva/planner-costo-fiesta", icon: Calculator, description: "Gastos por categoría y armado de mesas.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
+  { id: 'barraTecnologica', pestana: obtenerPestanaDeModulo('barraTecnologica'), title: "Barra Tecnológica", href: "/fiestas/nueva/barra-tecnologica", icon: Wine, description: "Pantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-700", badge: 'Invitado' },
 
   // 9. CARTELERÍA Y MATERIAL IMPRESO
-  { id: 'carteleria', title: "Cartelería de Mesas", href: "/fiestas/nueva/carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
-  { id: 'menuMesa', title: "Menú de Mesa", href: "/fiestas/nueva/menu-mesa", icon: BookOpen, description: "Menú impreso para cada mesa.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
-  { id: 'numerosMesa', title: "Números de Mesa", href: "/fiestas/nueva/numeros-mesa", icon: Hash, description: "Impresión de señalética y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
+  { id: 'carteleria', pestana: obtenerPestanaDeModulo('carteleria'), title: "Cartelería de Mesas", href: "/fiestas/nueva/carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
+  { id: 'menuMesa', pestana: obtenerPestanaDeModulo('menuMesa'), title: "Menú de Mesa", href: "/fiestas/nueva/menu-mesa", icon: BookOpen, description: "Menú impreso para cada mesa.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
+  { id: 'numerosMesa', pestana: obtenerPestanaDeModulo('numerosMesa'), title: "Números de Mesa", href: "/fiestas/nueva/numeros-mesa", icon: Hash, description: "Impresión de señalética y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
 
   // 10. EVENTO EN VIVO / CENTRO DE OPERACIONES
-  { id: 'feedback', title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento y NPS.", category: 'EVENTO EN VIVO / CENTRO DE OPERACIONES', color: "bg-yellow-100 text-yellow-600", badge: 'Interno' },
-  { id: 'resumenImprimible', title: "Resumen Imprimible", href: "/fiestas/nueva/resumen-imprimible", icon: Printer, description: "Resumen completo listo para imprimir.", category: 'EVENTO EN VIVO / CENTRO DE OPERACIONES', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
+  { id: 'feedback', pestana: obtenerPestanaDeModulo('feedback'), title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento y NPS.", category: 'EVENTO EN VIVO / CENTRO DE OPERACIONES', color: "bg-yellow-100 text-yellow-600", badge: 'Interno' },
+  { id: 'resumenImprimible', pestana: obtenerPestanaDeModulo('resumenImprimible'), title: "Resumen Imprimible", href: "/fiestas/nueva/resumen-imprimible", icon: Printer, description: "Resumen completo listo para imprimir.", category: 'EVENTO EN VIVO / CENTRO DE OPERACIONES', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
 ];
 
 const moduleCategories = [
@@ -171,33 +174,25 @@ const badgeColors: Record<ModuleBadge, string> = {
 };
 
 const MOMENTOS_FIESTA = [
-  {
-    id: 'vender',
-    title: '1. Vender',
+  { id: 'vender', pestana: obtenerPestanaDeModulo('vender'), title: '1. Vender',
     description: 'Presupuesto, contrato, cuotas, cobros y documentación.',
     icon: DollarSign,
     color: 'text-emerald-700 bg-emerald-100',
     moduleIds: ['planPagos', 'documentos', 'costos', 'configuracion', 'resumenPlanificacion'],
   },
-  {
-    id: 'armar',
-    title: '2. Armar',
+  { id: 'armar', pestana: obtenerPestanaDeModulo('armar'), title: '2. Armar',
     description: 'Invitados, gastronomía, lista de compras, salón, cronograma y personal.',
     icon: Users,
     color: 'text-blue-700 bg-blue-100',
     moduleIds: ['invitados', 'catering', 'listaCompras', 'decoracion', 'itinerario', 'personal', 'musica', 'proveedoresPortal', 'carteleria', 'alergias'],
   },
-  {
-    id: 'noche',
-    title: '3. La Noche',
+  { id: 'noche', pestana: obtenerPestanaDeModulo('noche'), title: '3. La Noche',
     description: 'Barra, fotocabina, 360, muro social, check-in QR, pantalla y buzón.',
     icon: Sparkles,
     color: 'text-purple-700 bg-purple-100',
     moduleIds: ['enVivo', 'centroFiesta', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'checkin', 'buzon', 'pantallasTotem', 'playlistPantalla'],
   },
-  {
-    id: 'despues',
-    title: '4. Después',
+  { id: 'despues', pestana: obtenerPestanaDeModulo('despues'), title: '4. Después',
     description: 'Álbum post-fiesta, encuesta de satisfacción y cierre de rentabilidad.',
     icon: Star,
     color: 'text-amber-700 bg-amber-100',
@@ -341,34 +336,6 @@ function PlannerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
-  const tab = searchParams.get('tab');
-
-  useEffect(() => {
-    if (!tab || !fiestaId) return;
-    const tabLower = tab.toLowerCase();
-    const mapaRutas: Record<string, string> = {
-      'portal-cliente': `/fiestas/nueva/portal-cliente?fiestaId=${fiestaId}`,
-      'portalcliente': `/fiestas/nueva/portal-cliente?fiestaId=${fiestaId}`,
-      pagos: `/fiestas/nueva/plan-pagos?fiestaId=${fiestaId}`,
-      planpagos: `/fiestas/nueva/plan-pagos?fiestaId=${fiestaId}`,
-      invitados: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`,
-      musica: `/fiestas/nueva/musica?fiestaId=${fiestaId}`,
-      itinerario: `/fiestas/nueva/itinerario?fiestaId=${fiestaId}`,
-      tareas: `/fiestas/nueva/tareas?fiestaId=${fiestaId}`,
-      documentos: `/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`,
-      costos: `/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`,
-    };
-
-    if (mapaRutas[tabLower]) {
-      router.push(mapaRutas[tabLower]);
-    } else {
-      const match = modules.find(m => m.id.toLowerCase() === tabLower);
-      if (match) {
-        const dest = match.href.startsWith('/') ? `${match.href}?fiestaId=${fiestaId}` : `/fiestas/nueva/${match.href}?fiestaId=${fiestaId}`;
-        router.push(dest);
-      }
-    }
-  }, [tab, fiestaId, router]);
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [consultasCliente, setConsultasCliente] = useState<any[]>([]);
@@ -380,6 +347,16 @@ function PlannerDashboardContent() {
   const [activeMode, setActiveMode] = useState<QuickMode>(null);
   const [showAllModules, setShowAllModules] = useState(false);
   const [showInternalModules, setShowInternalModules] = useState(false);
+  const pestanaPedida = searchParams.get('pestana');
+  const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(
+    PESTANAS_FIESTA.some(p => p.id === pestanaPedida) ? (pestanaPedida as PestanaFiesta) : 'contrato-y-pagos'
+  );
+  const handleCambiarPestana = (val: string) => {
+    setPestanaActiva(val as PestanaFiesta);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('pestana', val);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     if (!fiestaId) { router.replace('/eventos'); return; }
@@ -685,7 +662,7 @@ function PlannerDashboardContent() {
         <div className="sm:hidden">
             <KpiCard title="Ingreso" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado)).split(',')[0]} icon={DollarSign} />
         </div>
-        <KpiCard title="Fecha" value={parseEventDate(fiesta.configuracion.fechaEvento!)?.toLocaleDateString('es-ES', {month: 'short', day: 'numeric'}) || 'Sin fecha'} icon={Calendar} />
+        <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
       {/* Bloque 14: Lo que preguntó el cliente */}
@@ -1074,244 +1051,146 @@ function PlannerDashboardContent() {
         </div>
       </motion.div>
 
-      {/* Module grid grouped by 4 Moments or Category */}
+      {/* Module grid grouped by 5 Pestañas (Orden 182) */}
       <div className="space-y-10 sm:space-y-16">
-        {!showAllModules && !searchQuery.trim() && !activeMode ? (
-          <div className="space-y-12">
-            {MOMENTOS_FIESTA.map((momento) => {
-              const momentoModules = modules.filter((m) => momento.moduleIds.includes(m.id));
-              const MomentoIcon = momento.icon;
-              return (
-                <div key={momento.id} className="space-y-5">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className={cn("p-2.5 rounded-xl shrink-0", momento.color)}>
-                      <MomentoIcon className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">
-                        {momento.title}
-                      </h3>
-                      <p className="text-[10px] sm:text-xs text-slate-400 font-bold hidden sm:block">
-                        {momento.description}
-                      </p>
-                    </div>
-                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
-                  </div>
+        <Tabs value={pestanaActiva} onValueChange={handleCambiarPestana} className="w-full">
+          <TabsList className="w-full flex flex-wrap h-auto gap-2 p-1.5 bg-slate-100 rounded-2xl mb-8">
+            {PESTANAS_FIESTA.map((p) => (
+              <TabsTrigger
+                key={p.id}
+                value={p.id}
+                className="flex-1 min-w-[140px] py-2.5 rounded-xl text-xs font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+              >
+                {p.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    {momentoModules.map((module) => {
-                      const active = isModuleActive(module.id);
-                      const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
-                      const modProgress = getModuleProgress(module.id, fiesta);
-                      return (
-                        <div key={module.id}>
-                          <Link
-                            href={moduleHref}
-                            onClick={async (event) => {
-                              if (!active) {
-                                event.preventDefault();
-                                const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
-                                if (saved) router.push(moduleHref);
-                              }
-                            }}
-                          >
-                            <Card className={cn(
-                              "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md hover:shadow-xl",
-                              active ? "hover:shadow-primary/10" : "hover:shadow-slate-400/10"
-                            )}>
-                              <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                                <div className={cn(
-                                  "p-3 rounded-2xl group-hover:scale-105 transition-all duration-300 shadow-inner shrink-0",
-                                  active ? module.color : "bg-slate-100 text-slate-400"
-                                )}>
-                                  <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
-                                    {module.title}
-                                  </CardTitle>
-                                  {module.badge && (
-                                    <span className={cn(
-                                      "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
-                                      active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
-                                    )}>
-                                      {module.badge}
-                                    </span>
-                                  )}
-                                </div>
-                              </CardHeader>
-                              <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
-                                <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
-                              </CardContent>
-                              <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
-                                <div className="space-y-1.5 w-full">
-                                  <div className="flex justify-between items-center text-[10px] font-bold">
-                                    {active ? (
-                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
-                                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                        Activo
-                                      </span>
-                                    ) : (
-                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
-                                        <span className="h-2 w-2 rounded-full bg-slate-300"></span>
-                                        Inactivo
-                                      </span>
-                                    )}
-                                    <span className="text-slate-500 font-semibold">{modProgress.text}</span>
-                                  </div>
-                                  {active && (
-                                    <Progress
-                                      value={modProgress.percentage}
-                                      className="h-1.5 bg-slate-100 rounded-full"
-                                      indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
-                                    />
-                                  )}
-                                </div>
-                                <div className="flex justify-end pt-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={cn(
-                                      "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                      active
-                                        ? "text-primary group-hover:bg-primary group-hover:text-white"
-                                        : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
-                                    )}
-                                  >
-                                    {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
-                                  </Button>
-                                </div>
-                              </CardFooter>
-                            </Card>
-                          </Link>
+          {PESTANAS_FIESTA.map((p) => {
+            const pestanaModules = filteredModules.filter((m) => m.pestana === p.id);
+            const pestanaCategories = moduleCategories.filter((cat) =>
+              pestanaModules.some((m) => m.category === cat)
+            );
+
+            return (
+              <TabsContent key={p.id} value={p.id} className="space-y-10 sm:space-y-14 mt-0">
+                {pestanaCategories.map((category) => {
+                  const meta = categoryMeta[category];
+                  const CategoryIcon = meta?.icon ?? Settings2;
+                  const catModules = pestanaModules.filter((m) => m.category === category);
+                  if (catModules.length === 0) return null;
+
+                  return (
+                    <div key={category} className="space-y-5">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className={cn("p-2.5 rounded-xl shrink-0", meta?.color ?? 'text-slate-600 bg-slate-100')}>
+                          <CategoryIcon className="w-5 h-5" />
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <AnimatePresence>
-            {visibleCategories.map((category) => {
-              const meta = categoryMeta[category];
-              const CategoryIcon = meta?.icon ?? Settings2;
-              const allCategoryModules = filteredModules.filter(m => m.category === category);
-              if (allCategoryModules.length === 0) return null;
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">{category}</h3>
+                          {meta?.description && <p className="text-[10px] text-slate-400 font-bold hidden sm:block">{meta.description}</p>}
+                        </div>
+                        <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
+                      </div>
 
-              return (
-                <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-5">
-                  {/* Category header */}
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className={cn("p-2.5 rounded-xl shrink-0", meta?.color ?? 'text-slate-600 bg-slate-100')}>
-                      <CategoryIcon className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">{category}</h3>
-                      {meta?.description && <p className="text-[10px] text-slate-400 font-bold hidden sm:block">{meta.description}</p>}
-                    </div>
-                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
-                  </div>
-
-                  {/* Modules Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    {allCategoryModules.map((module) => {
-                      const active = isModuleActive(module.id);
-                      const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
-                      const modProgress = getModuleProgress(module.id, fiesta);
-                      return (
-                        <motion.div key={module.id} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                          <Link
-                            href={moduleHref}
-                            onClick={async event => {
-                              if (!active) {
-                                event.preventDefault();
-                                const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
-                                if (saved) router.push(moduleHref);
-                              }
-                            }}
-                          >
-                            <Card className={cn(
-                              "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-2xl",
-                              active
-                                ? "hover:shadow-primary/10"
-                                : "hover:shadow-slate-400/10"
-                            )}>
-                              <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                                <div className={cn(
-                                  "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0",
-                                  active ? module.color : "bg-slate-100 text-slate-400"
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                        {catModules.map((module) => {
+                          const active = isModuleActive(module.id);
+                          const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+                          const modProgress = getModuleProgress(module.id, fiesta);
+                          return (
+                            <div key={module.id}>
+                              <Link
+                                href={moduleHref}
+                                onClick={async event => {
+                                  if (!active) {
+                                    event.preventDefault();
+                                    const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
+                                    if (saved) router.push(moduleHref);
+                                  }
+                                }}
+                              >
+                                <Card className={cn(
+                                  "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md hover:shadow-xl",
+                                  active ? "hover:shadow-primary/10" : "hover:shadow-slate-400/10"
                                 )}>
-                                  <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
-                                    {module.title}
-                                  </CardTitle>
-                                  {module.badge && (
-                                    <span className={cn(
-                                      "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
-                                      active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                                  <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
+                                    <div className={cn(
+                                      "p-3 rounded-2xl group-hover:scale-105 transition-all duration-300 shadow-inner shrink-0",
+                                      active ? module.color : "bg-slate-100 text-slate-400"
                                     )}>
-                                      {module.badge}
-                                    </span>
-                                  )}
-                                </div>
-                              </CardHeader>
-                              <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
-                                <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
-                              </CardContent>
-                              <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
-                                <div className="space-y-1.5 w-full">
-                                  <div className="flex justify-between items-center text-[10px] font-bold">
-                                    {active ? (
-                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
-                                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                        Activo
-                                      </span>
-                                    ) : (
-                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
-                                        <span className="h-2 w-2 rounded-full bg-slate-300"></span>
-                                        Inactivo
-                                      </span>
-                                    )}
-                                    <span className="text-slate-500 font-semibold">{modProgress.text}</span>
-                                  </div>
-                                  {active && (
-                                    <Progress
-                                      value={modProgress.percentage}
-                                      className="h-1.5 bg-slate-100 rounded-full"
-                                      indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
-                                    />
-                                  )}
-                                </div>
-                                <div className="flex justify-end pt-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={cn(
-                                      "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                      active
-                                        ? "text-primary group-hover:bg-primary group-hover:text-white"
-                                        : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
-                                    )}
-                                  >
-                                    {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
-                                  </Button>
-                                </div>
-                              </CardFooter>
-                            </Card>
-                          </Link>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        )}
+                                      <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
+                                        {module.title}
+                                      </CardTitle>
+                                      {module.badge && (
+                                        <span className={cn(
+                                          "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+                                          active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                                        )}>
+                                          {module.badge}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
+                                    <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
+                                  </CardContent>
+                                  <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
+                                    <div className="space-y-1.5 w-full">
+                                      <div className="flex justify-between items-center text-[10px] font-bold">
+                                        {active ? (
+                                          <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
+                                            <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                            Activo
+                                          </span>
+                                        ) : (
+                                          <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
+                                            <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                            Inactivo
+                                          </span>
+                                        )}
+                                        <span className="text-slate-500 font-semibold">{modProgress.text}</span>
+                                      </div>
+                                      {active && (
+                                        <Progress
+                                          value={modProgress.percentage}
+                                          className="h-1.5 bg-slate-100 rounded-full"
+                                          indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
+                                        />
+                                      )}
+                                    </div>
+                                    <div className="flex justify-end pt-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn(
+                                          "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                                          active
+                                            ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                            : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                        )}
+                                      >
+                                        {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
+                                      </Button>
+                                    </div>
+                                  </CardFooter>
+                                </Card>
+                              </Link>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      </div>
 
         {filteredModules.length === 0 && (
           <div className="text-center py-20">
@@ -1320,7 +1199,6 @@ function PlannerDashboardContent() {
             <p className="text-sm text-slate-400 mt-1">Probá con otro término o limpiá el filtro.</p>
           </div>
         )}
-      </div>
     </div>
   );
 }

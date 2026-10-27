@@ -157,7 +157,10 @@ export async function autoGenerarBorradoresSemanales(): Promise<AutoGeneracionSe
     }
 
     if (canUseAI && nuevosBorradores.length > 0) {
-      await registrarConsumoIA('material-post-evento', nuevosBorradores.length).catch(() => {});
+      // no pasa nada si falla: la métrica de consumo no debe abortar la creación de los borradores
+      await registrarConsumoIA('material-post-evento', nuevosBorradores.length).catch((err) => {
+        console.warn('[Autogenerador] Error registrando consumo IA:', err);
+      });
     }
 
     const postsCombinados = [...nuevosBorradores, ...existingPosts];

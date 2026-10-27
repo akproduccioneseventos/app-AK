@@ -1453,3 +1453,10 @@ un hallazgo de plata. Y se compara la descripción que ve el dueño con el códi
 Propia (26/10/2026). Una entrega redirigía `/empresa/redes-sociales` a otra pantalla y el planificador de redes que
 vive ahí quedaba inalcanzable; además un botón llevaba a sí mismo. Por cada redirección incondicional se mira si en
 el origen hay una `page.tsx` real.
+
+### 102. Un aviso que llega a varias personas, ¿lleva plata o deudas de un cliente?
+
+Codex en la 1364 (26/10/2026). El asistente mandaba al teléfono de todo el equipo el nombre del cliente y su saldo, y
+el barrido mostró que **todo** aviso interno salía así ("Pago de $15.000 registrado para…"), y que la lista de avisos se
+mostraba entera a cualquiera con sesión. Se mira cada envío a muchos (aviso al teléfono, lista de avisos, grupo): si
+puede llegar a alguien sin permiso de plata, el texto no lleva importes ni deudas, y la lista filtra por permiso.

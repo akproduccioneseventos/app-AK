@@ -2,6 +2,8 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { diaCalendario } from "@/lib/reportes/rango-de-dias"
 
+export { toSentenceCase } from "@/lib/utils/text";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

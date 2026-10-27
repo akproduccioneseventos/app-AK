@@ -169,7 +169,14 @@ export default function AgentesAutonomosPage() {
               <CardHeader className="p-5 pb-3 space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1">
-                    <CardTitle className="text-base font-bold text-slate-900">{agente.nombre}</CardTitle>
+                    <div className="flex items-center gap-1.5">
+                      <CardTitle className="text-base font-bold text-slate-900">{agente.nombre}</CardTitle>
+                      {agente.apodo && (
+                        <Badge variant="outline" className="text-[10px] font-bold text-amber-700 bg-amber-50 border-amber-200">
+                          {agente.apodo}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-[11px] font-semibold text-indigo-600">{agente.rol}</p>
                   </div>
                   <Switch

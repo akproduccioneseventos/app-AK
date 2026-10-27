@@ -90,6 +90,7 @@ precios, ni cuentas, ni textos comerciales.
 
 ```comprobar
 usa: open={paymentModalOpen} en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+# Bloque 2
 usa: linkEntrega en src/app/portal/c/[accessKey]/page.tsx
 usa: seccionesAbiertas en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
 prueba: src/__tests__/portal-cliente-lo-que-se-ve.test.tsx

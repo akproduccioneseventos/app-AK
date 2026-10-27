@@ -81,8 +81,8 @@ export async function buildDigitalPresenceDailyReview(params: {
 
     if (presupuestoDisponible) {
       // Registrar consumo de IA para la revisión diaria
-      await registrarConsumoIA('revision-diaria');
-      aiUsed = true;
+      // Sin llamada real a modelo de IA no se finge consumo (Orden 194 Bloque 3)
+      aiUsed = false;
 
       // Adaptar según el día de la semana
       const diaSemana = now.getDay();

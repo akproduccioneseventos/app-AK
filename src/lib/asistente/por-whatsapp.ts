@@ -12,7 +12,6 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
-import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -105,7 +104,7 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
 /**
  * Atiende a un prospecto que llega desde un anuncio de WhatsApp.
  * Si faltan fecha, invitados o salón, le pregunta lo que falta sin llamar al simulador.
- * Con los tres datos, llama a generateBudgetAndLeadFromSimulator y prepara el borrador
+ * Con los tres datos, prepara el enlace al simulador
  * sin dar nada por cerrado ni prometer precios ni plazos.
  */
 export async function atenderProspectoAnuncioWhatsApp(params: {
@@ -134,7 +133,7 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
     };
   }
 
-  // Tenemos los 3 datos: armamos el enlace al simulador pre-cargado con fecha, invitados y salón
+  // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón
   const queryParams = new URLSearchParams();
   queryParams.set('fecha', datos.fecha || '');
   queryParams.set('guests', String(datos.invitados || 0));

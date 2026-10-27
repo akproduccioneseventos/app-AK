@@ -30,7 +30,7 @@ const leer = (p) => {
 function comprobar(tipo, valor) {
   if (tipo === 'archivo' || tipo === 'prueba') return fs.existsSync(path.join(raiz, valor));
   if (tipo === 'usa' || tipo === 'no-usa') {
-    const m = valor.match(/^(.+?)\s+en\s+(.+)$/);
+    const m = valor.match(/^(.+)\s+en\s+(.+)$/);
     if (!m) return false;
     const c = leer(m[2].trim());
     if (c === null) return false;

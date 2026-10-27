@@ -16,6 +16,9 @@ import { getFiestas } from './fiesta/fiesta.actions';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
 import { hasAppSession, requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
+import { verifySession } from '@/lib/auth/session-token';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { esAvisoDePlata, textoParaElTelefono } from '@/lib/notifications/aviso-con-plata';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
@@ -75,7 +78,12 @@ async function getNotificationsInternal(): Promise<Notificacion[]> {
 
 export async function getNotifications(): Promise<Notificacion[]> {
   await requireAppSession();
-  return getNotificationsInternal();
+  const session = await verifySession();
+  if (!session.success || !session.user) throw new Error('Sesion no autorizada.');
+  const todas = await getNotificationsInternal();
+  // Los avisos de plata los ve sólo quien tiene permiso de contabilidad (pregunta 102).
+  if (puede(session.user, PERMISOS.CONTABILIDAD)) return todas;
+  return todas.filter((n) => !esAvisoDePlata(n));
 }
 
 export async function createNotification(
@@ -132,7 +140,7 @@ export async function createNotification(
         .then(({ sendPushNotificationToAll }) => {
           sendPushNotificationToAll({
             title: 'AK Producciones',
-            body: newNotification.mensaje,
+            body: textoParaElTelefono(newNotification),
             url: newNotification.href || 'https://akproducciones.uy/mi-dia',
           }).catch(() => null);
         })
@@ -155,7 +163,7 @@ export async function createNotification(
       .then(({ sendPushNotificationToAll }) => {
         sendPushNotificationToAll({
           title: 'AK Producciones',
-          body: newNotification.mensaje,
+          body: textoParaElTelefono(newNotification),
           url: newNotification.href || 'https://akproducciones.uy/mi-dia',
         }).catch(() => null);
       })

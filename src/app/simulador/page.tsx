@@ -61,7 +61,10 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
   const whatsappHref = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white selection:bg-indigo-700 selection:text-white">
+    <main
+      className="min-h-screen bg-slate-950 text-white selection:bg-indigo-700 selection:text-white"
+      style={{ backgroundColor: '#020617', color: '#ffffff' }}
+    >
       {/* Hero Header section with Nano Banana PRO image */}
       <section className="relative min-h-[55vh] overflow-hidden border-b border-slate-800">
         <Image
@@ -101,10 +104,10 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
       </section>
 
       {/* Main Options Grid */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 bg-slate-950" style={{ backgroundColor: '#020617' }}>
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
           <h2 className="text-2xl sm:text-3xl font-black text-white">Elegí la experiencia para cotizar tu fiesta</h2>
-          <p className="text-sm font-semibold text-slate-400">Ambas herramientas cuentan con el catálogo oficial, menúes y precios reales de AK Producciones.</p>
+          <p className="text-sm font-semibold text-slate-200">Ambas herramientas cuentan con el catálogo oficial, menúes y precios reales de AK Producciones.</p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -116,7 +119,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
               simulatorMode: option.id,
             });
             return (
-              <article key={option.id} className={`relative flex flex-col rounded-3xl border bg-slate-900/90 p-8 backdrop-blur-xl transition duration-300 hover:border-indigo-400/60 hover:shadow-2xl ${option.border}`}>
+              <article key={option.id} style={{ backgroundColor: '#0f172a' }} className={`relative flex flex-col rounded-3xl border bg-slate-900/90 p-8 backdrop-blur-xl transition duration-300 hover:border-indigo-400/60 hover:shadow-2xl ${option.border}`}>
                 <div className="flex items-center justify-between">
                   <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10">
                     <Icon className="h-7 w-7 text-amber-400" />
@@ -147,7 +150,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
           })}
 
           {/* Direct WhatsApp Consultation Card */}
-          <article className="flex flex-col rounded-3xl border border-emerald-500/40 bg-emerald-950/30 p-8 backdrop-blur-xl transition duration-300 hover:border-emerald-400 hover:shadow-2xl">
+          <article style={{ backgroundColor: '#022c22' }} className="flex flex-col rounded-3xl border border-emerald-500/40 bg-emerald-950/90 p-8 backdrop-blur-xl transition duration-300 hover:border-emerald-400 hover:shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 <MessageCircle className="h-7 w-7" />

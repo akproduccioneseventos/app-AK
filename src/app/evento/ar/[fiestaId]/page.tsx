@@ -31,11 +31,17 @@ export default function EventoRealidadAumentadaPage() {
 
   useEffect(() => {
     let active = true;
-    getPublicSocialEvent(fiestaId).then((data) => {
-      if (!active) return;
-      setFiesta(data);
-      setLoading(false);
-    });
+    getPublicSocialEvent(fiestaId)
+      .then((data) => {
+        if (!active) return;
+        setFiesta(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        // no pasa nada si falla: sin datos se muestra el estado sin realidad aumentada
+        if (!active) return;
+        setLoading(false);
+      });
     return () => {
       active = false;
     };

@@ -282,17 +282,15 @@ export default function FeedbackPage() {
                     <span className="text-xs text-slate-400">
                       ({fb.npsScore >= 9 ? 'Promotor' : fb.npsScore >= 7 ? 'Neutro' : 'Detractor'})
                     </span>
-                    {fb.npsScore >= 9 && (
-                      <span className="ml-auto flex items-center gap-2">
-                        {fb.googleReviewRequested ? (
-                           <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Reseña pedida</span>
-                        ) : (
-                           <Button size="sm" variant="outline" className="h-7 text-xs bg-white" onClick={() => handleRequestGoogleReview(fb.id)}>
-                             Pedir Reseña Google
-                           </Button>
-                        )}
-                      </span>
-                    )}
+                    <span className="ml-auto flex items-center gap-2">
+                      {fb.googleReviewRequested ? (
+                        <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Reseña pedida</span>
+                      ) : (
+                        <Button size="sm" variant="outline" className="h-7 text-xs bg-white" onClick={() => handleRequestGoogleReview(fb.id)}>
+                          Pedir Reseña Google
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 )}
                 {(fb.ratingComida || fb.ratingMusica || fb.ratingOrganizacion || fb.ratingLugar) && (

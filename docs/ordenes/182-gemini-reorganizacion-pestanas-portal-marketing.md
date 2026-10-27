@@ -89,7 +89,9 @@ usa: Campañas y anuncios en src/app/marketing/page.tsx
 usa: Marketing y Redes en src/components/main-nav.tsx
 no-usa: Nuevo Lead / Contacto en src/app/(app)/admin/page.tsx
 no-usa: Marketing 360 en src/app/(app)/admin/page.tsx
-prueba: PENDIENTE src/__tests__/la-fiesta-en-cinco-pestanas.test.ts
-prueba: PENDIENTE src/__tests__/el-portal-en-cinco-pasos.test.ts
-prueba: PENDIENTE tests/e2e/la-app-ordenada.spec.ts
+# Bloque 4
+archivo: docs/MANUAL-DE-LA-APP.md
+prueba: src/__tests__/la-fiesta-en-cinco-pestanas.test.ts
+prueba: src/__tests__/el-portal-en-cinco-pasos.test.ts
+prueba: tests/e2e/la-app-ordenada.spec.ts
 ```

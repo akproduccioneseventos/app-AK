@@ -19,7 +19,10 @@ export const eventCatalogs: Record<string, EventCatalogData> = {
 };
 
 export function getCatalogBySlug(slug: string): EventCatalogData | null {
-  return eventCatalogs[slug] ?? null;
+  if (Object.hasOwn(eventCatalogs, slug)) {
+    return eventCatalogs[slug];
+  }
+  return null;
 }
 
 export const catalogList = Object.values(eventCatalogs);

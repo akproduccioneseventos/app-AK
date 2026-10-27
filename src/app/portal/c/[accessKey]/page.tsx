@@ -86,6 +86,13 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
     } : {},
     fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
       notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,
+      servicios: (fiesta.fotografiaYFilmacion.servicios || []).map((s: any) => ({
+        id: s.id,
+        nombre: s.nombre,
+        estado: s.estado,
+        fechaEntregaEstimada: s.fechaEntregaEstimada,
+        linkEntrega: (s.estado === 'Entregado parcial' || s.estado === 'Entregado completo') ? s.linkEntrega : undefined,
+      })),
     } : {},
     clientMenuChangeRequests: fiesta.clientMenuChangeRequests || [],
     clientServiceChangeRequests: fiesta.clientServiceChangeRequests || [],

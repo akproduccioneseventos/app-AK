@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, marcarHitoProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import {
     toggleArrival, setStaffCheckIn, confirmProtagonistArrival,
     resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem
@@ -53,6 +54,7 @@ function LiveEventDashboardContent() {
     const [roles, setRoles] = useState<Rol[]>([]);
     const [saldoPendiente, setSaldoPendiente] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
     const [incidenteInput, setIncidenteInput] = useState('');
     const [eventDuration, setEventDuration] = useState('00:00:00');
@@ -62,13 +64,21 @@ function LiveEventDashboardContent() {
     const loadData = useCallback(async (showLoading = true) => {
         if (!fiestaId) return;
         if (showLoading) setIsLoading(true);
+        setError(null);
         try {
-            const [fiestaData, empData, rolesData] = await Promise.all([
-                getFiestaById(fiestaId),
+            const [{ fiesta: fiestaData, fallo }, empData, rolesData] = await Promise.all([
+                getFiestaParaPantalla(fiestaId),
                 getEmpleados(),
                 getRoles()
             ]);
-            if (!fiestaData) throw new Error("Fiesta no encontrada");
+            if (fallo) {
+                setError("No se pudo cargar la fiesta");
+                return;
+            }
+            if (!fiestaData) {
+                setFiesta(null);
+                return;
+            }
             setFiesta(fiestaData);
             setEmpleados(empData);
             setRoles(rolesData);
@@ -81,7 +91,8 @@ function LiveEventDashboardContent() {
                 if (presupuesto) setSaldoPendiente(calcularEstadoDeCuenta(presupuesto).saldo);
             }
         } catch (e: any) {
-            toast({ title: "Error", description: e.message, variant: "destructive" });
+            setError("No se pudo cargar la fiesta");
+            toast({ title: "Error", description: "No se pudo cargar la fiesta", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -163,7 +174,17 @@ function LiveEventDashboardContent() {
         window.open(`https://wa.me/?text=${encodeURIComponent('Hola, aquí tienes el enlace para el control de retorno al camión: ' + url)}`, '_blank');
     };
 
-    if (isLoading || !fiesta) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-black uppercase tracking-widest text-slate-500">Iniciando Centro de Mando...</p></div>;
+    if (isLoading) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-black uppercase tracking-widest text-slate-500">Iniciando Centro de Mando...</p></div>;
+    if (error) return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-8 space-y-4 text-center">
+            <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+            <p className="text-slate-400">{error}</p>
+            <Button onClick={() => loadData(true)} variant="outline">
+                <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+            </Button>
+        </div>
+    );
+    if (!fiesta) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><p className="text-slate-400">La fiesta solicitada no existe o fue eliminada.</p><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
 
     const radar = fiesta.liveState?.llegadaProtagonistas;
 

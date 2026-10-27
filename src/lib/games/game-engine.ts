@@ -21,6 +21,7 @@ export interface TriviaGame {
   questions: TriviaQuestion[];
   createdAt: string;
   status: 'draft' | 'active' | 'finished';
+  confirmadaPorEquipo?: boolean;
   participants?: TriviaParticipant[];
 }
 
@@ -112,7 +113,7 @@ export const DEFAULT_PHOTO_MISSIONS: PhotoMission[] = [
 
 export function calculateLeaderboard(participants: TriviaParticipant[]): Leaderboard {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
-  
+
   const tableScores: Record<string, number> = {};
   participants.forEach(p => {
     if (p.tableNumber && p.tableNumber !== '') {

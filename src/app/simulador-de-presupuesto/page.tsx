@@ -63,7 +63,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem } from '@/lib/calculations';
-import { cn } from '@/lib/utils';
+import { cn, toSentenceCase } from '@/lib/utils';
 import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
@@ -1723,40 +1723,40 @@ function SimuladorContent() {
                                 <Button
                                     onClick={() => setStep(5)}
                                     variant="outline"
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-indigo-200 bg-indigo-50/70 px-3 text-xs font-bold text-indigo-900 hover:bg-indigo-100 shadow-sm"
+                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-indigo-200 bg-indigo-50/70 text-xs font-bold text-indigo-900 hover:bg-indigo-100 shadow-sm"
                                 >
-                                    <ListPlus className="w-4 h-4 shrink-0 text-indigo-700"/> <span className="truncate">Modificar mi presupuesto</span>
+                                    <ListPlus className="w-4 h-4 shrink-0 text-indigo-700"/> <span className="text-center leading-tight">Modificar mi presupuesto</span>
                                 </Button>
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-3 text-xs font-bold text-white hover:bg-emerald-800 shadow-md"
+                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-800 shadow-md"
                                 >
-                                    <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir WhatsApp</span>
+                                    <Share2 className="w-4 h-4 shrink-0"/> <span className="text-center leading-tight">Compartir WhatsApp</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
                                 >
-                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
+                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="text-center leading-tight">Coordinar Reunión</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   onClick={handleDownloadBudgetPdf}
                                   disabled={isDownloadingPdf}
-                                  className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-800 hover:bg-slate-50 shadow-sm"
+                                  className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 text-xs font-bold text-slate-800 hover:bg-slate-50 shadow-sm"
                                 >
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                                         : <FileDown className="h-4 w-4 shrink-0 text-amber-500" />}
-                                    <span className="truncate">Descargar PDF</span>
+                                    <span className="text-center leading-tight">Descargar PDF</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsFaqOpen(true)}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 hover:bg-slate-50 shadow-sm"
+                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-50 shadow-sm"
                                 >
-                                    <HelpCircle className="w-4 h-4 shrink-0 text-slate-500"/> <span className="truncate">Preguntas</span>
+                                    <HelpCircle className="w-4 h-4 shrink-0 text-slate-500"/> <span className="text-center leading-tight">Preguntas</span>
                                 </Button>
                             </div>
                         </CardContent>
@@ -1799,11 +1799,11 @@ function SimuladorContent() {
                                 <Table>
                                     <TableHeader className="bg-slate-50">
                                         <TableRow className="border-slate-200">
-                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px] text-slate-600">Servicio / Categoría</TableHead>
+                                            <TableHead className="font-black text-[10px] uppercase px-2 sm:px-4 py-2 sm:py-3 min-w-[140px] sm:min-w-[200px] text-slate-600">Servicio / Categoría</TableHead>
                                             {(budgetSettings.showIndividualPrices ?? true) && (
                                               <>
-                                                <TableHead className="text-center font-black text-[10px] uppercase text-slate-600">Cant.</TableHead>
-                                                <TableHead className="text-right pr-8 font-black text-[10px] uppercase min-w-[120px] text-slate-600">Subtotal</TableHead>
+                                                <TableHead className="text-center font-black text-[10px] uppercase px-2 sm:px-4 py-2 sm:py-3 text-slate-600">Cant.</TableHead>
+                                                <TableHead className="text-right px-2 sm:px-4 py-2 sm:py-3 font-black text-[10px] uppercase min-w-[90px] sm:min-w-[120px] text-slate-600">Subtotal</TableHead>
                                               </>
                                             )}
                                         </TableRow>
@@ -1812,14 +1812,14 @@ function SimuladorContent() {
                                         {Object.entries(stats.agrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
                                                 <TableRow className="bg-slate-50 border-y border-slate-200" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                                                  <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
+                                                  <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 px-2 sm:px-4 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
                                                     <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                                                        <TableCell className="pl-8 py-4">
+                                                        <TableCell className="px-2 sm:px-4 py-2 sm:py-3">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
-                                                                    <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                                    <p className="font-bold text-slate-800 text-xs sm:text-sm">{toSentenceCase(item.nombre)}</p>
                                                                     {(budgetSettings.showIndividualPrices ?? true) && (
                                                                         <p className="text-[10px] text-muted-foreground uppercase font-medium">
                                                                             {formatCurrency(item.precioUnitario)}{esCategoriaGastronomica(item.categoria, item.calculationMethod) ? ' / PP' : ' c/u'}
@@ -1841,8 +1841,8 @@ function SimuladorContent() {
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (
                                                           <>
-                                                            <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
-                                                            <TableCell className="text-right pr-8">
+                                                            <TableCell className="text-center text-xs sm:text-sm font-black text-slate-400 px-2 sm:px-4 py-2 sm:py-3">{item.cantidad}</TableCell>
+                                                            <TableCell className="text-right px-2 sm:px-4 py-2 sm:py-3">
                                                                 {item.esRegalo ? (
                                                                     <div className="flex flex-col items-end">
                                                                         <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
@@ -1864,7 +1864,7 @@ function SimuladorContent() {
                                         {removedServiceDetails.length > 0 && (
                                             <>
                                                 <TableRow data-pdf-exclude="true" className="border-y border-red-200 bg-red-50 print:hidden">
-                                                    <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="py-2 pl-8 text-[10px] font-black uppercase tracking-widest text-red-700">
+                                                    <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="py-2 px-2 sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-700">
                                                         Servicios retirados
                                                     </TableCell>
                                                 </TableRow>
@@ -2362,14 +2362,14 @@ function SimuladorContent() {
                                                      </div>
                                                 )}
                                                 {imageUrl && (
-                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                  <div className="h-16 w-16 sm:h-20 sm:w-24 rounded-xl overflow-hidden border bg-white shrink-0">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2398,14 +2398,14 @@ function SimuladorContent() {
                                                      </div>
                                                 )}
                                                 {imageUrl && (
-                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                  <div className="h-16 w-16 sm:h-20 sm:w-24 rounded-xl overflow-hidden border bg-white shrink-0">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2435,14 +2435,14 @@ function SimuladorContent() {
                                                          </div>
                                                     )}
                                                     {imageUrl && (
-                                                      <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                      <div className="h-16 w-16 sm:h-20 sm:w-24 rounded-xl overflow-hidden border bg-white shrink-0">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                                         <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                       </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
-                                                        <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                        <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-900 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                     </div>
                                                 </label>
@@ -2487,7 +2487,7 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-6 transition-all duration-300 sm:p-8",
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-8",
                                             selectedPaqueteId === p.id ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
                                             p.recommended && selectedPaqueteId !== p.id && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
                                         )}>
@@ -2498,7 +2498,7 @@ function SimuladorContent() {
                                             )}
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1">
-                                                    <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
+                                                    <p className="font-black tracking-tight text-lg sm:text-xl text-slate-800 leading-none">{toSentenceCase(p.nombre)}</p>
                                                     <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Presupuesto Estimado</span></p>
                                                     <p className="text-[10px] font-bold text-slate-500">{formatCurrency(estimatedPricePerPerson)} por persona</p>
                                                 </div>
@@ -2525,7 +2525,7 @@ function SimuladorContent() {
                                                         </Button>
                                                     )}
                                                 </div>
-                                                <ul className="space-y-2 text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                <ul className="space-y-2 text-[10px] font-bold tracking-tight text-slate-600">
                                                     {visibleIncluded.map(({ serviceItem, service }) => (
                                                             <li key={serviceItem.id} className={cn(
                                                                 "flex items-center justify-between gap-3 rounded-md border px-3 py-2",
@@ -2537,7 +2537,7 @@ function SimuladorContent() {
                                                                     {serviceItem.esRegalo
                                                                         ? <Gift className="h-3.5 w-3.5 shrink-0"/>
                                                                         : <Check className="h-3.5 w-3.5 shrink-0 text-emerald-700"/>}
-                                                                    <span className="whitespace-normal">{service.nombre}</span>
+                                                                    <span className="whitespace-normal">{toSentenceCase(service.nombre)}</span>
                                                                 </div>
                                                                 {serviceItem.esRegalo && (
                                                                     <Badge className="h-5 shrink-0 border-none bg-emerald-700 px-2 text-[8px] font-black text-white">
@@ -2565,7 +2565,7 @@ function SimuladorContent() {
                         </div>
                     )}
                     {step === 5 && (
-                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left pb-28 lg:pb-12">
                             <div className="border-b border-slate-100 pb-5">
                                 <h2 className="text-3xl font-bold text-slate-900">Personalización de tu presupuesto</h2>
                                 <p className="mt-2 text-sm text-slate-500 font-semibold leading-relaxed">
@@ -2681,8 +2681,8 @@ function SimuladorContent() {
                                                             className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-white"
                                                         >
                                                             <div className="min-w-0 flex-1 text-left">
-                                                                <span className="block font-black text-slate-800 text-xs truncate">
-                                                                    {getNombreVisibleDeServicio(item)}
+                                                                <span className="block font-black text-slate-800 text-xs line-clamp-2">
+                                                                    {toSentenceCase(getNombreVisibleDeServicio(item))}
                                                                 </span>
                                                                 <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                                     <span className={item.esRegalo ? "text-emerald-600 font-black" : ""}>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
@@ -2793,7 +2793,7 @@ function SimuladorContent() {
                                                     <Button
                                                         type="button"
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
-                                                        className="h-12 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105 active:scale-95 shrink-0"
+                                                        className="min-h-[2.75rem] h-auto py-2.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs tracking-tight shadow-xl transition-all w-full sm:w-auto text-center"
                                                     >
                                                         ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
                                                     </Button>
@@ -2965,7 +2965,7 @@ function SimuladorContent() {
 
                 <CardFooter className="p-6 sm:p-10 border-t bg-slate-50 flex flex-col-reverse sm:flex-row justify-between items-center gap-6">
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
-                        <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
+                        <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md min-h-[2.75rem] h-auto py-2.5 px-6 font-bold text-slate-500 text-xs sm:text-sm">Anterior</Button>
                         {stats.ahorroRegalos > 0 && (
                             <span className="flex shrink-0 items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-800">
                                 🎁 ¡Ahorrás {formatCurrency(stats.ahorroRegalos)} en regalos incluidos!
@@ -2973,7 +2973,7 @@ function SimuladorContent() {
                         )}
                     </div>
                     <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
-                        <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md h-14 px-10 font-black text-base">
+                        <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md min-h-[3rem] h-auto py-3 px-6 sm:px-10 font-black text-sm sm:text-base tracking-normal text-center">
                             {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}
                             {step === 5 ? "Ver Resumen y Propuesta" : "Continuar"}
                             {step < 5 && <ArrowRight className="ml-3 w-5 h-5"/>}
@@ -3065,7 +3065,7 @@ function SimuladorContent() {
                     <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-3">
                         <Button
                             onClick={() => setIsFaqOpen(false)}
-                            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs uppercase tracking-wider h-11 px-6 shadow-md transition"
+                            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs tracking-normal min-h-[2.75rem] h-auto py-2.5 px-6 shadow-md transition"
                         >
                             ← Volver a mi Presupuesto
                         </Button>
@@ -3100,7 +3100,7 @@ function SimuladorContent() {
                                 return (
                                     <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
                                         <div className="min-w-0 flex-1 pr-2">
-                                            <span className="font-black text-white block text-xs truncate">{service.nombre}</span>
+                                            <span className="font-black text-white block text-xs break-words">{service.nombre}</span>
                                             <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
                                         </div>
                                         <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
@@ -3122,7 +3122,7 @@ function SimuladorContent() {
                                         description: "Se incluyeron todos los servicios adicionales del paquete superior.",
                                     });
                                 }}
-                                className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
+                                className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl transition transform hover:scale-105 text-center leading-snug"
                             >
                                 ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
                             </Button>
@@ -3130,7 +3130,7 @@ function SimuladorContent() {
                             <Button
                                 type="button"
                                 onClick={() => setIsUpgradePromptOpen(false)}
-                                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl"
+                                className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl text-center leading-snug"
                             >
                                 Ver Presupuesto Completo →
                             </Button>
@@ -3161,7 +3161,7 @@ function SimuladorContent() {
                                 variant="outline"
                                 onClick={handleDownloadBudgetPdf}
                                 disabled={isDownloadingPdf}
-                                className="h-11 px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white font-black text-xs gap-1.5 shadow-md"
+                                className="min-h-[2.75rem] h-auto py-2 px-3 sm:px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white font-black text-xs gap-1.5 shadow-md tracking-normal"
                             >
                                 {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
                                 <span>PDF</span>
@@ -3169,7 +3169,7 @@ function SimuladorContent() {
                             <Button
                                 size="sm"
                                 onClick={handleShareBudgetWhatsApp}
-                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg"
+                                className="min-h-[2.75rem] h-auto py-2 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg tracking-normal"
                             >
                                 <MessageSquare className="w-4 h-4" />
                                 <span>WhatsApp</span>
@@ -3191,7 +3191,7 @@ function SimuladorContent() {
                             size="sm"
                             onClick={() => handleNext()}
                             disabled={isGenerating}
-                            className="h-11 px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs gap-1.5 shadow-lg shrink-0"
+                            className="min-h-[2.75rem] h-auto py-2 px-4 sm:px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs gap-1.5 shadow-lg shrink-0 tracking-normal"
                         >
                             {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                             <span>Generar</span>

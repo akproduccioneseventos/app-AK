@@ -30,6 +30,9 @@ export type FuncionConCosto =
   | 'resumen-feedback'
   | 'sugerir-paleta'
   | 'extraccion-prospecto-whatsapp';
+  | 'trivia-ia'
+  | 'voz-cliente'
+  | 'asistente-dot-contador';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -61,6 +64,9 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'resumen-feedback': 1,
   'sugerir-paleta': 1,
   'extraccion-prospecto-whatsapp': 1,
+  'trivia-ia': 1,
+  'voz-cliente': 1,
+  'asistente-dot-contador': 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
