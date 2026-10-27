@@ -586,6 +586,14 @@
     "auditoria-717": {
       "fecha": "2026-10-27",
       "resultado": "Pregunta 104 (usar un dato real y no adivinar por texto): getDrinkTags clasifica por el nombre; con la carta nueva sale de soloMayores y la receta. Buscado en barra-tecnologica, tótem y portal: es el único clasificador por texto de la barra. Orden 242 bloque 5."
+    },
+    "orden-249": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 90 (control afuera, borrado después). Barrido de todos los borrados con control previo: facturas y presupuestos (plata; el presupuesto además se borraba con cobros adentro), proveedores, insumos, menús, activos y empleados (referencias huérfanas). Redondeos de plata: resumen del contador y rentabilidad de analytics. Todo en la orden 249."
+    },
+    "auditoria-726": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 90 (control afuera, borrado después). Barrido de todos los borrados con control previo: facturas y presupuestos (plata; el presupuesto además se borraba con cobros adentro), proveedores, insumos, menús, activos y empleados (referencias huérfanas). Redondeos de plata: resumen del contador y rentabilidad de analytics. Todo en la orden 249."
     }
   }
 }

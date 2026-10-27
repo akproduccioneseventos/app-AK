@@ -11,6 +11,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 
 ## Para Gemini
 - **Orden 247** (plata y permisos, propuesta aparte y primero): pantalla vieja que pisa cuotas, carga histórica que duplica, sesiones sin revocar, perfil roto que entra como dueño, enlaces que no se apagan, último dueño, casillas de módulos, finanzas, panel por perfil.
+- **Orden 249** (va en la MISMA propuesta que la 247): factura que se borra mientras se cobra, presupuesto con cobros que se borra, centavos del contador.
 - **Órdenes 242 a 246 y 248** (una sola propuesta): con o sin alcohol y menores, textos del simulador, blog que dice "corrió" sin publicar y su barrido, portada creíble y testimonios reales, sección de la app, Club Uruguay.
 - Orden 238 (voz del cliente en el portal) sigue pendiente.
 
@@ -18,4 +19,4 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 - Revisó el área Barra (717 y 719): sumado a 242 y 247. Numera órdenes que ya existen: que mire el último número antes.
 
 ## Errores de plata y permisos abiertos
-- Los de la orden 247 (encontrados 27/10), en la app publicada hasta que Gemini entregue.
+- Los de las órdenes 247 y 249 (encontrados 27/10), en la app publicada hasta que Gemini entregue.
