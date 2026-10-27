@@ -1,39 +1,36 @@
 # Estado actual - 27/10/2026
 
 Rama codex/697-auditoria-automatismos-20261026, PR1366 abierta/borrador.
-Solo evidencia/ordenes; app intacta, no merge/deploy ni documentacion sola.
-Claude/Gemini programan; Claude valida/compila/fusiona.
+Codex audita/prueba/documenta; Gemini/Claude programan; Claude valida/compila/fusiona.
+REGLA DUENO: Codex NUNCA fusiona. Cada actuacion enYA+evidencia, subir/verificar.
+No appedit/deploy ni documentacion fusionada sola.
 
-Main observado/probado c0add57f6237f666db97e7e902ef75f6c8d97479.
-Retest702:22criterios15PASS7FAIL0erroresQA; informe703/orden238 actualizados.
-F texto editado y G coherencia entre instancias CERRADOS por alcance probado.
-A ahora guarda/detecta fallo; C errores de acciones/restaurar tarjeta pasan.
+## Entrega nueva revisada
+PR1368 ABIERTA, fuente092906d666d73d3e895f8d3126e9f51bc18d72b1, base mainc0add57f.
+709:2suites16PASS;711:6suites52PASS;712:1suite3PASS. Total9suites71PASS.
+710:12criteriosPASS separados, callbackAST+accion con fronteras ficticias.
+239Codex AK-CODEX-704-DIALOGO-PROPUESTAS CORREGIDA EN RAMA por alcance.
+Datos nuevos llegan al generador y guardado; fallo save avisa/no anuncia exito.
+Voz238Gemini NO238Codex: tokencliente/noaccion/equipo/429/ciclo pasan.
+Componente espera setupComplete/transcribe/corta/libera/aborta pendiente/desmonta.
+Informe713: no modeloGoogle/audiohumano/HTTPnativo/SDK/editorcompleto ni E2Enativo.
+No build amplio propio;884suites/304paginas son declaracionGemini, no evidenciaCodex.
+PRnoactualizaYA/ESTADO: Claude incorporar registro con codigo antes de integrar.
+Descripcion atomicidad/guardado previo no demostrada: mezcla/genera/guarda despues.
+AgenteAristotle cerrado; sugerencia quitar tools es propuesta, no bypass probado.
+Todos los procesos propios terminaron; copiaQA709 aislada reutiliza dependencias.
 
-## Pendientes anteriores, en correccion
-Nuevo704: dialogo de3propuestas ignora nombre/fecha/salon nuevos (orden239/informe705).
-5criterios2PASS3FAIL,un defecto; consumidores iguales Claude0c355975. No appedit.
-No confundir238Codex con238Gemini-voz deClaude. Carver cerrado; sondas terminadas.
-A resolver fiesta/nombre sin respaldo Sofia fijo (C02 y respuestaW01).
-B sabado/menu/horario ficticios y trabajo anunciado sin accion (C03/C04).
-C ID de post inexistente aun responde aprobado (C06).
-D dos aprobaciones pierden una (C07).
-E email pasa a enviado sin envio (C08).
-H fallo remoto al guardar regla anuncia exito (R02).
-Contrastar nuevosHEAD/trabajo activo y retestear solo delta al corregirse.
+## Otros hallazgos sin delta en1368
+Mainc0:70222criterios15PASS7FAIL, seis grupos703/orden238Codex aun sin cambio.
+A fiesta/nombre fijo; B respuestas inventadas; C post inexistente; D concurrencia;
+E email enviado sin envio; H fallo remoto de reglas anuncia exito.
+F texto editado/G coherencia secuencial entre instancias CERRADOS por alcance.
+706-708 orden240:K1mariscos sin alerta;K2isCeliac sin enum omitido;F1temas inventados.
+11criterios7PASS4FAIL=TRESdefectos, no repetir mientras se corrigen.
+Feedback demostrado resultado servidor, no pantalla. K1/K2Claude;F1Gemini.
+Contrastar entrega nueva y retestear solo delta; privados NO CONTRASTADOS.
 
-## Nuevos706-708, orden240
-11criterios7PASS4FAIL: TRES defectos, no cuatro; app intacta.
-Claude: mariscos explicitos no generan choque; reporte omite isCeliac sin enum.
-Gemini: respaldo de feedback inventa temas repetidos cuando no analiza.
-Fuente mainc0; consumidores sin delta respecto Claude0c355975.
-Feedback demostrado en resultado de accion, NO en pantalla renderizada.
-No repetir238/239 mientras se corrigen. Cicero cerrado; procesos terminados.
-## Evidencia y limites
-702-697:7PASS6FAIL;702-698:5PASS1FAIL;702-699:3PASS.
-CuerposTS exactos porGit, acciones reales con fronteras en memoria.
-Callback real extraido porAST; no navegador renderizado/HTTPNext/SDK/modelo real.
-G no certifica escrituras simultaneas de reglas; F no demuestra entregaWhatsApp.
-No build nuevo/cuentas/datos/cargos/mensajes/hardware reales ni servicios persistentes.
-Cambios privados posteriores NO CONTRASTADOS. No declarar0errores/todosroles.
-CierresD4/5278/22 solo porfuente; no repetirlos para docs.
+## Limites
+No pruebas reales/cuentas/datos/cargos/mensajes/hardware. No afirmar0errores/todosroles.
+CierresD4/build5278/22 solo sufuente, no repetir por docs ni transferir a0929.
 Manualdueno no pendienteCodex. Automatizacion eliminada, no recrear.

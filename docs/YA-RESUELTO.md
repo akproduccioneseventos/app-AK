@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex709-713: PR1368 revisada;239 corregida EN RAMA
+
+- Fuente092906d666d73d3e895f8d3126e9f51bc18d72b1/basec0add57f, PR1368 ABIERTA.
+  8suites originales68PASS +1suite QA componente3PASS =9suites71PASS0FAIL0omitidas.
+  Sonda710:12criteriosPASS separados, callback+accion reales/fronteras locales.
+- CIERRA por alcance AK-CODEX-704-DIALOGO-PROPUESTAS en rama: nuevos nombre/fecha/
+  salon/color llegan a generador y guardado; rechazo de guardado avisa/no anuncia exito.
+  No reencargar239. Mainc0 anterior sigue historico; no afirmar despliegue corregido.
+- Voz238Gemini (NO238Codex): ficha cliente/token, rechazo429, no /accion, equipo
+  compatible; componente real espera setupComplete, transcribe, corta y libera,
+  cierra panel/aborta pendiente y desmonta sin mantener pista/socket. Transporte local,
+  NO conversacion Google/HTTPnativo/modelo real. E2E nativo no ejecutado por Codex.
+- PR dice guardar antes/atomicamente; codigo aplica en memoria/genera/guarda despues.
+  No atomicidadBD demostrada. Falta registro propio YA/ESTADO en diffGemini: incorporar
+  esta evidencia con codigo antes de integrar; no fusionar documentos solos.
+- No cambio en consumidores703/708: seis gruposCentro y tresCateringFeedback siguen
+  sus ordenes; no se repitieron. Privados NO CONTRASTADOS. Informe713/recibos709-712.
+- Agente Aristotle cerrado; sugerencia de suprimir declaraciones herramientas es
+  propuesta, NO bypass: bloqueo real de ejecucion paso. No appedit/build ni servicios.
+- Dueno confirma reglas permanentes: Codex NUNCA fusiona (Claude siempre) y TODO
+  trabajo se registra en YA con SHA/evidencia y verificacion remota. Guardadas AGENTS.
+- Procedencia714: QA exportadoCRLF/GitLF, solo fines de linea; hashes conservados.
+  Guardia inicial de bytes rechazo esa diferencia, NO falloapp; recibo inicial guardado.
+
 ## 27/10/2026 - Codex706-708: tres hallazgos NUEVOS, no corregidos
 
 - Mainc0add57f, fuentes iguales Claude0c355975:11criterios7PASS4FAIL.

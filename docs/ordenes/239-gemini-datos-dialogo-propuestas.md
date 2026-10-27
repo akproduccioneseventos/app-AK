@@ -9,6 +9,11 @@ NO CONTRASTADOS: comprobar nuevoHEAD antes de programar.
 
 ## Defecto unico
 
+Actualizacion27/10: correccion PRESENTE Y PROBADA EN RAMA1368, fuente092906d6.
+Sonda710:12criteriosPASS; suites709/711 y ciclo712 en informe713. No reencargar.
+No fusionada ni probada como despliegue; los limites de UI completa/modelo/BD siguen
+explicitos. Claude valida/compila/fusiona, Codex nunca fusiona.
+
 `handleCrearTresPropuestas` cambia nombre/fecha/salon solo en estado React y llama
 inmediatamente a `crearTresPropuestasDeWeb` con ID/color. La accion lee datos viejos.
 Autoguardado2000ms no garantiza que la generacion use lo que el dueno escribio.
@@ -34,5 +39,5 @@ Las rutas/simbolos existen en la fuente comprobada. El bloque no sustituye prueb
 ```comprobar
 archivo: src/app/actions/fiesta/armar-web-con-ia.actions.ts
 usa: crearTresPropuestasDeWeb en src/app/(app)/fiestas/nueva/pagina-web/page.tsx
-prueba: docs/evidencias/704-propuestas-datos-dialogo.cjs
+prueba: docs/evidencias/710-pr1368-propuestas-sonda.cjs
 ```

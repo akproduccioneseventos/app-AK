@@ -1,3 +1,19 @@
+## Regla permanente de fusion -27/10/2026
+
+- Confirmacion expresa del dueno: Codex NUNCA fusiona propuestas; siempre lo hace Claude.
+- Codex revisa, prueba y documenta. Dejar la propuesta y sus evidencias preparadas
+  no autoriza a fusionarla ni a publicar en produccion.
+- Esta regla prevalece sobre cualquier permiso anterior incompatible de fusion.
+
+## Registro compartido obligatorio -27/10/2026
+
+- Cada revision, prueba, hallazgo, descarte, correccion y cierre de Codex se registra
+  en docs/YA-RESUELTO.md, con SHA, resultado observado, limites y enlace a evidencia.
+- Mantener ESTADO-ACTUAL.md corto y actualizado para el traspaso de la tanda.
+- Subir el registro y comprobar su contenido remoto antes de darlo por entregado.
+- El documento compartido es para Claude y Gemini tambien; no afirmar que lo leyeron
+  ni comenzaron a trabajar sin evidencia. No alcanza con dejar notas solo en el chat.
+
 ## Excepcion puntual autorizada por el dueno -25/10/2026
 
 - Pedido directo: "revisa todo y reparalo con agentes economicos".

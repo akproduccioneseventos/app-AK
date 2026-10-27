@@ -1,0 +1,223 @@
+{
+  "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+  "method": "Exact callback AST and complete action; in-memory event store and controlled generator. No model, browser rendering, full autosave hook, SDK, HTTP or real data. Executes the immediate callback before its separate 2000ms autosave.",
+  "callbackLine": 182,
+  "sources": {
+    "src/app/(app)/fiestas/nueva/pagina-web/page.tsx": "1202343d75f4eb3f8852e260cba385190069907e81f479397be22723f07a292a",
+    "src/lib/invitacion-digital-defaults.ts": "fa9df96c97978a8e60493cb43c423539df12a073943827bd6690dbb73cf19e37",
+    "src/app/actions/fiesta/armar-web-con-ia.actions.ts": "afc91ec5e3ce4b95f4f6436677bc56388b30331eca94518bc95a74272c8a90af"
+  },
+  "actual": {
+    "local": {
+      "nombreHomenajeada": "QA nombre nuevo",
+      "fechaEvento": "2028-09-20",
+      "nombreSalon": "QA salon nuevo",
+      "colorPrincipal": "#445566"
+    },
+    "generatorInput": {
+      "fiesta": {
+        "id": "qa704",
+        "invitacionConfig": {
+          "nombreHomenajeada": "QA nombre nuevo",
+          "fechaEvento": "2028-09-20",
+          "nombreSalon": "QA salon nuevo",
+          "colorPrincipal": "#445566"
+        }
+      },
+      "colorBase": "#445566"
+    },
+    "stored": {
+      "id": "qa704",
+      "invitacionConfig": {
+        "nombreHomenajeada": "QA nombre nuevo",
+        "fechaEvento": "2028-09-20",
+        "nombreSalon": "QA salon nuevo",
+        "colorPrincipal": "#445566"
+      },
+      "propuestasDeWeb": [
+        {
+          "id": "qa-one"
+        },
+        {
+          "id": "qa-two"
+        },
+        {
+          "id": "qa-three"
+        }
+      ]
+    },
+    "trace": [
+      "local_state_only",
+      "permission",
+      "read_stored_event",
+      "generator_input",
+      "save_generated_proposals"
+    ],
+    "toasts": [
+      {
+        "title": "3 propuestas creadas",
+        "description": "Se generaron las 3 versiones con éxito. La quinceañera ya puede elegirlas desde su portal."
+      }
+    ]
+  },
+  "control": {
+    "local": {
+      "nombreHomenajeada": "QA nombre anterior",
+      "fechaEvento": "2027-01-10",
+      "nombreSalon": "QA salon anterior",
+      "colorPrincipal": "#112233"
+    },
+    "generatorInput": {
+      "fiesta": {
+        "id": "qa704",
+        "invitacionConfig": {
+          "nombreHomenajeada": "QA nombre anterior",
+          "fechaEvento": "2027-01-10",
+          "nombreSalon": "QA salon anterior",
+          "colorPrincipal": "#112233"
+        }
+      },
+      "colorBase": "#112233"
+    },
+    "stored": {
+      "id": "qa704",
+      "invitacionConfig": {
+        "nombreHomenajeada": "QA nombre anterior",
+        "fechaEvento": "2027-01-10",
+        "nombreSalon": "QA salon anterior",
+        "colorPrincipal": "#112233"
+      },
+      "propuestasDeWeb": [
+        {
+          "id": "qa-one"
+        },
+        {
+          "id": "qa-two"
+        },
+        {
+          "id": "qa-three"
+        }
+      ]
+    },
+    "trace": [
+      "local_state_only",
+      "permission",
+      "read_stored_event",
+      "generator_input",
+      "save_generated_proposals"
+    ],
+    "toasts": [
+      {
+        "title": "3 propuestas creadas",
+        "description": "Se generaron las 3 versiones con éxito. La quinceañera ya puede elegirlas desde su portal."
+      }
+    ]
+  },
+  "rejected": {
+    "local": {
+      "nombreHomenajeada": "QA nombre nuevo",
+      "fechaEvento": "2028-09-20",
+      "nombreSalon": "QA salon nuevo",
+      "colorPrincipal": "#445566"
+    },
+    "generatorInput": {
+      "fiesta": {
+        "id": "qa704",
+        "invitacionConfig": {
+          "nombreHomenajeada": "QA nombre nuevo",
+          "fechaEvento": "2028-09-20",
+          "nombreSalon": "QA salon nuevo",
+          "colorPrincipal": "#445566"
+        }
+      },
+      "colorBase": "#445566"
+    },
+    "stored": {
+      "id": "qa704",
+      "invitacionConfig": {
+        "nombreHomenajeada": "QA nombre anterior",
+        "fechaEvento": "2027-01-10",
+        "nombreSalon": "QA salon anterior",
+        "colorPrincipal": "#112233"
+      }
+    },
+    "trace": [
+      "local_state_only",
+      "permission",
+      "read_stored_event",
+      "generator_input",
+      "save_generated_proposals"
+    ],
+    "toasts": [
+      {
+        "title": "Error al generar propuestas",
+        "description": "QA rechazo de guardado",
+        "variant": "destructive"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "nombreHomenajeada",
+      "status": "PASS",
+      "expected": "QA nombre nuevo",
+      "observed": "QA nombre nuevo"
+    },
+    {
+      "id": "fechaEvento",
+      "status": "PASS",
+      "expected": "2028-09-20",
+      "observed": "2028-09-20"
+    },
+    {
+      "id": "nombreSalon",
+      "status": "PASS",
+      "expected": "QA salon nuevo",
+      "observed": "QA salon nuevo"
+    },
+    {
+      "id": "persisted_nombreHomenajeada",
+      "status": "PASS",
+      "expected": "QA nombre nuevo",
+      "observed": "QA nombre nuevo"
+    },
+    {
+      "id": "persisted_fechaEvento",
+      "status": "PASS",
+      "expected": "2028-09-20",
+      "observed": "2028-09-20"
+    },
+    {
+      "id": "persisted_nombreSalon",
+      "status": "PASS",
+      "expected": "QA salon nuevo",
+      "observed": "QA salon nuevo"
+    },
+    {
+      "id": "persisted_colorPrincipal",
+      "status": "PASS",
+      "expected": "#445566",
+      "observed": "#445566"
+    },
+    {
+      "id": "proposals_saved",
+      "status": "PASS"
+    },
+    {
+      "id": "color",
+      "status": "PASS"
+    },
+    {
+      "id": "unchanged_control",
+      "status": "PASS"
+    },
+    {
+      "id": "save_rejection_visible",
+      "status": "PASS"
+    },
+    {
+      "id": "save_rejection_not_success",
+      "status": "PASS"
+    }
+  ]
+}

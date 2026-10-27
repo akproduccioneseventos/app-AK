@@ -1,0 +1,101 @@
+{
+  "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+  "qa": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-709-dd1def6d",
+  "node": "v24.19.0",
+  "source": [
+    {
+      "file": "src/components/portal/AsistenteDelCliente.tsx",
+      "exact": false,
+      "sha256": "e524db56899b53b28c5a2dd5e43865c605ee9b7e2721a3e03e1bf48e1ab4c885"
+    },
+    {
+      "file": "src/lib/asistente/sesion-voz-en-vivo.ts",
+      "exact": false,
+      "sha256": "8d162cf591d2c1dd43707b95f93214f829cf1424f7d4e0b6c264f1210e1d9c81"
+    },
+    {
+      "file": "src/lib/asistente/voz-en-vivo.ts",
+      "exact": false,
+      "sha256": "fe795bd78767a97dd102c6bdba04b5e2423099c705ce44f822aa54889d7b9ad0"
+    },
+    {
+      "file": "src/app/api/asistente/voz-en-vivo/cliente/route.ts",
+      "exact": false,
+      "sha256": "7042b2802cbf808059d633fea825251c405aa63a30648b7cee72427be53ca9f3"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/pagina-web/page.tsx",
+      "exact": false,
+      "sha256": "1202343d75f4eb3f8852e260cba385190069907e81f479397be22723f07a292a"
+    },
+    {
+      "file": "src/app/actions/fiesta/armar-web-con-ia.actions.ts",
+      "exact": false,
+      "sha256": "afc91ec5e3ce4b95f4f6436677bc56388b30331eca94518bc95a74272c8a90af"
+    },
+    {
+      "file": "src/__tests__/la-voz-del-cliente-habla-de-verdad.test.ts",
+      "exact": false,
+      "sha256": "a088593ef92aa4eb757068093af4d4411f2e07ad421834ce5dbc5d784692b773"
+    },
+    {
+      "file": "src/__tests__/la-ia-arma-la-web-sin-inventar.test.ts",
+      "exact": false,
+      "sha256": "3182ce783b277148ff29b020dee6787f5429d09b51dba818d88a5b8f91073c60"
+    },
+    {
+      "file": "jest.config.js",
+      "exact": false,
+      "sha256": "4fef154f61e3e4ba1d2a72908112518b29b4e8e33fc7bc3f8b7c7c6582dbfb59"
+    },
+    {
+      "file": "jest.setup.js",
+      "exact": false,
+      "sha256": "46d6d71aad101feb7d6aa49daa228707cc32a027ce4fe49b01a3f3382712f46e"
+    },
+    {
+      "file": "package.json",
+      "exact": false,
+      "sha256": "df2d3a12226a92692ceb8396233510a0709063fa414d7ac4feeb3616e81f5d13"
+    },
+    {
+      "file": "tsconfig.json",
+      "exact": false,
+      "sha256": "e7cc647c79b887a802b32602a9d13b5b74ef6c61c104ec1a120900a0059bea19"
+    },
+    {
+      "file": "next.config.js",
+      "exact": false,
+      "sha256": "454fa7d69c5256d0550df54cca10dee3db99728facdb5da8f584268a5353ccc0"
+    }
+  ],
+  "extraTestExact": true,
+  "tests": [
+    {
+      "file": "709-pr1368-jest-resultados.json",
+      "suites": 2,
+      "pass": 16,
+      "fail": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "file": "711-pr1368-regresiones-voz-resultados.json",
+      "suites": 6,
+      "pass": 52,
+      "fail": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "file": "712-pr1368-portal-ciclo-resultados-inicial.json",
+      "suites": 1,
+      "pass": 3,
+      "fail": 0,
+      "pending": 0,
+      "success": true
+    }
+  ],
+  "dependencies": "Reused node_modules junction; not clean npm ci",
+  "scope": "Focused Jest, ReactDOM and AST/action probes only; no build/native browser/external provider acceptance"
+}
