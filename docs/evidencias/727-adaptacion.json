@@ -1,0 +1,17 @@
+{
+  "records": [
+    {
+      "original": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-725-contabilidad-c0c9c903\\src\\__tests__\\dos-cobros-a-la-vez-no-se-pisan.test.ts",
+      "target": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-725-contabilidad-c0c9c903\\src\\__tests__\\qa-727-dos-cobros-a-la-vez-no-se-pisan.test.ts",
+      "sha256": "946e537061175b33b40aefbd75c2bbc981dbd70ee89a4939a8b8245df3235930",
+      "assertionsUnchanged": 6
+    },
+    {
+      "original": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-725-contabilidad-c0c9c903\\src\\__tests__\\una-sena-de-contrato-es-una-por-presupuesto.test.ts",
+      "target": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-725-contabilidad-c0c9c903\\src\\__tests__\\qa-727-una-sena-de-contrato-es-una-por-presupuesto.test.ts",
+      "sha256": "f57ec39f26ddfc9e1b9ec10f5c8ba32d3790d50444630f79bc98cdbb099a2325",
+      "assertionsUnchanged": 11
+    }
+  ],
+  "limits": "SOLO diagnostico de fixtures; no sustituye recibo original725 ni es suite canonica sin cambios"
+}

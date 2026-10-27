@@ -1,0 +1,22 @@
+{
+  "started": "2026-10-27T21:08:28.741Z",
+  "finished": "2026-10-27T21:08:39.715Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalization": "CRLF->LF solamente"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalization": "CRLF->LF solamente"
+  },
+  "suites": [
+    "src/__tests__/qa-727-dos-cobros-a-la-vez-no-se-pisan.test.ts",
+    "src/__tests__/qa-727-una-sena-de-contrato-es-una-por-presupuesto.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "Jest focal con fronteras controladas; no SDK, HTTP nativo, proveedor ni cuentas reales; dependencias reutilizadas"
+}

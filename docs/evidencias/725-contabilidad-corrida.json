@@ -1,0 +1,45 @@
+{
+  "started": "2026-10-27T21:05:16.643Z",
+  "finished": "2026-10-27T21:05:49.140Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalization": "CRLF->LF solamente"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalization": "CRLF->LF solamente"
+  },
+  "suites": [
+    "src/__tests__/financial-guardrails.test.ts",
+    "src/__tests__/financial-integrity-report.test.ts",
+    "src/__tests__/financial-flow-consistency.test.ts",
+    "src/__tests__/payment-summary.test.ts",
+    "src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts",
+    "src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts",
+    "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+    "src/__tests__/invoice-payment-integrity.test.ts",
+    "src/__tests__/invoice-deletion-integrity.test.ts",
+    "src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts",
+    "src/__tests__/un-pago-a-proveedor-reintentado-no-se-duplica.test.ts",
+    "src/__tests__/un-reintento-no-duplica-plata.test.ts",
+    "src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts",
+    "src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts",
+    "src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts",
+    "src/__tests__/costos-precision-reporte.test.ts",
+    "src/__tests__/motor-de-costos-la-cuenta-real.test.ts",
+    "src/__tests__/ganancia-evento.test.ts",
+    "src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts",
+    "src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts",
+    "src/__tests__/el-resumen-del-contador-cuadra.test.ts",
+    "src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts",
+    "src/__tests__/ajuste-costos-recibo-atomico.test.ts",
+    "src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts",
+    "src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Jest focal con fronteras controladas; no SDK, HTTP nativo, proveedor ni cuentas reales; dependencias reutilizadas"
+}

@@ -1,0 +1,112 @@
+{
+  "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "observedAt": "2026-10-27",
+  "rows": [
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "blob": "fb6787325c88577570a804968f7acf84e623c28c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "head": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "head": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "blob": "fb6787325c88577570a804968f7acf84e623c28c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "head": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "head": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "head": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "blob": "fb6787325c88577570a804968f7acf84e623c28c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "head": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "head": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "head": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "blob": "fb6787325c88577570a804968f7acf84e623c28c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "head": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "74042dea4887be68a831ec00654744c8fea84f08",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "74042dea4887be68a831ec00654744c8fea84f08",
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "blob": "fb6787325c88577570a804968f7acf84e623c28c",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "74042dea4887be68a831ec00654744c8fea84f08",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    }
+  ],
+  "limits": "Igualdad de archivos centrales, no aceptacion de PR completa; privados posteriores NO CONTRASTADOS."
+}

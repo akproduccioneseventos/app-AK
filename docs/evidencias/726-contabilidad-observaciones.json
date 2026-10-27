@@ -1,0 +1,207 @@
+[
+  {
+    "caso": "entero-control",
+    "guardado": [
+      {
+        "concepto": "FICTICIO QA726",
+        "fecha": "2026-10-20",
+        "categoria": "Compra de Equipo",
+        "monto": 60,
+        "idempotencyKey": "qa726-entero-control-0",
+        "id": "gasto_llave_4de019a9c285cfdbe6ca163d817db55f"
+      }
+    ],
+    "reporte": {
+      "ingresos": {
+        "total": 0,
+        "detalle": []
+      },
+      "costos": {
+        "total": 60,
+        "detalle": [
+          {
+            "id": "gasto_llave_4de019a9c285cfdbe6ca163d817db55f",
+            "fecha": "2026-10-20",
+            "concepto": "FICTICIO QA726",
+            "categoria": "Compra de Equipo",
+            "monto": 60
+          }
+        ]
+      },
+      "gananciaNeta": -60,
+      "margen": 0
+    },
+    "csv": "\"Tipo\";\"Fecha\";\"Concepto\";\"Categoría\";\"Monto\"\n\"Gasto\";\"2026-10-20\";\"FICTICIO QA726\";\"Compra de Equipo\";-60",
+    "texto": "Hola, te pasamos el resumen de octubre de 2026.\n\nCobrado: $ 0 (0 cobros)\nGastado: $ 60 (1 gastos)\nResultado: $ -60\n\nVa adjunto el detalle renglón por renglón. Cualquier duda, avisanos.",
+    "sumaCSV": -60
+  },
+  {
+    "caso": "un-gasto-centavos",
+    "guardado": [
+      {
+        "concepto": "FICTICIO QA726",
+        "fecha": "2026-10-20",
+        "categoria": "Compra de Equipo",
+        "monto": 60.3,
+        "idempotencyKey": "qa726-un-gasto-centavos-0",
+        "id": "gasto_llave_570dc4811ba12339fec20e8f77460c26"
+      }
+    ],
+    "reporte": {
+      "ingresos": {
+        "total": 0,
+        "detalle": []
+      },
+      "costos": {
+        "total": 60.3,
+        "detalle": [
+          {
+            "id": "gasto_llave_570dc4811ba12339fec20e8f77460c26",
+            "fecha": "2026-10-20",
+            "concepto": "FICTICIO QA726",
+            "categoria": "Compra de Equipo",
+            "monto": 60.3
+          }
+        ]
+      },
+      "gananciaNeta": -60.3,
+      "margen": 0
+    },
+    "csv": "\"Tipo\";\"Fecha\";\"Concepto\";\"Categoría\";\"Monto\"\n\"Gasto\";\"2026-10-20\";\"FICTICIO QA726\";\"Compra de Equipo\";-60",
+    "texto": "Hola, te pasamos el resumen de octubre de 2026.\n\nCobrado: $ 0 (0 cobros)\nGastado: $ 60 (1 gastos)\nResultado: $ -60\n\nVa adjunto el detalle renglón por renglón. Cualquier duda, avisanos.",
+    "sumaCSV": -60
+  },
+  {
+    "caso": "dos-gastos-centavos",
+    "guardado": [
+      {
+        "concepto": "FICTICIO QA726",
+        "fecha": "2026-10-20",
+        "categoria": "Compra de Equipo",
+        "monto": 60.3,
+        "idempotencyKey": "qa726-dos-gastos-centavos-0",
+        "id": "gasto_llave_54550c0eafdbd2cf421f34681cf5136f"
+      },
+      {
+        "concepto": "FICTICIO QA726",
+        "fecha": "2026-10-20",
+        "categoria": "Compra de Equipo",
+        "monto": 60.3,
+        "idempotencyKey": "qa726-dos-gastos-centavos-1",
+        "id": "gasto_llave_b9b468ec65e3eed6a09514773f9c52dc"
+      }
+    ],
+    "reporte": {
+      "ingresos": {
+        "total": 0,
+        "detalle": []
+      },
+      "costos": {
+        "total": 120.6,
+        "detalle": [
+          {
+            "id": "gasto_llave_54550c0eafdbd2cf421f34681cf5136f",
+            "fecha": "2026-10-20",
+            "concepto": "FICTICIO QA726",
+            "categoria": "Compra de Equipo",
+            "monto": 60.3
+          },
+          {
+            "id": "gasto_llave_b9b468ec65e3eed6a09514773f9c52dc",
+            "fecha": "2026-10-20",
+            "concepto": "FICTICIO QA726",
+            "categoria": "Compra de Equipo",
+            "monto": 60.3
+          }
+        ]
+      },
+      "gananciaNeta": -120.6,
+      "margen": 0
+    },
+    "csv": "\"Tipo\";\"Fecha\";\"Concepto\";\"Categoría\";\"Monto\"\n\"Gasto\";\"2026-10-20\";\"FICTICIO QA726\";\"Compra de Equipo\";-60\n\"Gasto\";\"2026-10-20\";\"FICTICIO QA726\";\"Compra de Equipo\";-60",
+    "texto": "Hola, te pasamos el resumen de octubre de 2026.\n\nCobrado: $ 0 (0 cobros)\nGastado: $ 121 (2 gastos)\nResultado: $ -121\n\nVa adjunto el detalle renglón por renglón. Cualquier duda, avisanos.",
+    "sumaCSV": -120
+  },
+  {
+    "caso": "borrado-con-cobro-intercalado",
+    "pago": {
+      "success": true,
+      "invoice": {
+        "id": "qa726-factura",
+        "invoiceNumber": "QA726-1",
+        "customer": {
+          "id": "qa726-cliente",
+          "name": "FICTICIO QA"
+        },
+        "issueDate": "2026-10-20",
+        "dueDate": "2026-10-30",
+        "items": [
+          {
+            "id": "i1",
+            "description": "Servicio ficticio",
+            "quantity": 1,
+            "unitPrice": 1000,
+            "total": 1000
+          }
+        ],
+        "subtotal": 1000,
+        "taxRate": 0,
+        "taxAmount": 0,
+        "totalAmount": 1000,
+        "currency": "UYU",
+        "status": "Paid",
+        "payments": [
+          {
+            "id": "pay_qa726-factura_1793135230802_2qxkc",
+            "paymentDate": "2026-10-21",
+            "amount": 1000,
+            "method": "Efectivo",
+            "operacionId": "qa726-cobro"
+          }
+        ],
+        "vendorName": "FICTICIO QA"
+      }
+    },
+    "trasCobro": [
+      {
+        "id": "qa726-factura",
+        "invoiceNumber": "QA726-1",
+        "customer": {
+          "id": "qa726-cliente",
+          "name": "FICTICIO QA"
+        },
+        "issueDate": "2026-10-20",
+        "dueDate": "2026-10-30",
+        "items": [
+          {
+            "id": "i1",
+            "description": "Servicio ficticio",
+            "quantity": 1,
+            "unitPrice": 1000,
+            "total": 1000
+          }
+        ],
+        "subtotal": 1000,
+        "taxRate": 0,
+        "taxAmount": 0,
+        "totalAmount": 1000,
+        "currency": "UYU",
+        "status": "Paid",
+        "payments": [
+          {
+            "id": "pay_qa726-factura_1793135230802_2qxkc",
+            "paymentDate": "2026-10-21",
+            "amount": 1000,
+            "method": "Efectivo",
+            "operacionId": "qa726-cobro"
+          }
+        ],
+        "vendorName": "FICTICIO QA"
+      }
+    ],
+    "eliminado": {
+      "success": true
+    },
+    "final": []
+  }
+]

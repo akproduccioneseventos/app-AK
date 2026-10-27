@@ -1,0 +1,87 @@
+{
+  "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "entries": [
+    {
+      "original": "725-contabilidad-originales.json",
+      "archivo": "725-contabilidad-originales.json.gz",
+      "bytes": 81779,
+      "sha256": "2f7fe07f0693453341a0ab809a6bea98ae2e11eac5f2b0bb5c719649928fc75d",
+      "gzipSha256": "ba6b5a5810f1e7560567da6db2e1a20eb08fe37be3758c9de9cd13855324b3c9"
+    },
+    {
+      "original": "725-contabilidad-originales.log",
+      "archivo": "725-contabilidad-originales.log.gz",
+      "bytes": 18100,
+      "sha256": "21054932bf41947ea0f5d91854ac29afc1d1b02c5995cc87ed70e048d52d055b",
+      "gzipSha256": "b67a34056a3da6a8b941751be03a7d4f6c75cd395cd776fe72ff85ec31c94805"
+    },
+    {
+      "original": "726-contabilidad-originales.json",
+      "archivo": "726-contabilidad-originales.json.gz",
+      "bytes": 10513,
+      "sha256": "bd92aa1939522db70a173ebbfcaa0b47048dbf453bf46f2efd256ca197acb532",
+      "gzipSha256": "e56e267c866c60f1cf7b4a93a6aaa4bbe9497844f401714f1534b0d51576daf5"
+    },
+    {
+      "original": "726-contabilidad-originales.log",
+      "archivo": "726-contabilidad-originales.log.gz",
+      "bytes": 4297,
+      "sha256": "aa70fa1e03085a6b7438007ee3527679831372397adc34c7ab44e70d8d060d0c",
+      "gzipSha256": "a661fb9345f10ce60e9b548e074b3f0f0092a84ad6927071d55cc14a2ca3a57e"
+    },
+    {
+      "original": "727-contabilidad-originales.json",
+      "archivo": "727-contabilidad-originales.json.gz",
+      "bytes": 3325,
+      "sha256": "ff7311e7427bc2ef8cf26cd04c3addc7cb4f8024a425626f89cf9f4348bc5eb9",
+      "gzipSha256": "8cafc850205f295001816380793f97fe51d7e40b3a841e31247cac2a347bc245"
+    },
+    {
+      "original": "727-contabilidad-originales.log",
+      "archivo": "727-contabilidad-originales.log.gz",
+      "bytes": 378,
+      "sha256": "ea2aa625941ddb2550ef586459c6be63456b1caa8f1cf2e2abb159903d668bc1",
+      "gzipSha256": "29fb0221bb1466abbe92063ab0fea303ada1be596b30407af15d93d331b6fe6b"
+    },
+    {
+      "original": "source-manifest.json",
+      "archivo": "725-fuente-manifiesto.json.gz",
+      "bytes": 262675,
+      "sha256": "c815e775986ecf25023a3e24fc54c740df8357a9f0251233c4e0f077fbbb82bb",
+      "gzipSha256": "5928d7fdbcbac6b9cf6d7592e0fcc1bbe9f3bbff468927d773f1d2742864642a"
+    },
+    {
+      "original": "snapshot-delta.json",
+      "archivo": "725-preparacion-delta.json.gz",
+      "bytes": 6589,
+      "sha256": "3c1671ef629e7f1a17c2ddd42377a57f26e967cc55849886b0b51396af6ac94e",
+      "gzipSha256": "1aaf5972d2778e3f57c3004ca78ccd6e99c7a1473bedb729672fe31e24500615"
+    },
+    {
+      "original": "snapshot-verificado.json",
+      "archivo": "725-preparacion-antes-lf-final.json.gz",
+      "bytes": 224,
+      "sha256": "93e3cfd7f9bc307d510c071863b34f588352c40496db023f19e3e768d349c411",
+      "gzipSha256": "dd54e59aad4bdbe1289e4d3b9750f1e2dabba2b69b018d75cea462113dd7c5b5"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "file": "725-contabilidad-ejecutor.cjs",
+      "sha256": "ef0818e5837bc4650a981e67c9fc836d004a02ef39c1fb50e1115158af7371d7"
+    },
+    {
+      "file": "725-sin-egreso.cjs",
+      "sha256": "782416dec8e6f582b8b4b0f33f9aaa535ff1b3de7eb05f1ad377bd063496304b"
+    },
+    {
+      "file": "726-contabilidad-nuevas-sondas.test.ts",
+      "sha256": "b9d79fc820cb8f8944f653a769bedad2fd7ab1697204e7e750484d11925e1ca7"
+    },
+    {
+      "file": "727-adaptar-solo-doble-de-lectura.cjs",
+      "sha256": "6fe7e4128fc505e60a011e910ba11e594bd2d3c32a40a6cb79b217f28138ce92"
+    }
+  ],
+  "limits": "Compresion reversible; recibos iniciales conservados, no se suman adaptadas a canonicas."
+}

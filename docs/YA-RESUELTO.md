@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex725-728: contabilidad, DOS causas nuevas/orden249Claude
+
+- Main0abe9199ddb7281a945fd0f000a1a89f25b8fa8e; QA nueva aislada,2510archivos
+  src/config/lock contrastados con blobs remotos antes/despues. No appedit/build/merge.
+- 725:25suites142tests137PASS5FAIL0omitidas. Los5fallos son fixtures sin
+  readDataConDetalle en DOSsuites, NO cinco errores de dinero.727solo agrega ese
+  export a las copias,17aserciones intactas:5PASS. NO convertir725en canonica verde.
+- 726:6casos3PASS3FAIL=DOScausas: C1P1 AK-CODEX-726-FACTURA-BORRADO-COBRO-INTERCALADO,
+  dos instancias reales: A pasa guarda sinpagos; B cobra1000/Paid/success; A borra
+  fisicamente/success y no queda comprobante. BD/sesion dobles; NO perdida realdemostrada.
+- C2P2 AK-CODEX-726-CONTADOR-CSV-PIERDE-CENTAVOS: gasto60.30 guardado/reporte60.30,
+  CSV-60; dos60.30 reporte120.60/CSV-120/texto121. Entero60controlPASS. No cambiar
+  politica de ingresos/cuotas ni roundMoneyglobal: costo tiene centavos aceptados.
+- Invoices/resumencontador/reportes identicos enmain0abe,PR1368/1344/1337/1329 y
+  Claude74042dea publicado. Privados NO CONTRASTADOS; contraste725conblobs. Orden247
+  ya cubre pantallasviejas/historicos/sesiones/cobradoesperado: NO reencargarla.
+- 249asigna C1/C2/fixtures aClaude; NOcorregidos. Informe728, recibos725/726/727;
+  AREA CON HALLAZGOS, no limpia/0errores. Nuevaspruebas de correccionPENDIENTES.
+  SinSDK/HTTPnativo/navegador/proveedor/cuentas/cargos/envios reales; red bloqueada.
+  Dependencias reutilizadas, no npmci. AyudanteAverroes cerrado, ningunservicio iniciado.
+
 ## 27/10/2026 - Codex724: recorridoClub y salones propuesto/orden244
 
 - Aclaracion DIRECTA: web del salon para prospecto + portal con salon elegido y
