@@ -436,6 +436,10 @@
     "109": {
       "fecha": "2026-10-27",
       "resultado": "barrida en exportes, resúmenes, textos y avisos de plata: resumen del contador (gastos sin centavos) y rentabilidad de analytics (redondeo por partes). Lo demás con pesos enteros son ventas o facturado, decisión del dueño. Va en la orden 249."
+    },
+    "110": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
     }
   },
   "hallazgos": {
@@ -606,6 +610,18 @@
     "orden-250": {
       "fecha": "2026-10-27",
       "resultado": "Pregunta 92 (IA que se paga y no pasa por el tope ni avisa): al preparar la orden se vio que generarVisualizacionSalonAi y generarVisualizacionSalonReunion generan imágenes sin hayPresupuestoParaIA ni registrarConsumoIA. Buscado generateGeminiImage en src/: espejo mágico y salón IA sí lo cuentan; las dos de decoración no. Va en la orden 250, bloque 2."
+    },
+    "orden-251": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
+    },
+    "auditoria-732": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
+    },
+    "auditoria-737": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 4 (lo que dice la pantalla existe en el código): buscadas las preguntas frecuentes, el contrato y los textos del portal sobre ajuste, seña y cancelación; la única que no coincide con la cuenta es la del ajuste. Orden 251, bloque 3."
     }
   }
 }

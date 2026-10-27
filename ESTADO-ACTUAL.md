@@ -11,6 +11,8 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 
 ## Para Gemini
 - **Orden 247** (plata y permisos, propuesta aparte y primero): pantalla vieja que pisa cuotas, carga histórica que duplica, sesiones sin revocar, perfil roto que entra como dueño, enlaces que no se apagan, último dueño, casillas de módulos, finanzas, panel por perfil.
+- **Orden 251** (MISMA propuesta que la 247): un solo número de plata en todas las pantallas (comisión, mes de pagos, seña sin presupuesto, saldo) y la pregunta frecuente del ajuste.
+- **Orden 250** (propuesta aparte): foto realista del salón desde el 3D, y la IA de decoración pasa por el tope de gasto.
 - **Orden 249** (va en la MISMA propuesta que la 247): factura que se borra mientras se cobra, presupuesto con cobros que se borra, centavos del contador.
 - **Órdenes 242 a 246 y 248** (una sola propuesta): con o sin alcohol y menores, textos del simulador, blog que dice "corrió" sin publicar y su barrido, portada creíble y testimonios reales, sección de la app, Club Uruguay.
 - Orden 238 (voz del cliente en el portal) sigue pendiente.
@@ -18,5 +20,8 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 ## Codex
 - Revisó el área Barra (717 y 719): sumado a 242 y 247. Numera órdenes que ya existen: que mire el último número antes.
 
+## Para el dueño (abogado)
+- Revisión legal del contrato que dejó Codex (retracto en venta a distancia y Ley 20.531 desde 1/1/2027, cláusulas de penalidad, imagen de invitados, firma, comprobantes fiscales): `docs/evidencias/738-legal-contratos-dictamen.md` en la rama de Codex. No se cambia nada sin abogado.
+
 ## Errores de plata y permisos abiertos
-- Los de las órdenes 247 y 249 (encontrados 27/10), en la app publicada hasta que Gemini entregue.
+- Los de las órdenes 247, 249 y 251 (encontrados 27/10), en la app publicada hasta que Gemini entregue.

@@ -1507,3 +1507,11 @@ misma transacción, y lo que se cobra comprueba que lo cobrado siga existiendo.
 Codex 726 (27/10/2026). El resumen para el contador redondeaba los gastos a pesos enteros: el archivo, el texto y el
 reporte decían tres números distintos. Las ventas y cuotas en pesos enteros son decisión del dueño; los gastos, costos
 y resultados no. Se compara cada salida con el reporte, y la suma de las filas con el total.
+
+### 110. Un mismo número de plata (cobrado, vendido, ganancia, costo, saldo) que aparece en dos pantallas, ¿sale de la misma cuenta, con los mismos movimientos y el mismo filtro de fechas?
+
+Codex 732 y barrido propio (27/10/2026). La comisión de Mercado Pago se descontaba en la ficha de la fiesta y no en el
+reporte; los pagos a proveedores caían por la fecha del evento; una seña sin presupuesto estaba en el libro y no en el
+reporte; "lo que me deben" daba un número en el panel y otro en el asistente; "ingresos" eran cinco cosas. Se listan las
+funciones que calculan cada número y se compara qué incluye cada una y por qué fecha filtra. Lo que es distinto a
+propósito lleva otro nombre en pantalla.

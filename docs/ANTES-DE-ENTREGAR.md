@@ -246,3 +246,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 78. **¿Pusiste un "si no es válido, usá esto otro"?** Que lo roto dé menos permisos, nunca más.
 79. **¿Borrás algo que antes revisaste?** La revisión y el borrado van juntos, en el mismo momento.
 80. **¿Sacás un monto para afuera (archivo, texto, aviso)?** Que tenga los mismos centavos que el reporte.
+81. **¿Mostrás un número de plata?** Sacalo de la misma función que lo muestra en otra pantalla, no lo calcules de nuevo.
