@@ -76,3 +76,52 @@ usa: Última nota publicada en src/app/(app)/settings/contenido-publico/page.tsx
 usa: generate-blog-post en src/app/api/cron-despachador/route.ts
 prueba: src/__tests__/el-blog-no-dice-que-publico-sin-publicar.test.ts
 ```
+
+## Bloque 4 — la misma falla en el resto de la app (barrido del 27/10/2026)
+
+Se buscó la misma forma en toda la app ("falló y dice que salió") y estos casos están confirmados en `origin/main`:
+
+1. **`src/lib/automatico/al-entrar-a-la-app.ts`.** Hoy sólo `metricas` y `recordatorios` pasan por `todasSalieron`
+   (~104-117). Todas las tareas tienen que pasar por un mismo control: un resultado con `success === false`,
+   `ok === false`, `corrio === false` o con un campo `error`/`errores`/`reservasFallidas` no vacío **es una falla**,
+   no una corrida. Eso arregla el blog (~171) y los recordatorios a invitados (`recordatorio_invitados` y
+   `recordar_invitacion`, ~220-231): hoy, si fallan, el invitado se queda sin recordatorio un día entero.
+2. **`src/app/actions/tareas-automaticas.actions.ts`**, el botón "Ejecutar" del panel de tareas:
+   - **`recordatorios-de-pago` (~123-126)** sólo marca la corrida y no revisa nada. Tiene que llamar a lo mismo que
+     corre la tarea automática (el escaneo de cuotas vencidas que deja los avisos en la bandeja, sin mandar nada).
+     Buscá cuál es en `al-entrar-a-la-app.ts`, en la tarea `recordatorios`.
+   - **Blog (~61-62 y ~104-105)** y **métricas (~69-70 y ~110-111):** que miren el resultado igual que en el punto 1.
+     Nada de `.catch(() => null)` antes de `marcarCorrida`.
+3. **Las rutas del despertador:** `src/app/api/cron/generate-blog-post/route.ts` (~22-31) y
+   `src/app/api/cron/metricas-de-redes/route.ts` (~44-98). Con falla, **no** llaman a `marcarCorrida` y responden
+   `ok: false`.
+4. **Lectura de comprobantes:** `src/ai/flows/extract-receipt-data.ts` (~52-62), `src/components/receipt-processor.tsx`
+   (~126) y `src/app/(app)/empresa/contabilidad/gastos/page.tsx` (~143-153). Si la IA no pudo leer
+   (`confidence: 'baja'` del respaldo):
+   - el cartel es amarillo y dice "No se pudo leer el comprobante. Completá los datos a mano.", no "¡Extracción
+     Exitosa!";
+   - no se rellena el proveedor ni la fecha de hoy como si fueran leídos.
+5. **Testimonio de respaldo:** `src/ai/flows/generate-testimonial-flow.ts` (~35, 66, 68) y
+   `src/app/(app)/settings/feedback/page.tsx` (~103-120). Sin IA, **no se crea un testimonio inventado** a nombre del
+   cliente. Se avisa "No se pudo armar el testimonio con IA; probá más tarde".
+6. **Web del evento:** `src/ai/flows/armar-web-del-evento-flow.ts` (~249-281) y `centro-de-control.ts` (~399-430).
+   - Si la IA falló y se usó la web base, la respuesta lo dice: "Armé una versión base sin IA; revisala".
+   - No se registra consumo de IA que no hubo.
+   - El centro de control no dice "Quedó impecable".
+
+**Prueba extra** en `src/__tests__/el-blog-no-dice-que-publico-sin-publicar.test.ts`, que tiene que comprobar:
+
+- una tarea de invitados que devuelve `{ ok: false }` queda como falla;
+- el botón de `recordatorios-de-pago` ejecuta el escaneo (con una espía que lo compruebe);
+- el comprobante sin IA no muestra "Extracción Exitosa".
+
+```comprobar
+# Bloque 4
+usa: todasSalieron en src/app/actions/tareas-automaticas.actions.ts
+no-usa: catch(() => null) en src/app/actions/tareas-automaticas.actions.ts
+usa: ok: false en src/app/api/cron/generate-blog-post/route.ts
+usa: ok: false en src/app/api/cron/metricas-de-redes/route.ts
+usa: confidence en src/components/receipt-processor.tsx
+usa: No se pudo armar el testimonio en src/app/(app)/settings/feedback/page.tsx
+usa: versión base sin IA en src/ai/flows/armar-web-del-evento-flow.ts
+```
