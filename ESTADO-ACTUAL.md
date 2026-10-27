@@ -14,6 +14,9 @@ A ahora guarda/detecta fallo; C errores de acciones/restaurar tarjeta pasan.
 NO reprogramar esas partes aceptadas.
 
 ## Seis grupos pendientes
+Nuevo704: dialogo de3propuestas ignora nombre/fecha/salon nuevos (orden239/informe705).
+5criterios2PASS3FAIL,un defecto; consumidores iguales Claude0c355975. No appedit.
+No confundir238Codex con238Gemini-voz deClaude. Carver cerrado; sondas terminadas.
 A resolver fiesta/nombre sin respaldo Sofia fijo (C02 y respuestaW01).
 B sabado/menu/horario ficticios y trabajo anunciado sin accion (C03/C04).
 C ID de post inexistente aun responde aprobado (C06).

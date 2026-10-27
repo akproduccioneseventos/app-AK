@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
+
+- AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.
+  Tres valores nuevos (nombre/fecha/salon) quedan locales y el generador lee viejos;
+  color y control original pasan. Un defecto,5criterios2PASS3FAIL. Orden239/informe705.
+- Callback y accion reales con fronteras ficticias, no navegador/SDK/modelo real.
+  No appedit ni repetir seis pendientes703. Agente barato cerrado; ausencia de
+  simbolo sugerida por su busqueda fue descartada por la extraccion/ejecucion real.
+
 ## 27/10/2026 - Retest702/703: correcciones presentes y pendientes separados
 
 - Mainc0add57f6237f666db97e7e902ef75f6c8d97479:22criterios15PASS7FAIL,
