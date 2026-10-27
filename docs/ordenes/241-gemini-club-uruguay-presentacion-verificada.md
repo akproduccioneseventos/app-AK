@@ -48,6 +48,10 @@ fotocabina,360,espejo, sin esconderlos en Ver mas en la venta general.
 
 ## 3. Procedencia de fotos y portada estable
 
+Ampliacion posterior del dueno: recorrido360 y transformacion de ambientacion van
+en244, con original/simulacion separados. No reemplazan fotos veraces ni autorizan
+inventar arquitectura. No reconstruir todo241 para sumar esa experiencia.
+
 Usar esquema publico minimo compatible con maestro actual, con identidad exacta
 de salon vinculada a su id existente y activos aprobados (origen, titulo, espacio
 si confirmado, hero explicito). No renombrar ids/relaciones aclub-uruguay-salto.

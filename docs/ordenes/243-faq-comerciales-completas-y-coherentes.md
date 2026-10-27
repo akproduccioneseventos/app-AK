@@ -25,13 +25,36 @@ fuente aprobada para condiciones; no otro CMS, coleccion, IA de respuestas o pan
 src/components/public/FAQSection.tsx sirve otras landings: no reemplazarlo globalmente
 sin revisar sus consumidores, ni aplicar a todas las fiestas la misma respuesta.
 
-## Propuesta comercial:22preguntas cortas, no relleno
+## Separacion obligatoria por audiencia - aclaracion del dueno
 
-Cuatro grupos: Antes de reservar / Espacio y servicios / Organizacion y pagos /
-Tecnologia y privacidad. Inicialmente8prioritarias cerradas en acordeon, comando
-Ver todas las preguntas muestra las restantes en la misma seccion. Sin muro de
-22respuestas abiertas, paginas nuevas innecesarias, carrusel automatico ni otrochat.
-Estos borradores deben validarse contra catalogo/configuracion/contrato actuales:
+Los22temas siguientes son un BANCO de contenido, NO22preguntas legales en lahome.
+Esta aclaracion sustituye la propuesta anterior de una sola lista22comerciales.
+
+- PROSPECTO, web/landings: decidir siAK resuelve su fiesta, servicios, otros salones,
+  organizacion integral, presupuesto, visita, reserva y entretenimiento. Propuesta
+  de14comerciales:1,2,3,5,6,7,8,9,10,11,12,13resumida,18,19. Las1/2/3 van primero.
+  Ocho iniciales y resto desplegable sigue PROPUESTA de interfaz, no cambio ejecutado.
+- CLIENTE CONTRATADO, portal: sus servicios, lista/invitados, menus/restricciones,
+  musica/DJ, fotos/videodevida, decoracion, cronograma/reuniones, enlaces/QR,
+  pagos/recibos propios y consultas al equipo. Respuestas segun modulos contratados
+  y habilitados, no prometer funciones que ese cliente no tiene.
+- CONDICIONES: fuente contractual y propuesta aplicable. El detalle de plazos,
+  penalidades, responsabilidad, cancelacion y autorizaciones pertenece a contrato/
+  documentos de contratacion y ayuda contextual, no un muro legal en lahome.
+  Las condiciones importantes (precio, inclusiones, sena, pagos, ajustes, cambios,
+  cancelacion y uso de imagen) deben poder conocerse ANTES de firmar/pagar; no
+  esconderlas hasta despues de contratar ni disfrazarlas de marketing.
+- TECNICA INTERNA: montaje, proveedores, cableado, insumos, costos, permisos y
+  notas del equipo NO van aFAQpublica ni al portal delcliente. Si una exigencia
+  tecnica afecta al lugar elegido, costo o compromiso delcliente, acordarla antes
+  por escrito en su propuesta/documentos. No ocultar un costo bajo pretexto tecnico.
+
+Usar recorridos existentes: no crear por suposicion /terminos u otra ruta ni volver
+publico un contrato firmado. La app tiene /privacidad y portal privado de contrato;
+verificar como se ofrece informacion precontractual en el flujo real antes de enlazar.
+Mantener separacion de datos/roles: ni metadatosSEO ni FAQJsonLd llevan nombres,
+telefonos, saldos, contratos privados o notas operativas. Evitar respuestas duplicadas
+con reglas distintas. Estos borradores se asignan al contexto que corresponde:
 
 1. ¿Cuentan con todos los servicios para mi fiesta?
    Sí. Contamos con los servicios para organizar tu fiesta de forma
@@ -109,7 +132,7 @@ Las respuestas1/2/3 se apoyan en confirmación DIRECTA del dueño en este chat,
 invitados. Son las tres primeras, no esconderlas en el final ni detrás de Ver más.
 No diluirlas en frases genéricas. Preservar el límite: servicios CONTRATADOS, no
 todo incluido por defecto; otro salón no implica transporte ilimitado o sin costo.
-Prioritarias sugeridas:1,2,3,5,8,10,12,13. Mantener el resto disponible sin salir.
+Prioritarias comerciales sugeridas:1,2,3,5,8,10,12,13resumida. El resto en su contexto.
 Las preguntas contractuales son BORRADORES de integración, no nueva política.
 Las24contractuales existentes tambien atienden duracion/horasextra/proveedores
 externos/sobrantes/cuidado de menores/AGADU. Conservarlas accesibles en el portal;

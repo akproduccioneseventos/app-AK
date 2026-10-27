@@ -31,10 +31,12 @@ Faltan respuestas de decision: que incluye el total, vigencia/promos, comparar
 opciones, disponibilidad vs reserva, pagos/ajuste sin contradicciones, eleccion de
 salon, visita, cambios, menus especiales, tecnologia opcional y privacidad de fotos.
 
-Propuesta243:22preguntas comerciales cortas agrupadas,8prioritarias inicialmente,
-resto desplegable sin salir de home. No22tarjetas abiertas ni otra pagina/panel.
-El portal reutiliza respuestas contractuales aprobadas y conserva preguntas
-operativas propias; no copiar todo el contrato al primer contacto comercial.
+ACLARACION POSTERIOR DEL DUENO: separar prospecto/cliente/contrato/tecnica interna.
+Orden243 ahora es banco22temas, no22preguntas publicas. Propuesta14comerciales en
+home, con tres iniciales confirmadas; ayuda operativa y contrato en contexto apropiado.
+No convertir home en muro legal ni publicar notas del equipo. Condiciones materiales
+disponibles antes de firmar/pagar; no ocultarlas hasta despues de contratar.
+El portal reutiliza fuente aprobada y condiciones propias, no inventa nuevas reglas.
 Mayor cantidad es oportunidad, no defecto ni nuevo bloqueo de publicacion por si sola.
 
 ## F1 - P1 DEFECT - AK-CODEX-722-FAQ-SALDO

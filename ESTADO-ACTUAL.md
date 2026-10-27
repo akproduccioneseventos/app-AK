@@ -7,7 +7,7 @@ Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. No appedit/deploy.
 ## Nueva revisionFAQ722-723 / orden243
 Fuente mainc0add57f6237f666db97e7e902ef75f6c8d97479, PR1368-0929 sindeltaFAQ.
 Basehome6 reemplaza respaldo9; portalFAQ5 y portalprincipal24contractuales.
-Propuesta:22comerciales/8prioritarias+restodesplegable, sin borrar ediciones deldueno.
+243separa prospecto/cliente/contrato/tecnicainterna;22banco,14comercialespropuestas.
 Dueno confirma3primeras:todosservicios/otrossalones/anfitrionesdisfrutancomoinvitados.
 722:5criterios2PASS3FAIL=DOScausas, no3bugs; fuentes/ASTdobles, no envio real.
 F1Claude: FAQsaldo5dias habiles vscontrato30dias; alinear copia, no cambiarcondiciones.
@@ -24,6 +24,9 @@ Carta/menores privada NO ENTREGADA verificada, no aprobar ni contar ausencia com
 No repetir72/87/620. Todo propio cerrado; QA709aislada. CLI DNScaido/conectorGitHub.
 
 ## Entregas previas
+244Gemini nuevo piloto360Club/ambientacion:724contraste/fuentes. URLexterna!=visor.
+Webprospecto+portal salon elegido/SUfiesta; armado antesdespues,real/simulado/opcional.
+Base salon/versionprivada no pisa aprobados; material nuevo y pruebasPENDIENTES.
 241Gemini ClubUruguay:715/PDF; reutilizar/no tocar50%/precios/ids, pruebasPENDIENTES.
 PR1368-0929:709-7149suites71PASS;71012criteriosPASS,239Codex CORREGIDA EN RAMA.
 Voz238Gemini pasa transportelocal, noGoogle/HTTP/E2Enativo. Claude valida/fusiona.

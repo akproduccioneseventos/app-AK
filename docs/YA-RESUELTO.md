@@ -1,6 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex724: recorridoClub y salones propuesto/orden244
+
+- Aclaracion DIRECTA: web del salon para prospecto + portal con salon elegido y
+  montaje de SU fiesta; ambos con experiencia vacio->decorado/etapas/antesdespues.
+  244reusa base de salon y version privada por fiesta; no filtrar datos ni pisar
+  montaje aprobado. Mostrar contratado/opcional y simulacion vsfoto. PROPUESTO.
+- Dueno pide recorrido con fotos/video360DJI, limpiar desorden y mostrar ambientacion.
+  Consultadas fuentes oficialesDJI: Osmo360 admite fotoJPEGpanoramica2:1 y video;
+  modelo exacto del equipo NO identificado por etiqueta/archivo recibido.
+- Fuentec0/PR1368-0929: experienciaVisual SOLOguardaURLs y abre tour externo; croquis/
+  SalonScene es plano editableThree, no reconstruccion de fotos. LandingClub tiene
+  galeria, NO nuevo visor360. MismoarchivoexperienciaClaude bf0, privadosNO CONTRASTADOS.
+- 244pilotoUNApanorama: recorrido real/acondicionada/simulacion separados, originales
+  conservados, no alterar arquitectura/aforo ni afirmar exactitud desde fotosInternet.
+  Pannellum/Matterport investigados como referencia, NO instalados/contratados.
+- Encontradas referencias PaseoAleman/IslaBonita y noticiaADEOMS2022; no licencia ni
+  planos actuales demostrados. No imagenes descargadas/publicadas/modelos creados.
+  Verificar sedes ADEOMS y medidas; no confundir homonimos. Informe724 con fuentes.
+- Nuevaspruebas244 PENDIENTES, noappedit/build/render360/camara/IAedicion probados.
+  241referencia244sin duplicarlanding. No nuevos agentes/servicios ni cargos.
+- AclaracionFAQ del dueno incorporada en243/723: prospecto,cliente,contrato y tecnica
+  interna separados; condiciones materiales accesibles antesdefirmar. No nuevaordenFAQ.
+
 ## 27/10/2026 - Codex722-723: FAQ insuficiente y DOS inconsistencias/orden243
+
+- Aclaracion del DUENO: separar prospecto vscliente contratado vscontrato/tecnica.
+  243queda banco22temas, NO22FAQlegalesenhome; propuesta14comerciales y ayudaoperativa
+  porportal. Condiciones materiales disponibles antesdefirma/pago; datos privados
+  ytecnica interna no se publican. No nuevoCMS ni contratos privados abiertos.
 
 - Confirmacion DIRECTA posterior del dueno: SI todos los servicios, SI otros salones,
   SI organizacion para disfrutar como invitados. Ahora son las tres primeras en243,
@@ -10,7 +38,7 @@
 - Mainc0/PR1368-0929 sin deltaFAQ. Baseinicio6preguntas reemplaza respaldo9 del
   componente al pasarlista no vacia. PortalFAQ5; portalprincipal ya muestra24contrato.
   No afirmar numero realdeproduccion sin leerconfigdeldueno. No recrear24 existentes.
-- Propuesta editorial243:22comerciales/8prioritarias+restodesplegable, sinrelleno;
+- Propuesta editorial243: banco22/14publicas propuestas,8prioritarias, sinrelleno;
   ampliar fuente que consumehome/editor, no soloDEFAULT_FAQS. Conservar personalizacion.
 - F1Claude: portalFAQdice5dias habiles de saldo, fuentecontrato/clausula3f dice30dias.
   No cambiar condiciones/cuentas: alinear copia con contratoaplicable. Mismoblobbf0.
