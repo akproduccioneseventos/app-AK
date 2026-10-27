@@ -58,6 +58,7 @@ export default function CentroDeControlPage() {
   const [textoEditado, setTextoEditado] = useState<string>('');
   const [procesandoId, setProcesandoId] = useState<string | null>(null);
   const [avisoRegla, setAvisoRegla] = useState<string | null>(null);
+  const [errorOk, setErrorOk] = useState<string | null>(null);
 
   // Pestaña activa
   const [pestanaActiva, setPestanaActiva] = useState('para-tu-ok');
@@ -179,6 +180,7 @@ export default function CentroDeControlPage() {
   // Acciones en "Para tu OK"
   const handleAprobar = async (item: ItemOK, nuevoTexto?: string) => {
     setProcesandoId(item.id);
+    setErrorOk(null);
 
     // Si es WhatsApp y tiene enlace, abrirlo en nueva pestaña
     if (item.enlaceWhatsapp) {
@@ -190,9 +192,16 @@ export default function CentroDeControlPage() {
     setEditandoId(null);
 
     try {
-      await aprobarItemOK(item.id, item.origen, item.tipoTarea, item.texto, nuevoTexto);
+      const res = await aprobarItemOK(item.id, item.origen, item.tipoTarea, item.texto, nuevoTexto);
+      if (!res.success) {
+        // No salió: la tarjeta vuelve a la lista y se dice por qué.
+        setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+        setErrorOk(res.error || 'No se pudo aprobar. Probá de nuevo.');
+      }
     } catch (err) {
       console.error('[Centro de Control] Error al aprobar:', err);
+      setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+      setErrorOk('No se pudo aprobar. Probá de nuevo.');
     } finally {
       setProcesandoId(null);
     }
@@ -200,15 +209,22 @@ export default function CentroDeControlPage() {
 
   const handleRechazar = async (item: ItemOK) => {
     setProcesandoId(item.id);
+    setErrorOk(null);
 
     // Feedback optimista: quitar de la lista inmediatamente
     setItemsOK((prev) => prev.filter((i) => i.id !== item.id));
     if (editandoId === item.id) setEditandoId(null);
 
     try {
-      await rechazarItemOK(item.id, item.origen, item.tipoTarea, item.texto);
+      const res = await rechazarItemOK(item.id, item.origen, item.tipoTarea, item.texto);
+      if (!res.success) {
+        setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+        setErrorOk(res.error || 'No se pudo descartar. Probá de nuevo.');
+      }
     } catch (err) {
       console.error('[Centro de Control] Error al rechazar:', err);
+      setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+      setErrorOk('No se pudo descartar. Probá de nuevo.');
     } finally {
       setProcesandoId(null);
     }
@@ -223,7 +239,12 @@ export default function CentroDeControlPage() {
 
     setAvisoRegla(null);
     try {
-      await actualizarReglaIA(tareaId, nuevoModo);
+      const res = await actualizarReglaIA(tareaId, nuevoModo);
+      if (!res.success) {
+        setAvisoRegla(`Error: ${res.error || 'No se pudo actualizar la regla'}`);
+        getCentroDeControlDatos().then((d) => setReglas(d.reglas || []));
+        return;
+      }
       setAvisoRegla('¡Regla actualizada con éxito!');
       setTimeout(() => setAvisoRegla(null), 3500);
     } catch (err: any) {
@@ -406,6 +427,13 @@ export default function CentroDeControlPage() {
               Revisión rápida
             </Badge>
           </div>
+
+          {errorOk && (
+            <div role="alert" className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-sm font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              {errorOk}
+            </div>
+          )}
 
           {itemsOK.length === 0 ? (
             <Card className="border border-dashed border-slate-300 p-8 text-center rounded-2xl bg-white space-y-3">

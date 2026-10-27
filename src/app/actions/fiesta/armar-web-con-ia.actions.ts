@@ -365,11 +365,13 @@ export async function elegirPropuestaDeWeb(
 
   try {
     const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.protagonista1Nombre || 'La quinceañera';
-    await createNotification({
+    const aviso = await createNotification({
       mensaje: `✨ ${nombre} eligió su propuesta de web para la fiesta.`,
       href: `/fiestas/nueva/pagina-web?fiestaId=${fiestaId}`,
       icono: 'Sparkles',
     });
+    // La web ya quedó elegida y guardada; si el aviso al equipo falla no se desarma, pero queda dicho.
+    if (!aviso?.success) console.warn('[armar-web-con-ia] El aviso de propuesta elegida no se creó:', aviso?.error);
   } catch (err) {
     console.warn('[armar-web-con-ia] No se pudo crear la notificación de propuesta elegida:', err);
   }

@@ -236,17 +236,14 @@ export async function aprobarItemOK(
 
   const huboCambio = Boolean(textoFinal && textoFinal.trim() !== '' && textoFinal !== textoPropuesto);
 
-  await registrarDecisionDuenio({
-    tipoTarea,
-    textoPropuesto,
-    textoFinal: huboCambio ? textoFinal : undefined,
-    decision: huboCambio ? 'cambiar' : 'si',
-  });
-
+  // Primero se hace lo que se aprobó y recién después se anota la decisión: si falla, no queda
+  // anotado como aprobado algo que no pasó.
   if (origen === 'propuesta') {
-    await aceptarPropuesta(id, 'Dueño', { esDuenio: true });
+    const res = await aceptarPropuesta(id, 'Dueño', { esDuenio: true });
+    if (!res.success) return { success: false, error: res.mensaje || 'No se pudo aceptar la propuesta.' };
   } else if (origen === 'mensaje') {
-    await markMessageAsSent(id, 'Dueño');
+    const res = await markMessageAsSent(id, 'Dueño');
+    if (!res.success) return { success: false, error: res.error || 'No se pudo marcar el mensaje como enviado.' };
   } else if (origen === 'post') {
     try {
       const posts = await readData<SocialPost[]>('social-posts.json', []);
@@ -262,8 +259,16 @@ export async function aprobarItemOK(
       }
     } catch (err) {
       console.warn('[Centro de Control] Error al aprobar post:', err);
+      return { success: false, error: 'No se pudo aprobar la publicación.' };
     }
   }
+
+  await registrarDecisionDuenio({
+    tipoTarea,
+    textoPropuesto,
+    textoFinal: huboCambio ? textoFinal : undefined,
+    decision: huboCambio ? 'cambiar' : 'si',
+  });
 
   return { success: true };
 }
@@ -282,16 +287,11 @@ export async function rechazarItemOK(
     return { success: false, error: sesion.error || 'Permisos insuficientes' };
   }
 
-  await registrarDecisionDuenio({
-    tipoTarea,
-    textoPropuesto,
-    decision: 'no',
-  });
-
   if (origen === 'propuesta') {
     await descartarNoAvisarMas(id);
   } else if (origen === 'mensaje') {
-    await cancelScheduledMessage(id, 'Rechazado por el dueño');
+    const res = await cancelScheduledMessage(id, 'Rechazado por el dueño');
+    if (!res.success) return { success: false, error: res.error || 'No se pudo descartar el mensaje.' };
   } else if (origen === 'post') {
     try {
       const posts = await readData<SocialPost[]>('social-posts.json', []);
@@ -306,8 +306,15 @@ export async function rechazarItemOK(
       }
     } catch (err) {
       console.warn('[Centro de Control] Error al rechazar post:', err);
+      return { success: false, error: 'No se pudo descartar la publicación.' };
     }
   }
+
+  await registrarDecisionDuenio({
+    tipoTarea,
+    textoPropuesto,
+    decision: 'no',
+  });
 
   return { success: true };
 }
