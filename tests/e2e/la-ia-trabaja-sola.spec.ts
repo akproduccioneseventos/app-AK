@@ -143,6 +143,7 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
     // El contenido del briefing para el DJ debe ser visible
     const textoBrief = page.getByText(/Entrada enérgica a las 23:00 con Coldplay/i);
     await expect(textoBrief).toBeVisible();
+    await expect(textoBrief).toContainText('Coldplay');
   });
 
   // Comprobación Bloque 11: Gestión alimentaria muestra el choque de menú y botón aviso a cocina
@@ -162,6 +163,8 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
     // Muestra el plato en conflicto y las personas afectadas
     await expect(page.getByText(/Lasaña casera de carne con salsa blanca/i)).toBeVisible();
     await expect(page.getByText(/2 pax/i)).toBeVisible();
+    await expect(cartelChoque).toContainText(/Alerta de Choques/i);
+    await expect(page.getByText(/Lasaña casera de carne con salsa blanca/i).first()).toContainText('Lasaña');
 
     // Botón de aviso a cocina
     const btnCocina = page.getByRole('button', { name: /Aviso a Cocina/i });

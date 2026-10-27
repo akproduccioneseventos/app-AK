@@ -80,6 +80,8 @@ test.describe('Centro de Control (Orden 236)', () => {
     await botonNo.click();
 
     // 4. Verifica que la tarjeta desaparece inmediatamente de la vista
-    await expect(page.getByText(tituloUnico)).not.toBeVisible();
+    await expect(page.getByText(tituloUnico)).toHaveCount(0);
+    // Y sigue habiendo exactamente las tres pestañas, con la tarjeta ya fuera de "Para tu OK".
+    await expect(page.getByRole('tab')).toHaveCount(3);
   });
 });
