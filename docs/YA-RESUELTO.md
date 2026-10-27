@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Retest702/703: correcciones presentes y pendientes separados
+
+- Mainc0add57f6237f666db97e7e902ef75f6c8d97479:22criterios15PASS7FAIL,
+  seis grupos aun abiertos. Sustituye estado anterior b58 de697-700, no sus recibos.
+- Cerrados por alcance: F enlace con texto corregido; G lectura compartida entre
+  instancias y conservacion de regla ajena en cambios secuenciales. A ahora guarda
+  web/detecta error; C propaga varios errores y devuelve tarjeta. NO reencargarlos.
+- Restan A fiesta/nombre fijo, B respuestas inventadas, C post inexistente,
+  D perdida de aprobacion concurrente, E email enviado sin envio, H fallo remoto
+  de regla reportado como exito. Orden238 actualizada, no crear otra igual.
+- 701 fallo por fronteras QA viejas;702 adapta imports/setter/telefono y lector.
+  No appedit/build/SDK/browser renderizado/servicios reales; finales0erroresQA.
+
 ## 26/10/2026 - Codex697-700: centro236 auditado, NO corregido
 
 - PR1365/b58abab75d94a732daf79b32aff54ec253ccf63c:22criterios5PASS17FAIL,

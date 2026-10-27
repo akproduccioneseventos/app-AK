@@ -1,5 +1,17 @@
 # Orden238 - Centro de control: resultados reales y reglas compartidas
 
+## Actualizacion prioritaria - 27/10/2026
+
+La PR1365 ya esta integrada. Retest sobre main
+`c0add57f6237f666db97e7e902ef75f6c8d97479`:22criterios15PASS7FAIL.
+Ver `docs/evidencias/703-actualizacion-correcciones-main.md` y resultados702.
+**NO reimplementar F/G ni las partes cerradas de A/C.** Quedan seis grupos:
+A resolver fiesta/nombre sin Sofia fija; B respuestas sin consulta/accion;
+C ID inexistente aprobado; D aprobaciones concurrentes perdidas;
+E correo marcado enviado sin envio; H error remoto de regla anunciado como exito.
+El texto inferior conserva la orden original y sus pruebas para trazabilidad,
+no declara vigente su estado b58. Contrastar nuevos cambios antes de programar.
+
 Para Claude: revisar y coordinar/corregir antes de compilar y aceptar1365. Gemini
 puede implementar interfaz/motor segun reparto. Una sola tanda; NO fusionar
 documentacion sola. Codex no modifico codigo app.
