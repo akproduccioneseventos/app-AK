@@ -379,5 +379,45 @@
         "categoria": "Bebidas",
         "nombre": "Tequila",
         "unidad": "Botella"
+    },
+    {
+        "id": "ing-pina-colada",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Piña colada",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-blue-curacao",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Blue curaçao",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-martini",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Martini",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-licor-frutilla",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Licor de frutilla",
+        "unidad": "Botella"
     }
 ]
