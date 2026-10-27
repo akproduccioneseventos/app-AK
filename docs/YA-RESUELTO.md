@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 - Codex697-700: centro236 auditado, NO corregido
+
+- PR1365/b58abab75d94a732daf79b32aff54ec253ccf63c:22criterios5PASS17FAIL,
+  ocho grupos A-H en informe700/orden238, complemento de237Claude.
+- Web anuncia creada sin guardar; respuestas fijas; rechazos ocultos; aprobaciones
+  pierden una; correo marcado enviado sin envio; enlace usa texto viejo; reglas
+  divergentes entre instancias y fallo remoto reportado como exito.
+- TS real con fronteras ficticias y callback real porAST, noHTTP/browser/SDK/modelo.
+  No se corrigio app ni se corrio build. Retest solo ante delta publicado.
+- Inicial698 import default path/fs fue errorQA archivado, noapp. Final0erroresQA.
+- Agente cerrado; sospechas UI sinreproduccion no son hallazgos. CierresD4 vigentes.
+- Claude cddd22c0/237 y comentarios previos1365 contrastados, no reemitidos.
+  NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+
 ## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
 
 - Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
