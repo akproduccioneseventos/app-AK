@@ -424,6 +424,10 @@
     "106": {
       "fecha": "2026-10-27",
       "resultado": "barrida en sesión, enlace del presupuesto, portal del cliente, proveedor, personal, invitados, estaciones y códigos: la sesión dura 7 días sin revocación y cambiar la clave no la corta; el enlace del presupuesto no vence ni se apaga; el control de estaciones no mira si sigue habilitada; marcarLlegadaPersonal no compara quién marca. Portal, proveedor, personal, QR y recuperación sí miran el estado vigente. Va en la orden 247, bloques 3 y 6."
+    },
+    "107": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en src/lib/auth, src/lib/security, guardias, require-session, armado de la sesión, menú y acciones que usan perfilDe/puede: el armado de la cookie (simple-auth.ts:910, auth.ts:508,821,872,903) convierte un perfil roto en el del rol viejo; getMisPermisos, el menú (que además lee 'profile'), asistente proactivo, google-workspace y recortar-para-afuera no rechazan un perfil inválido. Sin fallbacks a admin/dueño en switches. Va en la orden 247, bloque 8."
     }
   },
   "hallazgos": {
@@ -574,6 +578,14 @@
     "orden-247": {
       "fecha": "2026-10-27",
       "resultado": "Pregunta 90 (lo que se guarda con una foto vieja). Barrido en saveFiesta: la reposición dentro de la transacción sólo corría para quien no tiene plata; el dueño y la secretaria guardaban la fiesta entera fuera de turno (/admin/ventas y todas las pantallas de fiesta). Mismo barrido: carga histórica sin idIntento (duplica facturas), sesiones sin revocación, casillas de módulos que nadie lee, finanzas que mezcla cobrado con esperado. Todo en la orden 247, propuesta aparte."
+    },
+    "auditoria-719": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 107: mismo barrido de la pregunta 107; orden 247 bloque 8."
+    },
+    "auditoria-717": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 104 (usar un dato real y no adivinar por texto): getDrinkTags clasifica por el nombre; con la carta nueva sale de soloMayores y la receta. Buscado en barra-tecnologica, tótem y portal: es el único clasificador por texto de la barra. Orden 242 bloque 5."
     }
   }
 }

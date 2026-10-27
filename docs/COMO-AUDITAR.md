@@ -1487,3 +1487,10 @@ Auditoría externa del panel (27/10/2026). El perfil viaja firmado en la cookie 
 un usuario borrado o con menos permisos seguía entrando con los de antes. Se mira cada llave que dura (sesión, enlace del
 portal, del proveedor, del personal, del invitado, QR, códigos): si se da de baja a la persona o se le cambia el
 permiso, ¿la llave vieja deja de servir?
+
+### 107. Un dato que llega roto o desconocido (un perfil, un rol, un tipo), ¿cae a "nada" o a algo con más permisos?
+
+Codex 719 (27/10/2026). Un usuario con un perfil que no existe y el rol viejo de administrador salía con la sesión de
+dueño, porque al armar la cookie el perfil roto se reemplazaba por el que daba el rol viejo, y el rechazo que ya existía
+nunca llegaba a verlo. Se mira cada "si no es válido, usar…": lo inválido tiene que dar menos, nunca más, y la
+conversión de cuentas viejas sólo vale cuando el dato falta, no cuando está roto.
