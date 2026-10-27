@@ -76,3 +76,49 @@ usa: Coordinar una entrevista gratuita en src/components/landing/HeroSection.tsx
 usa: SimulatorMeetingScheduler en src/components/landing/CTASection.tsx
 prueba: tests/e2e/la-portada-vende-con-confianza.spec.ts
 ```
+
+## Bloque 4 — lo que se confirmó de una segunda auditoría (27/10/2026)
+
+1. **Testimonios que nadie puede probar.** `src/components/landing/EventLandingPage.tsx:77-94` (constante
+   `TESTIMONIALS`, "Experiencias Verificadas", ~265) tiene tres textos fijos: "Familia Rodríguez", "Mariana S." y
+   "Martín G.". No están en `src/data/testimonials.json` ni en los catálogos. La regla de `YA-RESUELTO.md` es "no se
+   ponen testimonios que no se puedan probar".
+   - Reemplazalos por los reales de `getTestimonials()` (`src/app/actions/feedback.ts:133`, aprobados), con
+     `src/data/testimonials.json` como respaldo.
+   - El título pasa a "Lo que dicen nuestros clientes".
+   - Se muestran en bodas, quinceañeras y cumpleaños.
+2. **"Presupuesto cerrado" choca con el ajuste anual.** Va "Presupuesto detallado y sin compromiso" en:
+   - `src/app/bodas/page.tsx:10`, `src/app/cumpleanos/page.tsx:9` y `src/app/quinceaneras/page.tsx:10`;
+   - `src/lib/marketing/auditor-anuncios-ia.ts:72,117` y `creador-anuncios-ia.ts:47`.
+
+   En `src/lib/marketing/promo-pages.ts:93`, "Precio fijo, sin sorpresas" pasa a "Precio claro, sin sorpresas".
+3. **Cumpleaños, sin dar por incluido lo que se cotiza** (`src/app/cumpleanos/page.tsx`):
+   - :24 → "Tu fiesta con ambientación, barra de tragos y la mejor música".
+   - :25 → "Elegí entre comida, discoteca, barra de tragos, fotografía y servicios adicionales para organizar tu
+     cumpleaños a medida".
+   - :31 → "Barra de Tragos".
+   - En `src/data/event-catalogs/corporativos.ts:42`, "barra libre" → "barra de tragos".
+4. **El blog no dice "congelar".** En `data/blog-posts.json`, la nota "Checklist definitivo de 12 meses…" (~146,
+   `takeaway`) dice "te permite congelar precios de proveedores clave". Va "te permite asegurar la fecha con tus
+   proveedores clave". Fijate que el generador del blog (`src/lib/blog-ai-generator.ts`) prohíba "congel" igual
+   que prohíbe "garantía".
+5. **Google ve las seis presentaciones.** En `src/lib/seo/paginas-publicas.ts:21-37` sumá `/public/cumpleanos`,
+   `/public/corporativos` y `/public/aniversarios`. Hoy `robots.ts` las bloquea y no están en el sitemap.
+
+Prueba extra en `tests/e2e/la-portada-vende-con-confianza.spec.ts`:
+
+- `/bodas` no contiene "Mariana S." ni "Experiencias Verificadas";
+- `/cumpleanos` no contiene "barra libre".
+
+Jest: el sitemap incluye `/public/corporativos`.
+
+```comprobar
+# Bloque 4
+no-usa: Mariana S. en src/components/landing/EventLandingPage.tsx
+no-usa: Presupuesto cerrado en src/app/bodas/page.tsx
+no-usa: Presupuesto cerrado en src/app/cumpleanos/page.tsx
+no-usa: Presupuesto cerrado en src/app/quinceaneras/page.tsx
+no-usa: Barra Libre en src/app/cumpleanos/page.tsx
+no-usa: congelar precios en data/blog-posts.json
+usa: /public/corporativos en src/lib/seo/paginas-publicas.ts
+```
