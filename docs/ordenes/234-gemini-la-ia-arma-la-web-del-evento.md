@@ -106,3 +106,23 @@ usa: Deshacer en src/app/(app)/fiestas/nueva/pagina-web/page.tsx
 prueba: src/__tests__/la-ia-arma-la-web-sin-inventar.test.ts
 prueba: tests/e2e/la-ia-arma-la-web-del-evento.spec.ts
 ```
+
+## Bloque 5 — Tres versiones para que elija la quinceañera (pedido del dueño, 26/10/2026)
+
+Palabras del dueño: se ponen datos y color y se crea una web de la fiesta sola, con 3 opciones para que la quinceañera elija.
+- Entrada mínima en el editor: nombre, fecha, salón y un color. Todo lo demás lo saca de la fiesta. Un solo botón: "Crear 3 propuestas".
+- El flujo devuelve 3 versiones completas y distintas entre sí: tres plantillas distintas de las 8, tres paletas armadas a partir del color elegido (análoga, contraste y suave) y textos con tono distinto (clásico, moderno y divertido). Mismas reglas: no inventar datos, sin precios ni promesas, sin datos bancarios.
+- Dónde se guardan: campo nuevo fiesta.propuestasDeWeb?: { id, invitacionDigital, creadaEn, paletaTipo?, tono? }[] (máximo 3, la tanda nueva reemplaza a la anterior). La web publicada (invitacionDigital) no cambia hasta que alguien elige.
+- La quinceañera elige desde su portal: sección nueva 'Tu web' en src/app/portal-cliente/[id]/tu-web/page.tsx (junto a decoracion, musica, etc.). Muestra las 3 versiones como vista previa de celular, una al lado de la otra (deslizables en el teléfono), con un botón '¡Quiero esta!'.
+- Acción elegirPropuestaDeWeb(fiestaId, propuestaId), en armar-web-con-ia.actions.ts:
+  1. Primera línea: pasa si verifyPortalSession(fiestaId) (src/lib/security/portal-session.ts) o requireFiestaWriteAccess(fiestaId). Nada más.
+  2. Sólo copia una propuesta ya guardada a invitacionDigital. No recibe contenido del navegador: el cliente elige, no escribe.
+  3. Guarda la elegida en fiesta.propuestaDeWebElegida y avisa al equipo con createNotification.
+- Acción crearTresPropuestasDeWeb(fiestaId, colorBase) en armar-web-con-ia.actions.ts: genera las 3 versiones y las guarda en fiesta.propuestasDeWeb sin tocar fiesta.invitacionDigital.
+
+```comprobar
+usa: propuestasDeWeb en src/app/actions/fiesta/armar-web-con-ia.actions.ts
+usa: verifyPortalSession en src/app/actions/fiesta/armar-web-con-ia.actions.ts
+usa: elegirPropuestaDeWeb en src/app/portal-cliente/[id]/tu-web/page.tsx
+prueba: tests/e2e/la-quinceaniera-elige-su-web.spec.ts
+```

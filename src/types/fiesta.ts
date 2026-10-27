@@ -696,6 +696,17 @@ export interface InvitacionDigitalData {
   }
 }
 
+export type PaletaTipoPropuesta = 'analoga' | 'contraste' | 'suave';
+export type TonoPropuesta = 'clasico' | 'moderno' | 'divertido';
+
+export interface PropuestaDeWeb {
+  id: string;
+  invitacionDigital: InvitacionDigitalData;
+  creadaEn: string;
+  paletaTipo?: PaletaTipoPropuesta;
+  tono?: TonoPropuesta;
+}
+
 interface PortalModuleSettings {
   visible: boolean;
   editable: boolean;
@@ -1584,6 +1595,8 @@ export interface FiestaEnPlanificacion {
   clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;
   invitacionConfig?: InvitacionDigitalConfig;
+  propuestasDeWeb?: PropuestaDeWeb[];
+  propuestaDeWebElegida?: string;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;

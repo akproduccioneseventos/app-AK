@@ -1,9 +1,11 @@
 'use server';
 
-import { requireFiestaWriteAccess, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { armarWebDelEventoFlow } from '@/ai/flows/armar-web-del-evento-flow';
-import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import { requireFiestaWriteAccess, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { armarWebDelEventoFlow, generarTresPropuestasFlow } from '@/ai/flows/armar-web-del-evento-flow';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, PropuestaDeWeb, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { createNotification } from '@/lib/notifications/create-notification';
 
 const DEFAULT_WELCOME_TEXT = defaultInvitacionDigitalData.bienvenida.texto.text;
 const DEFAULT_STORY_TEXT = defaultInvitacionDigitalData.historia.texto.text;
@@ -290,5 +292,88 @@ export async function armarWebConIA(
     const errorMsg = error instanceof Error ? error.message : 'Error inesperado al armar la web con IA.';
     return { success: false, error: errorMsg };
   }
+}
+
+export async function crearTresPropuestasDeWeb(
+  fiestaId: string,
+  colorBase?: string,
+): Promise<{ success: boolean; propuestas?: PropuestaDeWeb[]; error?: string }> {
+  await requireFiestaWriteAccess(fiestaId);
+
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) {
+      return { success: false, error: 'No se encontró la fiesta solicitada.' };
+    }
+
+    const propuestas = await generarTresPropuestasFlow({
+      fiesta,
+      colorBase: colorBase || fiesta.invitacionConfig?.colorPrincipal || '#ec4899',
+    });
+
+    // Guarda las 3 versiones en fiesta.propuestasDeWeb (máximo 3, la tanda nueva reemplaza a la anterior).
+    // La web publicada (invitacionDigital) no cambia hasta que alguien elige.
+    const fiestaActualizada: FiestaEnPlanificacion = {
+      ...fiesta,
+      propuestasDeWeb: propuestas,
+    };
+
+    const guardado = await saveFiesta(fiestaActualizada);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudieron guardar las propuestas generadas.' };
+    }
+
+    return { success: true, propuestas };
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : 'Error inesperado al generar las 3 propuestas.';
+    return { success: false, error: errorMsg };
+  }
+}
+
+export async function elegirPropuestaDeWeb(
+  fiestaId: string,
+  propuestaId: string,
+): Promise<{ success: boolean; error?: string }> {
+  // 1. Primera línea: pasa si verifyPortalSession(fiestaId) (src/lib/security/portal-session.ts) o requireFiestaWriteAccess(fiestaId). Nada más.
+  const portalOk = await verifyPortalSession(fiestaId);
+  if (!portalOk) {
+    await requireFiestaWriteAccess(fiestaId);
+  }
+
+  // 2. Sólo copia una propuesta ya guardada a invitacionDigital. No recibe contenido del navegador: el cliente elige, no escribe.
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) {
+    throw new Error('No se encontró la fiesta solicitada.');
+  }
+
+  const propuesta = (fiesta.propuestasDeWeb || []).find((p) => p.id === propuestaId);
+  if (!propuesta) {
+    throw new Error('No se encontró la propuesta solicitada.');
+  }
+
+  // 3. Guarda la elegida en fiesta.propuestaDeWebElegida y avisa al equipo con createNotification.
+  const fiestaActualizada: FiestaEnPlanificacion = {
+    ...fiesta,
+    invitacionDigital: propuesta.invitacionDigital,
+    propuestaDeWebElegida: propuesta.id,
+  };
+
+  const guardado = await saveFiesta(fiestaActualizada);
+  if (!guardado.success) {
+    return { success: false, error: guardado.error || 'No se pudo guardar la propuesta elegida.' };
+  }
+
+  try {
+    const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.protagonista1Nombre || 'La quinceañera';
+    await createNotification({
+      mensaje: `✨ ${nombre} eligió su propuesta de web para la fiesta.`,
+      href: `/fiestas/nueva/pagina-web?fiestaId=${fiestaId}`,
+      icono: 'Sparkles',
+    });
+  } catch (err) {
+    console.warn('[armar-web-con-ia] No se pudo crear la notificación de propuesta elegida:', err);
+  }
+
+  return { success: true };
 }
 

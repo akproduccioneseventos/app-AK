@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Save, ClipboardCopy, Gift, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta, updateInvitacionSlug } from '@/app/actions/fiesta/fiesta.actions';
-import { armarWebConIA } from '@/app/actions/fiesta/armar-web-con-ia.actions';
+import { armarWebConIA, crearTresPropuestasDeWeb } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
@@ -87,6 +87,12 @@ function PaginaWebPageContent() {
   const [previousInvitacionData, setPreviousInvitacionData] = useState<InvitacionDigitalData | null>(null);
   const [previousInvitacionConfig, setPreviousInvitacionConfig] = useState<InvitacionDigitalConfig | null>(null);
   const [confirmRehacerOpen, setConfirmRehacerOpen] = useState(false);
+  const [tresPropuestasDialogOpen, setTresPropuestasDialogOpen] = useState(false);
+  const [isCreandoTresPropuestas, setIsCreandoTresPropuestas] = useState(false);
+  const [propuestasNombre, setPropuestasNombre] = useState('');
+  const [propuestasFecha, setPropuestasFecha] = useState('');
+  const [propuestasSalon, setPropuestasSalon] = useState('');
+  const [propuestasColor, setPropuestasColor] = useState('#ec4899');
   const autoArmadoEjecutadoRef = React.useRef(false);
 
   const invitacionDataRef = React.useRef(invitacionData);
@@ -148,6 +154,70 @@ function PaginaWebPageContent() {
     setArmarWebError(null);
     toast({ title: 'Cambios deshechos', description: 'Volviste a la versión anterior.' });
   }, [previousInvitacionData, previousInvitacionConfig, toast]);
+
+  const handleOpenTresPropuestas = useCallback(() => {
+    setPropuestasNombre(
+      invitacionConfig.nombreHomenajeada ||
+      fiesta?.configuracion?.protagonista1Nombre ||
+      fiesta?.configuracion?.nombreEvento ||
+      ''
+    );
+    setPropuestasFecha(
+      invitacionConfig.fechaEvento ||
+      fiesta?.configuracion?.fechaEvento ||
+      ''
+    );
+    setPropuestasSalon(
+      invitacionConfig.nombreSalon ||
+      fiesta?.configuracion?.nombreLugar ||
+      ''
+    );
+    setPropuestasColor(
+      invitacionConfig.colorPrincipal ||
+      '#ec4899'
+    );
+    setTresPropuestasDialogOpen(true);
+  }, [fiesta, invitacionConfig]);
+
+  const handleCrearTresPropuestas = useCallback(async () => {
+    if (!fiestaId || fiestaId === 'template_preview') return;
+    setIsCreandoTresPropuestas(true);
+    try {
+      if (propuestasNombre || propuestasFecha || propuestasSalon || propuestasColor) {
+        setInvitacionConfig((prev) => ({
+          ...prev,
+          nombreHomenajeada: propuestasNombre || prev.nombreHomenajeada,
+          fechaEvento: propuestasFecha || prev.fechaEvento,
+          nombreSalon: propuestasSalon || prev.nombreSalon,
+          colorPrincipal: propuestasColor || prev.colorPrincipal,
+        }));
+      }
+
+      const res = await crearTresPropuestasDeWeb(fiestaId, propuestasColor);
+      if (res.success) {
+        setTresPropuestasDialogOpen(false);
+        toast({
+          title: '3 propuestas creadas',
+          description: 'Se generaron las 3 versiones con éxito. La quinceañera ya puede elegirlas desde su portal.',
+        });
+      } else {
+        toast({
+          title: 'Error al generar propuestas',
+          description: res.error || 'No se pudieron generar las 3 propuestas.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Error al crear las propuestas';
+      toast({
+        title: 'Error',
+        description: errorMsg,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreandoTresPropuestas(false);
+    }
+  }, [fiestaId, propuestasNombre, propuestasFecha, propuestasSalon, propuestasColor, toast]);
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },
@@ -607,6 +677,17 @@ function PaginaWebPageContent() {
               Rehacer todo
             </Button>
 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenTresPropuestas}
+              disabled={isArmandoWeb || isCreandoTresPropuestas}
+              className="rounded-xl font-bold gap-1.5 text-pink-700 border-pink-300 hover:bg-pink-50 h-8"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-pink-600" />
+              <span>Crear 3 propuestas</span>
+            </Button>
+
             {armarWebMensaje && !isArmandoWeb && (
               <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
                 {armarWebMensaje}
@@ -782,6 +863,96 @@ function PaginaWebPageContent() {
               }}
             >
               Sí, rehacer todo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={tresPropuestasDialogOpen} onOpenChange={setTresPropuestasDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-pink-700">
+              <Sparkles className="w-5 h-5 shrink-0" /> Crear 3 propuestas para la quinceañera
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-600 pt-1">
+              Ingresá los datos mínimos. La IA generará 3 versiones con plantillas, paletas y tonos diferentes para que elija desde su portal.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="propuesta-nombre" className="text-xs font-bold text-slate-700">Nombre de la agasajada</Label>
+              <Input
+                id="propuesta-nombre"
+                value={propuestasNombre}
+                onChange={(e) => setPropuestasNombre(e.target.value)}
+                placeholder="Ej. Sofía"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="propuesta-fecha" className="text-xs font-bold text-slate-700">Fecha del evento</Label>
+                <Input
+                  id="propuesta-fecha"
+                  type="date"
+                  value={propuestasFecha}
+                  onChange={(e) => setPropuestasFecha(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="propuesta-salon" className="text-xs font-bold text-slate-700">Salón</Label>
+                <Input
+                  id="propuesta-salon"
+                  value={propuestasSalon}
+                  onChange={(e) => setPropuestasSalon(e.target.value)}
+                  placeholder="Ej. Salón X"
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="propuesta-color" className="text-xs font-bold text-slate-700">Color elegido</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="propuesta-color"
+                  type="color"
+                  value={propuestasColor}
+                  onChange={(e) => setPropuestasColor(e.target.value)}
+                  className="w-14 h-10 p-1 rounded-xl cursor-pointer"
+                />
+                <Input
+                  value={propuestasColor}
+                  onChange={(e) => setPropuestasColor(e.target.value)}
+                  placeholder="#ec4899"
+                  className="rounded-xl font-mono text-xs uppercase max-w-[120px]"
+                />
+                <span className="text-xs text-slate-500">Base para las 3 paletas</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-2">
+            <Button
+              className="w-full rounded-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white gap-2 h-11"
+              onClick={handleCrearTresPropuestas}
+              disabled={isCreandoTresPropuestas}
+            >
+              {isCreandoTresPropuestas ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Creando 3 propuestas…</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Crear 3 propuestas</span>
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -688,6 +688,7 @@ export default function PortalClientePage() {
         {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
         {!simplicityMode && (() => {
           const navCards = [
+            { label: 'Tu web', emoji: '✨', href: `/portal-cliente/${fiestaId}/tu-web`, desc: 'Elegí tu diseño' },
             showMensajes && { label: 'Mensajes', emoji: '💬', href: `/portal-cliente/${fiestaId}/mensajes`, desc: 'Escribile al equipo' },
             showCatering && fiesta.modulosContratados?.catering && { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
             showMusica && (fiesta.modulosContratados?.discoteca ?? true) && { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },

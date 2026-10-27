@@ -6,8 +6,12 @@ import type {
   FiestaEnPlanificacion,
   InvitacionDigitalConfig,
   InvitacionDigitalData,
+  PaletaTipoPropuesta,
+  PropuestaDeWeb,
   SeccionInvitacion,
+  TonoPropuesta,
 } from '@/types/fiesta';
+import { generarPaletaPorTipo } from '@/lib/invitacion-paletas';
 
 export const ArmarWebOutputSchema = z.object({
   plantilla: z.enum([
@@ -53,6 +57,10 @@ export type ArmarWebOutput = z.infer<typeof ArmarWebOutputSchema>;
 export interface ArmarWebInput {
   fiesta: FiestaEnPlanificacion;
   invitacionConfig?: InvitacionDigitalConfig;
+  colorBase?: string;
+  paletaTipo?: PaletaTipoPropuesta;
+  tono?: TonoPropuesta;
+  plantillaForzada?: ArmarWebOutput['plantilla'];
 }
 
 export const FOTOS_TEMA: Record<string, string> = {
@@ -277,7 +285,40 @@ Devolvé un único objeto JSON con esta estructura exacta:
     nombreHomenajeada ||
     'Agasajado';
 
-  const paleta = parsedIA.cabecera.paletaColores;
+  const plantillaFinal = input.plantillaForzada || parsedIA.plantilla;
+  const paleta =
+    input.colorBase && input.paletaTipo
+      ? generarPaletaPorTipo(input.colorBase, input.paletaTipo)
+      : parsedIA.cabecera.paletaColores;
+
+  let subtituloTexto = parsedIA.cabecera.subtitulo;
+  let bienvenidaTitulo = parsedIA.bienvenida.titulo;
+  let bienvenidaTexto = parsedIA.bienvenida.texto;
+  let despedidaTexto = '¡Te esperamos!';
+
+  if (input.tono === 'clasico') {
+    if (tipoEvento.toLowerCase().includes('15') || tipoEvento.toLowerCase().includes('xv')) {
+      bienvenidaTitulo = '¡Mis 15 Años!';
+      subtituloTexto = 'Mis 15 Años';
+      bienvenidaTexto = 'Los momentos más lindos de la vida se disfrutan con quienes más queremos. Te espero para compartir una noche mágica e inolvidable.';
+    }
+    despedidaTexto = '¡Te espero para compartir esta noche mágica!';
+  } else if (input.tono === 'moderno') {
+    if (tipoEvento.toLowerCase().includes('15') || tipoEvento.toLowerCase().includes('xv')) {
+      bienvenidaTitulo = '¡Llegó la noche!';
+      subtituloTexto = '15 Fest';
+      bienvenidaTexto = 'Preparate para vivir una noche única con la mejor música, buena onda y momentos increíbles. ¡No podés faltar!';
+    }
+    despedidaTexto = '¡Nos vemos en la pista!';
+  } else if (input.tono === 'divertido') {
+    if (tipoEvento.toLowerCase().includes('15') || tipoEvento.toLowerCase().includes('xv')) {
+      bienvenidaTitulo = '¡A romper la pista!';
+      subtituloTexto = '¡Modo Fiesta!';
+      bienvenidaTexto = '¡Se vienen mis 15 y la fiesta va a ser épica! Traé tus mejores pasos de baile y muchas ganas de divertirte hasta que salga el sol.';
+    }
+    despedidaTexto = '¡La fiesta la hacemos entre todos!';
+  }
+
   const imagenFondoCabecera =
     fotoPortada && !fotoPortada.includes('picsum.photos')
       ? fotoPortada
@@ -291,7 +332,7 @@ Devolvé un único objeto JSON con esta estructura exacta:
   const tieneFecha = Boolean(fechaEvento && fechaEvento.trim() !== '');
 
   const invitacionData: InvitacionDigitalData = {
-    plantilla: parsedIA.plantilla,
+    plantilla: plantillaFinal,
     category: tipoEvento.toLowerCase().includes('15') ? 'XV Años' : 'General',
     musicaFondoUrl: '',
     cabecera: {
@@ -300,20 +341,20 @@ Devolvé un único objeto JSON con esta estructura exacta:
       protagonista1: protagonista1Final,
       protagonista2: parsedIA.cabecera.protagonista2 || '',
       subtitulo: {
-        text: parsedIA.cabecera.subtitulo,
+        text: subtituloTexto,
         style: { fontFamily: 'Inter', fontSize: '1.25rem', color: paleta.secondary },
       },
       paletaColores: paleta,
       imagenFondoUrl: imagenFondoCabecera,
     },
     bienvenida: {
-      visible: Boolean(parsedIA.bienvenida?.texto),
+      visible: Boolean(bienvenidaTexto),
       titulo: {
-        text: parsedIA.bienvenida.titulo,
+        text: bienvenidaTitulo,
         style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: paleta.secondary },
       },
       texto: {
-        text: parsedIA.bienvenida.texto,
+        text: bienvenidaTexto,
         style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' },
       },
     },
@@ -398,7 +439,7 @@ Devolvé un único objeto JSON con esta estructura exacta:
     despedida: {
       visible: true,
       texto: {
-        text: '¡Te esperamos!',
+        text: despedidaTexto,
         style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: paleta.primary },
       },
     },
@@ -529,4 +570,68 @@ Devolvé un único objeto JSON con esta estructura exacta:
 
   invitacionData.secciones = secciones;
   return invitacionData;
+}
+
+export async function generarTresPropuestasFlow(input: {
+  fiesta: FiestaEnPlanificacion;
+  invitacionConfig?: InvitacionDigitalConfig;
+  colorBase?: string;
+}): Promise<PropuestaDeWeb[]> {
+  const { fiesta, colorBase } = input;
+  const cfg = input.invitacionConfig || fiesta.invitacionConfig;
+  const fConfig = fiesta.configuracion || ({} as any);
+
+  const tipo = (
+    (cfg?.tipoEvento as string) ||
+    (fConfig.tipoCelebracion as string) ||
+    (fConfig.nombreEvento as string) ||
+    ''
+  ).toLowerCase();
+
+  const es15 = tipo.includes('15') || tipo.includes('xv') || tipo.includes('quince');
+  const esBoda = tipo.includes('boda') || tipo.includes('casamiento') || tipo.includes('matrimonio');
+
+  // Tres plantillas distintas de las 8
+  const plantillas: ArmarWebOutput['plantilla'][] = es15
+    ? ['XvClasica', 'XvModerna', 'Allegria']
+    : esBoda
+    ? ['Grazia', 'BodaMinimalista', 'BodaCampo']
+    : ['Grazia', 'Allegria', 'FiestaNoche'];
+
+  const configuraciones: {
+    tono: TonoPropuesta;
+    paletaTipo: PaletaTipoPropuesta;
+    plantilla: ArmarWebOutput['plantilla'];
+  }[] = [
+    { tono: 'clasico', paletaTipo: 'analoga', plantilla: plantillas[0] },
+    { tono: 'moderno', paletaTipo: 'contraste', plantilla: plantillas[1] },
+    { tono: 'divertido', paletaTipo: 'suave', plantilla: plantillas[2] },
+  ];
+
+  const color = colorBase || cfg?.colorPrincipal || '#ec4899';
+  const timestamp = Date.now();
+
+  const propuestas: PropuestaDeWeb[] = [];
+
+  for (let i = 0; i < configuraciones.length; i++) {
+    const conf = configuraciones[i];
+    const invitacionDigital = await armarWebDelEventoFlow({
+      fiesta,
+      invitacionConfig: cfg,
+      colorBase: color,
+      paletaTipo: conf.paletaTipo,
+      tono: conf.tono,
+      plantillaForzada: conf.plantilla,
+    });
+
+    propuestas.push({
+      id: `propuesta_${i + 1}_${timestamp}`,
+      invitacionDigital,
+      creadaEn: new Date().toISOString(),
+      paletaTipo: conf.paletaTipo,
+      tono: conf.tono,
+    });
+  }
+
+  return propuestas;
 }

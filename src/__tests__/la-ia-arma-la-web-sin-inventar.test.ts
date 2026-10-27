@@ -1,7 +1,9 @@
-import { armarWebConIA } from '@/app/actions/fiesta/armar-web-con-ia.actions';
+import { armarWebConIA, crearTresPropuestasDeWeb, elegirPropuestaDeWeb } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import { generateWithGeminiFallback } from '@/ai/genkit';
 import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
-import { requireFiestaWriteAccess, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { requireFiestaWriteAccess, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -18,6 +20,15 @@ jest.mock('@/lib/ai/consumo-servidor', () => ({
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   requireFiestaWriteAccess: jest.fn(async () => undefined),
   getFiestaById: jest.fn(),
+  saveFiesta: jest.fn(async (f: any) => ({ success: true, fiesta: f })),
+}));
+
+jest.mock('@/lib/security/portal-session', () => ({
+  verifyPortalSession: jest.fn(async () => true),
+}));
+
+jest.mock('@/lib/notifications/create-notification', () => ({
+  createNotification: jest.fn(async () => ({ success: true })),
 }));
 
 describe('Orden 234 — La IA arma la web sin inventar', () => {
@@ -27,6 +38,9 @@ describe('Orden 234 — La IA arma la web sin inventar', () => {
     jest.clearAllMocks();
     (hayPresupuestoParaIA as jest.Mock).mockResolvedValue(true);
     (requireFiestaWriteAccess as jest.Mock).mockResolvedValue(undefined);
+    (saveFiesta as jest.Mock).mockImplementation(async (f: any) => ({ success: true, fiesta: f }));
+    (verifyPortalSession as jest.Mock).mockResolvedValue(true);
+    (createNotification as jest.Mock).mockResolvedValue({ success: true });
 
     (generateWithGeminiFallback as jest.Mock).mockResolvedValue({
       text: JSON.stringify({
@@ -197,5 +211,117 @@ describe('Orden 234 — La IA arma la web sin inventar', () => {
     await expect(armarWebConIA('fiesta-no-autorizada')).rejects.toThrow(
       'No autorizado para modificar este evento.',
     );
+  });
+
+  // Bloque 5 — Tres versiones para que elija la quinceañera
+  it('con la IA simulada salen 3 versiones con plantillas distintas', async () => {
+    mockFiesta = {
+      id: 'fiesta-quince-3versiones',
+      configuracion: {
+        nombreEvento: '15 de Camila',
+        tipoCelebracion: '15',
+        fechaEvento: '2026-12-15',
+        nombreLugar: 'Salón Las Violetas',
+        direccionLugar: 'Av. Rivera 1234',
+      } as any,
+    } as FiestaEnPlanificacion;
+
+    (getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
+
+    const resultado = await crearTresPropuestasDeWeb('fiesta-quince-3versiones', '#ec4899');
+
+    expect(resultado.success).toBe(true);
+    expect(resultado.propuestas).toBeDefined();
+    expect(resultado.propuestas).toHaveLength(3);
+
+    // Tres plantillas distintas de las 8
+    const plantillas = resultado.propuestas!.map((p) => p.invitacionDigital.plantilla);
+    expect(new Set(plantillas).size).toBe(3);
+
+    // Tres paletas armadas a partir del color elegido (análoga, contraste y suave)
+    const paletas = resultado.propuestas!.map((p) => p.paletaTipo);
+    expect(paletas).toEqual(['analoga', 'contraste', 'suave']);
+
+    // Textos con tono distinto (clásico, moderno y divertido)
+    const tonos = resultado.propuestas!.map((p) => p.tono);
+    expect(tonos).toEqual(['clasico', 'moderno', 'divertido']);
+  });
+
+  it('elegir con sesión de portal de otra fiesta se rechaza', async () => {
+    (verifyPortalSession as jest.Mock).mockResolvedValueOnce(false);
+    (requireFiestaWriteAccess as jest.Mock).mockRejectedValueOnce(
+      new Error('No autorizado para modificar este evento.'),
+    );
+
+    await expect(elegirPropuestaDeWeb('otra-fiesta-ajena', 'prop-1')).rejects.toThrow(
+      'No autorizado para modificar este evento.',
+    );
+  });
+
+  it('elegir un id que no existe se rechaza', async () => {
+    mockFiesta = {
+      id: 'fiesta-con-propuestas',
+      propuestasDeWeb: [
+        {
+          id: 'prop-real-1',
+          invitacionDigital: { ...defaultInvitacionDigitalData },
+          creadaEn: new Date().toISOString(),
+          paletaTipo: 'analoga',
+          tono: 'clasico',
+        },
+      ],
+    } as any;
+
+    (getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
+
+    await expect(
+      elegirPropuestaDeWeb('fiesta-con-propuestas', 'id-que-no-existe'),
+    ).rejects.toThrow(/no existe|no se encontr/i);
+  });
+
+  it('la web publicada no cambia hasta elegir', async () => {
+    const webOriginal = {
+      ...defaultInvitacionDigitalData,
+      cabecera: {
+        ...defaultInvitacionDigitalData.cabecera,
+        protagonista1: 'Web Publicada Original',
+      },
+    };
+
+    let fiestaEstado: FiestaEnPlanificacion = {
+      id: 'fiesta-elegir-web',
+      configuracion: {
+        nombreEvento: '15 de Valentina',
+        tipoCelebracion: '15',
+        fechaEvento: '2026-11-20',
+      } as any,
+      invitacionDigital: webOriginal,
+    } as any;
+
+    (getFiestaById as jest.Mock).mockImplementation(async () => fiestaEstado);
+    (saveFiesta as jest.Mock).mockImplementation(async (actualizada: FiestaEnPlanificacion) => {
+      fiestaEstado = actualizada;
+      return { success: true, fiesta: actualizada };
+    });
+
+    // 1. Generar las 3 propuestas
+    const resPropuestas = await crearTresPropuestasDeWeb('fiesta-elegir-web', '#ec4899');
+    expect(resPropuestas.success).toBe(true);
+    expect(resPropuestas.propuestas).toHaveLength(3);
+
+    // 2. Comprobar que la web publicada (invitacionDigital) NO cambió al generar propuestas
+    expect(fiestaEstado.invitacionDigital).toEqual(webOriginal);
+    expect(fiestaEstado.invitacionDigital?.cabecera.protagonista1).toBe('Web Publicada Original');
+    expect(fiestaEstado.propuestasDeWeb).toHaveLength(3);
+
+    // 3. Elegir una de las propuestas
+    const propuestaElegida = resPropuestas.propuestas![1];
+    const resElegir = await elegirPropuestaDeWeb('fiesta-elegir-web', propuestaElegida.id);
+    expect(resElegir.success).toBe(true);
+
+    // 4. Ahora sí la web publicada cambió a la propuesta elegida
+    expect(fiestaEstado.invitacionDigital).toEqual(propuestaElegida.invitacionDigital);
+    expect(fiestaEstado.propuestaDeWebElegida).toBe(propuestaElegida.id);
+    expect(createNotification).toHaveBeenCalled();
   });
 });
