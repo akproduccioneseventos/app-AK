@@ -1,5 +1,7 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+- **La voz del cliente en su portal anda de verdad (orden 238, 28/10/2026).** El botón Hablar abre la llamada por `/api/asistente/voz-en-vivo/cliente` (sesión del portal de esa fiesta y tope diario de minutos ya publicados) con `sinHerramientas`: la IA conversa pero no ejecuta ninguna acción. Rescatado de la entrega 1368 de Gemini, que venía de una base vieja; su parte de la orden 239 se descartó porque main ya la tenía mejor.
+
 ## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
 
 - AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.
