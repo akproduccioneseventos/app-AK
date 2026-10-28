@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Sparkles, Bot, PhoneCall } from 'lucide-react';
+import { X, Send, Loader2, Sparkles, Bot, PhoneCall, PhoneOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { chatConAsistenteCliente } from '@/app/actions/asistente-virtual';
+import { iniciarVozEnVivo, type SesionVozEnVivo } from '@/lib/asistente/sesion-voz-en-vivo';
 import type { MessageData } from 'genkit';
 
 interface AsistenteDelClienteProps {
@@ -17,6 +18,8 @@ interface MensajeChat {
   role: 'user' | 'assistant';
   text: string;
 }
+
+type EstadoLlamada = 'inactiva' | 'conectando' | 'conectada';
 
 export function AsistenteDelCliente({
   fiestaId,
@@ -32,21 +35,108 @@ export function AsistenteDelCliente({
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [estadoLlamada, setEstadoLlamada] = useState<EstadoLlamada>('inactiva');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sesionRef = useRef<SesionVozEnVivo | null>(null);
+  const abortCtrlRef = useRef<AbortController | null>(null);
 
-  // La llamada de voz del cliente todavia no abre audio en este panel: antes pedia la ficha
-  // al servidor (gastaba los minutos del dia del cliente) y anunciaba "conectada" sin conectar nada.
-  // Mientras no haya audio de verdad, no se pide ficha y se le dice la verdad.
-  const handleIniciarLlamadaVoz = () => {
-    setMensajes((prev) => [
-      ...prev,
-      {
-        id: `sys-${Date.now()}`,
-        role: 'assistant',
-        text: 'La llamada por voz todavía no está disponible; escribime y te contesto.',
-      },
-    ]);
+  const cortarLlamada = () => {
+    if (abortCtrlRef.current) {
+      abortCtrlRef.current.abort();
+      abortCtrlRef.current = null;
+    }
+    if (sesionRef.current) {
+      sesionRef.current.detener();
+      sesionRef.current = null;
+    }
+    setEstadoLlamada('inactiva');
   };
+
+  const handleIniciarLlamadaVoz = async () => {
+    if (estadoLlamada === 'conectada' || estadoLlamada === 'conectando') {
+      cortarLlamada();
+      return;
+    }
+
+    cortarLlamada();
+    const abortCtrl = new AbortController();
+    abortCtrlRef.current = abortCtrl;
+    setEstadoLlamada('conectando');
+
+    try {
+      const sesion = await iniciarVozEnVivo({
+        urlFicha: '/api/asistente/voz-en-vivo/cliente',
+        cuerpoFicha: { fiestaId },
+        sinHerramientas: true,
+        senal: abortCtrl.signal,
+        onEstado: (nuevoEstado) => {
+          if (nuevoEstado === 'escuchando' || nuevoEstado === 'hablando') {
+            setEstadoLlamada('conectada');
+          } else if (nuevoEstado === 'cerrada') {
+            setEstadoLlamada('inactiva');
+            sesionRef.current = null;
+          }
+        },
+        onTexto: (texto, quien) => {
+          setMensajes((prev) => [
+            ...prev,
+            {
+              id: `voz-${Date.now()}-${Math.random()}`,
+              role: quien === 'persona' ? 'user' : 'assistant',
+              text: texto,
+            },
+          ]);
+        },
+        onError: (mensaje) => {
+          setEstadoLlamada('inactiva');
+          sesionRef.current = null;
+          setMensajes((prev) => [
+            ...prev,
+            {
+              id: `err-${Date.now()}`,
+              role: 'assistant',
+              text: mensaje,
+            },
+          ]);
+        },
+      });
+
+      if (abortCtrl.signal.aborted) {
+        sesion.detener();
+        return;
+      }
+      sesionRef.current = sesion;
+    } catch {
+      if (!abortCtrl.signal.aborted) {
+        setEstadoLlamada('inactiva');
+        setMensajes((prev) => [
+          ...prev,
+          {
+            id: `err-${Date.now()}`,
+            role: 'assistant',
+            text: 'No se pudo iniciar la llamada de voz.',
+          },
+        ]);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      cortarLlamada();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (abortCtrlRef.current) {
+        abortCtrlRef.current.abort();
+      }
+      if (sesionRef.current) {
+        sesionRef.current.detener();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -159,16 +249,48 @@ export function AsistenteDelCliente({
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleIniciarLlamadaVoz}
-                  className="text-xs font-bold text-amber-300 hover:text-amber-200 hover:bg-primary-foreground/20 rounded-full px-2.5 h-8 gap-1"
-                  title="Hablar por voz con el asistente"
-                >
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  Hablar
-                </Button>
+                {estadoLlamada === 'inactiva' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleIniciarLlamadaVoz}
+                    className="text-xs font-bold text-amber-300 hover:text-amber-200 hover:bg-primary-foreground/20 rounded-full px-2.5 h-8 gap-1"
+                    title="Hablar por voz con el asistente"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    Hablar
+                  </Button>
+                )}
+                {estadoLlamada === 'conectando' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled
+                    className="text-xs font-bold text-amber-300 opacity-80 rounded-full px-2.5 h-8 gap-1 cursor-not-allowed"
+                    title="Conectando voz en vivo"
+                  >
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Conectando…
+                  </Button>
+                )}
+                {estadoLlamada === 'conectada' && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] font-medium text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      En llamada
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={cortarLlamada}
+                      className="text-xs font-bold text-rose-300 hover:text-rose-200 hover:bg-rose-500/20 rounded-full px-2.5 h-8 gap-1"
+                      title="Cortar llamada"
+                    >
+                      <PhoneOff className="w-3.5 h-3.5" />
+                      Cortar
+                    </Button>
+                  </div>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -246,3 +368,4 @@ export function AsistenteDelCliente({
     </>
   );
 }
+

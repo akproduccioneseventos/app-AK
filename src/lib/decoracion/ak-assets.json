@@ -1,0 +1,865 @@
+{
+  "sourceSha256": "014444c4952a3b4253bfd37582455dc8601ae679da09cda9fc2afdb5ec4c20c4",
+  "assets": [
+    {
+      "id": "ak_deco_v2_AK-001",
+      "name": "letra A",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-001.png",
+      "pixelWidth": 278,
+      "pixelHeight": 281,
+      "sha256": "f79421ba357dd1a06d5dbfb02acf6747e4de2c811cb6357abb179c92578b02ee",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-002",
+      "name": "letra B",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-002.png",
+      "pixelWidth": 238,
+      "pixelHeight": 281,
+      "sha256": "3546fb70218a642fccd2acd41b476d5a3a144b0a945223a9f266991f909b968d",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-003",
+      "name": "letra C",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-003.png",
+      "pixelWidth": 245,
+      "pixelHeight": 289,
+      "sha256": "343767f2548a005bf2200ceeaf54d5c92beacf9891d916b19974267c2ce40807",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-004",
+      "name": "letra D",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-004.png",
+      "pixelWidth": 266,
+      "pixelHeight": 281,
+      "sha256": "bf500d8a17e03d8ddc27832be6af5e8d2088c7e43c156ee676c63a44adda7e48",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-005",
+      "name": "letra E",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-005.png",
+      "pixelWidth": 212,
+      "pixelHeight": 281,
+      "sha256": "41c031249ea95d8f010e724d478b50a19ba0abb761578789f68b4e6706a96a1c",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-006",
+      "name": "letra F",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-006.png",
+      "pixelWidth": 209,
+      "pixelHeight": 281,
+      "sha256": "78d664914a2d6540d851f3ea64a2f9f5fbe5bb9cd437bc7c3af85b22a808d91d",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-007",
+      "name": "letra G",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-007.png",
+      "pixelWidth": 270,
+      "pixelHeight": 289,
+      "sha256": "d3c62c2f5eb8af55fe74411f66c6bbcd72a3f42e2f3a3ac8a49487227f598c78",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-008",
+      "name": "letra H",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-008.png",
+      "pixelWidth": 256,
+      "pixelHeight": 281,
+      "sha256": "72912cb3ea480519503ba20e4799753180e9bd1e9c1cff3704036ac9fc92f603",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-009",
+      "name": "letra I",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-009.png",
+      "pixelWidth": 107,
+      "pixelHeight": 281,
+      "sha256": "34dfb8de9e0f5e7c6c819ff92369b209ce6f10a7b2dbaff678dcfbff123f38d0",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-010",
+      "name": "letra J",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-010.png",
+      "pixelWidth": 154,
+      "pixelHeight": 344,
+      "sha256": "f3e24b438ef1a59e7260875173e115cd1f5028e5f628c0023fac61525e523592",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-011",
+      "name": "letra K",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-011.png",
+      "pixelWidth": 268,
+      "pixelHeight": 281,
+      "sha256": "968f43df33d7baa006d0c96f765de0f733faf91d3469c63b424b534d7f51f6cc",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-012",
+      "name": "letra L",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-012.png",
+      "pixelWidth": 212,
+      "pixelHeight": 281,
+      "sha256": "b04983c06b863c69a0bdd5f1257e65ca28aaf553706ab796233359b98a6ca5c0",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-013",
+      "name": "letra M",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-013.png",
+      "pixelWidth": 307,
+      "pixelHeight": 281,
+      "sha256": "e55e07fb511267137b813556b82493aafbfddcf3b4b5162b6633d4080c57dc31",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-014",
+      "name": "letra N",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-014.png",
+      "pixelWidth": 256,
+      "pixelHeight": 281,
+      "sha256": "f26b9000f4f7b36ff82700128c2c0517a48c1f101d22c9697a3e2171a130495c",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-015",
+      "name": "letra Ñ",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-015.png",
+      "pixelWidth": 256,
+      "pixelHeight": 342,
+      "sha256": "b8a912f9ffcc6e2572bacb4c3ca1e83bb04ace60e4e16e951a9688932bbc0234",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-016",
+      "name": "letra O",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-016.png",
+      "pixelWidth": 286,
+      "pixelHeight": 289,
+      "sha256": "1ae60d337bcd1726f9d320e51948accc87c41221e2480fd5ec0d776cd7b4e492",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-017",
+      "name": "letra P",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-017.png",
+      "pixelWidth": 238,
+      "pixelHeight": 281,
+      "sha256": "325f101e345273b90ffb0dacfb3c71f0a6aa038738964c4b54bf66def4656abd",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-018",
+      "name": "letra Q",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-018.png",
+      "pixelWidth": 286,
+      "pixelHeight": 331,
+      "sha256": "667455a681a0069054b154f3c29d847db14d23af58b2d28a88b09ea1ea0898f1",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-019",
+      "name": "letra R",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-019.png",
+      "pixelWidth": 250,
+      "pixelHeight": 281,
+      "sha256": "e7fa1b469b0d24e7626fbbb8e73622f6bdb3009928161821dc6e0385288320c2",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-020",
+      "name": "letra S",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-020.png",
+      "pixelWidth": 230,
+      "pixelHeight": 289,
+      "sha256": "7de49674db5c65b2f7500ca1aaf7ded043c0de5ddfd52bb5a065719d71712e65",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-021",
+      "name": "letra T",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-021.png",
+      "pixelWidth": 260,
+      "pixelHeight": 281,
+      "sha256": "b4567c335379c06c6d5a3302624473a325cff8ae8ec66c4a210aa94ae53551cd",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-022",
+      "name": "letra U",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-022.png",
+      "pixelWidth": 248,
+      "pixelHeight": 285,
+      "sha256": "52df8e2f196a3c5564498e58b09372c69dc8b5982cf13fc25d92d1fa4507aa05",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-023",
+      "name": "letra V",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-023.png",
+      "pixelWidth": 278,
+      "pixelHeight": 281,
+      "sha256": "3a189f93c50ed7bdaaf8b6e819795c811dd9c36a8af03b162e7677bb81c2370e",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-024",
+      "name": "letra W",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-024.png",
+      "pixelWidth": 371,
+      "pixelHeight": 281,
+      "sha256": "ee5c83205fcf55e7abde17cf98f5e563da4692981d5099376a32d42c6222df80",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-025",
+      "name": "letra X",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-025.png",
+      "pixelWidth": 266,
+      "pixelHeight": 281,
+      "sha256": "7b0e35d70bb587508ca853d43143dae5b36a2253b3322bcb2b3955c0228ff9b0",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-026",
+      "name": "letra Y",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-026.png",
+      "pixelWidth": 270,
+      "pixelHeight": 281,
+      "sha256": "07f35370d836965a571a9e79053f5a27d6f2d437807409655ba6f623056616ee",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-027",
+      "name": "letra Z",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-027.png",
+      "pixelWidth": 250,
+      "pixelHeight": 281,
+      "sha256": "1b949547c30eedc46088b7273ba74c24001fde3d7fcf1f3d7f84025174aa4cd4",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-028",
+      "name": "numero 0",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-028.png",
+      "pixelWidth": 239,
+      "pixelHeight": 289,
+      "sha256": "be6d06b2e23cb5ebb20d3e0a2605602b593669673a1bed4e6f4cf8327c855cb9",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-029",
+      "name": "numero 1",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-029.png",
+      "pixelWidth": 211,
+      "pixelHeight": 281,
+      "sha256": "79875951be9dea0d15c5f728e4e0ca9b0486e6275c3f5634fe0c8d3c16d18b27",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-030",
+      "name": "numero 2",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-030.png",
+      "pixelWidth": 216,
+      "pixelHeight": 285,
+      "sha256": "da56d7d001a1df34588c1d77c0e99fcf0f07a0003a3398d1ea59da20b56bb78a",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-031",
+      "name": "numero 3",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-031.png",
+      "pixelWidth": 222,
+      "pixelHeight": 289,
+      "sha256": "b0d61820b613ac47fa0b56e2777642298d83e7635cad40611692a190689a75d5",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-032",
+      "name": "numero 4",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-032.png",
+      "pixelWidth": 240,
+      "pixelHeight": 281,
+      "sha256": "9151fc5d25d4e8aad1ac45b279792b272ec4c6339a999c03f170dd6a2f28da75",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-033",
+      "name": "numero 5",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-033.png",
+      "pixelWidth": 221,
+      "pixelHeight": 285,
+      "sha256": "2eefe2424c4914e94b644bfc68efa00e360b82bfa4a01637ad93f722aa825f10",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-034",
+      "name": "numero 6",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-034.png",
+      "pixelWidth": 232,
+      "pixelHeight": 288,
+      "sha256": "b3be7fac28ea42ea85397fcb8c6258be88328d77bbd92abbd338fef49f0c0f11",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-035",
+      "name": "numero 7",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-035.png",
+      "pixelWidth": 222,
+      "pixelHeight": 281,
+      "sha256": "5ad139b1eb5fdcfdafacc55697b8f745b462f01d522db8fec4f12affaca33baf",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-036",
+      "name": "numero 8",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-036.png",
+      "pixelWidth": 229,
+      "pixelHeight": 289,
+      "sha256": "54a5df6f8d43c588ade9640bd56705bfc5196ad60197cf94ec6f2231e1d2ac78",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-037",
+      "name": "numero 9",
+      "category": "Letras LED individuales",
+      "url": "/media/decoracion-ak/ak-037.png",
+      "pixelWidth": 232,
+      "pixelHeight": 288,
+      "sha256": "70a88059951b3d1322a4a78e3b6c8d4e1516954a1f404a2155601b2a4516b4cb",
+      "provenance": "reutilizacion y limpieza de alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-038",
+      "name": "biombo blanco 4 paneles completo",
+      "category": "Biombos y sillones",
+      "url": "/media/decoracion-ak/ak-038.png",
+      "pixelWidth": 616,
+      "pixelHeight": 664,
+      "sha256": "a1e5d3a0f2011732fa5407ed300940eea53d39ae2b101889c0b4a7ffd74a54ab",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-039",
+      "name": "sillon capitone blanco completo",
+      "category": "Biombos y sillones",
+      "url": "/media/decoracion-ak/ak-039.png",
+      "pixelWidth": 699,
+      "pixelHeight": 393,
+      "sha256": "bdb3871ca690198f94b86ec94cf6891f6ed29ac384e2e234fb1efedb76e96d5f",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-040",
+      "name": "mesa auxiliar blanca madera con florero",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-040.png",
+      "pixelWidth": 358,
+      "pixelHeight": 787,
+      "sha256": "e449bdda62d26a0fbf0a11247b531355cfcc2bd46a918eaf2a9a131ed2295a94",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-041",
+      "name": "baul blanco tapa madera",
+      "category": "Baules",
+      "url": "/media/decoracion-ak/ak-041.png",
+      "pixelWidth": 769,
+      "pixelHeight": 524,
+      "sha256": "ecedbb6a1a14e88c8facf7ee42d4c5f557358099e7638ae48f0f74a7d269fa7f",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-042",
+      "name": "mesa auxiliar blanca con canasta floral",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-042.png",
+      "pixelWidth": 184,
+      "pixelHeight": 440,
+      "sha256": "636a8aaa3ad5cc31cd17b45c31828bd472842bd1a862e87964ddd5dcb51fc458",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-043",
+      "name": "mesa auxiliar blanca love",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-043.png",
+      "pixelWidth": 180,
+      "pixelHeight": 407,
+      "sha256": "c650fd45b3a7530205bca5acd391495f728168634ea33ce307a54b23e222ac46",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-044",
+      "name": "corazon colgante rattan",
+      "category": "Accesorios",
+      "url": "/media/decoracion-ak/ak-044.png",
+      "pixelWidth": 188,
+      "pixelHeight": 400,
+      "sha256": "86f216fc3be5b8f50f6ecaeeda63373215458d5de5b82980d172d596d3e90991",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-045",
+      "name": "alfombra yute redonda",
+      "category": "Alfombras",
+      "url": "/media/decoracion-ak/ak-045.png",
+      "pixelWidth": 391,
+      "pixelHeight": 150,
+      "sha256": "cb4d58c3b6ab6d55c19b56445cf6a15bb23c255231ab79822dff186f9292906e",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-046",
+      "name": "alfombra blanca redonda",
+      "category": "Alfombras",
+      "url": "/media/decoracion-ak/ak-046.png",
+      "pixelWidth": 366,
+      "pixelHeight": 145,
+      "sha256": "62af2534fdad5efc982277682f3cd1ac877ae76c8d5292b8115abb23f0e57825",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-047",
+      "name": "arbol fotografias urna blanca",
+      "category": "Flores y plantas",
+      "url": "/media/decoracion-ak/ak-047.png",
+      "pixelWidth": 984,
+      "pixelHeight": 1303,
+      "sha256": "f5a7f1ddd62df67d34faa9bdb5a97c2a65a0ccee7f55902226d1d9b6835c469d",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-048",
+      "name": "arco completo globos dorado blanco",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-048.png",
+      "pixelWidth": 614,
+      "pixelHeight": 892,
+      "sha256": "861a70af96dfc5d64e7d975219883d2c8a84c1635f082d4733608d88c268863b",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-049",
+      "name": "columna globos blanco dorado rosa",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-049.png",
+      "pixelWidth": 276,
+      "pixelHeight": 760,
+      "sha256": "c9288f292378ae6bc4111a236657e8c23e33bd15bf354b3a96d5261340ed38c5",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-050",
+      "name": "columna globos lila plata",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-050.png",
+      "pixelWidth": 521,
+      "pixelHeight": 540,
+      "sha256": "48f25df08a81ff0288213d7b760e6f5e19df2def37cabd1e58bb103b76f4857a",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-051",
+      "name": "guirnalda globos menta blanco plata",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-051.png",
+      "pixelWidth": 646,
+      "pixelHeight": 614,
+      "sha256": "aae0c75a6a84b1b597b0abdea6dc415b7cb782e20b763508270059701ffb98fb",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-052",
+      "name": "columna globos blanco dorado boda",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-052.png",
+      "pixelWidth": 508,
+      "pixelHeight": 574,
+      "sha256": "3f99384f4beaafb91c612236711accfe285bee38a3d72b88a55e10d840d1e7d6",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-053",
+      "name": "estructura flores rojas blancas con cortinas",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-053.png",
+      "pixelWidth": 1116,
+      "pixelHeight": 834,
+      "sha256": "fe37336881c3bbb8648db92adfe380e8aa5669839b135cad099c98ab0cb8887d",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-054",
+      "name": "fondo flores blancas cortinas completo",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-054.png",
+      "pixelWidth": 753,
+      "pixelHeight": 786,
+      "sha256": "aaefc21288a844900b3702e0aaea8b269d53a687f92cad596730a8a75d80ebe3",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-055",
+      "name": "fondo shimmer lila plata",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-055.png",
+      "pixelWidth": 397,
+      "pixelHeight": 464,
+      "sha256": "047acc5fc216ae649f963d15efbb61b2eb70f8e0f6ebb6b56fe56a51ba2a6834",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-056",
+      "name": "cartel neon happy birthday",
+      "category": "Carteles y neon",
+      "url": "/media/decoracion-ak/ak-056.png",
+      "pixelWidth": 167,
+      "pixelHeight": 133,
+      "sha256": "74a0f4df6b8cad68c907752755385169aea5789639d419658f1b457ac28b9c6e",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-057",
+      "name": "panel romano lila con happy birthday",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-057.png",
+      "pixelWidth": 296,
+      "pixelHeight": 498,
+      "sha256": "79c27c1357b0740616138bad759ed25be21e01a85c475c11919a320031abe728",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-058",
+      "name": "fondo shimmer plateado",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-058.png",
+      "pixelWidth": 370,
+      "pixelHeight": 537,
+      "sha256": "bea576eef5d08246f9bbabef9d42e430ab6092359e5221a05ae109a79d7fb525",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-059",
+      "name": "panel romano blanco",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-059.png",
+      "pixelWidth": 279,
+      "pixelHeight": 544,
+      "sha256": "b008a65635e2e4a40b14e2d8663df6543593d374ff3e3c18a77c6aa5722d20ef",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-060",
+      "name": "shimmer dorado",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-060.png",
+      "pixelWidth": 509,
+      "pixelHeight": 497,
+      "sha256": "1d2d18a7c44c3b74a0c33386c9000e1ab44c75ff72d84c1b0ae86d4f3be4110f",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-061",
+      "name": "aro circular dorado love",
+      "category": "Fondos y estructuras",
+      "url": "/media/decoracion-ak/ak-061.png",
+      "pixelWidth": 509,
+      "pixelHeight": 573,
+      "sha256": "c9592514b0cba654b030598bed4edaf64b54909b0b9ddd4d206a15d56b247ee6",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-062",
+      "name": "neon colgante love corazon",
+      "category": "Carteles y neon",
+      "url": "/media/decoracion-ak/ak-062.png",
+      "pixelWidth": 338,
+      "pixelHeight": 325,
+      "sha256": "d3e90a75300bb6621f5cd2044d84dbfdd7d16628f598d4cc15fa864f1e31da10",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-063",
+      "name": "candelabro corazon una vela",
+      "category": "Faroles y candelabros",
+      "url": "/media/decoracion-ak/ak-063.png",
+      "pixelWidth": 126,
+      "pixelHeight": 311,
+      "sha256": "9d8397ed6c3a7a75feb93b99dd267a5e007f09cbe22d89556d41128ac3258a95",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-064",
+      "name": "candelabro arbol dorado",
+      "category": "Faroles y candelabros",
+      "url": "/media/decoracion-ak/ak-064.png",
+      "pixelWidth": 229,
+      "pixelHeight": 402,
+      "sha256": "939ca17b999eabaa36afafa4d5a22edef84e3164d374c7328466ab556bcb699b",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-065",
+      "name": "farol negro con vela",
+      "category": "Faroles y candelabros",
+      "url": "/media/decoracion-ak/ak-065.png",
+      "pixelWidth": 185,
+      "pixelHeight": 322,
+      "sha256": "d7cac0c18aa64e296d4cf7596690011ea9f278784a9149a09c3bbe3b2833af3c",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-066",
+      "name": "farol mimbre pequeno",
+      "category": "Faroles y candelabros",
+      "url": "/media/decoracion-ak/ak-066.png",
+      "pixelWidth": 123,
+      "pixelHeight": 150,
+      "sha256": "2fb79c1a3ef986bb962b8a48b5ebf56cab9ed5a774605e36b759c4c81738c1b7",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-067",
+      "name": "farol mimbre mediano",
+      "category": "Faroles y candelabros",
+      "url": "/media/decoracion-ak/ak-067.png",
+      "pixelWidth": 135,
+      "pixelHeight": 180,
+      "sha256": "b106a0ade0643d74ab417d8ffe4c07144477dd2ff5f929964c1ccd7aa3372c1b",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-068",
+      "name": "globo corazon plateado",
+      "category": "Globos",
+      "url": "/media/decoracion-ak/ak-068.png",
+      "pixelWidth": 246,
+      "pixelHeight": 288,
+      "sha256": "30b2cf3e35e2e86d553e939989596372b9ffd09814e6f7e3f67ecfa5c4604fc5",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-069",
+      "name": "letra v blanca grande",
+      "category": "Letras blancas",
+      "url": "/media/decoracion-ak/ak-069.png",
+      "pixelWidth": 290,
+      "pixelHeight": 418,
+      "sha256": "4410955aa1a5190f592a102f4660fadc0d9ac6d690d0f4e18a25bd64fbb2561f",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-070",
+      "name": "pedestal floral blanco estructura metalica",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-070.png",
+      "pixelWidth": 247,
+      "pixelHeight": 610,
+      "sha256": "f8b2132e301cfea91541876b8778933e5a3f5b092876047a83aebcb965882240",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-071",
+      "name": "caballete madera cartel bienvenida personalizado",
+      "category": "Carteles y neon",
+      "url": "/media/decoracion-ak/ak-071.png",
+      "pixelWidth": 464,
+      "pixelHeight": 913,
+      "sha256": "42c371d310d20cfbe530cd3cdd9218752e4cd7eda6e88f60c4787a79336c5890",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-072",
+      "name": "caballete madera bienvenida boda",
+      "category": "Carteles y neon",
+      "url": "/media/decoracion-ak/ak-072.png",
+      "pixelWidth": 200,
+      "pixelHeight": 501,
+      "sha256": "cde7d1672b642f0601a2cd5662dc68a9d8449997b40911d45c08a9e629116ac6",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-073",
+      "name": "esfera de yute con luz",
+      "category": "Accesorios",
+      "url": "/media/decoracion-ak/ak-073.png",
+      "pixelWidth": 128,
+      "pixelHeight": 176,
+      "sha256": "b551eb12a835ac033fd554dac52b0af2bbcd70f928ab1de6299781723dc2d61a",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-074",
+      "name": "pedestal romano blanco con planta",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-074.png",
+      "pixelWidth": 353,
+      "pixelHeight": 869,
+      "sha256": "97ddd8527df9143904c9cbc4823516e8459f237185489dda810727a96b4da9ae",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-075",
+      "name": "torta lila blanca con rosas",
+      "category": "Tortas",
+      "url": "/media/decoracion-ak/ak-075.png",
+      "pixelWidth": 266,
+      "pixelHeight": 439,
+      "sha256": "3002cd0ebe9e0ee3040537a014c03f43b7ce8db5aafb9bbe9f1c511933abaa4d",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-076",
+      "name": "torta azul celeste dos pisos",
+      "category": "Tortas",
+      "url": "/media/decoracion-ak/ak-076.png",
+      "pixelWidth": 193,
+      "pixelHeight": 243,
+      "sha256": "9817b53b42ab2c3cb91e8c0ebf1a38976b5956340b7822adcf4e470de2e87dca",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-077",
+      "name": "torta celeste blanca estrellas",
+      "category": "Tortas",
+      "url": "/media/decoracion-ak/ak-077.png",
+      "pixelWidth": 231,
+      "pixelHeight": 249,
+      "sha256": "2820c0e15e32cd87dc874163707cdf4a199f293b091650362999ddb00cd84b01",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-078",
+      "name": "pedestal cilindrico blanco alto",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-078.png",
+      "pixelWidth": 129,
+      "pixelHeight": 310,
+      "sha256": "c9597872e9fdcacab5c0b879ae439c00b8281149243683ca2900bc9887d3fcbb",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-079",
+      "name": "pedestal cilindrico blanco mediano",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-079.png",
+      "pixelWidth": 130,
+      "pixelHeight": 203,
+      "sha256": "5c626f0b0e0635c409f74a9104d3f9cca307491faa610667aa6caef140616d1e",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-080",
+      "name": "pedestal cilindrico blanco bajo",
+      "category": "Mesas y pedestales",
+      "url": "/media/decoracion-ak/ak-080.png",
+      "pixelWidth": 119,
+      "pixelHeight": 125,
+      "sha256": "871e864b6967ccffc7308dbfaff4ce2df371cb67a6c4a54e040f4aacd4dbc26d",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-081",
+      "name": "ramo seco dorado en jarron",
+      "category": "Flores y plantas",
+      "url": "/media/decoracion-ak/ak-081.png",
+      "pixelWidth": 149,
+      "pixelHeight": 245,
+      "sha256": "386c916fc0769f53e4e73592f1f362a29ad70f51a803c2358f328e7c70c6cf41",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-082",
+      "name": "ramo novia blanco rosado",
+      "category": "Flores y plantas",
+      "url": "/media/decoracion-ak/ak-082.png",
+      "pixelWidth": 244,
+      "pixelHeight": 253,
+      "sha256": "75e1162335ab0e9b54395c48761c1de43472796423acac311f85748eaf6cef60",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-083",
+      "name": "arreglo floral pequeno blanco",
+      "category": "Flores y plantas",
+      "url": "/media/decoracion-ak/ak-083.png",
+      "pixelWidth": 131,
+      "pixelHeight": 186,
+      "sha256": "be6077413c869f422dd623394c08451faf82602e507b9e78100da6a147b675d6",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-084",
+      "name": "numero 70 luminoso",
+      "category": "Numeros decorativos",
+      "url": "/media/decoracion-ak/ak-084.png",
+      "pixelWidth": 182,
+      "pixelHeight": 149,
+      "sha256": "4162bcfb516759cd26c6999dd28cdf48762e8ba4c8c6cfbd89aed26ad38ce4cc",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-085",
+      "name": "numero 15 luminoso blanco",
+      "category": "Numeros decorativos",
+      "url": "/media/decoracion-ak/ak-085.png",
+      "pixelWidth": 180,
+      "pixelHeight": 167,
+      "sha256": "b8c3e6b38d5a4ea2bdb196ca7ed7dabd8030aafd7e1c7c3a580852434019cb9d",
+      "provenance": "separacion desde fuente con alfa"
+    },
+    {
+      "id": "ak_deco_v2_AK-086",
+      "name": "letra x blanca grande",
+      "category": "Letras blancas",
+      "url": "/media/decoracion-ak/ak-086.png",
+      "pixelWidth": 633,
+      "pixelHeight": 691,
+      "sha256": "d44c68da001ccc1b0cc98796cbda18e06ec4024a4a1463fcac2aedb270e5fc3c",
+      "provenance": "nuevo dibujo vectorial rasterizado"
+    }
+  ]
+}

@@ -428,6 +428,18 @@
     "107": {
       "fecha": "2026-10-27",
       "resultado": "barrida en src/lib/auth, src/lib/security, guardias, require-session, armado de la sesión, menú y acciones que usan perfilDe/puede: el armado de la cookie (simple-auth.ts:910, auth.ts:508,821,872,903) convierte un perfil roto en el del rol viejo; getMisPermisos, el menú (que además lee 'profile'), asistente proactivo, google-workspace y recortar-para-afuera no rechazan un perfil inválido. Sin fallbacks a admin/dueño en switches. Va en la orden 247, bloque 8."
+    },
+    "108": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en todos los delete* y forceDelete* de src/app/actions y src/lib: facturas y presupuestos (plata, y el presupuesto se borraba con cobros), proveedores, insumos, menús, activos y empleados (referencias huérfanas). crm, clientes, salones y fiestas no miran nada antes. Va en la orden 249."
+    },
+    "109": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en exportes, resúmenes, textos y avisos de plata: resumen del contador (gastos sin centavos) y rentabilidad de analytics (redondeo por partes). Lo demás con pesos enteros son ventas o facturado, decisión del dueño. Va en la orden 249."
+    },
+    "110": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
     }
   },
   "hallazgos": {
@@ -588,16 +600,37 @@
       "resultado": "Pregunta 104 (usar un dato real y no adivinar por texto): getDrinkTags clasifica por el nombre; con la carta nueva sale de soloMayores y la receta. Buscado en barra-tecnologica, tótem y portal: es el único clasificador por texto de la barra. Orden 242 bloque 5."
     },
     "orden-249": {
-      "fecha": "2026-10-28",
-      "resultado": "Pregunta 94 (control de borrado en la misma transaccion): facturas y presupuestos no se borran si tienen cobros o contrato firmado. Borrado atomico y resumen para el contador con centavos."
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 90 (control afuera, borrado después). Barrido de todos los borrados con control previo: facturas y presupuestos (plata; el presupuesto además se borraba con cobros adentro), proveedores, insumos, menús, activos y empleados (referencias huérfanas). Redondeos de plata: resumen del contador y rentabilidad de analytics. Todo en la orden 249."
+    },
+    "auditoria-726": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 90 (control afuera, borrado después). Barrido de todos los borrados con control previo: facturas y presupuestos (plata; el presupuesto además se borraba con cobros adentro), proveedores, insumos, menús, activos y empleados (referencias huérfanas). Redondeos de plata: resumen del contador y rentabilidad de analytics. Todo en la orden 249."
+    },
+    "orden-250": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 92 (IA que se paga y no pasa por el tope ni avisa): al preparar la orden se vio que generarVisualizacionSalonAi y generarVisualizacionSalonReunion generan imágenes sin hayPresupuestoParaIA ni registrarConsumoIA. Buscado generateGeminiImage en src/: espejo mágico y salón IA sí lo cuentan; las dos de decoración no. Va en la orden 250, bloque 2."
     },
     "orden-251": {
-      "fecha": "2026-10-28",
-      "resultado": "Pregunta 104: unificacion de saldos positivos en libro mayor y asistentes, comisiones de Mercado Pago descontadas y pagos a proveedores filtrados por fecha local."
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
+    },
+    "auditoria-732": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
+    },
+    "auditoria-737": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 4 (lo que dice la pantalla existe en el código): buscadas las preguntas frecuentes, el contrato y los textos del portal sobre ajuste, seña y cancelación; la única que no coincide con la cuenta es la del ajuste. Orden 251, bloque 3."
     },
     "orden-252": {
       "fecha": "2026-10-28",
-      "resultado": "Pregunta 106: revocacion inmediata de sesiones con versionDeSesion, validacion de un dueno remanente con mutex y corte de permisos en pantalla y acciones."
+      "resultado": "Pregunta 106 (llaves y permisos que miran lo guardado y no lo de hoy): revisados en la entrega 1370 todos los emisores de sesión (loginUser, Google, recuperación, clave maestra), las mutaciones de usuarios y actualizarFiesta. Lo encontrado está en la orden 252; no hay otros emisores fuera de auth.ts y simple-auth.ts."
+    },
+    "orden-253": {
+      "fecha": "2026-10-28",
+      "resultado": "Pregunta 108 y 92: cupo de fotos contado afuera de una reserva entre servidores, y respuesta de la IA usada como enlace. Buscado generateGeminiImage en src/: decoración y reunión son los únicos que guardan la salida; espejo y salón IA ya la suben. Va en la orden 253."
     }
   }
 }
+

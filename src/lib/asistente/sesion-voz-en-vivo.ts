@@ -13,9 +13,17 @@
  * Google real desde el contenedor de desarrollo (sin clave): ver docs/YA-RESUELTO.md.
  */
 
+import { direccionDelSocket } from './voz-en-vivo';
+
 export type EstadoVozEnVivo = 'conectando' | 'escuchando' | 'hablando' | 'cerrada';
 
 export interface OpcionesVozEnVivo {
+  /** Dirección alternativa para pedir la ficha temporal (por omisión '/api/asistente/voz-en-vivo'). */
+  urlFicha?: string;
+  /** Cuerpo JSON opcional para el pedido POST de la ficha (ej. { fiestaId }). */
+  cuerpoFicha?: any;
+  /** Con true, no ejecuta herramientas vía /api/asistente/voz-en-vivo/accion, responde 'no disponible en esta llamada'. */
+  sinHerramientas?: boolean;
   /**
    * Identidad cancelable del intento (orden 146). Si se aborta, en cualquier momento —antes de la
    * ficha, con el permiso del micrófono pendiente o con el socket abriendo— todo lo que ya se
@@ -168,12 +176,20 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
 
   // 1) La ficha temporal, del servidor.
   let datos: any;
+  let wsUrl: string | undefined;
   try {
-    const r = await fetchFn('/api/asistente/voz-en-vivo', { method: 'POST', signal: senal });
+    const url = opciones.urlFicha || '/api/asistente/voz-en-vivo';
+    const fetchInit: RequestInit = { method: 'POST', signal: senal };
+    if (opciones.cuerpoFicha) {
+      fetchInit.headers = { 'Content-Type': 'application/json' };
+      fetchInit.body = JSON.stringify(opciones.cuerpoFicha);
+    }
+    const r = await fetchFn(url, fetchInit);
     datos = await r.json().catch(() => ({}));
     // Cortaron mientras esperaba la ficha: se descarta sin pedir micrófono ni abrir socket.
     if (abortada()) return nada();
-    if (!r.ok || !datos?.wsUrl) {
+    wsUrl = datos?.wsUrl || (datos?.token ? direccionDelSocket(datos.token) : undefined);
+    if (!r.ok || !wsUrl) {
       aviso(datos?.error || 'No se pudo iniciar la voz en vivo.');
       estado('cerrada');
       return nada();
@@ -206,7 +222,7 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
   // 3) El socket. Desde acá, abortar cierra todo lo abierto.
   senal?.addEventListener('abort', cerrarTodo, { once: true });
   try {
-    ws = new WS(datos.wsUrl);
+    ws = new WS(wsUrl);
   } catch {
     fallar('No se pudo abrir la conexión de voz en vivo.');
     return sesion;
@@ -315,6 +331,18 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
     }
     const toolCall = mensaje.toolCall || (mensaje.serverContent?.modelTurn?.parts?.find((p: any) => p.functionCall)?.functionCall ? { functionCalls: mensaje.serverContent.modelTurn.parts.filter((p: any) => p.functionCall).map((p: any) => p.functionCall) } : null);
     if (toolCall) {
+      if (opciones.sinHerramientas) {
+        const calls = toolCall.functionCalls || [];
+        const functionResponses = calls.map((fc: any) => ({
+          id: fc.id,
+          name: fc.name,
+          response: { output: 'no disponible en esta llamada' },
+        }));
+        if (!cerrada && ws && ws.readyState === 1) {
+          ws.send(JSON.stringify({ toolResponse: { functionResponses } }));
+        }
+        return;
+      }
       const calls = toolCall.functionCalls || [];
       const functionResponses: any[] = [];
       for (const fc of calls) {
@@ -361,3 +389,4 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
 
   return sesion;
 }
+

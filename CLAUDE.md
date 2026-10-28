@@ -1179,6 +1179,19 @@ pantalla tocada sin prueba: la entrega volvió por un descuido de la orden.
 mentalmente: por cada pantalla de la lista, buscar si ya tiene prueba (`grep -rl "<ruta>" tests/e2e`). Las que
 no tienen, la orden pide la prueba con el texto del resultado (orden 226).
 
+### 48. Dar la contabilidad por cubierta con una pregunta barrida sólo en los guardados
+
+**Pasó el 27 de octubre de 2026.** Codex encontró que una factura se podía borrar mientras se cobraba (el comprobante
+desaparecía con las dos pantallas diciendo "listo") y que el resumen al contador perdía los centavos. El dueño: *"no
+debería tener errores contables porque es tu responsabilidad"*.
+
+**Qué era lo cierto:** la pregunta 90 ("un control antes de la transacción") lo cubría, pero la barrí mirando guardados.
+Nadie miró los borrados, y ninguna pregunta comparaba lo que sale de la app con el reporte.
+
+**Qué se hace distinto:** preguntas 108 (borrados) y 109 (centavos que salen), barridas en toda la app el mismo día
+(orden 249). Y cuando se barre una pregunta de plata, se listan las operaciones por tipo (crear, cambiar, cobrar,
+**borrar**, exportar) y se pasa la pregunta por cada tipo, no sólo por el primero que aparece.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
