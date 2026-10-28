@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28/10/2026 - Codex759: contraste contable/contratos terminado, SIN cierre falso
+
+Main sigue0abe9199 y1370 sigue90cc18b5. Se encontro Claudece19359e publicado:
+su app/config enumerada es identica a main; agrega ordenes, no los arreglos.
+Se reutilizan735/738/746: tres causas de reportes y la contradiccion deFAQ siguen
+sin cierre; las seis de1370 siguen en entrega devuelta. NO diez hallazgos nuevos.
+Claude ya traslado732/737 a su orden251-Gemini y devolvio1370 por252; no emitir
+otra orden ni reprogramar en paralelo. Matriz y prueba de contraste en
+`docs/evidencias/759-contraste-cierre.md` y JSON. No nuevas pruebas/build/SDK por
+fuente igual; no certificado legal, de toda contabilidad ni cero errores.
+Privados posteriores NO CONTRASTADOS. Luna indexo; principal valido conclusiones.
+Decoracion758 esta implementada aparte enPR1372, no pendiente para Gemini.
+
 ## 28/10/2026 - Codex757: galeria sirve como fuente; sincronizacionactual NO verificada
 
 - Lecturapublicaakproducciones.uy:muestra categoriaDecoracion yfotoaccesible

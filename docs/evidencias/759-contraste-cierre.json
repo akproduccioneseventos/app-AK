@@ -1,0 +1,121 @@
+{
+  "at": "2026-10-28T14:28:06.953Z",
+  "refs": {
+    "main": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "claude": "ce19359ed6d12c90ec49653df451c66e670e5540",
+    "pr1370": "90cc18b5d9a6a19f3e209a7f078017619435de38"
+  },
+  "sourceTrees": {
+    "main": "379e0ebf2abb2f80035d9ce0cc57d1c84c9be67e",
+    "claude": "379e0ebf2abb2f80035d9ce0cc57d1c84c9be67e",
+    "pr1370": "557a45a459392e126c08961ab9c31145678d681d"
+  },
+  "noAppConfigDeltaClaude": true,
+  "scopeCompared": [
+    "src",
+    "package.json",
+    "package-lock.json",
+    "next.config.js",
+    "apphosting.yaml",
+    "firestore.rules"
+  ],
+  "newTestExecutions": 0,
+  "reusedEvidence": [
+    "735",
+    "738",
+    "746"
+  ],
+  "rows": [
+    {
+      "path": "src/app/actions/reportes.ts",
+      "blobs": {
+        "main": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+        "claude": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+        "pr1370": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6"
+      }
+    },
+    {
+      "path": "src/app/actions/analytics.ts",
+      "blobs": {
+        "main": "2f0337862241f66d355ca8496c53d97579147a3c",
+        "claude": "2f0337862241f66d355ca8496c53d97579147a3c",
+        "pr1370": "1a51fbafced084a0a2541a38e1805727614fa3da"
+      }
+    },
+    {
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blobs": {
+        "main": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+        "claude": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+        "pr1370": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f"
+      }
+    },
+    {
+      "path": "src/app/actions/invoices.ts",
+      "blobs": {
+        "main": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+        "claude": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+        "pr1370": "7cb4b827805d0fd1d36905e80f973a55bf23d10e"
+      }
+    },
+    {
+      "path": "src/lib/costos/comparativa.ts",
+      "blobs": {
+        "main": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+        "claude": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+        "pr1370": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1"
+      }
+    },
+    {
+      "path": "src/lib/contract-template.ts",
+      "blobs": {
+        "main": "f600e20d0ec2ff6dfaa37aeb5cce8b0d72ad262a",
+        "claude": "f600e20d0ec2ff6dfaa37aeb5cce8b0d72ad262a",
+        "pr1370": "f600e20d0ec2ff6dfaa37aeb5cce8b0d72ad262a"
+      }
+    },
+    {
+      "path": "src/data/preguntas-frecuentes-contrato.ts",
+      "blobs": {
+        "main": "bc4dbbc0106cf187c3bd3ea35fc93d11c6d40b49",
+        "claude": "bc4dbbc0106cf187c3bd3ea35fc93d11c6d40b49",
+        "pr1370": "bc4dbbc0106cf187c3bd3ea35fc93d11c6d40b49"
+      }
+    },
+    {
+      "path": "src/app/actions/fiesta/documentos.actions.ts",
+      "blobs": {
+        "main": "da424781b2f39a6465e001813f075ba0d422b14c",
+        "claude": "da424781b2f39a6465e001813f075ba0d422b14c",
+        "pr1370": "da424781b2f39a6465e001813f075ba0d422b14c"
+      }
+    },
+    {
+      "path": "src/app/privacidad/page.tsx",
+      "blobs": {
+        "main": "212f5879ffc86927e1998cd5164c9ca64d0925bc",
+        "claude": "212f5879ffc86927e1998cd5164c9ca64d0925bc",
+        "pr1370": "212f5879ffc86927e1998cd5164c9ca64d0925bc"
+      }
+    },
+    {
+      "path": "src/lib/budget/financial-guardrails.ts",
+      "blobs": {
+        "main": "1b7b91bf2d971a9114f151242a6f514541195045",
+        "claude": "1b7b91bf2d971a9114f151242a6f514541195045",
+        "pr1370": "1b7b91bf2d971a9114f151242a6f514541195045"
+      }
+    }
+  ],
+  "claudeCommits": [
+    "ce19359ed Devoluciones 252 (PR 1370) y 253 (PR 1371) para Gemini, con la orden 251 que faltó",
+    "af29cf419 Orden 251 para Gemini: un solo número de plata en toda la app y la pregunta frecuente del ajuste; pregunta 110 con su barrido",
+    "a63747ae2 Orden 250 para Gemini: foto realista del salón desde la vista 3D, y la IA de decoración pasa por el tope de gasto"
+  ],
+  "status": "NO_CLOSURE_NO_CORRECTION_DELIVERED",
+  "limits": [
+    "Private unpublished changes not contrasted",
+    "No deployment or legal certificate",
+    "No repeated execution for identical consumers"
+  ]
+}
