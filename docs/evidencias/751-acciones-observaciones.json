@@ -1,0 +1,73 @@
+[
+  {
+    "case": "portal-denied",
+    "r": {
+      "success": false,
+      "error": "Sesión de portal no autorizada."
+    },
+    "calls": 0,
+    "charge": 0
+  },
+  {
+    "case": "real-helper-return-format",
+    "r": {
+      "success": true,
+      "imageUrl": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    },
+    "stored": [
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    ],
+    "calls": 1,
+    "charge": 1
+  },
+  {
+    "case": "monthly-denied",
+    "r": {
+      "success": false,
+      "error": "Se llegó al tope de IA del mes."
+    },
+    "calls": 0,
+    "charge": 0
+  },
+  {
+    "case": "provider-fail",
+    "r": {
+      "success": false,
+      "error": "No se pudo armar la foto. Probá de nuevo en un rato."
+    },
+    "calls": 1,
+    "charge": 0,
+    "photos": []
+  },
+  {
+    "case": "two-module-instances",
+    "results": [
+      {
+        "success": true,
+        "imageUrl": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      },
+      {
+        "success": true,
+        "imageUrl": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      }
+    ],
+    "calls": 2,
+    "charge": 2,
+    "stored": [
+      "/media/a.png",
+      "/media/b.png",
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    ],
+    "previousPaidPhotos": 2
+  },
+  {
+    "case": "save-fail",
+    "r": {
+      "success": false,
+      "error": "No se pudo guardar."
+    },
+    "calls": 1,
+    "charge": 1,
+    "stored": []
+  }
+]

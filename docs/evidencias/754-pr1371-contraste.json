@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-28T00:41:26.134Z",
+  "head": "76855a1d4496b54b323edf83919212f32e2c6109",
+  "base": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "pr": 1371,
+  "changed": [
+    {
+      "path": "docs/ordenes/250-gemini-asi-va-a-quedar-tu-fiesta.md",
+      "sha": "1f26c78c0a66f27b6b3f0add5647f4805581a8bd"
+    },
+    {
+      "path": "src/__tests__/asi-va-a-quedar-tu-fiesta.test.ts",
+      "sha": "c65f9aab82d41dd51756bec20c0493c99e3b61b6"
+    },
+    {
+      "path": "src/__tests__/decoracion-no-gasta-de-mas.test.ts",
+      "sha": "d97825b9f719f27c67393874f6c00caa0114d93b"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/decoracion/page.tsx",
+      "sha": "b8f5a01cdbf8640ad106d0d0d8492e3520db6c99"
+    },
+    {
+      "path": "src/app/actions/fiesta/decoracion.actions.ts",
+      "sha": "0c65bf294302e36a0653984831c044082dd9c796"
+    },
+    {
+      "path": "src/app/portal/[fiestaId]/decoracion/page.tsx",
+      "sha": "8e84f978979bfed169ff25cf540f8383bc37d8ad"
+    },
+    {
+      "path": "src/components/salon-3d/Salon3DClienteView.tsx",
+      "sha": "6b0629fd39a1fb1ecb91a7b267b91952b703b058"
+    },
+    {
+      "path": "src/lib/ai/consumo.ts",
+      "sha": "a78cec644fe082fcebec02aa6647674121505b0f"
+    },
+    {
+      "path": "tests/e2e/asi-va-a-quedar-tu-fiesta.spec.ts",
+      "sha": "3ca6192af8616eaad83c811fd4de1d5aaa1aea4e"
+    }
+  ],
+  "existingComments": [
+    {
+      "id": 4395592118,
+      "path": "src/components/salon-3d/Salon3DClienteView.tsx",
+      "line": 94,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1371#discussion_r4395592118"
+    },
+    {
+      "id": 4395592124,
+      "path": "src/components/salon-3d/Salon3DClienteView.tsx",
+      "line": 97,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1371#discussion_r4395592124"
+    },
+    {
+      "id": 4395592130,
+      "path": "docs/ordenes/250-gemini-asi-va-a-quedar-tu-fiesta.md",
+      "line": 8,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1371#discussion_r4395592130"
+    }
+  ],
+  "previous1370": "90cc18b5 unchanged, no repetition",
+  "private": "NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS",
+  "agent": {
+    "agent_id": "01a17fee-9b54-7483-8050-10e45d123188",
+    "nickname": "Heisenberg",
+    "model": "gpt-6-luna low",
+    "scope": "UI/E2E source, not executed by helper",
+    "closed": true
+  }
+}

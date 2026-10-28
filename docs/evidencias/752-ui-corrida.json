@@ -1,0 +1,19 @@
+{
+  "started": "2026-10-28T00:39:01.898Z",
+  "finished": "2026-10-28T00:39:07.254Z",
+  "before": {
+    "source": "76855a1d4496b54b323edf83919212f32e2c6109",
+    "matched": 2511
+  },
+  "after": {
+    "source": "76855a1d4496b54b323edf83919212f32e2c6109",
+    "matched": 2511
+  },
+  "suites": [
+    "src/__tests__/qa-752-salon-cliente-ui.test.tsx"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Acciones/helpers/componentes reales con fronteras controladas. Protocolo Gemini DOBLE LOCAL, no modelo externo/cargos. No SDK/HTTP nativo/3D real/build. Dependencias reutilizadas."
+}

@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex749-755: PR1371 NO APTA, cuatro causas/orden253
+
+- Fuente76855a1d4496b54b323edf83919212f32e2c6109,base0abe9199;9diffs y2511
+  fuentes/config/lockQA contrastados antes/despues.1370 sigue90cc,NO repetida.
+- 750DOSsuites12originalesPASS/0FAIL/0omitidas/exit0. No homologar E2E4dePR:
+  sustituyeServerActionporURL/media,NOflujo real ni persistencia/proveedor.
+- 7516criterios4PASS2FAIL+7526criterios2PASS4FAIL=CUATROcausas,no seisbugs:
+  R1P1fotoBASE64guardada/devuelta comoURL;img/descarga/WAinutilizables yconsume.
+  R2P2errorservidor/excepcion invisible enportal. R3P2boton genera con captura
+  undefined si3Dnoesta listo. R4P1dosinstancias con2fotos gastan2generaciones
+  yambassuccess,guardadas3:4generaciones por tope3. Mutexlocalyaexistia enmain;
+  variante entreinstancias nueva,NO decir regresion nueva introducida en1371.
+- R1/R2comentariosprevios reproducidos;R3delayref confirmadoReactDOM,R4nuevo
+  intercalado. ModeloREALhelper con protocoloDOBLE LOCAL,NOmodeloexterno/cargos.
+  ComponenteREAL/JSDOM,3D/NextImage/dynamic/APIcontrolados,NOGPU/pixelesnativos.
+- Controlesportalajeno/tope0llamadas,proveedorfallido0consumo,falloconpersistencia
+  SIGUEcontandogasto generado. No quitar registro por guardadofallido.
+- FaltaYA/ESTADOenPR.253completa250-Gemini-foto,NO250-Claude-contabilidad.
+  753dictamen/754contraste/755higiene. Noappedit/build/merge/produccion ni datos
+  reales;HeisenbergLunalowcerrado. Claude dinero/permisos/valida/fusiona.
+  PrivadosNO CONTRASTADOS. RetestSOLOdelta; revisionterminadaNOtodaapp/0errores.
+
 ## 27/10/2026 - Codex739-748: PR1370 NO APTA; seis causas/orden252
 
 - PR1370head90cc18b5d9a6a19f3e209a7f078017619435de38,main/base0abe9199.

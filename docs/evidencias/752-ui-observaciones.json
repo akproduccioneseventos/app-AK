@@ -1,0 +1,45 @@
+[
+  {
+    "case": "capture-ready",
+    "args": [
+      "qa751",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    ]
+  },
+  {
+    "case": "server-error",
+    "text": "Tu Salón en 3DGirá el salón con el dedo para recorrer la distribución de mesas, pista y sectores.Así va a quedar tu fiesta",
+    "args": [
+      [
+        "qa751",
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      ]
+    ]
+  },
+  {
+    "case": "transport-error",
+    "text": "Tu Salón en 3DGirá el salón con el dedo para recorrer la distribución de mesas, pista y sectores.Así va a quedar tu fiesta"
+  },
+  {
+    "case": "raw-format",
+    "src": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "download": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "whatsapp": "https://wa.me/?text=%C2%A1Mir%C3%A1%20c%C3%B3mo%20va%20a%20quedar%20la%20decoraci%C3%B3n%20de%20mi%20fiesta!%0AiVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk%2BM9QDwADhgGAWjR9awAAAABJRU5ErkJggg%3D%3D",
+    "counter": "Te quedan 2 de 3"
+  },
+  {
+    "case": "capture-not-ready",
+    "args": [
+      [
+        "qa751",
+        null
+      ]
+    ],
+    "text": "Tu Salón en 3DGirá el salón con el dedo para recorrer la distribución de mesas, pista y sectores.Así va a quedar tu fiesta"
+  },
+  {
+    "case": "three-photos",
+    "disabled": true,
+    "text": "Tu Salón en 3DGirá el salón con el dedo para recorrer la distribución de mesas, pista y sectores.Así va a quedar tu fiestaYa armaste tus 3 fotos. Si querés otra, pedísela al equipo.DescargarCompartir por WhatsAppTe quedan 0 de 3"
+  }
+]

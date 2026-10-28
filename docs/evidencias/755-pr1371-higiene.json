@@ -1,0 +1,19 @@
+{
+  "source": "76855a1d4496b54b323edf83919212f32e2c6109",
+  "at": "2026-10-28T00:42:33.894Z",
+  "matchedFiles": 2511,
+  "sourceDiff": 0,
+  "extraSourceFiles": [],
+  "envFiles": [],
+  "ownProcesses": 0,
+  "serversStarted": 0,
+  "buildStarted": false,
+  "agent": "Heisenberg",
+  "agentClosed": true,
+  "appEdits": 0,
+  "merge": false,
+  "realData": false,
+  "realCharges": false,
+  "realMessages": false,
+  "limits": "Protocolo Gemini doble local y UI ReactDOM; no SDK/HTTP nativo/GPU/modelo externo. No se tocaron procesos ni archivos ajenos."
+}

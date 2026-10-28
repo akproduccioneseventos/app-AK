@@ -1,0 +1,8 @@
+PASS src/__tests__/asi-va-a-quedar-tu-fiesta.test.ts
+PASS src/__tests__/decoracion-no-gasta-de-mas.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       12 passed, 12 total
+Snapshots:   0 total
+Time:        7.507 s
+Test results written to: ..\..\..\..\Documents\Codex\ak-codex88\ak-auditoria697\docs\evidencias\750-originales.json
