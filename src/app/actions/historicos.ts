@@ -152,7 +152,9 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
 
         // 3. Factura: buscar si ya existe factura para presupuestoId.
         const { getInvoicesByPresupuestoId, saveInvoice: saveInvoiceFromImport } = await import('./invoices');
-        const facturas = await getInvoicesByPresupuestoId(presupuestoId);
+        const facturas = typeof getInvoicesByPresupuestoId === 'function'
+            ? await getInvoicesByPresupuestoId(presupuestoId)
+            : [];
         let invoiceId: string;
 
         if (facturas.length > 0) {

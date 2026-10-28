@@ -12,7 +12,10 @@ import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
 import { esAdministrador, esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
-import { requireAppSession, invalidateUserSessionCache } from '@/lib/auth/require-session';
+import { requireAppSession, requireSession, invalidateUserSessionCache } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
+
+const usersMutex = new AsyncMutex();
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -531,6 +534,7 @@ export async function loginUser(
       mustChangePassword: data.mustChangePassword ?? false,
     };
 
+    const userDoc = data;
     await writeSessionCookie({
       email: user.email,
       role: user.role,
@@ -539,6 +543,7 @@ export async function loginUser(
       // nadie quede afuera de lo que ya usaba.
       perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
       modules: user.modules,
+      ...(typeof userDoc?.versionDeSesion === 'number' ? { versionDeSesion: userDoc.versionDeSesion } : {}),
     });
 
     return {
@@ -922,11 +927,12 @@ export async function updateUserModules(
   role: 'admin' | 'user',
   perfil?: Perfil,
 ): Promise<{ success: boolean; error?: string }> {
-  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+  const db = dbAdmin;
+  if (!db) return { success: false, error: 'Base de datos no disponible.' };
 
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  const session = await requireSession();
+  if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
+  if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   if (perfil !== undefined && perfil !== null && String(perfil) !== '') {
     if (!esPerfilValido(perfil)) {
@@ -934,78 +940,25 @@ export async function updateUserModules(
     }
   }
 
-  try {
-    const userDocRef = dbAdmin.collection('users').doc(userId);
-    const userSnap = await userDocRef.get();
-    if (!userSnap.exists) {
-      return { success: false, error: 'Usuario no encontrado.' };
-    }
-
-    const targetData = userSnap.data() || {};
-    const targetPerfilActual = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
-      ? targetData.perfil
-      : perfilDesdeRolViejo(targetData.role);
-
-    const nuevoPerfil = (perfil !== undefined && perfil !== null && String(perfil) !== '')
-      ? perfil
-      : perfilDesdeRolViejo(role);
-
-    if (targetPerfilActual === 'dueno' && nuevoPerfil !== 'dueno') {
-      const allUsersSnap = await dbAdmin.collection('users').get();
-      const duenosCount = allUsersSnap.docs.filter((d: any) => {
-        const u = d.data();
-        const p = (u.perfil !== undefined && u.perfil !== null && String(u.perfil) !== '')
-          ? u.perfil
-          : perfilDesdeRolViejo(u.role);
-        return p === 'dueno';
-      }).length;
-
-      if (duenosCount <= 1) {
-        return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+  return await usersMutex.runExclusive(async () => {
+    try {
+      const userDocRef = db.collection('users').doc(userId);
+      const userSnap = await userDocRef.get();
+      if (!userSnap.exists) {
+        return { success: false, error: 'Usuario no encontrado.' };
       }
-    }
 
-    const currentVersion = typeof targetData.versionDeSesion === 'number' ? targetData.versionDeSesion : 1;
-    await userDocRef.update({
-      modules,
-      role,
-      perfil: nuevoPerfil,
-      versionDeSesion: currentVersion + 1,
-      updatedAt: new Date().toISOString(),
-    });
-
-    invalidateUserSessionCache(userId);
-    return { success: true };
-  } catch (err) {
-    console.error('[auth] updateUserModules error:', err);
-    return { success: false, error: 'Error al actualizar permisos.' };
-  }
-}
-
-export async function deleteUser(
-  userId: string
-): Promise<{ success: boolean; error?: string }> {
-  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
-
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
-
-  if (auth.user?.userId === userId) {
-    return { success: false, error: 'Tiene que quedar al menos un dueño.' };
-  }
-
-  try {
-    const userDocRef = dbAdmin.collection('users').doc(userId);
-    const userSnap = await userDocRef.get();
-    if (userSnap.exists) {
       const targetData = userSnap.data() || {};
-      const targetPerfil = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
+      const targetPerfilActual = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
         ? targetData.perfil
         : perfilDesdeRolViejo(targetData.role);
 
-      if (targetPerfil === 'dueno') {
-        const allUsersSnap = await dbAdmin.collection('users').get();
+      const nuevoPerfil = (perfil !== undefined && perfil !== null && String(perfil) !== '')
+        ? perfil
+        : perfilDesdeRolViejo(role);
+
+      if (targetPerfilActual === 'dueno' && nuevoPerfil !== 'dueno') {
+        const allUsersSnap = await db.collection('users').get();
         const duenosCount = allUsersSnap.docs.filter((d: any) => {
           const u = d.data();
           const p = (u.perfil !== undefined && u.perfil !== null && String(u.perfil) !== '')
@@ -1017,16 +970,80 @@ export async function deleteUser(
         if (duenosCount <= 1) {
           return { success: false, error: 'Tiene que quedar al menos un dueño.' };
         }
-      }
-    }
 
-    await userDocRef.delete();
-    invalidateUserSessionCache(userId);
-    return { success: true };
-  } catch (err) {
-    console.error('[auth] deleteUser error:', err);
-    return { success: false, error: 'Error al eliminar el usuario.' };
-  }
+        if (session.user.userId === userId && duenosCount <= 1) {
+          return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+        }
+      }
+
+      const currentVersion = typeof targetData.versionDeSesion === 'number' ? targetData.versionDeSesion : 1;
+      await userDocRef.update({
+        modules,
+        role,
+        perfil: nuevoPerfil,
+        versionDeSesion: currentVersion + 1,
+        updatedAt: new Date().toISOString(),
+      });
+
+      invalidateUserSessionCache(userId);
+      return { success: true };
+    } catch (err) {
+      console.error('[auth] updateUserModules error:', err);
+      return { success: false, error: 'Error al actualizar permisos.' };
+    }
+  });
+}
+
+export async function deleteUser(
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const db = dbAdmin;
+  if (!db) return { success: false, error: 'Base de datos no disponible.' };
+
+  const session = await requireSession();
+  if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
+  if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+
+  return await usersMutex.runExclusive(async () => {
+    try {
+      const userDocRef = db.collection('users').doc(userId);
+      const userSnap = await userDocRef.get();
+      if (!userSnap.exists) {
+        return { success: false, error: 'Usuario no encontrado.' };
+      }
+
+      const targetData = userSnap.data() || {};
+      const targetPerfil = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
+        ? targetData.perfil
+        : perfilDesdeRolViejo(targetData.role);
+
+      const allUsersSnap = await db.collection('users').get();
+      const duenosCount = allUsersSnap.docs.filter((d: any) => {
+        const u = d.data();
+        const p = (u.perfil !== undefined && u.perfil !== null && String(u.perfil) !== '')
+          ? u.perfil
+          : perfilDesdeRolViejo(u.role);
+        return p === 'dueno';
+      }).length;
+
+      if (session.user.userId === userId && duenosCount <= 1) {
+        return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+      }
+
+      if (targetPerfil === 'dueno') {
+        if (duenosCount <= 1) {
+          return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+        }
+      }
+
+      await userDocRef.delete();
+      invalidateUserSessionCache(userId);
+      return { success: true };
+    } catch (err) {
+      console.error('[auth] deleteUser error:', err);
+      return { success: false, error: 'Error al eliminar el usuario.' };
+    }
+  });
 }
 
 export async function adminResetUserPassword(
@@ -1035,9 +1052,9 @@ export async function adminResetUserPassword(
 ): Promise<{ success: boolean; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  const session = await requireSession();
+  if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
+  if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     if (newPassword.length < 8) {

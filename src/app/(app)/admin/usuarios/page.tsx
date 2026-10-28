@@ -469,29 +469,7 @@ export default function AdminUsuariosPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Áreas Permitidas</Label>
-                  <div className="space-y-2.5 p-3 border rounded-xl bg-slate-50/50 max-h-60 overflow-y-auto scrollbar-thin">
-                    {SYSTEM_MODULES.map((modulo) => (
-                      <div key={modulo.id} className="flex items-start gap-2.5">
-                        <Checkbox
-                          id={`create-mod-${modulo.id}`}
-                          checked={createModules.includes(modulo.id)}
-                          onCheckedChange={(checked) =>
-                            handleModuleCheckboxChange(modulo.id, !!checked, false)
-                          }
-                          className="mt-0.5"
-                        />
-                        <Label
-                          htmlFor={`create-mod-${modulo.id}`}
-                          className="font-normal text-sm cursor-pointer leading-tight"
-                        >
-                          {modulo.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <InfoPerfilPermisos perfil={createPerfil} />
                 <DialogFooter className="pt-3">
                   <DialogClose asChild>
                     <Button type="button" variant="outline" disabled={isProcessing}>
@@ -685,29 +663,7 @@ export default function AdminUsuariosPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Áreas Permitidas</Label>
-              <div className="space-y-2.5 p-3 border rounded-xl bg-slate-50/50 max-h-60 overflow-y-auto scrollbar-thin">
-                {SYSTEM_MODULES.map((modulo) => (
-                  <div key={modulo.id} className="flex items-start gap-2.5">
-                    <Checkbox
-                      id={`edit-mod-${modulo.id}`}
-                      checked={editModules.includes(modulo.id)}
-                      onCheckedChange={(checked) =>
-                        handleModuleCheckboxChange(modulo.id, !!checked, true)
-                      }
-                      className="mt-0.5"
-                    />
-                    <Label
-                      htmlFor={`edit-mod-${modulo.id}`}
-                      className="font-normal text-sm cursor-pointer leading-tight"
-                    >
-                      {modulo.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <InfoPerfilPermisos perfil={editPerfil} />
             <DialogFooter className="pt-3">
               <DialogClose asChild>
                 <Button type="button" variant="outline" disabled={isProcessing}>

@@ -81,7 +81,7 @@ export async function createSignedSessionToken(
   const nonce = crypto.randomUUID();
   const tokenUserData: SessionUserData = {
     ...userData,
-    versionDeSesion: typeof userData.versionDeSesion === 'number' ? userData.versionDeSesion : 1,
+    ...(typeof userData.versionDeSesion === 'number' ? { versionDeSesion: userData.versionDeSesion } : {}),
   };
   const userPayload = encodeURIComponent(JSON.stringify(tokenUserData));
   const payload = `${SESSION_VERSION}.${expiresAt}.${nonce}.${userPayload}`;

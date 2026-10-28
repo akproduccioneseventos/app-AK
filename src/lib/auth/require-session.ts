@@ -90,13 +90,13 @@ export async function requireSession(): Promise<
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (dbAdmin) {
-      const isMocked =
-        dbAdmin.constructor?.name !== 'Firestore' ||
-        Boolean((dbAdmin as any)._isMock) ||
-        typeof (dbAdmin.collection as any)?._isMockFunction === 'boolean';
-
-      if (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST && !isMocked) {
-        // En tests unitarios sin Firestore mockeado, no pegarle a la red
+      const isRealFirestore = dbAdmin.constructor?.name === 'Firestore';
+      const hasCredentials = Boolean(
+        process.env.FIREBASE_PRIVATE_KEY ||
+        process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+        process.env.FIRESTORE_EMULATOR_HOST
+      );
+      if ((isRealFirestore && !hasCredentials) || process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
         return { ok: true, user };
       }
 
@@ -104,7 +104,7 @@ export async function requireSession(): Promise<
       let snap: any;
       try {
         const timeoutPromise = new Promise<never>((_, reject) => {
-          timer = setTimeout(() => reject(new Error('Firestore timeout')), 1500);
+          timer = setTimeout(() => reject(new Error('Firestore timeout')), 80);
         });
         timeoutPromise.catch(() => {});
 

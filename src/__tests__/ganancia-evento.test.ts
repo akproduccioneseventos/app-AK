@@ -44,7 +44,15 @@ describe('cuánta plata dejó una fiesta', () => {
   });
 
   it('cuando se gastó menos, la ganancia real sube', () => {
-    const r = calcularGananciaDeEvento(costos(), [pago('c1', 12000)]);
+    const r = calcularGananciaDeEvento(
+      costos({
+        costosItems: [
+          { id: 'c1', nombre: 'Salón', category: 'lugar', montoEstimado: 20000, cerrado: true } as any,
+          { id: 'c2', nombre: 'Fotógrafo', category: 'proveedor', montoEstimado: 10000 },
+        ],
+      }),
+      [pago('c1', 12000)],
+    );
 
     expect(r.costoReal).toBe(22000);
     expect(r.gananciaReal).toBe(78000);

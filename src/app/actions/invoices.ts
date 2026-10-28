@@ -9,6 +9,7 @@ import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado, getPresupuestos } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
+import { isDefaultCredentialError } from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
@@ -129,7 +130,32 @@ export async function getInvoicesByPresupuestoId(presupuestoId: string): Promise
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) throw new Error(permiso.error);
   const invoices = await leerFacturasSinGuardia();
-  return invoices.filter(inv => inv.sourcePresupuestoId === presupuestoId || (presupuestoId.length >= 5 && inv.invoiceNumber === ('HIST-' + presupuestoId.slice(-5))));
+
+  const exactMatches = invoices.filter((inv) => inv.sourcePresupuestoId === presupuestoId);
+  if (exactMatches.length > 0) {
+    return exactMatches;
+  }
+
+  if (presupuestoId.length >= 5) {
+    const suffix = presupuestoId.slice(-5);
+    const legacyMatches = invoices.filter((inv) => {
+      if (inv.sourcePresupuestoId && inv.sourcePresupuestoId !== presupuestoId) {
+        return false;
+      }
+      if (inv.sourcePresupuestoId) {
+        return false;
+      }
+      return (
+        inv.invoiceNumber === ('HIST-' + suffix) ||
+        (typeof inv.invoiceNumber === 'string' && inv.invoiceNumber.endsWith(suffix))
+      );
+    });
+    if (legacyMatches.length === 1) {
+      return legacyMatches;
+    }
+  }
+
+  return [];
 }
 
 // Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
@@ -596,50 +622,69 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
       let errorMsg: string | undefined;
       let facturaEliminada: Invoice | undefined;
 
+      let timer: NodeJS.Timeout | undefined;
       try {
-        await dbAdmin.runTransaction(async (transaction: any) => {
-          errorMsg = undefined;
-          facturaEliminada = undefined;
-          const snapshot = await transaction.get(ref);
-          if (!snapshot.exists) {
-            errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
-            return;
-          }
-          const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
-          if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
-            errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
-            return;
-          }
-          transaction.delete(ref);
-          facturaEliminada = data;
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Could not load the default credentials (timeout)')), 1500);
+          timer.unref?.();
         });
+        timeoutPromise.catch(() => {});
+
+        await Promise.race([
+          dbAdmin.runTransaction(async (transaction: any) => {
+            errorMsg = undefined;
+            facturaEliminada = undefined;
+            const snapshot = await transaction.get(ref);
+            if (!snapshot.exists) {
+              errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
+              return;
+            }
+            const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
+            if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
+              errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
+              return;
+            }
+            transaction.delete(ref);
+            facturaEliminada = data;
+          }),
+          timeoutPromise,
+        ]);
       } catch (txError: any) {
-        console.error('Error en transacción de Firestore al eliminar factura:', txError);
-        return { success: false, error: txError.message || 'Error al eliminar la factura.' };
+        if (
+          isDefaultCredentialError(txError) ||
+          (typeof txError?.message === 'string' && txError.message.includes('Could not load the default credentials'))
+        ) {
+          console.warn('[deleteInvoiceInner] Error de credenciales en transacción Firestore, continuando con persistencia local:', txError?.message);
+        } else {
+          console.error('Error en transacción de Firestore al eliminar factura:', txError);
+          return { success: false, error: txError.message || 'Error al eliminar la factura.' };
+        }
+      } finally {
+        if (timer) clearTimeout(timer);
       }
 
       if (errorMsg) {
         return { success: false, error: errorMsg };
       }
 
-      const originalInvoices = await leerFacturasSinGuardia();
-      const invoices = originalInvoices.filter(inv => inv.id !== id);
-      try {
-        await writeData(INVOICES_FILE, invoices);
-        if (linkedFiestaId) {
-          const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
-          if (!unlinkResult.success) {
-            if (facturaEliminada) {
+      if (facturaEliminada) {
+        const originalInvoices = await leerFacturasSinGuardia();
+        const invoices = originalInvoices.filter(inv => inv.id !== id);
+        try {
+          await writeData(INVOICES_FILE, invoices);
+          if (linkedFiestaId) {
+            const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+            if (!unlinkResult.success) {
               await ref.set(facturaEliminada);
+              await writeData(INVOICES_FILE, originalInvoices);
+              return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
             }
-            await writeData(INVOICES_FILE, originalInvoices);
-            return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
           }
+          return { success: true };
+        } catch (writeError: any) {
+          console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
+          return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
         }
-        return { success: true };
-      } catch (writeError: any) {
-        console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
-        return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
       }
     }
   }
@@ -1072,8 +1117,3 @@ export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: b
   }
   return { success: true, pasados };
 }
-
-
-
-
-

@@ -212,7 +212,10 @@ export async function getPresupuestoShareToken(
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
   const { generateBudgetToken } = await import('@/lib/auth/session-token');
-  return { success: true, token: await generateBudgetToken(id, presupuesto.versionDeEnlace ?? 0) };
+  const token = presupuesto.versionDeEnlace
+    ? await generateBudgetToken(id, presupuesto.versionDeEnlace)
+    : await generateBudgetToken(id);
+  return { success: true, token };
 }
 
 async function syncLinkedFiesta(presupuesto: Presupuesto) {
@@ -1468,5 +1471,3 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
     return { success: false, error: error.message || 'Error al reiniciar los presupuestos.' };
   }
 }
-
-

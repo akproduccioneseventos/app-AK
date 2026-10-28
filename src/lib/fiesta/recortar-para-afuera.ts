@@ -66,12 +66,20 @@ export const CAMPOS_PRIVADOS_DEL_INVITADO = [
 
 export function recortarFiestaParaAfuera(
   fiesta: FiestaEnPlanificacion,
-  quien: { esCliente: boolean },
+  quien: any,
 ): FiestaEnPlanificacion {
+  if (quien && typeof quien === 'object' && ('perfil' in quien || 'role' in quien || 'userId' in quien)) {
+    const recortada = recortarFiestaPorPerfil(fiesta, quien);
+    if (perfilDe(quien) === 'personal') {
+      delete (recortada as any).clientPortalSettings;
+    }
+    return recortada;
+  }
+
   const copia: Record<string, unknown> = { ...fiesta };
 
   for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
-  if (quien.esCliente) return copia as unknown as FiestaEnPlanificacion;
+  if (quien?.esCliente) return copia as unknown as FiestaEnPlanificacion;
 
   for (const campo of CAMPOS_DEL_CLIENTE) delete copia[campo];
   if (Array.isArray(fiesta.invitados)) {

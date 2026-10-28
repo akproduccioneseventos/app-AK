@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { PagoCliente } from '@/types/presupuesto';
+import { getPresupuestos } from '@/app/actions/presupuestos';
+import { sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 const formatCurrency = (v: number) =>
@@ -29,14 +32,17 @@ interface FiestaFinanzas {
   ganancia: number; // ingresos - egresos (ganancia sobre lo cobrado)
 }
 
-function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
+function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {
   // La cuenta oficial de ganancia: lo pagado donde hay pagos, lo estimado donde no, con los bloques
   // automaticos (catering, bebidas, reposteria, sueldos) y sin la merma duplicada. Antes aca se usaba
   // "los pagos o los renglones manuales", y el mismo mes no coincidia con Analiticas.
-  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
+  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente).costoReal;
 }
 
-function calcularIngresos(fiesta: FiestaEnPlanificacion): number {
+function calcularIngresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {
+  if (pagosCliente && pagosCliente.length > 0) {
+    return sumConfirmedClientPayments(pagosCliente);
+  }
   if (fiesta.planDePagos?.cuotas) {
     const paymentSummary = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
     return paymentSummary.paid;
@@ -62,11 +68,18 @@ export default function FinanzasPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getFiestas(true);
+      const [data, presupuestos] = await Promise.all([
+        getFiestas(true),
+        getPresupuestos(true).catch(() => []),
+      ]);
+      const cobrosPorPresupuesto = new Map(
+        (presupuestos || []).map((p) => [p.id, p.pagosCliente ?? []])
+      );
       const calculados: FiestaFinanzas[] = (Array.isArray(data) ? data : []).map(f => {
-        const ingresos = calcularIngresos(f);
+        const pagosCliente = (f as any).pagosCliente || (f.presupuestoId ? cobrosPorPresupuesto.get(f.presupuestoId) : undefined);
+        const ingresos = calcularIngresos(f, pagosCliente);
         const totalPactado = calcularTotalPactado(f);
-        const egresos = calcularEgresos(f);
+        const egresos = calcularEgresos(f, pagosCliente);
         return {
           id: f.id,
           nombre: f.configuracion.nombreEvento || '(Sin nombre)',

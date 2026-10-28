@@ -41,14 +41,6 @@ export async function actualizarFiesta(
     soloEquipo?: boolean;
   } = {},
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
-  if (typeof updateFnOrPartial === 'object' && updateFnOrPartial !== null) {
-    if ('estado' in updateFnOrPartial) {
-      if (updateFnOrPartial.estado === 'Seña' || updateFnOrPartial.estado === 'Completado') {
-        return { success: false, error: 'No se puede mover a Seña.' };
-      }
-    }
-  }
-
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
     if (!options.publicRsvp) {
@@ -76,7 +68,7 @@ export async function actualizarFiesta(
         } else {
           updated = { ...base, ...updateFnOrPartial };
         }
-        if (updated.estado === 'Seña') {
+        if (updated.estado === 'Seña' && base.estado !== 'Seña') {
           throw new Error('No se puede mover a Seña.');
         }
         return await preserveFiestaSecrets(fiestaId, updated);

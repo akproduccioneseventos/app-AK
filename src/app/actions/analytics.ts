@@ -9,6 +9,7 @@ import { getEmpleados } from './empleados';
 import { subMonths, format, startOfToday, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { isSimulatorBudget } from '@/lib/budget/formal-budget';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -134,7 +135,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       if (!pres.eventoFecha) return;
       const key = format(parseAnalyticsDate(pres.eventoFecha), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
-      if (entry) entry.ingresos += pres.totalConDescuento || pres.costoTotalEstimado || 0;
+      if (entry) entry.ingresos += getBudgetCollectibleTotal(pres);
     });
 
     // Costs from fiestas (gestionCostos + pagosProveedores + staff salaries)
@@ -149,7 +150,8 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       // de gestionCostos, mas los renglones manuales, con lo realmente pagado donde hay pagos y SIN la
       // merma de bebidas duplicada. Antes se sumaban solo los renglones manuales y los sueldos
       // salian de eventSalary a mano, asi que el mismo mes daba otro numero. (12/10/2026)
-      entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
+      const linkedPresupuesto = presupuestosData.find(p => p.id === fiesta.presupuestoId);
+      entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente).costoReal;
     });
 
     const monthlyProfitability: MonthlyProfitabilityData[] = Array.from(monthlyMap.entries()).map(
@@ -253,7 +255,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     presupuestosData.forEach(pres => {
       if (!isAcceptedBudget(pres.estado)) return;
       const tipo = pres.eventoTipo || 'Otro';
-      const revenue = pres.totalConDescuento || pres.costoTotalEstimado || 0;
+      const revenue = getBudgetCollectibleTotal(pres);
       const existing = eventTypeMap.get(tipo);
       if (existing) {
         existing.ingresos += revenue;
@@ -268,7 +270,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       const tipo = linkedPresupuesto?.eventoTipo || fiesta.configuracion?.tipoCelebracion || 'Otro';
       const entry = eventTypeMap.get(tipo);
       // Misma cuenta oficial que el resto (ver arriba).
-      if (entry) entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
+      if (entry) entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente).costoReal;
     });
 
     const eventTypeProfitability: EventTypeProfitabilityData[] = Array.from(

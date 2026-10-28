@@ -1468,27 +1468,24 @@ export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?:
 
 export async function addInvoiceId(fiestaId: string, invoiceId: string, opciones?: { esReciboDeSena?: boolean }) {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
-  return await actualizarFiesta(fiestaId, (f) => {
-    const yaExiste = (f.invoiceIds || []).includes(invoiceId);
-    if (yaExiste) {
-      if (opciones?.esReciboDeSena && f.reciboSenaPendiente) {
-        const limpia = { ...f };
-        delete limpia.reciboSenaPendiente;
-        return limpia;
-      }
-      return f;
-    }
-    const updated: FiestaEnPlanificacion = { ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] };
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  return await libActualizarFiesta(fiestaId, (f) => {
+    const ids = f.invoiceIds || [];
+    const limpia: FiestaEnPlanificacion = {
+      ...f,
+      invoiceIds: ids.includes(invoiceId) ? ids : [...ids, invoiceId],
+    };
     if (opciones?.esReciboDeSena) {
-      delete updated.reciboSenaPendiente;
+      delete limpia.reciboSenaPendiente;
     }
-    return updated;
+    return limpia;
   });
 }
 
 export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
-  return await actualizarFiesta(fiestaId, (f) => ({
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  return await libActualizarFiesta(fiestaId, (f) => ({
     ...f,
     invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId)
   }));
@@ -1699,7 +1696,44 @@ export async function actualizarFiesta(
     | ((data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>),
   options?: { publicRsvp?: boolean; soloEquipo?: boolean }
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
-  await requireAppSession();
+  const usuario = await requireAppSession();
+  const decide = await quienEsElEquipo();
+  const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+  const guardada = await getFiestaByIdRaw(fiestaId);
+  if (!guardada) {
+    return { success: false, error: `Fiesta con ID ${fiestaId} no encontrada.` };
+  }
+  const puedeModificarFiesta = decide(guardada);
+  if (!puedeModificarFiesta) {
+    return { success: false, error: 'No autorizado para modificar este evento.' };
+  }
+
+  const tienePermisoPlata = perfilDe(usuario) === 'dueno' || puede(usuario, PERMISOS.CONTABILIDAD);
+  if (!tienePermisoPlata && typeof updateFnOrPartial === 'object' && updateFnOrPartial !== null) {
+    if (pideCambiarLaPlata(updateFnOrPartial, guardada)) {
+      return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
+    }
+  }
+
   const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
-  return libActualizarFiesta(fiestaId, updateFnOrPartial, options);
+  const r = await libActualizarFiesta(
+    fiestaId,
+    async (actual) => {
+      let candidate: FiestaEnPlanificacion;
+      if (typeof updateFnOrPartial === 'function') {
+        candidate = await updateFnOrPartial(actual);
+      } else {
+        candidate = { ...actual, ...updateFnOrPartial };
+      }
+      if (!tienePermisoPlata && pideCambiarLaPlata(candidate, actual)) {
+        throw new Error('Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.');
+      }
+      return candidate;
+    },
+    { soloEquipo: true }
+  );
+  if (!r.success) {
+    return { success: false, error: r.error };
+  }
+  return { success: true, updatedFiesta: recortarFiestaParaAfuera(r.updatedFiesta ?? guardada, usuario) };
 }

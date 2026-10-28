@@ -586,6 +586,18 @@
     "auditoria-717": {
       "fecha": "2026-10-27",
       "resultado": "Pregunta 104 (usar un dato real y no adivinar por texto): getDrinkTags clasifica por el nombre; con la carta nueva sale de soloMayores y la receta. Buscado en barra-tecnologica, tótem y portal: es el único clasificador por texto de la barra. Orden 242 bloque 5."
+    },
+    "orden-249": {
+      "fecha": "2026-10-28",
+      "resultado": "Pregunta 94 (control de borrado en la misma transaccion): facturas y presupuestos no se borran si tienen cobros o contrato firmado. Borrado atomico y resumen para el contador con centavos."
+    },
+    "orden-251": {
+      "fecha": "2026-10-28",
+      "resultado": "Pregunta 104: unificacion de saldos positivos en libro mayor y asistentes, comisiones de Mercado Pago descontadas y pagos a proveedores filtrados por fecha local."
+    },
+    "orden-252": {
+      "fecha": "2026-10-28",
+      "resultado": "Pregunta 106: revocacion inmediata de sesiones con versionDeSesion, validacion de un dueno remanente con mutex y corte de permisos en pantalla y acciones."
     }
   }
 }
