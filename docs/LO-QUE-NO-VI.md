@@ -1361,6 +1361,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 251 → pregunta 110
 - Orden 252 → pregunta 106
 - Orden 253 → pregunta 108
+- Orden 254 → no es un defecto
 - Auditoria 732 (comisión, mes del pago a proveedores, seña sin presupuesto fuera del reporte) → pregunta 110
 - Auditoria 737 (la pregunta frecuente promete un ajuste distinto al del contrato) → pregunta 4
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
