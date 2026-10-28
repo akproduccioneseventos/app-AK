@@ -630,6 +630,10 @@
     "orden-253": {
       "fecha": "2026-10-28",
       "resultado": "Pregunta 108 y 92: cupo de fotos contado afuera de una reserva entre servidores, y respuesta de la IA usada como enlace. Buscado generateGeminiImage en src/: decoración y reunión son los únicos que guardan la salida; espejo y salón IA ya la suben. Va en la orden 253."
+    },
+    "orden-255": {
+      "fecha": "2026-10-28",
+      "resultado": "Pregunta 2 (¿alguien lo llama?): al preparar la orden se buscó quién llama a las piezas de IA. armarInformeAutomatico no lo llama nadie; aprenderDeLoAprobado sólo la web del evento; getPlantillasMasElegidas nadie; el WhatsApp del equipo guarda audios y fotos como texto fijo; el vigilante de la noche sólo lista fiestas. Todo va en la orden 255."
     }
   }
 }
