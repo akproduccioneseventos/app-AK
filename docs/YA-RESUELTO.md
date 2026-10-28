@@ -1,6 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 - **La voz del cliente en su portal anda de verdad (orden 238, 28/10/2026).** El botón Hablar abre la llamada por `/api/asistente/voz-en-vivo/cliente` (sesión del portal de esa fiesta y tope diario de minutos ya publicados) con `sinHerramientas`: la IA conversa pero no ejecuta ninguna acción. Rescatado de la entrega 1368 de Gemini, que venía de una base vieja; su parte de la orden 239 se descartó porque main ya la tenía mejor.
+## 28/10/2026 - Codex758: decoraciones propias y borradores desde fotos
+
+Autorizacion puntual del dueno para implementar esta tarea directamente; no cambia
+el reparto general ni autoriza fusion. Base `0abe9199`, rama
+`codex/758-decoracion-plantillas-automaticas`, PR1372 abierta/borrador (no main).
+Se importan los 86 PNG actuales,
+con manifiesto de hashes, proporciones y categorias. Biblioteca/canvas admiten
+solo sus rutas locales o las imagenes heredadas; no se agregan dependencias.
+Catalogo/galeria/cron alimentan borradores; la IA compara con las piezas reales,
+no inventa stock ni geometria. Organizacion/admin revisa y aprueba antes de que
+aparezcan como plantillas reutilizables. Reserva atomica, limites de IA y reintentos
+explicitos evitan duplicaciones. Se eligio borrador revisable porque una foto no
+demuestra medidas, piezas ocultas ni disponibilidad. Desconocidos quedan visibles.
+Evidencia y limites: `docs/evidencias/758-decoracion-catalogo.md`.
+Fuente `b5aac424d83d00009d367bb58d8c74ee8f8d4f24`: tipos exit0, lint exit0
+con4 advertencias, regresion11suites/63PASS, SDKAdmin demo3PASS y navegador
+PC/Pixel7 con transporte local2PASS. No sumar corridas anteriores. El nuevo
+revisor ajusta su lienzo al ancho movil; el zoom previo de otras pantallas no cambia.
+NO certificado de despliegue ni sincronizacion real de Meta, ni 3D exacto.
 
 ## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
 

@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { deleteDecoCanvasTemplate, getDecoCanvasTemplates, saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
+import DecoCatalogDrafts from '@/components/decoracion/DecoCatalogDrafts';
+import { safeDecorationImageSource } from '@/lib/decoracion/asset-source';
 import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
 import {
   AlertDialog,
@@ -29,6 +31,7 @@ interface DecoTemplateGalleryProps {
   onApplyTemplate: (template: DecoCanvasTemplate) => void;
   fiestaId?: string;
   allowSaveCurrent?: boolean;
+  onChanged?: () => void | Promise<void>;
 }
 
 export default function DecoTemplateGallery({
@@ -38,6 +41,7 @@ export default function DecoTemplateGallery({
   onApplyTemplate,
   fiestaId,
   allowSaveCurrent = true,
+  onChanged,
 }: DecoTemplateGalleryProps) {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<DecoCanvasTemplate[]>([]);
@@ -55,6 +59,11 @@ export default function DecoTemplateGallery({
       setIsLoading(false);
     }
   }, []);
+
+  const handleDraftChanged = useCallback(async () => {
+    await loadTemplates();
+    await onChanged?.();
+  }, [loadTemplates, onChanged]);
 
   useEffect(() => {
     loadTemplates();
@@ -115,6 +124,7 @@ export default function DecoTemplateGallery({
 
   return (
     <div className="space-y-4" data-fiesta-id={fiestaId}>
+      {allowSaveCurrent && <DecoCatalogDrafts fiestaId={fiestaId} onChanged={handleDraftChanged} />}
       {allowSaveCurrent && (
         <div className="flex flex-col sm:flex-row gap-2">
           <Input
@@ -149,6 +159,12 @@ export default function DecoTemplateGallery({
             return (
               <Card key={template.id} className="overflow-hidden">
                 <div className="h-24 relative" style={{ backgroundColor: template.fondoColor || '#f8f9fa' }}>
+                  {!hasMiniatura && template.elementos.filter(el => safeDecorationImageSource(el.imageDataUri || '')).map(el => (
+                    <div key={el.id} className="absolute" style={{ left: `${el.x / 9}%`, top: `${el.y / 5.5}%`, width: `${(el.width || 80) * el.escala / 9}%`, height: `${(el.height || 80) * el.escala / 5.5}%`, transform: `translate(-50%, -50%) rotate(${el.rotacion || 0}deg)`, zIndex: el.zIndex || 0 }}>
+                      <img src={safeDecorationImageSource(el.imageDataUri || '')} alt="" loading="lazy" className="h-full w-full object-contain" />
+                      {el.tintColor && <div className="absolute inset-0" style={{ backgroundColor: el.tintColor, opacity: el.tintOpacity ?? 0, mixBlendMode: 'color', maskImage: `url(${JSON.stringify(safeDecorationImageSource(el.imageDataUri || ''))})`, maskSize: 'contain', maskPosition: 'center', maskRepeat: 'no-repeat' }} />}
+                    </div>
+                  ))}
                   {hasMiniatura && (
                     <NextImage
                       src={template.miniatura as string}

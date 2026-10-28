@@ -31,6 +31,11 @@ const CATALOGO_COLLECTION = 'catalogo_fotos';
  */
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
+async function updateDecorationQueue() {
+  try { const { syncDecorationCatalog } = await import('@/lib/decoracion/catalog-service'); await syncDecorationCatalog(); }
+  catch (error) { console.warn('[decoracion] Foto guardada; la cola se reintentara al abrir decoracion.', error); }
+}
+
 export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
   const fotos = await readData<CatalogoFoto[]>(CATALOGO_FILE, []);
   return fotos.map(corregirCategoriaImportada);
@@ -55,6 +60,7 @@ export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     await createDataItem(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, foto);
+    await updateDecorationQueue();
     return;
   }
   await turnoDelCatalogo.runExclusive(async () => {
@@ -62,12 +68,14 @@ export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
     fotos.push(foto);
     await writeData(CATALOGO_FILE, fotos);
   });
+  await updateDecorationQueue();
 }
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     await mutateDataItem<CatalogoFoto>(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, () => foto);
+    await updateDecorationQueue();
     return;
   }
   await turnoDelCatalogo.runExclusive(async () => {
@@ -78,6 +86,7 @@ export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
       await writeData(CATALOGO_FILE, fotos);
     }
   });
+  await updateDecorationQueue();
 }
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {

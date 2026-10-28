@@ -6,6 +6,7 @@ import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { approvedCatalogTemplates, dismissCatalogDraft } from '@/lib/decoracion/catalog-service';
 
 const TEMPLATES_FILE = 'deco-canvas-templates.json';
 const PRESET_ID_PREFIX = 'preset_';
@@ -19,7 +20,7 @@ async function getUserDecoCanvasTemplates(): Promise<DecoCanvasTemplate[]> {
 export async function getDecoCanvasTemplates(): Promise<DecoCanvasTemplate[]> {
   await requireAppSession();
   const userTemplates = await getUserDecoCanvasTemplates();
-  return [...DECO_PREBUILT_TEMPLATES, ...userTemplates];
+  return [...DECO_PREBUILT_TEMPLATES, ...userTemplates, ...await approvedCatalogTemplates()];
 }
 
 export async function saveDecoCanvasTemplate(
@@ -56,6 +57,10 @@ export async function saveDecoCanvasTemplate(
 export async function deleteDecoCanvasTemplate(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
+    if (id.startsWith('catalog_deco_')) {
+      await dismissCatalogDraft(id.slice('catalog_deco_'.length));
+      return { success: true };
+    }
     if (id.startsWith(PRESET_ID_PREFIX)) {
       return { success: false, error: 'Las plantillas pre-armadas no se pueden eliminar.' };
     }

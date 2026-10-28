@@ -7,6 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Search, Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AK_DECORATION_ELEMENTS } from '@/lib/decoracion/ak-library';
+import { safeDecorationImageSource } from '@/lib/decoracion/asset-source';
 import { DecoElementSvg } from './deco-svg-elements';
 
 export interface LibraryElement {
@@ -18,6 +20,8 @@ export interface LibraryElement {
   maxColores: number;
   isCustom?: boolean;
   imageDataUri?: string;
+  width?: number;
+  height?: number;
 }
 
 const LIBRARY_ELEMENTS: LibraryElement[] = [
@@ -74,6 +78,12 @@ const CATEGORIES = [
   'Otros',
 ];
 
+const ALL_LIBRARY_ELEMENTS: LibraryElement[] = [...LIBRARY_ELEMENTS, ...AK_DECORATION_ELEMENTS];
+const ALL_CATEGORIES = Array.from(new Set([
+  ...CATEGORIES,
+  ...AK_DECORATION_ELEMENTS.map(element => element.categoria),
+]));
+
 const FAV_KEY_PREFIX = 'deco-favoritos-';
 
 function getFavs(fiestaId: string): string[] {
@@ -92,13 +102,14 @@ function toggleFav(fiestaId: string, elementId: string): string[] {
 }
 
 interface DecoElementLibraryProps {
+  akOnly?: boolean;
   fiestaId: string;
   onAddElement: (element: LibraryElement) => void;
   customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
   onUploadCustom?: (file: File) => void;
 }
 
-export default function DecoElementLibrary({ fiestaId, onAddElement, customElements = [], onUploadCustom }: DecoElementLibraryProps) {
+export default function DecoElementLibrary({ fiestaId, onAddElement, customElements = [], onUploadCustom, akOnly = false }: DecoElementLibraryProps) {
   const [search, setSearch] = useState('');
   const [favs, setFavs] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,12 +131,14 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const filtered = LIBRARY_ELEMENTS.filter(el =>
+  const available = akOnly ? AK_DECORATION_ELEMENTS : ALL_LIBRARY_ELEMENTS;
+  const categories = akOnly ? [...new Set(AK_DECORATION_ELEMENTS.map(el => el.categoria))] : ALL_CATEGORIES;
+  const filtered = available.filter(el =>
     el.label.toLowerCase().includes(search.toLowerCase()) ||
     el.categoria.toLowerCase().includes(search.toLowerCase())
   );
 
-  const favElements = LIBRARY_ELEMENTS.filter(el => favs.includes(el.id));
+  const favElements = available.filter(el => favs.includes(el.id));
 
   const customLibraryElements: LibraryElement[] = customElements.map(ce => ({
     id: ce.id,
@@ -148,9 +161,9 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
           className="w-full flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-slate-50 hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all text-center"
           title={`Agregar ${el.label}`}
         >
-          {el.isCustom && el.imageDataUri ? (
+          {el.imageDataUri && safeDecorationImageSource(el.imageDataUri) ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''} alt={el.label} className="w-12 h-12 object-contain" />
+            <img src={safeDecorationImageSource(el.imageDataUri)} alt={el.label} loading="lazy" decoding="async" className="w-12 h-12 object-contain" />
           ) : (
             <div className="w-12 h-12 flex items-center justify-center">
               <DecoElementSvg tipo={el.tipo} colores={['#9CA3AF', '#D1D5DB']} size={40} />
@@ -158,7 +171,7 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
           )}
           <span className="text-[10px] font-semibold text-slate-600 leading-tight">{el.label}</span>
         </button>
-        {!el.isCustom && (
+        {(!el.isCustom || el.id.startsWith('ak_deco_v2_')) && (
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); handleToggleFav(el.id); }}
@@ -194,7 +207,7 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
       </div>
 
       {/* Upload */}
-      <div className="mb-3">
+      {(!akOnly || onUploadCustom) && <div className="mb-3">
         <input
           ref={fileInputRef}
           type="file"
@@ -211,7 +224,7 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
         >
           <Upload className="w-3.5 h-3.5" /> Subir elemento propio
         </Button>
-      </div>
+      </div>}
 
       {search ? (
         /* Search results */
@@ -237,8 +250,8 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
 
           <TabsContent value="todos" className="mt-0 flex-1 overflow-hidden">
             <ScrollArea className="h-full">
-              {CATEGORIES.map(cat => {
-                const catEls = LIBRARY_ELEMENTS.filter(el => el.categoria === cat);
+              {categories.map(cat => {
+                const catEls = available.filter(el => el.categoria === cat);
                 if (catEls.length === 0) return null;
                 return (
                   <div key={cat} className="mb-4">

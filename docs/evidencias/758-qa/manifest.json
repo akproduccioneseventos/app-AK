@@ -1,0 +1,50 @@
+{
+  "source": "b5aac424d83d00009d367bb58d8c74ee8f8d4f24",
+  "reports": [
+    {
+      "file": "decoracion-758-tests.json",
+      "sha256": "5ea30fa5ffc91be63270ee2b71a834ab757a6acc16962b57f53a14cc218d65a9",
+      "gzipSha256": "f12669381ecef1efb7cba6c5523c25b4aad1be761c197991ecc647d014554957",
+      "suites": 3,
+      "passed": 20,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "decoracion-758-tests-v2.json",
+      "sha256": "65a6e2a76351fce08004bf09a82e39b8d0f1c185e6a2d74a676afcf2b2bed114",
+      "gzipSha256": "ab6da00300242ab94ac375eceffc8a75d93d105352e4c97a294cd5fade460704",
+      "suites": 3,
+      "passed": 25,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "decoracion-758-sdk.json",
+      "sha256": "2a96a43258c2b95c2b2d6db2feb7d1f757d510af7d3c15ece2bb1e64b1de1352",
+      "gzipSha256": "551de5302752ffcdcc18622fa33c4fe7a8f64e73c0cf81b6370185ee8d4ee932",
+      "suites": 1,
+      "passed": 0,
+      "failed": 3,
+      "pending": 0
+    },
+    {
+      "file": "decoracion-758-sdk-v2.json",
+      "sha256": "b8d7be92c96d41fb2252dc059f5c17050b4087cf272294d7d36c03286340d17b",
+      "gzipSha256": "3a482c8237b36144c79e80d89429267001f8da538824cc9f72a4bf17da81b9a0",
+      "suites": 1,
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "decoracion-758-related.json",
+      "sha256": "6f3c93cdd8baeb80c5468384dd1035b6d3968322be2899c9d9437011713203ba",
+      "gzipSha256": "039f1cc28503b4da019406be31b178b3434ce2379db10a5d013ffff4aa1048b2",
+      "suites": 11,
+      "passed": 63,
+      "failed": 0,
+      "pending": 0
+    }
+  ]
+}
