@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "name": "PC",
+      "result": "PASS",
+      "scope": "Real gallery/library/canvas, browser-only transport double, no live AI or backend"
+    },
+    {
+      "name": "Pixel7",
+      "result": "PASS",
+      "scope": "Real gallery/library/canvas, browser-only transport double, no live AI or backend"
+    }
+  ],
+  "fixture": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-758-native-AHYJy8"
+}

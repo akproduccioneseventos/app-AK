@@ -640,6 +640,7 @@ function DecoracionYDisenoEventoContent() {
       rotacion: 0,
       zIndex: canvasElementos.length + 1,
       ...(libEl.imageDataUri ? { imageDataUri: libEl.imageDataUri, isCustom: true } : {}),
+      ...(libEl.width ? { width: libEl.width, height: libEl.height } : {}),
     };
     handleCanvasElementsChange([...canvasElementos, newEl]);
     setSelectedCanvasId(newEl.id);

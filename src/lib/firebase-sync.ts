@@ -58,6 +58,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'cupones-usage.json': 'cupones_usage',
   'catalogo-fotos.json': 'catalogo_fotos',
   'deco-canvas-templates.json': 'deco_canvas_templates',
+  'deco-catalogo-borradores.json': 'deco_catalogo_borradores',
   // Modules whose saves were silently lost because they were missing from this map
   'contract-templates.json': 'contract_templates',
   'carta-tragos-master.json': 'carta_tragos_master',

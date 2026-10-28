@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28/10/2026 - Codex758: decoraciones propias y borradores desde fotos
+
+Autorizacion puntual del dueno para implementar esta tarea directamente; no cambia
+el reparto general ni autoriza fusion. Base `0abe9199`, rama
+`codex/758-decoracion-plantillas-automaticas`. Se importan los 86 PNG actuales,
+con manifiesto de hashes, proporciones y categorias. Biblioteca/canvas admiten
+solo sus rutas locales o las imagenes heredadas; no se agregan dependencias.
+Catalogo/galeria/cron alimentan borradores; la IA compara con las piezas reales,
+no inventa stock ni geometria. Organizacion/admin revisa y aprueba antes de que
+aparezcan como plantillas reutilizables. Reserva atomica, limites de IA y reintentos
+explicitos evitan duplicaciones. Se eligio borrador revisable porque una foto no
+demuestra medidas, piezas ocultas ni disponibilidad. Desconocidos quedan visibles.
+Evidencia y limites: `docs/evidencias/758-decoracion-catalogo.md`.
+25 criterios focalizados PASS; controles SDK/navegador/tipos finales no aprobados
+todavia. NO certificado de despliegue ni sincronizacion real de Meta, ni 3D exacto.
+
 ## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
 
 - AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.

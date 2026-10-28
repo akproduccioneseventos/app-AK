@@ -21,6 +21,8 @@ export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
       videos: actual?.videos || [],
     };
   });
+  try { const { syncDecorationCatalog } = await import('@/lib/decoracion/catalog-service'); await syncDecorationCatalog(); }
+  catch (error) { console.warn('[decoracion] Cola pendiente de actualizar.', error); }
 }
 
 export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
