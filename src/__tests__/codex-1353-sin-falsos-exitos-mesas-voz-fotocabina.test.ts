@@ -82,9 +82,9 @@ describe('2. voz en vivo: la confirmacion llega al servidor', () => {
 describe('3. portal del cliente: Hablar no gasta minutos ni dice "conectada" sin audio', () => {
   const src = leer('src/components/portal/AsistenteDelCliente.tsx');
   it('no pide ficha al servidor ni anuncia llamada conectada', () => {
-    expect(src).not.toMatch(/voz-en-vivo\/cliente/);
+    // Superado por orden 238: ahora la voz conecta de verdad a /api/asistente/voz-en-vivo/cliente
     expect(src).not.toMatch(/Llamada de voz conectada/);
-    expect(src).toMatch(/La llamada por voz todavía no está disponible; escribime y te contesto/);
+    expect(src).toMatch(/voz-en-vivo\/cliente/);
   });
 });
 

@@ -9,6 +9,7 @@ import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revisio
 import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
+import { syncDecorationCatalog, processDecorationDraft } from '@/lib/decoracion/catalog-service';
 
 /**
  * Guarda los numeros de las redes, una vez por dia.
@@ -79,6 +80,12 @@ async function correrTarea(request: Request) {
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
     }));
 
+    // A public-safe cron can reconcile sources, but never initiate new paid decoration analyses.
+    const decoracion = await syncDecorationCatalog().then(async summary => ({
+      sources: summary.sources, added: summary.added,
+      analysis: puerta.conClave ? await processDecorationDraft() : { processed: false },
+    })).catch(() => ({ error: 'No se pudo actualizar la cola de decoracion.' }));
+
     // Generar revisión diaria con IA y 3 propuestas para hoy
     try {
       const [posts, connections] = await Promise.all([
@@ -107,6 +114,7 @@ async function correrTarea(request: Request) {
         otrasRedes: historialOtrasRedes,
       },
       comentarios: comentariosSincronizados,
+      decoracion,
     }));
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);

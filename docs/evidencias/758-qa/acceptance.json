@@ -1,0 +1,96 @@
+{
+  "source": "b5aac424d83d00009d367bb58d8c74ee8f8d4f24",
+  "typescript": {
+    "exit": 0
+  },
+  "lint": {
+    "exit": 0,
+    "warnings": 4
+  },
+  "regression": {
+    "suites": 11,
+    "pass": 63,
+    "fail": 0,
+    "skipped": 0
+  },
+  "sdk": {
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0,
+    "scope": "Admin SDK to Firestore demo; provider/photo/auth doubles"
+  },
+  "native": {
+    "pass": 2,
+    "scope": "Real components in PC/Pixel7, browser transport double"
+  },
+  "artifacts": [
+    {
+      "path": "src/ai/flows/analyze-decoration-catalog.ts",
+      "blob": "b5d28f1e15338eafb7570ce54f4b8dabb0879b53"
+    },
+    {
+      "path": "src/app/actions/deco-canvas-templates.ts",
+      "blob": "7fa040dab2b7ea04b427db2b6a5ca7f87b619969"
+    },
+    {
+      "path": "src/app/actions/decoracion-catalogo.ts",
+      "blob": "6bf2245bd76a11fc5480deb2c536e19a8d7fd9e8"
+    },
+    {
+      "path": "src/components/decoracion/DecoCanvas.tsx",
+      "blob": "6a19d47c099de89f571cd957fe9e9680bab0a41a"
+    },
+    {
+      "path": "src/components/decoracion/DecoCatalogDrafts.tsx",
+      "blob": "3983cd66677172d32968b54464c9d74c34b0ac79"
+    },
+    {
+      "path": "src/components/decoracion/DecoElementLibrary.tsx",
+      "blob": "606f28d7732478afb8371f95d7df4a002d2e859b"
+    },
+    {
+      "path": "src/components/decoracion/DecoTemplateGallery.tsx",
+      "blob": "50522d94a57fb5fd23a30bdc04dfa512e7fdaf45"
+    },
+    {
+      "path": "src/lib/decoracion/ak-assets.json",
+      "blob": "b98c215ec53414cc0f2982bb976a72f6e4d51645"
+    },
+    {
+      "path": "src/lib/decoracion/ak-library.ts",
+      "blob": "1a7b8e00307ad9929d49f006f430d7cc9d008f40"
+    },
+    {
+      "path": "src/lib/decoracion/asset-sheet.ts",
+      "blob": "3b9e9483ac2e165580676313bead918a09b09243"
+    },
+    {
+      "path": "src/lib/decoracion/asset-source.ts",
+      "blob": "e8e78bb68313d032abeca068538593e6f464780a"
+    },
+    {
+      "path": "src/lib/decoracion/catalog-core.ts",
+      "blob": "d806efb1350c04ba5d0c2b1873f56f700d219cd7"
+    },
+    {
+      "path": "src/lib/decoracion/catalog-photo.ts",
+      "blob": "ee00121bd2b2a79ef4eb1036dd27d3ec73850a54"
+    },
+    {
+      "path": "src/lib/decoracion/catalog-service.ts",
+      "blob": "3b9481ef46a95540dc3d5827392f4308bfb5905a"
+    },
+    {
+      "path": "src/lib/decoracion/catalog-types.ts",
+      "blob": "b7e7a4eae879fcfe57ead912be64af9054bcf1a9"
+    },
+    {
+      "path": "src/lib/decoracion/generar-layout-automatico.ts",
+      "blob": "86a82d4eb06143a1edd58c040663a007f4dab79f"
+    },
+    {
+      "path": "src/lib/decoracion/plano-a-escena-3d.ts",
+      "blob": "9aef95264086c5c9f4035379112a15b3272bd586"
+    }
+  ]
+}

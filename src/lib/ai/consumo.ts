@@ -29,6 +29,7 @@ export type FuncionConCosto =
   | 'lectura-recibo'
   | 'resumen-feedback'
   | 'sugerir-paleta'
+  | 'catalogo-decoracion'
   | 'extraccion-prospecto-whatsapp'
   | 'trivia-ia'
   | 'voz-cliente'
@@ -63,6 +64,8 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'lectura-recibo': 1,
   'resumen-feedback': 1,
   'sugerir-paleta': 1,
+  // Analisis visual corto; estimacion para el contador, no tarifa del proveedor.
+  'catalogo-decoracion': 1,
   'extraccion-prospecto-whatsapp': 1,
   'trivia-ia': 1,
   'voz-cliente': 1,

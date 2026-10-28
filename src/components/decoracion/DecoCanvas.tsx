@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ElementoDecorativo } from '@/types/fiesta';
 import { DecoElementSvg } from './deco-svg-elements';
+import { safeDecorationImageSource } from '@/lib/decoracion/asset-source';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -91,11 +92,11 @@ const CanvasElement = memo(function CanvasElement({
           borderRadius: 4,
         }}
       >
-        {el.imageDataUri ? (
+        {el.imageDataUri && safeDecorationImageSource(el.imageDataUri) ? (
           <div style={{ position: 'relative', display: 'inline-block', isolation: 'isolate', overflow: 'hidden', borderRadius: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''}
+              src={safeDecorationImageSource(el.imageDataUri)}
               alt={el.etiqueta || el.tipo}
               style={{ width: el.width ?? 80, height: el.height ?? 80, objectFit: 'contain', display: 'block' }}
               draggable={false}
@@ -108,6 +109,10 @@ const CanvasElement = memo(function CanvasElement({
                   backgroundColor: el.tintColor,
                   opacity: el.tintOpacity ?? 0,
                   mixBlendMode: 'color',
+                  maskImage: `url(${JSON.stringify(safeDecorationImageSource(el.imageDataUri))})`,
+                  WebkitMaskImage: `url(${JSON.stringify(safeDecorationImageSource(el.imageDataUri))})`,
+                  maskSize: 'contain', maskPosition: 'center', maskRepeat: 'no-repeat',
+                  WebkitMaskSize: 'contain', WebkitMaskPosition: 'center', WebkitMaskRepeat: 'no-repeat',
                   pointerEvents: 'none',
                   borderRadius: 4,
                 }}
@@ -177,6 +182,7 @@ interface DecoCanvasProps {
   fondoImagenUrl?: string;
   showGrid?: boolean;
   fullscreen?: boolean;
+  autoFit?: boolean;
 }
 
 export default function DecoCanvas({
@@ -189,6 +195,7 @@ export default function DecoCanvas({
   fondoImagenUrl,
   showGrid = false,
   fullscreen = false,
+  autoFit = false,
 }: DecoCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
@@ -199,6 +206,20 @@ export default function DecoCanvas({
 
   const CANVAS_W = 900;
   const CANVAS_H = 550;
+  const minimumZoom = autoFit ? 10 : 30;
+  useEffect(() => {
+    const frame = outerRef.current;
+    if (!autoFit || !frame) return;
+    let lastWidth = 0;
+    const fit = () => {
+      if (!frame.clientWidth || frame.clientWidth === lastWidth) return;
+      lastWidth = frame.clientWidth;
+      setZoom(Math.max(10, Math.min(100, Math.floor((lastWidth - 2) / CANVAS_W * 100))));
+    };
+    fit();
+    const observer = new ResizeObserver(fit); observer.observe(frame);
+    return () => observer.disconnect();
+  }, [autoFit]);
 
   const updateElemento = useCallback((id: string, patch: Partial<ElementoDecorativo>) => {
     onChange(elementosRef.current.map(el => el.id === id ? { ...el, ...patch } : el));
@@ -433,8 +454,8 @@ export default function DecoCanvas({
   }, [selectedId, onChange, onSelectId]);
 
   const zoomIn = () => setZoom(z => Math.min(200, z + 10));
-  const zoomOut = () => setZoom(z => Math.max(30, z - 10));
-  const resetZoom = () => setZoom(100);
+  const zoomOut = () => setZoom(z => Math.max(minimumZoom, z - 10));
+  const resetZoom = () => setZoom(autoFit && outerRef.current ? Math.max(10, Math.min(100, Math.floor((outerRef.current.clientWidth - 2) / CANVAS_W * 100))) : 100);
 
   const isElementHidden = (el: ElementoDecorativo) => {
     return hiddenZones.includes(el.zona ?? '');
@@ -473,11 +494,11 @@ export default function DecoCanvas({
     <div className={fullscreen ? 'flex flex-col gap-2 h-full' : 'flex flex-col gap-2'}>
       {/* Zoom controls */}
       <div className="flex items-center gap-2">
-        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={zoomOut} disabled={zoom <= 30}>
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={zoomOut} disabled={zoom <= minimumZoom}>
           <ZoomOut className="w-4 h-4" />
         </Button>
         <input
-          type="range" min={30} max={200} step={5} value={zoom}
+          type="range" min={minimumZoom} max={200} step={1} value={zoom}
           onChange={e => setZoom(Number(e.target.value))}
           className="flex-1 h-2 accent-primary cursor-pointer"
         />
@@ -496,7 +517,7 @@ export default function DecoCanvas({
         className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100"
         style={fullscreen ? { flex: 1, minHeight: 0 } : { maxHeight: 620 }}
       >
-        <div style={{ transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
+        <div style={autoFit ? { width: CANVAS_W * zoom / 100, height: CANVAS_H * zoom / 100 } : { transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
           <div
             ref={containerRef}
             data-deco-canvas
@@ -504,6 +525,7 @@ export default function DecoCanvas({
               style={{
                 width: CANVAS_W,
                 height: CANVAS_H,
+                ...(autoFit ? { transformOrigin: 'top left', transform: `scale(${zoom / 100})` } : {}),
                 backgroundColor: safeFondoColor,
                 backgroundImage: backgroundLayers.join(', ') || undefined,
                 backgroundSize,
