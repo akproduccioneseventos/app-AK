@@ -137,6 +137,8 @@ disponibilidad por WhatsApp" no entra, el botón puede decir "Consultar por What
 
 - `src/components/public-footer.tsx`: dos enlaces a `/login` (~235 "Acceso Staff & Equipo AK" y ~311
   "Acceso Staff"). **Dejá sólo el de abajo (~311)**, chico y discreto.
+  **Cambiado por el dueño el 27/10/2026:** no encontraba el acceso y pidió que vuelva "Acceso Staff & Equipo AK" a
+  "Accesos Rápidos". Quedan los dos.
 - `src/app/page.tsx` ~673-700 (`jsonLd`): hoy es sólo `EventVenue`. Pasalo a un `@graph` con dos nodos:
   - `LocalBusiness` (mejor `EventPlanner` si lo acepta el validador; si no, `LocalBusiness`): "AK
     Producciones", la misma dirección, teléfono y redes que hoy, `areaServed`: Salto y litoral de Uruguay
@@ -187,7 +189,7 @@ no-usa: Hablar con AK en src/components/landing/HeroSection.tsx
 usa: Simular mi presupuesto en src/components/landing/ServicesSection.tsx
 no-usa: Cotizar mi fiesta en src/components/landing/LaAppDeTuFiestaSection.tsx
 no-usa: Cotizá tu evento en src/components/landing/CTASection.tsx
-no-usa: Acceso Staff & Equipo AK en src/components/public-footer.tsx
+usa: Acceso Staff & Equipo AK en src/components/public-footer.tsx
 usa: +200 en src/components/landing/StatsSection.tsx
 archivo: src/types/landing-editor.ts
 prueba: tests/e2e/la-portada-nueva.spec.ts

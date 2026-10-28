@@ -1494,3 +1494,24 @@ Codex 719 (27/10/2026). Un usuario con un perfil que no existe y el rol viejo de
 dueño, porque al armar la cookie el perfil roto se reemplazaba por el que daba el rol viejo, y el rechazo que ya existía
 nunca llegaba a verlo. Se mira cada "si no es válido, usar…": lo inválido tiene que dar menos, nunca más, y la
 conversión de cuentas viejas sólo vale cuando el dato falta, no cuando está roto.
+
+### 108. Un BORRADO que mira algo antes ("no tiene cobros", "no está firmado", "nadie lo usa"), ¿lo vuelve a mirar en el mismo momento en que borra?
+
+Codex 726 (27/10/2026). La pregunta 90 se había barrido mirando guardados, no borrados. Una factura se borraba mientras
+otra persona la cobraba: las dos pantallas decían "listo" y el comprobante desaparecía. Lo mismo un presupuesto, que
+además se borraba con cobros adentro. Se mira cada `delete…` y cada `forceDelete…`: la condición y el borrado van en la
+misma transacción, y lo que se cobra comprueba que lo cobrado siga existiendo.
+
+### 109. Un monto con centavos que sale de la app (archivo, texto, aviso, resumen), ¿llega con los mismos centavos que muestra el reporte?
+
+Codex 726 (27/10/2026). El resumen para el contador redondeaba los gastos a pesos enteros: el archivo, el texto y el
+reporte decían tres números distintos. Las ventas y cuotas en pesos enteros son decisión del dueño; los gastos, costos
+y resultados no. Se compara cada salida con el reporte, y la suma de las filas con el total.
+
+### 110. Un mismo número de plata (cobrado, vendido, ganancia, costo, saldo) que aparece en dos pantallas, ¿sale de la misma cuenta, con los mismos movimientos y el mismo filtro de fechas?
+
+Codex 732 y barrido propio (27/10/2026). La comisión de Mercado Pago se descontaba en la ficha de la fiesta y no en el
+reporte; los pagos a proveedores caían por la fecha del evento; una seña sin presupuesto estaba en el libro y no en el
+reporte; "lo que me deben" daba un número en el panel y otro en el asistente; "ingresos" eran cinco cosas. Se listan las
+funciones que calculan cada número y se compara qué incluye cada una y por qué fecha filtra. Lo que es distinto a
+propósito lleva otro nombre en pantalla.
