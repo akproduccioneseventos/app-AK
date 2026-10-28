@@ -249,7 +249,8 @@ function DecoracionYDisenoEventoContent() {
 
     setIsGeneratingAi(true);
     try {
-      const res = await generarVisualizacionSalonAi(fiestaId, decoracionData.salonPlanBackgroundImageUrl || undefined);
+      const captura = salonSceneRef.current?.captureScreenshot() || undefined;
+      const res = await generarVisualizacionSalonAi(fiestaId, decoracionData.salonPlanBackgroundImageUrl || undefined, captura);
       if (res.success && res.imageUrl) {
         setDecoracionData(prev => ({
           ...prev,
@@ -1140,12 +1141,12 @@ function DecoracionYDisenoEventoContent() {
                       {isGeneratingAi ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Generando imagen con IA...
+                          Armando tu foto…
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-5 h-5" />
-                          Ver el salón decorado (imagen con IA)
+                          Así va a quedar tu fiesta
                         </>
                       )}
                     </Button>
@@ -2027,6 +2028,28 @@ function DecoracionYDisenoEventoContent() {
                           <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs flex items-center gap-2">
                             <Layers className="w-3.5 h-3.5 text-primary" />
                             <span>Vista 3D Interactiva del Salón (Prismm)</span>
+                          </div>
+
+                          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                            <Button
+                              type="button"
+                              data-testid="btn-generar-salon-ai-3d"
+                              onClick={handleGenerarAi}
+                              disabled={isGeneratingAi || (decoracionData.fotosGeneradasAi?.length || 0) >= 3}
+                              className="rounded-xl gap-2 bg-purple-600/90 hover:bg-purple-600 text-white shadow-lg backdrop-blur-md text-xs font-semibold h-9 px-4 border border-purple-400/30"
+                            >
+                              {isGeneratingAi ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  Armando tu foto…
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Así va a quedar tu fiesta
+                                </>
+                              )}
+                            </Button>
                           </div>
 
                           {/* Muebles y elementos 3D posicionados según las coordenadas reales del plano */}
