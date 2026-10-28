@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-28",
+  "question": "Reutilizar fotos del catalogo/galeria y si estan sincronizadas con lo actual",
+  "mainObserved": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "publicRead": {
+    "page": "https://akproducciones.uy/",
+    "category": "Decoración",
+    "sampleAccessible": "https://akproducciones.uy/media/catalogo-servicios/xv-mesa-principal-ak-02.jpeg",
+    "observable": "Fotos y categorias en galeria publica, URL de imagen accesible. No se descargaron archivos."
+  },
+  "codeRead": {
+    "files": [
+      "src/app/actions/social-media.ts",
+      "src/lib/instagram/public-feed.ts",
+      "src/lib/social-media/meta-history-backfill.ts",
+      "src/app/api/cron/metricas-de-redes/route.ts"
+    ],
+    "flow": "syncInstagramPosts usa getPublicInstagramFeed; historial guardado publico priorizado. Tarea de metricas-de-redes invoca syncMetaPublicHistory; historial lleva lastAttemptAt/lastFullSyncAt/lastIncrementalSyncAt."
+  },
+  "conclusion": "Podemos reutilizar las imagenes existentes accesibles como referencias de decoraciones. Sincronizacion REAL ACTUAL NO VERIFICADA.",
+  "limits": [
+    "No se leyo estado desplegado meta-public-history-backfill.json ni credenciales",
+    "No cron invocado, no sincronizacion nueva ni escritura de datos reales",
+    "No comparar ultimas publicaciones de Meta, no declarar cuenta conectada/actualizada",
+    "No confundir fotos locales/publicadas o generadas con fotografias reales sin seleccion visual",
+    "No convertir PNG/foto a3D perfecto automaticamente",
+    "No appedit/descargas/merge"
+  ],
+  "next": "Elegir fotos reales de Decoracion de la app como fuente alternativa aWhatsApp. Para confirmar actualidad, lectura autorizada del ultimo resultado exitoso en servidor y contraste con publicaciones recientes, sin usar mocks como evidencia."
+}

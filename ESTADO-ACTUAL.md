@@ -3,6 +3,7 @@
 Rama codex/697-auditoria-automatismos-20261026, PR1366 abierta/borrador.
 Codex SOLOaudita/prueba/documenta. Gemini programa;Claude plata/permisos/compila/fusiona.
 Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. Noappedit/deploy.
+757:galeriaDecoracionpublicaACCESIBLE;actualidadsyncMetaNOcomprobada,sincronNOinvocado.
 756:86PNG/14categorias/transparenciareal0faltantes/duplicados,carpetaDownloads.
 254Gemini:integracionbiblioteca2D/editor;NOimportada/NO3Dreal/NOstockinventado.
 ## Nueva1371 /749-755 /orden253

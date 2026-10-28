@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28/10/2026 - Codex757: galeria sirve como fuente; sincronizacionactual NO verificada
+
+- Lecturapublicaakproducciones.uy:muestra categoriaDecoracion yfotoaccesible
+  /media/catalogo-servicios/xv-mesa-principal-ak-02.jpeg. Podemos reutilizar
+  fotosaccesibles de decoraciones reales previa seleccion;NOdescargas aun.
+- Mainobservado0abe9199. syncInstagramPosts usa feed de historial guardado;
+  cronmetricas invoca backfillMeta. Estado lastAttemptAt/lastFullSyncAt/
+  lastIncrementalSyncAt existe en codigo,pero NOleido servidorreal.
+- No afirmar que esta al dia conMeta por mostrar fotos ni por existir cron.
+  Sin cron ejecutado/credenciales/cuentas/mensajes/escrituras/appedit/merge.
+  757evidencia/límites; fuente alternativa aWhatsApp, no nuevaorden defallos.
+
 ## 28/10/2026 - Codex756: biblioteca86PNG factible, NO importada
 
 - Downloads/AK_DECORACIONES_TODO_CORREGIDO:catalogo86IDs/86rutas/14categorias,
