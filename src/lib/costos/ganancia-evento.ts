@@ -145,7 +145,7 @@ export function calcularGananciaDeEvento(
   for (const item of items) {
     const pagado = Math.max(0, pagadoPorItem.get(item.id) ?? 0);
     const estimado = Math.max(0, aNumero(item.montoEstimado));
-    const estaCerrado = Boolean((item as any).cerrado || (item as any).estado === 'cerrado');
+    const estaCerrado = Boolean(item.cerrado);
     if (pagado > 0) {
       if (estaCerrado) {
         realDeItems += pagado;

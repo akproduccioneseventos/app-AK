@@ -34,6 +34,8 @@ export interface Payment {
    * (pregunta 25). Sin valor = cobro viejo o de otro camino: no se toca.
    */
   pasadoAlPresupuesto?: boolean;
+  /** Lo que se quedó la pasarela (Mercado Pago) de este cobro, si se conoce. */
+  comisionProveedor?: number;
 }
 
 export interface Invoice {

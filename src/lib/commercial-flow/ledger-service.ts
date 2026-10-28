@@ -142,8 +142,8 @@ export function getReconciledSalePayments(
       date: payment.paymentDate,
       amount: roundMoney(payment.amount),
       source: 'invoice' as const,
-      comisionProveedor: typeof (payment as any).comisionProveedor === 'number' && Number.isFinite((payment as any).comisionProveedor) && (payment as any).comisionProveedor > 0
-        ? (payment as any).comisionProveedor
+      comisionProveedor: typeof payment.comisionProveedor === 'number' && Number.isFinite(payment.comisionProveedor) && payment.comisionProveedor > 0
+        ? payment.comisionProveedor
         : undefined,
     }))
     .filter(payment => payment.amount > 0);

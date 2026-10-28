@@ -106,6 +106,7 @@ export async function requireSession(): Promise<
         const timeoutPromise = new Promise<never>((_, reject) => {
           timer = setTimeout(() => reject(new Error('Firestore timeout')), 80);
         });
+        // no pasa nada si falla: es la espera que corta la carrera; el error real lo maneja el race de abajo.
         timeoutPromise.catch(() => {});
 
         snap = await Promise.race([

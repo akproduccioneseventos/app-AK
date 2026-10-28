@@ -628,6 +628,7 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
           timer = setTimeout(() => reject(new Error('Could not load the default credentials (timeout)')), 1500);
           timer.unref?.();
         });
+        // no pasa nada si falla: es la espera que corta la carrera; el error real lo maneja el race de abajo.
         timeoutPromise.catch(() => {});
 
         await Promise.race([
