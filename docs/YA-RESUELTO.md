@@ -13,8 +13,11 @@ aparezcan como plantillas reutilizables. Reserva atomica, limites de IA y reinte
 explicitos evitan duplicaciones. Se eligio borrador revisable porque una foto no
 demuestra medidas, piezas ocultas ni disponibilidad. Desconocidos quedan visibles.
 Evidencia y limites: `docs/evidencias/758-decoracion-catalogo.md`.
-25 criterios focalizados PASS; controles SDK/navegador/tipos finales no aprobados
-todavia. NO certificado de despliegue ni sincronizacion real de Meta, ni 3D exacto.
+Fuente `b5aac424d83d00009d367bb58d8c74ee8f8d4f24`: tipos exit0, lint exit0
+con4 advertencias, regresion11suites/63PASS, SDKAdmin demo3PASS y navegador
+PC/Pixel7 con transporte local2PASS. No sumar corridas anteriores. El nuevo
+revisor ajusta su lienzo al ancho movil; el zoom previo de otras pantallas no cambia.
+NO certificado de despliegue ni sincronizacion real de Meta, ni 3D exacto.
 
 ## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
 

@@ -3,8 +3,8 @@
 ## Tarea autorizada por el dueno, 28/10: decoraciones AK
 - Codex implementa SOLO esta excepcion, rama `codex/758-decoracion-plantillas-automaticas`.
 - Base main `0abe9199`; 86 elementos importados y cola de propuestas desde catalogo/galeria.
-- Evidencia: `docs/evidencias/758-decoracion-catalogo.md`; 25 criterios focalizados PASS.
-- Todavia no aceptar SDK/navegador/tipos completos ni conectores reales sin sus recibos.
+- Fuente `b5aac424d`: tipos/lint exit0;63PASS regresion,3PASS SDKdemo,2PASS PC/Pixel7.
+- Evidencia/limites: `docs/evidencias/758-decoracion-catalogo.md`; no despliegue/conector real certificados.
 - Claude conserva revision/fusion. No se tocaron las ramas activas de Gemini.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propuesta **1367** (`c0add57f6`, 27/10): órdenes 234 a 237 (web con IA y 3 versiones, tareas automáticas, Centro de control) más 6 arreglos de Codex.
