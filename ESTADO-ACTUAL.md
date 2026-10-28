@@ -17,6 +17,10 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 - **Órdenes 242 a 246 y 248** (una sola propuesta): con o sin alcohol y menores, textos del simulador, blog que dice "corrió" sin publicar y su barrido, portada creíble y testimonios reales, sección de la app, Club Uruguay.
 - Orden 238 (voz del cliente en el portal) sigue pendiente.
 
+## Entregas de Gemini devueltas (28/10)
+- **1370** (247 y 249): 6 fallos de Codex (orden 252) y falta la 251 entera. Vuelve a Gemini en la misma propuesta.
+- **1371** (250): 4 fallos (orden 253): la foto llega como texto, errores invisibles, genera sin captura, cupo entre servidores.
+
 ## Codex
 - Revisó el área Barra (717 y 719): sumado a 242 y 247. Numera órdenes que ya existen: que mire el último número antes.
 
