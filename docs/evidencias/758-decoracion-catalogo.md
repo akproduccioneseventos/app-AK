@@ -73,6 +73,10 @@
   se corrigio y el control siguiente termino exit0. No se ocultaron los intentos fallidos.
 
 ## Limites que se deben conservar
+- Graphify se actualizo sin LLM:25663 nodos/72059 relaciones.27 avisos del parser
+  son extracciones parciales, no errores de TypeScript. El grafo local completo
+  no se agrega como dependencia: se comparte el modulo y vecinos directos en
+  `758-qa/decoration-graph.json`, para que otras IA ubiquen los consumidores.
 - Se reutilizaron las dependencias locales, sin `npm ci` limpio. Las versiones
   directas verificadas coinciden con lock: Next15.5.27, React/ReactDOM19.2.8,
   Sharp0.35.5, Genkit1.20.0 y TypeScript5.9.3. No es verificacion de todas las transitivas.
