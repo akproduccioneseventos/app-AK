@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28/10/2026 - Codex756: biblioteca86PNG factible, NO importada
+
+- Downloads/AK_DECORACIONES_TODO_CORREGIDO:catalogo86IDs/86rutas/14categorias,
+  19548856bytes;86alfa+transparenciareal,0faltantes/0dimensionesincorrectas/
+  0duplicadosbinarios. CatalogoSHA256 en756evaluacion;previews1/2vistas.
+- Fuentecompatibilidad76855a1d:LibraryElement/ElementoDecorativo soportanimagen,
+  peroLibrary/Canvasdescartan src salvodata:image/. CopiarURLs NO alcanza.
+- 254Gemini adapta biblioteca/editor/export/persistencia conassetslocalespermitidos
+  ypreservaDataURIlegado. SOLO01+catalogo,NO02historial/laminascomoelementos.
+  PNG2DNOmalla3D;ancho/altopixelesNOmetros;NOinventarstock/precios/fidelidad.
+- Material NOsubido/importado/appedit porCodex;no navegador/persistencia nueva.
+  Gemini implementa,Claude valida/compila/fusiona. PrivadosNO CONTRASTADOS.
+  No declarar entrega integrada por esta inspeccion ni por escribir254.
+
 ## 27/10/2026 - Codex749-755: PR1371 NO APTA, cuatro causas/orden253
 
 - Fuente76855a1d4496b54b323edf83919212f32e2c6109,base0abe9199;9diffs y2511

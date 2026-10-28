@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-28",
+  "root": "C:/Users/Usuario/Downloads/AK_DECORACIONES_TODO_CORREGIDO",
+  "catalog": "00_INSTRUCCIONES/catalogo.json",
+  "catalogSha256": "014444c4952a3b4253bfd37582455dc8601ae679da09cda9fc2afdb5ec4c20c4",
+  "entries": 86,
+  "uniqueIds": 86,
+  "uniquePaths": 86,
+  "categories": 14,
+  "bytes": 19548856,
+  "alphaChannel": 86,
+  "withActualTransparentPixels": 86,
+  "missingFiles": [],
+  "dimensionMismatch": [],
+  "exactDuplicateFiles": [],
+  "minimumWidthPx": 107,
+  "minimumHeightPx": 125,
+  "readmeWarnings": [
+    "No importar02_HISTORIAL_NO_IMPORTAR",
+    "PNG no equivale a modelo3D",
+    "Medidas catalogo son pixeles, no medidas fisicas",
+    "Hay recreaciones/simplificaciones, no prometer fidelidad sin cotejo",
+    "Carteles personalizados son muestras"
+  ],
+  "applicationSourceReviewed": "76855a1d4496b54b323edf83919212f32e2c6109",
+  "integration": "LibraryElement/ElementoDecorativo soportan imagen personalizada; DecoElementLibrary yDecoCanvas vacian src si no data:image/. Necesita adaptacion controlada para assets locales/allowlist, no importacion directa ciega.",
+  "limits": "Evaluacion de archivos y compatibilidad de fuente. No appedit/importacion/stock/3D/persistencia/navegador nuevo. Vistas previas1y2 revisadas visualmente; no fidelidad86objetos acreditada.",
+  "authors": "Codex audita/prepara;Gemini implementa;Claude valida permisos/compila/fusiona. No fusionar documentos solos."
+}

@@ -1,8 +1,10 @@
-# Estado actual - 27/10/2026
+# Estado actual - 28/10/2026
 
 Rama codex/697-auditoria-automatismos-20261026, PR1366 abierta/borrador.
 Codex SOLOaudita/prueba/documenta. Gemini programa;Claude plata/permisos/compila/fusiona.
 Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. Noappedit/deploy.
+756:86PNG/14categorias/transparenciareal0faltantes/duplicados,carpetaDownloads.
+254Gemini:integracionbiblioteca2D/editor;NOimportada/NO3Dreal/NOstockinventado.
 ## Nueva1371 /749-755 /orden253
 PR1371 OPEN76855a1d4496b54b323edf83919212f32e2c6109,base/main0abe9199.
 9diffs,2511fuentes/config/lockQA iguales antes/despues.
