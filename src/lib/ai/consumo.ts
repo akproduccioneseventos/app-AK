@@ -33,7 +33,8 @@ export type FuncionConCosto =
   | 'extraccion-prospecto-whatsapp'
   | 'trivia-ia'
   | 'voz-cliente'
-  | 'asistente-dot-contador';
+  | 'asistente-dot-contador'
+  | 'recorte-decoracion';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -70,6 +71,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'trivia-ia': 1,
   'voz-cliente': 1,
   'asistente-dot-contador': 1,
+  'recorte-decoracion': 6,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
@@ -174,4 +176,3 @@ export function resumirGasto(consumo: ConsumoDelMes, topeUYU: number): ResumenDe
     mensaje: `Vas por $${gastado} de $${tope} este mes (${porcentaje}%).`,
   };
 }
-

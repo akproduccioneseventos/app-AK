@@ -1970,6 +1970,7 @@ export interface DecoCanvasTemplate {
   fondoImagenUrl?: string;
   creadoEn: string;
   miniatura?: string;
+  aprobadaSola?: boolean;
 }
 
 // --- SCREEN PLAYLIST ---
@@ -2030,6 +2031,3 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
-
-
-
