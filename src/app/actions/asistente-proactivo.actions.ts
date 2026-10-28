@@ -30,7 +30,7 @@ export async function getBandejaAsistenteAction(area?: AsistenteArea) {
 
     if (session.user?.perfil !== undefined && session.user?.perfil !== null && String(session.user.perfil) !== '') {
     if (!esPerfilValido(session.user.perfil)) {
-      return { success: false, error: 'Tu usuario tiene un perfil que no existe. Pedile al due?o que lo corrija.' };
+      return { success: false, error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.' };
     }
   }
 
@@ -64,7 +64,7 @@ export async function aceptarPropuestaAction(propuestaId: string) {
   }
     if (session.user?.perfil !== undefined && session.user?.perfil !== null && String(session.user.perfil) !== '') {
     if (!esPerfilValido(session.user.perfil)) {
-      return { success: false, mensaje: 'Tu usuario tiene un perfil que no existe. Pedile al due?o que lo corrija.' };
+      return { success: false, mensaje: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.' };
     }
   }
   const usuarioNombre = session.user?.email || 'Equipo AK';

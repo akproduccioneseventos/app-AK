@@ -6,6 +6,21 @@ import { deleteUser, updateUserModules } from '@/app/actions/auth';
 
 let cookieToken: string | undefined = undefined;
 
+// El candado entre servidores vive en la base. Acá se simula con un mapa compartido: si otro lo tiene,
+// no se toma (igual que la base). Así "dos bajas a la vez" se prueba como si fueran dos servidores.
+const candadosTomados = new Map<string, string>();
+jest.mock('@/lib/automatico/candado-con-nombre', () => ({
+  tomarCandado: async (nombre: string) => {
+    if (candadosTomados.has(nombre)) return null;
+    const dueno = `d-${Math.random()}`;
+    candadosTomados.set(nombre, dueno);
+    return dueno;
+  },
+  soltarCandado: async (nombre: string, dueno: string) => {
+    if (candadosTomados.get(nombre) === dueno) candadosTomados.delete(nombre);
+  },
+}));
+
 jest.mock('next/headers', () => ({
   cookies: jest.fn(async () => ({
     get: jest.fn((name: string) => {
@@ -140,5 +155,21 @@ describe('dos-bajas-conservan-un-dueno', () => {
     // Debe quedar exactamente 1 dueño en la base
     const duenosRestantes = Object.values(mockUsersDb).filter((u: any) => u.perfil === 'dueno');
     expect(duenosRestantes.length).toBe(1);
+  });
+
+  it('dos bajas a la vez desde DOS servidores (dos copias del módulo) conservan al menos un dueño', async () => {
+    // Cada copia del módulo tiene su propio turno en memoria, como dos servidores. Sólo el candado
+    // compartido (la base) puede evitar que las dos cuenten "quedan 2" y borren las dos.
+    let otroServidor: typeof import('@/app/actions/auth') | undefined;
+    jest.isolateModules(() => {
+      otroServidor = require('@/app/actions/auth');
+    });
+    const [resA, resB] = await Promise.all([
+      deleteUser('dueno-1'),
+      otroServidor!.deleteUser('dueno-2'),
+    ]);
+    expect([resA, resB].filter((r) => r.success).length).toBeLessThanOrEqual(1);
+    const duenosRestantes = Object.values(mockUsersDb).filter((u: any) => u.perfil === 'dueno');
+    expect(duenosRestantes.length).toBeGreaterThanOrEqual(1);
   });
 });

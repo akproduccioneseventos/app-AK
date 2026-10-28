@@ -671,6 +671,38 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
       };
     }
 
+    // Orden 249, bloque 2: lo leído arriba puede estar viejo si otro servidor cobró en el medio. Se
+    // vuelve a mirar el presupuesto y se lo borra en la MISMA transacción de la base: si ya tiene un
+    // cobro o la firma, no se borra.
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        let bloqueado = false;
+        try {
+          await dbAdmin.runTransaction(async (transaction: any) => {
+            bloqueado = false;
+            const ref = dbAdmin.collection('presupuestos').doc(id);
+            const snap = await transaction.get(ref);
+            if (!snap.exists) return;
+            const actual = (typeof snap.data === 'function' ? snap.data() : snap.data) as Presupuesto;
+            if ((actual.pagosCliente?.length || 0) > 0 || actual.contractSignatureInfo?.isSigned) {
+              bloqueado = true;
+              return;
+            }
+            transaction.delete(ref);
+          });
+        } catch (txError: any) {
+          const msg = String(txError?.message || '');
+          if (!msg.includes('Could not load the default credentials') && !msg.includes('default credentials')) {
+            return { success: false, error: 'No se pudo comprobar si el presupuesto tiene cobros. No se borró.' };
+          }
+        }
+        if (bloqueado) {
+          return { success: false, error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.' };
+        }
+      }
+    }
+
     const remaining = all.filter(p => p.id !== id);
     try {
       await writeData(PRESUPUESTOS_FILE, remaining);

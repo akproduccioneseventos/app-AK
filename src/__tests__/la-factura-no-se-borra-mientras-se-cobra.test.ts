@@ -264,6 +264,24 @@ describe('La factura no se borra mientras se cobra y presupuestos protegidos', (
       expect(presupuestos.find((p: Presupuesto) => p.id === 'pres-test-1')).toBeDefined();
     });
 
+    it('(f) un cobro que entra entre la lectura y el borrado (otro servidor) frena el borrado del presupuesto', async () => {
+      almacen['presupuestos.json'] = [copia(PRESUPUESTO_BASE)];
+      const original = mockRunTransaction.getMockImplementation()!;
+      mockRunTransaction.mockImplementationOnce(async (callback: (tx: any) => Promise<any>) => {
+        // Justo antes de la transacción del borrado, otro servidor registra un cobro.
+        almacen['presupuestos.json'] = [{
+          ...copia(PRESUPUESTO_BASE),
+          pagosCliente: [{ id: 'pago-tarde', monto: 5000, fecha: '2026-10-28T10:00:00.000Z', metodoPago: 'Efectivo', estadoPago: 'confirmado' }],
+        }];
+        return original(callback);
+      });
+
+      const res = await deletePresupuesto('pres-test-1');
+      expect(res.success).toBe(false);
+      const quedo = (almacen['presupuestos.json'] || []).find((p: Presupuesto) => p.id === 'pres-test-1');
+      expect(quedo?.pagosCliente?.length).toBe(1);
+    });
+
     it('(e) Presupuesto con contrato firmado: intentar borrar se rechaza con "Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo."', async () => {
       almacen['presupuestos.json'] = [
         {

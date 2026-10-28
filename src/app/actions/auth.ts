@@ -921,6 +921,26 @@ export async function createUser(data: {
   }
 }
 
+// Orden 252, punto 4: el turno en memoria cuida un solo servidor. Con dos servidores, dos bajas a la
+// vez contaban "quedan 2 dueños" cada una y dejaban cero. El candado con nombre vive en la base y
+// serializa la cuenta y el cambio entre servidores; si no se puede tomar, no se cambia nada.
+async function conCandadoDeUsuarios(
+  fn: () => Promise<{ success: boolean; error?: string }>,
+): Promise<{ success: boolean; error?: string }> {
+  return usersMutex.runExclusive(async () => {
+    const { tomarCandado, soltarCandado } = await import('@/lib/automatico/candado-con-nombre');
+    const dueno = await tomarCandado('usuarios-y-duenios', 60_000);
+    if (!dueno) {
+      return { success: false, error: 'Otra persona está cambiando usuarios en este momento. Probá de nuevo en unos segundos.' };
+    }
+    try {
+      return await fn();
+    } finally {
+      await soltarCandado('usuarios-y-duenios', dueno);
+    }
+  });
+}
+
 export async function updateUserModules(
   userId: string,
   modules: string[],
@@ -940,7 +960,7 @@ export async function updateUserModules(
     }
   }
 
-  return await usersMutex.runExclusive(async () => {
+  return await conCandadoDeUsuarios(async () => {
     try {
       const userDocRef = db.collection('users').doc(userId);
       const userSnap = await userDocRef.get();
@@ -1004,7 +1024,7 @@ export async function deleteUser(
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
-  return await usersMutex.runExclusive(async () => {
+  return await conCandadoDeUsuarios(async () => {
     try {
       const userDocRef = db.collection('users').doc(userId);
       const userSnap = await userDocRef.get();

@@ -177,7 +177,7 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
         employee: null,
         googleAccount: undefined,
         events: [],
-        error: 'Tu usuario tiene un perfil que no existe. Pedile al due?o que lo corrija.',
+        error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.',
       };
     }
   }

@@ -246,7 +246,7 @@ export default function MainDashboardPage() {
           </h1>
           <p className="text-slate-600 font-medium text-xs sm:text-sm leading-normal flex items-center gap-2 max-w-2xl">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-            <span>Gestión operativa, comercial y financiera en tiempo real.</span>
+            <span>Gestión operativa, comercial y financiera, al día de hoy.</span>
           </p>
         </motion.div>
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-wrap items-center gap-3 shrink-0">

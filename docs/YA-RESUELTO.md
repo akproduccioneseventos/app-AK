@@ -1,5 +1,11 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+- **Revisión de las entregas 1370 y 1374 de Gemini (28/10/2026), lo que completó Claude:**
+  - Dos bajas de dueños desde dos servidores podían dejar cero dueños: el turno era sólo de memoria. Ahora la cuenta y el cambio van con el candado con nombre de la base (`conCandadoDeUsuarios` en `auth.ts`); si no se puede tomar, no se cambia nada. Prueba con dos copias del módulo en `dos-bajas-conservan-un-dueno.test.ts`.
+  - Borrar un presupuesto miraba los cobros con una lista leída antes: ahora se vuelve a mirar y se borra en la misma transacción de la base (`deletePresupuesto`). Prueba (f) en `la-factura-no-se-borra-mientras-se-cobra.test.ts`.
+  - Los recortes de decoración se guardaban enteros adentro del registro (hasta 5 MB, y la base admite 1 MiB): ahora se achican a 512 px y no se guardan si pasan 600 KB. Y el pedido a la IA se cuenta siempre, salga bien o mal.
+  - "due?o" en tres mensajes y "en tiempo real" en el panel.
+
 - **La voz del cliente en su portal anda de verdad (orden 238, 28/10/2026).** El botón Hablar abre la llamada por `/api/asistente/voz-en-vivo/cliente` (sesión del portal de esa fiesta y tope diario de minutos ya publicados) con `sinHerramientas`: la IA conversa pero no ejecuta ninguna acción. Rescatado de la entrega 1368 de Gemini, que venía de una base vieja; su parte de la orden 239 se descartó porque main ya la tenía mejor.
 ## 28/10/2026 - Codex758: decoraciones propias y borradores desde fotos
 

@@ -272,10 +272,16 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
 
       recortesFoto++;
       try {
-        const generatedBase64 = await generateGeminiImage({
-          prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
-          images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
-        });
+        let generatedBase64: string | null = null;
+        try {
+          generatedBase64 = await generateGeminiImage({
+            prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
+            images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
+          });
+        } finally {
+          // El pedido a la IA se paga salga bien o mal: se cuenta siempre, una vez.
+          await registrarConsumoIA('recorte-decoracion');
+        }
 
         if (!generatedBase64) continue;
 
@@ -289,14 +295,17 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
         const stats = await img.stats();
         if (!stats.channels[3] || stats.channels[3].min >= 255) continue;
 
-        await registrarConsumoIA('recorte-decoracion');
+        // Se guarda adentro del registro: un documento de la base admite 1 MiB. Se achica a 512 px y
+        // se comprime; si igual queda grande, no se guarda.
+        const chico = await sharp(buffer).resize({ width: 512, height: 512, fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
+        if (chico.length > 600 * 1024) continue;
 
         const pw = meta.width || 160;
         const ph = meta.height || 160;
         const maxDim = Math.max(pw, ph);
         const width = Math.round(160 * pw / maxDim);
         const height = Math.round(160 * ph / maxDim);
-        const dataUri = `data:image/png;base64,${generatedBase64}`;
+        const dataUri = `data:image/png;base64,${chico.toString('base64')}`;
 
         const newId = `deco_ai_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
         const saved = await saveCustomDecorationElement({
