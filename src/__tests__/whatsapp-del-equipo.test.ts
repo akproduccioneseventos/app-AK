@@ -15,6 +15,18 @@ jest.mock('@/lib/data-service', () => ({
     memoriaStore[file] = JSON.parse(JSON.stringify(data));
     return true;
   }),
+  readDataConDetalle: jest.fn(async (file: string, fallback: any) => ({
+    valor: JSON.parse(JSON.stringify(memoriaStore[file] ?? fallback)),
+    huboFalla: false,
+  })),
+  createDataItem: jest.fn(async (file: string, _collection: string, _id: string, item: any) => {
+    memoriaStore[file] = [...(memoriaStore[file] || []), JSON.parse(JSON.stringify(item))];
+  }),
+  deleteDataItem: jest.fn(async (file: string, _collection: string, id: string) => {
+    const before = memoriaStore[file] || [];
+    memoriaStore[file] = before.filter((item: any) => item.id !== id);
+    return memoriaStore[file].length < before.length;
+  }),
 }));
 
 jest.mock('@/lib/generic-json-store', () => ({
@@ -137,5 +149,40 @@ describe('105 — WhatsApp del equipo', () => {
     expect(empleado.respuestaEnviada).toContain('sólo el dueño');
     const duenio = await atenderAlEquipo({ from: '59898355530', type: 'text', text: 'cuánto me deben' });
     expect(duenio.respuestaEnviada).toContain('por cobrar');
+  });
+
+  test('guarda y consulta un recuerdo propio sin mezclarlo con el del dueño', async () => {
+    const guardado = await atenderAlEquipo({ from: '59899123456', text: 'Acordate que a los Pérez no se los llama de mañana' });
+    expect(guardado.respuestaEnviada).toContain('lo guardé en tu memoria personal');
+
+    const delDueno = await atenderAlEquipo({ from: '59898355530', text: 'Acordate que el salón preferido es La Rinconada' });
+    expect(delDueno.respuestaEnviada).toContain('lo guardé en tu memoria personal');
+    expect(memoriaStore['asistente-memoria.json'][1].usuarioId).toBe('ak:dueno');
+
+    const recuerdoDueno = await atenderAlEquipo({ from: '59898355530', text: '¿Qué sabés del salón?' });
+    expect(recuerdoDueno.respuestaEnviada).toContain('La Rinconada');
+
+    const recuerdoLucia = await atenderAlEquipo({ from: '59899123456', text: '¿Qué sabés de la familia Pérez?' });
+    expect(recuerdoLucia.respuestaEnviada).toContain('no se los llama de mañana');
+    expect(recuerdoLucia.respuestaEnviada).not.toContain('La Rinconada');
+  });
+
+  test('olvidate borra el recuerdo del remitente y una contraseña no se guarda', async () => {
+    await atenderAlEquipo({ from: '59899123456', text: 'Acordate que el cumpleaños de Ana es en mayo' });
+    const sensible = await atenderAlEquipo({ from: '59899123456', text: 'Acordate que la contraseña es secreto123' });
+    expect(sensible.respuestaEnviada).toContain('No guardé ese dato');
+
+    const borrado = await atenderAlEquipo({ from: '59899123456', text: 'Olvidate de Ana' });
+    expect(borrado.respuestaEnviada).toContain('eliminé ese recuerdo');
+  });
+
+  test('una pregunta general del equipo no se convierte en una propuesta de gasto', async () => {
+    memoriaStore['fiestas.json'] = [];
+    memoriaStore['crm-leads.json'] = [];
+    const res = await atenderAlEquipo({ from: '59899123456', text: '¿Qué tengo esta semana?' });
+
+    expect(res.accionIdentificada).toBe('ver_mi_semana');
+    expect(res.respuestaEnviada).toContain('AGENDA');
+    expect(memoriaStore['asistente-propuestas.json']).toBeUndefined();
   });
 });

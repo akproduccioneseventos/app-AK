@@ -11,7 +11,10 @@ import { nivelDeRiesgo, puedeConfirmarPorWhatsApp, registrarAccionAsistente, typ
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
+import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
+import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
+import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -199,6 +202,28 @@ function normalizarNumero(numero: string): string {
   return (numero || '').replace(/\D/g, '');
 }
 
+function perfilDesdeRolWhatsApp(rol: string): Perfil {
+  const normalizado = rol.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/dueno|owner|propietario/.test(normalizado)) return 'dueno';
+  if (/secret|coordin|administr|ventas/.test(normalizado)) return 'secretaria';
+  if (/operador/.test(normalizado)) return 'operador';
+  return 'personal';
+}
+
+async function contextoWhatsAppParaPerfil(usuario: { perfil: Perfil }): Promise<string> {
+  const puedeVerAgenda = usuario.perfil === 'dueno' || usuario.perfil === 'secretaria';
+  const [fiestas, presupuestos, prospectos] = await Promise.all([
+    puedeVerAgenda ? readDataConDetalle<any[]>('fiestas.json', []) : Promise.resolve({ valor: [], huboFalla: false }),
+    puede(usuario, PERMISOS.CONTABILIDAD) ? readDataConDetalle<any[]>('presupuestos.json', []) : Promise.resolve(undefined),
+    puede(usuario, PERMISOS.CRM) ? readDataConDetalle<any[]>('crm-leads.json', []) : Promise.resolve(undefined),
+  ]);
+  return armarContextoDelNegocio(usuario, {
+    fiestas: fiestas.huboFalla ? null : fiestas.valor,
+    presupuestos: presupuestos ? (presupuestos.huboFalla ? null : presupuestos.valor) : undefined,
+    prospectos: prospectos ? (prospectos.huboFalla ? null : prospectos.valor) : undefined,
+  });
+}
+
 /**
  * Registra auditoría técnica de smb_message_echoes sin exponer texto sensible.
  */
@@ -330,6 +355,12 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     rol: 'Dueño',
     telefono: fromLimpio,
   };
+  const usuario = { perfil: perfilDesdeRolWhatsApp(persona.rol) };
+  const memoriaId = usuario.perfil === 'dueno' ? ID_MEMORIA_DUENO : fromLimpio;
+  const accesoMemoria = {
+    esDueno: usuario.perfil === 'dueno',
+    puedeVerMemoriaDelDueno: usuario.perfil === 'dueno' && puede(usuario, PERMISOS.ADMINISTRACION),
+  };
 
   // Procesar contenido (texto, audio o foto)
   let textoParaProcesar = params.text || '';
@@ -340,11 +371,54 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     textoParaProcesar = params.text || 'foto de boleta para cargar gasto';
   }
 
+  let respuestaTexto = '';
+  const recordarCoincide = textoParaProcesar.match(/^\s*(?:(?:acordate|ac[uú]erdate|record[aá]|anot[aá]|ten[eé]\s+en\s+cuenta)\s+que)\s+(.+)$/i);
+  if (recordarCoincide) {
+    const resultado = await recordar(memoriaId, recordarCoincide[1], undefined, accesoMemoria);
+    respuestaTexto = resultado.guardado
+      ? 'Listo, lo guardé en tu memoria personal para tenerlo presente en próximos pedidos.'
+      : resultado.motivo === 'sensible'
+        ? 'No guardé ese dato porque parece ser una contraseña, información de tarjeta o un dato de salud.'
+        : 'No pude guardar un recuerdo vacío. Decime qué querés que tenga presente.';
+    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+    return { atendido: true, accionIdentificada: 'recordar', nivel: 'solo', respuestaEnviada: respuestaTexto };
+  }
+
+  const olvidarCoincide = textoParaProcesar.match(/^\s*olvid[aá]te(?:\s+de)?\s+(.+)$/i);
+  if (olvidarCoincide || /^\s*olvid[aá]lo\s*$/i.test(textoParaProcesar)) {
+    const tema = olvidarCoincide?.[1] || 'eso';
+    const cantidad = await olvidar(memoriaId, tema, accesoMemoria);
+    respuestaTexto = cantidad
+      ? `Listo, eliminé ${cantidad === 1 ? 'ese recuerdo' : ` ${cantidad} recuerdos`} de tu memoria.`
+      : 'No encontré un recuerdo tuyo sobre ese tema para borrar.';
+    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+    return { atendido: true, accionIdentificada: 'olvidar', nivel: 'solo', respuestaEnviada: respuestaTexto };
+  }
+
+  const consultaMemoria = textoParaProcesar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/\b(?:que sabes de(?:l)?|que te acordas de(?:l)?|que recordas de(?:l)?|que tenemos anotado sobre)\b/.test(consultaMemoria)) {
+    const recuerdos = await loQueSe(memoriaId, textoParaProcesar, accesoMemoria);
+    respuestaTexto = recuerdos.length
+      ? recuerdos.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')
+      : 'No tengo recuerdos guardados sobre ese tema. Si querés, decime “acordate que…” y lo anoto.';
+    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+    return { atendido: true, accionIdentificada: 'consultar_memoria', nivel: 'solo', respuestaEnviada: respuestaTexto };
+  }
+
   const interpretacion = interpretarComandoTexto(textoParaProcesar);
   const accion = interpretacion.accion;
   const riesgo = nivelDeRiesgo(accion);
 
-  let respuestaTexto = '';
+  if (accion === 'consulta_general' || accion === 'ver_mi_semana') {
+    try {
+      const contexto = await contextoWhatsAppParaPerfil(usuario);
+      respuestaTexto = contexto || 'No encontré datos disponibles para este perfil.';
+    } catch {
+      respuestaTexto = 'No pude leer los datos del negocio ahora. Probá de nuevo en un rato.';
+    }
+    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+    return { atendido: true, accionIdentificada: accion, nivel: 'solo', respuestaEnviada: respuestaTexto };
+  }
 
   // CASO ESPECIAL: Intento de confirmar por WhatsApp ("sí")
   if (accion === 'confirmar_propuesta') {
@@ -442,7 +516,7 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       // Lo que se debe es plata de la empresa: sólo se le contesta al dueño. Y se calcula con la
       // misma cuenta del panel (cobros por factura), no con campos del presupuesto que no existen:
       // antes sumaba el total de TODOS los presupuestos como si nada estuviera cobrado.
-      if (!/due[ñn]o/i.test(String(persona.rol || ''))) {
+      if (usuario.perfil !== 'dueno') {
         respuestaTexto = '🔒 Eso lo ve sólo el dueño. Mirálo con él o en la app.';
       } else {
         try {

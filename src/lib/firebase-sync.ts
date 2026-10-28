@@ -68,6 +68,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'salones.json': 'salones',
   'promos.json': 'promos',
   'whatsapp-conversations.json': 'whatsapp_conversations',
+  'asistente-memoria.json': 'asistente_memoria',
   'playbook-aplicaciones.json': 'playbook_aplicaciones',
   'proveedor-portal.json': 'proveedor_portal',
   'alertas-descartadas.json': 'alertas_descartadas',

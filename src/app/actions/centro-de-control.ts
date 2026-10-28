@@ -2,6 +2,7 @@
 
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requirePermiso } from '@/lib/auth/require-session';
+import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
 import {
   getPropuestas,
   aceptarPropuesta,
@@ -436,6 +437,40 @@ export async function darOrdenPorVozOTexto(
   }
 
   const f = (frase || '').toLowerCase().trim();
+  const memoriaId = ID_MEMORIA_DUENO;
+  const memoriaDueno = { esDueno: true, puedeVerMemoriaDelDueno: true };
+  const guardarRecuerdo = frase.match(/^\s*(?:(?:acordate|ac[uú]erdate|record[aá]|anot[aá]|ten[eé]\s+en\s+cuenta)\s+que)\s+(.+)$/i);
+  if (guardarRecuerdo) {
+    const resultado = await recordar(memoriaId, guardarRecuerdo[1], undefined, memoriaDueno);
+    return {
+      success: resultado.guardado,
+      mensaje: resultado.guardado
+        ? 'Listo, lo guardé en tu memoria personal.'
+        : resultado.motivo === 'sensible'
+          ? 'No guardé ese dato porque parece una contraseña, información de tarjeta o un dato de salud.'
+          : 'No pude guardar un recuerdo vacío.',
+    };
+  }
+
+  const olvidarCoincide = frase.match(/^\s*olvid[aá]te(?:\s+de)?\s+(.+)$/i);
+  if (olvidarCoincide || /^\s*olvid[aá]lo\s*$/i.test(frase)) {
+    const borrados = await olvidar(memoriaId, olvidarCoincide?.[1] || 'eso', memoriaDueno);
+    return {
+      success: true,
+      mensaje: borrados ? `Listo, eliminé ${borrados} recuerdo${borrados === 1 ? '' : 's'} de tu memoria.` : 'No encontré un recuerdo sobre ese tema para borrar.',
+    };
+  }
+
+  const preguntaMemoria = sinAcentos(frase).toLowerCase();
+  if (/\b(?:que sabes de(?:l)?|que te acordas de(?:l)?|que recordas de(?:l)?|que tenemos anotado sobre)\b/.test(preguntaMemoria)) {
+    const recuerdos = await loQueSe(memoriaId, frase, memoriaDueno);
+    return {
+      success: true,
+      mensaje: recuerdos.length
+        ? recuerdos.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')
+        : 'No tengo recuerdos guardados sobre ese tema. Decime “acordate que…” y lo anoto.',
+    };
+  }
 
   // 1. Habla de web / armar web
   if (

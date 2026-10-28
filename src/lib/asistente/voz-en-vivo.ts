@@ -107,6 +107,7 @@ export const HERRAMIENTAS_VOZ = [
 
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
 /**
  * @fileOverview Voz en vivo del Asistente AK (orden 105, bloque 3): el dueño habla, el asistente
  * contesta con voz en tiempo real, con la API en vivo de Gemini (audio de ida y vuelta).
@@ -266,17 +267,16 @@ export function contextoDeVozParaPerfil(
   usuario: { role?: string; roles?: string[]; permissions?: string[] },
   datos: ContextoVozDatos = {}
 ): string {
-  const puedeContabilidad = puede(usuario, PERMISOS.CONTABILIDAD);
-  const puedeOrganizacion = puede(usuario, PERMISOS.ORGANIZACION);
+  const puedeVerFinanzas = puede(usuario, PERMISOS.CONTABILIDAD);
   const puedeCrm = puede(usuario, PERMISOS.CRM);
 
   const lineas: string[] = [];
 
   // 1. Saludo inicial según perfil
-  if (puedeContabilidad && datos.briefing?.items?.length) {
+  if (puedeVerFinanzas && datos.briefing?.items?.length) {
     const primerCobro = datos.briefing.items[0];
     lineas.push(`¡Hola! Tenés cobros pendientes para revisar hoy: ${primerCobro.title || primerCobro.detail}.`);
-  } else if (puedeOrganizacion && datos.fiestas?.length) {
+  } else if (datos.fiestas?.length && (puede(usuario, PERMISOS.ORGANIZACION) || puedeCrm)) {
     const proxima = datos.fiestas[0];
     const prep = calculateFiestaPreparationScore(proxima);
     const primerItem = prep.importantPending?.[0];
@@ -287,27 +287,24 @@ export function contextoDeVozParaPerfil(
     lineas.push('¡Hola! Soy tu asistente de AK Producciones. ¿En qué te puedo ayudar hoy?');
   }
 
-  // 2. Todos: Fiestas de los próximos 30 días y agenda
-  lineas.push('\n--- FIESTAS DE LOS PRÓXIMOS 30 DÍAS ---');
-  if (datos.fiestas && datos.fiestas.length > 0) {
-    for (const f of datos.fiestas.slice(0, 10)) {
-      const nombre = f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || f.nombre || 'Fiesta';
-      const fecha = f.configuracion?.fechaEvento || f.fecha || '';
-      lineas.push(`- ${nombre} (${fecha})`);
-      if (puedeOrganizacion) {
-        const prep = calculateFiestaPreparationScore(f);
-        const top3 = (prep.importantPending || []).slice(0, 3).map((c: any) => typeof c === 'string' ? c : c.label || c.title || 'pendiente');
-        if (top3.length > 0) {
-          lineas.push(`  Pendientes importantes: ${top3.join(', ')}`);
-        }
-      }
-    }
-  } else {
-    lineas.push('No hay fiestas registradas en los próximos 30 días.');
+  // El mismo constructor que usan los otros asistentes aplica los límites del perfil.
+  const contextoCompartido = armarContextoDelNegocio(usuario, {
+    fiestas: datos.fiestas,
+    prospectos: puedeCrm ? datos.prospectos : undefined,
+  });
+  if (contextoCompartido) lineas.push('\n--- CONTEXTO DE AK ---', contextoCompartido);
+  if (puede(usuario, PERMISOS.ORGANIZACION) && datos.fiestas?.length) {
+    const pendientesDeFiestas = datos.fiestas.slice(0, 10).flatMap((fiesta) => {
+      const score = calculateFiestaPreparationScore(fiesta);
+      const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.clienteNombre || 'Fiesta';
+      const pendientes = score.importantPending.slice(0, 3).map((item) => `${item.label}${item.detail ? `: ${item.detail}` : ''}`);
+      return pendientes.length ? [`${nombre}: ${pendientes.join(', ')}`] : [];
+    });
+    if (pendientesDeFiestas.length) lineas.push('\n--- Pendientes importantes ---', ...pendientesDeFiestas.map((item) => `• ${item}`));
   }
 
   // 3. Contabilidad: saldos y cuotas vencidas (SOLO si puede CONTABILIDAD)
-  if (puedeContabilidad) {
+  if (puedeVerFinanzas) {
     lineas.push('\n--- COBROS Y SALDOS PENDIENTES ---');
     if (datos.briefing?.items && datos.briefing.items.length > 0) {
       for (const item of datos.briefing.items.slice(0, 8)) {
@@ -319,21 +316,12 @@ export function contextoDeVozParaPerfil(
   }
 
   // 4. CRM: prospectos para seguir hoy
-  if (puedeCrm) {
-    lineas.push('\n--- PROSPECTOS PARA SEGUIMIENTO HOY ---');
-    if (datos.prospectos && datos.prospectos.length > 0) {
-      for (const p of datos.prospectos.slice(0, 8)) {
-        lineas.push(`- ${p.nombre || p.name}: ${p.tipoFiesta || p.partyType || 'Consulta'} (${p.telefono || p.phone || 'Sin tel'})`);
-      }
-    } else {
-      lineas.push('No hay prospectos pendientes para hoy.');
-    }
-  }
+  if (puedeCrm && !datos.prospectos?.length) lineas.push('\nNo hay prospectos pendientes para hoy.');
 
   const textoFinal = lineas.join('\n').slice(0, LIMITE_CONTEXTO);
 
   // Candado estricto: si NO puede contabilidad, JAMÁS puede haber $, saldo, seña o cuota en el texto final
-  if (!puedeContabilidad) {
+  if (!puedeVerFinanzas) {
     return textoFinal
       .replace(/\$/g, '')
       .replace(/\bsaldo(s)?\b/gi, 'estado')
