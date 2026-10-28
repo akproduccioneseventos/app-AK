@@ -14,5 +14,7 @@ export interface DecorationDraft {
   contentHash?: string;
   analysisToken?: string;
   approvedName?: string;
+  aprobadaSola?: boolean;
+  sacada?: boolean;
 }
 export interface DraftList { drafts: DecorationDraft[]; pending: number; automatic: boolean }

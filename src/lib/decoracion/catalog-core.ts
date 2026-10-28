@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AK_DECORATION_ELEMENTS } from './ak-library';
 import type { DecorationSource } from './catalog-types';
 import type { ElementoDecorativo } from '@/types/fiesta';
+import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import { safeDecorationImageSource } from './asset-source';
 
 export const hashDecoration = (text: string | Buffer): string => createHash('sha256').update(text).digest('hex');
@@ -65,11 +66,20 @@ export function decorationAnalysisToElements(output: unknown): { elementos: Elem
   return { elementos, unknowns: [...new Set(unknowns)].slice(0, 20) };
 }
 
-export function validateApprovedDecorationElements(input: ElementoDecorativo[]): ElementoDecorativo[] {
+export function normalizeElementName(name: string): string {
+  return (name || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+export function validateApprovedDecorationElements(input: ElementoDecorativo[], customAssets?: LibraryElement[]): ElementoDecorativo[] {
   if (!Array.isArray(input) || input.length < 1 || input.length > 100) throw new Error('Revisar los elementos del diseno (1 a 100).');
   const ids = new Set<string>();
   return input.map(item => {
-    const asset = AK_DECORATION_ELEMENTS.find(a => a.id === item.tipo);
+    const allAssets = [...AK_DECORATION_ELEMENTS, ...(customAssets || [])];
+    const asset = allAssets.find(a => a.id === item.tipo);
     if (!asset || item.imageDataUri !== asset.imageDataUri || !safeDecorationImageSource(item.imageDataUri || '')) {
       throw new Error('La propuesta debe usar elementos de la biblioteca AK.');
     }

@@ -176,7 +176,14 @@ export default function DecoTemplateGallery({
                   )}
                 </div>
                 <CardContent className="p-3 space-y-2">
-                  <p className="font-bold text-sm line-clamp-2">{template.nombre}</p>
+                  <div className="flex items-start justify-between gap-1">
+                    <p className="font-bold text-sm line-clamp-2">{template.nombre}</p>
+                    {template.aprobadaSola && (
+                      <span className="text-[10px] font-semibold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full shrink-0">
+                        Armada por la IA
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">{isPreset ? 'Pre-armado' : fecha}</p>
                   <p className="text-xs text-muted-foreground">{template.elementos.length} elementos</p>
                   <div className="flex items-center gap-2">
@@ -188,32 +195,45 @@ export default function DecoTemplateGallery({
                     >
                       Usar esta plantilla
                     </Button>
-                    {!isPreset && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción no se puede deshacer.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(template.id)}
-                              className="bg-red-600 hover:bg-red-700"
-                              disabled={deletingId === template.id}
-                            >
-                              {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Eliminar'}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    {template.aprobadaSola ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
+                        onClick={() => handleDelete(template.id)}
+                        disabled={deletingId === template.id}
+                      >
+                        {deletingId === template.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Sacar'}
+                      </Button>
+                    ) : (
+                      !isPreset && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción no se puede deshacer.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(template.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                                disabled={deletingId === template.id}
+                              >
+                                {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Eliminar'}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )
                     )}
                   </div>
                 </CardContent>
