@@ -6,6 +6,7 @@
 - Aclaro que tambien incluye fotos de decoraciones nuevas que vayan surgiendo.
 - Base main: `0abe9199ddb7281a945fd0f000a1a89f25b8fa8e`.
 - Rama: `codex/758-decoracion-plantillas-automaticas`. No fusionar: Claude revisa y fusiona.
+- Entrega: [PR1372](https://github.com/akproduccioneseventos/app-AK/pull/1372), abierta/borrador.
 - PR1370/1371 son otras entregas; no se copiaron sus ramas ni se dan por aprobadas.
   NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
 

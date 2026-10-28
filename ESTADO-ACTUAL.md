@@ -2,6 +2,7 @@
 
 ## Tarea autorizada por el dueno, 28/10: decoraciones AK
 - Codex implementa SOLO esta excepcion, rama `codex/758-decoracion-plantillas-automaticas`.
+- PR1372 abierta/borrador para revision y compilacion de Claude; no fusionada.
 - Base main `0abe9199`; 86 elementos importados y cola de propuestas desde catalogo/galeria.
 - Fuente `b5aac424d`: tipos/lint exit0;63PASS regresion,3PASS SDKdemo,2PASS PC/Pixel7.
 - Evidencia/limites: `docs/evidencias/758-decoracion-catalogo.md`; no despliegue/conector real certificados.

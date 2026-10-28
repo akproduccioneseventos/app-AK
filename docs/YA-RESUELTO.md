@@ -4,7 +4,8 @@
 
 Autorizacion puntual del dueno para implementar esta tarea directamente; no cambia
 el reparto general ni autoriza fusion. Base `0abe9199`, rama
-`codex/758-decoracion-plantillas-automaticas`. Se importan los 86 PNG actuales,
+`codex/758-decoracion-plantillas-automaticas`, PR1372 abierta/borrador (no main).
+Se importan los 86 PNG actuales,
 con manifiesto de hashes, proporciones y categorias. Biblioteca/canvas admiten
 solo sus rutas locales o las imagenes heredadas; no se agregan dependencias.
 Catalogo/galeria/cron alimentan borradores; la IA compara con las piezas reales,
