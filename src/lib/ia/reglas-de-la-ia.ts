@@ -113,6 +113,13 @@ export function esTareaProhibidaSola(tareaId: string): boolean {
 
 export const TAREAS_SISTEMA: ReglaIA[] = [
   {
+    id: 'resumen_de_la_manana',
+    nombre: 'Resumen de la mañana',
+    descripcion: 'Envía al dueño un resumen diario de hasta cinco líneas por WhatsApp o aviso en la app',
+    modo: 'sola',
+    categoria: 'Monitoreo',
+  },
+  {
     id: 'vigilante_publicidad',
     nombre: 'Vigilante de Publicidad (Meta Ads)',
     descripcion: 'Monitorea el gasto y rendimiento en anuncios de Meta Ads sin pausar ni gastar solo',

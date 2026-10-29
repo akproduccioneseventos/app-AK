@@ -22,6 +22,7 @@ import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
+import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -122,6 +123,10 @@ export async function GET(request: Request) {
   try {
     if (horaUy >= 7 && horaUy <= 11) {
       const parte = await getParteDeLaManana();
+      const entrega = await enviarResumenMananaWhatsApp(parte, ahora);
+      if (entrega.motivo && entrega.motivo !== 'Fuera de la ventana matutina.' && entrega.motivo !== 'El resumen de hoy ya se procesó.') {
+        fallos.push(`Resumen matutino: ${entrega.motivo}`);
+      }
       if (parte && parte.totalPendientes > 0) {
         nuevasParaAgregar.push({
           clave: `parte-manana:${parte.fecha}`,
