@@ -1,7 +1,8 @@
 'use server';
 
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requireSession } from '@/lib/auth/require-session';
+import { perfilDe } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -34,8 +35,22 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
 export async function marcarLlegadaPersonal(
   fiestaId: string,
   empleadoId: string
-): Promise<{ success: boolean; checkInTimestamp?: string }> {
-  await requireAppSession();
+): Promise<{ success: boolean; checkInTimestamp?: string; error?: string }> {
+  const usuarioApp = await requireAppSession();
+  const sesion = typeof requireSession === 'function' ? await requireSession() : { ok: false as const, error: '' };
+  const usuario = (sesion.ok ? sesion.user : null) || usuarioApp;
+  const perfil = perfilDe(usuario);
+  if (perfil === 'personal') {
+    const { getEmpleados } = await import('@/app/actions/empleados');
+    const empleados = await getEmpleados();
+    const emailNorm = (usuario.email || '').trim().toLowerCase();
+    const esElMismo = empleados.some(
+      (e) => (e.id === usuario.userId || [e.email, e.googleWorkspaceEmail].filter(Boolean).some(m => m?.trim().toLowerCase() === emailNorm)) && e.id === empleadoId
+    );
+    if (!esElMismo) {
+      return { success: false, error: 'No podés marcar la llegada de otra persona.' };
+    }
+  }
 
   let timestampGuardado: string | undefined;
 
@@ -64,5 +79,8 @@ export async function marcarLlegadaPersonal(
   return {
     success: r.success,
     checkInTimestamp: r.success ? timestampGuardado : undefined,
+    error: r.error,
   };
 }
+
+

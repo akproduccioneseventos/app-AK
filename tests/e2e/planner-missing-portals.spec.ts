@@ -15,9 +15,10 @@ let originalFiestaFile: Buffer | null = null;
 let originalProviderFile: Buffer | null = null;
 
 function createLegacySessionToken() {
-  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
+  // La sesion de 4 partes (sin usuario) dejo de valer el 28/10/2026 (orden 247): va el usuario adentro.
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
   const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-  return `${payload}.${signature}`;
+  return encodeURIComponent(`${payload}.${signature}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
 async function addAppSession(context: BrowserContext, baseURL: string) {

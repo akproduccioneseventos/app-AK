@@ -10,13 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert, Upload, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert, Upload, ImageIcon, Link2Off } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal, apagarEnlacePresupuesto } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getAvisoMargenParaPresupuesto } from '@/app/actions/aviso-margen';
 import type { AvisoMargenHistorico } from '@/lib/costos/aviso-margen-historico';
@@ -178,7 +178,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       setDisplaySettings(fetchedSettings);
       setCompanyInfo(fetchedCompanyInfo);
       setLogoUrl(templateSettings?.logoUrl || null);
-      
+
       const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (whatsappConnection?.phoneNumber) {
           setWhatsappNumber(whatsappConnection.phoneNumber);
@@ -239,7 +239,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const calculatedValues = useMemo(() => {
     if (!presupuesto) return { itemsAgrupados: {}, totalVigente: 0, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
     const financials = calculateBudgetFinancials(presupuesto, { preserveStoredTotal: true });
-  
+
     const adultos = presupuesto.invitadosAdultos || 0;
     const adolescentes = presupuesto.invitadosAdolescentes || 0;
     const ninos = presupuesto.invitadosNinos || 0;
@@ -383,7 +383,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     texto += `${template}\n\n`;
     texto += `*Presupuesto Estimado:* ${formatCurrency(calculatedValues.totalFinal)}\n`;
     texto += `*Link:* ${window.location.href}`;
-    
+
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
   };
 
@@ -615,12 +615,45 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleApagarEnlace = async () => {
+    if (!presupuesto) return;
+    const confirma = window.confirm(
+      '¿Seguro que querés apagar el enlace público de este presupuesto? Si lo apagás, los enlaces enviados anteriormente dejarán de funcionar.'
+    );
+    if (!confirma) return;
+
+    try {
+      const res = await apagarEnlacePresupuesto(presupuesto.id);
+      if (!res.success) {
+        toast({
+          title: 'Error al apagar enlace',
+          description: res.error || 'No se pudo apagar el enlace.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({
+        title: 'Enlace apagado',
+        description: 'El enlace anterior fue invalidado correctamente.',
+      });
+      router.refresh();
+      const updated = await getPresupuestoById(presupuesto.id);
+      if (updated) setPresupuesto(updated);
+    } catch (e: any) {
+      toast({
+        title: 'Error al apagar enlace',
+        description: e.message || 'Ocurrió un error inesperado.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getEffectiveQty = (item: any): number => {
     if (!presupuesto) return item.cantidad || 1;
     const adults = presupuesto.invitadosAdultos || 0;
     const kids = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
     const targetGuests = getGuestCountForItem(item, adults, 0, kids);
-    
+
     if (item.calculationMethod === 'ratio' && item.invitadosPorUnidad) {
         return Math.ceil(targetGuests / item.invitadosPorUnidad);
     }
@@ -819,6 +852,16 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   Crear Fiesta
                 </Button>
               ))}
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl text-xs font-bold uppercase tracking-widest border-rose-200 text-rose-700 hover:bg-rose-50"
+                onClick={handleApagarEnlace}
+                data-testid="btn-apagar-enlace"
+              >
+                <Link2Off className="mr-1.5 h-3.5 w-3.5" />
+                Apagar enlace
+              </Button>
             </div>
             {!isBorrador && !canGenerateContract && (
               <p className="w-full text-[11px] text-rose-600 font-semibold">
@@ -991,7 +1034,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Button>
               </div>
             )}
-            
+
             {/* SECCIÓN VENTA PRO */}
             {shouldShowClientBudgetActions && (
             <>
@@ -1009,19 +1052,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 {displaySettings.successMessage}
                             </p>
                         </div>
-                        
+
                         <div className="w-full flex flex-col items-center gap-4 sm:gap-6">
                             <div className="w-full flex flex-col gap-3 items-center">
-                                <Button 
+                                <Button
                                     onClick={handleWhatsAppMeetingRequest}
-                                    size="lg" 
+                                    size="lg"
                                     className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
                                 >
-                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
+                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/>
                                     <span className="text-[10px] xs:text-sm sm:text-lg uppercase leading-tight">AGENDAR REUNIÓN CON UN ASESOR</span>
                                 </Button>
 
-                                <Button 
+                                <Button
                                     variant="outline"
                                     onClick={handleWhatsAppDirectContact}
                                     className="w-full max-w-sm h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest shadow-sm"
@@ -1047,7 +1090,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     ))}
                                 </div>
                             )}
-                            
+
                             <div className="flex flex-wrap justify-center gap-2">
                                 <Button variant="ghost" onClick={async () => {
                                     // Antes decia "Enlace Copiado" sin mirar si se habia copiado: si el

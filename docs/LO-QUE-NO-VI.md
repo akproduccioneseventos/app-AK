@@ -1353,6 +1353,9 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 246 → no es un defecto
 - Orden 247 → pregunta 105
 - Orden 248 → no es un defecto
+- Orden 249 → pregunta 94
+- Orden 251 → pregunta 104
+- Orden 252 → pregunta 106
 - Auditoria 719 (perfil inválido con rol admin entra como dueño) → pregunta 107
 - Auditoria 717 (Caipirinha fuera de "Con alcohol") → pregunta 104
 - Orden 249 → pregunta 108
@@ -1362,6 +1365,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 252 → pregunta 106
 - Orden 253 → pregunta 108
 - Orden 254 → no es un defecto
+- Orden 255 → pregunta 2
 - Auditoria 732 (comisión, mes del pago a proveedores, seña sin presupuesto fuera del reporte) → pregunta 110
 - Auditoria 737 (la pregunta frecuente promete un ajuste distinto al del contrato) → pregunta 4
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74

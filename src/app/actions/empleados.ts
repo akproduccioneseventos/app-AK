@@ -299,6 +299,17 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
     };
   }
 
+  // Volver a verificar inmediatamente antes de deleteDataItem
+  const comprometidoFinal = await fiestasFuturasConEsteEmpleado(id);
+  if (comprometidoFinal.length > 0) {
+    const listado = comprometidoFinal.slice(0, 3).join(', ');
+    const resto = comprometidoFinal.length > 3 ? ` y ${comprometidoFinal.length - 3} más` : '';
+    return {
+      success: false,
+      error: `${empleadoToDelete.nombre} está asignado a ${listado}${resto}. Sacalo de esas fiestas (o asigná un reemplazo) antes de eliminarlo.`,
+    };
+  }
+
   const deleted = await deleteDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, id);
   if (!deleted) return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
 

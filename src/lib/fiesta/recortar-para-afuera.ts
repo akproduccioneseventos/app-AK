@@ -1,5 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { puede, perfilDe, PERMISOS } from '@/lib/auth/perfiles';
+import { puede, perfilDe, esPerfilValido, PERMISOS } from '@/lib/auth/perfiles';
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).
@@ -66,11 +66,20 @@ export const CAMPOS_PRIVADOS_DEL_INVITADO = [
 
 export function recortarFiestaParaAfuera(
   fiesta: FiestaEnPlanificacion,
-  quien: { esCliente: boolean },
+  quien: any,
 ): FiestaEnPlanificacion {
+  if (quien && typeof quien === 'object' && ('perfil' in quien || 'role' in quien || 'userId' in quien)) {
+    const recortada = recortarFiestaPorPerfil(fiesta, quien);
+    if (perfilDe(quien) === 'personal') {
+      delete (recortada as any).clientPortalSettings;
+    }
+    return recortada;
+  }
+
   const copia: Record<string, unknown> = { ...fiesta };
+
   for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
-  if (quien.esCliente) return copia as unknown as FiestaEnPlanificacion;
+  if (quien?.esCliente) return copia as unknown as FiestaEnPlanificacion;
 
   for (const campo of CAMPOS_DEL_CLIENTE) delete copia[campo];
   if (Array.isArray(fiesta.invitados)) {
@@ -120,6 +129,17 @@ export function reponerLoRecortado(
   return salida as unknown as FiestaEnPlanificacion;
 }
 
+function usuarioEfectivoValido(
+  usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined
+) {
+  if (!usuario) return null;
+  const perfilRaw = usuario.perfil ?? usuario.profile;
+  if (perfilRaw !== undefined && perfilRaw !== null && String(perfilRaw) !== '' && !esPerfilValido(perfilRaw)) {
+    return null;
+  }
+  return usuario;
+}
+
 /**
  * Recorta los campos sensibles de plata según el perfil de un miembro del equipo (Orden 183 y 198).
  */
@@ -128,12 +148,13 @@ export function recortarFiestaPorPerfil(
   usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined,
 ): FiestaEnPlanificacion {
   const copia: Record<string, unknown> = { ...fiesta };
+  const usuarioEfectivo = usuarioEfectivoValido(usuario);
 
-  if (usuario && (perfilDe(usuario as any) === 'personal' || !puede(usuario as any, PERMISOS.CRM))) {
+  if (!usuarioEfectivo || perfilDe(usuarioEfectivo as any) === 'personal' || !puede(usuarioEfectivo as any, PERMISOS.CRM)) {
     delete copia.clientPortalSettings;
   }
 
-  if (!puede(usuario ?? null, PERMISOS.SUELDOS)) {
+  if (!puede(usuarioEfectivo ?? null, PERMISOS.SUELDOS)) {
     if (Array.isArray(fiesta.personalAsignado)) {
       copia.personalAsignado = fiesta.personalAsignado.map((p) => {
         const { eventSalary: _eventSalary, ...resto } = p as unknown as Record<string, unknown>;
@@ -142,11 +163,11 @@ export function recortarFiestaPorPerfil(
     }
   }
 
-  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+  if (!puede(usuarioEfectivo ?? null, PERMISOS.GANANCIAS)) {
     delete copia.gestionCostos;
   }
 
-  if (!puede(usuario ?? null, PERMISOS.CONTABILIDAD)) {
+  if (!puede(usuarioEfectivo ?? null, PERMISOS.CONTABILIDAD)) {
     delete copia.pagosProveedores;
     delete copia.planDePagos;
     delete copia.clientPaymentNotifications;
@@ -176,11 +197,13 @@ export function reponerLoDelPerfil(
   usuario: { role?: string; perfil?: string } | null | undefined,
 ): FiestaEnPlanificacion {
   const copia: Record<string, unknown> = { ...nueva };
-  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+  const usuarioEfectivo = usuarioEfectivoValido(usuario);
+
+  if (!puede(usuarioEfectivo ?? null, PERMISOS.GANANCIAS)) {
     if (guardada && 'gestionCostos' in guardada) copia.gestionCostos = guardada.gestionCostos;
     else delete copia.gestionCostos;
   }
-  if (!puede(usuario ?? null, PERMISOS.SUELDOS) && Array.isArray(nueva.personalAsignado)) {
+  if (!puede(usuarioEfectivo ?? null, PERMISOS.SUELDOS) && Array.isArray(nueva.personalAsignado)) {
     const antes = new Map((guardada?.personalAsignado || []).map((p) => [p.empleadoId, p]));
     copia.personalAsignado = nueva.personalAsignado.map((p) => {
       const previo = antes.get(p.empleadoId);

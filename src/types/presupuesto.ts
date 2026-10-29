@@ -67,7 +67,7 @@ export interface ItemPresupuestado {
   categoriaServicio?: string;
   subcategoria?: string;
   esRegalo?: boolean;
-  
+
   // Fields to support complex calculations, copied from catalog or overridden
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   precioBase?: number;
@@ -119,9 +119,11 @@ export interface Presupuesto {
   /** Marcas de ajustes ya aplicados desde el portal (cancelacion, cambio de fecha): un doble toque no los repite. */
   ajustesAplicados?: string[];
   fechaFirmaContrato?: string; // ISO date de firma del contrato
+  contractSignatureInfo?: { isSigned?: boolean; signedAt?: string; [key: string]: unknown };
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
   totalFinal?: number; // Added to resolve build error on approvals / client requests
+  versionDeEnlace?: number;
   acquisition?: import('@/lib/commercial/acquisition').CommercialAttribution;
 }
 
@@ -157,7 +159,7 @@ export interface PresupuestoFormData {
     invitadosPorUnidad?: number;
     tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
-  
+
   // Gastronomic selections
   selectedMenuId?: string;
 
@@ -178,3 +180,4 @@ export interface PresupuestoFormData {
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real
   timestamp?: string;
 }
+

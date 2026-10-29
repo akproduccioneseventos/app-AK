@@ -7,7 +7,13 @@
 
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
-import { getBudgetCollectibleTotal, roundMoney, sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
+import {
+  getBudgetCollectibleTotal,
+  getBudgetPaymentSummary,
+  roundMoney,
+  sumConfirmedClientPayments,
+} from '@/lib/budget/financial-guardrails';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 export interface LedgerMonth {
   mes: string; // 'YYYY-MM'
@@ -36,6 +42,7 @@ export type ReconciledSalePayment = {
   date: string;
   amount: number;
   source: 'invoice' | 'budget';
+  comisionProveedor?: number;
 };
 
 export function isDepositReceiptInvoice(invoice: Pick<Invoice, 'documentKind' | 'invoiceNumber'>): boolean {
@@ -46,6 +53,10 @@ export function isDepositReceiptInvoice(invoice: Pick<Invoice, 'documentKind' | 
 
 export function isFirmSalesInvoice(invoice: Pick<Invoice, 'documentKind' | 'invoiceNumber' | 'status'>): boolean {
   return invoice.status !== 'Draft' && !isDepositReceiptInvoice(invoice);
+}
+
+export function isFirmBudgetStatus(estado?: string): boolean {
+  return estado === 'Aceptado' || estado === 'Facturado';
 }
 
 function normalizeCustomerName(value?: string): string {
@@ -131,6 +142,9 @@ export function getReconciledSalePayments(
       date: payment.paymentDate,
       amount: roundMoney(payment.amount),
       source: 'invoice' as const,
+      comisionProveedor: typeof payment.comisionProveedor === 'number' && Number.isFinite(payment.comisionProveedor) && payment.comisionProveedor > 0
+        ? payment.comisionProveedor
+        : undefined,
     }))
     .filter(payment => payment.amount > 0);
 
@@ -141,6 +155,9 @@ export function getReconciledSalePayments(
       date: payment.fecha,
       amount: roundMoney(payment.monto),
       source: 'budget' as const,
+      comisionProveedor: typeof payment.comisionProveedor === 'number' && Number.isFinite(payment.comisionProveedor) && payment.comisionProveedor > 0
+        ? payment.comisionProveedor
+        : undefined,
     }))
     .filter(payment => payment.amount > 0);
 
@@ -171,11 +188,8 @@ export function calculateFinancialLedger(
 
   const getMes = (dateStr?: string): string => {
     if (!dateStr) return 'sin-fecha';
-    const date = new Date(dateStr);
-    if (Number.isNaN(date.getTime())) return 'sin-fecha';
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
+    const dia = diaCalendario(dateStr);
+    return dia ? dia.slice(0, 7) : 'sin-fecha';
   };
   const addCollection = (date: string, amount: number) => {
     getOrCreateMonth(getMes(date)).cobros += amount;
@@ -216,7 +230,7 @@ export function calculateFinancialLedger(
 
   // 2. Sumar ventas de presupuestos aceptados no facturados
   const presupuestosAceptadosSinFactura = presupuestos.filter(
-    p => p.estado === 'Aceptado' && (!p.invoiceId || !firmInvoiceIds.has(p.invoiceId))
+    p => isFirmBudgetStatus(p.estado) && (!p.invoiceId || !firmInvoiceIds.has(p.invoiceId))
   );
   let ventasPresupuestadas = 0;
   let totalCobradoPresupuestos = 0;
@@ -240,7 +254,24 @@ export function calculateFinancialLedger(
 
   const ventasTotales = ventasFacturadas + ventasPresupuestadas;
   const totalCobrado = totalCobradoFacturas + totalCobradoPresupuestos;
-  const saldoPendiente = Math.max(0, ventasTotales - totalCobrado);
+
+  let saldoPendiente = 0;
+  for (const p of presupuestosAceptadosSinFactura) {
+    if (!p || p.archived) continue;
+    const summary = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
+    if (summary.balance > 0) {
+      saldoPendiente += summary.balance;
+    }
+  }
+  for (const inv of firmInvoices) {
+    const invoiceTotal = roundMoney(inv.totalAmount);
+    const reconciledPayments = getReconciledSalePayments(inv, linkedBudgetByInvoiceId.get(inv.id));
+    const cobrosInv = reconciledPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const saldoInv = Math.max(0, invoiceTotal - cobrosInv);
+    if (saldoInv > 0) {
+      saldoPendiente += saldoInv;
+    }
+  }
 
   // Calcular saldo acumulado por mes
   const porMes = Array.from(monthMap.values())

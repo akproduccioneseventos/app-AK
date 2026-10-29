@@ -57,8 +57,9 @@ const RUTAS = filtroRutas.size > 0
   : TODAS_LAS_RUTAS;
 
 function createSessionToken() {
-  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
-  return `${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`;
+  // La sesion de 4 partes (sin usuario) dejo de valer el 28/10/2026 (orden 247): va el usuario adentro.
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
+  return encodeURIComponent(`${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
 type Huella = Record<string, number>;

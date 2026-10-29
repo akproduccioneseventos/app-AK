@@ -83,7 +83,7 @@ async function propagateInsumoChangesToMenus(
 
 
 async function saveInsumoInterno(
-  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa,
+  itemData: Partial<ServicioEmpresa> & { id?: string },
   opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
@@ -92,46 +92,96 @@ async function saveInsumoInterno(
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
 
-  const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
-    ...itemData,
-    tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
-    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
-    cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
-    subcategoria: itemData.subcategoria?.trim() || undefined,
-    notas: (itemData as any).notas?.trim() || undefined,
-  };
-
-  // El `min="0"` del formulario lo controla el navegador y se saltea mandando
-  // el pedido a mano. Una cantidad o un costo en negativo se arrastra a todos
-  // los presupuestos que usen ese insumo y el costo de la comida sale al reves.
-  if (Number(dataWithParsedNumbers.valorUnitarioEstimado) < 0) {
-    return { success: false, error: 'El costo del insumo no puede ser negativo.' };
+  if (itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado))) {
+    if (Number(itemData.valorUnitarioEstimado) < 0) {
+      return { success: false, error: 'El costo del insumo no puede ser negativo.' };
+    }
   }
-  if (dataWithParsedNumbers.cantidadDisponible !== undefined
-      && Number(dataWithParsedNumbers.cantidadDisponible) < 0) {
-    return { success: false, error: 'La cantidad disponible no puede ser negativa.' };
+  if (itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible))) {
+    if (Number(itemData.cantidadDisponible) < 0) {
+      return { success: false, error: 'La cantidad disponible no puede ser negativa.' };
+    }
   }
 
-  if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del insumo es obligatorio." };
-  if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
-  if (!dataWithParsedNumbers.unidad) return { success: false, error: "La unidad es obligatoria para insumos." };
+  const itemIdBuscado = itemData.id;
+  const index = itemIdBuscado ? inventario.findIndex(s => s.id === itemIdBuscado) : -1;
 
-  if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
-    itemId = dataWithParsedNumbers.id;
-    const index = inventario.findIndex(s => s.id === itemId);
-    if (index === -1) return { success: false, error: `Insumo con ID ${itemId} no encontrado.` };
-    
+  if (itemIdBuscado && index !== -1) {
+    itemId = itemIdBuscado;
     const originalItem = inventario[index];
-    if (originalItem.nombre.trim().toLowerCase() !== dataWithParsedNumbers.nombre!.trim().toLowerCase()) {
-        const isDuplicate = inventario.some(s => s.id !== itemId && s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase());
-        if (isDuplicate) return { success: false, error: `Ya existe otro insumo con el nombre "${dataWithParsedNumbers.nombre!.trim()}".` };
+
+    if (itemData.nombre !== undefined && itemData.nombre.trim() !== '') {
+      const nuevoNombre = itemData.nombre.trim();
+      if (originalItem.nombre.trim().toLowerCase() !== nuevoNombre.toLowerCase()) {
+        const isDuplicate = inventario.some(s => s.id !== itemId && s.nombre.trim().toLowerCase() === nuevoNombre.toLowerCase());
+        if (isDuplicate) return { success: false, error: `Ya existe otro insumo con el nombre "${nuevoNombre}".` };
+      }
+    } else if (itemData.nombre !== undefined && itemData.nombre.trim() === '') {
+      return { success: false, error: 'El nombre del insumo es obligatorio.' };
     }
 
-    inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
+    const cambios: Partial<ServicioEmpresa> = {};
+    for (const [k, v] of Object.entries(itemData)) {
+      if (k === 'id' || v === undefined) continue;
+      if (k === 'valorUnitarioEstimado') {
+        cambios.valorUnitarioEstimado = Number(v);
+      } else if (k === 'cantidadDisponible') {
+        cambios.cantidadDisponible = Number(v);
+      } else if (k === 'subcategoria') {
+        cambios.subcategoria = (v as string)?.trim() || undefined;
+      } else if (k === 'notas') {
+        (cambios as any).notas = (v as string)?.trim() || undefined;
+      } else if (k === 'nombre') {
+        cambios.nombre = (v as string)?.trim();
+      } else {
+        (cambios as any)[k] = v;
+      }
+    }
+
+    inventario[index] = { ...originalItem, ...cambios } as ServicioEmpresa;
     finalItemData = inventario[index];
+
+    if (SIN_BASE()) {
+      await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    } else {
+      const guardado = await mutateDataItem<ServicioEmpresa>(
+        INSUMOS_FILE,
+        INSUMOS_COLLECTION,
+        itemId,
+        (actual) => ({ ...actual, ...cambios } as ServicioEmpresa)
+      );
+      if (!guardado) {
+        limpiarCacheInsumos();
+        return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+      }
+      finalItemData = guardado;
+    }
   } else {
-    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el insumo ya esta con ese id: es
-    // exito, no "ya existe". Se devuelve el guardado sin tocar nada.
+    if (itemIdBuscado && index === -1) {
+      return { success: false, error: `Insumo con ID ${itemIdBuscado} no encontrado.` };
+    }
+
+    const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
+      ...itemData,
+      tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
+      valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
+      cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
+      subcategoria: itemData.subcategoria?.trim() || undefined,
+      notas: (itemData as any).notas?.trim() || undefined,
+    };
+
+    if (Number(dataWithParsedNumbers.valorUnitarioEstimado) < 0) {
+      return { success: false, error: 'El costo del insumo no puede ser negativo.' };
+    }
+    if (dataWithParsedNumbers.cantidadDisponible !== undefined
+        && Number(dataWithParsedNumbers.cantidadDisponible) < 0) {
+      return { success: false, error: 'La cantidad disponible no puede ser negativa.' };
+    }
+
+    if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === '') return { success: false, error: 'El nombre del insumo es obligatorio.' };
+    if (!dataWithParsedNumbers.categoria) return { success: false, error: 'La categoría es obligatoria.' };
+    if (!dataWithParsedNumbers.unidad) return { success: false, error: 'La unidad es obligatoria para insumos.' };
+
     const idDeLaPantalla = idDelIntento('insumo', opciones?.idIntento);
     const yaGuardado = idDeLaPantalla ? inventario.find((s) => s.id === idDeLaPantalla) : undefined;
     if (yaGuardado) return { success: true, id: yaGuardado.id, servicio: yaGuardado };
@@ -140,23 +190,16 @@ async function saveInsumoInterno(
     itemId = idDeLaPantalla ?? `insumo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
-  }
-  
-  if (SIN_BASE()) {
-    await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
-  } else if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
-    const cambios = dataWithParsedNumbers;
-    const guardado = await mutateDataItem<ServicioEmpresa>(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, (actual) => ({ ...actual, ...cambios } as ServicioEmpresa));
-    if (!guardado) {
-      limpiarCacheInsumos();
-      return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+
+    if (SIN_BASE()) {
+      await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    } else {
+      await createDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, finalItemData as ServicioEmpresa);
     }
-    finalItemData = guardado;
-  } else {
-    await createDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, finalItemData as ServicioEmpresa);
   }
+
   limpiarCacheInsumos();
-  
+
   // Si esto falla, el insumo queda con el precio nuevo y **los menus con el viejo**:
   // la lista de compras y el costo de la comida salen mal sin que nadie lo note.
   const propagado = await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
@@ -174,13 +217,18 @@ async function saveInsumoInterno(
 
 async function deleteInsumoInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
-  const { getMenus } = await import('./menus-catering');
-  const menus = await getMenus();
-  const menusEnUso = menus.filter(m =>
-    m.items?.some(item =>
-      item.ingredients?.some(ing => ing.origenId === id)
-    )
-  );
+  const { getMenus, invalidateMenusCache } = await import('./menus-catering');
+  const comprobarMenusEnUso = async () => {
+    invalidateMenusCache();
+    const menus = await getMenus();
+    return menus.filter(m =>
+      m.items?.some(item =>
+        item.ingredients?.some(ing => ing.origenId === id)
+      )
+    );
+  };
+
+  const menusEnUso = await comprobarMenusEnUso();
   if (menusEnUso.length > 0) {
     return {
       success: false,
@@ -190,9 +238,23 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
 
   limpiarCacheInsumos();
   if (!SIN_BASE()) {
+    const menusRecheck = await comprobarMenusEnUso();
+    if (menusRecheck.length > 0) {
+      return {
+        success: false,
+        error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusRecheck.length} menú(s)/receta(s) de catering.`,
+      };
+    }
     const borrado = await deleteDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, id);
     limpiarCacheInsumos();
     return borrado ? { success: true } : { success: false, error: `Insumo con ID ${id} no encontrado para eliminar.` };
+  }
+  const menusRecheck = await comprobarMenusEnUso();
+  if (menusRecheck.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusRecheck.length} menú(s)/receta(s) de catering.`,
+    };
   }
   let inventario = await leerInsumosCrudos();
   const initialLength = inventario.length;

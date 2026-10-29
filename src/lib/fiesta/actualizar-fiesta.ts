@@ -27,7 +27,9 @@ export async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => v
 
 export async function actualizarFiesta(
   fiestaId: string,
-  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>,
+  updateFnOrPartial:
+    | Partial<FiestaEnPlanificacion>
+    | ((data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>),
   options: {
     /** No pide permiso sobre la fiesta (RSVP publico, o acciones que ya piden sesion por su cuenta). */
     publicRsvp?: boolean;
@@ -60,7 +62,15 @@ export async function actualizarFiesta(
         if (options.soloEquipo && !(await quienEsElEquipo())(base)) {
           throw new Error('No autorizado para modificar este evento.');
         }
-        const updated = await updateFn(base);
+        let updated: FiestaEnPlanificacion;
+        if (typeof updateFnOrPartial === 'function') {
+          updated = await updateFnOrPartial(base);
+        } else {
+          updated = { ...base, ...updateFnOrPartial };
+        }
+        if (updated.estado === 'Seña' && base.estado !== 'Seña') {
+          throw new Error('No se puede mover a Seña.');
+        }
         return await preserveFiestaSecrets(fiestaId, updated);
       }
     );
@@ -76,4 +86,3 @@ export async function actualizarFiesta(
     releaseLock();
   }
 }
-
