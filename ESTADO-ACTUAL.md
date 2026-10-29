@@ -11,6 +11,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la pro
 - **1370** (órdenes 247 y 249) devuelta: orden 252 (6 fallos de Codex) y la **orden 251 entera**, en la misma propuesta.
 - **1371** (orden 250, foto del salón) devuelta: orden 253 (la foto llega como texto, errores invisibles, genera sin captura, cupo entre servidores).
 - **Órdenes 242 a 246 y 248** (una sola propuesta): todavía sin entregar.
+- **Orden 255** (propuesta aparte): el asistente de AK mejor que los del mercado (un cerebro, memoria, resumen de la mañana por WhatsApp, audios y fotos, tareas de varios pasos, ventas con fotos parecidas, anticipador, cerebro de la noche, informe que aprende y estilo del dueño).
 - **Orden 254**: plantillas de decoración que se publican solas y objetos nuevos a la biblioteca. Arranca después de esta publicación.
 
 ## Codex
