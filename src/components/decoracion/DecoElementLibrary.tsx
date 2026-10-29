@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Search, Upload, X } from 'lucide-react';
+import { Star, Search, Upload, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AK_DECORATION_ELEMENTS } from '@/lib/decoracion/ak-library';
 import { safeDecorationImageSource } from '@/lib/decoracion/asset-source';
@@ -22,6 +22,7 @@ export interface LibraryElement {
   imageDataUri?: string;
   width?: number;
   height?: number;
+  nuevoIA?: boolean;
 }
 
 const LIBRARY_ELEMENTS: LibraryElement[] = [
@@ -30,7 +31,7 @@ const LIBRARY_ELEMENTS: LibraryElement[] = [
   { id: 'arcoRomano', tipo: 'arcoRomano', label: 'Arco Romano Escénico', categoria: 'Paneles y Fondos', emoji: '🏛️', maxColores: 2 },
   { id: 'paredFollaje', tipo: 'paredFollaje', label: 'Pared de Follaje Verde', categoria: 'Paneles y Fondos', emoji: '🌿', maxColores: 2 },
   { id: 'shimmerWall', tipo: 'shimmerWall', label: 'Pared Shimmer Lentejuelas', categoria: 'Paneles y Fondos', emoji: '✨', maxColores: 2 },
-  
+
   // Cilindros y Pedestales
   { id: 'trioCilindros', tipo: 'trioCilindros', label: 'Trío de Cilindros Torta', categoria: 'Cilindros y Mesas', emoji: '🛢️', maxColores: 3 },
   { id: 'mesaCandyBar', tipo: 'mesaCandyBar', label: 'Mesa Candy Bar / Buffet', categoria: 'Cilindros y Mesas', emoji: '🍬', maxColores: 2 },
@@ -105,14 +106,21 @@ interface DecoElementLibraryProps {
   akOnly?: boolean;
   fiestaId: string;
   onAddElement: (element: LibraryElement) => void;
-  customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
+  customElements?: Array<{ id: string; nombre: string; imageDataUri: string; nuevoIA?: boolean }>;
   onUploadCustom?: (file: File) => void;
+  onDeleteElement?: (id: string) => void;
 }
 
-export default function DecoElementLibrary({ fiestaId, onAddElement, customElements = [], onUploadCustom, akOnly = false }: DecoElementLibraryProps) {
+export default function DecoElementLibrary({ fiestaId, onAddElement, customElements = [], onUploadCustom, akOnly = false, onDeleteElement }: DecoElementLibraryProps) {
   const [search, setSearch] = useState('');
   const [favs, setFavs] = useState<string[]>([]);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDeleteElement = (id: string) => {
+    setDeletedIds(prev => (prev.includes(id) ? prev : [...prev, id]));
+    onDeleteElement?.(id);
+  };
 
   useEffect(() => {
     setFavs(getFavs(fiestaId));
@@ -131,8 +139,10 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const available = akOnly ? AK_DECORATION_ELEMENTS : ALL_LIBRARY_ELEMENTS;
-  const categories = akOnly ? [...new Set(AK_DECORATION_ELEMENTS.map(el => el.categoria))] : ALL_CATEGORIES;
+  const available = (akOnly ? AK_DECORATION_ELEMENTS : ALL_LIBRARY_ELEMENTS).filter(el => !deletedIds.includes(el.id));
+  const categories = akOnly
+    ? [...new Set(AK_DECORATION_ELEMENTS.filter(el => !deletedIds.includes(el.id)).map(el => el.categoria))]
+    : ALL_CATEGORIES;
   const filtered = available.filter(el =>
     el.label.toLowerCase().includes(search.toLowerCase()) ||
     el.categoria.toLowerCase().includes(search.toLowerCase())
@@ -140,16 +150,19 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
 
   const favElements = available.filter(el => favs.includes(el.id));
 
-  const customLibraryElements: LibraryElement[] = customElements.map(ce => ({
-    id: ce.id,
-    tipo: ce.id,
-    label: ce.nombre,
-    categoria: 'Mis elementos',
-    emoji: '🖼️',
-    maxColores: 0,
-    isCustom: true,
-    imageDataUri: ce.imageDataUri,
-  }));
+  const customLibraryElements: LibraryElement[] = customElements
+    .filter(ce => !deletedIds.includes(ce.id))
+    .map(ce => ({
+      id: ce.id,
+      tipo: ce.id,
+      label: ce.nombre,
+      categoria: 'Mis elementos',
+      emoji: '🖼️',
+      maxColores: 0,
+      isCustom: true,
+      imageDataUri: ce.imageDataUri,
+      nuevoIA: (ce as { nuevoIA?: boolean }).nuevoIA,
+    }));
 
   function ElementCard({ el }: { el: LibraryElement }) {
     const isFav = favs.includes(el.id);
@@ -170,7 +183,27 @@ export default function DecoElementLibrary({ fiestaId, onAddElement, customEleme
             </div>
           )}
           <span className="text-[10px] font-semibold text-slate-600 leading-tight">{el.label}</span>
+          {el.nuevoIA && (
+            <span className="inline-block text-[9px] font-semibold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full">
+              Nuevo (IA)
+            </span>
+          )}
         </button>
+        {el.nuevoIA && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteElement(el.id);
+            }}
+            className="absolute top-1.5 left-1.5 p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
+            title="Borrar elemento"
+            aria-label="Borrar elemento"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="sr-only">Borrar elemento</span>
+          </button>
+        )}
         {(!el.isCustom || el.id.startsWith('ak_deco_v2_')) && (
           <button
             type="button"

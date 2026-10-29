@@ -75,16 +75,10 @@ describe('signed session tokens', () => {
     });
   });
 
-  it('continues accepting valid legacy session tokens', async () => {
+  it('rejects legacy session tokens of 4 parts (Orden 247)', async () => {
     const token = await createLegacyToken();
-
     await expect(verifySignedSessionToken(token)).resolves.toEqual({
-      isValid: true,
-      user: {
-        email: 'admin@akproducciones.com',
-        role: 'admin',
-        userId: 'admin',
-      },
+      isValid: false,
     });
   });
 

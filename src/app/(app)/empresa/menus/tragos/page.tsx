@@ -235,7 +235,7 @@ export default function TragosMasterPage() {
 
   const saveStockQuick = async (insumo: ServicioEmpresa) => {
     const cantidadDisponible = Number(stockDrafts[insumo.id] ?? 0);
-    const result = await saveInsumo({ ...insumo, cantidadDisponible });
+    const result = await saveInsumo({ id: insumo.id, cantidadDisponible });
     if (result.success) {
       toast({ title: 'Stock actualizado', description: `${insumo.nombre}: ${cantidadDisponible}` });
       await loadData();

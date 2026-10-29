@@ -2,7 +2,7 @@ import 'server-only';
 
 import { getEmpleados } from '@/app/actions/empleados';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { perfilDe, puede, type Permiso } from '@/lib/auth/perfiles';
+import { perfilDe, puede, esPerfilValido, type Permiso } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 
 export async function requireEventPermission(fiestaId: string, permiso: Permiso | readonly Permiso[]) {
@@ -10,7 +10,15 @@ export async function requireEventPermission(fiestaId: string, permiso: Permiso 
   // (dueño, secretaria).
   const permisos = Array.isArray(permiso) ? permiso : [permiso as Permiso];
   const session = await verifySession();
-  if (!session.success || !session.user || !permisos.some((p) => puede(session.user, p))) {
+  if (
+    !session.success ||
+    !session.user ||
+    (session.user.perfil !== undefined &&
+      session.user.perfil !== null &&
+      String(session.user.perfil) !== '' &&
+      !esPerfilValido(session.user.perfil)) ||
+    !permisos.some((p) => puede(session.user, p))
+  ) {
     throw new Error('Tu usuario no tiene permiso para controlar este evento.');
   }
 

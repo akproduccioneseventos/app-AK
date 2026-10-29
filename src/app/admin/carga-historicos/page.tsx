@@ -21,6 +21,7 @@ export default function CargaHistoricosPage() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [idIntento, setIdIntento] = useState<string>('');
     const [clienteNombre, setClienteNombre] = useState('');
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
     const [montoTotal, setMontoTotal] = useState('');
@@ -32,11 +33,18 @@ export default function CargaHistoricosPage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 20 * 1024 * 1024) {
-            toast({ title: "Archivo demasiado grande", description: "El límite es de 20MB.", variant: "destructive" });
+        const isValidType = file.type === 'application/pdf' || file.type.startsWith('image/') || /\.(pdf|jpg|jpeg|png|webp)$/i.test(file.name);
+        if (!isValidType) {
+            toast({ title: "Tipo de archivo no permitido", description: "El archivo debe ser un PDF o una imagen.", variant: "destructive" });
             return;
         }
 
+        if (file.size > 10 * 1024 * 1024) {
+            toast({ title: "Archivo demasiado grande", description: "El límite es de 10MB.", variant: "destructive" });
+            return;
+        }
+
+        setIdIntento(crypto.randomUUID());
         setContractFile(file);
         setAnalysisDone(false);
         setAnalysisError(null);
@@ -83,8 +91,24 @@ export default function CargaHistoricosPage() {
             toast({ title: "Datos Incompletos", description: "Todos los campos con (*) son obligatorios.", variant: "destructive" });
             return;
         }
+
+        const isValidType = contractFile.type === 'application/pdf' || contractFile.type.startsWith('image/') || /\.(pdf|jpg|jpeg|png|webp)$/i.test(contractFile.name);
+        if (!isValidType) {
+            toast({ title: "Tipo de archivo no permitido", description: "El archivo debe ser un PDF o una imagen.", variant: "destructive" });
+            return;
+        }
+
+        if (contractFile.size > 10 * 1024 * 1024) {
+            toast({ title: "Archivo demasiado grande", description: "El límite es de 10MB.", variant: "destructive" });
+            return;
+        }
+
         setIsSubmitting(true);
+        const currentIntento = idIntento || crypto.randomUUID();
+        if (!idIntento) setIdIntento(currentIntento);
+
         const formData = new FormData();
+        formData.append('idIntento', currentIntento);
         formData.append('clienteNombre', clienteNombre);
         formData.append('eventoFecha', eventoFecha.toISOString());
         formData.append('montoTotal', montoTotal);
@@ -138,7 +162,7 @@ export default function CargaHistoricosPage() {
                                 <Label htmlFor="contractFile" className="text-base font-semibold cursor-pointer hover:text-primary transition-colors">
                                     {contractFile ? contractFile.name : "Selecciona el archivo (PDF o Imagen)"}
                                 </Label>
-                                <p className="text-xs text-muted-foreground">Límite 20MB</p>
+                                <p className="text-xs text-muted-foreground">Límite 10MB</p>
                             </div>
                             <Input
                                 id="contractFile"

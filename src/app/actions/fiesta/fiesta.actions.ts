@@ -1,7 +1,7 @@
 'use server';
 import { compraGuardadaDeCadaUna } from '@/lib/fiesta/reponer-la-plata';
 import { idDelIntento } from '@/lib/intento-en-servidor';
-import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requirePermisoAlguno, requireAppSession } from '@/lib/auth/require-session';
 import { PERMISOS, puede, perfilDe } from '@/lib/auth/perfiles';
 
 import type {
@@ -53,7 +53,6 @@ import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
-import { requireAppSession } from '@/lib/auth/require-session';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { conLaConstanciaGuardada } from '@/lib/fiesta/constancia-de-firma';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
@@ -61,6 +60,7 @@ import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
+import { marcarItemLectura, marcaDe, huellaDe, sacarMarcas, CLAVE_DE_LA_MARCA } from '@/lib/marca-de-lectura';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -226,13 +226,13 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-  // Mismo caso que el historial: la lista completa de fiestas es del equipo.
   // Las pantallas que abre un desconocido y que igual necesitan mirar las fiestas
   // (el simulador para ver si una fecha esta libre, el portal del cliente con su
   // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
   await requireAppSession();
   const mostrar = await requireEquipo();
-  return (await leerFiestasCrudas(includeArchived)).map(mostrar);
+  const crudas = await leerFiestasCrudas(includeArchived);
+  return crudas.map((f) => marcarItemLectura(mostrar(f) as unknown as Record<string, unknown>, (f as any)._syncedAt, CAMPOS_DE_PLATA_Y_CONTRATO) as unknown as FiestaEnPlanificacion);
 }
 
 export async function getAllFiestas() {
@@ -310,44 +310,107 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   const quienGuarda = await sesionDeQuienGuarda();
   const usuarioQueGuarda = quienGuarda.success ? quienGuarda.user : null;
   const sinPlata = !(await tocaLaPlata());
-  // Orden 183: lo que el perfil no ve (costos sin GANANCIAS, sueldos sin SUELDOS) llegó recortado
-  // desde la pantalla; se repone de lo guardado. El cliente del portal ya no trae esos campos.
   const recortadoAlLeer = Boolean(usuarioQueGuarda)
     && (!puede(usuarioQueGuarda, PERMISOS.GANANCIAS) || !puede(usuarioQueGuarda, PERMISOS.SUELDOS));
-  if (sinPlata || recortadoAlLeer) {
-    // Auditoría 73 (CAMPO73-RACE): lo de plata se repone desde la fiesta de ESE momento, adentro
-    // de la misma operación. Reponerlo desde una lectura anterior dejaba que una pantalla vieja
-    // borrara una cuota cobrada entre la lectura y el guardado.
-    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+
+  const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+  const guardada = await getFiestaByIdRaw(fiestaData.id);
+
+  if (guardada) {
+    const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
     const { recortarFiestaPorPerfil, reponerLoDelPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
-    const reponer = (datos: FiestaEnPlanificacion, actual: FiestaEnPlanificacion | null) => {
-      const conPlata = sinPlata ? reponerLaPlata(datos, actual) : datos;
-      return recortadoAlLeer ? reponerLoDelPerfil(conPlata, actual, usuarioQueGuarda) : conPlata;
-    };
-    if (await getFiestaByIdRaw(fiestaData.id)) {
-      const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
-      const datos = fiestaData;
-      const r = await actualizarFiesta(datos.id, (actual) => conLaConstanciaGuardada(reponer(datos, actual), actual));
-      if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
-      if (!quienGuarda.success) return { success: true };
-      return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? datos, usuarioQueGuarda) };
-    }
-    fiestaData = reponer(fiestaData, null);
+
+    const r = await libActualizarFiesta(fiestaData.id, (actual) => {
+      let resultado = { ...fiestaData };
+
+      if (sinPlata) {
+        resultado = reponerLaPlata(resultado, actual);
+      } else {
+        const marca = marcaDe(fiestaData);
+        for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) {
+          const valorPantalla = (fiestaData as unknown as Record<string, unknown>)[campo];
+          const valorActual = (actual as unknown as Record<string, unknown>)[campo];
+          const huellaPantalla = huellaDe(valorPantalla);
+          const huellaActual = huellaDe(valorActual);
+
+          let pantallaCambio = false;
+          let baseCambio = false;
+
+          if (marca?.plata && campo in marca.plata) {
+            const huellaLeida = marca.plata[campo];
+            pantallaCambio = huellaPantalla !== huellaLeida;
+            baseCambio = huellaActual !== huellaLeida;
+          } else if (marca) {
+            pantallaCambio = !mismoValor(valorPantalla, valorActual);
+          } else {
+            pantallaCambio = !mismoValor(valorPantalla, valorActual);
+          }
+
+          if (pantallaCambio && baseCambio) {
+            throw new Error('Alguien cambió los pagos de esta fiesta mientras la tenías abierta. Recargá y volvé a intentar.');
+          }
+
+          if (!pantallaCambio) {
+            if (valorActual !== undefined) {
+              (resultado as Record<string, unknown>)[campo] = valorActual;
+            } else {
+              delete (resultado as Record<string, unknown>)[campo];
+            }
+          }
+        }
+
+        if (Array.isArray(fiestaData.estadosCompra)) {
+          const comprasPantalla = fiestaData.estadosCompra;
+          const comprasActual = actual.estadosCompra || [];
+          const huellaComprasPantalla = huellaDe(comprasPantalla);
+          const huellaComprasActual = huellaDe(comprasActual);
+          let pantallaCambioCompras = false;
+          let baseCambioCompras = false;
+
+          if (marca?.plata && 'estadosCompra' in marca.plata) {
+            const huellaLeida = marca.plata['estadosCompra'];
+            pantallaCambioCompras = huellaComprasPantalla !== huellaLeida;
+            baseCambioCompras = huellaComprasActual !== huellaLeida;
+          }
+
+          if (pantallaCambioCompras && baseCambioCompras) {
+            const antes = compraGuardadaDeCadaUna(comprasActual as any, comprasPantalla as any);
+            const tocoPago = comprasPantalla.some((e, i) => {
+              const prev = antes[i];
+              return PAGO_DE_LA_COMPRA.some((k) => k in (e as any) && !mismoValor((e as any)[k], (prev as any)?.[k]));
+            });
+            if (tocoPago) {
+              throw new Error('Alguien cambió los pagos de esta fiesta mientras la tenías abierta. Recargá y volvé a intentar.');
+            }
+          }
+
+          if (!pantallaCambioCompras) {
+            resultado.estadosCompra = actual.estadosCompra;
+          }
+        }
+      }
+
+      if (recortadoAlLeer) {
+        resultado = reponerLoDelPerfil(resultado, actual, usuarioQueGuarda);
+      }
+      return conLaConstanciaGuardada(resultado, actual);
+    });
+
+    if (!r.success) return { success: false, error: r.error || 'No se pudo guardar el evento.' };
+    if (!quienGuarda.success) return { success: true };
+    return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? fiestaData, usuarioQueGuarda) };
   }
+
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
-    const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
-    fiestaData = conLaConstanciaGuardada(fiestaData, await leerGuardada(fiestaData.id));
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
-    // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
-    // devuelven directo lo que contesta esto (ver recortar-para-afuera).
     const { verifySession } = await import('@/lib/auth/session-token');
     const sesion = await verifySession();
     if (!sesion.success) return { success: true };
     const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
     return { success: true, fiesta: recortarFiestaPorPerfil(fiestaData, sesion.user) };
   } catch (error: any) {
-    return { success: false, error: "No se pudo guardar el evento." };
+    return { success: false, error: 'No se pudo guardar el evento.' };
   }
 }
 
@@ -528,6 +591,7 @@ async function leerFiestaConEstado(
                 delete (fiesta as any).clientPortalSettings;
             }
         }
+        fiesta = marcarItemLectura(fiesta as unknown as Record<string, unknown>, (fiesta as any)._syncedAt, CAMPOS_DE_PLATA_Y_CONTRATO) as unknown as FiestaEnPlanificacion;
     }
     return { fiesta, fallo };
 }
@@ -1403,30 +1467,28 @@ export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?:
 }
 
 export async function addInvoiceId(fiestaId: string, invoiceId: string, opciones?: { esReciboDeSena?: boolean }) {
-  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
-  const f = await getFiestaById(fiestaId);
-  if (!f) return { success: false };
-  const yaExiste = (f.invoiceIds || []).includes(invoiceId);
-  if (yaExiste) {
-    if (opciones?.esReciboDeSena && f.reciboSenaPendiente) {
-      const limpia = { ...f };
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  return await libActualizarFiesta(fiestaId, (f) => {
+    const ids = f.invoiceIds || [];
+    const limpia: FiestaEnPlanificacion = {
+      ...f,
+      invoiceIds: ids.includes(invoiceId) ? ids : [...ids, invoiceId],
+    };
+    if (opciones?.esReciboDeSena) {
       delete limpia.reciboSenaPendiente;
-      return await saveFiesta(limpia);
     }
-    return { success: true };
-  }
-  const updated: FiestaEnPlanificacion = { ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] };
-  if (opciones?.esReciboDeSena) {
-    delete updated.reciboSenaPendiente;
-  }
-  return await saveFiesta(updated);
+    return limpia;
+  });
 }
 
 export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
-  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
-  const f = await getFiestaById(fiestaId);
-  if (!f) return { success: false };
-  return await saveFiesta({ ...f, invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId) });
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  return await libActualizarFiesta(fiestaId, (f) => ({
+    ...f,
+    invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId)
+  }));
 }
 
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
@@ -1627,4 +1689,51 @@ export async function actualizarClienteYAgasajadoAction(
   return await saveFiesta(actualizada);
 }
 
+export async function actualizarFiesta(
+  fiestaId: string,
+  updateFnOrPartial:
+    | Partial<FiestaEnPlanificacion>
+    | ((data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>),
+  options?: { publicRsvp?: boolean; soloEquipo?: boolean }
+): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+  const usuario = await requireAppSession();
+  const decide = await quienEsElEquipo();
+  const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+  const guardada = await getFiestaByIdRaw(fiestaId);
+  if (!guardada) {
+    return { success: false, error: `Fiesta con ID ${fiestaId} no encontrada.` };
+  }
+  const puedeModificarFiesta = decide(guardada);
+  if (!puedeModificarFiesta) {
+    return { success: false, error: 'No autorizado para modificar este evento.' };
+  }
 
+  const tienePermisoPlata = perfilDe(usuario) === 'dueno' || puede(usuario, PERMISOS.CONTABILIDAD);
+  if (!tienePermisoPlata && typeof updateFnOrPartial === 'object' && updateFnOrPartial !== null) {
+    if (pideCambiarLaPlata(updateFnOrPartial, guardada)) {
+      return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
+    }
+  }
+
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  const r = await libActualizarFiesta(
+    fiestaId,
+    async (actual) => {
+      let candidate: FiestaEnPlanificacion;
+      if (typeof updateFnOrPartial === 'function') {
+        candidate = await updateFnOrPartial(actual);
+      } else {
+        candidate = { ...actual, ...updateFnOrPartial };
+      }
+      if (!tienePermisoPlata && pideCambiarLaPlata(candidate, actual)) {
+        throw new Error('Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.');
+      }
+      return candidate;
+    },
+    { soloEquipo: true }
+  );
+  if (!r.success) {
+    return { success: false, error: r.error };
+  }
+  return { success: true, updatedFiesta: recortarFiestaParaAfuera(r.updatedFiesta ?? guardada, usuario) };
+}

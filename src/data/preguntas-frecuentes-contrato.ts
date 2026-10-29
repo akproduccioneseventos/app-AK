@@ -18,7 +18,8 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
   },
   {
     pregunta: "¿El precio cambia si la fiesta es el año que viene?",
-    respuesta: "Sí. Cada 1º de enero se aplica un ajuste del 15% sobre lo que falte, acumulado año a año, si el evento es en un año posterior al de la firma.",
+    respuesta:
+      "Sí. Si el evento es en un año posterior al de la firma, cada 1º de enero el total del presupuesto se ajusta un 15%, acumulado año a año, y a ese total se le restan los pagos que ya hiciste. Ejemplo: presupuesto de $100.000, pagaste $50.000; si el evento es al año siguiente, el total pasa a $115.000 y te quedan $65.000.",
   },
   {
     pregunta: "¿Cómo pago?",

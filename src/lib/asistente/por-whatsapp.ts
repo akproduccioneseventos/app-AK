@@ -609,6 +609,7 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       } else {
         try {
           const { calculateFinancialLedger } = await import('@/lib/commercial-flow/ledger-service');
+          const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
           const [presupuestos, facturas] = await Promise.all([
             readData<any[]>('presupuestos.json', []),
             readData<any[]>('invoices.json', []),

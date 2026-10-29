@@ -9,6 +9,7 @@ import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado, getPresupuestos } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
+import { isDefaultCredentialError } from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
@@ -123,6 +124,38 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   if (!permiso.ok) throw new Error(permiso.error);
   const invoices = await leerFacturasSinGuardia();
   return invoices.find(inv => inv.id === id) || null;
+}
+
+export async function getInvoicesByPresupuestoId(presupuestoId: string): Promise<Invoice[]> {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const invoices = await leerFacturasSinGuardia();
+
+  const exactMatches = invoices.filter((inv) => inv.sourcePresupuestoId === presupuestoId);
+  if (exactMatches.length > 0) {
+    return exactMatches;
+  }
+
+  if (presupuestoId.length >= 5) {
+    const suffix = presupuestoId.slice(-5);
+    const legacyMatches = invoices.filter((inv) => {
+      if (inv.sourcePresupuestoId && inv.sourcePresupuestoId !== presupuestoId) {
+        return false;
+      }
+      if (inv.sourcePresupuestoId) {
+        return false;
+      }
+      return (
+        inv.invoiceNumber === ('HIST-' + suffix) ||
+        (typeof inv.invoiceNumber === 'string' && inv.invoiceNumber.endsWith(suffix))
+      );
+    });
+    if (legacyMatches.length === 1) {
+      return legacyMatches;
+    }
+  }
+
+  return [];
 }
 
 // Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
@@ -581,23 +614,98 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
-  const originalInvoices = await leerFacturasSinGuardia();
-  // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
-  const aBorrar = originalInvoices.find(inv => inv.id === id);
-  if (aBorrar && ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid')) {
-    return { success: false, error: 'No se puede eliminar una factura con pagos registrados. Es el comprobante del cobro.' };
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const ref = dbAdmin.collection('facturas').doc(id);
+      let errorMsg: string | undefined;
+      let facturaEliminada: Invoice | undefined;
+
+      let timer: NodeJS.Timeout | undefined;
+      try {
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Could not load the default credentials (timeout)')), 1500);
+          timer.unref?.();
+        });
+        // no pasa nada si falla: es la espera que corta la carrera; el error real lo maneja el race de abajo.
+        timeoutPromise.catch(() => {});
+
+        await Promise.race([
+          dbAdmin.runTransaction(async (transaction: any) => {
+            errorMsg = undefined;
+            facturaEliminada = undefined;
+            const snapshot = await transaction.get(ref);
+            if (!snapshot.exists) {
+              errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
+              return;
+            }
+            const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
+            if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
+              errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
+              return;
+            }
+            transaction.delete(ref);
+            facturaEliminada = data;
+          }),
+          timeoutPromise,
+        ]);
+      } catch (txError: any) {
+        if (
+          isDefaultCredentialError(txError) ||
+          (typeof txError?.message === 'string' && txError.message.includes('Could not load the default credentials'))
+        ) {
+          console.warn('[deleteInvoiceInner] Error de credenciales en transacción Firestore, continuando con persistencia local:', txError?.message);
+        } else {
+          console.error('Error en transacción de Firestore al eliminar factura:', txError);
+          return { success: false, error: txError.message || 'Error al eliminar la factura.' };
+        }
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+
+      if (errorMsg) {
+        return { success: false, error: errorMsg };
+      }
+
+      if (facturaEliminada) {
+        const originalInvoices = await leerFacturasSinGuardia();
+        const invoices = originalInvoices.filter(inv => inv.id !== id);
+        try {
+          await writeData(INVOICES_FILE, invoices);
+          if (linkedFiestaId) {
+            const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+            if (!unlinkResult.success) {
+              await ref.set(facturaEliminada);
+              await writeData(INVOICES_FILE, originalInvoices);
+              return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
+            }
+          }
+          return { success: true };
+        } catch (writeError: any) {
+          console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
+          return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
+        }
+      }
+    }
   }
-  const initialLength = originalInvoices.length;
-  const invoices = originalInvoices.filter(inv => inv.id !== id);
-  if (invoices.length === initialLength) {
+
+  const originalInvoices = await leerFacturasSinGuardia();
+  const aBorrar = originalInvoices.find(inv => inv.id === id);
+  if (!aBorrar) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
+  if ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid') {
+    return { success: false, error: 'Esta factura ya tiene un cobro. No se puede borrar.' };
+  }
+
+  const invoices = originalInvoices.filter(inv => inv.id !== id);
   let deletionPersisted = false;
   try {
     await writeData(INVOICES_FILE, invoices);
-    // La lista entera ya no borra facturas por omision (una lista vieja borraba las que
-    // otro acababa de crear): el borrado de esta es explicito.
-    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') await forceDeleteDocFromFirestore('facturas', id);
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      await forceDeleteDocFromFirestore('facturas', id);
+    }
     deletionPersisted = true;
     if (linkedFiestaId) {
       const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
@@ -794,7 +902,7 @@ async function addPaymentToInvoiceInner(
 
   let invoices = await leerFacturasSinGuardia();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
-  if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+  if (invoiceIndex === -1) return { success: false, error: 'Esa factura ya no existe.' };
 
   const invoice = invoices[invoiceIndex];
   const amount = montoDelFormulario(amountStr, invoice.currency);
@@ -872,7 +980,7 @@ async function addPaymentToInvoiceInner(
       if (saldoAlGuardar !== null) {
         return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${(saldoAlGuardar as number).toLocaleString('es-UY')} ${invoice.currency}.` };
       }
-      return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+      return { success: false, error: 'Esa factura ya no existe.' };
     }
     invoices[invoiceIndex] = guardada;
   }
@@ -1010,4 +1118,3 @@ export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: b
   }
   return { success: true, pasados };
 }
-

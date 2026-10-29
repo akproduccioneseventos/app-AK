@@ -375,6 +375,7 @@ export interface DecoracionData {
   plantillasGuardadas?: Array<{ id: string; nombre: string; elementos: ElementoDecorativo[]; creadaEn: string }>;
   customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
   fotosGeneradasAi?: string[];
+  fotosSalonAiPendientes?: Array<{ id: string; creadaEn: string }>;
   opinionCliente?: {
     leGusta: boolean;
     comentario?: string;
@@ -1207,6 +1208,8 @@ export interface CostoItem {
   category: string;
   montoEstimado: number;
   notas?: string;
+  /** Renglón cerrado: ya no se espera pagar más que lo pagado (orden 251). */
+  cerrado?: boolean;
 }
 
 export interface PagoProveedor {
@@ -1970,6 +1973,7 @@ export interface DecoCanvasTemplate {
   fondoImagenUrl?: string;
   creadoEn: string;
   miniatura?: string;
+  aprobadaSola?: boolean;
 }
 
 // --- SCREEN PLAYLIST ---
@@ -2030,6 +2034,3 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
-
-
-

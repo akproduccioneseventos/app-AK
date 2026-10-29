@@ -45,6 +45,13 @@ jest.mock('@/lib/data-service', () => ({
     const guardado = almacen[archivo];
     return guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado));
   }),
+  readDataConDetalle: jest.fn(async (archivo: string, porDefecto: any) => {
+    const guardado = almacen[archivo];
+    return {
+      valor: guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado)),
+      huboFalla: false,
+    };
+  }),
   writeData: jest.fn(async (archivo: string, datos: any) => { almacen[archivo] = JSON.parse(JSON.stringify(datos)); }),
   createDataItem: jest.fn(),
   deleteDataItem: jest.fn(),
@@ -134,3 +141,5 @@ describe('la seña que la factura no acepta no queda callada (revisión contable
 function first(r: { updatedPresupuesto: { senia?: number } }) {
   return r.updatedPresupuesto.senia;
 }
+
+

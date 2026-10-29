@@ -108,7 +108,30 @@ export async function hasEntertainmentControlAccess(
       // cae al permiso de la estación
     }
   }
-  return verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'operator');
+
+  const tokenValido = verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'operator');
+  if (!tokenValido) return false;
+
+  try {
+    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return false;
+
+    const estado = (fiesta.estado || '').toLowerCase();
+    if (estado === 'suspendida' || estado === 'cancelada') {
+      return false;
+    }
+
+    const { getEntertainmentStationConfig } = await import('@/lib/entertainment/station-config');
+    const stationConfig = getEntertainmentStationConfig(fiesta, moduleId as any);
+    if (stationConfig.enabled === false) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function hasEntertainmentGuestAccess(

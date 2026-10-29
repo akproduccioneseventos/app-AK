@@ -2,11 +2,17 @@
 
 ## 29/10/2026 - Orden 255, avance parcial en PR 1375, NO publicado
 
-- Rama `gemini/orden-255-asistente-ak`, HEAD base `31f01384f7bc832ed004cfb2e60246a1074a8015`; `origin/main` está en `5c22efad3e1f16075bf1689caa6c7ca41099763a`. No se integró ni se publicó.
+- Rama `gemini/orden-255-asistente-ak`: commit `256e548ca` basado en `31f01384f7bc832ed004cfb2e60246a1074a8015`; `origin/main` `5c22efad3e1f16075bf1689caa6c7ca41099763a` se está integrando localmente. No se publicó.
 - Además de los medios de WhatsApp, la rama prepara una propuesta de tres pasos sin contactar al cliente, anticipa faltantes de mozos sin cambiar asignaciones/presupuestos, vigila programa, llegadas y stock verificable; las alertas nocturnas quedan en la app durante descanso. Las tareas que recontactan clientes no se pueden autorizar como autónomas.
 - Las llamadas Gemini de audio e imagen reservan el costo estimado en una transacción sobre `json_documents/ai-consumo.json`; el comprobante queda como propuesta, nunca como gasto. Rechazos definitivos liberan la reserva; fallos inciertos la conservan.
-- No se encontró encoder saliente compatible. El sender no intenta enviar WAV y el asistente informa por texto. Verificación local: cinco suites focalizadas, 36 pruebas aprobadas, y ESLint puntual aprobado. No verifica Firebase real, no hubo typecheck/build y no está publicada.
+- No se encontró encoder saliente compatible. El sender no intenta enviar WAV y el asistente informa por texto. Antes de integrar main pasaron cinco suites focalizadas (36 pruebas) y ESLint puntual. Esos resultados aún no validan el candidato fusionado. No verifica Firebase real, no hubo typecheck/build y no está publicada.
 - Siguen pendientes el caso 7 (permiso promocional estructurado para fotos y presupuesto que quede realmente en borrador), el caso 10 (informe posfiesta con datos reales y consumidor en producción) y la alerta de cuotas, que corresponde al equipo de Claude. La prueba requerida aún no concentra los 11 casos en `el-asistente-de-ak.test.ts`; los casos 7 y 10 no están implementados.
+
+- **Revisión de las entregas 1370 y 1374 de Gemini (28/10/2026), lo que completó Claude:**
+  - Dos bajas de dueños desde dos servidores podían dejar cero dueños: el turno era sólo de memoria. Ahora la cuenta y el cambio van con el candado con nombre de la base (`conCandadoDeUsuarios` en `auth.ts`); si no se puede tomar, no se cambia nada. Prueba con dos copias del módulo en `dos-bajas-conservan-un-dueno.test.ts`.
+  - Borrar un presupuesto miraba los cobros con una lista leída antes: ahora se vuelve a mirar y se borra en la misma transacción de la base (`deletePresupuesto`). Prueba (f) en `la-factura-no-se-borra-mientras-se-cobra.test.ts`.
+  - Los recortes de decoración se guardaban enteros adentro del registro (hasta 5 MB, y la base admite 1 MiB): ahora se achican a 512 px y no se guardan si pasan 600 KB. Y el pedido a la IA se cuenta siempre, salga bien o mal.
+  - "due?o" en tres mensajes y "en tiempo real" en el panel.
 
 - **La voz del cliente en su portal anda de verdad (orden 238, 28/10/2026).** El botón Hablar abre la llamada por `/api/asistente/voz-en-vivo/cliente` (sesión del portal de esa fiesta y tope diario de minutos ya publicados) con `sinHerramientas`: la IA conversa pero no ejecuta ninguna acción. Rescatado de la entrega 1368 de Gemini, que venía de una base vieja; su parte de la orden 239 se descartó porque main ya la tenía mejor.
 ## 28/10/2026 - Codex758: decoraciones propias y borradores desde fotos
@@ -16119,3 +16125,22 @@ prueba: src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts
 ```
 
 - 27/10/2026 — Carta definitiva de 12 tragos del dueño: alcohol principal 15 ml, versión sin alcohol guardada (recetaSinAlcohol, nombreSinAlcohol, soloMayores) y fotos en public/images/tragos. Reemplaza las recetas de 17 tragos. El selector de versión y el control de menores van por orden a Gemini.
+
+## 28/10/2026 — Foto del salón del portal (orden 253, PR 1371)
+
+- **Qué estaba mal:** Gemini devolvía bytes Base64 y el portal los guardaba como si fueran una URL; los fallos de Server Action se ocultaban; la acción nueva podía gastar sin una captura 3D; el mutex sólo protegía una instancia y no el límite entre servidores.
+- **Qué se hizo:** la acción del portal exige captura PNG/JPEG válida, reserva uno de los tres lugares con `actualizarFiesta` antes de llamar al proveedor, persiste la salida como imagen en Firebase Storage con URL de token opaco, y muestra errores al cliente. Las reservas se liberan si no se llega al proveedor o éste confirma que no produjo imagen; si la respuesta del proveedor es incierta se conserva la reserva para evitar un segundo cobro.
+- **Control disponible:** `src/__tests__/salon-cliente-foto-real-y-errores.test.ts` (3 pruebas focalizadas) y ESLint en archivos modificados pasaron. La validación completa, E2E, build y publicación quedan pendientes para Claude/dueño.
+
+```comprobar
+archivo: src/app/actions/fiesta/decoracion.actions.ts
+usa: generarFotoDelSalonDesdeElPortal en src/components/salon-3d/Salon3DClienteView.tsx
+usa: actualizarFiesta en src/app/actions/fiesta/decoracion.actions.ts
+archivo: src/components/salon-3d/Salon3DClienteView.tsx
+usa: onCaptureReady en src/components/salon-3d/SalonScene.tsx
+archivo: src/lib/firebase/storage.ts
+usa: uploadToStorageWithDownloadToken en src/app/actions/fiesta/decoracion.actions.ts
+prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
+```
+
+- **29/10/2026, Claude sobre la 1371 (orden 253):** las pruebas de la foto del salón simulaban el guardado viejo y no corrían; ahora simulan la transacción de la fiesta con copias. Se sumó la prueba de dos servidores con un solo lugar libre (`salon-ia-cupo-entre-instancias`), comprobada en rojo sin contar las reservas pendientes. Y una imagen que llega en un formato que no sirve igual se cuenta como gasto, porque ya se pagó.

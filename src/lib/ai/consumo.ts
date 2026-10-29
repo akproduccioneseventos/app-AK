@@ -14,6 +14,7 @@
 export type FuncionConCosto =
   | 'touchpix'
   | 'espejo-magico'
+  | 'foto-del-salon'
   | 'remarketing'
   | 'vendedor-virtual'
   | 'seguimiento-comercial'
@@ -34,7 +35,8 @@ export type FuncionConCosto =
   | 'trivia-ia'
   | 'voz-cliente'
   | 'whatsapp-media'
-  | 'asistente-dot-contador';
+  | 'asistente-dot-contador'
+  | 'recorte-decoracion';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -45,6 +47,7 @@ export type FuncionConCosto =
 export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   touchpix: 6,
   'espejo-magico': 6,
+  'foto-del-salon': 6,
   remarketing: 2,
   'vendedor-virtual': 4,
   // Solo texto y a pedido del equipo, apretando un boton: sale mucho menos que
@@ -72,6 +75,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'voz-cliente': 1,
   'whatsapp-media': 1,
   'asistente-dot-contador': 1,
+  'recorte-decoracion': 6,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
@@ -176,4 +180,3 @@ export function resumirGasto(consumo: ConsumoDelMes, topeUYU: number): ResumenDe
     mensaje: `Vas por $${gastado} de $${tope} este mes (${porcentaje}%).`,
   };
 }
-

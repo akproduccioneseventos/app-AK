@@ -9,7 +9,7 @@ import { getAllFiestas } from './fiesta/fiesta.actions';
 import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { getGastosGenerales } from './gastos';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
-import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { getReconciledSalePayments, isDepositReceiptInvoice, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { getCompanyInfo } from './settings';
@@ -119,11 +119,38 @@ export async function getProfitAndLossData(
     );
 
     allInvoices.forEach(invoice => {
+      if (isDepositReceiptInvoice(invoice)) {
+        if (scopedInvoiceIds && !scopedInvoiceIds.has(invoice.id)) return;
+        const hasLinkedBudget = invoice.sourcePresupuestoId
+          ? presupuestos.some(p => p.id === invoice.sourcePresupuestoId)
+          : false;
+        if (!hasLinkedBudget) {
+          getReconciledSalePayments(invoice).forEach(payment => {
+            if (!inRange(payment.date, from, to)) return;
+            const comision = (typeof payment.comisionProveedor === 'number' && Number.isFinite(payment.comisionProveedor) && payment.comisionProveedor > 0)
+              ? roundMoney(payment.comisionProveedor)
+              : 0;
+            const monto = roundMoney(payment.amount) - comision;
+            if (monto <= 0) return;
+            ingresosDetalle.push({
+              id: payment.id,
+              fecha: payment.date,
+              concepto: 'Seña cobrada',
+              monto,
+            });
+            totalIngresos += monto;
+          });
+        }
+        return;
+      }
       if (!isFirmSalesInvoice(invoice)) return;
       if (scopedInvoiceIds && !scopedInvoiceIds.has(invoice.id)) return;
       getReconciledSalePayments(invoice, linkedBudgetByInvoiceId.get(invoice.id)).forEach(payment => {
         if (!inRange(payment.date, from, to)) return;
-        const monto = roundMoney(payment.amount);
+        const comision = (typeof payment.comisionProveedor === 'number' && Number.isFinite(payment.comisionProveedor) && payment.comisionProveedor > 0)
+          ? roundMoney(payment.comisionProveedor)
+          : 0;
+        const monto = roundMoney(payment.amount) - comision;
         if (monto <= 0) return;
         ingresosDetalle.push({
           id: payment.id,
@@ -148,7 +175,10 @@ export async function getProfitAndLossData(
       presupuesto.pagosCliente?.forEach(pago => {
         if (!isConfirmedClientPayment(pago)) return;
         if (!inRange(pago.fecha, from, to)) return;
-        const monto = roundMoney(pago.monto);
+        const comision = (typeof pago.comisionProveedor === 'number' && Number.isFinite(pago.comisionProveedor) && pago.comisionProveedor > 0)
+          ? roundMoney(pago.comisionProveedor)
+          : 0;
+        const monto = roundMoney(pago.monto) - comision;
         if (monto <= 0) return;
         ingresosDetalle.push({
           id: pago.id,
@@ -179,12 +209,9 @@ export async function getProfitAndLossData(
       });
     }
 
-    const fiestasForReport = targetFiesta ? [targetFiesta] : fiestas;
-    for (const fiesta of fiestasForReport) {
-      const fechaEvento = fiesta.configuracion.fechaEvento;
-      if (!inRange(fechaEvento, from, to)) continue;
-
-      const pagosProveedores = fiesta.pagosProveedores || [];
+    if (targetFiesta) {
+      const fechaEvento = targetFiesta.configuracion?.fechaEvento;
+      const pagosProveedores = targetFiesta.pagosProveedores || [];
       const pagosPorCosto = pagosProveedores.reduce((totals, pago) => {
         const costoId = pago.costoAsociadoId?.trim();
         if (!costoId) return totals;
@@ -195,21 +222,21 @@ export async function getProfitAndLossData(
       pagosProveedores.forEach(pago => {
         const monto = montoCosto(pago.monto);
         if (monto <= 0) return;
-        const concepto = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId)?.nombre || 'Pago Proveedor';
+        const concepto = targetFiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId)?.nombre || 'Pago Proveedor';
         costosDetalle.push({
           id: `pago-${pago.id}`,
-          fecha: pago.fecha || fechaEvento!,
-          concepto: `${concepto} (${fiesta.configuracion.nombreEvento})`,
+          fecha: pago.fecha || fechaEvento || '',
+          concepto: `${concepto} (${targetFiesta.configuracion.nombreEvento})`,
           categoria: 'Egresos Reales',
           monto,
         });
         totalCostos += monto;
       });
 
-      const costosItems = fiesta.gestionCostos?.costosItems || [];
+      const costosItems = targetFiesta.gestionCostos?.costosItems || [];
       const costosSinMermaDuplicada = costosItems.filter(item => item.id !== 'auto_merma_bebidas');
-      const otros = fiesta.gestionCostos?.others || {};
-      const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
+      const otros = targetFiesta.gestionCostos?.others || {};
+      const personalCalculado = (targetFiesta.personalAsignado ?? []).reduce((sum, pa) => {
         const rol = roles.find(r => r.id === pa.rolId);
         const sueldo = montoCosto(pa.eventSalary || rol?.sueldoPorEvento || 0);
         const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
@@ -234,15 +261,80 @@ export async function getProfitAndLossData(
       }, 0);
       if (restantePlanificado > 0) {
         costosDetalle.push({
-          id: `pendiente-costos-${fiesta.id}`,
-          fecha: fechaEvento!,
-          concepto: `Costos pendientes planificados (${fiesta.configuracion.nombreEvento})`,
+          id: `pendiente-costos-${targetFiesta.id}`,
+          fecha: fechaEvento || '',
+          concepto: `Costos pendientes planificados (${targetFiesta.configuracion.nombreEvento})`,
           categoria: 'Costos Pendientes',
           monto: restantePlanificado,
         });
         totalCostos += restantePlanificado;
       }
+    } else {
+      for (const fiesta of fiestas) {
+        const fechaEvento = fiesta.configuracion?.fechaEvento;
+        const pagosProveedores = fiesta.pagosProveedores || [];
+        const pagosPorCosto = pagosProveedores.reduce((totals, pago) => {
+          const costoId = pago.costoAsociadoId?.trim();
+          if (!costoId) return totals;
+          totals.set(costoId, (totals.get(costoId) || 0) + montoCosto(pago.monto));
+          return totals;
+        }, new Map<string, number>());
 
+        pagosProveedores.forEach(pago => {
+          const fechaPago = pago.fecha || fechaEvento;
+          if (!fechaPago || !inRange(fechaPago, from, to)) return;
+          const monto = montoCosto(pago.monto);
+          if (monto <= 0) return;
+          const concepto = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId)?.nombre || 'Pago Proveedor';
+          costosDetalle.push({
+            id: `pago-${pago.id}`,
+            fecha: fechaPago,
+            concepto: `${concepto} (${fiesta.configuracion.nombreEvento})`,
+            categoria: 'Egresos Reales',
+            monto,
+          });
+          totalCostos += monto;
+        });
+
+        if (fechaEvento && inRange(fechaEvento, from, to)) {
+          const costosItems = fiesta.gestionCostos?.costosItems || [];
+          const costosSinMermaDuplicada = costosItems.filter(item => item.id !== 'auto_merma_bebidas');
+          const otros = fiesta.gestionCostos?.others || {};
+          const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
+            const rol = roles.find(r => r.id === pa.rolId);
+            const sueldo = montoCosto(pa.eventSalary || rol?.sueldoPorEvento || 0);
+            const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
+            return sum + sueldo + aportes;
+          }, 0);
+          const costosPlanificados = [
+            ...costosSinMermaDuplicada.map(item => ({
+              id: item.id,
+              monto: montoCosto(item.montoEstimado),
+            })),
+            { id: 'cat_catering', monto: montoCosto(otros.totalCateringCost) },
+            { id: 'cat_bebidas', monto: montoCosto(otros.totalBebidasCost) },
+            { id: 'cat_reposteria', monto: montoCosto(otros.totalReposteriaCost) },
+            {
+              id: 'cat_personal',
+              monto: Math.max(montoCosto(otros.totalPersonalCost), personalCalculado),
+            },
+          ];
+          const restantePlanificado = costosPlanificados.reduce((sum, costo) => {
+            const pagadoParaCosto = pagosPorCosto.get(costo.id) || 0;
+            return sum + Math.max(0, costo.monto - pagadoParaCosto);
+          }, 0);
+          if (restantePlanificado > 0) {
+            costosDetalle.push({
+              id: `pendiente-costos-${fiesta.id}`,
+              fecha: fechaEvento,
+              concepto: `Costos pendientes planificados (${fiesta.configuracion.nombreEvento})`,
+              categoria: 'Costos Pendientes',
+              monto: restantePlanificado,
+            });
+            totalCostos += restantePlanificado;
+          }
+        }
+      }
     }
 
     totalCostos = Math.round(totalCostos * 100) / 100;
@@ -292,4 +384,3 @@ export async function getEmailContador(): Promise<string | undefined> {
   const company = await getCompanyInfo().catch(() => null);
   return company?.emailContador;
 }
-

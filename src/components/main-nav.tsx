@@ -58,7 +58,7 @@ import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
 import { getMisPermisos } from "@/app/actions/sesion";
-import { PERMISOS, puede, perfilDe, type Permiso } from "@/lib/auth/perfiles";
+import { PERMISOS, puede, perfilDe, esPerfilValido, type Permiso } from "@/lib/auth/perfiles";
 
 export type NavItem = {
   title: string;
@@ -83,10 +83,17 @@ const isPathActive = (pathname: string, path: string) => pathname === path || pa
  */
 export function puedeVerEntradaMenu(
   item: NavItem,
-  user: { role?: string; profile?: string; permissions?: string[] } | null
+  user: { role?: string; perfil?: string; profile?: string; permissions?: string[] } | null
 ): boolean {
   if (!user) return false;
-  const perfil = perfilDe(user);
+  const perfilRaw = user.perfil ?? user.profile;
+  if (perfilRaw !== undefined && perfilRaw !== null && String(perfilRaw) !== '') {
+    if (!esPerfilValido(perfilRaw)) {
+      return false;
+    }
+  }
+  const userConPerfil = { ...user, perfil: perfilRaw };
+  const perfil = perfilDe(userConPerfil);
   if (perfil === "personal" && (!user.permissions || user.permissions.length === 0)) {
     return false;
   }
@@ -94,7 +101,7 @@ export function puedeVerEntradaMenu(
     return true;
   }
   const requeridos = Array.isArray(item.permiso) ? item.permiso : [item.permiso];
-  return requeridos.some((p) => puede(user, p));
+  return requeridos.some((p) => puede(userConPerfil, p));
 }
 
 /**
