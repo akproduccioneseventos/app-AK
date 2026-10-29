@@ -43,12 +43,12 @@ const MERMA_DUPLICADA = 'auto_merma_bebidas';
  */
 const BLOQUES_AUTOMATICOS: ReadonlyArray<{
   id: string;
-  getEstimado: (others: GestionCostosData['others']) => number;
+  getEstimado: (others: GestionCostosData['others'], personalCalculado?: number) => number;
 }> = [
-  { id: 'cat_catering',   getEstimado: (o) => aNumero(o?.totalCateringCost) },
-  { id: 'cat_bebidas',    getEstimado: (o) => aNumero(o?.totalBebidasCost) },
-  { id: 'cat_reposteria', getEstimado: (o) => aNumero(o?.totalReposteriaCost) },
-  { id: 'cat_personal',   getEstimado: (o) => aNumero(o?.totalPersonalCost) },
+  { id: 'cat_catering',   getEstimado: (o) => Math.max(0, aNumero(o?.totalCateringCost)) },
+  { id: 'cat_bebidas',    getEstimado: (o) => Math.max(0, aNumero(o?.totalBebidasCost)) },
+  { id: 'cat_reposteria', getEstimado: (o) => Math.max(0, aNumero(o?.totalReposteriaCost)) },
+  { id: 'cat_personal',   getEstimado: (o, pCalc) => Math.max(Math.max(0, aNumero(o?.totalPersonalCost)), pCalc ?? 0) },
 ];
 
 export interface GananciaDeEvento {
@@ -99,25 +99,39 @@ export function calcularGananciaDeEvento(
   gestionCostos: GestionCostosData | undefined | null,
   pagosProveedores: PagoProveedor[] | undefined | null,
   pagosCliente?: PagoCliente[] | undefined | null,
+  personalAsignado?: any[] | { personalAsignado?: any[]; roles?: any[] } | null,
+  roles?: any[] | null,
 ): GananciaDeEvento {
   const items = (gestionCostos?.costosItems ?? []).filter((item) => item.id !== MERMA_DUPLICADA);
   const pagos = pagosProveedores ?? [];
   const others = gestionCostos?.others;
 
+  const personalList = Array.isArray(personalAsignado)
+    ? personalAsignado
+    : personalAsignado?.personalAsignado ?? (gestionCostos as any)?.personalAsignado ?? [];
+  const rolesList = Array.isArray(personalAsignado) ? (roles ?? []) : (personalAsignado?.roles ?? roles ?? []);
+
+  const personalCalculado = personalList.reduce((sum: number, pa: any) => {
+    const rol = rolesList.find((r: any) => r.id === pa.rolId);
+    const sueldo = Math.max(0, aNumero(pa.eventSalary || pa.sueldo || rol?.sueldoPorEvento || 0));
+    const aportes = Math.round((sueldo * Math.max(0, aNumero(rol?.porcentajeAportesPatronales || 0))) / 100);
+    return sum + sueldo + aportes;
+  }, 0);
+
   // Suma de estimados de los cuatro bloques automáticos (se usa en costoEstimado).
   const estimadoBloques = BLOQUES_AUTOMATICOS.reduce(
-    (suma, bloque) => suma + bloque.getEstimado(others),
+    (suma, bloque) => suma + bloque.getEstimado(others, personalCalculado),
     0,
   );
 
-  const estimadoDeItems = items.reduce((suma, item) => suma + aNumero(item.montoEstimado), 0);
+  const estimadoDeItems = items.reduce((suma, item) => suma + Math.max(0, aNumero(item.montoEstimado)), 0);
   const costoEstimado = estimadoDeItems + estimadoBloques;
 
   // Lo pagado, agrupado por el renglón al que corresponde.
   const pagadoPorItem = new Map<string, number>();
   for (const pago of pagos) {
     const clave = pago?.costoAsociadoId ?? '';
-    pagadoPorItem.set(clave, (pagadoPorItem.get(clave) ?? 0) + aNumero(pago?.monto));
+    pagadoPorItem.set(clave, (pagadoPorItem.get(clave) ?? 0) + Math.max(0, aNumero(pago?.monto)));
   }
   const pagadoAProveedores = [...pagadoPorItem.values()].reduce((s, monto) => s + monto, 0);
 
@@ -129,12 +143,22 @@ export function calcularGananciaDeEvento(
   let sinRendir = 0;
 
   for (const item of items) {
-    const pagado = pagadoPorItem.get(item.id) ?? 0;
+    const pagado = Math.max(0, pagadoPorItem.get(item.id) ?? 0);
+    const estimado = Math.max(0, aNumero(item.montoEstimado));
+    const estaCerrado = Boolean(item.cerrado);
     if (pagado > 0) {
-      realDeItems += pagado;
+      if (estaCerrado) {
+        realDeItems += pagado;
+      } else {
+        const costoRenglon = Math.max(pagado, estimado);
+        realDeItems += costoRenglon;
+        if (estimado > pagado) {
+          sinRendir += (estimado - pagado);
+        }
+      }
     } else {
-      realDeItems += aNumero(item.montoEstimado);
-      sinRendir += aNumero(item.montoEstimado);
+      realDeItems += estimado;
+      sinRendir += estimado;
     }
   }
 
@@ -143,7 +167,7 @@ export function calcularGananciaDeEvento(
 
   for (const bloque of BLOQUES_AUTOMATICOS) {
     const pagado = pagadoPorItem.get(bloque.id) ?? 0;
-    const estimado = bloque.getEstimado(others);
+    const estimado = bloque.getEstimado(others, personalCalculado);
     if (pagado > 0) {
       realDeBloques += pagado;
     } else {
@@ -159,6 +183,19 @@ export function calcularGananciaDeEvento(
     if (!idsDeItems.has(clave) && !idsDeBloques.has(clave)) pagosSueltos += monto;
   }
 
+  function esGastoManualDeComision(texto?: string): boolean {
+    if (!texto) return false;
+    const t = String(texto).toLowerCase();
+    const tieneComision = t.includes('comision') || t.includes('comisión');
+    const tieneMP = t.includes('mercado pago') || t.includes('mercadopago') || t.includes('mp');
+    return tieneComision && tieneMP;
+  }
+
+  const gastoManualComision = [
+    ...items.filter((i) => esGastoManualDeComision(i.nombre || (i as any).concepto)).map((i) => Math.max(0, aNumero(i.montoEstimado))),
+    ...pagos.filter((p) => esGastoManualDeComision(p.costoAsociadoId || (p as any).concepto || (p as any).detalle || (p as any).notas)).map((p) => Math.max(0, aNumero(p.monto))),
+  ].reduce((sum, m) => sum + m, 0);
+
   // Cobros por Mercado Pago confirmados: comisión real y recargo cobrado.
   let comisionesMercadoPago = 0;
   let recargosCobrados = 0;
@@ -169,12 +206,16 @@ export function calcularGananciaDeEvento(
       cobrosSinComisionInformada += 1;
       continue;
     }
-    comisionesMercadoPago += cobro.comisionProveedor;
-    recargosCobrados += aNumero(cobro.recargoFinanciero);
+    comisionesMercadoPago += Math.max(0, cobro.comisionProveedor);
+    recargosCobrados += Math.max(0, aNumero(cobro.recargoFinanciero));
+  }
+
+  if (gastoManualComision > 0) {
+    comisionesMercadoPago = Math.max(0, comisionesMercadoPago - gastoManualComision);
   }
 
   const costoReal = realDeItems + realDeBloques + pagosSueltos + comisionesMercadoPago;
-  const ingreso = aNumero(gestionCostos?.ingresosTotalesEstimados);
+  const ingreso = Math.max(0, aNumero(gestionCostos?.ingresosTotalesEstimados));
 
   const gananciaEstimada = ingreso - costoEstimado;
   const gananciaReal = ingreso + recargosCobrados - costoReal;

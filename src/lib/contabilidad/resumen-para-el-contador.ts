@@ -24,7 +24,6 @@ export function mesAnteriorA(hoy: Date): { desde: Date; hasta: Date; nombre: str
   };
 }
 
-const plata = (n: number) => `$ ${Math.round(n).toLocaleString('es-UY')}`;
 const celda = (t: string) => `"${String(t ?? '').replace(/"/g, '""')}"`;
 
 export function armarResumenParaElContador(datos: ProfitAndLossData, nombreDelMes: string): {
@@ -36,9 +35,9 @@ export function armarResumenParaElContador(datos: ProfitAndLossData, nombreDelMe
   const texto = [
     `Hola, te pasamos el resumen de ${nombreDelMes}.`,
     '',
-    `Cobrado: ${plata(datos.ingresos.total)} (${datos.ingresos.detalle.length} cobros)`,
-    `Gastado: ${plata(datos.costos.total)} (${datos.costos.detalle.length} gastos)`,
-    `Resultado: ${plata(datos.gananciaNeta)}`,
+    `Cobrado: $ ${Number(datos.ingresos.total.toFixed(0)).toLocaleString('es-UY')} (${datos.ingresos.detalle.length} cobros)`,
+    `Gastado: $ ${Number(datos.costos.total.toFixed(2)).toLocaleString('es-UY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${datos.costos.detalle.length} gastos)`,
+    `Resultado: $ ${Number(datos.gananciaNeta.toFixed(2)).toLocaleString('es-UY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     '',
     'Va adjunto el detalle renglón por renglón. Cualquier duda, avisanos.',
   ].join('\n');
@@ -46,9 +45,9 @@ export function armarResumenParaElContador(datos: ProfitAndLossData, nombreDelMe
   const filas = [
     ['Tipo', 'Fecha', 'Concepto', 'Categoría', 'Monto'].map(celda).join(';'),
     ...datos.ingresos.detalle.map((i) =>
-      [celda('Cobro'), celda(i.fecha.slice(0, 10)), celda(i.concepto), celda(''), String(Math.round(i.monto))].join(';')),
+      [celda('Cobro'), celda(i.fecha.slice(0, 10)), celda(i.concepto), celda(''), String(Number(i.monto).toFixed(0))].join(';')),
     ...datos.costos.detalle.map((c) =>
-      [celda('Gasto'), celda(c.fecha.slice(0, 10)), celda(c.concepto), celda(c.categoria), String(-Math.round(c.monto))].join(';')),
+      [celda('Gasto'), celda(c.fecha.slice(0, 10)), celda(c.concepto), celda(c.categoria), (-Number(c.monto.toFixed(2))).toFixed(2)].join(';')),
   ];
   return { asunto, texto, csv: filas.join('\n') };
 }

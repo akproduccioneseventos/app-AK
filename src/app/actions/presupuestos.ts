@@ -163,17 +163,11 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   const nivel = sessionAuth.success ? nivelDePresupuestos(sessionAuth.user) : null;
   if (nivel) {
     soloOperativo = nivel === 'operativo';
-  } else {
-    if (!token) {
-      return null;
-    }
-    const { verifyBudgetToken } = await import('@/lib/auth/session-token');
-    const isValidToken = await verifyBudgetToken(id, token);
-    if (!isValidToken) {
-      return null;
-    }
+  } else if (!token) {
+    return null;
   }
 
+  let encontrado: Presupuesto | null = null;
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (dbAdmin) {
@@ -181,16 +175,29 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
-        return soloOperativo ? sinCobros(data as Presupuesto) : data as Presupuesto;
+        encontrado = data as Presupuesto;
       }
     }
   } catch {
     // Keep the list-based reader as compatibility fallback.
   }
 
-  const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  const encontrado = presupuestos.find(p => p.id === id) || null;
-  return encontrado && soloOperativo ? sinCobros(encontrado) : encontrado;
+  if (!encontrado) {
+    const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+    encontrado = presupuestos.find(p => p.id === id) || null;
+  }
+
+  if (!encontrado) return null;
+
+  if (!nivel) {
+    const { verifyBudgetToken } = await import('@/lib/auth/session-token');
+    const isValidToken = await verifyBudgetToken(id, token!, encontrado.versionDeEnlace ?? 0);
+    if (!isValidToken) {
+      return null;
+    }
+  }
+
+  return soloOperativo ? sinCobros(encontrado) : encontrado;
 }
 
 export async function getPresupuestoShareToken(
@@ -205,7 +212,10 @@ export async function getPresupuestoShareToken(
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
   const { generateBudgetToken } = await import('@/lib/auth/session-token');
-  return { success: true, token: await generateBudgetToken(id) };
+  const token = presupuesto.versionDeEnlace
+    ? await generateBudgetToken(id, presupuesto.versionDeEnlace)
+    : await generateBudgetToken(id);
+  return { success: true, token };
 }
 
 async function syncLinkedFiesta(presupuesto: Presupuesto) {
@@ -561,6 +571,7 @@ async function guardarPresupuestoSinTurno(
       updated.ajusteAnualActivo = oldBudget.ajusteAnualActivo ?? updated.ajusteAnualActivo;
     }
     if (oldBudget.invoiceId) updated.invoiceId = oldBudget.invoiceId;
+    if (oldBudget.versionDeEnlace !== undefined && updated.versionDeEnlace === undefined) updated.versionDeEnlace = oldBudget.versionDeEnlace;
     const firmaGuardada = (oldBudget as Presupuesto & { fechaFirmaContrato?: string }).fechaFirmaContrato;
     if (firmaGuardada) (updated as Presupuesto & { fechaFirmaContrato?: string }).fechaFirmaContrato = firmaGuardada;
 
@@ -595,7 +606,12 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
     const all = await getPresupuestos(true);
     const index = all.findIndex(p => p.id === id);
     if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
-    all[index] = { ...all[index], archived: true, archivedAt: new Date().toISOString() };
+    all[index] = {
+      ...all[index],
+      archived: true,
+      archivedAt: new Date().toISOString(),
+      versionDeEnlace: (all[index].versionDeEnlace ?? 0) + 1,
+    };
     try {
       await writeData(PRESUPUESTOS_FILE, all);
       return { success: true };
@@ -605,20 +621,88 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
   });
 }
 
+export async function apagarEnlacePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.success) return { success: false, error: auth.error };
+
+  return await presupuestosMutex.runExclusive(async () => {
+    const all = await getPresupuestos(true);
+    const index = all.findIndex(p => p.id === id);
+    if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
+    all[index] = {
+      ...all[index],
+      versionDeEnlace: (all[index].versionDeEnlace ?? 0) + 1,
+    };
+    try {
+      await writeData(PRESUPUESTOS_FILE, all);
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al apagar el enlace.' };
+    }
+  });
+}
+
 /** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references and linked fiesta. */
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string; aviso?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
-  const contrato = await estadoDelContrato(id);
-  if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
-  if (contrato === 'firmado') {
-    return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
-  }
 
   return await presupuestosMutex.runExclusive(async () => {
     const all = await getPresupuestos(true);
     const target = all.find(p => p.id === id);
+    if (!target) return { success: false, error: 'Presupuesto no encontrado para eliminar.' };
+
+    const firmadoPorInfo = Boolean(target.contractSignatureInfo?.isSigned);
+    const tieneCobros = (target.pagosCliente?.length || 0) > 0;
+    if (firmadoPorInfo || tieneCobros) {
+      return {
+        success: false,
+        error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.',
+      };
+    }
+
+    const contrato = await estadoDelContrato(id);
+    if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+    if (contrato === 'firmado') {
+      return {
+        success: false,
+        error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.',
+      };
+    }
+
+    // Orden 249, bloque 2: lo leído arriba puede estar viejo si otro servidor cobró en el medio. Se
+    // vuelve a mirar el presupuesto y se lo borra en la MISMA transacción de la base: si ya tiene un
+    // cobro o la firma, no se borra.
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        let bloqueado = false;
+        try {
+          await dbAdmin.runTransaction(async (transaction: any) => {
+            bloqueado = false;
+            const ref = dbAdmin.collection('presupuestos').doc(id);
+            const snap = await transaction.get(ref);
+            if (!snap.exists) return;
+            const actual = (typeof snap.data === 'function' ? snap.data() : snap.data) as Presupuesto;
+            if ((actual.pagosCliente?.length || 0) > 0 || actual.contractSignatureInfo?.isSigned) {
+              bloqueado = true;
+              return;
+            }
+            transaction.delete(ref);
+          });
+        } catch (txError: any) {
+          const msg = String(txError?.message || '');
+          if (!msg.includes('Could not load the default credentials') && !msg.includes('default credentials')) {
+            return { success: false, error: 'No se pudo comprobar si el presupuesto tiene cobros. No se borró.' };
+          }
+        }
+        if (bloqueado) {
+          return { success: false, error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.' };
+        }
+      }
+    }
+
     const remaining = all.filter(p => p.id !== id);
     try {
       await writeData(PRESUPUESTOS_FILE, remaining);

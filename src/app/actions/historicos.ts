@@ -6,15 +6,14 @@ import fs from 'fs/promises';
 import path from 'path';
 
 import type { Customer } from '@/types/customer';
-import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { FiestaHistorica } from '@/types/fiesta-historica';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { saveFiesta } from './fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveInvoice } from './invoices';
-import type { Invoice, Payment } from '@/types/invoice';
-import { requireAppSession } from '@/lib/auth/require-session';
+import type { Invoice } from '@/types/invoice';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { saveFiestaHistorica } from './fiestas-historicas';
@@ -43,6 +42,22 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         return { success: false, error: "El monto total debe ser un número válido." };
     }
 
+    if (contractFile && typeof contractFile === 'object') {
+        if (contractFile.size > 10 * 1024 * 1024) {
+            return { success: false, error: "El archivo de contrato no puede superar los 10 MB." };
+        }
+        if (contractFile.size > 0 || contractFile.name) {
+            const isValidType = Boolean(
+                contractFile.type === 'application/pdf' ||
+                contractFile.type?.startsWith('image/') ||
+                /\.(pdf|jpg|jpeg|png|webp)$/i.test(contractFile.name || '')
+            );
+            if (!isValidType) {
+                return { success: false, error: "El archivo de contrato debe ser un PDF o una imagen." };
+            }
+        }
+    }
+
     try {
         const rawIntento = formData.get('idIntento') || formData.get('intentoId');
         const intentoKey = idDelIntento('hist', rawIntento);
@@ -51,44 +66,41 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         const customerId = `cust_${seed}`;
         const presupuestoId = `pres_${seed}`;
         const pagoId = `pago_${seed}`;
-
-        // Idempotencia: si ya existe el presupuesto de este intento, no duplicar cobro
-        const presupuestosPrevios = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-        if (intentoKey && presupuestosPrevios.some(p => p.id === presupuestoId)) {
-            return { success: true };
-        }
+        const fiestaId = `fiesta_${seed}`;
 
         const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
-        // 1. Create and Save Customer (de a un registro)
-        let uniqueFilename: string | undefined = undefined;
+        // 1. Cliente: verificar si ya existe customerId en CUSTOMERS_FILE. Si ya existe, reutilizarlo.
+        const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
+        let customer = customers.find(c => c.id === customerId);
 
-        if (contractFile && contractFile.size > 0) {
-            await ensureDirectoryExists(CONTRACTS_DIR);
-            uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-            const bytes = await contractFile.arrayBuffer();
-            await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), Buffer.from(bytes));
-        }
+        if (!customer) {
+            let uniqueFilename: string | undefined = undefined;
 
-        const newCustomer: Customer = {
-            id: customerId,
-            name: clienteNombre,
-            partyDate: eventoFecha,
-            estadoCliente: 'Antiguo',
-            contractFileName: uniqueFilename,
-        };
+            if (contractFile && contractFile.size > 0) {
+                await ensureDirectoryExists(CONTRACTS_DIR);
+                uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                const bytes = await contractFile.arrayBuffer();
+                await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), Buffer.from(bytes));
+            }
 
-        if (!SIN_BASE()) {
-            await createDataItem('customers.json', 'clientes', customerId, newCustomer);
-        } else {
-            const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
-            if (!customers.some(c => c.id === customerId)) {
-                customers.push(newCustomer);
+            customer = {
+                id: customerId,
+                name: clienteNombre,
+                partyDate: eventoFecha,
+                estadoCliente: 'Antiguo',
+                contractFileName: uniqueFilename,
+            };
+
+            if (!SIN_BASE()) {
+                await createDataItem('customers.json', 'clientes', customerId, customer);
+            } else {
+                customers.push(customer);
                 await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.name || '').localeCompare(b.name || ''));
             }
         }
 
-        // 2. Create simplified Presupuesto Items
+        // 2. Presupuesto: verificar si ya existe presupuestoId en PRESUPUESTOS_FILE. Si ya existe, reutilizarlo.
         const items: ItemPresupuestado[] = [{
             idServicioCatalogo: 'historic_item',
             nombreServicio: 'Servicios según contrato histórico adjunto',
@@ -102,116 +114,138 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             precioBase: montoTotal,
         }];
 
-        // 3. Create a simplified Presupuesto (de a un registro)
-        const newPresupuesto: Presupuesto = {
-            id: presupuestoId,
-            clienteNombre: clienteNombre,
-            eventoTipo: 'Histórico',
-            eventoFecha: eventoFecha,
-            invitadosCantidad: 1,
-            salonFiestas: 'N/A (Histórico)',
-            itemsPresupuestados: items,
-            costoTotalEstimado: montoTotal,
-            totalConDescuento: montoTotal,
-            pagosCliente: [{
-                id: pagoId,
-                fecha: eventoFecha,
-                monto: montoTotal,
-                metodoPago: 'Otro',
-                referencia: `AK_SYNC:historico:${presupuestoId}`,
-                estadoPago: 'confirmado',
-            }],
-            estado: 'Facturado',
-            ajusteAnualActivo: true,
-            timestamp: new Date().toISOString(),
-            notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
-        };
+        const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+        let presupuesto = presupuestos.find(p => p.id === presupuestoId);
 
-        if (!SIN_BASE()) {
-            await createDataItem('presupuestos.json', 'presupuestos', presupuestoId, newPresupuesto);
-        } else {
-            const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-            if (!presupuestos.some(p => p.id === presupuestoId)) {
-                presupuestos.push(newPresupuesto);
+        if (!presupuesto) {
+            presupuesto = {
+                id: presupuestoId,
+                clienteNombre: clienteNombre,
+                eventoTipo: 'Histórico',
+                eventoFecha: eventoFecha,
+                invitadosCantidad: 1,
+                salonFiestas: 'N/A (Histórico)',
+                itemsPresupuestados: items,
+                costoTotalEstimado: montoTotal,
+                totalConDescuento: montoTotal,
+                pagosCliente: [{
+                    id: pagoId,
+                    fecha: eventoFecha,
+                    monto: montoTotal,
+                    metodoPago: 'Otro',
+                    referencia: `AK_SYNC:historico:${presupuestoId}`,
+                    estadoPago: 'confirmado',
+                }],
+                estado: 'Facturado',
+                ajusteAnualActivo: true,
+                timestamp: new Date().toISOString(),
+                notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
+            };
+
+            if (!SIN_BASE()) {
+                await createDataItem('presupuestos.json', 'presupuestos', presupuestoId, presupuesto);
+            } else {
+                presupuestos.push(presupuesto);
                 await writeData(PRESUPUESTOS_FILE, presupuestos);
             }
         }
 
-        // 4. Create a simplified, PAID Invoice
-        const newInvoice: Omit<Invoice, 'id'> = {
-            invoiceNumber: `HIST-${presupuestoId.slice(-5)}`,
-            customer: newCustomer,
-            issueDate: eventoFecha,
-            dueDate: eventoFecha,
-            items: [{
-                id: `item_${seed}`,
-                description: `Servicios históricos para ${clienteNombre}`,
-                quantity: 1, unitPrice: montoTotal, total: montoTotal,
-            }],
-            subtotal: montoTotal,
-            totalAmount: montoTotal,
-            status: 'Paid',
-            currency: 'UYU',
-            vendorName: 'AK Producciones',
-            payments: [{
-                id: `pay_${seed}`,
-                paymentDate: eventoFecha,
-                amount: montoTotal,
-                method: 'Otro',
-                notes: 'Pago registrado desde carga histórica'
-            }]
-        };
-        const invoiceResult = await saveInvoice(newInvoice, presupuestoId);
-        if (!invoiceResult.success || !invoiceResult.id) {
-            throw new Error('Fallo al crear la factura histórica.');
+        // 3. Factura: buscar si ya existe factura para presupuestoId.
+        const { getInvoicesByPresupuestoId, saveInvoice: saveInvoiceFromImport } = await import('./invoices');
+        const facturas = typeof getInvoicesByPresupuestoId === 'function'
+            ? await getInvoicesByPresupuestoId(presupuestoId)
+            : [];
+        let invoiceId: string;
+
+        if (facturas.length > 0) {
+            invoiceId = facturas[0].id;
+        } else {
+            const newInvoice: Omit<Invoice, 'id'> = {
+                invoiceNumber: `HIST-${presupuestoId.slice(-5)}`,
+                customer: customer,
+                issueDate: eventoFecha,
+                dueDate: eventoFecha,
+                sourcePresupuestoId: presupuestoId,
+                items: [{
+                    id: `item_${seed}`,
+                    description: `Servicios históricos para ${clienteNombre}`,
+                    quantity: 1, unitPrice: montoTotal, total: montoTotal,
+                }],
+                subtotal: montoTotal,
+                totalAmount: montoTotal,
+                status: 'Paid',
+                currency: 'UYU',
+                vendorName: 'AK Producciones',
+                payments: [{
+                    id: `pay_${seed}`,
+                    paymentDate: eventoFecha,
+                    amount: montoTotal,
+                    method: 'Otro',
+                    notes: 'Pago registrado desde carga histórica'
+                }]
+            };
+            const saveInvoiceFn = saveInvoiceFromImport || saveInvoice;
+            const invoiceResult = await saveInvoiceFn(newInvoice, presupuestoId);
+            if (!invoiceResult.success || !invoiceResult.id) {
+                throw new Error(invoiceResult.error || 'Fallo al crear la factura histórica.');
+            }
+            invoiceId = invoiceResult.id;
         }
 
-        // 5. Create and save the "Fiesta Historica" record for future duplications
-        const historicalRecord: Omit<FiestaHistorica, 'id' | 'fechaCreacion'> = {
-          nombreEvento: `Histórico: ${clienteNombre}`,
-          clienteId: customerId,
-          clienteNombre: clienteNombre,
-          anioOriginal: new Date(eventoFecha).getFullYear(),
-          lugar: 'N/A (Histórico)',
-          tipoFiesta: 'Histórico',
-          cantidadInvitados: 1,
-          presupuestoTotalOriginal: montoTotal,
-          detalleCostos: items,
-          checklistBase: [],
-          contratoUrl: uniqueFilename,
-          observaciones: `Carga histórica del ${new Date().toLocaleDateString()}`
-        };
-        const histRes = await saveFiestaHistorica(historicalRecord);
-        if (!histRes.success) throw new Error(histRes.error || "No se pudo guardar el registro histórico.");
-
-        // 6. Save the Fiesta as an ACTIVE (but archived) event
-        const fiestaId = `fiesta_${seed}`;
-        const newFiesta: FiestaEnPlanificacion = {
-            ...initialFiestaActualData,
-            id: fiestaId,
-            configuracion: {
-                ...initialFiestaActualData.configuracion,
-                clienteId: customerId,
+        // 4. Fiesta histórica: verificar si ya existe registro histórico.
+        const { getFiestasHistoricas } = await import('./fiestas-historicas');
+        const historicas = await getFiestasHistoricas();
+        const yaHist = historicas.find(h => h.clienteId === customerId);
+        if (!yaHist) {
+            const historicalRecord: Omit<FiestaHistorica, 'id' | 'fechaCreacion'> = {
                 nombreEvento: `Histórico: ${clienteNombre}`,
-                fechaEvento: eventoFecha,
-            },
-            presupuestoId: presupuestoId,
-            invoiceIds: [invoiceResult.id]
-        };
-        const saveFiestaResult = await saveFiesta(newFiesta);
-        if (!saveFiestaResult.success) {
-          return {
-            success: false,
-            error: 'Se guardaron el presupuesto y la factura, pero no la fiesta. No vuelvas a cargarlo: avisale al administrador.',
-          };
+                clienteId: customerId,
+                clienteNombre: clienteNombre,
+                anioOriginal: new Date(eventoFecha).getFullYear(),
+                lugar: 'N/A (Histórico)',
+                tipoFiesta: 'Histórico',
+                cantidadInvitados: 1,
+                presupuestoTotalOriginal: montoTotal,
+                detalleCostos: items,
+                checklistBase: [],
+                contratoUrl: customer.contractFileName,
+                observaciones: `Carga histórica del ${new Date().toLocaleDateString()}`
+            };
+            const histRes = await saveFiestaHistorica(historicalRecord);
+            if (!histRes.success) throw new Error(histRes.error || "No se pudo guardar el registro histórico.");
         }
 
-        // 7. Notification
+        // 5. Fiesta activa/archivada: verificar si ya existe fiestaId.
+        const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+        const yaFiesta = await getFiestaByIdRaw(fiestaId);
+        if (!yaFiesta) {
+            const newFiesta: FiestaEnPlanificacion = {
+                ...initialFiestaActualData,
+                id: fiestaId,
+                configuracion: {
+                    ...initialFiestaActualData.configuracion,
+                    clienteId: customerId,
+                    nombreEvento: `Histórico: ${clienteNombre}`,
+                    fechaEvento: eventoFecha,
+                },
+                presupuestoId: presupuestoId,
+                invoiceIds: [invoiceId]
+            };
+            const saveFiestaResult = await saveFiesta(newFiesta);
+            if (!saveFiestaResult.success) {
+                return {
+                    success: false,
+                    error: 'Se guardaron el presupuesto y la factura, pero no la fiesta. No vuelvas a cargarlo: avisale al administrador.',
+                };
+            }
+        }
+
+        // 6. Notification
         // no-mira-el-resultado: notificacion accesoria para el equipo, la fiesta historica ya se guardo
         await createNotification({
-          mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
-          href: `/contabilidad/fiestas-historicas`,
-          icono: 'Archive',
+            mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
+            href: `/contabilidad/fiestas-historicas`,
+            icono: 'Archive',
         });
 
         return { success: true };
@@ -222,11 +256,11 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
 }
 
 export async function extractContractDataAction(input: { fileDataUri: string }) {
-  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
-  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
-  if (!(await hayPresupuestoParaIA())) {
-    throw new Error('Presupuesto de IA alcanzado para este período.');
-  }
-  const { extractContractData } = await import('@/ai/flows/extract-contract-data');
-  return extractContractData(input);
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
+    const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
+    if (!(await hayPresupuestoParaIA())) {
+        throw new Error('Presupuesto de IA alcanzado para este período.');
+    }
+    const { extractContractData } = await import('@/ai/flows/extract-contract-data');
+    return extractContractData(input);
 }

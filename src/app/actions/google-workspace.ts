@@ -7,7 +7,7 @@ import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
-import { perfilDe, puede, PERMISOS } from '@/lib/auth/perfiles';
+import { perfilDe, puede, esPerfilValido, PERMISOS } from '@/lib/auth/perfiles';
 import {
   accountFromToken,
   borrarEventoDeLaAgenda,
@@ -171,7 +171,18 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
   }
   if (input.kind === 'employee' && !canAdminister) {
     const employee = input.employeeId ? await leerFichaDeEmpleado(input.employeeId) : null;
-    const sessionEmail = session.user.email?.trim().toLowerCase();
+      if (session.user.perfil !== undefined && session.user.perfil !== null && String(session.user.perfil) !== '') {
+    if (!esPerfilValido(session.user.perfil)) {
+      return {
+        employee: null,
+        googleAccount: undefined,
+        events: [],
+        error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.',
+      };
+    }
+  }
+
+  const sessionEmail = session.user.email?.trim().toLowerCase();
     const isOwnAccount = employee && (
       employee.id === session.user.userId
       || [employee.email, employee.googleWorkspaceEmail]

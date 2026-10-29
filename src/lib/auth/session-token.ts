@@ -18,6 +18,7 @@ export interface SessionUserData {
    */
   perfil?: string;
   modules?: string[];
+  versionDeSesion?: number;
 }
 
 export function hasPrivateSessionSecret() {
@@ -59,7 +60,7 @@ function getSigningSecret(): string {
   return localDevelopmentSecret;
 }
 
-async function signPayload(payload: string) {
+export async function signPayload(payload: string) {
   return crypto.createHmac('sha256', getSigningSecret()).update(payload).digest('hex');
 }
 
@@ -78,7 +79,11 @@ export async function createSignedSessionToken(
 ) {
   const expiresAt = Date.now() + maxAgeSeconds * 1000;
   const nonce = crypto.randomUUID();
-  const userPayload = encodeURIComponent(JSON.stringify(userData));
+  const tokenUserData: SessionUserData = {
+    ...userData,
+    ...(typeof userData.versionDeSesion === 'number' ? { versionDeSesion: userData.versionDeSesion } : {}),
+  };
+  const userPayload = encodeURIComponent(JSON.stringify(tokenUserData));
   const payload = `${SESSION_VERSION}.${expiresAt}.${nonce}.${userPayload}`;
   const signature = await signPayload(payload);
   return `${payload}.${signature}`;
@@ -86,20 +91,6 @@ export async function createSignedSessionToken(
 
 export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
   if (!token) return { isValid: false };
-  const parts = token.split('.');
-  if (parts.length === 4) {
-    const [version, expiresAtRaw, nonce, signature] = parts;
-    if (version !== SESSION_VERSION || !nonce || !signature) return { isValid: false };
-    const expiresAt = Number(expiresAtRaw);
-    if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
-    const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}`);
-    if (!constantTimeEqual(signature, expected)) {
-      console.error('[verifySignedSessionToken] Legacy signature mismatch.');
-      return { isValid: false };
-    }
-    // Legacy tokens don't carry user data, return a default admin user
-    return { isValid: true, user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' } };
-  }
 
   // User data can contain dots, so parse the fixed fields from both ends.
   const firstSeparator = token.indexOf('.');
@@ -173,12 +164,19 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
   }
 }
 
-export async function generateBudgetToken(budgetId: string): Promise<string> {
-  return await signPayload(`budget-token:${budgetId}`);
+export async function generateBudgetToken(budgetId: string, versionDeEnlace: number = 0): Promise<string> {
+  const version = Number(versionDeEnlace) || 0;
+  return await signPayload(`budget-token:${budgetId}:${version}`);
 }
 
-export async function verifyBudgetToken(budgetId: string, token: string): Promise<boolean> {
+export async function verifyBudgetToken(budgetId: string, token: string, versionDeEnlace: number = 0): Promise<boolean> {
   if (!token) return false;
-  const expected = await signPayload(`budget-token:${budgetId}`);
-  return constantTimeEqual(token, expected);
+  const version = Number(versionDeEnlace) || 0;
+  const expected = await signPayload(`budget-token:${budgetId}:${version}`);
+  if (constantTimeEqual(token, expected)) return true;
+  if (version === 0) {
+    const legacy = await signPayload(`budget-token:${budgetId}`);
+    if (constantTimeEqual(token, legacy)) return true;
+  }
+  return false;
 }

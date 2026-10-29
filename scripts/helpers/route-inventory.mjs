@@ -27,9 +27,9 @@ export const FIXTURE_IDS = {
 };
 
 export function crearCookieDeSesion() {
-  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
   const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-  return `${payload}.${signature}`;
+  return encodeURIComponent(`${payload}.${signature}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
 export function crearPermisoDeEstacion(fiestaId, moduloId, horas = 18) {

@@ -61,6 +61,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'catalogo-fotos.json', defaultValue: [] },
   { file: 'deco-canvas-templates.json', defaultValue: [] },
   { file: 'deco-catalogo-borradores.json', defaultValue: [] },
+  { file: 'deco-elementos-biblioteca.json', defaultValue: [] },
   { file: 'feedback.json', defaultValue: [] },
   { file: 'testimonials.json', defaultValue: [] },
   { file: 'fiestas-historicas.json', defaultValue: [] },

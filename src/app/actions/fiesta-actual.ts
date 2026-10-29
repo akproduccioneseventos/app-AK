@@ -185,14 +185,17 @@ export async function savePlanPagosContrato(
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const fiesta = await FiestaModule.getFiestaById(fiestaId);
-    if (!fiesta) throw new Error('Fiesta no encontrada');
-    if (fiesta.contratoFirmaInfo?.isSigned) {
-      return { success: false, error: 'No se puede modificar el plan de pagos una vez firmado el contrato.' };
-    }
-    return await FiestaModule.updateFiestaPartial(fiestaId, {
-      contratoDatos: { ...(fiesta.contratoDatos || {}), planPagos },
+    const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+    const r = await actualizarFiesta(fiestaId, (actual) => {
+      if (actual.contratoFirmaInfo?.isSigned) {
+        throw new Error('No se puede modificar el plan de pagos una vez firmado el contrato.');
+      }
+      return {
+        ...actual,
+        contratoDatos: { ...(actual.contratoDatos || {}), planPagos },
+      };
     });
+    return { success: r.success, error: r.error };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

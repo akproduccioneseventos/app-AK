@@ -1208,6 +1208,8 @@ export interface CostoItem {
   category: string;
   montoEstimado: number;
   notas?: string;
+  /** Renglón cerrado: ya no se espera pagar más que lo pagado (orden 251). */
+  cerrado?: boolean;
 }
 
 export interface PagoProveedor {
@@ -1971,6 +1973,7 @@ export interface DecoCanvasTemplate {
   fondoImagenUrl?: string;
   creadoEn: string;
   miniatura?: string;
+  aprobadaSola?: boolean;
 }
 
 // --- SCREEN PLAYLIST ---
@@ -2031,6 +2034,3 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
-
-
-
