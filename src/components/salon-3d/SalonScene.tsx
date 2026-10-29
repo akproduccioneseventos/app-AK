@@ -22,6 +22,7 @@ interface SalonSceneProps {
   autoRotate?: boolean;
   onCapture?: (dataUrl: string) => void;
   captureRef?: React.MutableRefObject<SalonSceneRef | null>;
+  onCaptureReady?: () => void;
 }
 
 // --- Camera capture helper ---
@@ -463,10 +464,12 @@ function SalonFloor({ width, depth, primaryColor }: { width: number; depth: numb
 function SceneContent({
   decoracion,
   captureRef,
+  onCaptureReady,
   autoRotate = false,
 }: {
   decoracion: DecoracionData;
   captureRef?: React.MutableRefObject<SalonSceneRef | null>;
+  onCaptureReady?: () => void;
   autoRotate?: boolean;
 }) {
   const salonWidth = decoracion.salonWidth || 15;
@@ -484,7 +487,7 @@ function SceneContent({
 
   return (
     <>
-      <CaptureHelper onReady={(ref) => { if (captureRef) captureRef.current = ref; }} />
+      <CaptureHelper onReady={(ref) => { if (captureRef) captureRef.current = ref; onCaptureReady?.(); }} />
 
       <Iluminacion3D
         primaryColor={primaryColor}
@@ -553,7 +556,7 @@ function SceneContent({
 }
 
 // --- Exported component ---
-export function SalonScene({ decoracion, onCapture, captureRef, autoRotate = false }: SalonSceneProps) {
+export function SalonScene({ decoracion, onCapture, captureRef, onCaptureReady, autoRotate = false }: SalonSceneProps) {
   return (
     <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-slate-900">
       <Canvas
@@ -570,7 +573,7 @@ export function SalonScene({ decoracion, onCapture, captureRef, autoRotate = fal
         style={{ width: '100%', height: '100%' }}
       >
         <fog attach="fog" args={['#f8f5f0', 20, 60]} />
-        <SceneContent decoracion={decoracion} captureRef={captureRef} autoRotate={autoRotate} />
+        <SceneContent decoracion={decoracion} captureRef={captureRef} onCaptureReady={onCaptureReady} autoRotate={autoRotate} />
       </Canvas>
     </div>
   );

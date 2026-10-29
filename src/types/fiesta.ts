@@ -375,6 +375,7 @@ export interface DecoracionData {
   plantillasGuardadas?: Array<{ id: string; nombre: string; elementos: ElementoDecorativo[]; creadaEn: string }>;
   customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
   fotosGeneradasAi?: string[];
+  fotosSalonAiPendientes?: Array<{ id: string; creadaEn: string }>;
   opinionCliente?: {
     leGusta: boolean;
     comentario?: string;

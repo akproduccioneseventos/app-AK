@@ -16111,3 +16111,20 @@ prueba: src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts
 ```
 
 - 27/10/2026 — Carta definitiva de 12 tragos del dueño: alcohol principal 15 ml, versión sin alcohol guardada (recetaSinAlcohol, nombreSinAlcohol, soloMayores) y fotos en public/images/tragos. Reemplaza las recetas de 17 tragos. El selector de versión y el control de menores van por orden a Gemini.
+
+## 28/10/2026 — Foto del salón del portal (orden 253, PR 1371)
+
+- **Qué estaba mal:** Gemini devolvía bytes Base64 y el portal los guardaba como si fueran una URL; los fallos de Server Action se ocultaban; la acción nueva podía gastar sin una captura 3D; el mutex sólo protegía una instancia y no el límite entre servidores.
+- **Qué se hizo:** la acción del portal exige captura PNG/JPEG válida, reserva uno de los tres lugares con `actualizarFiesta` antes de llamar al proveedor, persiste la salida como imagen en Firebase Storage con URL de token opaco, y muestra errores al cliente. Las reservas se liberan si no se llega al proveedor o éste confirma que no produjo imagen; si la respuesta del proveedor es incierta se conserva la reserva para evitar un segundo cobro.
+- **Control disponible:** `src/__tests__/salon-cliente-foto-real-y-errores.test.ts` (3 pruebas focalizadas) y ESLint en archivos modificados pasaron. La validación completa, E2E, build y publicación quedan pendientes para Claude/dueño.
+
+```comprobar
+archivo: src/app/actions/fiesta/decoracion.actions.ts
+usa: generarFotoDelSalonDesdeElPortal en src/components/salon-3d/Salon3DClienteView.tsx
+usa: actualizarFiesta en src/app/actions/fiesta/decoracion.actions.ts
+archivo: src/components/salon-3d/Salon3DClienteView.tsx
+usa: onCaptureReady en src/components/salon-3d/SalonScene.tsx
+archivo: src/lib/firebase/storage.ts
+usa: uploadToStorageWithDownloadToken en src/app/actions/fiesta/decoracion.actions.ts
+prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
+```

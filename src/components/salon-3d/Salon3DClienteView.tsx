@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { Box, Sparkles, Loader2, Download, MessageCircle } from 'lucide-react';
+import { Box, Sparkles, Loader2, Download, MessageCircle, AlertCircle } from 'lucide-react';
 import { SalonSceneAislada } from './SalonSceneAislada';
 import type { SalonSceneRef } from './SalonScene';
 import type { DecoracionData } from '@/types/fiesta';
@@ -44,6 +44,8 @@ export function Salon3DClienteView({
 }: Salon3DClienteViewProps) {
   const [canRenderWebGL, setCanRenderWebGL] = useState<boolean | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [captureReady, setCaptureReady] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const captureRef = useRef<SalonSceneRef | null>(null);
 
   const [fotosGeneradas, setFotosGeneradas] = useState<string[]>(() => {
@@ -85,16 +87,24 @@ export function Salon3DClienteView({
 
   const handleGenerarFoto = async () => {
     if (!fiestaId || isGenerating || totalFotos >= 3) return;
+    const captura = captureRef.current?.captureScreenshot();
+    if (!captura) {
+      setGenerationError('La vista 3D todavía se está preparando. Esperá un momento y volvé a intentar.');
+      return;
+    }
     setIsGenerating(true);
+    setGenerationError(null);
     try {
-      const captura = captureRef.current?.captureScreenshot() || undefined;
       const res = await generarFotoDelSalonDesdeElPortal(fiestaId, captura);
       if (res.success && res.imageUrl) {
         setFotosGeneradas((prev) => [...prev, res.imageUrl!]);
         setImagenMostrada(res.imageUrl);
+      } else {
+        setGenerationError(res.error || 'No se pudo generar la imagen. Probá de nuevo.');
       }
     } catch (err) {
       console.error('[Salon3DClienteView] Error al generar foto:', err);
+      setGenerationError('No se pudo generar la imagen por un error de conexión. Probá de nuevo.');
     } finally {
       setIsGenerating(false);
     }
@@ -145,7 +155,7 @@ export function Salon3DClienteView({
           )
         ) : (
           <SalonSceneAislada fallback={renderFotoFallback('Vista en foto')}>
-            {decoracion && <SalonScene captureRef={captureRef} decoracion={decoracion} />}
+            {decoracion && <SalonScene captureRef={captureRef} onCaptureReady={() => setCaptureReady(true)} decoracion={decoracion} />}
           </SalonSceneAislada>
         )}
 
@@ -154,7 +164,7 @@ export function Salon3DClienteView({
             <button
               type="button"
               onClick={handleGenerarFoto}
-              disabled={isGenerating || totalFotos >= 3}
+              disabled={isGenerating || totalFotos >= 3 || !captureReady}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900/60 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/50 backdrop-blur-md transition-all border border-purple-400/30"
               data-testid="btn-asi-va-a-quedar"
             >
@@ -170,6 +180,16 @@ export function Salon3DClienteView({
                 </>
               )}
             </button>
+            {!captureReady && canRenderWebGL !== false && (
+              <p role="status" className="rounded-lg bg-slate-950/90 px-3 py-2 text-xs text-slate-200">
+                Preparando la captura del salón…
+              </p>
+            )}
+            {generationError && (
+              <p role="alert" className="flex items-center gap-2 rounded-lg bg-red-950/90 px-3 py-2 text-left text-xs text-red-100">
+                <AlertCircle className="h-4 w-4 shrink-0" />{generationError}
+              </p>
+            )}
             {totalFotos >= 3 && (
               <div
                 data-testid="cartel-tope-fotos"

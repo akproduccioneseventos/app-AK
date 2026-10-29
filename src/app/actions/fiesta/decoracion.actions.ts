@@ -14,6 +14,9 @@ import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { AsyncMutex } from '@/lib/mutex';
+import { randomUUID } from 'crypto';
+import { uploadToStorageWithDownloadToken } from '@/lib/firebase/storage';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 /**
  * EL TURNO DE LAS IMAGENES QUE SE PAGAN.
@@ -257,24 +260,41 @@ async function ejecutarGeneracionSalonAi(
   capturaDel3d?: string,
 ): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
   return visualizacionesMutex.runExclusive(async () => {
+    const reservaId = randomUUID();
+    let reservaActiva = false;
+    let proveedorInvocado = false;
     try {
-      // La cuenta se hace ADENTRO del turno: contar afuera es lo que dejaba pasar
-      // dos pedidos con un solo lugar libre.
-      const fiesta = await getFiestaById(fiestaId);
-      if (!fiesta) throw new Error("Fiesta no encontrada");
-
+      let fiesta: FiestaEnPlanificacion | undefined;
+      const reserva = await actualizarFiesta(fiestaId, (actual) => {
+        fiesta = actual;
+        const decoracionActual = actual.decoracion || {};
+        const fotos = decoracionActual.fotosGeneradasAi || [];
+        const pendientes = decoracionActual.fotosSalonAiPendientes || [];
+        if (fotos.length + pendientes.length >= 3) {
+          throw new Error('Se alcanzó el tope de 3 imágenes generadas con IA para esta fiesta.');
+        }
+        return {
+          ...actual,
+          decoracion: {
+            ...decoracionActual,
+            fotosSalonAiPendientes: [...pendientes, { id: reservaId, creadaEn: new Date().toISOString() }],
+          },
+        };
+      });
+      if (!reserva.success || !fiesta) {
+        return { success: false, error: reserva.error || 'No se pudo reservar una generación para esta fiesta.' };
+      }
+      reservaActiva = true;
       const decoracion = fiesta.decoracion || {};
-      const fotosExistentes = decoracion.fotosGeneradasAi || [];
-
-      if (fotosExistentes.length >= 3) {
+      const puede = await hayPresupuestoParaIA();
+      if (!puede) {
+        await liberarReservaFoto(fiestaId, reservaId);
+        reservaActiva = false;
         return {
           success: false,
-          error: "Se alcanzó el tope de 3 imágenes generadas con IA para esta fiesta.",
+          error: 'Se llegó al tope de IA del mes.',
         };
       }
-
-      const puede = await hayPresupuestoParaIA();
-      if (!puede) return { success: false, error: 'Se llegó al tope de IA del mes.' };
 
       const captura3dRef = validarCaptura3d(capturaDel3d);
       const fotoDelSalon = await fotoDeReferenciaSegura(salonFotoUrl || decoracion.salonPlanBackgroundImageUrl);
@@ -314,6 +334,7 @@ async function ejecutarGeneracionSalonAi(
 
       let imageUrl: string | null = null;
       try {
+        proveedorInvocado = true;
         imageUrl = await generateGeminiImage({
           prompt,
           images,
@@ -321,26 +342,76 @@ async function ejecutarGeneracionSalonAi(
           imageSize: '1K',
         });
       } catch {
+        // El proveedor pudo aceptar el pedido antes de perderse la respuesta; conservar
+        // la reserva evita volver a cobrar una generación de resultado incierto.
         return { success: false, error: 'No se pudo armar la foto. Probá de nuevo en un rato.' };
       }
 
       if (!imageUrl) {
+        await liberarReservaFoto(fiestaId, reservaId);
+        reservaActiva = false;
         return { success: false, error: 'No se pudo armar la foto. Probá de nuevo en un rato.' };
       }
 
+      const imagen = normalizarImagenGemini(imageUrl);
+      if (!imagen) return { success: false, error: 'Gemini devolvió una imagen con formato no válido.' };
       await registrarConsumoIA('foto-del-salon');
+      const urlPersistida = await uploadToStorageWithDownloadToken(
+        Buffer.from(imagen.base64, 'base64'),
+        `salon-ai/${fiestaId}/${reservaId}.${imagen.extension}`,
+        imagen.contentType,
+      );
 
-      const nextFotos = [...fotosExistentes, imageUrl];
-      const guardado = await updateDecoracion(fiestaId, { ...decoracion, fotosGeneradasAi: nextFotos });
-      if (!guardado.success) {
-        return { success: false, error: guardado.error || 'No se pudo guardar la imagen generada en la decoración.' };
+      let confirmada = false;
+      const guardado = await actualizarFiesta(fiestaId, (actual) => {
+        const decoActual = actual.decoracion || {};
+        const pendientes = decoActual.fotosSalonAiPendientes || [];
+        if (!pendientes.some((item) => item.id === reservaId)) return actual;
+        confirmada = true;
+        return {
+          ...actual,
+          decoracion: {
+            ...decoActual,
+            fotosGeneradasAi: [...(decoActual.fotosGeneradasAi || []), urlPersistida],
+            fotosSalonAiPendientes: pendientes.filter((item) => item.id !== reservaId),
+          },
+        };
+      });
+      if (!guardado.success || !confirmada) {
+        return { success: false, error: guardado.error || 'La foto quedó pendiente de confirmación; contactá al equipo antes de volver a generarla.' };
       }
 
-      return { success: true, imageUrl };
+      reservaActiva = false;
+      return { success: true, imageUrl: urlPersistida };
     } catch (e: any) {
-      return { success: false, error: e.message || "Error al generar la imagen con IA." };
+      return {
+        success: false,
+        error: proveedorInvocado
+          ? 'La generación pudo haberse completado, pero no se pudo confirmar el guardado. No vuelvas a generar; contactá al equipo para revisar el cupo.'
+          : e.message || 'Error al generar la imagen con IA.',
+      };
+    } finally {
+      if (reservaActiva && !proveedorInvocado) await liberarReservaFoto(fiestaId, reservaId);
     }
   });
+}
+
+async function liberarReservaFoto(fiestaId: string, reservaId: string): Promise<void> {
+  await actualizarFiesta(fiestaId, (actual) => ({
+    ...actual,
+    decoracion: {
+      ...(actual.decoracion || {}),
+      fotosSalonAiPendientes: (actual.decoracion?.fotosSalonAiPendientes || []).filter((item) => item.id !== reservaId),
+    },
+  }));
+}
+
+function normalizarImagenGemini(value: string): { base64: string; contentType: string; extension: 'png' | 'jpg' } | null {
+  const match = value.match(/^data:(image\/(?:png|jpeg));base64,([A-Za-z0-9+/=_-]+)$/i);
+  const base64 = (match?.[2] || value).replace(/\s+/g, '');
+  const mime = match?.[1]?.toLowerCase() || (base64.startsWith('iVBORw0KGgo') ? 'image/png' : base64.startsWith('/9j/') ? 'image/jpeg' : '');
+  if (!mime || !/^[A-Za-z0-9+/=_-]+$/.test(base64)) return null;
+  return { base64, contentType: mime, extension: mime === 'image/png' ? 'png' : 'jpg' };
 }
 
 export async function generarVisualizacionSalonAi(
@@ -358,6 +429,9 @@ export async function generarFotoDelSalonDesdeElPortal(
 ): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
   const portalOk = await verifyPortalSession(fiestaId);
   if (!portalOk) return { success: false, error: 'Sesión de portal no autorizada.' };
+  if (!validarCaptura3d(capturaDel3d)) {
+    return { success: false, error: 'La vista 3D todavía no está lista para crear la foto. Esperá un momento y volvé a intentar.' };
+  }
 
   return ejecutarGeneracionSalonAi(fiestaId, undefined, capturaDel3d);
 }

@@ -2,6 +2,7 @@
 // Server-side Firebase Storage utilities using the Admin SDK.
 
 import admin from 'firebase-admin';
+import { randomUUID } from 'crypto';
 import path from 'path';
 import { hayEmuladorDeArchivos, sinDepositoDisponible } from './modo-local';
 
@@ -85,6 +86,32 @@ export async function uploadToStorage(
     // la haria pasar por subida sin estarlo, y la base rechaza registros tan grandes.
     throw error;
   }
+}
+
+/** Upload an image with an opaque Firebase download token for durable portal/share URLs. */
+export async function uploadToStorageWithDownloadToken(
+  buffer: Buffer,
+  storagePath: string,
+  contentType: string,
+): Promise<string> {
+  if (sinDepositoDisponible()) {
+    return `data:${contentType};base64,${buffer.toString('base64')}`;
+  }
+
+  const bucket = getBucket();
+  if (!bucket) throw new Error('Firebase Storage no está disponible.');
+
+  const file = bucket.file(storagePath);
+  const token = randomUUID();
+  await file.save(buffer, {
+    resumable: false,
+    metadata: {
+      contentType,
+      metadata: { firebaseStorageDownloadTokens: token },
+    },
+  });
+
+  return `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(STORAGE_BUCKET)}/o/${encodeURIComponent(storagePath)}?alt=media&token=${token}`;
 }
 
 /**
