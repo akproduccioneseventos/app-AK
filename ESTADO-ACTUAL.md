@@ -1,11 +1,12 @@
 # Estado actual — 29 de octubre de 2026
 ## Orden 255 en curso en la propuesta 1375
-- PR en `gemini/orden-255-asistente-ak`; se incorporó localmente `main` `5c22efad3e1f16075bf1689caa6c7ca41099763a` y se están resolviendo los conflictos del historial compartido y el catálogo de costos.
-- Commit `256e548ca`: entrada de audio/foto validada, comprobantes como propuestas, reserva atómica de consumo para medios, plan de reunión sin contactar clientes, anticipador de mozos, vigilancia nocturna y bloqueo de tareas que contacten clientes sin aprobación.
+- PR en `gemini/orden-255-asistente-ak`; `main` `5c22efad3e1f16075bf1689caa6c7ca41099763a` integrado localmente. Código verificado en `b34871889529d5a3818c86b48be970b889e3ef27`.
+- Cambios: entrada de audio/foto validada, comprobantes como propuestas, reserva atómica para medios, plan de reunión sin contactar clientes, anticipador de mozos, vigilancia nocturna, límites de descanso y regla del resumen matutino.
 - La voz saliente sigue pendiente: no hay encoder compatible; cuando está habilitada, se informa por texto y no se intenta enviar WAV.
-- Antes de integrar main: 5 suites, 36 pruebas focalizadas aprobadas; ESLint puntual aprobado. Hay que repetirlas sobre el candidato fusionado. Sin typecheck, build ni Firebase real.
-- Pendientes: caso 7 (borrador comercial, fotos con permiso promocional verificable y presupuesto sin cambio de estado); caso 10 (informe posfiesta con datos reales y consumidor de producción); alerta de cuotas, que corresponde al equipo de Claude. `el-asistente-de-ak.test.ts` todavía no reúne los 11 casos en ese único archivo; los casos 7 y 10 tampoco están cubiertos.
-- La integración local de main está en curso; la Orden 255 sigue incompleta y no está publicada.
+- Verificación en ese HEAD: 5 suites, 39 pruebas focalizadas aprobadas; ESLint y `git diff --check` aprobados. No se hizo typecheck, build ni Firebase real.
+- Graphify se actualizó; avisó que no pudo analizar `src/types/fiesta.ts:1597`. No se verificó si afecta compilación.
+- Pendientes: caso 7 (fotos con permiso promocional verificable y presupuesto verdaderamente en borrador); caso 10 (informe posfiesta con datos reales y consumidor de producción); prospectos que se enfrían y cuotas atrasadas (estas últimas para Claude). `el-asistente-de-ak.test.ts` aún no reúne los 11 casos en ese único archivo.
+- Orden 255 incompleta y sin publicar. La PR queda abierta; Claude debe correr typecheck/build y verificar el conjunto.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
 
