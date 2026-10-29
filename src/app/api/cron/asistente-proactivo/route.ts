@@ -23,6 +23,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
 import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
+import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -202,21 +203,28 @@ export async function GET(request: Request) {
   // 3. PARTE DE LA MAÑANA (Una vez al día)
   try {
     if (horaUy >= 7 && horaUy <= 11) {
-      const parte = await getParteDeLaManana();
-      const entrega = await enviarResumenMananaWhatsApp(parte, ahora);
-      if (entrega.motivo && entrega.motivo !== 'Fuera de la ventana matutina.' && entrega.motivo !== 'El resumen de hoy ya se procesó.') {
-        fallos.push(`Resumen matutino: ${entrega.motivo}`);
-      }
-      if (parte && parte.totalPendientes > 0) {
-        nuevasParaAgregar.push({
-          clave: `parte-manana:${parte.fecha}`,
-          area: 'fiestas',
-          titulo: `Parte de la mañana (${parte.fecha})`,
-          quePasa: parte.textoResumen,
-          porQueImporta: 'Brinda un panorama sereno y ordenado para arrancar la jornada.',
-          quePropone: 'Escuchar el parte diario y atender las tareas prioritarias del día.',
-          tipoPropuesta: 'parte_manana',
-        });
+      const regla = await getReglaParaTarea('resumen_de_la_manana');
+      if (regla === 'sola' || regla === 'preguntar') {
+        const parte = await getParteDeLaManana();
+        if (regla === 'sola') {
+          const entrega = await enviarResumenMananaWhatsApp(parte, ahora);
+          if (entrega.motivo && entrega.motivo !== 'Fuera de la ventana matutina.' && entrega.motivo !== 'El resumen de hoy ya se procesó.') {
+            fallos.push(`Resumen matutino: ${entrega.motivo}`);
+          }
+        } else {
+          fallos.push('Resumen matutino: requiere aprobación; no existe un borrador de envío para este WhatsApp y quedó sin enviar.');
+        }
+        if (parte && parte.totalPendientes > 0) {
+          nuevasParaAgregar.push({
+            clave: `parte-manana:${parte.fecha}`,
+            area: 'fiestas',
+            titulo: `Parte de la mañana (${parte.fecha})`,
+            quePasa: parte.textoResumen,
+            porQueImporta: 'Brinda un panorama sereno y ordenado para arrancar la jornada.',
+            quePropone: 'Escuchar el parte diario y atender las tareas prioritarias del día.',
+            tipoPropuesta: 'parte_manana',
+          });
+        }
       }
     }
   } catch (err: any) {

@@ -11,6 +11,9 @@ const mockAgregarPropuestas = jest.fn(async (nuevas: any[]) => ({
 }));
 const mockPush = jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 }));
 const mockAvisarDuenio = jest.fn(async () => ({ pushEnviado: false, whatsAppEnviado: false }));
+const mockGetReglaParaTarea = jest.fn(async () => 'sola' as 'sola' | 'preguntar' | 'apagada');
+const mockGetParteDeLaManana = jest.fn(async () => null as any);
+const mockEnviarWhatsApp = jest.fn(async () => ({ success: true, messageId: 'wamid-test' }));
 let mockHoraUruguay = 2;
 let mockSettings: Record<string, unknown> = { avisosProactivosActivos: true };
 let mockTracking: Record<string, { fecha: string; count: number }> = {};
@@ -45,7 +48,6 @@ jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: jest.fn() }));
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => []) }));
 jest.mock('@/lib/alertas/errores-humanos', () => ({ detectarErroresHumanos: jest.fn(() => []) }));
-jest.mock('@/lib/automatico/parte-manana', () => ({ getParteDeLaManana: jest.fn(async () => null) }));
 jest.mock('@/lib/asistente/clima-de-las-fiestas', () => ({ detectarAlertasClimaFiestas: jest.fn(async () => []) }));
 jest.mock('@/lib/asistente/fechas-comerciales', () => ({ obtenerProximasFechasComerciales: jest.fn(() => []) }));
 jest.mock('@/lib/asistente/propuestas-service', () => ({
@@ -53,7 +55,12 @@ jest.mock('@/lib/asistente/propuestas-service', () => ({
   guardarResumenMientrasNoEstabas: jest.fn(),
 }));
 jest.mock('@/lib/presencia-digital/autogenerador-semanal', () => ({ autoGenerarBorradoresSemanales: jest.fn(async () => []) }));
-jest.mock('@/lib/asistente/resumen-manana-whatsapp', () => ({ enviarResumenMananaWhatsApp: jest.fn(async () => ({})) }));
+jest.mock('@/lib/automatico/parte-manana', () => ({ getParteDeLaManana: (...args: any[]) => mockGetParteDeLaManana(...args) }));
+jest.mock('@/lib/ia/reglas-de-la-ia', () => ({
+  ...jest.requireActual('@/lib/ia/reglas-de-la-ia'),
+  getReglaParaTarea: (...args: any[]) => mockGetReglaParaTarea(...args),
+}));
+jest.mock('@/lib/whatsapp/meta-sender', () => ({ sendMetaWhatsAppMessage: (...args: any[]) => mockEnviarWhatsApp(...args) }));
 
 import { GET as cronAsistenteProactivo, prepararPropuestaOperativaNoche } from '@/app/api/cron/asistente-proactivo/route';
 import { calcularTragosDisponibles, ejecutarVigilanteNoche } from '@/lib/agentes/motor-agentes';
@@ -69,6 +76,10 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     Object.keys(mockData).forEach((key) => delete mockData[key]);
     mockTracking = {};
     mockEjecutarAgentes.mockResolvedValue([]);
+    mockGetReglaParaTarea.mockResolvedValue('sola');
+    mockGetParteDeLaManana.mockResolvedValue(null);
+    delete process.env.META_WHATSAPP_TOKEN;
+    delete process.env.META_WHATSAPP_PHONE_ID;
     mockAgregarPropuestas.mockImplementation(async (nuevas: any[]) => ({
       agregadas: nuevas.map((propuesta, index) => ({ ...propuesta, id: `propuesta-${index}` })),
       ignoradas: 0,
@@ -198,5 +209,73 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     expect(mockPush).not.toHaveBeenCalled();
     expect(mockAvisarDuenio).toHaveBeenCalledTimes(1);
     expect(mockAvisarDuenio.mock.calls[0][0][0]).toMatchObject({ fiestaId: 'fiesta-77', tipoPropuesta: 'vigilante_noche' });
+  });
+
+  it('apagada no lee el parte ni crea tarjeta o envía WhatsApp aunque haya pendientes', async () => {
+    mockHoraUruguay = 8;
+    jest.setSystemTime(new Date('2026-10-29T11:30:00.000Z'));
+    mockGetReglaParaTarea.mockResolvedValue('apagada');
+    mockGetParteDeLaManana.mockResolvedValue({
+      fecha: '2026-10-29', textoResumen: 'Resumen de prueba', totalPendientes: 3,
+      itemsPrincipales: [{ id: 'fiesta-1', tipo: 'fiesta_proxima', titulo: 'Preparar la fiesta' }],
+    });
+    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' };
+    process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
+    process.env.META_WHATSAPP_PHONE_ID = '123456';
+
+    await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+
+    expect(mockGetReglaParaTarea).toHaveBeenCalledWith('resumen_de_la_manana');
+    expect(mockGetParteDeLaManana).not.toHaveBeenCalled();
+    expect(mockEnviarWhatsApp).not.toHaveBeenCalled();
+    const propuestasMatutinas = mockAgregarPropuestas.mock.calls
+      .flatMap(([nuevas]) => nuevas)
+      .filter((propuesta: any) => propuesta.tipoPropuesta === 'parte_manana');
+    expect(propuestasMatutinas).toHaveLength(0);
+    expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockTracking).toEqual({});
+  });
+
+  it('preguntar permite la tarjeta interna del parte, pero no lo envía por WhatsApp', async () => {
+    mockHoraUruguay = 8;
+    jest.setSystemTime(new Date('2026-10-29T11:30:00.000Z'));
+    mockGetReglaParaTarea.mockResolvedValue('preguntar');
+    mockGetParteDeLaManana.mockResolvedValue({
+      fecha: '2026-10-29', textoResumen: 'Resumen de prueba', totalPendientes: 3,
+      itemsPrincipales: [{ id: 'fiesta-1', tipo: 'fiesta_proxima', titulo: 'Preparar la fiesta' }],
+    });
+    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' };
+    process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
+    process.env.META_WHATSAPP_PHONE_ID = '123456';
+
+    const response = await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+    const body = await response.json();
+
+    expect(mockGetParteDeLaManana).toHaveBeenCalledTimes(1);
+    expect(mockEnviarWhatsApp).not.toHaveBeenCalled();
+    expect(mockAgregarPropuestas).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ tipoPropuesta: 'parte_manana' }),
+    ]));
+    expect(body.fallos.join('\n')).toMatch(/requiere aprobación.*quedó sin enviar/i);
+  });
+
+  it('sola permite el resumen solo al número de WhatsApp configurado del dueño', async () => {
+    mockHoraUruguay = 8;
+    jest.setSystemTime(new Date('2026-10-29T11:30:00.000Z'));
+    mockGetReglaParaTarea.mockResolvedValue('sola');
+    mockGetParteDeLaManana.mockResolvedValue({
+      fecha: '2026-10-29', textoResumen: 'Resumen de prueba', totalPendientes: 0,
+      itemsPrincipales: [{ id: 'fiesta-1', tipo: 'fiesta_proxima', titulo: 'Preparar la fiesta' }],
+    });
+    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' };
+    process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
+    process.env.META_WHATSAPP_PHONE_ID = '123456';
+
+    await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+
+    expect(mockGetReglaParaTarea).toHaveBeenCalledWith('resumen_de_la_manana');
+    expect(mockEnviarWhatsApp).toHaveBeenCalledTimes(1);
+    expect(mockEnviarWhatsApp.mock.calls[0][0]).toMatchObject({ to: '59812345678' });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });
