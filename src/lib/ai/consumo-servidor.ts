@@ -119,7 +119,8 @@ export async function reservarConsumoIA(
     const delMes = { ...(datos.meses?.[mes] ?? {}) };
     const consumoActual = calcularConsumo(mes, delMes).gastadoUYU;
     const costoReserva = (COSTO_ESTIMADO_UYU[funcion] ?? 0) * incremento;
-    if (datos.topeMensualUYU > 0 && consumoActual + costoReserva > datos.topeMensualUYU) {
+    const tope = datos.topeMensualUYU ?? 0;
+    if (tope > 0 && consumoActual + costoReserva > tope) {
       return { siguiente: null, resultado: false };
     }
     delMes[funcion] = (delMes[funcion] ?? 0) + incremento;
