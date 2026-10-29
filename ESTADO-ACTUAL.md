@@ -1,12 +1,12 @@
 # Estado actual — 29 de octubre de 2026
-## Orden 255 en curso en la propuesta 1375
-- PR en `gemini/orden-255-asistente-ak`; `main` `5c22efad3e1f16075bf1689caa6c7ca41099763a` integrado localmente. Código verificado en `b34871889529d5a3818c86b48be970b889e3ef27`.
-- Cambios: entrada de audio/foto validada, comprobantes como propuestas, reserva atómica para medios, plan de reunión sin contactar clientes, anticipador de mozos, vigilancia nocturna, límites de descanso y regla del resumen matutino.
-- La voz saliente sigue pendiente: no hay encoder compatible; cuando está habilitada, se informa por texto y no se intenta enviar WAV.
-- Verificación en ese HEAD: 5 suites, 39 pruebas focalizadas aprobadas; ESLint y `git diff --check` aprobados. No se hizo typecheck, build ni Firebase real.
-- Graphify se actualizó; avisó que no pudo analizar `src/types/fiesta.ts:1597`. No se verificó si afecta compilación.
-- Pendientes: caso 7 (fotos con permiso promocional verificable y presupuesto verdaderamente en borrador); caso 10 (informe posfiesta con datos reales y consumidor de producción); prospectos que se enfrían y cuotas atrasadas (estas últimas para Claude). `el-asistente-de-ak.test.ts` aún no reúne los 11 casos en ese único archivo.
-- Orden 255 incompleta y sin publicar. La PR queda abierta; Claude debe correr typecheck/build y verificar el conjunto.
+## Entrega para Claude: PR 1375
+- Rama `gemini/orden-255-asistente-ak`, desde la corrección de Claude `dcdac4ee3`; código de esta entrega `790cf920941e64de5c3683d701284157bb21c8d7` (después solo documentación y un espacio final).
+- Pendientes pedidos implementados: voz MP3 real con cupo compartido; presupuesto comercial en borrador; consentimiento promocional auditable/revocable; informe posfiesta visible; avisos de prospectos y cuotas reconciliadas.
+- Los 11 casos están en `src/__tests__/el-asistente-de-ak.test.ts`. Regresión conjunta: 22 suites/131 PASS, TypeScript PASS con heap 4096, ESLint PASS y acentos PASS.
+- El primer TypeScript agotó el heap predeterminado; la repetición con más memoria encontró un error de comparación de tipos, corregido, y luego pasó.
+- No se enviaron mensajes reales ni se tocaron datos reales. No se agrega `data/` ni `src/data/` al commit.
+- Sin build, E2E de navegador, Firebase ni Meta/Gemini reales: los verifica Claude antes de publicar. Mantener PR abierta, no fusionada.
+- Matriz y límites: `docs/evidencias/orden-255-asistente-aceptacion.md`.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
 

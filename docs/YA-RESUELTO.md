@@ -1,13 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 29/10/2026 - Orden 255, avance parcial en PR 1375, NO publicado
+## 29/10/2026 - Orden 255, pendientes entregados en PR 1375, NO publicado
 
-- Rama `gemini/orden-255-asistente-ak`, código verificado en `b34871889529d5a3818c86b48be970b889e3ef27`, con `main` `5c22efad3e1f16075bf1689caa6c7ca41099763a` integrado localmente. No se publicó.
+- Continúa desde la corrección de Claude `dcdac4ee3`, sin rehacerla. Código `790cf920941e64de5c3683d701284157bb21c8d7`; después solo documentación y limpieza de un espacio final. No fusionada ni publicada.
 - Además de los medios de WhatsApp, la rama prepara una propuesta de tres pasos sin contactar al cliente, anticipa faltantes de mozos sin cambiar asignaciones/presupuestos, vigila programa, llegadas y stock verificable; las alertas nocturnas quedan en la app durante descanso. Las tareas que recontactan clientes no se pueden autorizar como autónomas.
 - Las llamadas Gemini de audio e imagen reservan el costo estimado en una transacción sobre `json_documents/ai-consumo.json`; el comprobante queda como propuesta, nunca como gasto. Rechazos definitivos liberan la reserva; fallos inciertos la conservan.
-- El resumen matutino respeta la regla: apagada no lee ni prepara datos, preguntar deja tarjeta interna y no envía, sola permite el WhatsApp al número configurado del dueño. No se encontró encoder saliente compatible: no se intenta enviar WAV y el asistente informa por texto.
-- Verificación del código en `b34871889529d5a3818c86b48be970b889e3ef27`: cinco suites focalizadas (39 pruebas), ESLint puntual y `git diff --check` aprobados. Graphify se actualizó con un aviso de análisis en `src/types/fiesta.ts:1597`. No verifica Firebase real; no hubo typecheck/build y no está publicada.
-- Siguen pendientes el caso 7 (prospectos que se enfrían, permiso promocional estructurado para fotos y presupuesto realmente en borrador), el caso 10 (informe posfiesta con datos reales y consumidor en producción) y la alerta de cuotas, que corresponde al equipo de Claude. La prueba requerida aún no concentra los 11 casos en `el-asistente-de-ak.test.ts`; los casos 7 y 10 no están implementados.
+- Voz real: `audiobox@1.1.0` convierte WAV a MP3 sin binarios; prueba decodifica el resultado. El cupo diario compartido y el tope mensual siguen vigentes. Un resultado incierto de Meta no dispara un segundo mensaje.
+- Comercial: cliente autoriza/revoca fotos desde su portal, con procedencia e historial; sin consentimiento no se seleccionan. El borrador usa precios del simulador real y rechaza total cero antes de guardar. La bandeja revalida fotos y abrir WhatsApp no marca enviado. Si faltan precios/fotos, queda revisión interna, no datos inventados ni envío automático.
+- Posfiesta: cron conectado, ID estable y guardado transaccional, recuperación de días perdidos, omite eventos aún activos/demos/suspendidos. Vista administrativa en posfiesta. Asistencia cuenta personas; finanzas reconcilia factura/presupuesto. Datos inexistentes de catering/fotos se identifican como no disponibles.
+- Anticipador: personal sin duplicar vigilante; cuotas imputadas cronológicamente con cobros reconciliados (200 cubren dos cuotas de 100 aunque el plan esté viejo). Prospectos fríos reutilizan el perseguidor y su bandeja sin enviar.
+- Los 11 casos de aceptación están juntos. Regresión conjunta 22 suites/131 PASS, TypeScript PASS con heap 4096, ESLint y acentos PASS. Matriz: `docs/evidencias/orden-255-asistente-aceptacion.md`. No hubo build/E2E de navegador ni proveedores/Firebase reales; Claude verifica y publica. No subir datos generados en `data/` ni `src/data/`.
 
 - **Revisión de las entregas 1370 y 1374 de Gemini (28/10/2026), lo que completó Claude:**
   - Dos bajas de dueños desde dos servidores podían dejar cero dueños: el turno era sólo de memoria. Ahora la cuenta y el cambio van con el candado con nombre de la base (`conCandadoDeUsuarios` en `auth.ts`); si no se puede tomar, no se cambia nada. Prueba con dos copias del módulo en `dos-bajas-conservan-un-dueno.test.ts`.

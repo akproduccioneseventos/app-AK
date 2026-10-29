@@ -285,4 +285,3 @@ export async function prepararBorradorProspectoAnuncio(input: DatosProspectoAnun
     return empty('error', error instanceof Error ? error.message : 'No se pudo preparar el borrador.');
   }
 }
-
