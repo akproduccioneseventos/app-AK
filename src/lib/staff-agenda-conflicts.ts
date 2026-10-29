@@ -31,7 +31,7 @@ const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const MONTEVIDEO_UTC_OFFSET_MINUTES = 3 * 60;
 
-function localDateTimeToUtcMs(fecha: string, hora: string): number | null {
+export function localDateTimeToUtcMs(fecha: string, hora: string): number | null {
   const dateMatch = DATE_ONLY_PATTERN.exec(fecha);
   const timeMatch = TIME_PATTERN.exec(hora);
   if (!dateMatch || !timeMatch) return null;

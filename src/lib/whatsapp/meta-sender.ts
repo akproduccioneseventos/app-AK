@@ -86,3 +86,25 @@ export async function sendMetaWhatsAppMessage(params: {
     clearTimeout(timeout);
   }
 }
+
+export async function sendMetaWhatsAppAudioMessage(params: {
+  to: string;
+  audio: Buffer;
+  apiToken: string;
+  phoneNumberId: string;
+}): Promise<MetaSendResult> {
+  const apiToken = params.apiToken.trim();
+  const phoneNumberId = params.phoneNumberId.replace(/\D/g, '');
+  const to = normalizeRecipient(params.to);
+  if (!apiToken || !phoneNumberId || to.length < 8 || to.length > 15 || !params.audio.length) {
+    return { success: false, error: 'Faltan datos para enviar el audio por WhatsApp.' };
+  }
+  const esWav = params.audio.length >= 44 && params.audio.toString('ascii', 0, 4) === 'RIFF' && params.audio.toString('ascii', 8, 12) === 'WAVE';
+  if (params.audio.length > 16 * 1024 * 1024) {
+    return { success: false, error: 'El audio supera el tamaño permitido por WhatsApp.' };
+  }
+  if (esWav) {
+    return { success: false, error: 'WhatsApp no admite esta respuesta WAV; se debe enviar como texto.' };
+  }
+  return { success: false, error: 'No hay un formato de audio saliente compatible configurado; se debe enviar como texto.' };
+}

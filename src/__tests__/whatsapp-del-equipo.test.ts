@@ -3,6 +3,7 @@
  */
 
 const memoriaStore: Record<string, any> = {};
+const transaccionalStore: Record<string, any> = {};
 
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string, fallback: any) => {
@@ -35,25 +36,48 @@ jest.mock('@/lib/generic-json-store', () => ({
     if (nueva) memoriaStore[file] = JSON.parse(JSON.stringify(nueva));
     return nueva;
   }),
+  mutarDocumentoConTransaccion: jest.fn(async (path: string, vacio: unknown, cambiar: (actual: any) => any) => {
+    const siguiente = await cambiar(transaccionalStore[path] ?? vacio);
+    if (siguiente !== null) transaccionalStore[path] = siguiente;
+    return siguiente;
+  }),
 }));
 
 const mockSendMetaWhatsAppMessage = jest.fn(async () => ({ success: true, messageId: 'wa-123' }));
+const mockSendMetaWhatsAppAudioMessage = jest.fn(async () => ({ success: true, messageId: 'wa-audio-123' }));
+const mockDescargarMediaWhatsApp = jest.fn(async () => ({ mimeType: 'audio/webm', base64: 'YXVkaW8=' }));
+const mockTranscribirAudioWhatsApp = jest.fn(async () => 'anotá llamar al salón mañana');
+const mockClasificarImagenWhatsApp = jest.fn(async () => ({
+  tipo: 'comprobante', descripcion: 'Ticket de compra', proveedor: 'Proveedor de prueba', fecha: '2026-10-29',
+  monto: 1234, categoria: 'Insumos', confianza: 'alta', detalle: 'Ticket legible',
+}));
 jest.mock('@/lib/whatsapp/meta-sender', () => ({
   sendMetaWhatsAppMessage: (...args: any[]) => mockSendMetaWhatsAppMessage(...args),
+  sendMetaWhatsAppAudioMessage: (...args: any[]) => mockSendMetaWhatsAppAudioMessage(...args),
 }));
+jest.mock('@/lib/asistente/whatsapp-media', () => ({
+  descargarMediaWhatsApp: (...args: any[]) => mockDescargarMediaWhatsApp(...args),
+  transcribirAudioWhatsApp: (...args: any[]) => mockTranscribirAudioWhatsApp(...args),
+  clasificarImagenWhatsApp: (...args: any[]) => mockClasificarImagenWhatsApp(...args),
+}));
+jest.mock('@/lib/asistente/voz-gemini', () => ({ sintetizarVozGemini: jest.fn(async () => Buffer.from('RIFFwav')) }));
 
 jest.mock('@/lib/firebase/server-messaging', () => ({
   sendPushNotificationToAll: jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 })),
 }));
 
 import { atenderAlEquipo } from '@/lib/asistente/por-whatsapp';
+import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 
 describe('105 — WhatsApp del equipo', () => {
   beforeEach(() => {
     for (const k of Object.keys(memoriaStore)) {
       delete memoriaStore[k];
     }
+    for (const k of Object.keys(transaccionalStore)) delete transaccionalStore[k];
     jest.clearAllMocks();
+    delete process.env.META_WHATSAPP_TOKEN;
+    delete process.env.META_WHATSAPP_PHONE_ID;
 
     // Configuración de números autorizados en ajustes
     memoriaStore['asistente-settings.json'] = {
@@ -67,16 +91,19 @@ describe('105 — WhatsApp del equipo', () => {
     };
   });
 
-  test('un audio o texto simulado de un número habilitado que dice "anotá llamar al salón mañana" crea la tarea y contesta', async () => {
+  test('un audio de Meta se descarga, se transcribe y la transcripción del equipo crea la tarea', async () => {
     const res = await atenderAlEquipo({
       from: '59898355530',
       type: 'audio',
-      text: 'anotá llamar al salón mañana',
+      mediaId: 'media-1',
+      messageId: 'wamid-1',
     });
 
     expect(res.atendido).toBe(true);
     expect(res.nivel).toBe('solo');
     expect(res.respuestaEnviada).toContain('la anoté en la bandeja');
+    expect(mockDescargarMediaWhatsApp).toHaveBeenCalledWith('media-1', 'audio');
+    expect(mockTranscribirAudioWhatsApp).toHaveBeenCalledWith({ mimeType: 'audio/webm', base64: 'YXVkaW8=' });
 
     // La tarea queda donde la lee una pantalla: la bandeja "Tu asistente". Antes iba a
     // "tareas.json", que no lee nadie.
@@ -87,18 +114,78 @@ describe('105 — WhatsApp del equipo', () => {
     expect(memoriaStore['tareas.json']).toBeUndefined();
   });
 
-  test('el mismo texto desde un número NO habilitado no crea nada y sigue el camino de hoy', async () => {
-    const res = await atenderAlEquipo({
+  test('audio e imagen desde números NO habilitados no descargan ni procesan medios', async () => {
+    const audio = await atenderAlEquipo({
       from: '59891999888', // Número desconocido no autorizado
-      text: 'anotá llamar al salón mañana',
+      type: 'audio',
+      mediaId: 'media-no-autorizado',
+      messageId: 'wamid-no-autorizado',
+    });
+    const imagen = await atenderAlEquipo({
+      from: '59891999888',
+      type: 'image',
+      mediaId: 'imagen-no-autorizada',
+      messageId: 'wamid-imagen-no-autorizada',
     });
 
-    expect(res.atendido).toBe(false);
-    expect(res.motivoNoAtendido).toContain('no registrado como parte del equipo');
+    expect(audio.atendido).toBe(false);
+    expect(imagen.atendido).toBe(false);
+    expect(audio.motivoNoAtendido).toContain('no registrado como parte del equipo');
 
     // No se creó ninguna tarea
     const tareas = memoriaStore['tareas.json'] || [];
     expect(tareas.length).toBe(0);
+    expect(mockDescargarMediaWhatsApp).not.toHaveBeenCalled();
+    expect(mockTranscribirAudioWhatsApp).not.toHaveBeenCalled();
+    expect(mockClasificarImagenWhatsApp).not.toHaveBeenCalled();
+  });
+
+  test('un comprobante leído queda pendiente y no registra un gasto', async () => {
+    mockDescargarMediaWhatsApp.mockResolvedValueOnce({ mimeType: 'image/jpeg', base64: 'YXVkaW8=' } as any);
+
+    const res = await atenderAlEquipo({
+      from: '59898355530', type: 'image', mediaId: 'receipt-media-1', messageId: 'wamid-receipt-1',
+    });
+
+    expect(res.accionIdentificada).toBe('proponer_gasto');
+    expect(mockClasificarImagenWhatsApp).toHaveBeenCalledTimes(1);
+    expect(memoriaStore['asistente-propuestas.json']).toHaveLength(1);
+    expect(memoriaStore['asistente-propuestas.json'][0]).toMatchObject({ estado: 'pendiente', monto: 1234, tipoPropuesta: 'gasto_boleta' });
+    expect(memoriaStore['gastos.json']).toBeUndefined();
+    expect(memoriaStore['pagos.json']).toBeUndefined();
+  });
+
+  test('el plan de reunión tiene tres pasos, deduplica por messageId y no escribe a clientes', async () => {
+    process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
+    process.env.META_WHATSAPP_PHONE_ID = '123456';
+    const pedido = { from: '59898355530', text: 'Organizá la reunión con los novios del sábado', messageId: 'wamid-reunion-1' };
+    await atenderAlEquipo(pedido);
+    await atenderAlEquipo(pedido);
+
+    const propuestas = memoriaStore['asistente-propuestas.json'];
+    expect(propuestas).toHaveLength(1);
+    expect(propuestas[0].quePropone.split('\n')).toHaveLength(3);
+    expect(mockSendMetaWhatsAppMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendMetaWhatsAppMessage.mock.calls.every(([args]) => args.to === '59898355530')).toBe(true);
+  });
+
+  test('con ambos interruptores activos cae a texto explícito y nunca intenta subir WAV', async () => {
+    process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
+    process.env.META_WHATSAPP_PHONE_ID = '123456';
+    memoriaStore['asistente-settings.json'].responderConVoz = true;
+    memoriaStore['asistente-settings.json'].vozGeminiActiva = false;
+
+    const sinInterruptorGemini = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-1', messageId: 'wamid-audio-1' });
+    expect(sinInterruptorGemini.audioEnviado).toBe(false);
+    expect(mockSendMetaWhatsAppAudioMessage).not.toHaveBeenCalled();
+
+    memoriaStore['asistente-settings.json'].vozGeminiActiva = true;
+    const conAmbosInterruptores = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-2', messageId: 'wamid-audio-2' });
+    expect(conAmbosInterruptores.audioEnviado).toBe(false);
+    expect(mockSendMetaWhatsAppAudioMessage).not.toHaveBeenCalled();
+    expect(sintetizarVozGemini).not.toHaveBeenCalled();
+    expect(mockSendMetaWhatsAppMessage.mock.calls.at(-1)?.[0].text).toMatch(/audio compatible.*te respondo por texto/i);
+    expect(transaccionalStore['asistente/voz-uso.json']).toBeUndefined();
   });
 
   test('"marcá como pagada la cuota de Ana" no marca nada y contesta que eso se hace en la app', async () => {

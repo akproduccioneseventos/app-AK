@@ -27,6 +27,70 @@ import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-what
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
+const ALERTA_NOCHE_RE = /^\[ALERTA NOCHE\]\[fiesta=([^;]+);tema=(programa|personal|barra);hora=([^\]]+)\]\s*/;
+const FALTANTE_PERSONAL_RE = /^\[FALTANTE PERSONAL\]\[fiesta=([^;]+);fecha=(\d{4}-\d{2}-\d{2});invitados=(\d+);asignados=(\d+);requeridos=(\d+)\]\s*/;
+
+export function prepararPropuestaFaltantePersonal(
+  hallazgo: string,
+): Omit<AsistentePropuesta, 'id' | 'estado' | 'createdAt' | 'updatedAt'> | null {
+  const match = FALTANTE_PERSONAL_RE.exec(hallazgo);
+  if (!match) return null;
+  let fiestaId: string;
+  try {
+    fiestaId = decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+  const [, , fecha, invitadosTexto, asignadosTexto, requeridosTexto] = match;
+  const invitados = Number(invitadosTexto);
+  const asignados = Number(asignadosTexto);
+  const requeridos = Number(requeridosTexto);
+  if (!fiestaId.trim() || !Number.isFinite(invitados) || !Number.isFinite(asignados) || !Number.isFinite(requeridos) || asignados >= requeridos) {
+    return null;
+  }
+  return {
+    clave: `faltante-mozos:${fiestaId}:${fecha}:${asignados}:${requeridos}`,
+    area: 'fiestas',
+    titulo: 'Completar la asignación de mozos',
+    quePasa: hallazgo.slice(match[0].length).trim(),
+    porQueImporta: `La fiesta tiene ${invitados} invitados estimados y necesita cobertura operativa de mozos.`,
+    quePropone: `Revisar la asignación y completar los ${requeridos - asignados} lugares faltantes. No se cambia el equipo automáticamente.`,
+    tipoPropuesta: 'faltante_personal',
+    fiestaId,
+  };
+}
+
+export function prepararPropuestaOperativaNoche(
+  hallazgo: string,
+  quePropone: string,
+): Omit<AsistentePropuesta, 'id' | 'estado' | 'createdAt' | 'updatedAt'> | null {
+  const match = ALERTA_NOCHE_RE.exec(hallazgo);
+  if (!match) return null;
+
+  let fiestaId: string;
+  try {
+    fiestaId = decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+  if (!fiestaId.trim() || !/^\d{4}-\d{2}-\d{2}-\d{2}$/.test(match[3])) return null;
+
+  const tema = match[2] as 'programa' | 'personal' | 'barra';
+  const hora = match[3];
+  const etiquetas = { programa: 'programa atrasado', personal: 'llegada del personal', barra: 'stock de barra' };
+  return {
+    clave: `agente:vigilante_noche:${fiestaId}:${tema}:${hora}`,
+    area: 'fiestas',
+    titulo: `Revisar ${etiquetas[tema]}`,
+    quePasa: hallazgo.slice(match[0].length).trim(),
+    porQueImporta: 'Es un aviso operativo de una fiesta que está en curso.',
+    quePropone,
+    tipoPropuesta: 'vigilante_noche',
+    fiestaId,
+    esImportante: true,
+  };
+}
+
 export async function GET(request: Request) {
   const puerta = await abrirPuertaDeLaTarea(request, 'asistente-proactivo');
   if (!puerta.permitido) {
@@ -72,7 +136,23 @@ export async function GET(request: Request) {
     const registrosAgentes = await ejecutarAgentesAutonomos(ahora);
     for (const reg of registrosAgentes) {
       if (reg.hallazgos && reg.hallazgos.length > 0) {
-        for (const hallazgo of reg.hallazgos) {
+        for (const [hallazgoIndex, hallazgo] of reg.hallazgos.entries()) {
+          const propuestaFaltante = reg.agenteId === 'vigilante_fiestas'
+            ? prepararPropuestaFaltantePersonal(hallazgo)
+            : null;
+          if (propuestaFaltante) {
+            nuevasParaAgregar.push(propuestaFaltante);
+            continue;
+          }
+
+          const propuestaNoche = reg.agenteId === 'vigilante_noche'
+            ? prepararPropuestaOperativaNoche(hallazgo, reg.accionesPreparadas?.[hallazgoIndex] || 'Revisar el aviso operativo en la app.')
+            : null;
+          if (propuestaNoche) {
+            nuevasParaAgregar.push(propuestaNoche);
+            continue;
+          }
+
           let area: AsistentePropuesta['area'] = 'fiestas';
           if (reg.agenteId === 'cobrador') area = 'cobros';
           else if (reg.agenteId === 'perseguidor_presupuestos' || reg.agenteId === 'vigilante_publicidad') area = 'ventas';
@@ -229,7 +309,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // 8. AVISOS PROACTIVOS AL EQUIPO (Push con server-messaging)
+  // 8. AVISOS PROACTIVOS: los hallazgos del vigilante nocturno quedan en la app.
   let avisoDuenioRes = null;
   const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
   const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
@@ -240,7 +320,11 @@ export async function GET(request: Request) {
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
       const hoyKey = hoyEnUruguay(ahora);
-      const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
+      const propuestasNoche = resultadoPersistencia.agregadas.filter(
+        (p) => p.tipoPropuesta === 'vigilante_noche' && p.esImportante,
+      );
+      const otrasPropuestas = resultadoPersistencia.agregadas.filter((p) => p.tipoPropuesta !== 'vigilante_noche');
+      const importantes = otrasPropuestas.filter((p) => p.esImportante);
 
       if (importantes.length > 0) {
         let reservado = false;
@@ -278,7 +362,18 @@ export async function GET(request: Request) {
         }
       }
 
-      avisoDuenioRes = await avisarAlDuenio(resultadoPersistencia.agregadas, ahora);
+      // avisarAlDuenio también puede hacer push a todos. Para la alerta de operación
+      // solo se usa como WhatsApp del dueño cuando ese canal está activo y el push general apagado.
+      // WhatsApp directo al encargado de la fiesta queda pendiente de aprobación e identidad verificable.
+      const puedeAvisarPorWhatsAppAlDuenio = (ajustes as any).whatsappDuenioHabilitado === true
+        && (ajustes as any).avisoCelularHabilitado === false;
+      const propuestasParaAvisar = [
+        ...otrasPropuestas,
+        ...(puedeAvisarPorWhatsAppAlDuenio ? propuestasNoche : []),
+      ];
+      if (propuestasParaAvisar.length > 0) {
+        avisoDuenioRes = await avisarAlDuenio(propuestasParaAvisar, ahora);
+      }
     } catch (err: any) {
       console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
     }

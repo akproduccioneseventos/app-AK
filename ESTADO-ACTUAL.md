@@ -1,4 +1,13 @@
-# Estado actual — 28 de octubre de 2026
+# Estado actual — 29 de octubre de 2026
+
+## Orden 255 en curso en la propuesta 1375
+- Base revisada: `31f01384f7bc832ed004cfb2e60246a1074a8015`, rama `gemini/orden-255-asistente-ak`.
+- `origin/main` está en `5c22efad3e1f16075bf1689caa6c7ca41099763a`; no se hizo pull, rebase ni merge. El HEAD local sigue en la base indicada.
+- Cambios locales sin commit: entrada de audio/foto validada, comprobantes como propuestas, reserva atómica de consumo para medios, plan de reunión sin contactar clientes, anticipador de mozos, vigilancia nocturna y bloqueo de tareas que contacten clientes sin aprobación.
+- La voz saliente sigue pendiente: no hay encoder compatible; cuando está habilitada, se informa por texto y no se intenta enviar WAV.
+- Verificación focalizada conjunta: 5 suites, 36 pruebas aprobadas; ESLint puntual aprobado. Sin typecheck, build ni Firebase real.
+- Pendientes: caso 7 (borrador comercial, fotos con permiso promocional verificable y presupuesto sin cambio de estado); caso 10 (informe posfiesta con datos reales y consumidor de producción); alerta de cuotas, que corresponde al equipo de Claude. `el-asistente-de-ak.test.ts` todavía no reúne los 11 casos en ese único archivo; los casos 7 y 10 tampoco están cubiertos.
+- No se integró `origin/main`, no hay commit ni push. La Orden 255 sigue incompleta y no está publicada.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la propuesta de hoy (decoraciones de Codex 1372 y voz del cliente rescatada de la 1368), sobre la 1369.
 

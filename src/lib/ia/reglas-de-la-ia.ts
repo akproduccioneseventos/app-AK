@@ -93,6 +93,8 @@ export const TAREAS_PROHIBIDAS_SOLA = [
   'mandar_mensajes_clientes',
   'mandar-mensajes-clientes',
   'mandar_mensajes',
+  'perseguidor_presupuestos',
+  'recontacto_automatico',
   'cobrar_marcar_pagado',
   'cobrar-marcar-pagado',
   'cerrar_presupuesto',

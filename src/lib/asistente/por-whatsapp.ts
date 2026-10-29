@@ -15,6 +15,7 @@ import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
 import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
 import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
+import { descargarMediaWhatsApp, transcribirAudioWhatsApp, clasificarImagenWhatsApp } from '@/lib/asistente/whatsapp-media';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -362,13 +363,62 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     puedeVerMemoriaDelDueno: usuario.perfil === 'dueno' && puede(usuario, PERMISOS.ADMINISTRACION),
   };
 
-  // Procesar contenido (texto, audio o foto)
+  // Sólo los números autorizados del equipo llegan hasta acá; nunca damos voz IA a invitados.
   let textoParaProcesar = params.text || '';
+  const audioEntrante = params.type === 'audio';
   if (params.type === 'audio') {
-    // Si llegó audio, simulamos o transcribimos con IA
-    textoParaProcesar = params.text || 'anotar tarea recibida por audio';
+    try {
+      if (!params.mediaId) throw new Error('Falta el identificador del audio.');
+      const media = await descargarMediaWhatsApp(params.mediaId, 'audio');
+      textoParaProcesar = await transcribirAudioWhatsApp(media);
+    } catch {
+      const respuesta = 'No pude escuchar el audio, ¿me lo escribís?';
+      const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuesta, { conVoz: true, settings });
+      return { atendido: true, accionIdentificada: 'audio_no_disponible', nivel: 'solo', respuestaEnviada: respuesta, audioEnviado };
+    }
   } else if (params.type === 'image') {
-    textoParaProcesar = params.text || 'foto de boleta para cargar gasto';
+    try {
+      if (!params.mediaId) throw new Error('Falta el identificador de la imagen.');
+      const media = await descargarMediaWhatsApp(params.mediaId, 'image');
+      const imagen = await clasificarImagenWhatsApp(media);
+      if (imagen.tipo !== 'comprobante') {
+        const respuesta = `Veo esto en la foto: ${imagen.descripcion}. ¿Qué querés que haga con ella?`;
+        await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+        return { atendido: true, accionIdentificada: 'describir_foto', nivel: 'pregunta', respuestaEnviada: respuesta };
+      }
+
+      const proveedor = imagen.proveedor?.trim() || 'No identificado';
+      const montoValido = imagen.monto;
+      const descripcion = [
+        `Proveedor: ${proveedor}`,
+        `Fecha leída: ${imagen.fecha || 'No identificada'}`,
+        montoValido ? `Monto leído: $${montoValido.toLocaleString('es-UY')}` : 'No se pudo leer un monto confiable.',
+        `Categoría sugerida: ${imagen.categoria || 'Sin sugerir'}`,
+        `Confianza de lectura: ${imagen.confianza || 'baja'}`,
+        `Detalle: ${imagen.detalle || imagen.descripcion}`,
+      ].join('\n');
+      await agregarPropuestasDeduplicadas([{
+        clave: `boleta:meta:${params.mediaId}`,
+        area: 'cobros',
+        titulo: `Revisar comprobante de ${proveedor}`,
+        quePasa: descripcion,
+        porQueImporta: 'La lectura automática puede equivocarse; el dueño debe revisar el comprobante antes de registrar un gasto.',
+        quePropone: 'Revisar la imagen y confirmar o corregir proveedor, fecha, categoría y monto desde la app.',
+        tipoPropuesta: 'gasto_boleta',
+        nivelRiesgo: 'pregunta',
+        esImportante: true,
+        ...(montoValido ? { monto: montoValido } : {}),
+      }]);
+      const respuesta = 'Leí el comprobante y lo dejé como propuesta para revisar en la app. No registré ningún gasto ni pago.';
+      await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+      return { atendido: true, accionIdentificada: 'proponer_gasto', nivel: 'pregunta', respuestaEnviada: respuesta };
+    } catch (error) {
+      const respuesta = error instanceof Error && error.message.includes('tope mensual')
+        ? 'No pude leer la foto porque se alcanzó el tope mensual de IA. No registré ningún gasto.'
+        : 'No pude descargar o leer la foto con seguridad. No registré ningún gasto; probá enviarla de nuevo o revisala en la app.';
+      await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+      return { atendido: true, accionIdentificada: 'foto_no_procesada', nivel: 'pregunta', respuestaEnviada: respuesta };
+    }
   }
 
   let respuestaTexto = '';
@@ -380,8 +430,8 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       : resultado.motivo === 'sensible'
         ? 'No guardé ese dato porque parece ser una contraseña, información de tarjeta o un dato de salud.'
         : 'No pude guardar un recuerdo vacío. Decime qué querés que tenga presente.';
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: 'recordar', nivel: 'solo', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'recordar', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   const olvidarCoincide = textoParaProcesar.match(/^\s*olvid[aá]te(?:\s+de)?\s+(.+)$/i);
@@ -391,8 +441,8 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     respuestaTexto = cantidad
       ? `Listo, eliminé ${cantidad === 1 ? 'ese recuerdo' : ` ${cantidad} recuerdos`} de tu memoria.`
       : 'No encontré un recuerdo tuyo sobre ese tema para borrar.';
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: 'olvidar', nivel: 'solo', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'olvidar', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   const consultaMemoria = textoParaProcesar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -401,8 +451,46 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     respuestaTexto = recuerdos.length
       ? recuerdos.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')
       : 'No tengo recuerdos guardados sobre ese tema. Si querés, decime “acordate que…” y lo anoto.';
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: 'consultar_memoria', nivel: 'solo', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'consultar_memoria', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
+  }
+
+  const textoPlanNormalizado = textoParaProcesar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const planReunionSolicitado = /\b(?:organiza|arma|prepara|planifica|coordina)\b[\s\S]{0,100}\b(?:reunion|encuentro)\b[\s\S]{0,100}\bnovios\b[\s\S]{0,60}\bsabado\b/.test(textoPlanNormalizado);
+  if (planReunionSolicitado) {
+    const hash = Math.abs(textoParaProcesar.toLowerCase().split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0));
+    const claveSolicitud = params.messageId || `${hash}:${Math.floor(Date.now() / 900_000)}`;
+    const pasos = [
+      'Confirmar con la pareja el horario y modalidad; dejar cualquier mensaje como borrador, sin enviarlo.',
+      'Preparar la agenda con los temas y decisiones pendientes de la fiesta.',
+      'Asignar a una persona del equipo y reunir la información necesaria para la reunión.',
+    ];
+    const { agregadas } = await agregarPropuestasDeduplicadas([{
+      clave: `plan-reunion-whatsapp:${fromLimpio}:${claveSolicitud}`,
+      area: 'fiestas',
+      titulo: 'Organizar la reunión con los novios del sábado',
+      quePasa: `${persona.nombre} pidió organizar una reunión con los novios del sábado por WhatsApp.`,
+      porQueImporta: 'La reunión requiere preparación coordinada, pero no se debe contactar a la pareja sin aprobación.',
+      quePropone: pasos.map((paso, indice) => `${indice + 1}. ${paso}`).join('\n'),
+      tipoPropuesta: 'plan_multi_paso',
+      nivelRiesgo: 'pregunta',
+      esImportante: false,
+      responsableNombre: persona.nombre,
+    }]);
+    respuestaTexto = agregadas.length
+      ? 'Dejé un plan de tres pasos en “Tu asistente” para que lo revises. No contacté a los novios.'
+      : 'Ese plan ya está en “Tu asistente”. No contacté a los novios.';
+    await registrarAccionAsistente({
+      pedido: textoParaProcesar,
+      accion: 'plan_multi_paso',
+      canal: 'whatsapp',
+      nivel: 'pregunta',
+      resultado: 'Plan de tres pasos preparado para revisión; no se contactó al cliente.',
+      usuarioIdentificado: persona.nombre,
+      telefono: fromLimpio,
+    });
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'plan_multi_paso', nivel: 'pregunta', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   const interpretacion = interpretarComandoTexto(textoParaProcesar);
@@ -416,8 +504,8 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     } catch {
       respuestaTexto = 'No pude leer los datos del negocio ahora. Probá de nuevo en un rato.';
     }
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: accion, nivel: 'solo', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: accion, nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   // CASO ESPECIAL: Intento de confirmar por WhatsApp ("sí")
@@ -436,8 +524,8 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       telefono: fromLimpio,
     });
 
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: accion, nivel: 'pregunta', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: accion, nivel: 'pregunta', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   // 1. PUERTA NUNCA: Prohibido
@@ -548,35 +636,46 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
   }
 
   // Responder por WhatsApp
-  await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+  const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
 
   return {
     atendido: true,
     accionIdentificada: accion,
     nivel: riesgo,
     respuestaEnviada: respuestaTexto,
+    audioEnviado,
   };
 }
 
 /**
  * Envia el mensaje de respuesta por Meta WhatsApp API si están las variables configuradas.
  */
-async function enviarRespuestaWhatsApp(to: string, text: string): Promise<void> {
+async function enviarRespuestaWhatsApp(
+  to: string,
+  text: string,
+  opciones: { conVoz?: boolean; settings?: Awaited<ReturnType<typeof getAsistenteSettings>> } = {},
+): Promise<boolean> {
   const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
   const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 
   if (!apiToken || !phoneNumberId) {
-    return;
+    return false;
   }
 
+  const vozSolicitada = opciones.conVoz && opciones.settings?.responderConVoz === true &&
+    opciones.settings?.vozGeminiActiva === true;
+  const textoEnviado = vozSolicitada
+    ? `${text}\n\nNo puedo responder con audio compatible por WhatsApp en este momento; te respondo por texto.`
+    : text;
   try {
     await sendMetaWhatsAppMessage({
       to,
-      text,
+      text: textoEnviado,
       apiToken,
       phoneNumberId,
     });
   } catch (err) {
     console.warn('[WhatsAppEquipo] Error enviando respuesta:', err);
   }
+  return false;
 }

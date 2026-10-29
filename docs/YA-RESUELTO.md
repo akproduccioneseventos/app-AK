@@ -1,5 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 29/10/2026 - Orden 255, avance parcial en PR 1375, NO publicado
+
+- Rama `gemini/orden-255-asistente-ak`, HEAD base `31f01384f7bc832ed004cfb2e60246a1074a8015`; `origin/main` está en `5c22efad3e1f16075bf1689caa6c7ca41099763a`. No se integró ni se publicó.
+- Además de los medios de WhatsApp, la rama prepara una propuesta de tres pasos sin contactar al cliente, anticipa faltantes de mozos sin cambiar asignaciones/presupuestos, vigila programa, llegadas y stock verificable; las alertas nocturnas quedan en la app durante descanso. Las tareas que recontactan clientes no se pueden autorizar como autónomas.
+- Las llamadas Gemini de audio e imagen reservan el costo estimado en una transacción sobre `json_documents/ai-consumo.json`; el comprobante queda como propuesta, nunca como gasto. Rechazos definitivos liberan la reserva; fallos inciertos la conservan.
+- No se encontró encoder saliente compatible. El sender no intenta enviar WAV y el asistente informa por texto. Verificación local: cinco suites focalizadas, 36 pruebas aprobadas, y ESLint puntual aprobado. No verifica Firebase real, no hubo typecheck/build y no está publicada.
+- Siguen pendientes el caso 7 (permiso promocional estructurado para fotos y presupuesto que quede realmente en borrador), el caso 10 (informe posfiesta con datos reales y consumidor en producción) y la alerta de cuotas, que corresponde al equipo de Claude. La prueba requerida aún no concentra los 11 casos en `el-asistente-de-ak.test.ts`; los casos 7 y 10 no están implementados.
+
 - **La voz del cliente en su portal anda de verdad (orden 238, 28/10/2026).** El botón Hablar abre la llamada por `/api/asistente/voz-en-vivo/cliente` (sesión del portal de esa fiesta y tope diario de minutos ya publicados) con `sinHerramientas`: la IA conversa pero no ejecuta ninguna acción. Rescatado de la entrega 1368 de Gemini, que venía de una base vieja; su parte de la orden 239 se descartó porque main ya la tenía mejor.
 ## 28/10/2026 - Codex758: decoraciones propias y borradores desde fotos
 

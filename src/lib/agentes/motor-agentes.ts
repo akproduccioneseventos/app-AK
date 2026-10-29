@@ -11,8 +11,12 @@ import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
+import { getFiestaTimeRange, localDateTimeToUtcMs } from '@/lib/staff-agenda-conflicts';
+import { applyAutomaticStaffByGuests, createLiveBudgetState } from '@/lib/commercial/live-budget-editor';
+import { buscarRol } from '@/lib/fiesta/personal-por-invitados';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
+import type { ServicioEmpresa } from '@/types/empresa';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
@@ -27,6 +31,59 @@ import {
 const CONFIG_FILE = 'agentes-configuracion.json';
 const HISTORIAL_FILE = 'agentes-historial.json';
 const MAX_HISTORIAL = 50;
+
+export interface FaltanteMozosProximo {
+  fiestaId: string;
+  fechaEvento: string;
+  invitados: number;
+  asignados: number;
+  requeridos: number;
+  hallazgo: string;
+}
+
+export function anticiparFaltantesDeMozos(
+  fiestas: FiestaEnPlanificacion[],
+  roles: Array<{ id: string; nombre: string }>,
+  ahora: Date,
+): FaltanteMozosProximo[] {
+  const rolMozo = buscarRol(roles, 'Mozo');
+  if (!rolMozo) return [];
+
+  const limite = ahora.getTime() + 14 * 24 * 60 * 60 * 1000;
+  const faltantes: FaltanteMozosProximo[] = [];
+
+  for (const fiesta of fiestas) {
+    const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
+    if (['suspendida', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo ak'].includes(estado)) continue;
+    if (fiesta.id?.startsWith('demo_') || fiesta.modulosContratados?.catering !== true) continue;
+
+    const fechaEvento = String(fiesta.configuracion?.fechaEvento || '').slice(0, 10);
+    const inicio = localDateTimeToUtcMs(fechaEvento, fiesta.configuracion?.horaInicio || '');
+    if (inicio === null || inicio <= ahora.getTime() || inicio > limite) continue;
+
+    const invitados = Number(fiesta.configuracion?.invitadosEstimados);
+    if (!Number.isFinite(invitados) || invitados <= 0) continue;
+
+    // Use the live-budget rule as a pure calculation; this transient state is never persisted.
+    const regla = applyAutomaticStaffByGuests(
+      createLiveBudgetState({ guestCount: invitados }),
+      { mozoUnitPrice: 0, cocinaUnitPrice: 0 },
+    );
+    const requeridos = regla.items.find((item) => item.id === 'auto_mozo')?.quantity;
+    if (!Number.isFinite(requeridos) || !requeridos || !fiesta.id) continue;
+
+    const asignados = (fiesta.personalAsignado || []).filter(
+      (persona) => persona.rolId === rolMozo.id && typeof persona.empleadoId === 'string' && persona.empleadoId.trim(),
+    ).length;
+    if (asignados >= requeridos) continue;
+
+    const deficit = requeridos - asignados;
+    const hallazgo = `[FALTANTE PERSONAL][fiesta=${encodeURIComponent(fiesta.id)};fecha=${fechaEvento};invitados=${invitados};asignados=${asignados};requeridos=${requeridos}] ${fiesta.configuracion?.nombreEvento || 'Fiesta'}: hay ${asignados} mozos asignados y se requieren ${requeridos}; faltan ${deficit}.`;
+    faltantes.push({ fiestaId: fiesta.id, fechaEvento, invitados, asignados, requeridos, hallazgo });
+  }
+
+  return faltantes;
+}
 
 export async function getConfiguracionAgentes(): Promise<ConfiguracionAgente[]> {
   try {
@@ -85,13 +142,15 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, presupuestos, descartes] = await Promise.all([
+  const [fiestas, presupuestos, descartes, roles] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
+    readData<Array<{ id: string; nombre: string }>>('roles.json', []),
   ]);
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
+  const faltantesMozos = anticiparFaltantesDeMozos(fiestas, roles, ahora);
 
   if (alertas.length === 0) {
     hallazgos.push('No se detectaron errores humanos en las fiestas activas.');
@@ -105,6 +164,11 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     }
   }
 
+  for (const faltante of faltantesMozos) {
+    hallazgos.push(faltante.hallazgo);
+    acciones.push('Dejar una propuesta interna para completar la asignación de mozos; no se modifica el equipo ni el presupuesto.');
+  }
+
   const registro: RegistroEjecucionAgente = {
     id: `reg_vigilante_${Date.now()}`,
     agenteId: 'vigilante_fiestas',
@@ -112,7 +176,7 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     ejecutadoEn: ahora.toISOString(),
     hallazgos,
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin acciones requeridas'],
-    estado: alertas.length > 0 ? 'alerta' : 'sin_novedades',
+    estado: alertas.length > 0 || faltantesMozos.length > 0 ? 'alerta' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
@@ -457,19 +521,74 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
-  const hoyStr = hoyEnUruguay(ahora);
+  const [fiestas, inventario] = await Promise.all([
+    readData<FiestaEnPlanificacion[]>('fiestas.json', []),
+    readData<ServicioEmpresa[]>('insumos.json', []),
+  ]);
+  const horaLocal = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Montevideo',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).format(ahora);
+  const bucketHora = `${hoyEnUruguay(ahora)}-${horaLocal}`;
+  const ahoraMs = ahora.getTime();
+  const fiestasActivas = fiestas.filter((fiesta) => {
+    if (typeof fiesta.id !== 'string' || !fiesta.id.trim()) return false;
+    const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
+    if (['suspendida', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo ak'].includes(estado)) return false;
+    if (fiesta.id?.startsWith('demo_')) return false;
+    const rango = getFiestaTimeRange(fiesta);
+    return rango && ahoraMs >= rango.startMs && ahoraMs <= rango.endMs;
+  });
 
-  const fiestasHoy = fiestas.filter((f) => (f.configuracion?.fechaEvento || (f.configuracion as any)?.fecha) === hoyStr);
+  const registrarAlerta = (fiestaId: string, tema: string, resumen: string) => {
+    const clave = `[ALERTA NOCHE][fiesta=${encodeURIComponent(fiestaId)};tema=${tema};hora=${bucketHora}]`;
+    hallazgos.push(`${clave} ${resumen}`);
+  };
 
-  if (fiestasHoy.length === 0) {
-    hallazgos.push('No hay fiestas en vivo programadas para hoy.');
-  } else {
-    for (const f of fiestasHoy) {
-      const nombre = f.configuracion?.nombreEvento || f.configuracion?.nombreAgasajado || 'una fiesta sin nombre cargado';
-      const lugar = f.configuracion?.nombreLugar || (f.configuracion as any)?.salon || 'sin lugar cargado';
-      hallazgos.push(`Monitoreando fiesta en vivo hoy: ${nombre} (${lugar}).`);
+  for (const fiesta of fiestasActivas) {
+    const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.nombreAgasajado || 'Fiesta';
+    const rango = getFiestaTimeRange(fiesta);
+    if (!rango) continue;
+
+    const atrasados = (fiesta.programa || []).filter((item) => {
+      if (item.completado || !/^([01]\d|2[0-3]):[0-5]\d$/.test(item.hora || '')) return false;
+      let programadoMs = localDateTimeToUtcMs(rango.fechaStr, item.hora);
+      if (programadoMs === null) return false;
+      while (programadoMs < rango.startMs) programadoMs += 24 * 60 * 60 * 1000;
+      return programadoMs <= ahoraMs - 20 * 60 * 1000 && programadoMs <= rango.endMs;
+    });
+    if (atrasados.length > 0) {
+      const momentos = atrasados.slice(0, 3).map((item) => `${item.hora} ${item.titulo || 'Actividad'}`).join('; ');
+      registrarAlerta(fiesta.id, 'programa', `${nombre}: ${atrasados.length} momento(s) del programa llevan 20 minutos o más sin marcarse como hechos. ${momentos}`);
+      acciones.push(`Revisar el programa de ${nombre} y marcar el momento como hecho solo cuando el responsable confirme que ocurrió.`);
     }
+
+    const sinLlegada = (fiesta.personalAsignado || []).filter((persona) => !persona.checkInTimestamp?.trim());
+    if (sinLlegada.length > 0 && ahoraMs >= rango.startMs + 20 * 60 * 1000) {
+      registrarAlerta(fiesta.id, 'personal', `${nombre}: ${sinLlegada.length} persona(s) asignada(s) todavía no tienen llegada marcada tras 20 minutos del inicio.`);
+      acciones.push(`Confirmar con el encargado de ${nombre} si el personal ya llegó; no se cambia la asignación automáticamente.`);
+    }
+
+    const cartaTragos = fiesta.cartaTragos as unknown as {
+      items?: Array<{ nombre?: string; recetaIngredientes?: Array<{ insumoId: string; cantidad: number; unidad?: string }> }>;
+    } | undefined;
+    const tragos = (cartaTragos?.items || []).filter((trago) => typeof trago.nombre === 'string' && trago.nombre.trim());
+    const tragosConStockBajo = tragos.flatMap((trago) => {
+      const disponibles = calcularTragosDisponibles(trago, inventario);
+      return disponibles !== null && disponibles < 10 ? [{ nombre: trago.nombre, disponibles }] : [];
+    });
+    if (tragosConStockBajo.length > 0) {
+      const detalle = tragosConStockBajo.map((trago) => `${trago.nombre}: ${trago.disponibles}`).join('; ');
+      registrarAlerta(fiesta.id, 'barra', `${nombre}: quedan ingredientes para menos de 10 tragos en una o más recetas (${detalle}).`);
+      acciones.push(`Avisar al encargado de barra de ${nombre} para que revise el stock real; no se compra ni ajusta inventario automáticamente.`);
+    }
+  }
+
+  if (fiestasActivas.length === 0) {
+    acciones.push('No hay fiestas dentro de su horario activo para monitorear ahora.');
+  } else if (hallazgos.length === 0) {
+    acciones.push(`Monitoreo de ${fiestasActivas.length} fiesta(s) en vivo: sin atrasos, faltas de llegada ni recetas con stock bajo detectados.`);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -478,12 +597,45 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
     agenteNombre: 'Operador de la Noche',
     ejecutadoEn: ahora.toISOString(),
     hallazgos,
-    accionesPreparadas: acciones.length > 0 ? acciones : ['Estaciones y servicios funcionando correctamente'],
-    estado: 'sin_novedades',
+    accionesPreparadas: acciones,
+    estado: hallazgos.length > 0 ? 'alerta' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
   return registro;
+}
+
+export function calcularTragosDisponibles(
+  trago: { recetaIngredientes?: Array<{ insumoId: string; cantidad: number; unidad?: string }> },
+  inventario: Array<Pick<ServicioEmpresa, 'id' | 'cantidadDisponible' | 'unidad'>>,
+): number | null {
+  if (!trago.recetaIngredientes?.length) return null;
+  const cantidades = new Map<string, number>();
+  const unidades = new Map<string, string>();
+  for (const ingrediente of trago.recetaIngredientes) {
+    const unidad = ingrediente.unidad?.trim().toLocaleLowerCase('es-UY');
+    if (!ingrediente.insumoId || !Number.isFinite(ingrediente.cantidad) || ingrediente.cantidad <= 0 || !unidad) return null;
+    cantidades.set(ingrediente.insumoId, (cantidades.get(ingrediente.insumoId) || 0) + ingrediente.cantidad);
+    const unidadExistente = unidades.get(ingrediente.insumoId);
+    if (unidadExistente && unidadExistente !== unidad) return null;
+    unidades.set(ingrediente.insumoId, unidad);
+  }
+
+  let limite = Number.POSITIVE_INFINITY;
+  for (const [insumoId, porTrago] of cantidades) {
+    const coincidencias = inventario.filter((item) => item.id === insumoId);
+    if (coincidencias.length !== 1) return null;
+    const insumo = coincidencias[0];
+    if (insumo.cantidadDisponible === undefined || insumo.cantidadDisponible === null || !insumo.unidad?.trim()) return null;
+    const unidadStock = insumo.unidad.trim().toLocaleLowerCase('es-UY');
+    if (unidadStock !== unidades.get(insumoId)) return null;
+    const stockRaw: unknown = insumo.cantidadDisponible;
+    if (typeof stockRaw === 'string' && !stockRaw.trim()) return null;
+    const stock = Number(stockRaw);
+    if (!Number.isFinite(stock) || stock < 0) return null;
+    limite = Math.min(limite, Math.floor(stock / porTrago));
+  }
+  return Number.isFinite(limite) ? limite : null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
