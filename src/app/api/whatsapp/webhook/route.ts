@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWhatsAppConfig, processIncomingMessage } from '@/app/actions/whatsapp';
+import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import {
   getExternalWebhookUrl,
   verifyMetaWebhookSignature,
@@ -196,9 +196,8 @@ export async function POST(request: NextRequest) {
     /**
      * **El numero es el personal del dueno: no se le contesta a cualquiera.**
      *
-     * Solo se responde automaticamente a quien llego tocando un anuncio o una
-     * publicacion de la empresa. Esa persona es un desconocido que espera una
-     * respuesta comercial, muchas veces de madrugada, y es plata que se enfria.
+     * Los anuncios preparan una propuesta interna para revisión humana.
+     * Ni la falta de datos ni un fallo habilitan respuestas automáticas al cliente.
      *
      * A la familia, a los proveedores y a los amigos **no les contesta nadie**: el
      * mensaje se ignora y lo lee una persona cuando puede.
@@ -216,35 +215,13 @@ export async function POST(request: NextRequest) {
       phone,
       name: clientName,
       text: messageText,
+      messageId,
     });
-    if (atencionAnuncio.completo) {
-      return NextResponse.json({
-        status: 'ok',
-        tipo: 'prospecto_anuncio_simulador',
-        completo: true,
-      }, { status: 200 });
-    }
-
-    const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
-
-    if (!result.success) {
-      console.error('[WhatsApp Webhook] Error processing message:', result.error);
-      return NextResponse.json({ status: 'ok' }, { status: 200 });
-    }
-
-    // Build response payload for providers that expect a reply in the HTTP response
-    if (result.botResponse) {
-      // Twilio expects TwiML or JSON response
-      if (body.From) {
-        const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${result.botResponse}</Message></Response>`;
-        return new NextResponse(twiml, {
-          status: 200,
-          headers: { 'Content-Type': 'text/xml' },
-        });
-      }
-    }
-
-    return NextResponse.json({ status: 'ok' }, { status: 200 });
+    return NextResponse.json({
+      status: 'ok', tipo: 'prospecto_anuncio_borrador',
+      completo: atencionAnuncio.completo, respondido: false,
+      requiereRevision: true,
+    }, { status: 200 });
   } catch (error) {
     console.error('[WhatsApp Webhook] Unexpected error:', error);
     // Always return 200 to prevent provider retries

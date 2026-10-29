@@ -1,4 +1,4 @@
-import { sendMetaWhatsAppMessage } from './meta-sender';
+import { sendMetaWhatsAppAudioMessage, sendMetaWhatsAppMessage } from './meta-sender';
 
 describe('Meta WhatsApp sender', () => {
   const originalFetch = global.fetch;
@@ -75,6 +75,20 @@ describe('Meta WhatsApp sender', () => {
       success: false,
       error: 'Faltan el token de Meta o el Phone Number ID.',
     });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('rejects WAV and malformed MP3 bytes before upload', async () => {
+    global.fetch = jest.fn() as jest.Mock;
+    const wav = Buffer.alloc(48);
+    wav.write('RIFF', 0);
+    wav.write('WAVE', 8);
+    await expect(sendMetaWhatsAppAudioMessage({
+      to: '59899123456', audio: wav, apiToken: 'token', phoneNumberId: '123456',
+    })).resolves.toMatchObject({ success: false, delivery: 'not_sent' });
+    await expect(sendMetaWhatsAppAudioMessage({
+      to: '59899123456', audio: Buffer.from('not-an-mp3'), apiToken: 'token', phoneNumberId: '123456',
+    })).resolves.toMatchObject({ success: false, delivery: 'not_sent' });
     expect(global.fetch).not.toHaveBeenCalled();
   });
 });

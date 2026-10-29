@@ -11,6 +11,10 @@ const mockAgregarPropuestas = jest.fn(async (nuevas: any[]) => ({
 }));
 const mockPush = jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 }));
 const mockAvisarDuenio = jest.fn(async () => ({ pushEnviado: false, whatsAppEnviado: false }));
+const mockCerrarPosfiesta = jest.fn(async () => ({ preparados: 0, omitidos: 0, errores: [], nuevasPropuestas: [] as any[] }));
+jest.mock('@/lib/asistente/cierre-posfiesta', () => ({
+  ejecutarCierrePosfiesta: (...args: any[]) => mockCerrarPosfiesta(...args),
+}));
 const mockGetReglaParaTarea = jest.fn(async () => 'sola' as 'sola' | 'preguntar' | 'apagada');
 const mockGetParteDeLaManana = jest.fn(async () => null as any);
 const mockEnviarWhatsApp = jest.fn(async () => ({ success: true, messageId: 'wamid-test' }));
@@ -76,6 +80,7 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     Object.keys(mockData).forEach((key) => delete mockData[key]);
     mockTracking = {};
     mockEjecutarAgentes.mockResolvedValue([]);
+    mockCerrarPosfiesta.mockResolvedValue({ preparados: 0, omitidos: 0, errores: [], nuevasPropuestas: [] });
     mockGetReglaParaTarea.mockResolvedValue('sola');
     mockGetParteDeLaManana.mockResolvedValue(null);
     delete process.env.META_WHATSAPP_TOKEN;
@@ -209,6 +214,17 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     expect(mockPush).not.toHaveBeenCalled();
     expect(mockAvisarDuenio).toHaveBeenCalledTimes(1);
     expect(mockAvisarDuenio.mock.calls[0][0][0]).toMatchObject({ fiestaId: 'fiesta-77', tipoPropuesta: 'vigilante_noche' });
+  });
+
+  it('el cron ejecuta el cierre y persiste su propuesta para revisión', async () => {
+    mockCerrarPosfiesta.mockResolvedValue({ preparados: 1, omitidos: 0, errores: [], nuevasPropuestas: [{
+      clave: 'informe-fiesta-1', area: 'fiestas', titulo: 'Revisar informe', tipoPropuesta: 'informe_posfiesta',
+    }] });
+    await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+    expect(mockCerrarPosfiesta).toHaveBeenCalledTimes(1);
+    expect(mockAgregarPropuestas).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ clave: 'informe-fiesta-1', tipoPropuesta: 'informe_posfiesta' }),
+    ]));
   });
 
   it('apagada no lee el parte ni crea tarjeta o envía WhatsApp aunque haya pendientes', async () => {

@@ -41,6 +41,7 @@ export interface DatosPresupuestoProspecto {
   fecha?: string;
   invitados?: number;
   salon?: string;
+  tipoEvento?: string;
 }
 
 export interface ResultadoPresupuestoProspecto {
@@ -51,6 +52,7 @@ export interface ResultadoPresupuestoProspecto {
   token?: string;
   linkPresupuesto?: string;
   error?: string;
+  borradorAtendido?: boolean;
 }
 
 /**
@@ -81,14 +83,14 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     let y = mFechaSlash[3];
     if (y.length === 2) y = '20' + y;
     res.fecha = y + '-' + m + '-' + d;
-  } else if (mFechaTexto) {
+  } else if (mFechaTexto && mFechaTexto[3]) {
     const meses: Record<string, string> = {
       enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
       julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
     };
     const d = mFechaTexto[1].padStart(2, '0');
     const m = meses[mFechaTexto[2].toLowerCase()] || '01';
-    const y = mFechaTexto[3] || '2027';
+    const y = mFechaTexto[3];
     res.fecha = y + '-' + m + '-' + d;
   }
 
@@ -102,6 +104,12 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     }
   }
 
+  const normalizado = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/\b(?:boda|casamiento|nos casamos)\b/.test(normalizado)) res.tipoEvento = 'Boda';
+  else if (/\b(?:xv|quince|15 anos)\b/.test(normalizado)) res.tipoEvento = 'XV años';
+  else if (/\b(?:corporativo|empresarial)\b/.test(normalizado)) res.tipoEvento = 'Evento corporativo';
+  else if (/\b(?:infantil|cumple de ninos)\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños infantil';
+  else if (/\bcumple(?:anos)?\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños';
   return res;
 }
 
@@ -116,6 +124,7 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   name?: string;
   text: string;
   datosPrevios?: DatosPresupuestoProspecto;
+  messageId?: string;
 }): Promise<ResultadoPresupuestoProspecto> {
   const nuevos = extraerDatosPresupuestoProspecto(params.text);
   const datos: DatosPresupuestoProspecto = {
@@ -127,70 +136,52 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   if (!datos.fecha) faltantes.push('la fecha aproximada');
   if (!datos.invitados) faltantes.push('la cantidad estimada de invitados');
   if (!datos.salon) faltantes.push('el salón o zona del evento');
+  if (!datos.tipoEvento) faltantes.push('el tipo de fiesta');
 
   if (faltantes.length > 0) {
     const listaFaltantes = faltantes.join(', ');
+    await agregarPropuestasDeduplicadas([{
+      clave: `prospecto-datos:${params.messageId || params.phone}`,
+      area: 'ventas', titulo: 'Completar datos del prospecto de anuncio',
+      quePasa: `Faltan ${listaFaltantes} para preparar la propuesta.`,
+      porQueImporta: 'No se calculan precios ni se contacta al prospecto con datos incompletos.',
+      quePropone: `Revisar la consulta de ${params.name || params.phone} y pedir los datos faltantes manualmente.`,
+      tipoPropuesta: 'prospecto_datos_pendientes', nivelRiesgo: 'pregunta',
+    }]);
     return {
       completo: false,
+      borradorAtendido: true,
       faltantes,
       respuestaTexto: '¡Hola! Para prepararte una propuesta a medida necesitamos saber: ' + listaFaltantes + '. ¿Nos podrías confirmar esos detalles? 😊',
     };
   }
 
-  // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón
-  const queryParams = new URLSearchParams();
-  queryParams.set('fecha', datos.fecha || '');
-  queryParams.set('guests', String(datos.invitados || 0));
-  queryParams.set('salon', datos.salon || '');
-  queryParams.set('source', 'whatsapp_ad');
-  const linkSimulador = 'https://akproducciones.uy/simulador-de-presupuesto?' + queryParams.toString();
-
-  // Guardar borrador en bandeja de salida con el link al simulador precargado
-  try {
-    const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
-    const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
-    const saveResult = await saveScheduledMessage(
-      {
-        channel: 'whatsapp',
-        targetType: 'prospecto',
-        targetId: params.phone,
-        targetPhone: params.phone,
-        targetName: params.name || 'Prospecto',
-        templateType: 'personalizado',
-        messageText: '¡Hola! Podés ver tu propuesta personalizada y ajustar los detalles en el simulador: ' + linkSimulador + '. Quedamos a las órdenes para coordinar sin compromiso.',
-        scheduledAt: new Date().toISOString(),
-        status: 'pendiente',
-        sendingMode: 'manual_click',
-      },
-      WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-      { idEstable: 'draft_presupuesto_anuncio_' + params.phone }
-    );
-
-    if (!saveResult || !saveResult.success) {
-      return {
-        completo: false,
-        faltantes: [],
-        respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
-        error: saveResult?.error || 'No se pudo guardar el borrador del presupuesto',
-      };
-    }
-  } catch (err: any) {
-    console.warn('[WhatsApp] No se pudo guardar borrador en bandeja de salida:', err);
-    return {
-      completo: false,
-      faltantes: [],
-      respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
-      error: err?.message || 'Error al guardar borrador',
-    };
+  const { prepararBorradorProspectoAnuncio } = await import('@/lib/asistente/comercial-borrador');
+  const borrador = await prepararBorradorProspectoAnuncio({
+    phone: params.phone, name: params.name || 'Prospecto', fecha: datos.fecha!,
+    invitados: datos.invitados!, salon: datos.salon!,
+    tipoEvento: datos.tipoEvento as import('@/types/presupuesto').TipoEvento,
+    requestId: params.messageId,
+  });
+  if (borrador.status !== 'draft_created' || borrador.photoIds.length < 3) {
+    await agregarPropuestasDeduplicadas([{
+      clave: `prospecto-presupuesto-revision:${params.messageId || params.phone}`,
+      area: 'ventas',
+      titulo: borrador.status === 'draft_created' ? 'Completar fotos autorizadas del borrador' : 'Revisar presupuesto de prospecto de anuncio',
+      quePasa: `La propuesta de ${params.name || params.phone} requiere revisión: ${borrador.reason || 'No se pudo completar la preparación'}.`,
+      porQueImporta: 'El equipo debe revisar datos y precios vigentes antes de responder al prospecto.',
+      quePropone: `Revisar manualmente el presupuesto de ${params.name || 'Prospecto'} (${params.phone}). Fiesta: ${datos.tipoEvento}, ${datos.fecha}, ${datos.invitados} invitados, salón/zona ${datos.salon}.`,
+      tipoPropuesta: 'presupuesto_revision_manual',
+      nivelRiesgo: 'pregunta',
+    }]);
   }
-
-  const respuestaTexto = '¡Perfecto! Te preparamos el simulador con tu fecha (' + datos.fecha + '), ' + datos.invitados + ' invitados en ' + datos.salon + ': ' + linkSimulador + ' para revisar sin compromiso.';
-
   return {
-    completo: true,
-    faltantes: [],
-    respuestaTexto,
-    linkPresupuesto: linkSimulador,
+    completo: borrador.status === 'draft_created', borradorAtendido: true, faltantes: [],
+    presupuestoId: borrador.presupuestoId,
+    respuestaTexto: borrador.status === 'draft_created'
+      ? 'El presupuesto y las fotos autorizadas quedaron en la bandeja para revisión. No se enviaron al prospecto.'
+      : 'La propuesta necesita revisión manual. No se envió ningún mensaje al prospecto.',
+    ...(borrador.reason ? { error: borrador.reason } : {}),
   };
 }
 
@@ -665,9 +656,16 @@ async function enviarRespuestaWhatsApp(
 
   const vozSolicitada = opciones.conVoz && opciones.settings?.responderConVoz === true &&
     opciones.settings?.vozGeminiActiva === true;
-  const textoEnviado = vozSolicitada
-    ? `${text}\n\nNo puedo responder con audio compatible por WhatsApp en este momento; te respondo por texto.`
-    : text;
+  let textoEnviado = text;
+  if (vozSolicitada) {
+    const { enviarRespuestaConVozWhatsApp } = await import('@/lib/asistente/whatsapp-voz');
+    const voz = await enviarRespuestaConVozWhatsApp({
+      to, text, authorized: true, settings: opciones.settings!, apiToken, phoneNumberId,
+    });
+    if (voz.audioEnviado) return true;
+    if (!voz.puedeEnviarTextoFallback) return false;
+    textoEnviado = `${text}\n\nNo pude responder con voz: ${voz.fallbackReason || 'servicio no disponible'}. Te respondo por texto.`;
+  }
   try {
     await sendMetaWhatsAppMessage({
       to,

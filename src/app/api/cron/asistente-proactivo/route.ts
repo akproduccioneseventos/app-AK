@@ -24,6 +24,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
 import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
 import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
+import { ejecutarCierrePosfiesta } from '@/lib/asistente/cierre-posfiesta';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -138,7 +139,7 @@ export async function GET(request: Request) {
     for (const reg of registrosAgentes) {
       if (reg.hallazgos && reg.hallazgos.length > 0) {
         for (const [hallazgoIndex, hallazgo] of reg.hallazgos.entries()) {
-          const propuestaFaltante = reg.agenteId === 'vigilante_fiestas'
+          const propuestaFaltante = (reg.agenteId === 'vigilante_fiestas' || reg.agenteId === 'anticipador')
             ? prepararPropuestaFaltantePersonal(hallazgo)
             : null;
           if (propuestaFaltante) {
@@ -155,7 +156,7 @@ export async function GET(request: Request) {
           }
 
           let area: AsistentePropuesta['area'] = 'fiestas';
-          if (reg.agenteId === 'cobrador') area = 'cobros';
+          if (reg.agenteId === 'cobrador' || (reg.agenteId === 'anticipador' && hallazgo.includes('[area=cobros]'))) area = 'cobros';
           else if (reg.agenteId === 'perseguidor_presupuestos' || reg.agenteId === 'vigilante_publicidad') area = 'ventas';
 
           const hash = Math.abs(hallazgo.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0));
@@ -167,7 +168,7 @@ export async function GET(request: Request) {
             titulo: `${reg.agenteNombre}: hallazgo operativo`,
             quePasa: hallazgo,
             porQueImporta: 'Requiere atención para asegurar el flujo de ingresos o la excelencia del evento.',
-            quePropone: reg.accionesPreparadas?.[0] || 'Revisar la situación y tomar acción preventiva.',
+            quePropone: reg.accionesPreparadas?.[hallazgoIndex] || 'Revisar la situación y tomar acción preventiva.',
             tipoPropuesta: reg.agenteId,
             esImportante: area === 'cobros',
           });
@@ -207,7 +208,16 @@ export async function GET(request: Request) {
       if (regla === 'sola' || regla === 'preguntar') {
         const parte = await getParteDeLaManana();
         if (regla === 'sola') {
-          const entrega = await enviarResumenMananaWhatsApp(parte, ahora);
+          const preventivas = nuevasParaAgregar.filter((p) =>
+            ['anticipador', 'perseguidor_presupuestos', 'faltante_personal'].includes(p.tipoPropuesta || ''),
+          );
+          const entrega = await enviarResumenMananaWhatsApp({
+            ...parte,
+            itemsPrincipales: [
+              ...preventivas.map((p) => ({ id: p.clave || p.titulo, tipo: 'fiesta_proxima' as const, titulo: p.titulo, detalle: p.quePasa })),
+              ...parte.itemsPrincipales,
+            ].slice(0, 4),
+          }, ahora);
           if (entrega.motivo && entrega.motivo !== 'Fuera de la ventana matutina.' && entrega.motivo !== 'El resumen de hoy ya se procesó.') {
             fallos.push(`Resumen matutino: ${entrega.motivo}`);
           }
@@ -294,6 +304,14 @@ export async function GET(request: Request) {
     }
   } catch (err: any) {
     fallos.push(`Error autogenerando borradores semanales: ${err.message}`);
+  }
+
+  try {
+    const cierre = await ejecutarCierrePosfiesta(ahora);
+    nuevasParaAgregar.push(...cierre.nuevasPropuestas);
+    fallos.push(...cierre.errores.map((error) => `Informe ${error.fiestaId}: ${error.error}`));
+  } catch (error) {
+    fallos.push(`No se pudieron preparar los informes posfiesta: ${error instanceof Error ? error.message : 'error de lectura'}`);
   }
 
   // 6. PERSISTENCIA DEDUPLICADA

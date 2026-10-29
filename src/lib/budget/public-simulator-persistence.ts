@@ -48,6 +48,10 @@ export interface PublicSimulatorPersistenceOptions {
   eventoTipo: string;
   salonFiestas?: string;
   acquisition?: CommercialAttribution;
+  /** Internal assistant proposal; public simulator submissions keep their existing review state. */
+  estadoInicial?: 'Borrador' | 'Pendiente Verificación';
+  /** Reject assistant drafts before any CRM or budget write when pricing is zero. */
+  requirePositiveTotal?: boolean;
 }
 
 function clampCount(value: unknown, max = 1000): number {
@@ -265,6 +269,9 @@ export async function persistPublicSimulatorBudget(
     annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage || 0,
     currentYear: now.getFullYear(),
   });
+  if (options.requirePositiveTotal && !(pricing.totalFinal > 0)) {
+    throw new Error('El cálculo vigente no produjo un importe positivo; requiere revisión manual.');
+  }
   if (pricing.detallados.length === 0) {
     throw new Error('No fue posible reconstruir los servicios seleccionados.');
   }
@@ -303,7 +310,7 @@ export async function persistPublicSimulatorBudget(
     ajusteAnualActivo: pricing.annualProjection.applies,
     ajusteAnualPorcentaje: pricing.annualProjection.adjustmentPct,
     totalConDescuento: pricing.totalFinal,
-    estado: 'Pendiente Verificación',
+    estado: options.estadoInicial === 'Borrador' ? 'Borrador' : 'Pendiente Verificación',
     source: options.source,
     acquisition: attribution,
   } as Presupuesto, { preserveStoredTotal: true });

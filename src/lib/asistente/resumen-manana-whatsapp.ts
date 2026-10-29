@@ -33,6 +33,7 @@ export async function enviarResumenMananaWhatsApp(
     ARCHIVO_RESERVAS,
     {},
     (actual) => {
+      reservado = false;
       if (actual.fecha === momento.fecha) return null;
       reservado = true;
       return { fecha: momento.fecha, estado: 'reservado' };

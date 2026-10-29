@@ -115,6 +115,20 @@ export function esTareaProhibidaSola(tareaId: string): boolean {
 
 export const TAREAS_SISTEMA: ReglaIA[] = [
   {
+    id: 'informe_posfiesta',
+    nombre: 'Informe posfiesta',
+    descripcion: 'Prepara un informe interno para revisión del dueño; no lo envía ni publica',
+    modo: 'preguntar',
+    categoria: 'Fiestas',
+  },
+  {
+    id: 'anticipador',
+    nombre: 'Anticipador de fiestas',
+    descripcion: 'Prepara alertas internas de personal y cuotas vencidas corroboradas; no contacta clientes ni modifica pagos',
+    modo: 'sola',
+    categoria: 'Monitoreo',
+  },
+  {
     id: 'resumen_de_la_manana',
     nombre: 'Resumen de la mañana',
     descripcion: 'Envía al dueño un resumen diario de hasta cinco líneas por WhatsApp o aviso en la app',

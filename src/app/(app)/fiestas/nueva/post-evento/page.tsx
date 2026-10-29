@@ -14,6 +14,8 @@ import {
   Send, Loader2, BarChart3, Heart, MessageSquare, Share2, FolderDown,
 } from 'lucide-react';
 import { getFiestaById, updateFiestaPostEvento } from '@/app/actions/fiesta/fiesta.actions';
+import { leerInformePosfiesta } from '@/app/actions/fiesta/informe-posfiesta.actions';
+import type { InformeFiestaAutomatico } from '@/lib/fiesta/informe-automatico';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 
 const formatCurrency = (n: number) =>
@@ -57,6 +59,7 @@ function PostEventoContent() {
   const [nuevoReferido, setNuevoReferido] = useState('');
 
   const [downloadingZip, setDownloadingZip] = useState(false);
+  const [informePosfiesta, setInformePosfiesta] = useState<InformeFiestaAutomatico | null>(null);
 
   const handleDownloadZip = async () => {
     if (!fiestaId) return;
@@ -91,6 +94,11 @@ function PostEventoContent() {
         setGaleriaEntregada(data.galeriaEntregada ?? false);
         setNpsScore(data.npsScore ?? null);
         setReferidoPor(data.referidoPor ?? '');
+        try {
+          setInformePosfiesta(await leerInformePosfiesta(fiestaId));
+        } catch {
+          setInformePosfiesta(null);
+        }
       }
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar el evento.', variant: 'destructive' });
@@ -210,6 +218,21 @@ function PostEventoContent() {
       </div>
 
       <div className="space-y-6">
+        {informePosfiesta && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Informe automático posfiesta</CardTitle>
+              <CardDescription>Preparado {new Date(informePosfiesta.fechaGeneracion).toLocaleString('es-UY')}. Revisión interna pendiente.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p>{informePosfiesta.propuestaResumenDuenio}</p>
+              <p>Asistencia: {informePosfiesta.asistencia.disponible ? `${informePosfiesta.asistencia.valor.asistieron} presentes de ${informePosfiesta.asistencia.valor.confirmados} confirmados` : informePosfiesta.asistencia.motivo}</p>
+              <p>Recuerdos: {informePosfiesta.multimedia.disponible ? `${informePosfiesta.multimedia.valor.fotos} fotos y ${informePosfiesta.multimedia.valor.videos} videos aprobados` : informePosfiesta.multimedia.motivo}</p>
+              <p>Catering: {informePosfiesta.catering.disponible ? 'Datos de catering registrados' : informePosfiesta.catering.motivo}</p>
+              <p>Finanzas: {informePosfiesta.finanzas.disponible ? 'Datos disponibles solo en el panel financiero autorizado' : informePosfiesta.finanzas.motivo}</p>
+            </CardContent>
+          </Card>
+        )}
         {/* Event Summary Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[

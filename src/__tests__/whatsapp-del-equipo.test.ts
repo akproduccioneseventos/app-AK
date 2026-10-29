@@ -42,9 +42,15 @@ jest.mock('@/lib/generic-json-store', () => ({
     return siguiente;
   }),
 }));
+jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null, authAdmin: null }));
 
 const mockSendMetaWhatsAppMessage = jest.fn(async () => ({ success: true, messageId: 'wa-123' }));
 const mockSendMetaWhatsAppAudioMessage = jest.fn(async () => ({ success: true, messageId: 'wa-audio-123' }));
+const mockEnviarRespuestaConVozWhatsApp = jest.fn(async () => ({
+  audioEnviado: false,
+  fallbackReason: 'voz no disponible',
+  puedeEnviarTextoFallback: true,
+}));
 const mockDescargarMediaWhatsApp = jest.fn(async () => ({ mimeType: 'audio/webm', base64: 'YXVkaW8=' }));
 const mockTranscribirAudioWhatsApp = jest.fn(async () => 'anotá llamar al salón mañana');
 const mockClasificarImagenWhatsApp = jest.fn(async () => ({
@@ -55,19 +61,19 @@ jest.mock('@/lib/whatsapp/meta-sender', () => ({
   sendMetaWhatsAppMessage: (...args: any[]) => mockSendMetaWhatsAppMessage(...args),
   sendMetaWhatsAppAudioMessage: (...args: any[]) => mockSendMetaWhatsAppAudioMessage(...args),
 }));
+jest.mock('@/lib/asistente/whatsapp-voz', () => ({
+  enviarRespuestaConVozWhatsApp: (...args: any[]) => mockEnviarRespuestaConVozWhatsApp(...args),
+}));
 jest.mock('@/lib/asistente/whatsapp-media', () => ({
   descargarMediaWhatsApp: (...args: any[]) => mockDescargarMediaWhatsApp(...args),
   transcribirAudioWhatsApp: (...args: any[]) => mockTranscribirAudioWhatsApp(...args),
   clasificarImagenWhatsApp: (...args: any[]) => mockClasificarImagenWhatsApp(...args),
 }));
-jest.mock('@/lib/asistente/voz-gemini', () => ({ sintetizarVozGemini: jest.fn(async () => Buffer.from('RIFFwav')) }));
-
 jest.mock('@/lib/firebase/server-messaging', () => ({
   sendPushNotificationToAll: jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 })),
 }));
 
 import { atenderAlEquipo } from '@/lib/asistente/por-whatsapp';
-import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 
 describe('105 — WhatsApp del equipo', () => {
   beforeEach(() => {
@@ -169,7 +175,7 @@ describe('105 — WhatsApp del equipo', () => {
     expect(mockSendMetaWhatsAppMessage.mock.calls.every(([args]) => args.to === '59898355530')).toBe(true);
   });
 
-  test('con ambos interruptores activos cae a texto explícito y nunca intenta subir WAV', async () => {
+  test('la respuesta por voz confirma audio, usa texto al agotar cuota y no duplica si Meta no confirma', async () => {
     process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
     process.env.META_WHATSAPP_PHONE_ID = '123456';
     memoriaStore['asistente-settings.json'].responderConVoz = true;
@@ -177,14 +183,44 @@ describe('105 — WhatsApp del equipo', () => {
 
     const sinInterruptorGemini = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-1', messageId: 'wamid-audio-1' });
     expect(sinInterruptorGemini.audioEnviado).toBe(false);
+    expect(mockEnviarRespuestaConVozWhatsApp).not.toHaveBeenCalled();
     expect(mockSendMetaWhatsAppAudioMessage).not.toHaveBeenCalled();
+    mockSendMetaWhatsAppMessage.mockClear();
 
     memoriaStore['asistente-settings.json'].vozGeminiActiva = true;
+    mockEnviarRespuestaConVozWhatsApp.mockResolvedValueOnce({
+      audioEnviado: true,
+      messageId: 'wamid-audio-out-1',
+      puedeEnviarTextoFallback: false,
+    });
     const conAmbosInterruptores = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-2', messageId: 'wamid-audio-2' });
-    expect(conAmbosInterruptores.audioEnviado).toBe(false);
+    expect(conAmbosInterruptores.audioEnviado).toBe(true);
+    expect(mockEnviarRespuestaConVozWhatsApp).toHaveBeenCalledWith(expect.objectContaining({
+      to: '59898355530', authorized: true,
+      settings: expect.objectContaining({ responderConVoz: true, vozGeminiActiva: true }),
+    }));
     expect(mockSendMetaWhatsAppAudioMessage).not.toHaveBeenCalled();
-    expect(sintetizarVozGemini).not.toHaveBeenCalled();
-    expect(mockSendMetaWhatsAppMessage.mock.calls.at(-1)?.[0].text).toMatch(/audio compatible.*te respondo por texto/i);
+    expect(mockSendMetaWhatsAppMessage).not.toHaveBeenCalled();
+
+    mockEnviarRespuestaConVozWhatsApp.mockResolvedValueOnce({
+      audioEnviado: false,
+      fallbackReason: 'Se alcanzó el límite compartido de 100 voces de Gemini de hoy.',
+      puedeEnviarTextoFallback: true,
+    });
+    const porTexto = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-3', messageId: 'wamid-audio-3' });
+    expect(porTexto.audioEnviado).toBe(false);
+    expect(mockSendMetaWhatsAppMessage).toHaveBeenCalledTimes(1);
+    expect(mockSendMetaWhatsAppMessage.mock.calls[0][0].text).toMatch(/límite compartido de 100 voces.*Te respondo por texto/i);
+
+    mockEnviarRespuestaConVozWhatsApp.mockResolvedValueOnce({
+      audioEnviado: false,
+      fallbackReason: 'Se perdió la confirmación de Meta; no reintentes para evitar duplicados.',
+      puedeEnviarTextoFallback: false,
+    });
+    const incierto = await atenderAlEquipo({ from: '59898355530', type: 'audio', mediaId: 'audio-4', messageId: 'wamid-audio-4' });
+    expect(incierto.audioEnviado).toBe(false);
+    expect(mockSendMetaWhatsAppMessage).toHaveBeenCalledTimes(1);
+    expect(mockEnviarRespuestaConVozWhatsApp).toHaveBeenCalledTimes(3);
     expect(transaccionalStore['asistente/voz-uso.json']).toBeUndefined();
   });
 

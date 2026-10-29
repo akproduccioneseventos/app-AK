@@ -26,9 +26,69 @@ import { transitionPaymentNotification } from '@/lib/client-portal/payment-notif
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { mutarDocumento } from '@/lib/generic-json-store';
+import type { PromotionalPhotoConsent, PromotionalPhotoConsentVersion } from '@/types/promotional-photo-consent';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
+const PROMOTIONAL_PHOTO_CONSENTS_FILE = 'promotional-photo-consents.json';
+
+export async function setClientPromotionalPhotoConsent(
+  fiestaId: string,
+  authorized: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  if (typeof fiestaId !== 'string' || !fiestaId.trim() || typeof authorized !== 'boolean') {
+    return { success: false, error: 'Fiesta o decisión no válida.' };
+  }
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión de cliente no autorizada.' };
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta || fiesta.id !== fiestaId || !fiesta.clientPortalSettings?.enabled) {
+    return { success: false, error: 'Fiesta no válida para esta sesión.' };
+  }
+  const now = new Date().toISOString();
+  try {
+    const updated = await mutarDocumento<Record<string, PromotionalPhotoConsent>>(
+      PROMOTIONAL_PHOTO_CONSENTS_FILE,
+      {},
+      current => {
+        const previous = current[fiestaId];
+        const { history: previousHistory, ...previousVersion } = previous || {} as PromotionalPhotoConsent;
+        return {
+        ...current,
+        [fiestaId]: {
+          eventId: fiestaId,
+          authorized,
+          grantedBy: 'client',
+          method: 'client_portal',
+          evidenceReference: 'Autorización expresa en el portal del cliente',
+          contractVersion: 'photo-promo-v1',
+          recordedBy: fiesta.configuracion?.clienteNombre || 'Cliente autenticado del portal',
+          recordedAt: now,
+          revokedAt: authorized ? undefined : now,
+          history: [
+            ...(previousHistory || []),
+            ...(previous ? [previousVersion as PromotionalPhotoConsentVersion] : []),
+          ],
+        },
+      };
+      },
+    );
+    return updated ? { success: true } : { success: false, error: 'No se pudo guardar la autorización.' };
+  } catch (error) {
+    return { success: false, error: sanitizeActionError(error) };
+  }
+}
+
+export async function getClientPromotionalPhotoConsent(fiestaId: string): Promise<{
+  authorized: boolean;
+  recordedAt?: string;
+}> {
+  if (!(await verifyPortalSession(fiestaId))) throw new Error('Sesión de cliente no autorizada.');
+  const consents = await import('@/lib/data-service').then(({ readData }) =>
+    readData<Record<string, PromotionalPhotoConsent>>(PROMOTIONAL_PHOTO_CONSENTS_FILE, {}));
+  const consent = consents[fiestaId];
+  return { authorized: consent?.authorized === true && !consent.revokedAt, recordedAt: consent?.recordedAt };
+}
 
 function normalizeClientPaymentAmount(value: number): number {
   if (!Number.isFinite(value) || value <= 0) return 0;

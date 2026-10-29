@@ -16,6 +16,8 @@ import { applyAutomaticStaffByGuests, createLiveBudgetState } from '@/lib/commer
 import { buscarRol } from '@/lib/fiesta/personal-por-invitados';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
+import type { Invoice } from '@/types/invoice';
+import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
@@ -54,8 +56,8 @@ export function anticiparFaltantesDeMozos(
 
   for (const fiesta of fiestas) {
     const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
-    if (['suspendida', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo ak'].includes(estado)) continue;
-    if (fiesta.id?.startsWith('demo_') || fiesta.modulosContratados?.catering !== true) continue;
+    if (['suspendida', 'suspendido', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo', 'demo ak', 'suspended', 'archived'].includes(estado)) continue;
+    if (/^demo(?:_|-)/i.test(fiesta.id || '') || fiesta.modulosContratados?.catering !== true) continue;
 
     const fechaEvento = String(fiesta.configuracion?.fechaEvento || '').slice(0, 10);
     const inicio = localDateTimeToUtcMs(fechaEvento, fiesta.configuracion?.horaInicio || '');
@@ -142,15 +144,13 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, presupuestos, descartes, roles] = await Promise.all([
+  const [fiestas, presupuestos, descartes] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
-    readData<Array<{ id: string; nombre: string }>>('roles.json', []),
   ]);
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
-  const faltantesMozos = anticiparFaltantesDeMozos(fiestas, roles, ahora);
 
   if (alertas.length === 0) {
     hallazgos.push('No se detectaron errores humanos en las fiestas activas.');
@@ -164,11 +164,6 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     }
   }
 
-  for (const faltante of faltantesMozos) {
-    hallazgos.push(faltante.hallazgo);
-    acciones.push('Dejar una propuesta interna para completar la asignación de mozos; no se modifica el equipo ni el presupuesto.');
-  }
-
   const registro: RegistroEjecucionAgente = {
     id: `reg_vigilante_${Date.now()}`,
     agenteId: 'vigilante_fiestas',
@@ -176,7 +171,7 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     ejecutadoEn: ahora.toISOString(),
     hallazgos,
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin acciones requeridas'],
-    estado: alertas.length > 0 || faltantesMozos.length > 0 ? 'alerta' : 'sin_novedades',
+    estado: alertas.length > 0 ? 'alerta' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
@@ -638,6 +633,101 @@ export function calcularTragosDisponibles(
   return Number.isFinite(limite) ? limite : null;
 }
 
+export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroEjecucionAgente> {
+  const [fiestas, presupuestos, roles, invoices] = await Promise.all([
+    readData<FiestaEnPlanificacion[]>('fiestas.json', []),
+    readData<Presupuesto[]>('presupuestos.json', []),
+    readData<Array<{ id: string; nombre: string }>>('roles.json', []),
+    readData<Invoice[]>('invoices.json', []),
+  ]);
+  const presupuestosPorId = new Map(presupuestos.map((presupuesto) => [presupuesto.id, presupuesto]));
+  const facturasPorId = new Map(invoices.filter(isFirmSalesInvoice).map((invoice) => [invoice.id, invoice]));
+  const faltantesMozos = anticiparFaltantesDeMozos(fiestas, roles, ahora);
+  const hallazgos: string[] = faltantesMozos.map((faltante) => faltante.hallazgo);
+  const acciones: string[] = faltantesMozos.map((faltante) => `Preparar propuesta para completar ${faltante.requeridos - faltante.asignados} lugares de mozo en ${faltante.fiestaId}; no modificar asignación ni presupuesto.`);
+  for (const fiesta of fiestas) {
+    if (!fiesta.id || !fiestaActivaParaAnticipador(fiesta)) continue;
+    const planCuotas = fiesta.planDePagos?.cuotas || [];
+    const fechaHoy = hoyEnUruguay(ahora);
+    const potencialmenteVencidas = contarCuotasCalendarioVencidas(planCuotas, fechaHoy);
+    if (potencialmenteVencidas.length < 2) continue;
+    const presupuesto = fiesta.presupuestoId ? presupuestosPorId.get(fiesta.presupuestoId) : undefined;
+    const invoice = presupuesto?.invoiceId ? facturasPorId.get(presupuesto.invoiceId) : undefined;
+    const planTotal = planCuotas.reduce((sum, cuota) => sum + Number(cuota.monto || 0), 0);
+    const calendarioValido = planCuotas.every((cuota) => esFechaCalendarioValida(String(cuota.fechaVencimiento || '')) && Number.isFinite(Number(cuota.monto)) && Number(cuota.monto) > 0);
+    if (!presupuesto || !invoice || invoice.sourcePresupuestoId !== presupuesto.id || !calendarioValido || !Number.isFinite(planTotal) || Math.abs(planTotal - Number(invoice.totalAmount)) > 0.01) {
+      hallazgos.push(`[REVISION INTERNA][area=cobros][plan_no_conciliado][fiesta=${encodeURIComponent(fiesta.id)}] Reconciliar el plan de pagos con la factura vinculada; no afirmar atraso de la familia.`);
+      acciones.push(`Reconciliar el plan y el vínculo de factura de la fiesta ${fiesta.id}; no contactar a la familia ni marcar cuotas.`);
+      continue;
+    }
+    const cobrado = getReconciledSalePayments(invoice, presupuesto).reduce((sum, payment) => sum + payment.amount, 0);
+    const cuotasAtrasadas = contarCuotasVencidasNoCubiertas(planCuotas, cobrado, fechaHoy);
+    if (cuotasAtrasadas.length < 2) continue;
+    hallazgos.push(`[REVISION INTERNA][area=cobros][fiesta=${encodeURIComponent(fiesta.id)}] Hay al menos dos cuotas vencidas y el ledger confirmado mantiene saldo pendiente.`);
+    acciones.push(`Revisar el plan y el ledger confirmado de la fiesta ${fiesta.id}; no contactar a la familia ni modificar pagos.`);
+  }
+
+  const registro: RegistroEjecucionAgente = {
+    id: `reg_anticipador_${ahora.getTime()}`,
+    agenteId: 'anticipador',
+    agenteNombre: 'Anticipador',
+    ejecutadoEn: ahora.toISOString(),
+    hallazgos,
+    accionesPreparadas: acciones,
+    estado: hallazgos.length ? 'alerta' : 'sin_novedades',
+  };
+  await registrarEjecucionAgente(registro);
+  return registro;
+}
+
+function fiestaActivaParaAnticipador(fiesta: FiestaEnPlanificacion): boolean {
+  const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
+  return !/^demo(?:_|-)/i.test(fiesta.id || '')
+    && !['demo', 'demo ak', 'suspendida', 'suspendido', 'cancelada', 'cancelado', 'archivada', 'archivado', 'suspended', 'archived'].includes(estado);
+}
+
+function contarCuotasCalendarioVencidas(
+  cuotas: Array<{ fechaVencimiento?: string; monto?: number }>,
+  hoy: string,
+): Array<{ fechaVencimiento: string; monto: number }> {
+  return cuotas.flatMap((cuota) => {
+    const fecha = String(cuota.fechaVencimiento || '').slice(0, 10);
+    const monto = Number(cuota.monto);
+    if (!esFechaCalendarioValida(fecha) || !Number.isFinite(monto) || monto <= 0 || fecha >= hoy) return [];
+    return [{ fechaVencimiento: fecha, monto }];
+  });
+}
+
+function esFechaCalendarioValida(value: string): boolean {
+  const dia = value.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dia)) return false;
+  const parsed = new Date(`${dia}T12:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === dia;
+}
+
+export function contarCuotasVencidasNoCubiertas(
+  cuotas: Array<{ fechaVencimiento?: string; monto?: number }>,
+  cobradoReconciliado: number,
+  hoy: string,
+): Array<{ fechaVencimiento: string; saldoNoCubierto: number }> {
+  const cantidad = (value: unknown) => Number.isFinite(Number(value)) && Number(value) > 0;
+  if (!esFechaCalendarioValida(hoy) || !Number.isFinite(cobradoReconciliado) || cobradoReconciliado < 0) return [];
+  if (cuotas.some((cuota) => !esFechaCalendarioValida(String(cuota.fechaVencimiento || '')) || !cantidad(cuota.monto))) return [];
+
+  let disponible = cobradoReconciliado;
+  const resultado: Array<{ fechaVencimiento: string; saldoNoCubierto: number }> = [];
+  const ordenadas = [...cuotas].sort((a, b) => String(a.fechaVencimiento).slice(0, 10).localeCompare(String(b.fechaVencimiento).slice(0, 10)));
+  for (const cuota of ordenadas) {
+    const monto = Number(cuota.monto);
+    const aplicado = Math.min(monto, disponible);
+    disponible -= aplicado;
+    const saldoNoCubierto = Math.max(0, monto - aplicado);
+    const fecha = String(cuota.fechaVencimiento).slice(0, 10);
+    if (fecha < hoy && saldoNoCubierto > 0.01) resultado.push({ fechaVencimiento: fecha, saldoNoCubierto });
+  }
+  return resultado;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. EL VIGILANTE DE PUBLICIDAD & META ADS (MONITOREA, NUNCA GASTA SOLO)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -747,6 +837,9 @@ export async function ejecutarAgentesAutonomos(
           break;
         case 'vigilante_publicidad':
           reg = await ejecutarVigilantePublicidad(ahora);
+          break;
+        case 'anticipador':
+          reg = await ejecutarAnticipador(ahora);
           break;
       }
       if (reg) {

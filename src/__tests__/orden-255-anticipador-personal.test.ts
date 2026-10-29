@@ -40,7 +40,7 @@ jest.mock('@/lib/asistente/propuestas-service', () => ({
 jest.mock('@/lib/asistente/resumen-manana-whatsapp', () => ({ enviarResumenMananaWhatsApp: jest.fn(async () => ({})) }));
 
 import { prepararPropuestaFaltantePersonal } from '@/app/api/cron/asistente-proactivo/route';
-import { anticiparFaltantesDeMozos, ejecutarVigilanteFiestas } from '@/lib/agentes/motor-agentes';
+import { anticiparFaltantesDeMozos, contarCuotasVencidasNoCubiertas, ejecutarAnticipador, ejecutarVigilanteFiestas } from '@/lib/agentes/motor-agentes';
 
 describe('Orden 255, bloque 7: faltante de mozos', () => {
   const ahora = new Date('2026-10-29T15:00:00.000Z');
@@ -94,7 +94,7 @@ describe('Orden 255, bloque 7: faltante de mozos', () => {
     expect(prepararPropuestaFaltantePersonal(faltantes[0].hallazgo)?.clave).toBe(propuesta?.clave);
   });
 
-  it('integra el hallazgo al vigilante existente sin escribir presupuestos ni cambiar asignaciones', async () => {
+  it('emite la alerta desde anticipador, no duplica en vigilante ni cambia asignaciones', async () => {
     mockData['fiestas.json'] = [fiestaBase];
     mockData['presupuestos.json'] = [];
     mockData['alertas-descartadas.json'] = [];
@@ -103,10 +103,12 @@ describe('Orden 255, bloque 7: faltante de mozos', () => {
     mockData['agentes-configuracion.json'] = [];
 
     const antes = JSON.stringify(fiestaBase.personalAsignado);
-    const registro = await ejecutarVigilanteFiestas(ahora);
+    const registro = await ejecutarAnticipador(ahora);
 
     expect(registro.hallazgos.some((hallazgo) => hallazgo.includes('asignados=3;requeridos=6'))).toBe(true);
     expect(registro.estado).toBe('alerta');
+    const vigilante = await ejecutarVigilanteFiestas(ahora);
+    expect(vigilante.hallazgos.some((hallazgo) => hallazgo.includes('asignados=3;requeridos=6'))).toBe(false);
     expect(JSON.stringify(fiestaBase.personalAsignado)).toBe(antes);
     expect(mockWriteData.mock.calls.map(([file]) => file)).not.toContain('presupuestos.json');
   });
@@ -123,5 +125,40 @@ describe('Orden 255, bloque 7: faltante de mozos', () => {
     };
     expect(anticiparFaltantesDeMozos([fueraDeVentana, sinCatering, sinInvitados], roles, ahora)).toEqual([]);
     expect(anticiparFaltantesDeMozos([fiestaBase], [{ id: 'rol-dj', nombre: 'DJ' }], ahora)).toEqual([]);
+  });
+
+  it('imputa cobros reconciliados a cuotas cronológicas antes de afirmar atraso', async () => {
+    const fiesta: any = {
+      id: 'fiesta-cuotas', estado: 'Confirmada', presupuestoId: 'budget-cuotas',
+      configuracion: { nombreEvento: 'Boda', fechaEvento: '2026-11-20', horaInicio: '20:00', horaFin: '23:00', invitadosEstimados: 50 },
+      planDePagos: { cuotas: [
+        { id: 'q1', fechaVencimiento: '2026-10-01', monto: 30, montoPagado: 0, estado: 'vencido' },
+        { id: 'q2', fechaVencimiento: '2026-10-10', monto: 30, montoPagado: 0, estado: 'vencido' },
+        { id: 'q3', fechaVencimiento: '2026-11-10', monto: 30, montoPagado: 0, estado: 'pendiente' },
+      ] }, personalAsignado: [],
+    };
+    mockData['fiestas.json'] = [fiesta];
+    mockData['presupuestos.json'] = [{ id: 'budget-cuotas', invoiceId: 'invoice-cuotas', pagosCliente: [] }];
+    mockData['roles.json'] = [];
+    mockData['invoices.json'] = [{ id: 'invoice-cuotas', sourcePresupuestoId: 'budget-cuotas', status: 'Paid', invoiceNumber: 'AK-10', totalAmount: 90, payments: [{ id: 'payment-1', paymentDate: '2026-10-28', amount: 60 }] }];
+
+    const registro = await ejecutarAnticipador(ahora);
+    expect(registro.hallazgos.some((hallazgo) => hallazgo.includes('[area=cobros]'))).toBe(false);
+
+    mockData['invoices.json'] = [{ id: 'invoice-cuotas', sourcePresupuestoId: 'budget-cuotas', status: 'Paid', invoiceNumber: 'AK-10', totalAmount: 300, payments: [{ id: 'payment-1', paymentDate: '2026-10-28', amount: 200 }] }];
+    fiesta.planDePagos.cuotas[0].monto = 100;
+    fiesta.planDePagos.cuotas[1].monto = 100;
+    fiesta.planDePagos.cuotas[2].monto = 100;
+    expect((await ejecutarAnticipador(ahora)).hallazgos.some((hallazgo) => hallazgo.includes('[area=cobros]'))).toBe(false);
+
+    mockData['invoices.json'] = [{ id: 'invoice-cuotas', sourcePresupuestoId: 'budget-cuotas', status: 'Paid', invoiceNumber: 'AK-10', totalAmount: 300, payments: [{ id: 'payment-1', paymentDate: '2026-10-28', amount: 50 }] }];
+    expect((await ejecutarAnticipador(ahora)).hallazgos.some((hallazgo) => hallazgo.includes('[area=cobros]'))).toBe(true);
+  });
+
+  it('no classifies invalid dates or amounts as overdue', () => {
+    expect(contarCuotasVencidasNoCubiertas([
+      { fechaVencimiento: '2026-02-30', monto: 100 },
+      { fechaVencimiento: '2026-10-01', monto: 100 },
+    ], 0, '2026-10-29')).toEqual([]);
   });
 });
