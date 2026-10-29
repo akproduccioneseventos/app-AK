@@ -67,10 +67,11 @@ test('cliente del portal de OTRA fiesta: no recibe la lista', async ({ page, con
 });
 
 test('cookie de sesion con firma falsa: pasa el portero pero el servidor no entrega la lista', async ({ page, context, baseURL }) => {
-  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
+  // La sesion de 4 partes (sin usuario) dejo de valer el 28/10/2026 (orden 247): va el usuario adentro.
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
   const firmaFalsa = crypto.createHmac('sha256', `${SESSION_SECRET}-otro`).update(payload).digest('hex');
   await context.addCookies([{
-    name: 'ak_session', value: `${payload}.${firmaFalsa}`, url: baseURL!, httpOnly: true, sameSite: 'Lax',
+    name: 'ak_session', value: encodeURIComponent(`${payload}.${firmaFalsa}`), url: baseURL!, httpOnly: true, sameSite: 'Lax',
   }]);
   await page.goto(`/recepcion/${ID}`, { waitUntil: 'domcontentloaded' }).catch(() => {});
   await page.waitForLoadState('load').catch(() => {});

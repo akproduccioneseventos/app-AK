@@ -7,11 +7,10 @@ function createSessionToken() {
   const version = 'v1';
   const expiresAt = Date.now() + 60 * 60 * 1000;
   const nonce = crypto.randomUUID();
-  // The legacy four-part format is still supported and avoids cookie-value
-  // encoding differences between Chromium and Next.js during browser tests.
-  const payload = `${version}.${expiresAt}.${nonce}`;
+  // El formato viejo de cuatro partes dejó de valer el 28/10/2026 (orden 247): va el usuario adentro.
+  const payload = `${version}.${expiresAt}.${nonce}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
   const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-  return `${payload}.${signature}`;
+  return encodeURIComponent(`${payload}.${signature}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
 test.beforeEach(async ({ context, baseURL }) => {

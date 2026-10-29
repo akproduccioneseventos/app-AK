@@ -23,9 +23,10 @@ const SESSION_SECRET = 'playwright-session-secret-with-enough-entropy';
 
 /** Las pantallas del equipo piden sesión: sin esto redirigen al ingreso. */
 function crearTokenDeSesion() {
-  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
+  // La sesion de 4 partes (sin usuario) dejo de valer el 28/10/2026 (orden 247): va el usuario adentro.
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email: 'admin@akproducciones.com', role: 'admin', userId: 'admin', perfil: 'dueno' }))}`;
   const firma = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-  return `${payload}.${firma}`;
+  return encodeURIComponent(`${payload}.${firma}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
 const FIESTA = crearFiestaDeEstaNoche({ id: ID, clavePortal: CLAVE });
