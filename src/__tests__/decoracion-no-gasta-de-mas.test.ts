@@ -28,6 +28,28 @@ jest.mock('@/lib/fiesta/costos-interno', () => ({
     return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
   },
 }));
+// Lo que la transacción ya guardó (la reserva pendiente incluida) se vuelve a leer de acá.
+const guardadas = new Map<string, any>();
+// Desde la orden 253 la reserva del cupo y la foto se guardan por la transacción de la
+// fiesta: el doble lee con getFiestaById y guarda con saveFiesta, los mismos de esta prueba.
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: async (id: string, fn: (f: any) => any) => {
+    const base = guardadas.has(id) ? JSON.parse(JSON.stringify(guardadas.get(id))) : await getFiestaById(id);
+    if (!base) return { success: false, error: 'No encontrada' };
+    try {
+      const nueva = await fn(base);
+      guardadas.set(id, JSON.parse(JSON.stringify(nueva)));
+      await saveFiesta(nueva);
+      return { success: true, updatedFiesta: nueva };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  },
+}));
+jest.mock('@/lib/firebase/storage', () => ({
+  uploadToStorageWithDownloadToken: async (_buf: Buffer, ruta: string) => `https://storage.test/${ruta}`,
+}));
+const PNG_IA = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: (...args: unknown[]) => getFiestaById(...args),
   saveFiesta: (...args: unknown[]) => saveFiesta(...args),
@@ -69,6 +91,7 @@ describe('la decoracion no gasta de mas', () => {
     generateGeminiImage.mockReset();
     getFiestaById.mockReset();
     saveFiesta.mockReset();
+    guardadas.clear();
     saveFiesta.mockResolvedValue({ success: true });
   });
 
@@ -87,7 +110,7 @@ describe('la decoracion no gasta de mas', () => {
 
   it('con menos de tres, genera una sola y la guarda', async () => {
     getFiestaById.mockResolvedValue(fiestaCon({ fotosGeneradasAi: ['una.jpg'] }));
-    generateGeminiImage.mockResolvedValue('nueva.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
 
     const resultado = await generarVisualizacionSalonAi('fiesta-de-prueba');
 
@@ -115,7 +138,7 @@ describe('la decoracion no gasta de mas', () => {
     // El generador tarda: sin turno, el segundo pedido entra mientras el primero
     // todavia no guardo.
     generateGeminiImage.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve('nueva.jpg'), 20)),
+      () => new Promise((resolve) => setTimeout(() => resolve(PNG_IA), 20)),
     );
 
     const [a, b] = await Promise.all([
@@ -142,7 +165,7 @@ describe('la decoracion no gasta de mas', () => {
         colorPalette: { primary: '#111111', secondary: '#222222', accent: '#333333' },
       }),
     );
-    generateGeminiImage.mockResolvedValue('nueva.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
 
     await generarVisualizacionSalonAi('fiesta-de-prueba');
 

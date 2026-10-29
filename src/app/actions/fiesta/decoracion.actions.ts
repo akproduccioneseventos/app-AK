@@ -353,9 +353,10 @@ async function ejecutarGeneracionSalonAi(
         return { success: false, error: 'No se pudo armar la foto. Probá de nuevo en un rato.' };
       }
 
+      // La imagen ya se pagó aunque venga en un formato que no sirve: se cuenta primero.
+      await registrarConsumoIA('foto-del-salon');
       const imagen = normalizarImagenGemini(imageUrl);
       if (!imagen) return { success: false, error: 'Gemini devolvió una imagen con formato no válido.' };
-      await registrarConsumoIA('foto-del-salon');
       const urlPersistida = await uploadToStorageWithDownloadToken(
         Buffer.from(imagen.base64, 'base64'),
         `salon-ai/${fiestaId}/${reservaId}.${imagen.extension}`,

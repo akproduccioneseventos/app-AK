@@ -54,6 +54,34 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   }),
 }));
 
+// La reserva y la confirmación pasan por la transacción de la fiesta: el doble lee una
+// COPIA y sólo confirma si nadie escribió en el medio (si no, vuelve a intentar), como
+// la base de verdad.
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (id: string, fn: (f: any) => any) => {
+    for (let intento = 0; intento < 10; intento++) {
+      if (!baseDeFiestas[id]) return { success: false, error: 'No encontrada' };
+      const leida = baseDeFiestas[id];
+      try {
+        const nueva = await fn(clonarProfundo(leida));
+        if (baseDeFiestas[id] !== leida) continue;
+        baseDeFiestas[id] = clonarProfundo(nueva);
+        return { success: true, updatedFiesta: clonarProfundo(nueva) };
+      } catch (e: any) {
+        return { success: false, error: e.message };
+      }
+    }
+    return { success: false, error: 'Demasiados reintentos' };
+  }),
+}));
+
+jest.mock('@/lib/firebase/storage', () => ({
+  uploadToStorageWithDownloadToken: jest.fn(async (_buf: Buffer, ruta: string) => `https://storage.test/${ruta}`),
+}));
+
+const CAPTURA_OK = 'data:image/png;base64,' + 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+const PNG_IA = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
 jest.mock('@/lib/fiesta/costos-interno', () => ({
   mutarCostosInterno: async () => ({ success: true }),
 }));
@@ -101,7 +129,7 @@ describe('Orden 250 - Así va a quedar tu fiesta', () => {
         itemsDecoracion: [{ id: '1', nombre: 'Centro floral', categoria: 'Mesa' }],
       },
     };
-    generateGeminiImage.mockResolvedValue('resultado-ia.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
 
     const res = await generarVisualizacionSalonAi('f1', undefined, captura3d);
 
@@ -138,12 +166,14 @@ describe('Orden 250 - Así va a quedar tu fiesta', () => {
     };
 
     // 1. Éxito:
-    generateGeminiImage.mockResolvedValue('foto-ia-ok.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
     const resOk = await generarVisualizacionSalonAi('f1');
     expect(resOk.success).toBe(true);
     expect(registrarConsumoIA).toHaveBeenCalledTimes(1);
     expect(registrarConsumoIA).toHaveBeenCalledWith('foto-del-salon');
-    expect(baseDeFiestas['f1'].decoracion.fotosGeneradasAi).toContain('foto-ia-ok.jpg');
+    expect(baseDeFiestas['f1'].decoracion.fotosGeneradasAi).toEqual([resOk.imageUrl]);
+    expect(resOk.imageUrl).toMatch(/^https:\/\/storage\.test\/salon-ai\/f1\/.+\.png$/);
+    expect(baseDeFiestas['f1'].decoracion.fotosSalonAiPendientes).toEqual([]);
 
     registrarConsumoIA.mockClear();
 
@@ -172,10 +202,10 @@ describe('Orden 250 - Así va a quedar tu fiesta', () => {
       id: 'f1',
       decoracion: { fotosGeneradasAi: ['foto1.jpg', 'foto2.jpg'] },
     };
-    generateGeminiImage.mockResolvedValue('foto3.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
 
     // El cliente genera la 3ra:
-    const resCliente = await generarFotoDelSalonDesdeElPortal('f1');
+    const resCliente = await generarFotoDelSalonDesdeElPortal('f1', CAPTURA_OK);
     expect(resCliente.success).toBe(true);
     expect(baseDeFiestas['f1'].decoracion.fotosGeneradasAi).toHaveLength(3);
 
@@ -194,12 +224,12 @@ describe('Orden 250 - Así va a quedar tu fiesta', () => {
     };
 
     generateGeminiImage.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve('foto3.jpg'), 30)),
+      () => new Promise((resolve) => setTimeout(() => resolve(PNG_IA), 30)),
     );
 
     const [res1, res2] = await Promise.all([
       generarVisualizacionSalonAi('f1'),
-      generarFotoDelSalonDesdeElPortal('f1'),
+      generarFotoDelSalonDesdeElPortal('f1', CAPTURA_OK),
     ]);
 
     expect([res1.success, res2.success].filter(Boolean)).toHaveLength(1);
@@ -219,7 +249,7 @@ describe('Orden 250 - Así va a quedar tu fiesta', () => {
 
     // Con presupuesto: genera 2 imágenes y llama registrarConsumoIA por cada una
     hayPresupuestoParaIA.mockResolvedValue(true);
-    generateGeminiImage.mockResolvedValue('reunion.jpg');
+    generateGeminiImage.mockResolvedValue(PNG_IA);
     const resConPresupuesto = await generarVisualizacionSalonReunion({ tipoEvento: '15 Años' });
     expect(resConPresupuesto.success).toBe(true);
     expect(registrarConsumoIA).toHaveBeenCalledTimes(2);
