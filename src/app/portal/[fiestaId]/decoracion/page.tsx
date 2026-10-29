@@ -263,6 +263,7 @@ export default function ClientDecoracionPage() {
         {/* Tu Salón en 3D */}
         {(deco.salonElements?.length || 0) > 0 && (
           <Salon3DClienteView
+            fiestaId={fiestaId}
             decoracion={deco}
             fotosAi={fotosAi}
             fotoFallbackUrl={fotosAi[0] || deco.salonPlanBackgroundImageUrl}
@@ -279,7 +280,7 @@ export default function ClientDecoracionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fotosAi.map((foto, idx) => (
                 <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-white/15 shadow-2xl bg-slate-900">
-                  <Image src={foto} alt={`Visualización de decoración ${idx + 1}`} fill className="object-cover" />
+                  <Image src={foto} alt={`Visualización de decoración ${idx + 1}`} fill unoptimized className="object-cover" />
                 </div>
               ))}
             </div>

@@ -12,8 +12,14 @@ jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => true),
 }));
 
-jest.mock('@/lib/google-workspace', () => ({
+jest.mock('@/lib/ai/gemini-image', () => ({
   generateGeminiImage: jest.fn(async () => 'https://mock.image/gemini-salon.jpg'),
+}));
+
+// Desde la orden 250 la vista del salón pasa por el tope de gasto de IA del mes.
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn(async () => true),
+  registrarConsumoIA: jest.fn(async () => {}),
 }));
 
 describe('Orden 106 — El salón se arma con una frase y vista mágica', () => {

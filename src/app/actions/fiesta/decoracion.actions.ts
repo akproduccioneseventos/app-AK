@@ -4,14 +4,19 @@ import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, Co
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { mutarCostosInterno } from '@/lib/fiesta/costos-interno';
-import { generateGeminiImage } from '@/lib/ai/gemini-image';
+import { generateGeminiImage, type GeminiImageReference } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { AsyncMutex } from '@/lib/mutex';
+import { randomUUID } from 'crypto';
+import { uploadToStorageWithDownloadToken } from '@/lib/firebase/storage';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 /**
  * EL TURNO DE LAS IMAGENES QUE SE PAGAN.
@@ -223,73 +228,213 @@ export async function enviarOpinionDecoracion(
   }
 }
 
-export async function generarVisualizacionSalonAi(
+function validarCaptura3d(capturaDel3d?: string): GeminiImageReference | null {
+  if (!capturaDel3d || typeof capturaDel3d !== 'string') return null;
+  const trimmed = capturaDel3d.trim();
+  if (trimmed.length * 0.75 > 4 * 1024 * 1024) return null;
+
+  const dataUrlMatch = trimmed.match(/^data:(image\/(?:png|jpeg));base64,([-_A-Za-z0-9+/=\s]+)$/i);
+  if (dataUrlMatch) {
+    return {
+      contentType: dataUrlMatch[1].toLowerCase(),
+      base64: dataUrlMatch[2].replace(/\s+/g, ''),
+    };
+  }
+
+  const sinEspacios = trimmed.replace(/\s+/g, '');
+  if (/^[-_A-Za-z0-9+/=]+$/.test(sinEspacios)) {
+    if (sinEspacios.startsWith('iVBORw0KGgo')) {
+      return { contentType: 'image/png', base64: sinEspacios };
+    }
+    if (sinEspacios.startsWith('/9j/')) {
+      return { contentType: 'image/jpeg', base64: sinEspacios };
+    }
+  }
+
+  return null;
+}
+
+async function ejecutarGeneracionSalonAi(
   fiestaId: string,
-  salonFotoUrl?: string
+  salonFotoUrl?: string,
+  capturaDel3d?: string,
 ): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
-  await requireAppSession();
   return visualizacionesMutex.runExclusive(async () => {
-  try {
-    // La cuenta se hace ADENTRO del turno: contar afuera es lo que dejaba pasar
-    // dos pedidos con un solo lugar libre.
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const reservaId = randomUUID();
+    let reservaActiva = false;
+    let proveedorInvocado = false;
+    try {
+      let fiesta: FiestaEnPlanificacion | undefined;
+      const reserva = await actualizarFiesta(fiestaId, (actual) => {
+        fiesta = actual;
+        const decoracionActual = actual.decoracion || {};
+        const fotos = decoracionActual.fotosGeneradasAi || [];
+        const pendientes = decoracionActual.fotosSalonAiPendientes || [];
+        if (fotos.length + pendientes.length >= 3) {
+          throw new Error('Se alcanzó el tope de 3 imágenes generadas con IA para esta fiesta.');
+        }
+        return {
+          ...actual,
+          decoracion: {
+            ...decoracionActual,
+            fotosSalonAiPendientes: [...pendientes, { id: reservaId, creadaEn: new Date().toISOString() }],
+          },
+        };
+      });
+      if (!reserva.success || !fiesta) {
+        return { success: false, error: reserva.error || 'No se pudo reservar una generación para esta fiesta.' };
+      }
+      reservaActiva = true;
+      const decoracion = fiesta.decoracion || {};
+      const puede = await hayPresupuestoParaIA();
+      if (!puede) {
+        await liberarReservaFoto(fiestaId, reservaId);
+        reservaActiva = false;
+        return {
+          success: false,
+          error: 'Se llegó al tope de IA del mes.',
+        };
+      }
 
-    const decoracion = fiesta.decoracion || {};
-    const fotosExistentes = decoracion.fotosGeneradasAi || [];
+      const captura3dRef = validarCaptura3d(capturaDel3d);
+      const fotoDelSalon = await fotoDeReferenciaSegura(salonFotoUrl || decoracion.salonPlanBackgroundImageUrl);
 
-    if (fotosExistentes.length >= 3) {
+      const images: GeminiImageReference[] = [];
+      if (captura3dRef) {
+        images.push(captura3dRef);
+      }
+      if (fotoDelSalon) {
+        images.push(fotoDelSalon);
+      }
+
+      const estilo = decoracion.estiloDecoracion || 'elegante';
+      // La paleta que edita el equipo es `paletaColores`; `colorPalette` es la vieja
+      // que quedo de antes. Se miran en el mismo orden que la vista 3D, si no la
+      // imagen salia con colores que ya nadie eligio.
+      const paleta = decoracion.paletaColores || decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
+      const items = (decoracion.itemsDecoracion || []).map(i => i.nombre).slice(0, 8).join(', ');
+      const tema = decoracion.tema || fiesta.configuracion?.nombreEvento || 'Fiesta de gala';
+
+      let prompt: string;
+      if (captura3dRef) {
+        prompt = `fotografía realista del mismo salón, desde el mismo ángulo y con la misma disposición de mesas, pista y escenario que la primera imagen; con la paleta principal ${paleta.primary}, secundaria ${paleta.secondary}, acento ${paleta.accent}, estilo ${estilo}, cubremantel ${decoracion.colorCubremantel || 'blanco'}, globos ${decoracion.colorGlobos || 'a tono'} y estos elementos: ${items}. Nada de personas, texto, logos ni marcas. No agregar mobiliario que no esté en la primera imagen.`;
+      } else {
+        const promptBase = [
+          `Fotografía profesional y realista de un salón de eventos decorado para ${tema}.`,
+          `Estilo de ambientación: ${estilo}.`,
+          `Paleta de colores: color principal ${paleta.primary}, color secundario ${paleta.secondary}, detalles y acentos en ${paleta.accent}.`,
+          items ? `Elementos decorativos presentes: ${items}.` : '',
+          `Iluminación ambiental cálida con guirnaldas, luces tenues, centros de mesa y mobiliario premium. Gran angular, calidad fotográfica 4K, elegante y festivo.`,
+        ].filter(Boolean).join(' ');
+
+        prompt = fotoDelSalon
+          ? `${promptBase} Respetar la arquitectura, las medidas y los ventanales del salon de la foto de referencia: es este salon decorado, no otro.`
+          : promptBase;
+      }
+
+      let imageUrl: string | null = null;
+      try {
+        proveedorInvocado = true;
+        imageUrl = await generateGeminiImage({
+          prompt,
+          images,
+          aspectRatio: '16:9',
+          imageSize: '1K',
+        });
+      } catch {
+        // El proveedor pudo aceptar el pedido antes de perderse la respuesta; conservar
+        // la reserva evita volver a cobrar una generación de resultado incierto.
+        return { success: false, error: 'No se pudo armar la foto. Probá de nuevo en un rato.' };
+      }
+
+      if (!imageUrl) {
+        await liberarReservaFoto(fiestaId, reservaId);
+        reservaActiva = false;
+        return { success: false, error: 'No se pudo armar la foto. Probá de nuevo en un rato.' };
+      }
+
+      // La imagen ya se pagó aunque venga en un formato que no sirve: se cuenta primero.
+      await registrarConsumoIA('foto-del-salon');
+      const imagen = normalizarImagenGemini(imageUrl);
+      if (!imagen) return { success: false, error: 'Gemini devolvió una imagen con formato no válido.' };
+      const urlPersistida = await uploadToStorageWithDownloadToken(
+        Buffer.from(imagen.base64, 'base64'),
+        `salon-ai/${fiestaId}/${reservaId}.${imagen.extension}`,
+        imagen.contentType,
+      );
+
+      let confirmada = false;
+      const guardado = await actualizarFiesta(fiestaId, (actual) => {
+        const decoActual = actual.decoracion || {};
+        const pendientes = decoActual.fotosSalonAiPendientes || [];
+        if (!pendientes.some((item) => item.id === reservaId)) return actual;
+        confirmada = true;
+        return {
+          ...actual,
+          decoracion: {
+            ...decoActual,
+            fotosGeneradasAi: [...(decoActual.fotosGeneradasAi || []), urlPersistida],
+            fotosSalonAiPendientes: pendientes.filter((item) => item.id !== reservaId),
+          },
+        };
+      });
+      if (!guardado.success || !confirmada) {
+        return { success: false, error: guardado.error || 'La foto quedó pendiente de confirmación; contactá al equipo antes de volver a generarla.' };
+      }
+
+      reservaActiva = false;
+      return { success: true, imageUrl: urlPersistida };
+    } catch (e: any) {
       return {
         success: false,
-        error: "Se alcanzó el tope de 3 imágenes generadas con IA para esta fiesta.",
+        error: proveedorInvocado
+          ? 'La generación pudo haberse completado, pero no se pudo confirmar el guardado. No vuelvas a generar; contactá al equipo para revisar el cupo.'
+          : e.message || 'Error al generar la imagen con IA.',
       };
+    } finally {
+      if (reservaActiva && !proveedorInvocado) await liberarReservaFoto(fiestaId, reservaId);
     }
-
-    const estilo = decoracion.estiloDecoracion || 'elegante';
-    // La paleta que edita el equipo es `paletaColores`; `colorPalette` es la vieja
-    // que quedo de antes. Se miran en el mismo orden que la vista 3D, si no la
-    // imagen salia con colores que ya nadie eligio.
-    const paleta = decoracion.paletaColores || decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
-    const items = (decoracion.itemsDecoracion || []).map(i => i.nombre).slice(0, 8).join(', ');
-    const tema = decoracion.tema || fiesta.configuracion.nombreEvento || 'Fiesta de gala';
-
-    const prompt = [
-      `Fotografía profesional y realista de un salón de eventos decorado para ${tema}.`,
-      `Estilo de ambientación: ${estilo}.`,
-      `Paleta de colores: color principal ${paleta.primary}, color secundario ${paleta.secondary}, detalles y acentos en ${paleta.accent}.`,
-      items ? `Elementos decorativos presentes: ${items}.` : '',
-      `Iluminación ambiental cálida con guirnaldas, luces tenues, centros de mesa y mobiliario premium. Gran angular, calidad fotográfica 4K, elegante y festivo.`,
-    ].filter(Boolean).join(' ');
-
-    // La foto del salon de verdad, cuando la mandan: la IA decora ENCIMA de ese
-    // salon en vez de inventar uno. Si la direccion no es de confianza se descarta
-    // y se genera igual, sin foto.
-    const fotoDelSalon = await fotoDeReferenciaSegura(salonFotoUrl);
-
-    const imageUrl = await generateGeminiImage({
-      prompt: fotoDelSalon
-        ? `${prompt} Respetar la arquitectura, las medidas y los ventanales del salon de la foto de referencia: es este salon decorado, no otro.`
-        : prompt,
-      images: fotoDelSalon ? [fotoDelSalon] : [],
-      aspectRatio: '16:9',
-      imageSize: '1K',
-    });
-
-    if (!imageUrl) {
-      return { success: false, error: "No se pudo generar la imagen del salón decorado. Intentá de nuevo en unos minutos." };
-    }
-
-    const nextFotos = [...fotosExistentes, imageUrl];
-    const guardado = await updateDecoracion(fiestaId, { ...decoracion, fotosGeneradasAi: nextFotos });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar la imagen generada en la decoración.' };
-    }
-
-    return { success: true, imageUrl };
-  } catch (e: any) {
-    return { success: false, error: e.message || "Error al generar la imagen con IA." };
-  }
   });
+}
+
+async function liberarReservaFoto(fiestaId: string, reservaId: string): Promise<void> {
+  await actualizarFiesta(fiestaId, (actual) => ({
+    ...actual,
+    decoracion: {
+      ...(actual.decoracion || {}),
+      fotosSalonAiPendientes: (actual.decoracion?.fotosSalonAiPendientes || []).filter((item) => item.id !== reservaId),
+    },
+  }));
+}
+
+function normalizarImagenGemini(value: string): { base64: string; contentType: string; extension: 'png' | 'jpg' } | null {
+  const match = value.match(/^data:(image\/(?:png|jpeg));base64,([A-Za-z0-9+/=_-]+)$/i);
+  const base64 = (match?.[2] || value).replace(/\s+/g, '');
+  const mime = match?.[1]?.toLowerCase() || (base64.startsWith('iVBORw0KGgo') ? 'image/png' : base64.startsWith('/9j/') ? 'image/jpeg' : '');
+  if (!mime || !/^[A-Za-z0-9+/=_-]+$/.test(base64)) return null;
+  return { base64, contentType: mime, extension: mime === 'image/png' ? 'png' : 'jpg' };
+}
+
+export async function generarVisualizacionSalonAi(
+  fiestaId: string,
+  salonFotoUrl?: string,
+  capturaDel3d?: string,
+): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+  await requireAppSession();
+  return ejecutarGeneracionSalonAi(fiestaId, salonFotoUrl, capturaDel3d);
+}
+
+export async function generarFotoDelSalonDesdeElPortal(
+  fiestaId: string,
+  capturaDel3d?: string,
+): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
+  const portalOk = await verifyPortalSession(fiestaId);
+  if (!portalOk) return { success: false, error: 'Sesión de portal no autorizada.' };
+  if (!validarCaptura3d(capturaDel3d)) {
+    return { success: false, error: 'La vista 3D todavía no está lista para crear la foto. Esperá un momento y volvé a intentar.' };
+  }
+
+  return ejecutarGeneracionSalonAi(fiestaId, undefined, capturaDel3d);
 }
 
 export async function getDisponibilidadElementosDecoracion(
@@ -334,6 +479,9 @@ export async function generarVisualizacionSalonReunion(input: {
 }): Promise<{ success: boolean; imagenes?: string[]; error?: string }> {
   await requireAppSession();
   try {
+    const puede = await hayPresupuestoParaIA();
+    if (!puede) return { success: false, error: 'Se llegó al tope de IA del mes.' };
+
     const color = input.colorHex || '#d97706';
     const tipo = input.tipoEvento || '15 Años';
     const salon = input.salonNombre || 'Salón de eventos';
@@ -357,6 +505,9 @@ export async function generarVisualizacionSalonReunion(input: {
       imageSize: '1K',
     }).catch(() => null);
 
+    if (img1) await registrarConsumoIA('foto-del-salon');
+    if (img2) await registrarConsumoIA('foto-del-salon');
+
     const fallback1 = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80';
     const fallback2 = 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80';
 
@@ -368,4 +519,3 @@ export async function generarVisualizacionSalonReunion(input: {
     return { success: false, error: e.message || 'Error al generar vista del salón.' };
   }
 }
-
