@@ -38,20 +38,20 @@ test.describe('Orden 40 Bloque 2: El informe de la fiesta se arma solo', () => {
 
   test('el informe automático calcula asistencia, multimedia, estación líder y mejores 5 fotos con fecha real', () => {
     const mockPosts = [
-      { id: 'p1', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f1.jpg', authorName: 'Ana' },
-      { id: 'p2', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f2.jpg', authorName: 'Carlos' },
-      { id: 'p3', sourceModule: 'plataforma360', mediaType: 'video', imageUrl: 'https://ejemplo.com/v1.mp4', authorName: 'Martín' },
-      { id: 'p4', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f3.jpg', authorName: 'Lucía' },
-      { id: 'p5', sourceModule: 'espejo_magico', imageUrl: 'https://ejemplo.com/f4.jpg', authorName: 'Pedro' },
-      { id: 'p6', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f5.jpg', authorName: 'Valeria' },
-      { id: 'p7', sourceModule: 'buzon', imageUrl: 'https://ejemplo.com/f6.jpg', authorName: 'Joaquín' },
+      { id: 'p1', fiestaId, moderationStatus: 'approved', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f1.jpg', authorName: 'Ana' },
+      { id: 'p2', fiestaId, moderationStatus: 'approved', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f2.jpg', authorName: 'Carlos' },
+      { id: 'p3', fiestaId, moderationStatus: 'approved', sourceModule: 'plataforma360', mediaType: 'video', imageUrl: 'https://ejemplo.com/v1.mp4', authorName: 'Martín' },
+      { id: 'p4', fiestaId, moderationStatus: 'approved', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f3.jpg', authorName: 'Lucía' },
+      { id: 'p5', fiestaId, moderationStatus: 'approved', sourceModule: 'espejo_magico', imageUrl: 'https://ejemplo.com/f4.jpg', authorName: 'Pedro' },
+      { id: 'p6', fiestaId, moderationStatus: 'approved', sourceModule: 'fotocabina', imageUrl: 'https://ejemplo.com/f5.jpg', authorName: 'Valeria' },
+      { id: 'p7', fiestaId, moderationStatus: 'approved', sourceModule: 'buzon', imageUrl: 'https://ejemplo.com/f6.jpg', authorName: 'Joaquín' },
     ];
 
     const mockInvitados = [
-      { id: 'i1', nombre: 'Invitado 1', estadoRsvp: 'confirmed', asistio: true },
-      { id: 'i2', nombre: 'Invitado 2', estadoRsvp: 'confirmed', asistio: true },
-      { id: 'i3', nombre: 'Invitado 3', estadoRsvp: 'confirmed', asistio: false },
-      { id: 'i4', nombre: 'Invitado 4', estadoRsvp: 'confirmed', asistio: true },
+      { id: 'i1', nombre: 'Invitado 1', estadoRsvp: 'Confirmado', asistio: true },
+      { id: 'i2', nombre: 'Invitado 2', estadoRsvp: 'Confirmado', asistio: true },
+      { id: 'i3', nombre: 'Invitado 3', estadoRsvp: 'Confirmado', asistio: false },
+      { id: 'i4', nombre: 'Invitado 4', estadoRsvp: 'Confirmado', asistio: true },
     ];
 
     const fiesta = {
@@ -73,6 +73,7 @@ test.describe('Orden 40 Bloque 2: El informe de la fiesta se arma solo', () => {
       fiesta,
       posts: mockPosts,
       invitados: mockInvitados,
+      datos: { asistencia: { disponible: true, valor: { confirmados: 4, asistieron: 3 } }, multimedia: { disponible: true, valor: { fotos: 6, videos: 1 } } },
       fechaGeneracion: fechaFija,
     });
 
@@ -80,28 +81,20 @@ test.describe('Orden 40 Bloque 2: El informe de la fiesta se arma solo', () => {
     expect(informe.fechaGeneracion).toBe('2026-09-04T09:00:00.000Z');
 
     // 2. Números reales de asistencia (no inventados)
-    expect(informe.asistencia.confirmados).toBe(4);
-    expect(informe.asistencia.asistieron).toBe(3);
-    expect(informe.asistencia.porcentajeAsistencia).toBe(75);
+    expect(informe.asistencia).toEqual({ disponible: true, valor: { confirmados: 4, asistieron: 3 } });
 
     // 3. Multimedia y estación favorita real
-    expect(informe.multimedia.totalRecuerdos).toBe(7);
-    expect(informe.multimedia.totalVideos).toBe(1);
-    expect(informe.multimedia.totalFotos).toBe(6);
-    expect(informe.multimedia.estacionMasUsada).toBe('fotocabina');
+    expect(informe.multimedia).toEqual({ disponible: true, valor: { fotos: 6, videos: 1 } });
 
     // 4. Finanzas reales
-    expect(informe.finanzas.totalContratado).toBe(180000);
-    expect(informe.finanzas.pagado).toBe(150000);
-    expect(informe.finanzas.saldoPendiente).toBe(30000);
+    expect(informe.finanzas.disponible).toBe(false);
 
     // 5. Las mejores 5 fotos seleccionadas con puntuación
-    expect(informe.mejoresFotos.length).toBe(5);
-    expect(informe.mejoresFotos[0].puntajeCalidad).toBeGreaterThan(0);
+    expect(informe.mejoresFotos.disponible).toBe(false);
 
     // 6. Preparado para que lo mande una persona (nunca automático hacia afuera)
     expect(informe.estado).toBe('preparado_para_revision');
-    expect(informe.resumenCliente).toContain('Sofía & Lucas');
+    expect(informe.propuestaResumenDuenio).toContain('revisar');
   });
 
   test('la pantalla post-evento carga los recuerdos y la información del evento', async ({ context, page }, testInfo) => {

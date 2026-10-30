@@ -22,7 +22,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { calcularHuellaGit, leerGit } from './helpers/huella-git.mjs';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 
 const PASOS = [
@@ -279,13 +279,7 @@ const PASOS_DEL_NAVEGADOR = new Set([
  * archivos: si su contenido es el mismo, el paso ya se sabe que da bien.
  */
 function huellaCon(filtros) {
-  const filtro = filtros.map((p) => `'${p}'`).join(' ');
-  const partes = [
-    spawnSync(`git ls-files -s -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
-    spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
-    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
-  ];
-  return createHash('sha1').update(partes.join('|')).digest('hex');
+  return calcularHuellaGit(filtros);
 }
 
 function huellaDelCodigo() {
@@ -486,14 +480,12 @@ const huellaAlEmpezar = huellas.codigo;
 // `huellaAlEmpezar`.
 // Los datos que escribe una corrida (el filtro de la subida, por ejemplo) no son código: no cuentan como
 // "sucio". Pasó el 21/10/2026: la puerta dio verde y no anotó el commit por un aviso de prueba guardado.
-const sucioAlEmpezar = spawnSync(
-  `git status --porcelain --untracked-files=no -- . ${NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ')}`,
-  { shell: true, encoding: 'utf8' },
-).stdout.trim();
-const hayTrabajoSinCommitear = (spawnSync(
-  `git status --porcelain -- . ${[...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS].map((p) => `'${p}'`).join(' ')}`,
-  { shell: true, encoding: 'utf8' },
-).stdout || '').trim();
+const sucioAlEmpezar = leerGit([
+  'status', '--porcelain', '--untracked-files=no', '--', '.', ...NO_ES_CODIGO_PARA_LA_HUELLA,
+]).trim();
+const hayTrabajoSinCommitear = leerGit([
+  'status', '--porcelain', '--', '.', ...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS,
+]).trim();
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
 if (hayTrabajoSinCommitear) {

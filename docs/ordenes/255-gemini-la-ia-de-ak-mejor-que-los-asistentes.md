@@ -209,14 +209,23 @@ usa: armarContextoDelNegocio en src/app/actions/centro-de-control.ts
 archivo: src/lib/asistente/memoria.ts
 usa: loQueSe en src/lib/asistente/por-whatsapp.ts
 usa: resumen_de_la_manana en src/lib/ia/reglas-de-la-ia.ts
-usa: sendMetaWhatsAppMessage en src/app/api/cron/asistente-proactivo/route.ts
+usa: enviarResumenMananaWhatsApp en src/app/api/cron/asistente-proactivo/route.ts
+usa: sendMetaWhatsAppMessage en src/lib/asistente/resumen-manana-whatsapp.ts
 usa: extractReceiptData en src/lib/asistente/por-whatsapp.ts
-usa: generateBudgetAndLeadFromSimulator en src/lib/asistente/por-whatsapp.ts
-usa: fotosDeFiestasParecidas en src/lib/asistente/por-whatsapp.ts
+usa: prepararBorradorProspectoAnuncio en src/lib/asistente/por-whatsapp.ts
+usa: persistPublicSimulatorBudget en src/lib/asistente/comercial-borrador.ts
+usa: fotosDeFiestasParecidas en src/lib/asistente/comercial-borrador.ts
 usa: anticipador en src/lib/agentes/motor-agentes.ts
 usa: checkInTimestamp en src/lib/agentes/motor-agentes.ts
-usa: armarInformeAutomatico en src/app/api/cron-despachador/route.ts
+usa: prepararPropuestaFaltantePersonal en src/app/api/cron/asistente-proactivo/route.ts
+usa: prepararPropuestaOperativaNoche en src/app/api/cron/asistente-proactivo/route.ts
+usa: ejecutarCierrePosfiesta en src/app/api/cron/asistente-proactivo/route.ts
+usa: armarInformeAutomatico en src/lib/asistente/cierre-posfiesta.ts
 usa: aprenderDeLoAprobado en src/lib/commercial/commercial-followup.ts
 usa: aprenderDeLoAprobado en src/lib/presencia-digital/autogenerador-semanal.ts
 prueba: src/__tests__/el-asistente-de-ak.test.ts
+prueba: src/lib/asistente/planes-ejecutor.test.ts
+prueba: src/lib/asistente/avisos-operativos-whatsapp.test.ts
+prueba: src/lib/asistente/respuestas-resumen.test.ts
+prueba: src/__tests__/orden-255-observaciones-posfiesta.actions.test.ts
 ```

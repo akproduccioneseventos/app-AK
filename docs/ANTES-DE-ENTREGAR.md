@@ -247,3 +247,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 79. **¿Borrás algo que antes revisaste?** La revisión y el borrado van juntos, en el mismo momento.
 80. **¿Sacás un monto para afuera (archivo, texto, aviso)?** Que tenga los mismos centavos que el reporte.
 81. **¿Mostrás un número de plata?** Sacalo de la misma función que lo muestra en otra pantalla, no lo calcules de nuevo.
+82. **¿Sacaste una llamada que andaba o sumaste una biblioteca?** Sólo si la orden lo pide. Lo que el dueño decidió no se saca de costado.

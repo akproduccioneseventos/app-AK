@@ -4,7 +4,8 @@ export type AgenteId =
   | 'cobrador'
   | 'generador_contenido'
   | 'vigilante_noche'
-  | 'vigilante_publicidad';
+  | 'vigilante_publicidad'
+  | 'anticipador';
 
 export interface ConfiguracionAgente {
   id: AgenteId;
@@ -91,6 +92,16 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
     descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Propone pausar o escalar para tu OK: nunca modifica campañas ni gasta dinero solo.',
     activo: true,
     intervaloMinutos: 720,
+  },
+  {
+    id: 'anticipador',
+    apodo: 'Previsor',
+    objetivos: ['Alertar sobre falta de personal y situaciones que requieren revisión del dueño'],
+    nombre: 'Anticipador',
+    rol: 'Alertas preventivas internas',
+    descripcion: 'Detecta fiestas próximas con falta de personal y cuotas vencidas corroboradas; no contacta clientes ni modifica pagos.',
+    activo: true,
+    intervaloMinutos: 1440,
   },
 ];
 

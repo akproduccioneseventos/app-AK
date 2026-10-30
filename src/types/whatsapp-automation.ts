@@ -70,4 +70,8 @@ export interface ScheduledMessage {
   createdAt: string;
   // Rule that triggered it (if auto-created)
   automationRuleId?: string;
+  /** Photo IDs whose promotional authorization must be checked again before opening WhatsApp. */
+  promotionalPhotoIds?: string[];
+  /** Internal link target for the team; never included in messageText sent to the prospect. */
+  presupuestoId?: string;
 }

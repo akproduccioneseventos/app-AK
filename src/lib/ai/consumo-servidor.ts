@@ -1,10 +1,12 @@
 import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import {
   calcularConsumo,
   claveDelMes,
   resumirGasto,
+  COSTO_ESTIMADO_UYU,
   type ConteoPorFuncion,
   type FuncionConCosto,
   type ResumenDeGasto,
@@ -23,6 +25,8 @@ import {
  */
 
 const CONSUMO_FILE = 'ai-consumo.json';
+const GENERIC_JSON_COLLECTION = 'json_documents';
+const consumoLocalMutex = new AsyncMutex();
 
 interface ConsumoGuardado {
   meses?: Record<string, ConteoPorFuncion>;
@@ -31,12 +35,49 @@ interface ConsumoGuardado {
 
 const VACIO: ConsumoGuardado = { meses: {}, topeMensualUYU: 0 };
 
+function normalizarConsumo(datos: any): ConsumoGuardado {
+  const contenido = datos?._data ?? datos?._value ?? datos ?? VACIO;
+  return {
+    meses: contenido?.meses ?? {},
+    topeMensualUYU: Number(contenido?.topeMensualUYU) > 0 ? Number(contenido.topeMensualUYU) : 0,
+  };
+}
+
 async function leer(): Promise<ConsumoGuardado> {
   const datos = await readData<ConsumoGuardado>(CONSUMO_FILE, VACIO);
-  return {
-    meses: datos?.meses ?? {},
-    topeMensualUYU: Number(datos?.topeMensualUYU) > 0 ? Number(datos.topeMensualUYU) : 0,
-  };
+  return normalizarConsumo(datos);
+}
+
+async function cambiarConsumo<T>(
+  cambiar: (datos: ConsumoGuardado) => { siguiente: ConsumoGuardado | null; resultado: T },
+): Promise<T> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+      (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
+    return consumoLocalMutex.runExclusive(async () => {
+      const { siguiente, resultado } = cambiar(await leer());
+      if (siguiente) {
+        await writeData(CONSUMO_FILE, siguiente, undefined, { skipAutoBackup: true });
+      }
+      return resultado;
+    });
+  }
+
+  const { dbAdmin } = await import('@/lib/firebase/server');
+  if (!dbAdmin) throw new Error('No está disponible el guardado seguro del consumo de IA.');
+  const ref = dbAdmin.collection(GENERIC_JSON_COLLECTION).doc(encodeURIComponent(CONSUMO_FILE));
+
+  return dbAdmin.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const { siguiente, resultado } = cambiar(normalizarConsumo(snapshot.exists ? snapshot.data() : null));
+    if (siguiente) {
+      transaction.set(ref, {
+        _filePath: CONSUMO_FILE,
+        _data: siguiente,
+        _syncedAt: new Date().toISOString(),
+      });
+    }
+    return resultado;
+  });
 }
 
 /** Suma una generación al contador del mes. Nunca lanza. */
@@ -46,20 +87,66 @@ export async function registrarConsumoIA(
   ahora: Date = new Date(),
 ): Promise<void> {
   try {
-    const datos = await leer();
-    const mes = claveDelMes(ahora);
-    const delMes = { ...(datos.meses?.[mes] ?? {}) };
-    delMes[funcion] = (delMes[funcion] ?? 0) + cantidad;
-
-    await writeData(
-      CONSUMO_FILE,
-      { ...datos, meses: { ...datos.meses, [mes]: delMes } },
-      undefined,
-      { skipAutoBackup: true },
-    );
+    const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
+    if (!incremento) return;
+    await cambiarConsumo((datos) => {
+      const mes = claveDelMes(ahora);
+      const delMes = { ...(datos.meses?.[mes] ?? {}) };
+      delMes[funcion] = (delMes[funcion] ?? 0) + incremento;
+      return { siguiente: { ...datos, meses: { ...datos.meses, [mes]: delMes } }, resultado: undefined };
+    });
   } catch {
     // A propósito en silencio: ver el gasto no vale una fiesta cortada.
   }
+}
+
+export interface ReservaConsumoIA {
+  /** Libera una reserva solo cuando el proveedor confirma que rechazó el pedido sin procesarlo. */
+  liberar(): Promise<void>;
+}
+
+/** Reserva el costo estimado dentro de la misma transacción que lee el tope mensual. */
+export async function reservarConsumoIA(
+  funcion: FuncionConCosto,
+  cantidad = 1,
+  ahora: Date = new Date(),
+): Promise<ReservaConsumoIA | null> {
+  const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
+  if (!incremento) return null;
+
+  const mes = claveDelMes(ahora);
+  const reservada = await cambiarConsumo((datos) => {
+    const delMes = { ...(datos.meses?.[mes] ?? {}) };
+    const consumoActual = calcularConsumo(mes, delMes).gastadoUYU;
+    const costoReserva = (COSTO_ESTIMADO_UYU[funcion] ?? 0) * incremento;
+    const tope = datos.topeMensualUYU ?? 0;
+    if (tope > 0 && consumoActual + costoReserva > tope) {
+      return { siguiente: null, resultado: false };
+    }
+    delMes[funcion] = (delMes[funcion] ?? 0) + incremento;
+    return {
+      siguiente: { ...datos, meses: { ...datos.meses, [mes]: delMes } },
+      resultado: true,
+    };
+  });
+  if (!reservada) return null;
+
+  let liberarPromise: Promise<void> | null = null;
+  return {
+    liberar() {
+      liberarPromise ??= cambiarConsumo((datos) => {
+        const delMes = { ...(datos.meses?.[mes] ?? {}) };
+        const restante = Math.max(0, (delMes[funcion] ?? 0) - incremento);
+        if (restante) delMes[funcion] = restante;
+        else delete delMes[funcion];
+        return {
+          siguiente: { ...datos, meses: { ...datos.meses, [mes]: delMes } },
+          resultado: undefined,
+        };
+      });
+      return liberarPromise;
+    },
+  };
 }
 
 export async function getResumenDeGasto(ahora: Date = new Date()): Promise<ResumenDeGasto> {
@@ -69,12 +156,14 @@ export async function getResumenDeGasto(ahora: Date = new Date()): Promise<Resum
 }
 
 export async function setTopeMensual(topeUYU: number): Promise<ResumenDeGasto> {
-  const datos = await leer();
   const tope = Number.isFinite(topeUYU) && topeUYU > 0 ? Math.round(topeUYU) : 0;
-  await writeData(CONSUMO_FILE, { ...datos, topeMensualUYU: tope }, undefined, {
-    skipAutoBackup: true,
-  });
-  return getResumenDeGasto();
+  return cambiarConsumo((datos) => ({
+    siguiente: { ...datos, topeMensualUYU: tope },
+    resultado: resumirGasto(
+      calcularConsumo(claveDelMes(), datos.meses?.[claveDelMes()] ?? {}),
+      tope,
+    ),
+  }));
 }
 
 /**

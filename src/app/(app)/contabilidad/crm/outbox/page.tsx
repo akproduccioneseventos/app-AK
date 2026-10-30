@@ -20,6 +20,9 @@ import {
   sendScheduledMessageByEmail,
   checkGoogleMailStatus,
 } from '@/app/actions/scheduled-messages';
+import { validarFotosPromocionalesParaEnvio } from '@/app/actions/promotional-photo-consent';
+import { obtenerAuditoriaPermisosFotos, revocarPermisoFotoPromocional } from '@/app/actions/promotional-photo-consent';
+import type { PromotionalPhotoConsent } from '@/types/promotional-photo-consent';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { format, isToday, isPast, isFuture } from 'date-fns';
@@ -38,6 +41,7 @@ export default function OutboxPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [photoConsents, setPhotoConsents] = useState<PromotionalPhotoConsent[]>([]);
   const [rescheduleDialog, setRescheduleDialog] = useState<{ open: boolean; messageId: string; newDate: string }>({
     open: false,
     messageId: '',
@@ -52,12 +56,14 @@ export default function OutboxPage() {
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, googleStatus] = await Promise.all([
+      const [data, googleStatus, consentAudit] = await Promise.all([
         getScheduledMessages(),
         checkGoogleMailStatus().catch(() => ({ connected: false })),
+        obtenerAuditoriaPermisosFotos(),
       ]);
       setMessages(data);
       setGoogleConnected(googleStatus.connected);
+      setPhotoConsents(consentAudit);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los mensajes.', variant: 'destructive' });
     } finally {
@@ -83,7 +89,20 @@ export default function OutboxPage() {
       return;
     }
 
+    if (msg.promotionalPhotoIds?.length) {
+      const authorization = await validarFotosPromocionalesParaEnvio(msg.promotionalPhotoIds);
+      if (!authorization.allowed) {
+        toast({
+          title: 'Permiso de imagen no vigente',
+          description: 'No se abrió WhatsApp. Alguna foto no tiene autorización vigente; quitá las fotos y prepará de nuevo el mensaje.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.messageText)}`, '_blank');
+    if (!window.confirm('¿Confirmás que enviaste este mensaje desde WhatsApp?')) return;
     const result = await markMessageAsSent(msg.id, 'usuario');
     if (result.success) {
       toast({ title: 'Marcado como enviado', description: `Mensaje para ${msg.targetName} marcado como enviado.` });
@@ -104,6 +123,16 @@ export default function OutboxPage() {
       fetchMessages();
     } else {
       toast({ title: 'Error al revertir', description: result.error || 'No se pudo revertir el estado.', variant: 'destructive' });
+    }
+  };
+
+  const handleRevokePhotoConsent = async (eventId: string) => {
+    const result = await revocarPermisoFotoPromocional(eventId);
+    if (result.success) {
+      toast({ title: 'Permiso revocado', description: 'Las fotos de esta fiesta ya no se ofrecerán en nuevos mensajes.' });
+      fetchMessages();
+    } else {
+      toast({ title: 'No se pudo revocar', description: result.error || 'Intentá nuevamente.', variant: 'destructive' });
     }
   };
 
@@ -217,6 +246,11 @@ export default function OutboxPage() {
           Ver {msg.fiestaId ? 'fiesta' : 'prospecto'} →
         </Link>
       )}
+      {msg.presupuestoId && (
+        <Link href={`/presupuestos/${msg.presupuestoId}/ver`} className="text-xs text-primary underline">
+          Revisar presupuesto interno
+        </Link>
+      )}
       {msg.status !== 'enviado' && msg.status !== 'cancelado' && (
         <div className="flex gap-2 flex-wrap">
           <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleSend(msg)}>
@@ -295,6 +329,29 @@ export default function OutboxPage() {
             </Link></Button>
         </div>
       </div>
+
+      {photoConsents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Autorizaciones promocionales de fotos</CardTitle>
+            <CardDescription>Registro por fiesta, separado de los permisos de marketing.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {photoConsents.map(consent => (
+              <div key={consent.eventId} className="flex flex-col gap-2 border-b pb-3 last:border-0 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 text-sm">
+                  <p className="font-medium">Fiesta {consent.eventId}: {consent.authorized && !consent.revokedAt ? 'Autorizada' : 'Sin autorización vigente'}</p>
+                  <p className="text-muted-foreground">{consent.grantedBy} · {consent.method} · {consent.contractVersion} · {consent.recordedBy} · {new Date(consent.recordedAt).toLocaleString('es-UY')}</p>
+                  <p className="break-all text-xs text-muted-foreground">Evidencia: {consent.evidenceReference}</p>
+                </div>
+                {consent.authorized && !consent.revokedAt && (
+                  <Button variant="outline" size="sm" onClick={() => handleRevokePhotoConsent(consent.eventId)}>Revocar</Button>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>

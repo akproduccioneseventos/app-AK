@@ -1,5 +1,8 @@
 import { toPublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
+jest.mock('@/lib/asistente/propuestas-service', () => ({
+  agregarPropuestasDeduplicadas: jest.fn().mockResolvedValue(undefined),
+}));
 import { atenderProspectoAnuncioWhatsApp } from '@/lib/asistente/por-whatsapp';
 
 describe('Orden 205 - Devolución PR 1344', () => {
@@ -34,13 +37,14 @@ describe('Orden 205 - Devolución PR 1344', () => {
   });
 
   describe('WhatsApp prospecto anuncio', () => {
-    it('pide los 3 datos faltantes si faltan fecha, invitados o salón', async () => {
+    it('pide los datos obligatorios, incluido el tipo de fiesta, si falta alguno', async () => {
       const res = await atenderProspectoAnuncioWhatsApp({
         phone: '59899112233',
         text: 'Hola quiero consultar por una fiesta',
       });
       expect(res.completo).toBe(false);
       expect(res.faltantes.length).toBeGreaterThan(0);
+      expect(res.faltantes).toContain('el tipo de fiesta');
       expect(res.respuestaTexto).toContain('necesitamos saber');
     });
   });

@@ -2,9 +2,11 @@
 
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requirePermiso } from '@/lib/auth/require-session';
+import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
 import {
   getPropuestas,
   aceptarPropuesta,
+  aprobarPlanMultipaso,
   descartarNoAvisarMas,
   agregarPropuestasDeduplicadas,
 } from '@/lib/asistente/propuestas-service';
@@ -16,7 +18,7 @@ import {
 } from '@/app/actions/scheduled-messages';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
-import { readData, writeData, mutateDataItem } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData, mutateDataItem } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
 import type { SocialPost } from '@/types/social-media';
 import {
@@ -36,6 +38,8 @@ import {
 } from '@/lib/agentes/motor-agentes';
 import { armarWebConIA } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { detectarTipoPlanMultipaso, prepararPlanMultipaso } from '@/lib/asistente/planes-multipaso';
+import type { Presupuesto } from '@/types/presupuesto';
 
 export interface ItemOK {
   id: string;
@@ -307,6 +311,13 @@ export async function aprobarItemOK(
   // Primero se hace lo que se aprobó y recién después se anota la decisión: si falla, no queda
   // anotado como aprobado algo que no pasó.
   if (origen === 'propuesta') {
+    if (tipoTarea === 'plan_multi_paso') {
+      if (huboCambio) return { success: false, error: 'Para cambiar los pasos o el mensaje, pedí preparar un plan nuevo. Este plan no se ejecutó.' };
+      const resultado = await aprobarPlanMultipaso(id, 'Dueño');
+      if (!resultado.success) return { success: false, error: resultado.mensaje || 'No se pudo aprobar el plan.' };
+      await registrarDecisionDuenio({ tipoTarea, textoPropuesto, textoFinal: huboCambio ? textoFinal : undefined, decision: huboCambio ? 'cambiar' : 'si' });
+      return { success: true };
+    }
     const res = await aceptarPropuesta(id, 'Dueño', { esDuenio: true });
     if (!res.success) return { success: false, error: res.mensaje || 'No se pudo aceptar la propuesta.' };
   } else if (origen === 'mensaje') {
@@ -436,6 +447,105 @@ export async function darOrdenPorVozOTexto(
   }
 
   const f = (frase || '').toLowerCase().trim();
+  const memoriaId = ID_MEMORIA_DUENO;
+  const memoriaDueno = { esDueno: true, puedeVerMemoriaDelDueno: true };
+  const guardarRecuerdo = frase.match(/^\s*(?:(?:acordate|ac[uú]erdate|record[aá]|anot[aá]|ten[eé]\s+en\s+cuenta)\s+que)\s+(.+)$/i);
+  if (guardarRecuerdo) {
+    const resultado = await recordar(memoriaId, guardarRecuerdo[1], undefined, memoriaDueno);
+    return {
+      success: resultado.guardado,
+      mensaje: resultado.guardado
+        ? 'Listo, lo guardé en tu memoria personal.'
+        : resultado.motivo === 'sensible'
+          ? 'No guardé ese dato porque parece una contraseña, información de tarjeta o un dato de salud.'
+          : 'No pude guardar un recuerdo vacío.',
+    };
+  }
+
+  const olvidarCoincide = frase.match(/^\s*olvid[aá]te(?:\s+de)?\s+(.+)$/i);
+  if (olvidarCoincide || /^\s*olvid[aá]lo\s*$/i.test(frase)) {
+    const borrados = await olvidar(memoriaId, olvidarCoincide?.[1] || 'eso', memoriaDueno);
+    return {
+      success: true,
+      mensaje: borrados ? `Listo, eliminé ${borrados} recuerdo${borrados === 1 ? '' : 's'} de tu memoria.` : 'No encontré un recuerdo sobre ese tema para borrar.',
+    };
+  }
+
+  const preguntaMemoria = sinAcentos(frase).toLowerCase();
+  if (/\b(?:que sabes de(?:l)?|que te acordas de(?:l)?|que recordas de(?:l)?|que tenemos anotado sobre)\b/.test(preguntaMemoria)) {
+    const recuerdos = await loQueSe(memoriaId, frase, memoriaDueno);
+    return {
+      success: true,
+      mensaje: recuerdos.length
+        ? recuerdos.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')
+        : 'No tengo recuerdos guardados sobre ese tema. Decime “acordate que…” y lo anoto.',
+    };
+  }
+
+  const tipoPlanSolicitado = detectarTipoPlanMultipaso(frase);
+  if (tipoPlanSolicitado) {
+    const modo = await getReglaParaTarea('plan_multi_paso');
+    if (modo === 'apagada') return { success: false, mensaje: 'Esa tarea está apagada en Tus reglas; no consulté datos ni preparé nada.' };
+    const modoSeguimiento = tipoPlanSolicitado === 'seguimiento_presupuestos'
+      ? await getReglaParaTarea('perseguidor_presupuestos')
+      : undefined;
+    if (modoSeguimiento === 'apagada') return { success: false, mensaje: 'El perseguidor está apagado; no consulté presupuestos ni mensajes.' };
+    const [fiestas, presupuestos, mensajes, citas] = await Promise.all([
+      tipoPlanSolicitado === 'seguimiento_presupuestos'
+        ? Promise.resolve(undefined)
+        : readDataConDetalle<FiestaEnPlanificacion[]>('fiestas.json', []),
+      tipoPlanSolicitado === 'preparar_semana_fiesta'
+        ? Promise.resolve(undefined)
+        : readDataConDetalle<Presupuesto[]>('presupuestos.json', []),
+      tipoPlanSolicitado === 'seguimiento_presupuestos'
+        ? readDataConDetalle<import('@/types/whatsapp-automation').ScheduledMessage[]>('scheduled-messages.json', [])
+        : Promise.resolve(undefined),
+      tipoPlanSolicitado === 'reunion_cliente'
+        ? readDataConDetalle<import('@/types/crm').CrmAppointment[]>('crm-appointments.json', [])
+        : Promise.resolve(undefined),
+    ]);
+    const datosPlan = prepararPlanMultipaso(frase, {
+      fiestas: fiestas?.valor,
+      presupuestos: presupuestos?.valor,
+      citas: citas?.valor,
+      fallaCitas: Boolean(citas?.huboFalla),
+      puedeVerAgenda: true,
+      puedeVerPresupuestos: true,
+      modoSeguimiento,
+      fallaAgenda: Boolean(fiestas?.huboFalla),
+      fallaPresupuestos: Boolean(presupuestos?.huboFalla || mensajes?.huboFalla),
+      telefonosConMensajePendiente: mensajes?.valor?.filter((m) => m.status === 'pendiente').map((m) => m.targetPhone || ''),
+    });
+    if (!datosPlan) return { success: false, mensaje: 'No pude identificar el plan solicitado.' };
+    if ('pregunta' in datosPlan) return { success: false, mensaje: datosPlan.pregunta };
+    const plan = datosPlan.plan;
+    const { agregadas } = await agregarPropuestasDeduplicadas([{
+      clave: `plan-centro:${plan.tipo}:${plan.fiestaId || plan.clienteNombre || 'general'}:${new Date().toISOString().slice(0, 10)}`,
+      area: plan.tipo === 'seguimiento_presupuestos' ? 'ventas' : 'fiestas',
+      titulo: plan.titulo,
+      quePasa: 'El dueño pidió preparar un plan de varios pasos desde el Centro de control.',
+      porQueImporta: 'Se prepara un resumen interno. Ningún cliente recibe mensajes y no se confirma agenda.',
+      quePropone: plan.pasos.map((paso, indice) => `${indice + 1}. ${paso}`).join('\n'),
+      tipoPropuesta: 'plan_multi_paso', nivelRiesgo: 'pregunta', esImportante: false,
+      ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+      ...(plan.clienteNombre ? { clienteNombre: plan.clienteNombre } : {}),
+      accion: { type: 'plan_multi_paso', data: {
+        planTipo: plan.tipo,
+        ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+        ...(plan.borrador ? { borrador: plan.borrador } : {}),
+        ...(plan.horarioCandidato ? { horarioCandidato: plan.horarioCandidato } : {}),
+        pasos: plan.pasos,
+      } },
+    }]);
+    return {
+      success: true,
+      mensaje: agregadas.length
+        ? modo === 'preguntar'
+          ? 'Dejé la propuesta de tres pasos en Para tu OK. Aprobarla no agenda ni envía mensajes.'
+          : 'Dejé el resumen interno en Para tu OK. No ejecuté tareas, no agendé ni envié mensajes.'
+        : 'Ese plan ya está en Para tu OK.',
+    };
+  }
 
   // 1. Habla de web / armar web
   if (

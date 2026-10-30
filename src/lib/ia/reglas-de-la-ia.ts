@@ -93,6 +93,8 @@ export const TAREAS_PROHIBIDAS_SOLA = [
   'mandar_mensajes_clientes',
   'mandar-mensajes-clientes',
   'mandar_mensajes',
+  'perseguidor_presupuestos',
+  'recontacto_automatico',
   'cobrar_marcar_pagado',
   'cobrar-marcar-pagado',
   'cerrar_presupuesto',
@@ -112,6 +114,34 @@ export function esTareaProhibidaSola(tareaId: string): boolean {
 }
 
 export const TAREAS_SISTEMA: ReglaIA[] = [
+  {
+    id: 'borradores_redes_posfiesta',
+    nombre: 'Borradores de redes posfiesta',
+    descripcion: 'Prepara una publicación y un guion interno con multimedia autorizada; no genera video ni publica',
+    modo: 'preguntar',
+    categoria: 'Redes sociales',
+  },
+  {
+    id: 'informe_posfiesta',
+    nombre: 'Informe posfiesta',
+    descripcion: 'Prepara un informe interno para revisión del dueño; no lo envía ni publica',
+    modo: 'preguntar',
+    categoria: 'Fiestas',
+  },
+  {
+    id: 'anticipador',
+    nombre: 'Anticipador de fiestas',
+    descripcion: 'Prepara alertas internas de personal y cuotas vencidas corroboradas; no contacta clientes ni modifica pagos',
+    modo: 'sola',
+    categoria: 'Monitoreo',
+  },
+  {
+    id: 'resumen_de_la_manana',
+    nombre: 'Resumen de la mañana',
+    descripcion: 'Envía al dueño un resumen diario de hasta cinco líneas por WhatsApp o aviso en la app',
+    modo: 'sola',
+    categoria: 'Monitoreo',
+  },
   {
     id: 'vigilante_publicidad',
     nombre: 'Vigilante de Publicidad (Meta Ads)',

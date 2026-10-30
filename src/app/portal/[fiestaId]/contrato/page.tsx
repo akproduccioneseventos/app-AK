@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle, User, Building2, Calendar, DollarSign, Star, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
-import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, getClientPromotionalPhotoConsent, setClientPromotionalPhotoConsent } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfoPublica } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
@@ -58,6 +58,8 @@ export default function ClientContractPage() {
   const [signerFullName, setSignerFullName] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPlanPagos, setAcceptedPlanPagos] = useState(false);
+  const [photoConsent, setPhotoConsent] = useState<boolean | null>(null);
+  const [savingPhotoConsent, setSavingPhotoConsent] = useState(false);
   const [summary, setSummary] = useState<{
     nombreEvento: string;
     clienteNombre: string;
@@ -90,9 +92,41 @@ export default function ClientContractPage() {
     }
   }, [fiestaId]);
 
+  const cargarPermisoFotos = useCallback(async () => {
+    setPhotoConsent(null);
+    try {
+      const permiso = await getClientPromotionalPhotoConsent(fiestaId);
+      if (typeof permiso?.authorized !== 'boolean') return;
+      setPhotoConsent(permiso.authorized);
+    } catch {
+      // El permiso de fotos no debe impedir leer o firmar el contrato.
+    }
+  }, [fiestaId]);
+
+  const togglePhotoConsent = async () => {
+    if (photoConsent === null) return;
+    setSavingPhotoConsent(true);
+    try {
+      const result = await setClientPromotionalPhotoConsent(fiestaId, !photoConsent);
+      if (!result.success) throw new Error(result.error || 'No se pudo guardar tu decisión.');
+      setPhotoConsent(!photoConsent);
+      toast({
+        title: !photoConsent ? 'Autorización registrada' : 'Autorización revocada',
+        description: !photoConsent
+          ? 'AK puede usar fotos de esta fiesta con fines promocionales. Podés revocar este permiso cuando quieras.'
+          : 'Las fotos de esta fiesta dejarán de usarse en nuevos mensajes promocionales.',
+      });
+    } catch (error) {
+      toast({ title: 'No se pudo guardar', description: error instanceof Error ? error.message : 'Intentá nuevamente.', variant: 'destructive' });
+    } finally {
+      setSavingPhotoConsent(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    cargarPermisoFotos();
+  }, [loadData, cargarPermisoFotos]);
 
   const handleSign = async () => {
     if (!signerFullName.trim()) {
@@ -193,6 +227,24 @@ export default function ClientContractPage() {
                     </div>
                 </div>
             )}
+
+            <Card className="border-slate-200">
+              <CardHeader>
+                <CardTitle className="text-base">Uso promocional de fotos</CardTitle>
+                <CardDescription>Esta decisión es independiente del contrato y no cambia el precio ni los servicios.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-slate-600">
+                  {photoConsent === null ? 'No se pudo verificar el permiso de fotos. Tu contrato sigue disponible.' : photoConsent
+                    ? 'Autorización vigente para usar fotos de esta fiesta en materiales promocionales.'
+                    : 'No hay autorización vigente para usar fotos de esta fiesta.'}
+                </p>
+                <Button variant={photoConsent ? 'outline' : 'default'} disabled={savingPhotoConsent} onClick={photoConsent === null ? cargarPermisoFotos : togglePhotoConsent}>
+                  {savingPhotoConsent && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {photoConsent === null ? 'Reintentar permiso' : photoConsent ? 'Revocar autorización' : 'Autorizar fotos'}
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* ── Resumen pre-firma ──────────────────────────── */}
             {!firma?.isSigned && summary && (

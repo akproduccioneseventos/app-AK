@@ -13,6 +13,7 @@ import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.action
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { verifySession } from '@/lib/auth/session-token';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { ID_MEMORIA_DUENO, loQueSe } from '@/lib/asistente/memoria';
 import { readDataConDetalle } from '@/lib/data-service';
 import {
   TOPE_DATOS_EN_TIEMPO_REAL,
@@ -314,18 +315,20 @@ async function leerAvisando<T>(lectura: Promise<T>): Promise<{ ok: true; valor: 
   }
 }
 
-async function veLaPlata(): Promise<boolean> {
+async function usuarioActual(): Promise<{ userId?: string; email?: string; perfil?: string; role?: string } | null> {
   try {
     const sesion = await verifySession();
-    return Boolean(sesion?.success) && puede(sesion.user, PERMISOS.CONTABILIDAD);
+    return sesion?.success ? sesion.user || null : null;
   } catch {
-    return false; // sin saber quién pregunta, no se le da plata
+    return null;
   }
 }
 
 // ── Constructor de contexto enriquecido ───────────────────────────────────────
 async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
-  const conPlata = await veLaPlata();
+  const usuario = await usuarioActual();
+  const conPlata = Boolean(usuario && puede(usuario, PERMISOS.CONTABILIDAD));
+  const conCRM = Boolean(usuario && puede(usuario, PERMISOS.CRM));
 
   // Presupuestos: quien ve plata los lee crudos (para saber si la lectura falló); el resto, por la
   // acción que le saca los cobros.
@@ -343,7 +346,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
   const [kpiResult, presupuestosLectura, leadsLectura, briefing, fiestasLectura] = await Promise.all([
     getDashboardKpiData().catch(() => null),
     leerPresupuestos(),
-    leerAvisando(getCrmLeads()),
+    conCRM ? leerAvisando(getCrmLeads()) : Promise.resolve({ ok: true as const, valor: [] }),
     buildMultiAgentTeamBriefing({ fiestaId: input.fiestaId }).catch(() => null),
     leerAvisando(getAllFiestas()),
   ]);
@@ -352,12 +355,16 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
     ? await getFiestaById(input.fiestaId).catch(() => null)
     : null;
 
-  const memory = await getAgentMemoryProfile({
+  const [memory, recuerdosPersonales] = await Promise.all([getAgentMemoryProfile({
     agentType,
     fiestaId: input.fiestaId,
     scope:    input.fiestaId ? 'fiesta' : ['secretaria','central'].includes(agentType) ? 'global' : 'modulo',
     module:   input.fiestaId ? undefined : agentType,
-  }).catch(() => fallbackMemory(agentType, input));
+  }).catch(() => fallbackMemory(agentType, input)), usuario?.userId || usuario?.email
+    ? loQueSe(puede(usuario, PERMISOS.ADMINISTRACION) ? ID_MEMORIA_DUENO : usuario.userId || usuario.email!, input.message, {
+        puedeVerMemoriaDelDueno: Boolean(usuario && puede(usuario, PERMISOS.ADMINISTRACION)),
+      }).catch(() => [])
+    : Promise.resolve([])]);
 
   const fiestas      = fiestasLectura.ok ? (fiestasLectura.valor as any[]) : null;
   const presupuestos = presupuestosLectura.ok ? presupuestosLectura.valor.filter((p: any) => !p?.archived) : null;
@@ -373,7 +380,9 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
   const nombre      = fiestaNombre(fiesta);
   const manual      = formatManualForAgentPrompt(agentType, { pathname: input.pathname, fiestaId: input.fiestaId });
   const diagnostics = briefing
-    ? formatAgentDiagnosticsForPrompt(briefing, agentType, input.fiestaId)
+    ? conPlata
+      ? formatAgentDiagnosticsForPrompt(briefing, agentType, input.fiestaId)
+      : 'Los diagnósticos operativos están disponibles en el panel según los permisos de tu perfil.'
     : 'Diagnóstico automático no disponible en este momento.';
 
   // ── Bloque de fiesta enriquecido ──────────────────────────────────────────
@@ -388,15 +397,19 @@ ${(fiesta.tareas || []).filter((t: any) => !t.completada).slice(0, 20).map((t: a
 FINANZAS DE ESTA FIESTA:
 ${conPlata ? buildFiestaFinancialBlock(fiesta) : '• Tu perfil no ve las finanzas de la fiesta.'}`.trim() : 'Sin fiesta específica en contexto.';
 
-  // ── Los tres bloques que reciben TODOS los agentes ────────────────────────
   const bloqueFiestas = bloqueFiestasProximas(fiestas);
-  // La plata sólo viaja al prompt de quien tiene el permiso de contabilidad.
-  const bloqueDinero  = conPlata ? bloquePlata(presupuestos, fiestas) : '';
-  const bloqueSemana  = bloqueAgenda(fiestas);
+  const bloqueDinero = conPlata ? bloquePlata(presupuestos, fiestas) : '';
+  const bloqueSemana = bloqueAgenda(fiestas);
+  const contextoPersonal = recuerdosPersonales.length
+    ? `MEMORIA PERSONAL RELEVANTE:\n${recuerdosPersonales.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')}`
+    : '';
 
   // ── Alertas KPI ───────────────────────────────────────────────────────────
-  const alertsBlock = (kpi?.alerts || []).length
-    ? `ALERTAS ACTIVAS:\n${(kpi?.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
+  const alertasVisibles = conPlata
+    ? (kpi?.alerts || [])
+    : (kpi?.alerts || []).filter((a: any) => !/(?:\$|\b(?:saldo|cuota|cobro|deuda|factura|pago|presupuesto|inversi[oó]n|costo|coste|ganancia|rentabilidad)\b)/i.test(String(a?.message || '')));
+  const alertsBlock = alertasVisibles.length
+    ? `ALERTAS ACTIVAS:\n${(alertasVisibles as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
     : kpi ? 'Sin alertas activas.' : 'ALERTAS: no se pudieron leer ahora.';
 
   const presupuestosBlock = presupuestos === null
@@ -405,7 +418,9 @@ ${conPlata ? buildFiestaFinancialBlock(fiesta) : '• Tu perfil no ve las finanz
         ? `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado} | Total: ${formatoPlata(p.totalConDescuento ?? p.costoTotalEstimado ?? 0)} | Seña: ${formatoPlata(p.sena ?? 0)} | Saldo: ${formatoPlata(getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance)}`
         : `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado}`).join('\n') || 'Sin presupuestos.'}`;
 
-  const leadsBlock = leads === null
+  const leadsBlock = !conCRM
+    ? ''
+    : leads === null
     ? 'LEADS CRM: no se pudieron leer ahora (no quiere decir que no haya).'
     : `LEADS CRM (últimos 12 de ${leads.length}):\n${leads.slice(-12).map((l: any) => `• ${l.name} | Etapa: ${(l as any).stageId || (l as any).currentStageId || 'sin etapa'} | Próx. acción: ${l.followUpDate || 'sin fecha'} | ${l.phone || ''}`).join('\n') || 'Sin leads.'}`;
 
@@ -421,6 +436,7 @@ ${conPlata ? buildFiestaFinancialBlock(fiesta) : '• Tu perfil no ve las finanz
     bloqueFiestas,
     bloqueDinero,
     bloqueSemana,
+    contextoPersonal,
     '',
     fiestaBlock,
     '',

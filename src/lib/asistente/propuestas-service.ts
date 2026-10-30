@@ -12,6 +12,9 @@ import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { ejecutarAccionSecretario } from '@/app/actions/multiagent';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { prepararMensajeDelPlan } from '@/lib/asistente/planes-ejecutor';
+import { randomUUID } from 'crypto';
+import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
 
 export type AsistenteArea = 'ventas' | 'cobros' | 'fiestas';
 
@@ -47,6 +50,9 @@ export interface AsistentePropuesta {
   conflictoPersonalOSalon?: boolean;
   createdAt: string;
   updatedAt: string;
+  planEjecucion?: { mensajeId?: string; resultado: string; preparadoEn: string };
+  planIntento?: string;
+  planReservadoEn?: string;
 }
 
 export interface ReglaAprendida {
@@ -151,6 +157,11 @@ export async function desestimarReglaAprendida(reglaId: string): Promise<void> {
 export async function agregarPropuestasDeduplicadas(
   nuevas: Omit<AsistentePropuesta, 'id' | 'estado' | 'createdAt' | 'updatedAt'>[]
 ): Promise<{ agregadas: AsistentePropuesta[]; ignoradas: number }> {
+  const tonos = new Map<string, string>();
+  for (const tipo of new Set(nuevas.map(n => n.tipoPropuesta).filter((tipo): tipo is string => Boolean(tipo)))) {
+    const ejemplos = await aprenderDeLoAprobado(tipo);
+    if (ejemplos.length) tonos.set(tipo, resumirGuiaDeEstilo(ejemplos));
+  }
   const reglas = await getReglasAprendidas();
   let agregadas: AsistentePropuesta[] = [];
   let ignoradas = 0;
@@ -209,6 +220,10 @@ export async function agregarPropuestasDeduplicadas(
 
     const nuevaPropuesta: AsistentePropuesta = {
       ...n,
+      // Solo adapta el encabezado, sin copiar datos ni alterar los pasos de la propuesta.
+      quePropone: n.tipoPropuesta && tonos.has(n.tipoPropuesta)
+        ? `${tonos.get(n.tipoPropuesta)!.includes('rioplatense') ? 'Te propongo:' : 'Propuesta para revisar:'}\n${n.quePropone}`
+        : n.quePropone,
       id: `prop-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       estado: 'pendiente',
       createdAt: hoy.toISOString(),
@@ -242,6 +257,10 @@ export async function aceptarPropuesta(
   }
   if (propuesta.estado === 'aceptada' || propuesta.estado === 'descartada') {
     return { success: false, mensaje: 'Esa propuesta ya se resolvió.' };
+  }
+  if (propuesta.tipoPropuesta === 'plan_multi_paso') {
+    return opciones.esDuenio ? aprobarPlanMultipaso(propuestaId, usuarioNombre)
+      : { success: false, mensaje: 'El dueño confirma este plan desde el Centro de control.' };
   }
 
   let mensajeResultado = 'Propuesta aceptada con éxito.';
@@ -366,6 +385,51 @@ export async function aceptarPropuesta(
   }
 
   return { success: true, mensaje: mensajeResultado, preguntaAutomatizacion };
+}
+
+/** Prepara los pasos internos aprobados. Un fallo nunca da el plan por resuelto. */
+export async function aprobarPlanMultipaso(
+  propuestaId: string,
+  usuarioNombre = 'Usuario',
+): Promise<{ success: boolean; mensaje: string }> {
+  const intento = randomUUID();
+  const reserva = await cambiarPropuesta(propuestaId, (p) => {
+    if (p.estado !== 'pendiente' || p.tipoPropuesta !== 'plan_multi_paso') return false;
+    if (p.planReservadoEn && Date.now() - Date.parse(p.planReservadoEn) < 120000) return false;
+    p.planIntento = intento;
+    p.planReservadoEn = new Date().toISOString();
+    return true;
+  });
+  if (!reserva) {
+    const anterior = (await getPropuestas()).find(p => p.id === propuestaId);
+    return anterior?.estado === 'aceptada' && anterior.planEjecucion
+      ? { success: true, mensaje: anterior.planEjecucion.resultado }
+      : { success: false, mensaje: 'Ese plan no está pendiente o lo está preparando otra persona.' };
+  }
+  try {
+    const preparado = await prepararMensajeDelPlan(reserva);
+    const finalizada = await cambiarPropuesta(propuestaId, (p) => {
+      if (p.estado !== 'pendiente' || p.planIntento !== intento) return false;
+      p.estado = 'aceptada';
+      p.aceptadaPor = usuarioNombre;
+      p.aceptadaEn = new Date().toISOString();
+      p.updatedAt = p.aceptadaEn;
+      p.planEjecucion = { ...preparado, preparadoEn: p.aceptadaEn };
+      delete p.planIntento;
+      delete p.planReservadoEn;
+      return true;
+    });
+    return finalizada ? { success: true, mensaje: preparado.resultado }
+      : { success: false, mensaje: 'El mensaje pudo quedar en la bandeja, pero no se confirmó el cierre del plan. Revisalo antes de reintentar.' };
+  } catch (error) {
+    await cambiarPropuesta(propuestaId, (p) => {
+      if (p.planIntento !== intento || p.estado === 'aceptada') return false;
+      delete p.planIntento;
+      delete p.planReservadoEn;
+      return true;
+    });
+    return { success: false, mensaje: error instanceof Error ? error.message : 'El plan no se pudo completar.' };
+  }
 }
 
 /**

@@ -99,6 +99,17 @@ export async function saveSocialPost(
   let mediaUrl: string | undefined = formData.get('existingMediaUrl') as string || undefined;
   let mediaType: 'image' | 'video' | undefined = formData.get('existingMediaType') as 'image' | 'video' || undefined;
 
+  const existingPost = posts.find((post) => post.id === postId);
+  const promotionalPhotoIds = (existingPost as (SocialPost & { promotionalPhotoIds?: string[] }) | undefined)?.promotionalPhotoIds;
+  if (Array.isArray(promotionalPhotoIds) && promotionalPhotoIds.length > 0) {
+    const changedMedia = Boolean(mediaFile?.size)
+      || (mediaUrl !== undefined && mediaUrl !== existingPost?.mediaUrl)
+      || (mediaType !== undefined && mediaType !== existingPost?.mediaType);
+    if (changedMedia) {
+      return { success: false, error: 'Esta publicación está protegida por consentimiento de imagen. Para cambiar la foto se requiere un nuevo borrador con autorización vigente.' };
+    }
+  }
+
   if (mediaFile && mediaFile.size > 0) {
     try {
       const fileExtension = path.extname(mediaFile.name);

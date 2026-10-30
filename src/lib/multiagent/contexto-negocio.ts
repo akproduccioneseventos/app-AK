@@ -15,6 +15,7 @@
  * quiere decir "no se pudo leer": el bloque lo dice y NO se parece a "no hay nada".
  */
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { puede, PERMISOS, perfilDe } from '@/lib/auth/perfiles';
 import { hoyEnUruguay } from '@/lib/utils';
 
 /** Tope de caracteres de todo lo que cambia con los datos del día (sin el manual ni el mapa). */
@@ -23,6 +24,49 @@ export const TOPE_DATOS_EN_TIEMPO_REAL = 8000;
 const TOPE_BLOQUE = 2400;
 const DIAS_PROXIMOS = 30;
 const DIAS_SEMANA = 7;
+
+export interface UsuarioContextoNegocio {
+  perfil?: string;
+  role?: string;
+}
+
+export interface DatosContextoNegocio {
+  fiestas?: any[] | null;
+  presupuestos?: any[] | null;
+  prospectos?: any[] | null;
+  sueldosResumen?: string | null;
+}
+
+/** Arma un contexto compartido, filtrado antes de que los datos lleguen a un modelo. */
+export function armarContextoDelNegocio(
+  usuario: UsuarioContextoNegocio | null | undefined,
+  datos: DatosContextoNegocio,
+): string {
+  const perfil = usuario ? perfilDe(usuario) : null;
+  const esDueno = perfil === 'dueno' && puede(usuario, PERMISOS.ADMINISTRACION);
+  const puedeVerFinanzas = Boolean(usuario && puede(usuario, PERMISOS.CONTABILIDAD));
+  const puedeVerAgendaGeneral = esDueno || perfil === 'secretaria' || Boolean(usuario && puede(usuario, PERMISOS.ORGANIZACION));
+  const bloques: string[] = [];
+
+  if (puedeVerAgendaGeneral && datos.fiestas !== undefined) {
+    bloques.push(bloqueFiestasProximas(datos.fiestas ?? null));
+    bloques.push(bloqueAgenda(datos.fiestas ?? null));
+  }
+  if (puedeVerFinanzas && datos.presupuestos !== undefined) {
+    bloques.push(bloquePlata(datos.presupuestos ?? null, datos.fiestas ?? null));
+  }
+  if (esDueno && puede(usuario, PERMISOS.SUELDOS) && datos.sueldosResumen?.trim()) {
+    bloques.push(`SUELDOS (solo dueño):\n${datos.sueldosResumen.trim()}`);
+  }
+  if (usuario && puede(usuario, PERMISOS.CRM) && Array.isArray(datos.prospectos)) {
+    const filas = datos.prospectos.slice(0, 12).map((p: any) =>
+      `• ${p.name || p.nombre || 'Prospecto'} | ${p.stageId || p.currentStageId || 'sin etapa'} | próximo contacto: ${p.followUpDate || 'sin fecha'}`,
+    );
+    bloques.push(`PROSPECTOS CRM:\n${filas.join('\n') || 'Sin prospectos cargados.'}`);
+  }
+
+  return bloques.filter(Boolean).join('\n\n');
+}
 
 export function formatoPlata(valor: number): string {
   const n = Math.round(Number(valor) || 0);

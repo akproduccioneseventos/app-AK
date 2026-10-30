@@ -48,6 +48,10 @@ export interface PublicSimulatorPersistenceOptions {
   eventoTipo: string;
   salonFiestas?: string;
   acquisition?: CommercialAttribution;
+  /** Internal assistant proposal; public simulator submissions keep their existing review state. */
+  estadoInicial?: 'Borrador' | 'Pendiente Verificación';
+  /** Reject assistant drafts before any CRM or budget write when pricing is zero. */
+  requirePositiveTotal?: boolean;
 }
 
 function clampCount(value: unknown, max = 1000): number {
@@ -167,6 +171,9 @@ async function persistBudgetAtomically(
             transaction.get(counterRef),
           ]);
           const stored = budgetSnapshot.exists ? budgetSnapshot.data() as Presupuesto : undefined;
+          if (stored && isSameAssistantDraft(stored, presupuesto)) {
+            return { presupuesto: stored, reused: true };
+          }
           if (stored && stored.estado !== 'Pendiente Verificación') {
             throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
           }
@@ -183,7 +190,11 @@ async function persistBudgetAtomically(
           return { presupuesto: next, reused: Boolean(stored) };
         });
       }
+      if (presupuesto.source === 'simulator_assistant') {
+        throw new Error('No se pudo abrir la base para guardar el borrador de forma segura.');
+      }
     } catch (error) {
+      if (presupuesto.source === 'simulator_assistant') throw error;
       if (error instanceof Error && error.message.includes('ya fue revisado')) throw error;
       console.warn('[public-budget] Firestore transaction unavailable, using data-service fallback.', error);
     }
@@ -192,6 +203,9 @@ async function persistBudgetAtomically(
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const existingIndex = presupuestos.findIndex((item) => item.id === presupuesto.id);
   const stored = existingIndex >= 0 ? presupuestos[existingIndex] : undefined;
+  if (stored && isSameAssistantDraft(stored, presupuesto)) {
+    return { presupuesto: stored, reused: true };
+  }
   if (stored && stored.estado !== 'Pendiente Verificación') {
     throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
   }
@@ -200,6 +214,17 @@ async function persistBudgetAtomically(
   else presupuestos.push(next);
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { presupuesto: next, reused: existingIndex >= 0 };
+}
+
+function isSameAssistantDraft(stored: Presupuesto, incoming: Presupuesto): boolean {
+  return stored.estado === 'Borrador' && incoming.estado === 'Borrador'
+    && stored.source === 'simulator_assistant' && incoming.source === stored.source
+    && stored.clienteContacto === incoming.clienteContacto
+    && stored.clienteNombre === incoming.clienteNombre
+    && stored.eventoFecha === incoming.eventoFecha
+    && stored.eventoTipo === incoming.eventoTipo
+    && stored.invitadosCantidad === incoming.invitadosCantidad
+    && stored.salonFiestas === incoming.salonFiestas;
 }
 
 export async function persistPublicSimulatorBudget(
@@ -265,6 +290,9 @@ export async function persistPublicSimulatorBudget(
     annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage || 0,
     currentYear: now.getFullYear(),
   });
+  if (options.requirePositiveTotal && !(pricing.totalFinal > 0)) {
+    throw new Error('El cálculo vigente no produjo un importe positivo; requiere revisión manual.');
+  }
   if (pricing.detallados.length === 0) {
     throw new Error('No fue posible reconstruir los servicios seleccionados.');
   }
@@ -303,10 +331,21 @@ export async function persistPublicSimulatorBudget(
     ajusteAnualActivo: pricing.annualProjection.applies,
     ajusteAnualPorcentaje: pricing.annualProjection.adjustmentPct,
     totalConDescuento: pricing.totalFinal,
-    estado: 'Pendiente Verificación',
+    estado: options.estadoInicial === 'Borrador' ? 'Borrador' : 'Pendiente Verificación',
     source: options.source,
     acquisition: attribution,
   } as Presupuesto, { preserveStoredTotal: true });
+
+  if (presupuesto.source === 'simulator_assistant' && presupuesto.estado === 'Borrador') {
+    const anterior = existingBudgets.find(item => item.id === presupuesto.id);
+    if (anterior) {
+      if (!isSameAssistantDraft(anterior, presupuesto)) {
+        throw new Error('Este presupuesto ya fue revisado o cambió su identidad. Genera una nueva propuesta.');
+      }
+      // El reintento conserva la propuesta guardada, también en el contexto que recibe el CRM.
+      presupuesto = anterior;
+    }
+  }
 
   const conversionPlan = buildSimulatorConversionPlan({
     source: mapCommercialSource(attribution, options.source),

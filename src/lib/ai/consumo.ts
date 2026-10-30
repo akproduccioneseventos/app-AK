@@ -34,6 +34,7 @@ export type FuncionConCosto =
   | 'extraccion-prospecto-whatsapp'
   | 'trivia-ia'
   | 'voz-cliente'
+  | 'whatsapp-media'
   | 'asistente-dot-contador'
   | 'recorte-decoracion';
 
@@ -72,6 +73,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'extraccion-prospecto-whatsapp': 1,
   'trivia-ia': 1,
   'voz-cliente': 1,
+  'whatsapp-media': 1,
   'asistente-dot-contador': 1,
   'recorte-decoracion': 6,
 };

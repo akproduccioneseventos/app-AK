@@ -38,9 +38,9 @@ describe('Bloque 7: Agentes Autónomos con Guardrails y Trazabilidad', () => {
     mockData['agentes-historial.json'] = [];
   });
 
-  it('obtiene los 6 agentes con sus configuraciones por defecto', async () => {
+  it('obtiene los 7 agentes con sus configuraciones por defecto', async () => {
     const agentes = await getConfiguracionAgentes();
-    expect(agentes).toHaveLength(6);
+    expect(agentes).toHaveLength(7);
     const ids = agentes.map((a) => a.id);
     expect(ids).toContain('vigilante_fiestas');
     expect(ids).toContain('perseguidor_presupuestos');
@@ -48,6 +48,7 @@ describe('Bloque 7: Agentes Autónomos con Guardrails y Trazabilidad', () => {
     expect(ids).toContain('generador_contenido');
     expect(ids).toContain('vigilante_noche');
     expect(ids).toContain('vigilante_publicidad');
+    expect(ids).toContain('anticipador');
   });
 
   it('el perseguidor de presupuestos prepara el borrador en la bandeja a los 5 días sin enviar directamente', async () => {

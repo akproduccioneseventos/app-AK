@@ -4,9 +4,15 @@ let memoryStore: Record<string, any> = {};
 
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string, def: any) => memoryStore[file] ?? def),
+  readDataConDetalle: jest.fn(async (file: string, def: any) => ({ valor: memoryStore[file] ?? def, huboFalla: false })),
   writeData: jest.fn(async (file: string, data: any) => {
     memoryStore[file] = data;
     return true;
+  }),
+  createDataItem: jest.fn(async (file: string, _collection: string, id: string, item: any) => {
+    const actual = memoryStore[file] ?? [];
+    if (actual.some((post: any) => post.id === id)) throw new Error('already exists');
+    memoryStore[file] = [...actual, item];
   }),
 }));
 
@@ -35,6 +41,13 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestas: jest.fn(async () => mockFiestas),
   getFiestaById: jest.fn(async (id: string) => mockFiestas.find((f) => f.id === id)),
   saveFiesta: jest.fn(async () => true),
+}));
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => mockFiestas) }));
+jest.mock('@/lib/ia/reglas-de-la-ia', () => ({ getReglaParaTarea: jest.fn(async () => 'preguntar') }));
+jest.mock('@/lib/staff-agenda-conflicts', () => ({ getFiestaTimeRange: jest.fn(() => ({ endMs: 0 })) }));
+jest.mock('@/lib/asistente/comercial-borrador', () => ({
+  fotosPromocionalesDeFiesta: jest.fn(async (eventId: string) => [{ id: 'foto-autorizada', eventId, url: 'https://example.com/foto-aprobada.jpg' }]),
+  validarFotosPromocionalesAlEnviar: jest.fn(async () => ({ allowed: true, authorizedPhotoIds: ['foto-autorizada'] })),
 }));
 
 jest.mock('@/app/actions/presupuestos', () => ({

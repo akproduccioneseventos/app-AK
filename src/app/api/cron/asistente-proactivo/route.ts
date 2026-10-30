@@ -22,6 +22,11 @@ import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
+import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
+import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
+import { ejecutarCierrePosfiesta } from '@/lib/asistente/cierre-posfiesta';
+import { enviarAvisosOperativosWhatsApp } from '@/lib/asistente/avisos-operativos-whatsapp';
+import { prepararPropuestaFaltantePersonal, prepararPropuestaOperativaNoche } from '@/lib/asistente/propuestas-operativas';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -71,9 +76,25 @@ export async function GET(request: Request) {
     const registrosAgentes = await ejecutarAgentesAutonomos(ahora);
     for (const reg of registrosAgentes) {
       if (reg.hallazgos && reg.hallazgos.length > 0) {
-        for (const hallazgo of reg.hallazgos) {
+        for (const [hallazgoIndex, hallazgo] of reg.hallazgos.entries()) {
+          const propuestaFaltante = (reg.agenteId === 'vigilante_fiestas' || reg.agenteId === 'anticipador')
+            ? prepararPropuestaFaltantePersonal(hallazgo)
+            : null;
+          if (propuestaFaltante) {
+            nuevasParaAgregar.push(propuestaFaltante);
+            continue;
+          }
+
+          const propuestaNoche = reg.agenteId === 'vigilante_noche'
+            ? prepararPropuestaOperativaNoche(hallazgo, reg.accionesPreparadas?.[hallazgoIndex] || 'Revisar el aviso operativo en la app.')
+            : null;
+          if (propuestaNoche) {
+            nuevasParaAgregar.push(propuestaNoche);
+            continue;
+          }
+
           let area: AsistentePropuesta['area'] = 'fiestas';
-          if (reg.agenteId === 'cobrador') area = 'cobros';
+          if (reg.agenteId === 'cobrador' || (reg.agenteId === 'anticipador' && hallazgo.includes('[area=cobros]'))) area = 'cobros';
           else if (reg.agenteId === 'perseguidor_presupuestos' || reg.agenteId === 'vigilante_publicidad') area = 'ventas';
 
           const hash = Math.abs(hallazgo.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0));
@@ -85,7 +106,7 @@ export async function GET(request: Request) {
             titulo: `${reg.agenteNombre}: hallazgo operativo`,
             quePasa: hallazgo,
             porQueImporta: 'Requiere atención para asegurar el flujo de ingresos o la excelencia del evento.',
-            quePropone: reg.accionesPreparadas?.[0] || 'Revisar la situación y tomar acción preventiva.',
+            quePropone: reg.accionesPreparadas?.[hallazgoIndex] || 'Revisar la situación y tomar acción preventiva.',
             tipoPropuesta: reg.agenteId,
             esImportante: area === 'cobros',
           });
@@ -121,17 +142,37 @@ export async function GET(request: Request) {
   // 3. PARTE DE LA MAÑANA (Una vez al día)
   try {
     if (horaUy >= 7 && horaUy <= 11) {
-      const parte = await getParteDeLaManana();
-      if (parte && parte.totalPendientes > 0) {
-        nuevasParaAgregar.push({
-          clave: `parte-manana:${parte.fecha}`,
-          area: 'fiestas',
-          titulo: `Parte de la mañana (${parte.fecha})`,
-          quePasa: parte.textoResumen,
-          porQueImporta: 'Brinda un panorama sereno y ordenado para arrancar la jornada.',
-          quePropone: 'Escuchar el parte diario y atender las tareas prioritarias del día.',
-          tipoPropuesta: 'parte_manana',
-        });
+      const regla = await getReglaParaTarea('resumen_de_la_manana');
+      if (regla === 'sola' || regla === 'preguntar') {
+        const parte = await getParteDeLaManana();
+        if (regla === 'sola') {
+          const preventivas = nuevasParaAgregar.filter((p) =>
+            ['anticipador', 'perseguidor_presupuestos', 'faltante_personal'].includes(p.tipoPropuesta || ''),
+          );
+          const entrega = await enviarResumenMananaWhatsApp({
+            ...parte,
+            itemsPrincipales: [
+              ...preventivas.map((p) => ({ id: p.clave || p.titulo, tipo: 'fiesta_proxima' as const, titulo: p.titulo, detalle: p.quePasa })),
+              ...parte.itemsPrincipales,
+            ].slice(0, 4),
+          }, ahora);
+          if (entrega.motivo && entrega.motivo !== 'Fuera de la ventana matutina.' && entrega.motivo !== 'El resumen de hoy ya se procesó.') {
+            fallos.push(`Resumen matutino: ${entrega.motivo}`);
+          }
+        } else {
+          fallos.push('Resumen matutino: requiere aprobación; no existe un borrador de envío para este WhatsApp y quedó sin enviar.');
+        }
+        if (parte && parte.totalPendientes > 0) {
+          nuevasParaAgregar.push({
+            clave: `parte-manana:${parte.fecha}`,
+            area: 'fiestas',
+            titulo: `Parte de la mañana (${parte.fecha})`,
+            quePasa: parte.textoResumen,
+            porQueImporta: 'Brinda un panorama sereno y ordenado para arrancar la jornada.',
+            quePropone: 'Escuchar el parte diario y atender las tareas prioritarias del día.',
+            tipoPropuesta: 'parte_manana',
+          });
+        }
       }
     }
   } catch (err: any) {
@@ -203,6 +244,14 @@ export async function GET(request: Request) {
     fallos.push(`Error autogenerando borradores semanales: ${err.message}`);
   }
 
+  try {
+    const cierre = await ejecutarCierrePosfiesta(ahora);
+    nuevasParaAgregar.push(...cierre.nuevasPropuestas);
+    fallos.push(...cierre.errores.map((error) => `Informe ${error.fiestaId}: ${error.error}`));
+  } catch (error) {
+    fallos.push(`No se pudieron preparar los informes posfiesta: ${error instanceof Error ? error.message : 'error de lectura'}`);
+  }
+
   // 6. PERSISTENCIA DEDUPLICADA
   const resultadoPersistencia = await agregarPropuestasDeduplicadas(nuevasParaAgregar);
 
@@ -224,7 +273,13 @@ export async function GET(request: Request) {
     }
   }
 
-  // 8. AVISOS PROACTIVOS AL EQUIPO (Push con server-messaging)
+  // 8. AVISOS PROACTIVOS: la alerta operativa tiene su propia entrega por tema/hora.
+  let avisosOperativos = null;
+  try {
+    avisosOperativos = await enviarAvisosOperativosWhatsApp(nuevasParaAgregar, fiestas, ahora);
+  } catch {
+    fallos.push('No se pudo confirmar la entrega de avisos operativos; revisar la app.');
+  }
   let avisoDuenioRes = null;
   const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
   const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
@@ -235,7 +290,8 @@ export async function GET(request: Request) {
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
       const hoyKey = hoyEnUruguay(ahora);
-      const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
+      const otrasPropuestas = resultadoPersistencia.agregadas.filter((p) => p.tipoPropuesta !== 'vigilante_noche');
+      const importantes = otrasPropuestas.filter((p) => p.esImportante);
 
       if (importantes.length > 0) {
         let reservado = false;
@@ -273,7 +329,10 @@ export async function GET(request: Request) {
         }
       }
 
-      avisoDuenioRes = await avisarAlDuenio(resultadoPersistencia.agregadas, ahora);
+      const propuestasParaAvisar = otrasPropuestas;
+      if (propuestasParaAvisar.length > 0) {
+        avisoDuenioRes = await avisarAlDuenio(propuestasParaAvisar, ahora);
+      }
     } catch (err: any) {
       console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
     }
@@ -289,6 +348,7 @@ export async function GET(request: Request) {
     propuestasNuevasAgregadas: resultadoPersistencia.agregadas.length,
     propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
     avisoDuenio: avisoDuenioRes,
+    avisosOperativos,
     fallos,
   }));
 }

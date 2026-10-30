@@ -196,9 +196,8 @@ export async function POST(request: NextRequest) {
     /**
      * **El numero es el personal del dueno: no se le contesta a cualquiera.**
      *
-     * Solo se responde automaticamente a quien llego tocando un anuncio o una
-     * publicacion de la empresa. Esa persona es un desconocido que espera una
-     * respuesta comercial, muchas veces de madrugada, y es plata que se enfria.
+     * La charla de quienes llegan de anuncios sigue siendo automatica. Solo el
+     * presupuesto con fotos queda como borrador para revision y envio humanos.
      *
      * A la familia, a los proveedores y a los amigos **no les contesta nadie**: el
      * mensaje se ignora y lo lee una persona cuando puede.
@@ -216,34 +215,28 @@ export async function POST(request: NextRequest) {
       phone,
       name: clientName,
       text: messageText,
+      messageId,
     });
     if (atencionAnuncio.completo) {
       return NextResponse.json({
-        status: 'ok',
-        tipo: 'prospecto_anuncio_simulador',
-        completo: true,
+        status: 'ok', tipo: 'prospecto_anuncio_borrador',
+        completo: true, respondido: false, requiereRevision: true,
       }, { status: 200 });
     }
 
     const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
-
     if (!result.success) {
       console.error('[WhatsApp Webhook] Error processing message:', result.error);
       return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
-
-    // Build response payload for providers that expect a reply in the HTTP response
-    if (result.botResponse) {
-      // Twilio expects TwiML or JSON response
-      if (body.From) {
-        const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${result.botResponse}</Message></Response>`;
-        return new NextResponse(twiml, {
-          status: 200,
-          headers: { 'Content-Type': 'text/xml' },
-        });
-      }
+    if (result.botResponse && body.From) {
+      const text = result.botResponse.replace(/[<>&"']/g, char => ({
+        '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;',
+      })[char]!);
+      return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${text}</Message></Response>`, {
+        status: 200, headers: { 'Content-Type': 'text/xml' },
+      });
     }
-
     return NextResponse.json({ status: 'ok' }, { status: 200 });
   } catch (error) {
     console.error('[WhatsApp Webhook] Unexpected error:', error);

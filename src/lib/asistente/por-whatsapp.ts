@@ -11,7 +11,16 @@ import { nivelDeRiesgo, puedeConfirmarPorWhatsApp, registrarAccionAsistente, typ
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
+import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
+import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
+import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
+import { descargarMediaWhatsApp, transcribirAudioWhatsApp, clasificarImagenWhatsApp } from '@/lib/asistente/whatsapp-media';
+import { detectarTipoPlanMultipaso, prepararPlanMultipaso } from '@/lib/asistente/planes-multipaso';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { Presupuesto } from '@/types/presupuesto';
+import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
+import { atenderRespuestaResumen } from '@/lib/asistente/respuestas-resumen';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -37,6 +46,7 @@ export interface DatosPresupuestoProspecto {
   fecha?: string;
   invitados?: number;
   salon?: string;
+  tipoEvento?: string;
 }
 
 export interface ResultadoPresupuestoProspecto {
@@ -47,6 +57,7 @@ export interface ResultadoPresupuestoProspecto {
   token?: string;
   linkPresupuesto?: string;
   error?: string;
+  borradorAtendido?: boolean;
 }
 
 /**
@@ -77,14 +88,14 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     let y = mFechaSlash[3];
     if (y.length === 2) y = '20' + y;
     res.fecha = y + '-' + m + '-' + d;
-  } else if (mFechaTexto) {
+  } else if (mFechaTexto && mFechaTexto[3]) {
     const meses: Record<string, string> = {
       enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
       julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
     };
     const d = mFechaTexto[1].padStart(2, '0');
     const m = meses[mFechaTexto[2].toLowerCase()] || '01';
-    const y = mFechaTexto[3] || '2027';
+    const y = mFechaTexto[3];
     res.fecha = y + '-' + m + '-' + d;
   }
 
@@ -98,6 +109,12 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     }
   }
 
+  const normalizado = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/\b(?:boda|casamiento|nos casamos)\b/.test(normalizado)) res.tipoEvento = 'Boda';
+  else if (/\b(?:xv|quince|15 anos)\b/.test(normalizado)) res.tipoEvento = 'XV años';
+  else if (/\b(?:corporativo|empresarial)\b/.test(normalizado)) res.tipoEvento = 'Evento corporativo';
+  else if (/\b(?:infantil|cumple de ninos)\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños infantil';
+  else if (/\bcumple(?:anos)?\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños';
   return res;
 }
 
@@ -112,6 +129,7 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   name?: string;
   text: string;
   datosPrevios?: DatosPresupuestoProspecto;
+  messageId?: string;
 }): Promise<ResultadoPresupuestoProspecto> {
   const nuevos = extraerDatosPresupuestoProspecto(params.text);
   const datos: DatosPresupuestoProspecto = {
@@ -123,70 +141,52 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   if (!datos.fecha) faltantes.push('la fecha aproximada');
   if (!datos.invitados) faltantes.push('la cantidad estimada de invitados');
   if (!datos.salon) faltantes.push('el salón o zona del evento');
+  if (!datos.tipoEvento) faltantes.push('el tipo de fiesta');
 
   if (faltantes.length > 0) {
     const listaFaltantes = faltantes.join(', ');
+    await agregarPropuestasDeduplicadas([{
+      clave: `prospecto-datos:${params.messageId || params.phone}`,
+      area: 'ventas', titulo: 'Completar datos del prospecto de anuncio',
+      quePasa: `Faltan ${listaFaltantes} para preparar la propuesta.`,
+      porQueImporta: 'No se calculan precios ni se envian presupuestos con datos incompletos.',
+      quePropone: `Revisar la consulta de ${params.name || params.phone} y los datos que faltan para preparar el presupuesto.`,
+      tipoPropuesta: 'prospecto_datos_pendientes', nivelRiesgo: 'pregunta',
+    }]);
     return {
       completo: false,
+      borradorAtendido: true,
       faltantes,
       respuestaTexto: '¡Hola! Para prepararte una propuesta a medida necesitamos saber: ' + listaFaltantes + '. ¿Nos podrías confirmar esos detalles? 😊',
     };
   }
 
-  // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón
-  const queryParams = new URLSearchParams();
-  queryParams.set('fecha', datos.fecha || '');
-  queryParams.set('guests', String(datos.invitados || 0));
-  queryParams.set('salon', datos.salon || '');
-  queryParams.set('source', 'whatsapp_ad');
-  const linkSimulador = 'https://akproducciones.uy/simulador-de-presupuesto?' + queryParams.toString();
-
-  // Guardar borrador en bandeja de salida con el link al simulador precargado
-  try {
-    const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
-    const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
-    const saveResult = await saveScheduledMessage(
-      {
-        channel: 'whatsapp',
-        targetType: 'prospecto',
-        targetId: params.phone,
-        targetPhone: params.phone,
-        targetName: params.name || 'Prospecto',
-        templateType: 'personalizado',
-        messageText: '¡Hola! Podés ver tu propuesta personalizada y ajustar los detalles en el simulador: ' + linkSimulador + '. Quedamos a las órdenes para coordinar sin compromiso.',
-        scheduledAt: new Date().toISOString(),
-        status: 'pendiente',
-        sendingMode: 'manual_click',
-      },
-      WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-      { idEstable: 'draft_presupuesto_anuncio_' + params.phone }
-    );
-
-    if (!saveResult || !saveResult.success) {
-      return {
-        completo: false,
-        faltantes: [],
-        respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
-        error: saveResult?.error || 'No se pudo guardar el borrador del presupuesto',
-      };
-    }
-  } catch (err: any) {
-    console.warn('[WhatsApp] No se pudo guardar borrador en bandeja de salida:', err);
-    return {
-      completo: false,
-      faltantes: [],
-      respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
-      error: err?.message || 'Error al guardar borrador',
-    };
+  const { prepararBorradorProspectoAnuncio } = await import('@/lib/asistente/comercial-borrador');
+  const borrador = await prepararBorradorProspectoAnuncio({
+    phone: params.phone, name: params.name || 'Prospecto', fecha: datos.fecha!,
+    invitados: datos.invitados!, salon: datos.salon!,
+    tipoEvento: datos.tipoEvento as import('@/types/presupuesto').TipoEvento,
+    requestId: params.messageId,
+  });
+  if (borrador.status !== 'draft_created' || borrador.photoIds.length < 3) {
+    await agregarPropuestasDeduplicadas([{
+      clave: `prospecto-presupuesto-revision:${params.messageId || params.phone}`,
+      area: 'ventas',
+      titulo: borrador.status === 'draft_created' ? 'Completar fotos autorizadas del borrador' : 'Revisar presupuesto de prospecto de anuncio',
+      quePasa: `La propuesta de ${params.name || params.phone} requiere revisión: ${borrador.reason || 'No se pudo completar la preparación'}.`,
+      porQueImporta: 'El equipo debe revisar datos y precios vigentes antes de responder al prospecto.',
+      quePropone: `Revisar manualmente el presupuesto de ${params.name || 'Prospecto'} (${params.phone}). Fiesta: ${datos.tipoEvento}, ${datos.fecha}, ${datos.invitados} invitados, salón/zona ${datos.salon}.`,
+      tipoPropuesta: 'presupuesto_revision_manual',
+      nivelRiesgo: 'pregunta',
+    }]);
   }
-
-  const respuestaTexto = '¡Perfecto! Te preparamos el simulador con tu fecha (' + datos.fecha + '), ' + datos.invitados + ' invitados en ' + datos.salon + ': ' + linkSimulador + ' para revisar sin compromiso.';
-
   return {
-    completo: true,
-    faltantes: [],
-    respuestaTexto,
-    linkPresupuesto: linkSimulador,
+    completo: borrador.status === 'draft_created', borradorAtendido: true, faltantes: [],
+    presupuestoId: borrador.presupuestoId,
+    respuestaTexto: borrador.status === 'draft_created'
+      ? 'El presupuesto y las fotos autorizadas quedaron en la bandeja para revisión. No se enviaron al prospecto.'
+      : 'La propuesta necesita revisión manual. No se envió ningún mensaje al prospecto.',
+    ...(borrador.reason ? { error: borrador.reason } : {}),
   };
 }
 
@@ -197,6 +197,28 @@ const ECHO_LOG_FILE = 'asistente-echoes-log.json';
  */
 function normalizarNumero(numero: string): string {
   return (numero || '').replace(/\D/g, '');
+}
+
+function perfilDesdeRolWhatsApp(rol: string): Perfil {
+  const normalizado = rol.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/dueno|owner|propietario/.test(normalizado)) return 'dueno';
+  if (/secret|coordin|administr|ventas/.test(normalizado)) return 'secretaria';
+  if (/operador/.test(normalizado)) return 'operador';
+  return 'personal';
+}
+
+async function contextoWhatsAppParaPerfil(usuario: { perfil: Perfil }): Promise<string> {
+  const puedeVerAgenda = usuario.perfil === 'dueno' || usuario.perfil === 'secretaria';
+  const [fiestas, presupuestos, prospectos] = await Promise.all([
+    puedeVerAgenda ? readDataConDetalle<any[]>('fiestas.json', []) : Promise.resolve({ valor: [], huboFalla: false }),
+    puede(usuario, PERMISOS.CONTABILIDAD) ? readDataConDetalle<any[]>('presupuestos.json', []) : Promise.resolve(undefined),
+    puede(usuario, PERMISOS.CRM) ? readDataConDetalle<any[]>('crm-leads.json', []) : Promise.resolve(undefined),
+  ]);
+  return armarContextoDelNegocio(usuario, {
+    fiestas: fiestas.huboFalla ? null : fiestas.valor,
+    presupuestos: presupuestos ? (presupuestos.huboFalla ? null : presupuestos.valor) : undefined,
+    prospectos: prospectos ? (prospectos.huboFalla ? null : prospectos.valor) : undefined,
+  });
 }
 
 /**
@@ -330,21 +352,222 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     rol: 'Dueño',
     telefono: fromLimpio,
   };
+  const usuario = { perfil: perfilDesdeRolWhatsApp(persona.rol) };
+  const memoriaId = usuario.perfil === 'dueno' ? ID_MEMORIA_DUENO : fromLimpio;
+  const accesoMemoria = {
+    esDueno: usuario.perfil === 'dueno',
+    puedeVerMemoriaDelDueno: usuario.perfil === 'dueno' && puede(usuario, PERMISOS.ADMINISTRACION),
+  };
 
-  // Procesar contenido (texto, audio o foto)
+  // Sólo los números autorizados del equipo llegan hasta acá; nunca damos voz IA a invitados.
   let textoParaProcesar = params.text || '';
+  const audioEntrante = params.type === 'audio';
   if (params.type === 'audio') {
-    // Si llegó audio, simulamos o transcribimos con IA
-    textoParaProcesar = params.text || 'anotar tarea recibida por audio';
+    try {
+      if (!params.mediaId) throw new Error('Falta el identificador del audio.');
+      const media = await descargarMediaWhatsApp(params.mediaId, 'audio');
+      textoParaProcesar = await transcribirAudioWhatsApp(media);
+    } catch {
+      const respuesta = 'No pude escuchar el audio, ¿me lo escribís?';
+      const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuesta, { conVoz: true, settings });
+      return { atendido: true, accionIdentificada: 'audio_no_disponible', nivel: 'solo', respuestaEnviada: respuesta, audioEnviado };
+    }
   } else if (params.type === 'image') {
-    textoParaProcesar = params.text || 'foto de boleta para cargar gasto';
+    try {
+      if (!params.mediaId) throw new Error('Falta el identificador de la imagen.');
+      const media = await descargarMediaWhatsApp(params.mediaId, 'image');
+      const imagen = await clasificarImagenWhatsApp(media);
+      if (imagen.tipo !== 'comprobante') {
+        const respuesta = `Veo esto en la foto: ${imagen.descripcion}. ¿Qué querés que haga con ella?`;
+        await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+        return { atendido: true, accionIdentificada: 'describir_foto', nivel: 'pregunta', respuestaEnviada: respuesta };
+      }
+
+      const proveedor = imagen.proveedor?.trim() || 'No identificado';
+      const montoValido = imagen.monto;
+      const descripcion = [
+        `Proveedor: ${proveedor}`,
+        `Fecha leída: ${imagen.fecha || 'No identificada'}`,
+        montoValido ? `Monto leído: $${montoValido.toLocaleString('es-UY')}` : 'No se pudo leer un monto confiable.',
+        `Categoría sugerida: ${imagen.categoria || 'Sin sugerir'}`,
+        `Confianza de lectura: ${imagen.confianza || 'baja'}`,
+        `Detalle: ${imagen.detalle || imagen.descripcion}`,
+      ].join('\n');
+      await agregarPropuestasDeduplicadas([{
+        clave: `boleta:meta:${params.mediaId}`,
+        area: 'cobros',
+        titulo: `Revisar comprobante de ${proveedor}`,
+        quePasa: descripcion,
+        porQueImporta: 'La lectura automática puede equivocarse; el dueño debe revisar el comprobante antes de registrar un gasto.',
+        quePropone: 'Revisar la imagen y confirmar o corregir proveedor, fecha, categoría y monto desde la app.',
+        tipoPropuesta: 'gasto_boleta',
+        nivelRiesgo: 'pregunta',
+        esImportante: true,
+        ...(montoValido ? { monto: montoValido } : {}),
+      }]);
+      const respuesta = 'Leí el comprobante y lo dejé como propuesta para revisar en la app. No registré ningún gasto ni pago.';
+      await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+      return { atendido: true, accionIdentificada: 'proponer_gasto', nivel: 'pregunta', respuestaEnviada: respuesta };
+    } catch (error) {
+      const respuesta = error instanceof Error && error.message.includes('tope mensual')
+        ? 'No pude leer la foto porque se alcanzó el tope mensual de IA. No registré ningún gasto.'
+        : 'No pude descargar o leer la foto con seguridad. No registré ningún gasto; probá enviarla de nuevo o revisala en la app.';
+      await enviarRespuestaWhatsApp(fromLimpio, respuesta);
+      return { atendido: true, accionIdentificada: 'foto_no_procesada', nivel: 'pregunta', respuestaEnviada: respuesta };
+    }
+  }
+
+  let respuestaTexto = '';
+  const recordarCoincide = textoParaProcesar.match(/^\s*(?:(?:acordate|ac[uú]erdate|record[aá]|anot[aá]|ten[eé]\s+en\s+cuenta)\s+que)\s+(.+)$/i);
+  if (recordarCoincide) {
+    const resultado = await recordar(memoriaId, recordarCoincide[1], undefined, accesoMemoria);
+    respuestaTexto = resultado.guardado
+      ? 'Listo, lo guardé en tu memoria personal para tenerlo presente en próximos pedidos.'
+      : resultado.motivo === 'sensible'
+        ? 'No guardé ese dato porque parece ser una contraseña, información de tarjeta o un dato de salud.'
+        : 'No pude guardar un recuerdo vacío. Decime qué querés que tenga presente.';
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'recordar', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
+  }
+
+  const olvidarCoincide = textoParaProcesar.match(/^\s*olvid[aá]te(?:\s+de)?\s+(.+)$/i);
+  if (olvidarCoincide || /^\s*olvid[aá]lo\s*$/i.test(textoParaProcesar)) {
+    const tema = olvidarCoincide?.[1] || 'eso';
+    const cantidad = await olvidar(memoriaId, tema, accesoMemoria);
+    respuestaTexto = cantidad
+      ? `Listo, eliminé ${cantidad === 1 ? 'ese recuerdo' : ` ${cantidad} recuerdos`} de tu memoria.`
+      : 'No encontré un recuerdo tuyo sobre ese tema para borrar.';
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'olvidar', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
+  }
+
+  const consultaMemoria = textoParaProcesar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/\b(?:que sabes de(?:l)?|que te acordas de(?:l)?|que recordas de(?:l)?|que tenemos anotado sobre)\b/.test(consultaMemoria)) {
+    const recuerdos = await loQueSe(memoriaId, textoParaProcesar, accesoMemoria);
+    respuestaTexto = recuerdos.length
+      ? recuerdos.map((recuerdo) => `• ${recuerdo.sobre ? `${recuerdo.sobre}: ` : ''}${recuerdo.texto}`).join('\n')
+      : 'No tengo recuerdos guardados sobre ese tema. Si querés, decime “acordate que…” y lo anoto.';
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'consultar_memoria', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
+  }
+
+  const respuestaResumen = await atenderRespuestaResumen(
+    textoParaProcesar,
+    fromLimpio,
+    usuario.perfil === 'dueno',
+  );
+  if (respuestaResumen !== null) {
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaResumen, { conVoz: audioEntrante, settings });
+    return {
+      atendido: true,
+      accionIdentificada: 'respuesta_resumen',
+      nivel: 'pregunta',
+      respuestaEnviada: respuestaResumen,
+      audioEnviado,
+    };
+  }
+
+  const tipoSolicitudPlan = detectarTipoPlanMultipaso(textoParaProcesar);
+  const planPreparado = tipoSolicitudPlan ? await (async () => {
+    const modo = await getReglaParaTarea('plan_multi_paso');
+    if (modo === 'apagada') return { pregunta: 'Esa tarea está apagada en Tus reglas; no consulté datos ni preparé un plan.' } as const;
+    const puedeVerAgenda = puede(usuario, PERMISOS.CRM) || puede(usuario, PERMISOS.ORGANIZACION);
+    const puedeVerPresupuestos = usuario.perfil === 'dueno' || puede(usuario, PERMISOS.CONTABILIDAD);
+    const modoSeguimiento = tipoSolicitudPlan === 'seguimiento_presupuestos'
+      ? await getReglaParaTarea('perseguidor_presupuestos')
+      : undefined;
+    if (modoSeguimiento === 'apagada') return { pregunta: 'El perseguidor está apagado; no consulté datos ni preparé nada.' } as const;
+    if (tipoSolicitudPlan === 'reunion_cliente' && (!puedeVerAgenda || !puedeVerPresupuestos)) {
+      return { pregunta: 'Necesitás acceso a agenda y al contacto del presupuesto para preparar esta reunión.' } as const;
+    }
+    const [fiestas, presupuestos, mensajes, citas] = await Promise.all([
+      puedeVerAgenda && tipoSolicitudPlan !== 'seguimiento_presupuestos' ? readDataConDetalle<FiestaEnPlanificacion[]>('fiestas.json', []) : Promise.resolve(undefined),
+      puedeVerPresupuestos && tipoSolicitudPlan !== 'preparar_semana_fiesta' ? readDataConDetalle<Presupuesto[]>('presupuestos.json', []) : Promise.resolve(undefined),
+      tipoSolicitudPlan === 'seguimiento_presupuestos' ? readDataConDetalle<import('@/types/whatsapp-automation').ScheduledMessage[]>('scheduled-messages.json', []) : Promise.resolve(undefined),
+      tipoSolicitudPlan === 'reunion_cliente' && puedeVerAgenda
+        ? readDataConDetalle<import('@/types/crm').CrmAppointment[]>('crm-appointments.json', [])
+        : Promise.resolve(undefined),
+    ]);
+    if (mensajes?.huboFalla) return { pregunta: 'No pude comprobar mensajes pendientes; no preparé un borrador.' } as const;
+    const plan = prepararPlanMultipaso(textoParaProcesar, {
+      puedeVerAgenda,
+      puedeVerPresupuestos,
+      modoSeguimiento,
+      fallaAgenda: Boolean(fiestas?.huboFalla),
+      fallaPresupuestos: Boolean(presupuestos?.huboFalla),
+      fiestas: fiestas?.valor,
+      presupuestos: presupuestos?.valor,
+      citas: citas?.valor,
+      fallaCitas: Boolean(citas?.huboFalla),
+      telefonosConMensajePendiente: mensajes?.valor?.filter((m) => m.status === 'pendiente').map((m) => m.targetPhone || ''),
+    });
+    return plan && 'plan' in plan ? { ...plan, modo, modoSeguimiento } : plan;
+  })() : null;
+  if (planPreparado) {
+    if ('pregunta' in planPreparado) {
+      const pregunta = planPreparado.pregunta || 'Necesito confirmar los datos del plan antes de prepararlo.';
+      const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, pregunta, { conVoz: audioEntrante, settings });
+      return { atendido: true, accionIdentificada: 'aclarar_plan_multi_paso', nivel: 'pregunta', respuestaEnviada: pregunta, audioEnviado };
+    }
+    const plan = planPreparado.plan;
+    const hash = Math.abs(textoParaProcesar.toLowerCase().split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0));
+    const claveSolicitud = params.messageId || `${hash}:${Math.floor(Date.now() / 900_000)}`;
+    const modo = planPreparado.modo;
+    const requiereOk = modo !== 'sola' || plan.tipo === 'seguimiento_presupuestos' && planPreparado.modoSeguimiento !== 'sola';
+    const pasos = requiereOk
+      ? [...plan.pasos.slice(0, 2), `${plan.pasos[2]} Requiere tu OK en el Centro de control.`] as typeof plan.pasos
+      : plan.pasos;
+    const { agregadas } = await agregarPropuestasDeduplicadas([{
+      clave: `plan-${plan.tipo}:${fromLimpio}:${claveSolicitud}`,
+      area: 'fiestas',
+      titulo: plan.titulo,
+      quePasa: `${persona.nombre} pidió preparar un plan por WhatsApp.`,
+      porQueImporta: 'El plan usa registros disponibles y no contacta clientes ni confirma horarios.',
+      quePropone: pasos.map((paso, indice) => `${indice + 1}. ${paso}`).join('\n'),
+      tipoPropuesta: 'plan_multi_paso',
+      nivelRiesgo: 'pregunta',
+      esImportante: false,
+      responsableNombre: persona.nombre,
+      ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+      ...(plan.clienteNombre ? { clienteNombre: plan.clienteNombre } : {}),
+      accion: { type: 'plan_multi_paso', data: {
+        planTipo: plan.tipo,
+        ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+        ...(plan.borrador ? { borrador: plan.borrador } : {}),
+        ...(plan.horarioCandidato ? { horarioCandidato: plan.horarioCandidato } : {}),
+        pasos: plan.pasos,
+      } },
+    }]);
+    respuestaTexto = agregadas.length
+      ? 'Dejé el plan de tres pasos en “Tu asistente” para revisión. No contacté a ningún cliente.'
+      : 'Ese plan ya está en “Tu asistente”. No contacté a ningún cliente.';
+    await registrarAccionAsistente({
+      pedido: textoParaProcesar,
+      accion: plan.tipo,
+      canal: 'whatsapp',
+      nivel: 'pregunta',
+      resultado: `Plan de tres pasos preparado (${modo}); no se contactó al cliente.`,
+      usuarioIdentificado: persona.nombre,
+      telefono: fromLimpio,
+    });
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: 'plan_multi_paso', nivel: 'pregunta', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   const interpretacion = interpretarComandoTexto(textoParaProcesar);
   const accion = interpretacion.accion;
   const riesgo = nivelDeRiesgo(accion);
 
-  let respuestaTexto = '';
+  if (accion === 'consulta_general' || accion === 'ver_mi_semana') {
+    try {
+      const contexto = await contextoWhatsAppParaPerfil(usuario);
+      respuestaTexto = contexto || 'No encontré datos disponibles para este perfil.';
+    } catch {
+      respuestaTexto = 'No pude leer los datos del negocio ahora. Probá de nuevo en un rato.';
+    }
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: accion, nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
+  }
 
   // CASO ESPECIAL: Intento de confirmar por WhatsApp ("sí")
   if (accion === 'confirmar_propuesta') {
@@ -362,8 +585,8 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       telefono: fromLimpio,
     });
 
-    await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
-    return { atendido: true, accionIdentificada: accion, nivel: 'pregunta', respuestaEnviada: respuestaTexto };
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
+    return { atendido: true, accionIdentificada: accion, nivel: 'pregunta', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
   // 1. PUERTA NUNCA: Prohibido
@@ -442,7 +665,7 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
       // Lo que se debe es plata de la empresa: sólo se le contesta al dueño. Y se calcula con la
       // misma cuenta del panel (cobros por factura), no con campos del presupuesto que no existen:
       // antes sumaba el total de TODOS los presupuestos como si nada estuviera cobrado.
-      if (!/due[ñn]o/i.test(String(persona.rol || ''))) {
+      if (usuario.perfil !== 'dueno') {
         respuestaTexto = '🔒 Eso lo ve sólo el dueño. Mirálo con él o en la app.';
       } else {
         try {
@@ -475,35 +698,53 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
   }
 
   // Responder por WhatsApp
-  await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto);
+  const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaTexto, { conVoz: audioEntrante, settings });
 
   return {
     atendido: true,
     accionIdentificada: accion,
     nivel: riesgo,
     respuestaEnviada: respuestaTexto,
+    audioEnviado,
   };
 }
 
 /**
  * Envia el mensaje de respuesta por Meta WhatsApp API si están las variables configuradas.
  */
-async function enviarRespuestaWhatsApp(to: string, text: string): Promise<void> {
+async function enviarRespuestaWhatsApp(
+  to: string,
+  text: string,
+  opciones: { conVoz?: boolean; settings?: Awaited<ReturnType<typeof getAsistenteSettings>> } = {},
+): Promise<boolean> {
   const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
   const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 
   if (!apiToken || !phoneNumberId) {
-    return;
+    return false;
   }
 
+  const vozSolicitada = opciones.conVoz && opciones.settings?.responderConVoz === true &&
+    opciones.settings?.vozGeminiActiva === true;
+  let textoEnviado = text;
+  if (vozSolicitada) {
+    const { enviarRespuestaConVozWhatsApp } = await import('@/lib/asistente/whatsapp-voz');
+    const voz = await enviarRespuestaConVozWhatsApp({
+      to, text, authorized: true, settings: opciones.settings!, apiToken, phoneNumberId,
+    });
+    if (voz.audioEnviado) return true;
+    if (!voz.puedeEnviarTextoFallback) return false;
+    textoEnviado = `${text}\n\nNo pude responder con voz: ${voz.fallbackReason || 'servicio no disponible'}. Te respondo por texto.`;
+  }
   try {
     await sendMetaWhatsAppMessage({
       to,
-      text,
+      text: textoEnviado,
       apiToken,
       phoneNumberId,
     });
   } catch (err) {
     console.warn('[WhatsAppEquipo] Error enviando respuesta:', err);
   }
+  return false;
 }

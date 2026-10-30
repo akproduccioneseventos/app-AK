@@ -28,6 +28,7 @@ import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
+import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -535,6 +536,8 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
         </div>
         <Button asChild variant="outline" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
+
+      {currentFiesta && <ObservacionesPosfiesta fiestaId={currentFiesta.id} />}
 
       {googleSyncWarning && (
         <Card className="border-amber-300 bg-amber-50/90 shadow-sm">

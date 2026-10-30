@@ -5,6 +5,7 @@
 let store: any[] = [];
 let cola: Promise<unknown> = Promise.resolve();
 const publishToTikTok = jest.fn();
+const validarFotosPromocionalesAlEnviar = jest.fn();
 
 jest.mock('@/lib/data-service', () => ({
   // cada lectura devuelve una COPIA
@@ -40,8 +41,9 @@ for (const m of ['meta-publisher', 'youtube-publisher', 'google-business-publish
   jest.mock(`@/lib/social-media/${m}`, () => new Proxy({}, { get: () => jest.fn() }));
 }
 jest.mock('@/lib/presencia-digital/mejor-horario', () => ({ mejorHorario: jest.fn() }));
+jest.mock('@/lib/asistente/comercial-borrador', () => ({ validarFotosPromocionalesAlEnviar: (...args: any[]) => validarFotosPromocionalesAlEnviar(...args) }));
 
-import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
+import { procesarPosteosProgramados, publishPostInternal } from '@/lib/presencia-digital/publicador';
 
 const posteo = (extra: any = {}) => ({
   id: 'p1',
@@ -59,6 +61,7 @@ const posteo = (extra: any = {}) => ({
 describe('publicador de redes', () => {
   beforeEach(() => {
     publishToTikTok.mockReset();
+    validarFotosPromocionalesAlEnviar.mockReset().mockResolvedValue({ allowed: true, authorizedPhotoIds: ['photo-1'] });
     process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
   });
 
@@ -104,5 +107,21 @@ describe('publicador de redes', () => {
     await procesarPosteosProgramados(3, new Date('2026-10-09T12:00:00Z'));
     expect(publishToTikTok).not.toHaveBeenCalled();
     expect(ds.writeData).not.toHaveBeenCalled();
+  });
+
+  it('bloquea justo antes de publicar si el consentimiento de la foto fue revocado', async () => {
+    store = [posteo({ promotionalPhotoIds: ['photo-1'] })];
+    validarFotosPromocionalesAlEnviar.mockResolvedValue({ allowed: false, authorizedPhotoIds: [] });
+    const result = await publishPostInternal('p1');
+    expect(validarFotosPromocionalesAlEnviar).toHaveBeenCalledWith(['photo-1']);
+    expect(result).toMatchObject({ success: false, error: expect.stringMatching(/consentimiento promocional/i) });
+    expect(publishToTikTok).not.toHaveBeenCalled();
+  });
+
+  it('no permite publicar como video un guion sin archivo multimedia', async () => {
+    store = [posteo({ id: 'script', sourceId: 'posfiesta-x-video-guion', mediaUrl: undefined, mediaType: undefined })];
+    const result = await publishPostInternal('script');
+    expect(result).toMatchObject({ success: false, error: expect.stringMatching(/falta crear y adjuntar/i) });
+    expect(publishToTikTok).not.toHaveBeenCalled();
   });
 });

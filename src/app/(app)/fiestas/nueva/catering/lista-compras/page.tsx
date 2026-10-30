@@ -30,6 +30,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
+import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
 interface ShoppingListItem {
   id: string;
@@ -482,6 +483,8 @@ function ListaDeComprasContent() {
             <Button asChild><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
           </div>
         </div>
+
+        {fiesta && <ObservacionesPosfiesta fiestaId={fiesta.id} />}
 
         {platosSinIngredientes.length > 0 && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
