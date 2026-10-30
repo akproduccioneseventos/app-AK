@@ -187,6 +187,7 @@ describe('voz saliente de WhatsApp', () => {
   });
 
   it('habilita fallback de texto y no llama a Meta si falla la conversión de audio', async () => {
+    global.fetch = jest.fn();
     mockSintetizar.mockResolvedValue(Buffer.from('WAV roto'));
     const result = await enviarRespuestaConVozWhatsApp({
       to: '59899123456', text: 'Hola', authorized: true,
@@ -195,7 +196,7 @@ describe('voz saliente de WhatsApp', () => {
     expect(result.audioEnviado).toBe(false);
     expect(result.puedeEnviarTextoFallback).toBe(true);
     expect(result.fallbackReason).toMatch(/WAV/);
-    expect(global.fetch).toBe(originalFetch);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('rechaza WAV inválido sin llamar al encoder', async () => {
