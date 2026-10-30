@@ -30,6 +30,10 @@ jest.mock('@/lib/security/portal-session', () => ({
 jest.mock('@/lib/notifications/create-notification', () => ({
   createNotification: jest.fn(async () => ({ success: true })),
 }));
+jest.mock('@/lib/ia/aprender-de-lo-aprobado', () => ({
+  aprenderDeLoAprobado: jest.fn(async () => []),
+  getPlantillasMasElegidas: jest.fn(async () => []),
+}));
 
 describe('Orden 234 — La IA arma la web sin inventar', () => {
   let mockFiesta: FiestaEnPlanificacion;

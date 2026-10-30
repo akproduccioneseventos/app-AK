@@ -15,8 +15,11 @@ import {
 } from 'lucide-react';
 import { getFiestaById, updateFiestaPostEvento } from '@/app/actions/fiesta/fiesta.actions';
 import { leerInformePosfiesta } from '@/app/actions/fiesta/informe-posfiesta.actions';
+import { getMisPermisos } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { InformeFiestaAutomatico } from '@/lib/fiesta/informe-automatico';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
 const formatCurrency = (n: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(n);
@@ -60,6 +63,28 @@ function PostEventoContent() {
 
   const [downloadingZip, setDownloadingZip] = useState(false);
   const [informePosfiesta, setInformePosfiesta] = useState<InformeFiestaAutomatico | null>(null);
+  const [puedeVerInformeFinanciero, setPuedeVerInformeFinanciero] = useState(false);
+  const [informeCargado, setInformeCargado] = useState(false);
+  const [errorInforme, setErrorInforme] = useState(false);
+
+  const cargarInformePosfiesta = useCallback(async (id: string) => {
+    setInformeCargado(false);
+    setErrorInforme(false);
+    try {
+      const { permisos } = await getMisPermisos();
+      const autorizado = permisos.includes(PERMISOS.ADMINISTRACION);
+      setPuedeVerInformeFinanciero(autorizado);
+      if (!autorizado) {
+        setInformePosfiesta(null);
+        return;
+      }
+      setInformePosfiesta(await leerInformePosfiesta(id));
+    } catch {
+      setErrorInforme(true);
+    } finally {
+      setInformeCargado(true);
+    }
+  }, []);
 
   const handleDownloadZip = async () => {
     if (!fiestaId) return;
@@ -94,18 +119,14 @@ function PostEventoContent() {
         setGaleriaEntregada(data.galeriaEntregada ?? false);
         setNpsScore(data.npsScore ?? null);
         setReferidoPor(data.referidoPor ?? '');
-        try {
-          setInformePosfiesta(await leerInformePosfiesta(fiestaId));
-        } catch {
-          setInformePosfiesta(null);
-        }
+        await cargarInformePosfiesta(fiestaId);
       }
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar el evento.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId, toast, cargarInformePosfiesta]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -218,6 +239,18 @@ function PostEventoContent() {
       </div>
 
       <div className="space-y-6">
+        {fiestaId && fiesta && <ObservacionesPosfiesta fiestaId={fiestaId} editable />}
+        {puedeVerInformeFinanciero && errorInforme && (
+          <Card role="alert" className="border-destructive/50">
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+              <p className="text-sm">No se pudo cargar el informe posfiesta. Los datos del evento siguen disponibles; podés reintentar.</p>
+              <Button type="button" variant="outline" onClick={() => fiestaId && cargarInformePosfiesta(fiestaId)}>Reintentar informe</Button>
+            </CardContent>
+          </Card>
+        )}
+        {puedeVerInformeFinanciero && informeCargado && !errorInforme && !informePosfiesta && (
+          <Card><CardContent className="p-4 text-sm text-muted-foreground">Todavía no hay un informe posfiesta guardado para este evento.</CardContent></Card>
+        )}
         {informePosfiesta && (
           <Card>
             <CardHeader>

@@ -19,6 +19,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'scheduled-messages.json', defaultValue: [] },
   { file: 'promotional-photo-consents.json', defaultValue: {} },
   { file: 'informes-posfiesta.json', defaultValue: [] },
+  { file: 'observaciones-posfiesta.json', defaultValue: [] },
   { file: 'app-settings.json', defaultValue: {} },
   { file: 'company-info.json', defaultValue: {} },
   { file: 'contract-settings.json', defaultValue: {} },

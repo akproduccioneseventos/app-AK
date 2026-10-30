@@ -25,14 +25,19 @@ describe('Reglas de la IA y Aprendizaje (Orden 236)', () => {
   let originalReglas: string | null = null;
   let originalRegistro: string | null = null;
   let originalAprendizaje: string | null = null;
+  let originalModoLocal: string | undefined;
 
   beforeAll(() => {
+    originalModoLocal = process.env.AK_USE_LOCAL_JSON_ONLY;
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
     if (fs.existsSync(reglasPath)) originalReglas = fs.readFileSync(reglasPath, 'utf8');
     if (fs.existsSync(registroPath)) originalRegistro = fs.readFileSync(registroPath, 'utf8');
     if (fs.existsSync(aprendizajePath)) originalAprendizaje = fs.readFileSync(aprendizajePath, 'utf8');
   });
 
   afterAll(() => {
+    if (originalModoLocal === undefined) delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    else process.env.AK_USE_LOCAL_JSON_ONLY = originalModoLocal;
     if (originalReglas !== null) fs.writeFileSync(reglasPath, originalReglas, 'utf8');
     else if (fs.existsSync(reglasPath)) fs.unlinkSync(reglasPath);
 

@@ -160,6 +160,18 @@ async function publicarSinReclamo(
 
     const targetPost = posts[postIndex];
 
+    if (targetPost.sourceId?.endsWith('-video-guion')) {
+      return { success: false, error: 'Este borrador es solo un guion: falta crear y adjuntar el archivo de video.' };
+    }
+    const promotionalPhotoIds = (targetPost as SocialPost & { promotionalPhotoIds?: string[] }).promotionalPhotoIds;
+    if (Array.isArray(promotionalPhotoIds) && promotionalPhotoIds.length > 0) {
+      const { validarFotosPromocionalesAlEnviar } = await import('@/lib/asistente/comercial-borrador');
+      const consent = await validarFotosPromocionalesAlEnviar(promotionalPhotoIds);
+      if (!consent.allowed) {
+        return { success: false, error: 'El consentimiento promocional de una o más fotos ya no está vigente; el borrador no se publicó.' };
+      }
+    }
+
     if ((!targetPlatforms || targetPlatforms.length === 0) && targetPost.status === 'Publicado') {
       return { success: true, publishedTo: [], post: targetPost };
     }

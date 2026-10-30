@@ -13,6 +13,7 @@ import {
   ejecutarGeneradorContenido,
   ejecutarVigilanteNoche,
   ejecutarVigilantePublicidad,
+  ejecutarAnticipador,
 } from '@/lib/agentes/motor-agentes';
 import type { AgenteId, ConfiguracionAgente, RegistroEjecucionAgente } from '@/lib/agentes/tipos';
 
@@ -72,6 +73,9 @@ export async function ejecutarAgenteManual(
         break;
       case 'vigilante_publicidad':
         registro = await ejecutarVigilantePublicidad();
+        break;
+      case 'anticipador':
+        registro = await ejecutarAnticipador();
         break;
       default:
         throw new Error('Agente no reconocido.');

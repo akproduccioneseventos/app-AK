@@ -9,7 +9,7 @@ import { mutarDocumento } from '@/lib/generic-json-store';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
-import { registrarPermisoFotoPromocional, revocarPermisoFotoPromocional } from './promotional-photo-consent';
+import { registrarPermisoFotoPromocional, revocarPermisoFotoPromocional } from '@/app/actions/promotional-photo-consent';
 
 const mutate = mutarDocumento as jest.Mock;
 const requirePermission = requirePermisoAlguno as jest.Mock;

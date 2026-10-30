@@ -6,6 +6,18 @@
 
 ## Inventario completo por módulo (19 de agosto de 2026)
 
+### Asistente: ordenes 255 y 256, PR 1375 (30/10/2026, sin publicar)
+
+- Respuestas habladas y medios reales de WhatsApp; los comprobantes solo crean propuestas.
+- La charla automatica de quienes llegan desde anuncios se conserva para Meta y Twilio. Solo el presupuesto con fotos queda en la bandeja para envio humano; a numeros sin origen publicitario no se les contesta.
+- El resumen guarda los puntos entregados: responder un numero abre su accion interna; "despues" prioriza manana solo lo que siga pendiente.
+- Planes de reunion, semana de evento y seguimiento. La reunion consulta horarios de la agenda interna; Google no se da por comprobado. Aprobar prepara el mensaje en bandeja, sin enviarlo ni reservar la reunion.
+- Avisos operativos para dueno y coordinador asignado con numeros autorizados, segun interruptor y descanso; no incluyen importes.
+- Informes posfiesta con datos disponibles; observaciones comprobadas de comida, bebida y personal se muestran como referencias en compras y personal, sin alterar cantidades.
+- Borradores de publicacion y guion de video, no un video generado, con fotos promocionales autorizadas. La revocacion se controla otra vez antes de publicar y al editar no se pierde el permiso asociado.
+- El tono aprobado orienta seguimientos, resumen y tarjetas sin copiar datos de otros clientes. Los precios y las autorizaciones no se inventan.
+- Estado: implementado en la rama de la PR; las comprobaciones y sus limites quedan en `docs/evidencias/orden-255-asistente-aceptacion.md`. No equivale a despliegue.
+
 Recorrido módulo por módulo con cinco ayudantes en paralelo, cada hallazgo
 verificado a mano. **Más de 230 funciones**, con archivo y línea como prueba.
 

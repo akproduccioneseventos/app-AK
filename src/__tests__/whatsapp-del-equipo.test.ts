@@ -162,6 +162,14 @@ describe('105 — WhatsApp del equipo', () => {
   });
 
   test('el plan de reunión tiene tres pasos, deduplica por messageId y no escribe a clientes', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-29T12:00:00Z'));
+    try {
+    memoriaStore['fiestas.json'] = [{
+      id: 'boda-sabado', estado: 'Confirmada', presupuestoId: 'pres-boda', reuniones: [],
+      configuracion: { nombreEvento: 'Boda de prueba', tipoCelebracion: 'Boda', fechaEvento: '2026-10-31', horaInicio: '20:00', horaFin: '23:00' },
+    }];
+    memoriaStore['presupuestos.json'] = [{ id: 'pres-boda', estado: 'Enviado', clienteNombre: 'Cliente de prueba', clienteContacto: '099123456' }];
+    memoriaStore['crm-appointments.json'] = [];
     process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
     process.env.META_WHATSAPP_PHONE_ID = '123456';
     const pedido = { from: '59898355530', text: 'Organizá la reunión con los novios del sábado', messageId: 'wamid-reunion-1' };
@@ -173,6 +181,7 @@ describe('105 — WhatsApp del equipo', () => {
     expect(propuestas[0].quePropone.split('\n')).toHaveLength(3);
     expect(mockSendMetaWhatsAppMessage).toHaveBeenCalledTimes(2);
     expect(mockSendMetaWhatsAppMessage.mock.calls.every(([args]) => args.to === '59898355530')).toBe(true);
+    } finally { jest.useRealTimers(); }
   });
 
   test('la respuesta por voz confirma audio, usa texto al agotar cuota y no duplica si Meta no confirma', async () => {

@@ -1,32 +1,36 @@
-import fs from 'fs';
-import path from 'path';
-import { readData } from '@/lib/data-service';
+import { readDataConDetalle } from '@/lib/data-service';
 import type { DecisionDuenio } from './reglas-de-la-ia';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const ARCHIVO_APRENDIZAJE = 'ia-aprendizaje.json';
 
 async function leerDecisiones(): Promise<DecisionDuenio[]> {
-  try {
-    const localPath = path.join(process.cwd(), 'data', ARCHIVO_APRENDIZAJE);
-    if (fs.existsSync(localPath)) {
-      const content = fs.readFileSync(localPath, 'utf8');
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {
-    // Seguir con readData
-  }
+  const resultado = await readDataConDetalle<DecisionDuenio[]>(ARCHIVO_APRENDIZAJE, []);
+  return resultado.huboFalla || !Array.isArray(resultado.valor) ? [] : resultado.valor;
+}
 
-  if (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) {
-    return [];
-  }
+function normalizarTipo(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[_-]/g, '').trim();
+}
 
-  try {
-    return await readData<DecisionDuenio[]>(ARCHIVO_APRENDIZAJE, []);
-  } catch {
-    return [];
-  }
+function contieneImportes(texto: string): boolean {
+  return /(?:[$€£]\s*\d|\b\d[\d.,]*\s*(?:uyu|pesos?|d[oó]lares?|usd|eur)\b|\b(?:precio|presupuesto|costo|cuota|saldo|cobro|pago)\s*[:=]?\s*[$\d])/i.test(texto);
+}
+
+function contienePII(texto: string): boolean {
+  return /(?:\b\d{7,}\b|\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b|\b(?:598|09)\d[\s-]?\d{3}[\s-]?\d{3,4}\b)/i.test(texto);
+}
+
+export function resumirGuiaDeEstilo(textos: string[]): string {
+  const todos = textos.join(' ').toLocaleLowerCase('es-UY');
+  const rasgos = [
+    /c[aá]lid|cercan|afectuos/.test(todos) ? 'cálido y cercano' : '',
+    /profesional|formal/.test(todos) ? 'profesional' : '',
+    /breve|corto|conciso|direct/.test(todos) ? 'breve y directo' : '',
+    /alegr|divertid|entusiast|energ/.test(todos) ? 'alegre y enérgico' : '',
+    /rioplat|uruguay|vos|ten[eé]s/.test(todos) ? 'español rioplatense uruguayo' : '',
+  ].filter(Boolean);
+  return rasgos.length ? rasgos.join(', ') : 'cálido, profesional y directo';
 }
 
 /**
@@ -40,18 +44,20 @@ export async function aprenderDeLoAprobado(tipoTarea: string): Promise<string[]>
       return [];
     }
 
-    const normBuscado = (tipoTarea || '').toLowerCase().replace(/[_-]/g, '');
+    const normBuscado = normalizarTipo(tipoTarea || '');
+    if (!normBuscado) return [];
 
     const aprobadas = decisiones.filter((d) => {
-      const normTarea = (d.tipoTarea || '').toLowerCase().replace(/[_-]/g, '');
-      const coincide = normTarea.includes(normBuscado) || normBuscado.includes(normTarea);
+      const normTarea = normalizarTipo(d.tipoTarea || '');
+      const coincide = normTarea === normBuscado;
       const aceptada = d.decision === 'si' || d.decision === 'cambiar';
-      return coincide && aceptada;
-    });
+      return coincide && aceptada && typeof d.fecha === 'string' && Number.isFinite(Date.parse(d.fecha));
+    }).sort((a, b) => Date.parse(b.fecha!) - Date.parse(a.fecha!));
 
     const textos: string[] = [];
     for (const d of aprobadas) {
       const texto = (d.textoFinal || d.textoPropuesto || '').trim();
+      if (contieneImportes(texto) || contienePII(texto)) continue;
       if (texto && !textos.includes(texto)) {
         textos.push(texto);
       }
@@ -89,18 +95,8 @@ export async function getPlantillasMasElegidas(): Promise<string[]> {
   }
 
   try {
-    const localFiestas = path.join(process.cwd(), 'data', 'fiestas.json');
-    let fiestas: FiestaEnPlanificacion[] = [];
-    if (fs.existsSync(localFiestas)) {
-      try {
-        fiestas = JSON.parse(fs.readFileSync(localFiestas, 'utf8'));
-      } catch {
-        // Fallback a readData
-      }
-    }
-    if ((!fiestas || fiestas.length === 0) && (process.env.NODE_ENV !== 'test' || process.env.FIRESTORE_EMULATOR_HOST)) {
-      fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
-    }
+    const { leerFiestasCrudas } = await import('@/lib/fiesta/leer-fiestas');
+    const fiestas: FiestaEnPlanificacion[] = await leerFiestasCrudas(false);
 
     if (Array.isArray(fiestas)) {
       for (const f of fiestas) {

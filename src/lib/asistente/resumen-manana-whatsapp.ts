@@ -2,9 +2,17 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
-import type { ParteDeLaManana } from '@/lib/automatico/parte-manana';
+import { toWhatsAppNumber } from '@/lib/commercial/contact';
+import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
+import type { ItemParteManana, ParteDeLaManana } from '@/lib/automatico/parte-manana';
+import type { RegistroResumenManana } from '@/lib/asistente/respuestas-resumen';
 
 const ARCHIVO_RESERVAS = 'asistente/resumen-manana.json';
+type ReservaResumenConItemsPendientes = RegistroResumenManana & {
+  itemsPendientes?: ItemParteManana[];
+  entregaWhatsApp?: 'sent' | 'not_sent' | 'uncertain';
+  messageId?: string;
+};
 
 function fechaHoraUruguay(fecha: Date): { fecha: string; hora: number; minuto: number } {
   const partes = new Intl.DateTimeFormat('en-CA', {
@@ -28,51 +36,100 @@ export async function enviarResumenMananaWhatsApp(
     return { enviado: false, fallbackPush: false, motivo: 'Fuera de la ventana matutina.' };
   }
 
-  let reservado = false;
-  await mutarDocumentoConTransaccion<{ fecha?: string; estado?: string }>(
+  const ajustes = await getAsistenteSettings().catch(() => null);
+  const destinoConfigurado = toWhatsAppNumber(ajustes?.numeroDuenio);
+  const destinoAutorizado = ajustes?.numerosEquipo?.some((miembro) =>
+    toWhatsAppNumber(miembro.telefono) === destinoConfigurado
+    && ['dueno', 'duena'].includes(miembro.rol.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())
+  ) ? destinoConfigurado : '';
+  const puedeEnviarWhatsApp = Boolean(
+    ajustes?.whatsappDuenioHabilitado && destinoAutorizado
+    && (process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN)
+    && (process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID),
+  );
+  const reserva = await mutarDocumentoConTransaccion<ReservaResumenConItemsPendientes>(
     ARCHIVO_RESERVAS,
     {},
     (actual) => {
-      reservado = false;
-      if (actual.fecha === momento.fecha) return null;
-      reservado = true;
-      return { fecha: momento.fecha, estado: 'reservado' };
+      if (actual.fecha === momento.fecha && actual.estado !== 'error') return null;
+      const actuales = parte.items ?? parte.itemsPrincipales ?? [];
+      const idsPospuestos = new Set(actual.pospuestosIds || []);
+      const itemsPrioritarios = actuales.filter((item) => idsPospuestos.has(item.id));
+      const itemsRestantes = actuales.filter((item) => !idsPospuestos.has(item.id));
+      const itemsPendientes = [...itemsPrioritarios, ...itemsRestantes].slice(0, 4);
+      return {
+        fecha: momento.fecha,
+        estado: 'reservado',
+        destinatario: puedeEnviarWhatsApp ? destinoAutorizado : undefined,
+        itemsPendientes,
+        pospuestosIds: actual.pospuestosIds || [],
+      };
     },
   );
-  if (!reservado) return { enviado: false, fallbackPush: false, motivo: 'El resumen de hoy ya se procesó.' };
+  if (!reserva) return { enviado: false, fallbackPush: false, motivo: 'El resumen de hoy ya se procesó.' };
 
-  const ajustes = await getAsistenteSettings().catch(() => null);
-  const lineas = (parte.itemsPrincipales || []).slice(0, 4).map((item, index) => `${index + 1}. ${item.titulo}`);
+  const itemsParaEnviar = reserva.itemsPendientes || [];
+  const lineas = itemsParaEnviar.map((item, index) => `${index + 1}. ${item.titulo}`);
   if (!lineas.length) lineas.push('1. Por hoy está todo al día.');
-  const texto = [`Asistente AK · ${momento.fecha}`, ...lineas].slice(0, 5).join('\n');
+  const ejemplosEstilo = await aprenderDeLoAprobado('resumen_de_la_manana');
+  const guiaEstilo = ejemplosEstilo.length ? resumirGuiaDeEstilo(ejemplosEstilo) : '';
+  const encabezado = guiaEstilo.includes('cálido') ? `Buen día · ${momento.fecha}` : `Asistente AK · ${momento.fecha}`;
+  const texto = [encabezado, ...lineas].slice(0, 5).join('\n');
   const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
   const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
-  let motivo = ajustes ? 'WhatsApp del dueño está apagado en Ajustes.' : 'No se pudieron leer los ajustes de WhatsApp.';
-  let enviado = false;
+  let motivo = ajustes ? 'WhatsApp del dueño está apagado o el destinatario no está autorizado como dueño.' : 'No se pudieron leer los ajustes de WhatsApp.';
+  let entregaWhatsApp: 'sent' | 'not_sent' | 'uncertain' = 'not_sent';
+  let messageId: string | undefined;
 
-  if (ajustes?.whatsappDuenioHabilitado && apiToken && phoneNumberId && ajustes.numeroDuenio) {
-    const respuesta = await sendMetaWhatsAppMessage({ to: ajustes.numeroDuenio, text: texto, apiToken, phoneNumberId })
-      .catch((error) => ({ success: false, error: error instanceof Error ? error.message : 'No se pudo contactar a WhatsApp Meta.' }));
-    enviado = respuesta.success;
+  if (puedeEnviarWhatsApp && reserva.destinatario && apiToken && phoneNumberId) {
+    const respuesta = await sendMetaWhatsAppMessage({ to: reserva.destinatario, text: texto, apiToken, phoneNumberId })
+      .catch((error) => ({ success: false, delivery: 'uncertain' as const, messageId: undefined, error: error instanceof Error ? error.message : 'No se pudo contactar a WhatsApp Meta.' }));
+    messageId = respuesta.messageId;
+    entregaWhatsApp = respuesta.success
+      ? messageId ? 'sent' : 'uncertain'
+      : respuesta.delivery || 'uncertain';
     motivo = respuesta.error || 'Meta no confirmó el envío.';
   } else if (!apiToken || !phoneNumberId) {
     motivo = 'Falta la conexión con WhatsApp Meta.';
   }
 
-  if (enviado) {
-    await mutarDocumentoConTransaccion(ARCHIVO_RESERVAS, {}, (actual: any) =>
-      actual?.fecha === momento.fecha ? { ...actual, estado: 'whatsapp_enviado' } : null,
+  if (entregaWhatsApp === 'sent' && messageId) {
+    await mutarDocumentoConTransaccion<ReservaResumenConItemsPendientes>(ARCHIVO_RESERVAS, {}, (actual) =>
+      actual.fecha === reserva.fecha && actual.estado === 'reservado'
+        ? {
+            ...actual,
+            estado: 'whatsapp_enviado',
+            destinatario: reserva.destinatario,
+            items: itemsParaEnviar,
+            messageId,
+            entregaWhatsApp: 'sent',
+            itemsPendientes: undefined,
+            pospuestosIds: (actual.pospuestosIds || []).filter((id) => !itemsParaEnviar.some((item) => item.id === id)),
+          }
+        : null,
     );
     return { enviado: true, fallbackPush: false };
   }
 
-  await sendPushNotificationToAll({
+  const push = await sendPushNotificationToAll({
     title: 'Resumen del asistente AK',
     body: 'El resumen de hoy está listo. Abrí la app para verlo con los permisos de tu perfil.',
     url: '/mi-dia?hablar=1',
-  });
-  await mutarDocumentoConTransaccion(ARCHIVO_RESERVAS, {}, (actual: any) =>
-    actual?.fecha === momento.fecha ? { ...actual, estado: 'push_fallback', motivo } : null,
+  }).catch((error) => ({
+    success: false, sentCount: 0, failureCount: 0,
+    error: error instanceof Error ? error.message : 'No se pudo confirmar el envío push.',
+  }));
+  const pushEnviado = push.success && push.sentCount > 0;
+  const errorFinal = pushEnviado
+    ? motivo
+    : `${motivo} El aviso push tampoco se confirmó${push.error ? `: ${push.error}` : '.'}`;
+  const estadoFallback = pushEnviado
+    ? entregaWhatsApp === 'uncertain' ? 'push_fallback_incierto' : 'push_fallback'
+    : entregaWhatsApp === 'uncertain' ? 'envio_incierto' : 'error';
+  await mutarDocumentoConTransaccion<ReservaResumenConItemsPendientes>(ARCHIVO_RESERVAS, {}, (actual) =>
+    actual.fecha === reserva.fecha && actual.estado === 'reservado'
+      ? { ...actual, estado: estadoFallback, motivo: errorFinal, entregaWhatsApp, itemsPendientes: undefined }
+      : null,
   );
-  return { enviado: false, fallbackPush: true, motivo };
+  return { enviado: false, fallbackPush: pushEnviado, motivo: errorFinal };
 }

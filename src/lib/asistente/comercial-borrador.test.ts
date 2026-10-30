@@ -10,6 +10,7 @@ import { persistPublicSimulatorBudget } from '@/lib/budget/public-simulator-pers
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import {
   fotosDeFiestasParecidas,
+  fotosPromocionalesDeFiesta,
   prepararBorradorProspectoAnuncio,
   rankPromotionalPhotos,
   validarFotosPromocionalesAlEnviar,
@@ -57,6 +58,27 @@ beforeEach(() => {
 });
 
 describe('commercial assistant draft', () => {
+  it('selecciona una foto consentida del evento aunque haya más de 30 fotos de otros eventos antes', async () => {
+    const consents = Object.fromEntries(Array.from({ length: 36 }, (_, index) => {
+      const eventId = index === 35 ? 'evento-objetivo' : `competidor-${index}`;
+      return [eventId, {
+        eventId, authorized: true, grantedBy: 'client', method: 'client_portal',
+        evidenceReference: 'consentimiento de prueba', contractVersion: 'v1',
+        recordedBy: 'cliente de prueba', recordedAt: '2026-01-01T10:00:00.000Z',
+      }];
+    }));
+    read.mockImplementation(async (file: string) => file === 'promotional-photo-consents.json'
+      ? consents
+      : file === 'galeria-publica.json'
+        ? { fotos: Array.from({ length: 36 }, (_, index) => ({
+            id: `foto-${index}`, eventoId: index === 35 ? 'evento-objetivo' : `competidor-${index}`,
+            url: `https://img.test/${index}.jpg`, tipoFiesta: 'Boda',
+          })), videos: [] }
+        : []);
+    const fotos = await fotosPromocionalesDeFiesta('evento-objetivo');
+    expect(fotos).toEqual([expect.objectContaining({ id: 'foto-35', eventId: 'evento-objetivo' })]);
+  });
+
   it('rejects impossible calendar dates before pricing or writes', async () => {
     const result = await prepararBorradorProspectoAnuncio({ ...input, fecha: '2027-02-31' });
     expect(result.status).toBe('manual_review');

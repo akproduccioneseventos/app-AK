@@ -239,5 +239,36 @@ describe('Orden 168 - Bloque 5: Validaciones de finitud y >= 0', () => {
       expect(rCero.success).toBe(true);
       expect(rCero.post?.promotionCost).toBe(0);
     });
+
+    test('editar copy conserva el candado de consentimiento y no permite reemplazar la foto', async () => {
+      const postOriginal = {
+        id: 'post-protegido', platform: 'Instagram', isGeneralCampaign: false,
+        publishDate: '2026-11-01', text: 'Texto previo', mediaUrl: 'https://img.test/permitida.jpg',
+        mediaType: 'image', status: 'Borrador', createdAt: '2026-10-01', updatedAt: '2026-10-01',
+        promotionalPhotoIds: ['foto-con-consentimiento'],
+      };
+      mockReadData.mockResolvedValue([postOriginal]);
+      const editar = crearFormData('0');
+      editar.append('id', postOriginal.id);
+      editar.append('existingMediaUrl', postOriginal.mediaUrl);
+      editar.append('existingMediaType', 'image');
+      editar.set('text', 'Copy corregido');
+      const guardado = await saveSocialPost(editar);
+      expect(guardado.success).toBe(true);
+      expect(guardado.post).toMatchObject({
+        text: 'Copy corregido',
+        mediaUrl: postOriginal.mediaUrl,
+        promotionalPhotoIds: ['foto-con-consentimiento'],
+      });
+
+      mockReadData.mockResolvedValue([postOriginal]);
+      const cambiarFoto = crearFormData('0');
+      cambiarFoto.append('id', postOriginal.id);
+      cambiarFoto.append('existingMediaUrl', 'https://img.test/otra.jpg');
+      cambiarFoto.append('existingMediaType', 'image');
+      const rechazado = await saveSocialPost(cambiarFoto);
+      expect(rechazado.success).toBe(false);
+      expect(rechazado.error).toMatch(/nuevo borrador con autorización vigente/i);
+    });
   });
 });

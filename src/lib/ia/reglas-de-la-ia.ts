@@ -115,6 +115,13 @@ export function esTareaProhibidaSola(tareaId: string): boolean {
 
 export const TAREAS_SISTEMA: ReglaIA[] = [
   {
+    id: 'borradores_redes_posfiesta',
+    nombre: 'Borradores de redes posfiesta',
+    descripcion: 'Prepara una publicación y un guion interno con multimedia autorizada; no genera video ni publica',
+    modo: 'preguntar',
+    categoria: 'Redes sociales',
+  },
+  {
     id: 'informe_posfiesta',
     nombre: 'Informe posfiesta',
     descripcion: 'Prepara un informe interno para revisión del dueño; no lo envía ni publica',

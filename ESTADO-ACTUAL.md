@@ -1,11 +1,15 @@
-# Estado actual — 29 de octubre de 2026
+# Estado actual — 30 de octubre de 2026
 ## Entrega para Claude: PR 1375
-- Rama `gemini/orden-255-asistente-ak`, desde la corrección de Claude `dcdac4ee3`; código de esta entrega `790cf920941e64de5c3683d701284157bb21c8d7` (después solo documentación y un espacio final).
-- Pendientes pedidos implementados: voz MP3 real con cupo compartido; presupuesto comercial en borrador; consentimiento promocional auditable/revocable; informe posfiesta visible; avisos de prospectos y cuotas reconciliadas.
-- Los 11 casos están en `src/__tests__/el-asistente-de-ak.test.ts`. Regresión conjunta: 22 suites/131 PASS, TypeScript PASS con heap 4096, ESLint PASS y acentos PASS.
-- El primer TypeScript agotó el heap predeterminado; la repetición con más memoria encontró un error de comparación de tipos, corregido, y luego pasó.
-- No se enviaron mensajes reales ni se tocaron datos reales. No se agrega `data/` ni `src/data/` al commit.
-- Sin build, E2E de navegador, Firebase ni Meta/Gemini reales: los verifica Claude antes de publicar. Mantener PR abierta, no fusionada.
+- Rama `gemini/orden-255-asistente-ak`, continuacion desde `5035fedc7`, conserva `dcdac4ee3` y main `5c22efad3`.
+- Devolucion 256 leida en Claude `b424ef472`: retirar audiobox, conservar charla automatica de anuncios, Previsor manual y contrato independiente del permiso de fotos.
+- Audio con `@breezystack/lamejs@1.2.7` exacta, PCM16/MP3 real y limites. Version expresamente indicada por la orden 256; no se agregan otras bibliotecas.
+- Anuncios Meta/Twilio vuelven a la charla habitual; presupuesto/fotos quedan para envio humano. Numeros sin origen publicitario no reciben respuesta automatica.
+- Planes de reunion/semana/seguimiento con datos reales; aprobacion guarda borrador idempotente. Resumen con respuestas numericas y pendientes actuales. Avisos internos a coordinacion asignada.
+- Hechos posfiesta con procedencia, referencias en compras/personal, aprendizaje por tono y borradores de redes sin publicar ni afirmar generar video.
+- Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`; validacion final de tipos, Jest y puerta rapida pendiente de registrar tras congelar el codigo.
+- E2E observaciones: 2 PASS PC/Pixel7, guardado/recarga/referencia sin alterar la otra fiesta; datos sinteticos y sesion firmada, sin saltar autenticacion. Arranque frio de next dev tuvo bloqueos previos, causa no probada.
+- No se agregan archivos de `data/` ni `src/data/`. No se enviaron mensajes reales por Meta; no afirmar proveedores ni despliegue verificados.
+- Claude conserva build, lanzamiento completo y publicacion. Mantener PR abierta, no fusionada.
 - Matriz y límites: `docs/evidencias/orden-255-asistente-aceptacion.md`.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
@@ -16,7 +20,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la int
 - **Completado por Claude:** dueños con candado entre servidores, presupuesto que se vuelve a mirar en la transacción del borrado, recortes achicados para que entren en la base y gasto contado siempre, tipos de la comisión y del renglón cerrado, sesión de prueba con usuario adentro en las pruebas de navegador.
 
 ## Pendiente
-- **Codex** programa: orden 255 bloques 3 a 9 (sobre la 1375) y orden 253 (sobre la 1371). Claude compila, verifica y publica.
+- **Codex:** cerrar evidencia de ordenes 255/256 en 1375. Orden 253 se informo publicada por Claude; no rehacerla en esta PR.
 - **Gemini**: órdenes 242 a 246 y 248 (una sola propuesta).
 
 ## Para el dueño (abogado)

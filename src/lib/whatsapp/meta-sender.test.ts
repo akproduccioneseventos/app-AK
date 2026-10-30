@@ -60,7 +60,20 @@ describe('Meta WhatsApp sender', () => {
     })).resolves.toEqual({
       success: false,
       error: 'Meta rechazó el mensaje: Invalid parameter',
+      delivery: 'not_sent',
     });
+  });
+
+  it('classifies uncertain HTTP failures by status, not by numbers in the provider text', async () => {
+    for (const response of [
+      { status: 503, payload: { error: { message: '403 en un servicio interno' } }, delivery: 'uncertain' },
+      { status: 408, payload: {}, delivery: 'uncertain' },
+      { status: 403, payload: { error: { message: '503 en el detalle' } }, delivery: 'not_sent' },
+    ]) {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: response.status, json: async () => response.payload });
+      await expect(sendMetaWhatsAppMessage({ to: '59899123456', text: 'Hola', apiToken: 'token', phoneNumberId: '123456' }))
+        .resolves.toMatchObject({ success: false, delivery: response.delivery });
+    }
   });
 
   it('rejects incomplete credentials and invalid recipients before fetching', async () => {
@@ -74,6 +87,7 @@ describe('Meta WhatsApp sender', () => {
     })).resolves.toEqual({
       success: false,
       error: 'Faltan el token de Meta o el Phone Number ID.',
+      delivery: 'not_sent',
     });
     expect(global.fetch).not.toHaveBeenCalled();
   });

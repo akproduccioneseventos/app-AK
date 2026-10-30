@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 30/10/2026 - Continuacion de orden 255 y devolucion 256, PR 1375, no publicada
+
+- Parte de `5035fedc7`, sin pisar la correccion `dcdac4ee3` de Claude. Verificacion final en curso; no confundir estos cambios con main o un despliegue.
+- Devolucion 256 contrastada contra Claude `b424ef472`: se retira audiobox y se usa la version exacta autorizada `@breezystack/lamejs@1.2.7`, con parser RIFF/PCM16 propio. La charla de anuncios vuelve a `processIncomingMessage`, incluido TwiML; solo presupuesto/fotos quedan sin enviar. Se restaura intacta la prueba historica de publicidad, no se la adapta para aceptar la regresion.
+- Los tres planes consultan registros reales y preguntan si falta identificar el evento/contacto. La reunion reutiliza los horarios de agenda internos y descarta choques; Google y la reserva quedan pendientes de confirmacion, nunca se inventan. Aprobar confirma el borrador en bandeja con ID estable antes de resolver el plan; reintentos y dos aprobaciones no lo duplican.
+- Respuestas numericas del resumen usan los puntos realmente entregados al mismo dueno ese dia; "despues" prioriza solo pendientes actuales al dia siguiente. No se ejecutan cobros ni envios por interpretar un numero. Fallback push fallido ya no dice enviado.
+- El vigilante puede avisar por WhatsApp al dueno y coordinador realmente asignado y autorizado, segun interruptor, regla y descanso. Entrega incierta queda reservada por tema/hora; no se duplica. No envia importes ni datos de invitados. El anticipador tambien tiene conectado su boton manual.
+- Se registran hechos observados posfiesta, con permisos y escrituras atomicas. Compras/personal muestran procedencia y distinguen asistencia observada de cantidad estimada, sin aplicar cantidades automaticamente. No son datos de ejemplo.
+- Redes reutiliza el cierre diario para crear una publicacion y un guion de video, no un video ficticio. IDs estables recuperan escrituras parciales; autorizacion promocional se controla al seleccionar, editar y publicar. No se publica automaticamente. El contador semanal solo cuenta creaciones nuevas.
+- Aprendizaje lee decisiones vigentes, ordenadas por fecha y tarea exacta; usa rasgos de tono en vez de copiar nombres, cifras o textos de otro cliente. Tarjetas conservan sus hechos y pasos.
+- Borradores comerciales recuperan el mismo presupuesto tras un fallo sin recalcularlo ni pisar una revision; el CRM recibe el importe realmente guardado. Sin transaccion remota disponible no hay escritura alternativa insegura del asistente.
+- Un fallo del permiso de fotos no bloquea el contrato del cliente: aparece como permiso no verificado, con reintento, sin autorizar fotos por defecto. Publicador carga la comprobacion de consentimiento solo cuando la necesita, evitando dependencias circulares.
+- Sondas de mutacion de casos 6 y 11 fallaron al retirar su proteccion y se restauraron. Datos escritos por pruebas en `data/` y `src/data/` quedan fuera del commit. Registro final: `docs/evidencias/orden-255-asistente-aceptacion.md`.
+
 ## 29/10/2026 - Orden 255, pendientes entregados en PR 1375, NO publicado
 
 - Continúa desde la corrección de Claude `dcdac4ee3`, sin rehacerla. Código `790cf920941e64de5c3683d701284157bb21c8d7`; después solo documentación y limpieza de un espacio final. No fusionada ni publicada.

@@ -16,6 +16,11 @@ import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
 import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
 import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 import { descargarMediaWhatsApp, transcribirAudioWhatsApp, clasificarImagenWhatsApp } from '@/lib/asistente/whatsapp-media';
+import { detectarTipoPlanMultipaso, prepararPlanMultipaso } from '@/lib/asistente/planes-multipaso';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { Presupuesto } from '@/types/presupuesto';
+import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
+import { atenderRespuestaResumen } from '@/lib/asistente/respuestas-resumen';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -144,8 +149,8 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
       clave: `prospecto-datos:${params.messageId || params.phone}`,
       area: 'ventas', titulo: 'Completar datos del prospecto de anuncio',
       quePasa: `Faltan ${listaFaltantes} para preparar la propuesta.`,
-      porQueImporta: 'No se calculan precios ni se contacta al prospecto con datos incompletos.',
-      quePropone: `Revisar la consulta de ${params.name || params.phone} y pedir los datos faltantes manualmente.`,
+      porQueImporta: 'No se calculan precios ni se envian presupuestos con datos incompletos.',
+      quePropone: `Revisar la consulta de ${params.name || params.phone} y los datos que faltan para preparar el presupuesto.`,
       tipoPropuesta: 'prospecto_datos_pendientes', nivelRiesgo: 'pregunta',
     }]);
     return {
@@ -446,37 +451,102 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     return { atendido: true, accionIdentificada: 'consultar_memoria', nivel: 'solo', respuestaEnviada: respuestaTexto, audioEnviado };
   }
 
-  const textoPlanNormalizado = textoParaProcesar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const planReunionSolicitado = /\b(?:organiza|arma|prepara|planifica|coordina)\b[\s\S]{0,100}\b(?:reunion|encuentro)\b[\s\S]{0,100}\bnovios\b[\s\S]{0,60}\bsabado\b/.test(textoPlanNormalizado);
-  if (planReunionSolicitado) {
+  const respuestaResumen = await atenderRespuestaResumen(
+    textoParaProcesar,
+    fromLimpio,
+    usuario.perfil === 'dueno',
+  );
+  if (respuestaResumen !== null) {
+    const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, respuestaResumen, { conVoz: audioEntrante, settings });
+    return {
+      atendido: true,
+      accionIdentificada: 'respuesta_resumen',
+      nivel: 'pregunta',
+      respuestaEnviada: respuestaResumen,
+      audioEnviado,
+    };
+  }
+
+  const tipoSolicitudPlan = detectarTipoPlanMultipaso(textoParaProcesar);
+  const planPreparado = tipoSolicitudPlan ? await (async () => {
+    const modo = await getReglaParaTarea('plan_multi_paso');
+    if (modo === 'apagada') return { pregunta: 'Esa tarea está apagada en Tus reglas; no consulté datos ni preparé un plan.' } as const;
+    const puedeVerAgenda = puede(usuario, PERMISOS.CRM) || puede(usuario, PERMISOS.ORGANIZACION);
+    const puedeVerPresupuestos = usuario.perfil === 'dueno' || puede(usuario, PERMISOS.CONTABILIDAD);
+    const modoSeguimiento = tipoSolicitudPlan === 'seguimiento_presupuestos'
+      ? await getReglaParaTarea('perseguidor_presupuestos')
+      : undefined;
+    if (modoSeguimiento === 'apagada') return { pregunta: 'El perseguidor está apagado; no consulté datos ni preparé nada.' } as const;
+    if (tipoSolicitudPlan === 'reunion_cliente' && (!puedeVerAgenda || !puedeVerPresupuestos)) {
+      return { pregunta: 'Necesitás acceso a agenda y al contacto del presupuesto para preparar esta reunión.' } as const;
+    }
+    const [fiestas, presupuestos, mensajes, citas] = await Promise.all([
+      puedeVerAgenda && tipoSolicitudPlan !== 'seguimiento_presupuestos' ? readDataConDetalle<FiestaEnPlanificacion[]>('fiestas.json', []) : Promise.resolve(undefined),
+      puedeVerPresupuestos && tipoSolicitudPlan !== 'preparar_semana_fiesta' ? readDataConDetalle<Presupuesto[]>('presupuestos.json', []) : Promise.resolve(undefined),
+      tipoSolicitudPlan === 'seguimiento_presupuestos' ? readDataConDetalle<import('@/types/whatsapp-automation').ScheduledMessage[]>('scheduled-messages.json', []) : Promise.resolve(undefined),
+      tipoSolicitudPlan === 'reunion_cliente' && puedeVerAgenda
+        ? readDataConDetalle<import('@/types/crm').CrmAppointment[]>('crm-appointments.json', [])
+        : Promise.resolve(undefined),
+    ]);
+    if (mensajes?.huboFalla) return { pregunta: 'No pude comprobar mensajes pendientes; no preparé un borrador.' } as const;
+    const plan = prepararPlanMultipaso(textoParaProcesar, {
+      puedeVerAgenda,
+      puedeVerPresupuestos,
+      modoSeguimiento,
+      fallaAgenda: Boolean(fiestas?.huboFalla),
+      fallaPresupuestos: Boolean(presupuestos?.huboFalla),
+      fiestas: fiestas?.valor,
+      presupuestos: presupuestos?.valor,
+      citas: citas?.valor,
+      fallaCitas: Boolean(citas?.huboFalla),
+      telefonosConMensajePendiente: mensajes?.valor?.filter((m) => m.status === 'pendiente').map((m) => m.targetPhone || ''),
+    });
+    return plan && 'plan' in plan ? { ...plan, modo, modoSeguimiento } : plan;
+  })() : null;
+  if (planPreparado) {
+    if ('pregunta' in planPreparado) {
+      const pregunta = planPreparado.pregunta || 'Necesito confirmar los datos del plan antes de prepararlo.';
+      const audioEnviado = await enviarRespuestaWhatsApp(fromLimpio, pregunta, { conVoz: audioEntrante, settings });
+      return { atendido: true, accionIdentificada: 'aclarar_plan_multi_paso', nivel: 'pregunta', respuestaEnviada: pregunta, audioEnviado };
+    }
+    const plan = planPreparado.plan;
     const hash = Math.abs(textoParaProcesar.toLowerCase().split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0));
     const claveSolicitud = params.messageId || `${hash}:${Math.floor(Date.now() / 900_000)}`;
-    const pasos = [
-      'Confirmar con la pareja el horario y modalidad; dejar cualquier mensaje como borrador, sin enviarlo.',
-      'Preparar la agenda con los temas y decisiones pendientes de la fiesta.',
-      'Asignar a una persona del equipo y reunir la información necesaria para la reunión.',
-    ];
+    const modo = planPreparado.modo;
+    const requiereOk = modo !== 'sola' || plan.tipo === 'seguimiento_presupuestos' && planPreparado.modoSeguimiento !== 'sola';
+    const pasos = requiereOk
+      ? [...plan.pasos.slice(0, 2), `${plan.pasos[2]} Requiere tu OK en el Centro de control.`] as typeof plan.pasos
+      : plan.pasos;
     const { agregadas } = await agregarPropuestasDeduplicadas([{
-      clave: `plan-reunion-whatsapp:${fromLimpio}:${claveSolicitud}`,
+      clave: `plan-${plan.tipo}:${fromLimpio}:${claveSolicitud}`,
       area: 'fiestas',
-      titulo: 'Organizar la reunión con los novios del sábado',
-      quePasa: `${persona.nombre} pidió organizar una reunión con los novios del sábado por WhatsApp.`,
-      porQueImporta: 'La reunión requiere preparación coordinada, pero no se debe contactar a la pareja sin aprobación.',
+      titulo: plan.titulo,
+      quePasa: `${persona.nombre} pidió preparar un plan por WhatsApp.`,
+      porQueImporta: 'El plan usa registros disponibles y no contacta clientes ni confirma horarios.',
       quePropone: pasos.map((paso, indice) => `${indice + 1}. ${paso}`).join('\n'),
       tipoPropuesta: 'plan_multi_paso',
       nivelRiesgo: 'pregunta',
       esImportante: false,
       responsableNombre: persona.nombre,
+      ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+      ...(plan.clienteNombre ? { clienteNombre: plan.clienteNombre } : {}),
+      accion: { type: 'plan_multi_paso', data: {
+        planTipo: plan.tipo,
+        ...(plan.fiestaId ? { fiestaId: plan.fiestaId } : {}),
+        ...(plan.borrador ? { borrador: plan.borrador } : {}),
+        ...(plan.horarioCandidato ? { horarioCandidato: plan.horarioCandidato } : {}),
+        pasos: plan.pasos,
+      } },
     }]);
     respuestaTexto = agregadas.length
-      ? 'Dejé un plan de tres pasos en “Tu asistente” para que lo revises. No contacté a los novios.'
-      : 'Ese plan ya está en “Tu asistente”. No contacté a los novios.';
+      ? 'Dejé el plan de tres pasos en “Tu asistente” para revisión. No contacté a ningún cliente.'
+      : 'Ese plan ya está en “Tu asistente”. No contacté a ningún cliente.';
     await registrarAccionAsistente({
       pedido: textoParaProcesar,
-      accion: 'plan_multi_paso',
+      accion: plan.tipo,
       canal: 'whatsapp',
       nivel: 'pregunta',
-      resultado: 'Plan de tres pasos preparado para revisión; no se contactó al cliente.',
+      resultado: `Plan de tres pasos preparado (${modo}); no se contactó al cliente.`,
       usuarioIdentificado: persona.nombre,
       telefono: fromLimpio,
     });

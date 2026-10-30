@@ -25,6 +25,7 @@ import type { Salon } from '@/types/salon';
 import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
 import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
 import { ejecutarCierrePosfiesta } from '@/lib/asistente/cierre-posfiesta';
+import { enviarAvisosOperativosWhatsApp } from '@/lib/asistente/avisos-operativos-whatsapp';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -335,7 +336,13 @@ export async function GET(request: Request) {
     }
   }
 
-  // 8. AVISOS PROACTIVOS: los hallazgos del vigilante nocturno quedan en la app.
+  // 8. AVISOS PROACTIVOS: la alerta operativa tiene su propia entrega por tema/hora.
+  let avisosOperativos = null;
+  try {
+    avisosOperativos = await enviarAvisosOperativosWhatsApp(nuevasParaAgregar, fiestas, ahora);
+  } catch {
+    fallos.push('No se pudo confirmar la entrega de avisos operativos; revisar la app.');
+  }
   let avisoDuenioRes = null;
   const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
   const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
@@ -346,9 +353,6 @@ export async function GET(request: Request) {
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
       const hoyKey = hoyEnUruguay(ahora);
-      const propuestasNoche = resultadoPersistencia.agregadas.filter(
-        (p) => p.tipoPropuesta === 'vigilante_noche' && p.esImportante,
-      );
       const otrasPropuestas = resultadoPersistencia.agregadas.filter((p) => p.tipoPropuesta !== 'vigilante_noche');
       const importantes = otrasPropuestas.filter((p) => p.esImportante);
 
@@ -388,15 +392,7 @@ export async function GET(request: Request) {
         }
       }
 
-      // avisarAlDuenio también puede hacer push a todos. Para la alerta de operación
-      // solo se usa como WhatsApp del dueño cuando ese canal está activo y el push general apagado.
-      // WhatsApp directo al encargado de la fiesta queda pendiente de aprobación e identidad verificable.
-      const puedeAvisarPorWhatsAppAlDuenio = (ajustes as any).whatsappDuenioHabilitado === true
-        && (ajustes as any).avisoCelularHabilitado === false;
-      const propuestasParaAvisar = [
-        ...otrasPropuestas,
-        ...(puedeAvisarPorWhatsAppAlDuenio ? propuestasNoche : []),
-      ];
+      const propuestasParaAvisar = otrasPropuestas;
       if (propuestasParaAvisar.length > 0) {
         avisoDuenioRes = await avisarAlDuenio(propuestasParaAvisar, ahora);
       }
@@ -415,6 +411,7 @@ export async function GET(request: Request) {
     propuestasNuevasAgregadas: resultadoPersistencia.agregadas.length,
     propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
     avisoDuenio: avisoDuenioRes,
+    avisosOperativos,
     fallos,
   }));
 }

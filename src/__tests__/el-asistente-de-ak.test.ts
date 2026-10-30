@@ -165,6 +165,7 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
   });
 
   test('caso 3: dos pasadas del despertador hacen un solo fallback al push y no registran envío WhatsApp', async () => {
+    (sendPushNotificationToAll as jest.Mock).mockResolvedValueOnce({ success: true, sentCount: 1, failureCount: 0 });
     const hoy = new Date('2026-10-28T11:30:00.000Z'); // 08:30 en Uruguay
     const primero = await enviarResumenMananaWhatsApp(parte, hoy);
     const segundo = await enviarResumenMananaWhatsApp(parte, hoy);
@@ -283,14 +284,64 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
     expect(result.respuestaEnviada).toMatch(/No registré ningún gasto/i);
   });
 
-  test('caso 6: la solicitud de reunión crea una tarjeta de tres pasos y no contacta a los novios', async () => {
-    settingsAsistente = { numerosEquipo: [{ telefono: '59899123456', nombre: 'Sofía', rol: 'Secretaria' }] };
-    const result = await atenderAlEquipo({ from: '59899123456', messageId: 'reunion-1', text: 'Organizá la reunión con los novios del sábado' });
-    expect(result.accionIdentificada).toBe('plan_multi_paso');
-    expect(propuestasMock).toHaveLength(1);
-    expect(propuestasMock[0].quePropone.split('\n')).toHaveLength(3);
-    expect(propuestasMock[0].quePropone).toMatch(/sin enviarlo/i);
-    expect(sendMetaWhatsAppMessage).not.toHaveBeenCalled();
+  test('caso 6: los tres pedidos producen planes solo con fixture inequívoco; sin cliente pregunta', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-29T12:00:00.000Z'));
+    try {
+      settingsAsistente = { numerosEquipo: [{ telefono: '59899123456', nombre: 'Sofía', rol: 'Secretaria' }] };
+      mockDataFiles.set('fiestas.json', [
+        {
+          id: 'boda-sabado', estado: 'Confirmada', reuniones: [], tareas: [], presupuestoId: 'pres-boda',
+          configuracion: { nombreEvento: 'Boda Pérez', tipoCelebracion: 'Boda', fechaEvento: '2026-10-31', horaInicio: '20:00', horaFin: '23:00' },
+          decoracion: { tema: 'Bosque', items: [{ id: 'deco-1', name: 'Centro de mesa', quantity: 8 }] },
+        },
+        {
+          id: 'cumple-fixture', estado: 'Confirmada', reuniones: [], tareas: [{ id: 't-1' }], presupuestoId: 'pres-cumple',
+          configuracion: { nombreEvento: 'Cumpleaños Ana', fechaEvento: '2026-11-03', horaInicio: '17:00', horaFin: '22:00' },
+          decoracion: { tema: 'Jardín', items: [{ id: 'deco-2', name: 'Guirnalda', quantity: 3 }] },
+        },
+      ]);
+      mockDataFiles.set('presupuestos.json', [
+        { id: 'pres-boda', estado: 'Enviado', clienteNombre: 'Familia Pérez', clienteContacto: '59899111111', eventoFecha: '2026-10-31', timestamp: '2026-10-01T12:00:00Z' },
+        { id: 'pres-cumple', estado: 'Enviado', clienteNombre: 'Ana', clienteContacto: '59899222222', eventoFecha: '2026-11-03', timestamp: '2026-10-01T12:00:00Z' },
+      ]);
+      mockDataFiles.set('scheduled-messages.json', []);
+      mockDataFiles.set('crm-appointments.json', [{
+        id: 'cita-jueves', clienteNombre: 'Otro cliente', clienteContacto: '59899333333',
+        fechaHora: '2026-10-29T10:15:00-03:00', estado: 'Agendada', creadoEn: '2026-10-20T12:00:00Z',
+      }]);
+
+      const reunion = await atenderAlEquipo({ from: '59899123456', messageId: 'reunion-1', text: 'Organizá la reunión con los novios del sábado' });
+      expect(reunion.accionIdentificada).toBe('plan_multi_paso');
+      expect(propuestasMock).toHaveLength(1);
+      expect(propuestasMock[0].quePropone.split('\n')).toHaveLength(3);
+      expect(propuestasMock[0].quePropone).toMatch(/horario candidato.*agenda interna.*confirmar disponibilidad Google/i);
+      expect(propuestasMock[0].accion.data).toMatchObject({
+        horarioCandidato: { datetimeIso: '2026-10-30T13:00:00.000Z', duracionMinutos: 30, googleVerificado: false },
+        borrador: { telefono: '59899111111', presupuestoId: 'pres-boda', texto: expect.stringContaining('2026-10-30 a las 10:00') },
+      });
+
+      const semana = await atenderAlEquipo({ from: '59899123456', messageId: 'semana-1', text: 'Prepará la semana del evento "Cumpleaños Ana"' });
+      expect(semana.accionIdentificada).toBe('plan_multi_paso');
+      expect(propuestasMock).toHaveLength(2);
+      expect(propuestasMock[1].quePropone).toMatch(/Cumpleaños Ana/);
+      expect(propuestasMock[1].quePropone).toMatch(/Guirnalda.*cantidad 3/);
+
+      const seguimiento = await atenderAlEquipo({ from: '59899123456', messageId: 'seguimiento-1', text: 'Prepará seguimiento del presupuesto "pres-cumple"' });
+      expect(seguimiento.accionIdentificada).toBe('plan_multi_paso');
+      expect(propuestasMock).toHaveLength(3);
+      expect(propuestasMock[2].quePropone).toMatch(/59899222222/);
+      expect(propuestasMock[2].quePropone).toMatch(/antigüedad no verificada/i);
+      expect(sendMetaWhatsAppMessage).not.toHaveBeenCalled();
+
+      propuestasMock = [];
+      const otraBoda = { ...mockDataFiles.get('fiestas.json')[0], id: 'otra-boda-sabado' };
+      mockDataFiles.set('fiestas.json', [...mockDataFiles.get('fiestas.json'), otraBoda]);
+      const ambiguo = await atenderAlEquipo({ from: '59899123456', messageId: 'reunion-sin-cliente', text: 'Organizá reunión con los novios del sábado' });
+      expect(ambiguo.accionIdentificada).toBe('aclarar_plan_multi_paso');
+      expect(propuestasMock).toHaveLength(0);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   test('caso 8: el anticipador alerta que para 150 invitados hay 3 de los 6 mozos requeridos', async () => {
@@ -417,7 +468,11 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
   });
 
   test('cuando el dueño lo habilitó, manda como máximo cinco líneas al número configurado', async () => {
-    (getAsistenteSettings as jest.Mock).mockResolvedValueOnce({ whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' });
+    (getAsistenteSettings as jest.Mock).mockResolvedValueOnce({
+      whatsappDuenioHabilitado: true,
+      numeroDuenio: '59899123456',
+      numerosEquipo: [{ telefono: '099123456', nombre: 'Dueño', rol: 'Dueño' }],
+    });
     process.env.META_WHATSAPP_TOKEN = 'test-token';
     process.env.META_WHATSAPP_PHONE_ID = '123456';
     const parteLarga = { ...parte, itemsPrincipales: Array.from({ length: 8 }, (_, i) => ({ id: String(i), titulo: `Punto ${i + 1}` })) };
@@ -426,7 +481,7 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
 
     expect(result.enviado).toBe(true);
     const envio = (sendMetaWhatsAppMessage as jest.Mock).mock.calls[0][0];
-    expect(envio.to).toBe('59812345678');
+    expect(envio.to).toBe('59899123456');
     expect(envio.text.split('\n')).toHaveLength(5);
     expect(sendPushNotificationToAll).not.toHaveBeenCalled();
     expect(reservaDiaria.estado).toBe('whatsapp_enviado');

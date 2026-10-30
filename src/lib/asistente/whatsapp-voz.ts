@@ -1,6 +1,5 @@
 import 'server-only';
 
-import { decode, encode } from 'audiobox';
 import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 import { reservarCupoDiarioVozGemini } from '@/lib/asistente/cuota-voz-gemini';
@@ -30,25 +29,77 @@ export interface ResultadoVozWhatsApp {
 }
 
 export async function convertirWavGeminiAMp3(wav: Buffer): Promise<Buffer> {
-  if (!Buffer.isBuffer(wav) || wav.length < 46 || wav.length > MAX_AUDIO_BYTES ||
+  if (!Buffer.isBuffer(wav) || wav.length < 44 || wav.length > MAX_AUDIO_BYTES ||
       wav.toString('ascii', 0, 4) !== 'RIFF' || wav.toString('ascii', 8, 12) !== 'WAVE' ||
-      wav.readUInt32LE(4) !== wav.length - 8) {
+      wav.readUInt32LE(4) > wav.length - 8) {
     throw new Error('Gemini no devolvió un WAV completo y válido.');
   }
 
-  const decoded = await decode(wav, { limits: { maxDurationSeconds: 120, maxDecodedBytes: MAX_AUDIO_BYTES } });
-  if (decoded.sampleRate !== 24000 || decoded.channels !== 1 || decoded.frames < 1) {
-    throw new Error('El WAV de Gemini no tiene el formato de voz esperado.');
+  let canales: number | undefined;
+  let frecuencia: number | undefined;
+  let bitsPorMuestra: number | undefined;
+  let formato: number | undefined;
+  let datos: { inicio: number; longitud: number } | undefined;
+  let offset = 12;
+  const riffEnd = wav.readUInt32LE(4) + 8;
+  if (riffEnd > wav.length) throw new Error('Gemini no devolvió un WAV completo y válido.');
+  for (; offset + 8 <= riffEnd;) {
+    const id = wav.toString('ascii', offset, offset + 4);
+    const longitud = wav.readUInt32LE(offset + 4);
+    const inicio = offset + 8;
+    const fin = inicio + longitud;
+    if (fin > riffEnd || fin < inicio) throw new Error('Gemini no devolvió un WAV completo y válido.');
+    if (id === 'fmt ') {
+      if (longitud < 16 || formato !== undefined) throw new Error('El WAV de Gemini tiene un bloque fmt inválido.');
+      formato = wav.readUInt16LE(inicio);
+      canales = wav.readUInt16LE(inicio + 2);
+      frecuencia = wav.readUInt32LE(inicio + 4);
+      const byteRate = wav.readUInt32LE(inicio + 8);
+      const alineacion = wav.readUInt16LE(inicio + 12);
+      bitsPorMuestra = wav.readUInt16LE(inicio + 14);
+      if (canales !== 1 && canales !== 2) throw new Error('El WAV debe ser PCM mono o estéreo.');
+      if (![8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000].includes(frecuencia) || formato !== 1 || bitsPorMuestra !== 16 ||
+          alineacion !== canales * 2 || byteRate !== frecuencia * alineacion) {
+        throw new Error('El WAV de Gemini debe ser PCM de 16 bits con frecuencia y alineación válidas.');
+      }
+    } else if (id === 'data') {
+      if (datos) throw new Error('El WAV de Gemini contiene más de un bloque de audio.');
+      datos = { inicio, longitud };
+    }
+    const siguiente = fin + (longitud % 2);
+    if (siguiente > riffEnd) throw new Error('El WAV de Gemini termina antes del padding RIFF esperado.');
+    offset = siguiente;
+  }
+  if (offset !== riffEnd || riffEnd !== wav.length) throw new Error('El WAV de Gemini contiene bytes finales incompletos o fuera del tamaño RIFF declarado.');
+  if (canales === undefined || frecuencia === undefined || bitsPorMuestra === undefined || !datos ||
+      datos.longitud === 0 || datos.longitud % (canales * 2) !== 0) {
+    throw new Error('El WAV de Gemini no tiene formato de voz válido o está truncado.');
+  }
+  const muestras = datos.longitud / (canales * 2);
+  if (muestras / frecuencia > 120) throw new Error('El WAV supera los 120 segundos permitidos.');
+  const izquierda = new Int16Array(muestras);
+  const derecha = canales === 2 ? new Int16Array(muestras) : undefined;
+  for (let i = 0; i < muestras; i++) {
+    izquierda[i] = wav.readInt16LE(datos.inicio + i * canales * 2);
+    if (derecha) derecha[i] = wav.readInt16LE(datos.inicio + i * canales * 2 + 2);
   }
 
-  const mp3 = Buffer.from(await encode(decoded.resample(32000).toMono(), 'mp3', { bitrate: 64 }));
-  if (!mp3.length || mp3.length > MAX_AUDIO_BYTES) throw new Error('El MP3 generado supera el tamaño permitido.');
-  const comprobacion = await decode(mp3, { limits: { maxDurationSeconds: 120, maxDecodedBytes: MAX_AUDIO_BYTES } });
-  if (comprobacion.sampleRate !== 32000 || comprobacion.channels !== 1 || comprobacion.frames < 1 ||
-      !comprobacion.channelData(0).some((muestra) => Number.isFinite(muestra) && Math.abs(muestra) > 0)) {
-    throw new Error('El MP3 generado no se pudo decodificar correctamente.');
+  const { Mp3Encoder } = await import('@breezystack/lamejs');
+  const encoder = new Mp3Encoder(canales, frecuencia, 64);
+  const partes: Buffer[] = [];
+  let total = 0;
+  const agregar = (parte: Uint8Array) => {
+    if (!parte.length) return;
+    total += parte.length;
+    if (total > MAX_AUDIO_BYTES) throw new Error('El MP3 generado supera el tamaño permitido.');
+    partes.push(Buffer.from(parte));
+  };
+  for (let inicio = 0; inicio < muestras; inicio += 1152) {
+    agregar(encoder.encodeBuffer(izquierda.subarray(inicio, inicio + 1152), derecha?.subarray(inicio, inicio + 1152)));
   }
-  return mp3;
+  agregar(encoder.flush());
+  if (!total) throw new Error('El encoder no generó un MP3 válido.');
+  return Buffer.concat(partes, total);
 }
 
 export async function enviarRespuestaConVozWhatsApp(

@@ -10,6 +10,7 @@ import type { Invoice } from '@/types/invoice';
 import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
 import type { AsistentePropuesta } from '@/lib/asistente/propuestas-service';
+import { generarBorradoresPosfiesta } from '@/lib/presencia-digital/autogenerador-semanal';
 
 const ARCHIVO_INFORMES = 'informes-posfiesta.json';
 
@@ -18,9 +19,11 @@ export interface DependenciasCierrePosfiesta {
   leerInformes: () => Promise<InformeFiestaAutomatico[]>;
   leerDatosConfirmados: (fiesta: FiestaEnPlanificacion) => Promise<Partial<Pick<InformeFiestaAutomatico, 'asistencia' | 'multimedia' | 'catering' | 'finanzas' | 'mejoresFotos'>>>;
   guardar: (informe: InformeFiestaAutomatico) => Promise<boolean>;
+  generarBorradoresRedes?: (fiestaId: string, fecha: string, ahora: Date) => Promise<{ createdCount: number; posts: unknown[]; motivo?: string }>;
 }
 
 export const dependenciasCierrePosfiestaProduccion: DependenciasCierrePosfiesta = {
+  generarBorradoresRedes: generarBorradoresPosfiesta,
   leerFiestas: async () => {
     const resultado = await readDataConDetalle<FiestaEnPlanificacion[]>('fiestas.json', []);
     if (resultado.huboFalla) throw new Error('No se pudo verificar la lista de fiestas; se reintentará el cierre.');
@@ -84,6 +87,7 @@ export async function ejecutarCierrePosfiesta(
 ): Promise<{ preparados: number; omitidos: number; errores: Array<{ fiestaId: string; error: string }>; nuevasPropuestas: AsistentePropuesta[]; propuestas: AsistentePropuesta[] }> {
   const modo = await getReglaParaTarea('informe_posfiesta');
   if (modo === 'apagada') return { preparados: 0, omitidos: 0, errores: [], nuevasPropuestas: [], propuestas: [] };
+  const modoRedes = await getReglaParaTarea('borradores_redes_posfiesta');
   const fechaObjetivo = ayerUruguay(ahora);
   const fiestas = await dependencias.leerFiestas();
   const informesGuardados = await dependencias.leerInformes();
@@ -132,6 +136,12 @@ export async function ejecutarCierrePosfiesta(
         createdAt: informe.fechaGeneracion,
         updatedAt: ahora.toISOString(),
       });
+      if (modoRedes !== 'apagada' && dependencias.generarBorradoresRedes) {
+        const borradores = await dependencias.generarBorradoresRedes(fiesta.id, fecha, ahora);
+        if (borradores.motivo && borradores.createdCount === 0 && borradores.posts.length === 0) {
+          errores.push({ fiestaId: fiesta.id, error: borradores.motivo });
+        }
+      }
     } catch (error) {
       errores.push({ fiestaId: fiesta.id, error: error instanceof Error ? error.message : 'Error desconocido al preparar el informe.' });
     }

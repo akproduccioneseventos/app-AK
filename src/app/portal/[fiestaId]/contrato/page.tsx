@@ -58,7 +58,7 @@ export default function ClientContractPage() {
   const [signerFullName, setSignerFullName] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPlanPagos, setAcceptedPlanPagos] = useState(false);
-  const [photoConsent, setPhotoConsent] = useState(false);
+  const [photoConsent, setPhotoConsent] = useState<boolean | null>(null);
   const [savingPhotoConsent, setSavingPhotoConsent] = useState(false);
   const [summary, setSummary] = useState<{
     nombreEvento: string;
@@ -81,8 +81,6 @@ export default function ClientContractPage() {
       ]);
       if (!data) throw new Error("Evento no encontrado");
       setFiesta(data);
-      const photoPermission = await getClientPromotionalPhotoConsent(fiestaId);
-      setPhotoConsent(photoPermission.authorized);
       setCompanyInfo(companyData);
       if (summaryData.success && summaryData.summary) {
         setSummary(summaryData.summary);
@@ -94,7 +92,19 @@ export default function ClientContractPage() {
     }
   }, [fiestaId]);
 
+  const cargarPermisoFotos = useCallback(async () => {
+    setPhotoConsent(null);
+    try {
+      const permiso = await getClientPromotionalPhotoConsent(fiestaId);
+      if (typeof permiso?.authorized !== 'boolean') return;
+      setPhotoConsent(permiso.authorized);
+    } catch {
+      // El permiso de fotos no debe impedir leer o firmar el contrato.
+    }
+  }, [fiestaId]);
+
   const togglePhotoConsent = async () => {
+    if (photoConsent === null) return;
     setSavingPhotoConsent(true);
     try {
       const result = await setClientPromotionalPhotoConsent(fiestaId, !photoConsent);
@@ -115,7 +125,8 @@ export default function ClientContractPage() {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    cargarPermisoFotos();
+  }, [loadData, cargarPermisoFotos]);
 
   const handleSign = async () => {
     if (!signerFullName.trim()) {
@@ -224,13 +235,13 @@ export default function ClientContractPage() {
               </CardHeader>
               <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-slate-600">
-                  {photoConsent
+                  {photoConsent === null ? 'No se pudo verificar el permiso de fotos. Tu contrato sigue disponible.' : photoConsent
                     ? 'Autorización vigente para usar fotos de esta fiesta en materiales promocionales.'
                     : 'No hay autorización vigente para usar fotos de esta fiesta.'}
                 </p>
-                <Button variant={photoConsent ? 'outline' : 'default'} disabled={savingPhotoConsent} onClick={togglePhotoConsent}>
+                <Button variant={photoConsent ? 'outline' : 'default'} disabled={savingPhotoConsent} onClick={photoConsent === null ? cargarPermisoFotos : togglePhotoConsent}>
                   {savingPhotoConsent && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {photoConsent ? 'Revocar autorización' : 'Autorizar fotos'}
+                  {photoConsent === null ? 'Reintentar permiso' : photoConsent ? 'Revocar autorización' : 'Autorizar fotos'}
                 </Button>
               </CardContent>
             </Card>

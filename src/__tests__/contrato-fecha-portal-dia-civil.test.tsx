@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 
 const toast = jest.fn();
+const mockGetPhotoConsent = jest.fn<Promise<{ authorized: boolean }>, [string]>(async () => ({ authorized: false }));
 let fechaMock = '2027-08-08';
 const fiesta = () => ({
   id: 'qa128-contrato',
@@ -27,7 +28,11 @@ jest.mock('@/lib/invoices/leer-facturas', () => ({ leerFacturasSinGuardia: jest.
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestoById: jest.fn(async () => null) }));
 jest.mock('@/app/actions/invoices', () => ({ registerBookingDeposit: jest.fn() }));
 jest.mock('@/app/actions/settings', () => ({ getCompanyInfoPublica: jest.fn(async () => ({ name: 'Empresa ficticia QA128' })) }));
-jest.mock('@/app/actions/fiesta/portal.actions', () => ({ getFiestaForPortalSession: jest.fn(async () => fiesta()) }));
+jest.mock('@/app/actions/fiesta/portal.actions', () => ({
+  getFiestaForPortalSession: jest.fn(async () => fiesta()),
+  getClientPromotionalPhotoConsent: (fiestaId: string) => mockGetPhotoConsent(fiestaId),
+  setClientPromotionalPhotoConsent: jest.fn(async () => ({ success: true })),
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestaById: jest.fn(async () => fiesta()), saveFiesta: jest.fn(), updateFiestaPartial: jest.fn() }));
 jest.mock('@/app/actions/fiesta-actual', () => ({
   getContractSigningSummary: (...args: unknown[]) =>
@@ -41,6 +46,8 @@ beforeAll(() => Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { 
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });
 
 describe('Fecha del evento en el contrato del portal', () => {
+  beforeEach(() => mockGetPhotoConsent.mockResolvedValue({ authorized: false }));
+
   it('el resumen real y la pantalla de contrato conservan el dia civil en Uruguay (2027-08-08 -> 08 de agosto de 2027)', async () => {
     fechaMock = '2027-08-08';
     const host = document.body.appendChild(document.createElement('div'));
@@ -66,6 +73,24 @@ describe('Fecha del evento en el contrato del portal', () => {
       const label = Array.from(host.querySelectorAll('p')).find((p) => p.textContent === 'Fecha del Evento');
       const observed = label?.nextElementSibling?.textContent;
       expect(observed).toBe('—');
+    } finally {
+      await act(async () => root.unmount());
+      host.remove();
+    }
+  });
+
+  it('conserva el contrato y su fecha si falla la consulta del permiso de fotos', async () => {
+    fechaMock = '2027-08-08';
+    mockGetPhotoConsent.mockRejectedValueOnce(new Error('Sin conexion'));
+    const host = document.body.appendChild(document.createElement('div'));
+    const root = createRoot(host);
+    try {
+      await act(async () => { root.render(<Page />); });
+      expect(host.textContent).toContain('Resumen del Contrato');
+      expect(host.textContent).toContain('08 de agosto de 2027');
+      expect(host.textContent).toContain('No se pudo verificar el permiso de fotos');
+      expect(host.textContent).not.toContain('Fotos autorizadas para promocion');
+      expect(Array.from(host.querySelectorAll('button')).some(button => button.textContent === 'Reintentar permiso')).toBe(true);
     } finally {
       await act(async () => root.unmount());
       host.remove();

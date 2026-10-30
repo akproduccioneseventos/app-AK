@@ -1,5 +1,13 @@
 /** @jest-environment node */
 jest.mock('server-only', () => ({}), { virtual: true });
+jest.mock('@breezystack/lamejs', () => {
+  const fs = require('node:fs');
+  const vm = require('node:vm');
+  const path = require('node:path');
+  // Jest usa CommonJS; el bundle oficial IIFE ejecuta el mismo codificador sin transformar ESM.
+  const source = fs.readFileSync(path.join(process.cwd(), 'node_modules/@breezystack/lamejs/dist/lamejs.iife.js'), 'utf8');
+  return vm.runInNewContext(`${source}\n;lamejs;`);
+});
 jest.mock('@/lib/ai/consumo-servidor', () => ({ reservarConsumoIA: jest.fn() }));
 jest.mock('@/lib/asistente/cuota-voz-gemini', () => ({ reservarCupoDiarioVozGemini: jest.fn() }));
 jest.mock('@/lib/asistente/voz-gemini', () => ({
@@ -7,7 +15,6 @@ jest.mock('@/lib/asistente/voz-gemini', () => ({
   sintetizarVozGemini: jest.fn(),
 }));
 
-import { decode } from 'audiobox';
 import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { reservarCupoDiarioVozGemini } from '@/lib/asistente/cuota-voz-gemini';
 import { pcmAWav, sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
@@ -21,6 +28,27 @@ function wavDePrueba(): Buffer {
   const pcm = Buffer.alloc(24_000 * 2);
   for (let i = 0; i < 24_000; i++) pcm.writeInt16LE(Math.round(Math.sin(2 * Math.PI * 440 * i / 24_000) * 8000), i * 2);
   return pcmAWav(pcm);
+}
+
+function wavPcm(pcm: Buffer, canales = 1, frecuencia = 24000): Buffer {
+  const fmt = Buffer.alloc(16);
+  fmt.writeUInt16LE(1, 0);
+  fmt.writeUInt16LE(canales, 2);
+  fmt.writeUInt32LE(frecuencia, 4);
+  fmt.writeUInt32LE(frecuencia * canales * 2, 8);
+  fmt.writeUInt16LE(canales * 2, 12);
+  fmt.writeUInt16LE(16, 14);
+  const dataHeader = Buffer.alloc(8);
+  dataHeader.write('data', 0);
+  dataHeader.writeUInt32LE(pcm.length, 4);
+  const fmtHeader = Buffer.alloc(8);
+  fmtHeader.write('fmt ', 0);
+  fmtHeader.writeUInt32LE(fmt.length, 4);
+  const body = Buffer.concat([Buffer.from('WAVE'), fmtHeader, fmt, dataHeader, pcm, ...(pcm.length % 2 ? [Buffer.from([0])] : [])]);
+  const header = Buffer.alloc(8);
+  header.write('RIFF', 0);
+  header.writeUInt32LE(body.length, 4);
+  return Buffer.concat([header, body]);
 }
 
 describe('voz saliente de WhatsApp', () => {
@@ -43,14 +71,45 @@ describe('voz saliente de WhatsApp', () => {
     else process.env.GEMINI_API_KEY = originalGeminiKey;
   });
 
-  it('convierte WAV Gemini en MP3 Layer III y verifica decodificación, frecuencia, canal y muestras', async () => {
+  it('convierte WAV PCM16 real en MP3 con cabecera ID3 o sincronismo MPEG', async () => {
     const mp3 = await convertirWavGeminiAMp3(wavDePrueba());
     expect(mp3.length).toBeGreaterThan(1000);
-    const decodificado = await decode(mp3);
-    expect(decodificado.sampleRate).toBe(32000);
-    expect(decodificado.channels).toBe(1);
-    expect(decodificado.frames).toBeGreaterThan(0);
-    expect(decodificado.channelData(0).some((muestra) => Math.abs(muestra) > 0)).toBe(true);
+    const tieneId3 = mp3.subarray(0, 3).toString('ascii') === 'ID3';
+    const tieneSincronismo = mp3[0] === 0xff && (mp3[1] & 0xe0) === 0xe0;
+    expect(tieneId3 || tieneSincronismo).toBe(true);
+  });
+
+  it('acepta PCM16 estéreo y conserva sincronismo MP3', async () => {
+    const pcm = Buffer.alloc(2400 * 4);
+    for (let i = 0; i < 2400; i++) {
+      const sample = Math.round(Math.sin(2 * Math.PI * 440 * i / 24000) * 8000);
+      pcm.writeInt16LE(sample, i * 4);
+      pcm.writeInt16LE(sample, i * 4 + 2);
+    }
+    const mp3 = await convertirWavGeminiAMp3(wavPcm(pcm, 2));
+    expect(mp3[0] === 0xff && (mp3[1] & 0xe0) === 0xe0).toBe(true);
+  });
+
+  it('rechaza chunks truncados, WAV PCM no admitido y duración sobre el límite', async () => {
+    const valido = wavDePrueba();
+    await expect(convertirWavGeminiAMp3(valido.subarray(0, valido.length - 1))).rejects.toThrow(/WAV/);
+    const float = Buffer.from(valido);
+    float.writeUInt16LE(3, 20);
+    await expect(convertirWavGeminiAMp3(float)).rejects.toThrow(/PCM/);
+    const pcmLargo = Buffer.alloc(24_000 * 2 * 121);
+    await expect(convertirWavGeminiAMp3(wavPcm(pcmLargo))).rejects.toThrow(/120 segundos/);
+  });
+
+  it('rechaza frecuencias no soportadas por MPEG y bytes sobrantes o chunk final incompleto', async () => {
+    const pcm = Buffer.alloc(2400 * 2);
+    await expect(convertirWavGeminiAMp3(wavPcm(pcm, 1, 1))).rejects.toThrow(/frecuencia/);
+    const valido = wavDePrueba();
+    const trailing = Buffer.concat([valido, Buffer.from([0])]);
+    trailing.writeUInt32LE(trailing.length - 9, 4);
+    await expect(convertirWavGeminiAMp3(trailing)).rejects.toThrow(/fuera del tamaño RIFF/);
+    const chunkIncompleto = Buffer.from(valido);
+    chunkIncompleto.writeUInt32LE(chunkIncompleto.readUInt32LE(40) + 2, 40);
+    await expect(convertirWavGeminiAMp3(chunkIncompleto)).rejects.toThrow(/completo y válido/);
   });
 
   it('sube bytes MP3 reales y envía el mensaje Meta solo después de recibir media id y message id', async () => {
@@ -125,6 +184,18 @@ describe('voz saliente de WhatsApp', () => {
     expect(result.puedeEnviarTextoFallback).toBe(false);
     expect(result.fallbackReason).toMatch(/no reintentes/i);
     expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('habilita fallback de texto y no llama a Meta si falla la conversión de audio', async () => {
+    mockSintetizar.mockResolvedValue(Buffer.from('WAV roto'));
+    const result = await enviarRespuestaConVozWhatsApp({
+      to: '59899123456', text: 'Hola', authorized: true,
+      settings: { responderConVoz: true, vozGeminiActiva: true }, apiToken: 'token', phoneNumberId: '123456',
+    });
+    expect(result.audioEnviado).toBe(false);
+    expect(result.puedeEnviarTextoFallback).toBe(true);
+    expect(result.fallbackReason).toMatch(/WAV/);
+    expect(global.fetch).toBe(originalFetch);
   });
 
   it('rechaza WAV inválido sin llamar al encoder', async () => {

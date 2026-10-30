@@ -156,6 +156,16 @@ export async function fotosDeFiestasParecidas(
   }), tipoEvento, invitados, salon, limit);
 }
 
+export async function fotosPromocionalesDeFiesta(eventId: string): Promise<FotoPromocionalElegible[]> {
+  if (!eventId) return [];
+  const consents = await loadConsentMap();
+  if (!hasCurrentPhotoConsent(consents[eventId], eventId)) return [];
+  const photos = await listPhotos(consents);
+  return photos
+    .filter((photo) => photo.eventId === eventId && hasCurrentPhotoConsent(consents[photo.eventId], eventId))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
 export async function validarFotosPromocionalesAlEnviar(photoIds: string[]): Promise<{
   allowed: boolean;
   authorizedPhotoIds: string[];

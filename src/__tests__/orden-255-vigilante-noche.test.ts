@@ -11,6 +11,10 @@ const mockAgregarPropuestas = jest.fn(async (nuevas: any[]) => ({
 }));
 const mockPush = jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 }));
 const mockAvisarDuenio = jest.fn(async () => ({ pushEnviado: false, whatsAppEnviado: false }));
+const mockAvisosOperativos = jest.fn(async () => ({ enviados: 0, inciertos: 0, motivos: [] }));
+jest.mock('@/lib/asistente/avisos-operativos-whatsapp', () => ({
+  enviarAvisosOperativosWhatsApp: (...args: any[]) => mockAvisosOperativos(...args),
+}));
 const mockCerrarPosfiesta = jest.fn(async () => ({ preparados: 0, omitidos: 0, errores: [], nuevasPropuestas: [] as any[] }));
 jest.mock('@/lib/asistente/cierre-posfiesta', () => ({
   ejecutarCierrePosfiesta: (...args: any[]) => mockCerrarPosfiesta(...args),
@@ -195,7 +199,7 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     expect(mockTracking).toEqual({});
   });
 
-  it('fuera del descanso solo usa WhatsApp del dueño cuando está habilitado y el push general está apagado', async () => {
+  it('entrega las alertas al canal operativo y no las duplica en el aviso general del dueño', async () => {
     mockHoraUruguay = 12;
     mockSettings = {
       avisosProactivosActivos: true,
@@ -212,8 +216,9 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
     await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
 
     expect(mockPush).not.toHaveBeenCalled();
-    expect(mockAvisarDuenio).toHaveBeenCalledTimes(1);
-    expect(mockAvisarDuenio.mock.calls[0][0][0]).toMatchObject({ fiestaId: 'fiesta-77', tipoPropuesta: 'vigilante_noche' });
+    expect(mockAvisarDuenio).not.toHaveBeenCalled();
+    expect(mockAvisosOperativos).toHaveBeenCalledTimes(1);
+    expect(mockAvisosOperativos.mock.calls[0][0][0]).toMatchObject({ fiestaId: 'fiesta-77', tipoPropuesta: 'vigilante_noche' });
   });
 
   it('el cron ejecuta el cierre y persiste su propuesta para revisión', async () => {
@@ -235,11 +240,13 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
       fecha: '2026-10-29', textoResumen: 'Resumen de prueba', totalPendientes: 3,
       itemsPrincipales: [{ id: 'fiesta-1', tipo: 'fiesta_proxima', titulo: 'Preparar la fiesta' }],
     });
-    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' };
+    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59899123456',
+      numerosEquipo: [{ telefono: '099123456', nombre: 'Dueño', rol: 'Dueño' }] };
     process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
     process.env.META_WHATSAPP_PHONE_ID = '123456';
 
-    await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+    const respuestaResumen = await cronAsistenteProactivo(new Request('http://localhost/api/cron/asistente-proactivo'));
+    expect((await respuestaResumen.json()).fallos).toEqual([]);
 
     expect(mockGetReglaParaTarea).toHaveBeenCalledWith('resumen_de_la_manana');
     expect(mockGetParteDeLaManana).not.toHaveBeenCalled();
@@ -283,7 +290,8 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
       fecha: '2026-10-29', textoResumen: 'Resumen de prueba', totalPendientes: 0,
       itemsPrincipales: [{ id: 'fiesta-1', tipo: 'fiesta_proxima', titulo: 'Preparar la fiesta' }],
     });
-    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59812345678' };
+    mockSettings = { avisosProactivosActivos: true, whatsappDuenioHabilitado: true, numeroDuenio: '59899123456',
+      numerosEquipo: [{ telefono: '099123456', nombre: 'Dueño', rol: 'Dueño' }] };
     process.env.META_WHATSAPP_TOKEN = 'meta-test-token';
     process.env.META_WHATSAPP_PHONE_ID = '123456';
 
@@ -291,7 +299,7 @@ describe('Orden 255, bloque 8: vigilante nocturno', () => {
 
     expect(mockGetReglaParaTarea).toHaveBeenCalledWith('resumen_de_la_manana');
     expect(mockEnviarWhatsApp).toHaveBeenCalledTimes(1);
-    expect(mockEnviarWhatsApp.mock.calls[0][0]).toMatchObject({ to: '59812345678' });
+    expect(mockEnviarWhatsApp.mock.calls[0][0]).toMatchObject({ to: '59899123456' });
     expect(mockPush).not.toHaveBeenCalled();
   });
 });

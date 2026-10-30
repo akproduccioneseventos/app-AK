@@ -31,13 +31,13 @@ export async function sendMetaWhatsAppMessage(params: {
   const text = params.text.trim();
 
   if (!apiToken || !phoneNumberId) {
-    return { success: false, error: 'Faltan el token de Meta o el Phone Number ID.' };
+    return { success: false, delivery: 'not_sent', error: 'Faltan el token de Meta o el Phone Number ID.' };
   }
   if (to.length < 8 || to.length > 15) {
-    return { success: false, error: 'El número de destino no es válido para WhatsApp.' };
+    return { success: false, delivery: 'not_sent', error: 'El número de destino no es válido para WhatsApp.' };
   }
   if (!text || text.length > 4096) {
-    return { success: false, error: 'El mensaje debe tener entre 1 y 4096 caracteres.' };
+    return { success: false, delivery: 'not_sent', error: 'El mensaje debe tener entre 1 y 4096 caracteres.' };
   }
 
   const controller = new AbortController();
@@ -66,21 +66,23 @@ export async function sendMetaWhatsAppMessage(params: {
       const detail = payload?.error?.error_data?.details || payload?.error?.message;
       return {
         success: false,
+        delivery: response.status >= 400 && response.status < 500 && response.status !== 408 ? 'not_sent' : 'uncertain',
         error: detail ? `Meta rechazó el mensaje: ${detail}` : `Meta rechazó el mensaje (HTTP ${response.status}).`,
       };
     }
 
     const messageId = payload?.messages?.[0]?.id;
     if (typeof messageId !== 'string' || !messageId) {
-      return { success: false, error: 'Meta no devolvió un identificador de entrega.' };
+      return { success: false, delivery: 'uncertain', error: 'Meta no devolvió un identificador de entrega.' };
     }
     return { success: true, messageId };
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      return { success: false, error: 'Meta no respondió dentro de 10 segundos.' };
+      return { success: false, delivery: 'uncertain', error: 'Meta no respondió dentro de 10 segundos.' };
     }
     return {
       success: false,
+      delivery: 'uncertain',
       error: `No se pudo contactar a Meta: ${error instanceof Error ? error.message : 'error desconocido'}.`,
     };
   } finally {
