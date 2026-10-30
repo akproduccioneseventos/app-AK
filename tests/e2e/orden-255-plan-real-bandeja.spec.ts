@@ -35,7 +35,7 @@ test.afterEach(() => {
   const ids = new Set(carpetas.flatMap(carpeta => leer('asistente-propuestas.json', carpeta))
     .filter(item => JSON.stringify(item).includes(presupuestoId)).map(item => item.id));
   for (const carpeta of carpetas) {
-    for (const archivo of ['presupuestos.json', 'asistente-propuestas.json', 'scheduled-messages.json', 'ia-aprendizaje.json', 'asistente-historial-aceptaciones.json']) {
+    for (const archivo of ['presupuestos.json', 'asistente-propuestas.json', 'scheduled-messages.json', 'ia-aprendizaje.json']) {
       const ruta = path.join(process.cwd(), carpeta, archivo);
       if (!fs.existsSync(ruta)) continue;
       const datos = leer(archivo, carpeta);
