@@ -217,6 +217,8 @@ usa: persistPublicSimulatorBudget en src/lib/asistente/comercial-borrador.ts
 usa: fotosDeFiestasParecidas en src/lib/asistente/comercial-borrador.ts
 usa: anticipador en src/lib/agentes/motor-agentes.ts
 usa: checkInTimestamp en src/lib/agentes/motor-agentes.ts
+usa: prepararPropuestaFaltantePersonal en src/app/api/cron/asistente-proactivo/route.ts
+usa: prepararPropuestaOperativaNoche en src/app/api/cron/asistente-proactivo/route.ts
 usa: ejecutarCierrePosfiesta en src/app/api/cron/asistente-proactivo/route.ts
 usa: armarInformeAutomatico en src/lib/asistente/cierre-posfiesta.ts
 usa: aprenderDeLoAprobado en src/lib/commercial/commercial-followup.ts

@@ -6,8 +6,10 @@ Rama `gemini/orden-255-asistente-ak`, continuacion desde
 `5c22efad3e1f16075bf1689caa6c7ca41099763a`.
 Devolucion 256 contrastada con `claude/app-debug-stabilize-m70e6z` en
 `b424ef47225a0a24a54a289d9ab5101c619b4f1c` (30/10/2026).
-Codigo final validado: `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`.
-Los commits posteriores a ese codigo solo registran evidencia/documentacion.
+Entrega anterior validada: `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`.
+Cierre adicional: aplicacion compilada en `5ce061900086f6a16c0973ca932aac33aa0b79f4`;
+correccion de limpieza del E2E y puerta final en `f605a5e574496b1d76353b6a25c3b306bd81c7ae`.
+Entre esos dos commits solo cambia una lista de limpieza del test, no la aplicacion.
 No fusionada ni publicada.
 
 ## Matriz
@@ -146,9 +148,58 @@ Una extraccion anterior aviso analisis parcial de `por-whatsapp.ts`; eso no
 equivale a error TypeScript, pero el grafo no reemplaza las pruebas ejecutadas.
 `git diff 5035fedc7 HEAD --check`: exit 0; sin datos en los commits.
 
-## Limites Operativos
+## Cierre Adicional Solicitado
 
-Claude conserva build, verificacion completa de lanzamiento y publicacion.
+El build completo de `3d875eba8` fallo en los tipos recien generados por Next:
+la ruta del cron exportaba `prepararPropuestaFaltantePersonal` y
+`prepararPropuestaOperativaNoche`, exports no permitidos para una ruta API.
+Ambas funciones se trasladaron sin cambiar su logica a
+`src/lib/asistente/propuestas-operativas.ts`; el cron sigue siendo consumidor real.
+Prueba de los exports reales: solo GET, dynamic y maxDuration. Al introducir
+un export invalido, la prueba fallo; la sonda se retiro antes de compilar.
+
+Sobre `5ce061900` se ejecuto **npm run build completo, exit 0**, con lint y tipos
+habilitados (sin FIREBASE_APP_HOSTING). Genero 305 paginas estaticas y los
+controladores dinamicos. Node24/Windows, heap 4096, modo JSON local y claves dummy;
+standalone se desactiva automaticamente en Windows por el wrapper existente.
+Build ID: `X7dfYKAsDDpbwxS32n0XU`. No se modifica la configuracion del build.
+
+Se mantuvieron advertencias de face-api, hooks y etiquetas img en archivos
+ajenos a este cambio; no se presentan como errores nuevos corregidos.
+
+Se inicio esa compilacion con **next start**, no next dev, en 127.0.0.1:32176.
+No se uso NEXT_PUBLIC_E2E ni un salto de autenticacion: sesiones firmadas de
+prueba, datos sinteticos, persistencia local habilitada, sin solicitar envios reales a Meta.
+
+| Recorrido en PC y Pixel7 | Evidencia |
+| --- | --- |
+| Contrato: titular sin IP, boton de imprimir y clic observado | 4 PASS |
+| Hecho posfiesta: guardar 0.5 kg, recargar y referencia en otra fiesta sin alterar compras/personal | 2 PASS |
+| Plan: pedido real por pantalla, tarjeta, aprobar, un borrador manual persistido tras recargar y presupuesto intacto | 2 PASS |
+
+Son **8 criterios cubiertos en dos corridas**, no una corrida de ocho aprobados:
+la primera dio 6 PASS/2 FAIL por limpieza del test del plan, no por su accion.
+El test intentaba leer como lista un historial-diccionario que no modifica.
+Se corrigio la limpieza para preservar ese historial y se retiraron solo los
+dos IDs propios de la corrida fallida. Repeticion focal del plan: **2 PASS**.
+El test comprueba estado pendiente/manual_click, un solo mensaje, propuesta
+aceptada, ausencia de ventanas externas y presupuesto sin cambios. Capturas
+del plan guardado en `test-results/orden-255-plan-real-bandej-*/borrador-guardado.png`.
+
+Regresion focal de cron/anticipador/once casos: 3 suites/37 PASS.
+Puerta final en `f605a5e57`: **exit 0**; tipos 45s, Jest completo 252s,
+seguridad de la base 34s, acentos y controles de evidencia aprobados. Esta
+ejecucion reemplaza la aprobacion anterior para los archivos modificados.
+
+GitHub Actions de `3d875eba8` no arranco: anotacion oficial del check
+124044018779: "The job was not started because your account is locked due to a billing issue."
+Se distingue de los resultados locales; no se declara CI remota aprobada ni
+se cambia la cuenta, los pagos o las reglas para saltar el bloqueo.
+
+## Alcance Externo
+
+Codex cierra build y recorridos locales por el pedido adicional del dueno.
+Claude conserva fusion y publicacion; no se fusiono ni desplego esta PR.
 No se enviaron mensajes reales por Meta ni se verificaron credenciales de sus
 proveedores. El E2E usa datos sinteticos; las pruebas de envio simulan la red.
 

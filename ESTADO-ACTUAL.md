@@ -6,12 +6,13 @@
 - Anuncios Meta/Twilio vuelven a la charla habitual; presupuesto/fotos quedan para envio humano. Numeros sin origen publicitario no reciben respuesta automatica.
 - Planes de reunion/semana/seguimiento con datos reales; aprobacion guarda borrador idempotente. Resumen con respuestas numericas y pendientes actuales. Avisos internos a coordinacion asignada.
 - Hechos posfiesta con procedencia, referencias en compras/personal, aprendizaje por tono y borradores de redes sin publicar ni afirmar generar video.
-- Codigo validado `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`; despues solo evidencia. Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`.
-- Puerta rapida DESDE CERO: exit 0; tipos 40s, Jest completo 246s, seguridad de la base 33s. La cache anterior de Windows era invalida y se corrigio; no reutilizar su hash vacio.
+- Aplicacion compilada `5ce061900`, cierre QA `f605a5e57` (solo limpieza E2E despues). Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`.
+- Build completo exit 0, lint/tipos habilitados. Puerta final repetida exit 0: tipos 45s, Jest completo 252s, seguridad 34s. Cache de Git en Windows corregida, sin hash vacio.
 - Jest directo antes del arreglo del control: 934 grupos/5688 PASS, 3 pruebas omitidas; advertencia de proceso abierto no reproducida en los 28 grupos/204 pruebas modificadas con deteccion de handles. El control nuevo y su aislamiento tambien pasan.
-- E2E observaciones: 2 PASS PC/Pixel7, guardado/recarga/referencia sin alterar la otra fiesta; datos sinteticos y sesion firmada, sin saltar autenticacion. Arranque frio de next dev tuvo bloqueos previos, causa no probada.
+- Next start sobre el build: 8 criterios PC/Pixel7 cubiertos (contrato4, observaciones2, plan2), en dos corridas: 6 PASS/2 FAIL de limpieza y repeticion plan2 PASS. Guarda borrador manual real tras recargar, no envia ni cambia presupuesto. No es next dev ni auth bypass.
 - No se agregan archivos de `data/` ni `src/data/`. No se enviaron mensajes reales por Meta; no afirmar proveedores ni despliegue verificados.
-- Pedido adicional del dueno: Codex cierra build/navegador. Build de `3d875eba8` detecto exports invalidos en el cron: movidos a modulo, repeticion pendiente. Claude conserva fusion/publicacion.
+- Corregido el bloqueo de build de `3d875eba8`: dos auxiliares fuera de route.ts, logica intacta y prueba negativa de export invalido. Claude conserva fusion/publicacion.
+- CI remota de `3d875eba8` no arranco por bloqueo de facturacion de GitHub, segun anotacion oficial. No equivale a fallo de los checks locales ni se declara CI verde.
 - Matriz y límites: `docs/evidencias/orden-255-asistente-aceptacion.md`.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
@@ -22,7 +23,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la int
 - **Completado por Claude:** dueños con candado entre servidores, presupuesto que se vuelve a mirar en la transacción del borrado, recortes achicados para que entren en la base y gasto contado siempre, tipos de la comisión y del renglón cerrado, sesión de prueba con usuario adentro en las pruebas de navegador.
 
 ## Pendiente
-- **Codex:** cerrar evidencia de ordenes 255/256 en 1375. Orden 253 se informo publicada por Claude; no rehacerla en esta PR.
+- **Codex:** cierre de ordenes 255/256 verificado y registrado en 1375. Orden 253 se informo publicada por Claude; no rehacerla en esta PR.
 - **Gemini**: órdenes 242 a 246 y 248 (una sola propuesta).
 
 ## Para el dueño (abogado)
