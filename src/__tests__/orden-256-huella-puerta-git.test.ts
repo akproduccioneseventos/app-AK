@@ -9,12 +9,13 @@ jest.setTimeout(20000);
 
 const helper = pathToFileURL(resolve('scripts/helpers/huella-git.mjs')).href;
 const filtros = [':(exclude)data', ':(exclude)docs', ':(exclude)*.md'];
+const entorno = Object.fromEntries(Object.entries(process.env).filter(([nombre]) => !nombre.startsWith('GIT_')));
 let carpeta: string;
-const git = (...args: string[]) => execFileSync('git', args, { cwd: carpeta, stdio: 'pipe' });
+const git = (...args: string[]) => execFileSync('git', args, { cwd: carpeta, env: entorno, stdio: 'pipe' });
 function huella(cwd = carpeta) {
   return spawnSync(process.execPath, ['--input-type=module', '-e',
     `import {calcularHuellaGit} from ${JSON.stringify(helper)}; console.log(calcularHuellaGit(${JSON.stringify(filtros)}, ${JSON.stringify(cwd)}));`,
-  ], { encoding: 'utf8' });
+  ], { encoding: 'utf8', env: entorno });
 }
 function leerHuella() {
   const resultado = huella();
