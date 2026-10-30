@@ -73,8 +73,9 @@ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto',
   const mensaje = leer('scheduled-messages.json').find(item => item.presupuestoId === presupuestoId)!;
   expect(mensaje).toMatchObject({ status: 'pendiente', sendingMode: 'manual_click', targetPhone: telefono });
   expect(mensaje.messageText).toContain(nombre);
-  const propuesta = leer('asistente-propuestas.json').find(item => item.accion?.data?.borrador?.presupuestoId === presupuestoId);
-  expect(propuesta).toMatchObject({ estado: 'aceptada', planEjecucion: { mensajeId: mensaje.id } });
+  // El mensaje se guarda antes que el cierre de la propuesta (propuestas-service): se espera el cierre.
+  await expect.poll(() => leer('asistente-propuestas.json').find(item => item.accion?.data?.borrador?.presupuestoId === presupuestoId))
+    .toMatchObject({ estado: 'aceptada', planEjecucion: { mensajeId: mensaje.id } });
 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(pedido).toBeVisible();
