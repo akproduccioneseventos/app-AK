@@ -85,6 +85,15 @@ y seguridad Firestore/Storage. No equivale a validacion del audio/webhook nuevos
 Se repetiran los controles sobre el codigo final y se registraran aqui sus salidas.
 No se agregan archivos de `data/`, `src/data/` ni herramientas locales al producto.
 
+Durante el cierre se reprodujo una falla del propio control en Windows: Git
+recibia comillas simples literales, fallaba y las tres consultas vacias producian
+siempre `c65f37b2cb1ae26c89e9b4f26e2ca9e9cde4ae5b`. Esa cache NO es evidencia del
+codigo nuevo. Se corrigen huella y estado sucio con argumentos estructurados,
+sin shell, y fallo cerrado ante error Git. Prueba con repositorios temporales
+reales: cambia por codigo guardado o sin guardar, no por datos/documentos excluidos.
+Al retirar la guarda de error, la prueba fallo; la guarda quedo restaurada.
+La puerta final se ejecutara desde cero con `AK_PUERTA_DESDE_CERO=true`.
+
 ## Limites Operativos
 
 Claude conserva build, verificacion completa de lanzamiento y publicacion.
