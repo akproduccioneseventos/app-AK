@@ -440,6 +440,10 @@
     "110": {
       "fecha": "2026-10-27",
       "resultado": "barrida en reportes, libro, panel, analíticas, finanzas, comparativa, flujo de caja, asistente y asistente de WhatsApp: ingresos con cinco definiciones, costos de la fiesta con dos reglas, comisión que falta en analíticas y finanzas, saldo que se compensa entre clientes en el panel, mes de los cobros en hora del servidor. Todo en la orden 251."
+    },
+    "111": {
+      "fecha": "2026-10-30",
+      "resultado": "barrida sobre las propuestas abiertas (1375): llamadas sacadas sin pedirlo y bibliotecas nuevas. Salieron la respuesta automática del webhook de WhatsApp y audiobox; las dos van en la orden 256. La versión principal no tiene otras."
     }
   },
   "hallazgos": {
@@ -634,7 +638,10 @@
     "orden-255": {
       "fecha": "2026-10-28",
       "resultado": "Pregunta 2 (¿alguien lo llama?): al preparar la orden se buscó quién llama a las piezas de IA. armarInformeAutomatico no lo llama nadie; aprenderDeLoAprobado sólo la web del evento; getPlantillasMasElegidas nadie; el WhatsApp del equipo guarda audios y fotos como texto fijo; el vigilante de la noche sólo lista fiestas. Todo va en la orden 255."
+    },
+    "orden-256": {
+      "fecha": "2026-10-30",
+      "resultado": "Pregunta 111: buscado en el diff de la 1375 contra main cada llamada quitada y cada cambio de package.json. Sólo processIncomingMessage en el webhook y audiobox. Va en la orden 256."
     }
   }
 }
-

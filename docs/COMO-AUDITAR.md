@@ -1515,3 +1515,11 @@ reporte; los pagos a proveedores caían por la fecha del evento; una seña sin p
 reporte; "lo que me deben" daba un número en el panel y otro en el asistente; "ingresos" eran cinco cosas. Se listan las
 funciones que calculan cada número y se compara qué incluye cada una y por qué fecha filtra. Lo que es distinto a
 propósito lleva otro nombre en pantalla.
+
+### 111. Una entrega, ¿saca o cambia algo que andaba y que la orden no pidió tocar, o suma una biblioteca nueva?
+
+Devolución 1375 (30/10/2026). Para dejar el presupuesto del anuncio en la bandeja, la entrega sacó entera la respuesta
+automática a quien llega por la publicidad, que era decisión del dueño y andaba. Y sumó `audiobox`, un paquete de una
+sola persona publicado tres meses antes, sin instalarlo. Se compara la entrega con la versión principal buscando
+llamadas que desaparecen (`git diff` con líneas `-` que llaman funciones) y cambios en `package.json`; cada una tiene que
+estar pedida en la orden.
