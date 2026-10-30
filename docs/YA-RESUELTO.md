@@ -2,7 +2,7 @@
 
 ## 30/10/2026 - Continuacion de orden 255 y devolucion 256, PR 1375, no publicada
 
-- Parte de `5035fedc7`, sin pisar la correccion `dcdac4ee3` de Claude. Verificacion final en curso; no confundir estos cambios con main o un despliegue.
+- Parte de `5035fedc7`, sin pisar la correccion `dcdac4ee3` de Claude. Codigo final `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`: puerta rapida desde cero exit 0 (tipos, Jest completo, seguridad); no confundir con main ni un despliegue. Detalles y limites en la evidencia.
 - Devolucion 256 contrastada contra Claude `b424ef472`: se retira audiobox y se usa la version exacta autorizada `@breezystack/lamejs@1.2.7`, con parser RIFF/PCM16 propio. La charla de anuncios vuelve a `processIncomingMessage`, incluido TwiML; solo presupuesto/fotos quedan sin enviar. Se restaura intacta la prueba historica de publicidad, no se la adapta para aceptar la regresion.
 - Control final en Windows: Git recibia filtros con comillas simples literales y la huella era el hash de tres respuestas vacias; se reutilizaban resultados indebidamente. `scripts/helpers/huella-git.mjs` pasa argumentos sin shell y rechaza errores de Git. Prueba con repos reales, incluidos cambios de codigo y exclusiones; sonda de mutacion fallo al quitar el rechazo. Se invalida aquella cache y la puerta se repite desde cero.
 - Los tres planes consultan registros reales y preguntan si falta identificar el evento/contacto. La reunion reutiliza los horarios de agenda internos y descarta choques; Google y la reserva quedan pendientes de confirmacion, nunca se inventan. Aprobar confirma el borrador en bandeja con ID estable antes de resolver el plan; reintentos y dos aprobaciones no lo duplican.

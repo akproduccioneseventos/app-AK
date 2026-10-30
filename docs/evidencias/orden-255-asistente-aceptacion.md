@@ -6,7 +6,9 @@ Rama `gemini/orden-255-asistente-ak`, continuacion desde
 `5c22efad3e1f16075bf1689caa6c7ca41099763a`.
 Devolucion 256 contrastada con `claude/app-debug-stabilize-m70e6z` en
 `b424ef47225a0a24a54a289d9ab5101c619b4f1c` (30/10/2026).
-No fusionada ni publicada. Validacion final de esta continuacion pendiente.
+Codigo final validado: `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`.
+Los commits posteriores a ese codigo solo registran evidencia/documentacion.
+No fusionada ni publicada.
 
 ## Matriz
 
@@ -67,6 +69,8 @@ es una decision previa del dueno y se conserva; presupuesto/fotos no se envian s
 ## Navegador
 
 `tests/e2e/orden-255-observaciones-posfiesta.spec.ts`: **2 PASS** (PC y Pixel7).
+Corrida de la continuacion 255 anterior a la devolucion 256; los componentes de
+observaciones no cambiaron despues. No se presenta como nuevo E2E del HEAD final.
 Recorrido real: guardar sobrante 0.5 kg, recargar, entrar a otra fiesta, leer su
 referencia y comprobar que compras/personal no cambiaron. Datos sinteticos
 locales, cookie firmada, sin `NEXT_PUBLIC_E2E`. Capturas PC/movil en `test-results/`.
@@ -80,9 +84,9 @@ ademas un error Firebase Installations; no se presenta como conexion real aproba
 
 ## Controles Generales
 
-La puerta rapida anterior a la devolucion 256 dio exit 0: tipos, Jest completo
-y seguridad Firestore/Storage. No equivale a validacion del audio/webhook nuevos.
-Se repetiran los controles sobre el codigo final y se registraran aqui sus salidas.
+Windows, Node `v24.19.0`, npm `11.17.0`, heap Node 4096 MB. Revisadas las
+preguntas aplicables de `docs/ANTES-DE-ENTREGAR.md`, incluida la 82 de Claude:
+se conserva la charla de anuncios y solo se agrega la biblioteca solicitada.
 No se agregan archivos de `data/`, `src/data/` ni herramientas locales al producto.
 
 Durante el cierre se reprodujo una falla del propio control en Windows: Git
@@ -92,7 +96,55 @@ codigo nuevo. Se corrigen huella y estado sucio con argumentos estructurados,
 sin shell, y fallo cerrado ante error Git. Prueba con repositorios temporales
 reales: cambia por codigo guardado o sin guardar, no por datos/documentos excluidos.
 Al retirar la guarda de error, la prueba fallo; la guarda quedo restaurada.
-La puerta final se ejecutara desde cero con `AK_PUERTA_DESDE_CERO=true`.
+La primera corrida fresca detecto que la prueba nueva debia aislar `GIT_*`;
+se corrigio el entorno de sus subprocesos sin debilitar el control existente.
+Focalizado del control y aislamiento: 3 suites/5 pruebas PASS.
+
+La puerta final se ejecuto desde cero con `AK_PUERTA_DESDE_CERO=true` sobre
+`041f8750ff06f4ae1408ce5d992cde8dfba40ed0`: **exit 0**, sin reutilizar cache.
+
+Ultimas lineas de los comandos pedidos:
+
+```text
+npx tsc --noEmit
+TypeScript exit=0
+```
+
+La ejecucion directa fue sobre `49fbb04ef`; la puerta final volvio a ejecutar
+el mismo TypeScript sobre el codigo definitivo: bien (40s).
+
+```text
+npx jest --silent
+Test Suites: 1 skipped, 934 passed, 934 of 935 total
+Tests:       3 skipped, 5688 passed, 5691 total
+Snapshots:   0 total
+Time:        250.906 s
+Jest exit=0
+```
+
+Ese comando directo fue sobre `a1e91931c`, antes de agregar las tres pruebas
+del control Git. Mostro una advertencia de worker forzado a cerrar y una traza
+Firestore. No se atribuye una causa ni una escritura remota sin evidencia.
+Sonda sobre las pruebas modificadas con `--detectOpenHandles`: 28 suites/204
+pruebas PASS, sin reproducir la advertencia. La puerta final ejecuto nuevamente
+Jest completo, incluidas las pruebas nuevas de Git, y aprobo (246s).
+
+```text
+npm run "publicar?:rapido"  (AK_PUERTA_DESDE_CERO=true)
+Revisor de tipos... bien (40s)
+Pruebas... bien (246s)
+Seguridad de la base... bien (33s)
+Los controles rapidos pasaron. FALTA la prueba de la app usada de verdad.
+Puerta rapida desde cero exit=0
+```
+
+ESLint: todos los TS/TSX modificados, y luego los archivos del control nuevo,
+exit 0. `npm run check:acentos`: exit 0; tambien repetido en la puerta fresca.
+`npm run mapa:generar`: exit 0, 376 pantallas y 41 opciones.
+`npm run graphify:update`: exit 0, incremental sin LLM; HTML omitido por tamano.
+Una extraccion anterior aviso analisis parcial de `por-whatsapp.ts`; eso no
+equivale a error TypeScript, pero el grafo no reemplaza las pruebas ejecutadas.
+`git diff 5035fedc7 HEAD --check`: exit 0; sin datos en los commits.
 
 ## Limites Operativos
 

@@ -6,7 +6,9 @@
 - Anuncios Meta/Twilio vuelven a la charla habitual; presupuesto/fotos quedan para envio humano. Numeros sin origen publicitario no reciben respuesta automatica.
 - Planes de reunion/semana/seguimiento con datos reales; aprobacion guarda borrador idempotente. Resumen con respuestas numericas y pendientes actuales. Avisos internos a coordinacion asignada.
 - Hechos posfiesta con procedencia, referencias en compras/personal, aprendizaje por tono y borradores de redes sin publicar ni afirmar generar video.
-- Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`; validacion final de tipos, Jest y puerta rapida pendiente de registrar tras congelar el codigo.
+- Codigo validado `041f8750ff06f4ae1408ce5d992cde8dfba40ed0`; despues solo evidencia. Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`.
+- Puerta rapida DESDE CERO: exit 0; tipos 40s, Jest completo 246s, seguridad de la base 33s. La cache anterior de Windows era invalida y se corrigio; no reutilizar su hash vacio.
+- Jest directo antes del arreglo del control: 934 grupos/5688 PASS, 3 pruebas omitidas; advertencia de proceso abierto no reproducida en los 28 grupos/204 pruebas modificadas con deteccion de handles. El control nuevo y su aislamiento tambien pasan.
 - E2E observaciones: 2 PASS PC/Pixel7, guardado/recarga/referencia sin alterar la otra fiesta; datos sinteticos y sesion firmada, sin saltar autenticacion. Arranque frio de next dev tuvo bloqueos previos, causa no probada.
 - No se agregan archivos de `data/` ni `src/data/`. No se enviaron mensajes reales por Meta; no afirmar proveedores ni despliegue verificados.
 - Claude conserva build, lanzamiento completo y publicacion. Mantener PR abierta, no fusionada.
