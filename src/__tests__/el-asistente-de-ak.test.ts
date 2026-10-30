@@ -440,7 +440,7 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
     global.Request ||= undici.Request;
     global.Response ||= undici.Response;
     global.Headers ||= undici.Headers;
-    const { prepararPropuestaOperativaNoche } = jest.requireActual('@/app/api/cron/asistente-proactivo/route');
+    const { prepararPropuestaOperativaNoche } = jest.requireActual('@/lib/asistente/propuestas-operativas');
     const { agregarPropuestasDeduplicadas, getPropuestas } = jest.requireActual('@/lib/asistente/propuestas-service');
     process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
     try {

@@ -70,7 +70,13 @@ jest.mock('@/lib/ia/reglas-de-la-ia', () => ({
 }));
 jest.mock('@/lib/whatsapp/meta-sender', () => ({ sendMetaWhatsAppMessage: (...args: any[]) => mockEnviarWhatsApp(...args) }));
 
-import { GET as cronAsistenteProactivo, prepararPropuestaOperativaNoche } from '@/app/api/cron/asistente-proactivo/route';
+import { GET as cronAsistenteProactivo } from '@/app/api/cron/asistente-proactivo/route';
+import { prepararPropuestaOperativaNoche } from '@/lib/asistente/propuestas-operativas';
+import * as rutaCron from '@/app/api/cron/asistente-proactivo/route';
+
+test('la ruta del cron solo exporta entradas permitidas por Next.js', () => {
+  expect(Object.keys(rutaCron).sort()).toEqual(['GET', 'dynamic', 'maxDuration']);
+});
 import { calcularTragosDisponibles, ejecutarVigilanteNoche } from '@/lib/agentes/motor-agentes';
 
 describe('Orden 255, bloque 8: vigilante nocturno', () => {

@@ -39,7 +39,7 @@ jest.mock('@/lib/asistente/propuestas-service', () => ({
 }));
 jest.mock('@/lib/asistente/resumen-manana-whatsapp', () => ({ enviarResumenMananaWhatsApp: jest.fn(async () => ({})) }));
 
-import { prepararPropuestaFaltantePersonal } from '@/app/api/cron/asistente-proactivo/route';
+import { prepararPropuestaFaltantePersonal } from '@/lib/asistente/propuestas-operativas';
 import { anticiparFaltantesDeMozos, contarCuotasVencidasNoCubiertas, ejecutarAnticipador, ejecutarVigilanteFiestas } from '@/lib/agentes/motor-agentes';
 
 describe('Orden 255, bloque 7: faltante de mozos', () => {

@@ -11,7 +11,7 @@
 - Jest directo antes del arreglo del control: 934 grupos/5688 PASS, 3 pruebas omitidas; advertencia de proceso abierto no reproducida en los 28 grupos/204 pruebas modificadas con deteccion de handles. El control nuevo y su aislamiento tambien pasan.
 - E2E observaciones: 2 PASS PC/Pixel7, guardado/recarga/referencia sin alterar la otra fiesta; datos sinteticos y sesion firmada, sin saltar autenticacion. Arranque frio de next dev tuvo bloqueos previos, causa no probada.
 - No se agregan archivos de `data/` ni `src/data/`. No se enviaron mensajes reales por Meta; no afirmar proveedores ni despliegue verificados.
-- Claude conserva build, lanzamiento completo y publicacion. Mantener PR abierta, no fusionada.
+- Pedido adicional del dueno: Codex cierra build/navegador. Build de `3d875eba8` detecto exports invalidos en el cron: movidos a modulo, repeticion pendiente. Claude conserva fusion/publicacion.
 - Matriz y límites: `docs/evidencias/orden-255-asistente-aceptacion.md`.
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
