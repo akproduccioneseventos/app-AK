@@ -1523,3 +1523,11 @@ automática a quien llega por la publicidad, que era decisión del dueño y anda
 sola persona publicado tres meses antes, sin instalarlo. Se compara la entrega con la versión principal buscando
 llamadas que desaparecen (`git diff` con líneas `-` que llaman funciones) y cambios en `package.json`; cada una tiene que
 estar pedida en la orden.
+
+### 112. Un número que se GUARDA y se arma con un pedazo de otro (las últimas letras, las primeras), ¿puede repetirse entre dos cosas distintas?
+
+Codex 743/C6 (31/10/2026). La factura de una carga histórica se numeraba con las últimas 5 letras del presupuesto; dos
+cargas que terminaban igual chocaban y la segunda quedaba sin factura. Se busca `.slice(-N)` y `.slice(0, N)` sobre ids
+en lo que se guarda o se usa para buscar (números de factura, claves, nombres de archivo únicos). Lo que sólo se muestra
+en pantalla como etiqueta no cuenta.
+

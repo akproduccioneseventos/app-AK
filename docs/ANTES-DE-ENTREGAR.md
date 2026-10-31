@@ -248,3 +248,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 80. **¿Sacás un monto para afuera (archivo, texto, aviso)?** Que tenga los mismos centavos que el reporte.
 81. **¿Mostrás un número de plata?** Sacalo de la misma función que lo muestra en otra pantalla, no lo calcules de nuevo.
 82. **¿Sacaste una llamada que andaba o sumaste una biblioteca?** Sólo si la orden lo pide. Lo que el dueño decidió no se saca de costado.
+83. **¿Armaste un número o una clave con un pedazo de un id?** Si se guarda o se busca por él, que no pueda repetirse entre dos cosas distintas.
