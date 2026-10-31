@@ -1,30 +1,17 @@
-# Estado actual — 30 de octubre de 2026
-## Entrega para Claude: PR 1375
-- Rama `gemini/orden-255-asistente-ak`, continuacion desde `5035fedc7`, conserva `dcdac4ee3` y main `5c22efad3`.
-- Devolucion 256 leida en Claude `b424ef472`: retirar audiobox, conservar charla automatica de anuncios, Previsor manual y contrato independiente del permiso de fotos.
-- Audio con `@breezystack/lamejs@1.2.7` exacta, PCM16/MP3 real y limites. Version expresamente indicada por la orden 256; no se agregan otras bibliotecas.
-- Anuncios Meta/Twilio vuelven a la charla habitual; presupuesto/fotos quedan para envio humano. Numeros sin origen publicitario no reciben respuesta automatica.
-- Planes de reunion/semana/seguimiento con datos reales; aprobacion guarda borrador idempotente. Resumen con respuestas numericas y pendientes actuales. Avisos internos a coordinacion asignada.
-- Hechos posfiesta con procedencia, referencias en compras/personal, aprendizaje por tono y borradores de redes sin publicar ni afirmar generar video.
-- Aplicacion compilada `5ce061900`, cierre QA `f605a5e57` (solo limpieza E2E despues). Once casos juntos en `src/__tests__/el-asistente-de-ak.test.ts`.
-- Build completo exit 0, lint/tipos habilitados. Puerta final repetida exit 0: tipos 45s, Jest completo 252s, seguridad 34s. Cache de Git en Windows corregida, sin hash vacio.
-- Jest directo antes del arreglo del control: 934 grupos/5688 PASS, 3 pruebas omitidas; advertencia de proceso abierto no reproducida en los 28 grupos/204 pruebas modificadas con deteccion de handles. El control nuevo y su aislamiento tambien pasan.
-- Next start sobre el build: 8 criterios PC/Pixel7 cubiertos (contrato4, observaciones2, plan2), en dos corridas: 6 PASS/2 FAIL de limpieza y repeticion plan2 PASS. Guarda borrador manual real tras recargar, no envia ni cambia presupuesto. No es next dev ni auth bypass.
-- No se agregan archivos de `data/` ni `src/data/`. No se enviaron mensajes reales por Meta; no afirmar proveedores ni despliegue verificados.
-- Corregido el bloqueo de build de `3d875eba8`: dos auxiliares fuera de route.ts, logica intacta y prueba negativa de export invalido. Claude conserva fusion/publicacion.
-- CI remota de `3d875eba8` no arranco por bloqueo de facturacion de GitHub, segun anotacion oficial. No equivale a fallo de los checks locales ni se declara CI verde.
-- Matriz y límites: `docs/evidencias/orden-255-asistente-aceptacion.md`.
+# Estado actual — 31 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la integración de 1370 y 1374 (esta tanda).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la 1375 (asistente de AK), sobre la 1371.
 
 ## Publicado en esta tanda
-- **1370 de Gemini (órdenes 247, 249, 251 y 252):** sesiones que se cortan, perfil roto que no entra, último dueño, casillas de módulos fuera, enlace del presupuesto que se apaga, factura y presupuesto que no se borran con cobros, centavos del contador, un solo número de plata (comisión, mes de pagos, seña sin presupuesto, saldo), pregunta frecuente del ajuste.
-- **1374 de Gemini (orden 254):** plantillas de decoración que se publican solas y objetos nuevos a la biblioteca.
-- **Completado por Claude:** dueños con candado entre servidores, presupuesto que se vuelve a mirar en la transacción del borrado, recortes achicados para que entren en la base y gasto contado siempre, tipos de la comisión y del renglón cerrado, sesión de prueba con usuario adentro en las pruebas de navegador.
+- **1371 (órdenes 250 y 253):** "Así va a quedar tu fiesta", foto realista desde el 3D para equipo y cliente, tope de 3 por fiesta entre servidores y gasto de IA contado.
+- **1375 (órdenes 255 y 256, Codex):** el asistente de AK. Memoria, audios y fotos por WhatsApp, respuesta con voz (MP3 con `@breezystack/lamejs` 1.2.7), planes de varios pasos que dejan borradores en la bandeja sin enviar, vigilancia de personal y fiestas, informe y observaciones después de la fiesta, resumen de la mañana, y permiso del cliente para usar fotos de su fiesta en publicidad (recuadro en el contrato del portal, aparte del contrato).
+- Claude: la prueba del plan esperaba el cierre antes de tiempo (el mensaje se guarda antes que la propuesta); se pasó a esperar.
+
+## En curso
+- Codex cerró 732 R1/R2/R3 y 737 (FAQ) sobre la main actual. Su único residual, 743/C6 (número de factura de la carga histórica que chocaba), lo arregló Claude en esta rama, con pregunta 112.
 
 ## Pendiente
-- **Codex:** cierre de ordenes 255/256 verificado y registrado en 1375. Orden 253 se informo publicada por Claude; no rehacerla en esta PR.
-- **Gemini**: órdenes 242 a 246 y 248 (una sola propuesta).
+- **Gemini**: órdenes 242 a 246 y 248 (barra con/sin alcohol, simulador, blog, portada, sección de la app, Club Uruguay), una sola propuesta.
 
 ## Para el dueño (abogado)
 - Revisión legal del contrato de Codex: `docs/evidencias/738-legal-contratos-dictamen.md` en la rama de Codex. No se cambia nada sin abogado.

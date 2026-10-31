@@ -16163,3 +16163,5 @@ prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
 ```
 
 - **29/10/2026, Claude sobre la 1371 (orden 253):** las pruebas de la foto del salón simulaban el guardado viejo y no corrían; ahora simulan la transacción de la fiesta con copias. Se sumó la prueba de dos servidores con un solo lugar libre (`salon-ia-cupo-entre-instancias`), comprobada en rojo sin contar las reservas pendientes. Y una imagen que llega en un formato que no sirve igual se cuenta como gasto, porque ya se pagó.
+
+- **31/10/2026, Claude (Codex 743/C6, orden 252):** al cargar fiestas viejas, el número de factura salía de las últimas 5 letras del presupuesto; dos cargas distintas que terminaban igual chocaban y la segunda quedaba con presupuesto y sin factura. Ahora sale de una huella del presupuesto entero: distinto para cada carga y el mismo al reintentar. El rechazo de un número ya usado por otro presupuesto sigue puesto. Prueba: `la-carga-historica-no-choca-numeros` (la sonda de Codex), en rojo sin el arreglo.
