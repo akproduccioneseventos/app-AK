@@ -1,0 +1,25 @@
+{
+  "source": "e6db627f74301706d5e51fc7e1838808c1d767fe",
+  "sourceTree": "6c40ecdb5842a79d80b679880916eb4db8cd3325",
+  "started": "2026-10-31T13:05:29.082Z",
+  "finished": "2026-10-31T13:05:34.133Z",
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "suites": [
+    "src/__tests__/qa-762-sesiones.test.ts"
+  ],
+  "filter": [
+    "--testNamePattern",
+    "login version|cookie revocada"
+  ],
+  "originalProbes": [
+    {
+      "source": "741-sesiones-y-propietarios.test.ts",
+      "target": "qa-762-sesiones.test.ts",
+      "sha256": "f4e149674b3d6d80970f1e1d073248edd95f423a76a455693c8d77535cd6ddca"
+    }
+  ],
+  "diffApp": "",
+  "limits": "Acciones y motor reales con datos, autorizacion, persistencia y terceros controlados. No SDK, navegador, proveedores reales, build nuevo ni certificado legal/despliegue. Dependencias reutilizadas, no npm ci limpio. La sonda737 conserva literal historico de fuente en su observacion; fuente ejecutada efectiva es este recibo."
+}

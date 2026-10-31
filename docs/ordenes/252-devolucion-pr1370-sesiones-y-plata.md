@@ -1,5 +1,20 @@
 # Orden252 - Devolucion PR1370: seis causas, no fusionar aun
 
+## Estado31/10/2026: PR1370 integrada, C6 PARCIAL
+
+Main `e6db627f74301706d5e51fc7e1838808c1d767fe`, NO90cc antiguo.
+741C1/C5: sondas originales5PASS; C2/C3: seleccion original3PASS;
+C4: cuatro originales de candado entre modulosPASS con fronteras controladas.
+No son SDK/dos servidores reales ni aceptacion de cada pantalla de247.
+743C6: helper ya excluye comprobante AJENO y control de sufijos distintos pasa.
+Pero segundo intento legitimo con igual sufijo falla `HIST-abcde` duplicado:
+A1000success/B2000error; quedan2presupuestos y1factura. MISMA causaC6, no orden nueva.
+Claude valida numeracion estable sin colisiones; Gemini implementa si mantiene
+reparto251. NO quitar guarda de numero ni enlazar factura ajena. Preservar retry.
+Repro exacta original743 y resultados en761; informe760-763 de esta tanda.
+Las3causas732 yFAQ737 ya pasan y estan cerradas por su alcance: no rehacerlas.
+El texto0abe/90cc de abajo es HISTORICO, no volver a devolver unaPR ya integrada.
+
 27/10/2026. Completa revision de247/249, no repetir su implementacion.
 HEAD90cc18b5d9a6a19f3e209a7f078017619435de38; base/main0abe9199.
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. ComprobarHEAD antes de tocar.

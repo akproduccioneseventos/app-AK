@@ -1,0 +1,29 @@
+{
+  "source": "e6db627f74301706d5e51fc7e1838808c1d767fe",
+  "sourceTree": "6c40ecdb5842a79d80b679880916eb4db8cd3325",
+  "started": "2026-10-31T13:01:04.158Z",
+  "finished": "2026-10-31T13:01:21.609Z",
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "suites": [
+    "src/__tests__/qa-760-732.test.ts",
+    "src/__tests__/qa-760-737.test.ts",
+    "src/__tests__/un-solo-numero-de-plata.test.ts",
+    "src/__tests__/faq-ajuste-anual-coincide-con-contrato.test.ts"
+  ],
+  "originalProbes": [
+    {
+      "source": "732-contabilidad-consumidores.test.ts",
+      "target": "qa-760-732.test.ts",
+      "sha256": "cfa573c83fd1322ede6cd5842f17ce5b4972d802a0a08329903026a71c4bf59a"
+    },
+    {
+      "source": "737-ajuste-contrato-vs-faq.test.ts",
+      "target": "qa-760-737.test.ts",
+      "sha256": "456af2ec9ef3c7cc2a77c8c4ad5f4c2047a9d943b4a482a630f4bf3a2ad293d4"
+    }
+  ],
+  "diffApp": "",
+  "limits": "Acciones y motor reales con datos, autorizacion, persistencia y terceros controlados. No SDK, navegador, proveedores reales, build nuevo ni certificado legal/despliegue. Dependencias reutilizadas, no npm ci limpio. La sonda737 conserva literal historico de fuente en su observacion; fuente ejecutada efectiva es este recibo."
+}

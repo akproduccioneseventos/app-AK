@@ -1,5 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 31/10/2026 - Codex760-763: main actual;732/737 cerradas,743 parcial
+
+Fuente e6db627f74301706d5e51fc7e1838808c1d767fe comprobada y ejecutada enQA
+separado;1370/1372/1374/1376 YA fusionadas.759 es historico, no estado vigente.
+76020PASS: sonda732intacta8PASS y737intacta3PASS, mas9criterios entregados.
+Comision100000-3000=97000; proveedores por fecha pago; senaindependiente1000;
+FAQ115000-50000=65000. Trescausas732 yL1/737 CERRADAS por esos alcances.
+76125suites129PASS1FAIL: contratos/seguridad/decoracion y sondas741/743.
+762login/cookieoriginal3PASS2deseleccionados;763topesrecortes4PASS7deseleccionados,
+estos7oficiales decoracion yaPASS761. No decir cero omitidos de estasselecciones.
+741C1/C5originales5PASS;C2/C3originales3PASS;C4cuatrooriginales candadodoblePASS,
+NO SDK/dosservidoresreales. C6/743 siguePARCIAL: helperya noacepta facturaAJENA,
+pero A/Bdistintos mismo sufijoabcde: A1000success/B2000errorporHISTduplicado,
+2presupuestos1factura. Guardacorregida evita mezcla; falta numeracion delsegundo.
+Mismaorden252actualizada,NOotraorden ni reencargar causas732/737 ya cerradas.
+Decoracionmain tiene autopublicacion/Sacar/recortes; cuatrofocalesnuevas confirman
+5porfoto,19->20diarios,rechazocuentaintento yPNG1024->512. ClaudeYAagrego600KiB/
+registrofinally: no repetir esos arreglos como pendientes de1374. Proveedor doble.
+Informe `docs/evidencias/760-763-cierre-main-e6db627.md`,raw/recibos760a763.
+Noappedit/build/merge/produccion/redcambiada;noSDK/modeloreal/certificadolegal/
+todaapp0errores. Sin.envreal/cuentas/cargos/envios. Luna acotado cerrado.
+Dependenciasreutilizadas, no npmci limpio; privadosposterioresNO CONTRASTADOS.
+
 ## 28/10/2026 - Codex759: contraste contable/contratos terminado, SIN cierre falso
 
 Main sigue0abe9199 y1370 sigue90cc18b5. Se encontro Claudece19359e publicado:

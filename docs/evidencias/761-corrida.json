@@ -1,0 +1,50 @@
+{
+  "source": "e6db627f74301706d5e51fc7e1838808c1d767fe",
+  "sourceTree": "6c40ecdb5842a79d80b679880916eb4db8cd3325",
+  "started": "2026-10-31T13:02:57.687Z",
+  "finished": "2026-10-31T13:03:25.497Z",
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "suites": [
+    "src/__tests__/qa-761-fiesta.test.ts",
+    "src/__tests__/qa-761-historicos.test.ts",
+    "src/__tests__/contrato-constancia-version-y-permisos.test.ts",
+    "src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts",
+    "src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts",
+    "src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts",
+    "src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts",
+    "src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts",
+    "src/__tests__/contrato-fecha-portal-dia-civil.test.tsx",
+    "src/__tests__/las-preguntas-del-contrato-llegan.test.ts",
+    "src/__tests__/marcadores-contrato.test.ts",
+    "src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts",
+    "src/__tests__/privacidad-llega-al-visitante.test.ts",
+    "src/__tests__/estetica-portal-contract.test.ts",
+    "src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts",
+    "src/__tests__/dos-bajas-conservan-un-dueno.test.ts",
+    "src/__tests__/admin-no-acepta-cookie-revocada.test.ts",
+    "src/__tests__/una-sesion-vieja-se-corta.test.ts",
+    "src/__tests__/auth-user-session.test.ts",
+    "src/__tests__/la-carga-historica-no-duplica.test.ts",
+    "src/__tests__/las-plantillas-de-decoracion-se-publican-solas.test.ts",
+    "src/__tests__/decoracion-catalogo.test.ts",
+    "src/__tests__/decoracion-catalogo-photo.test.ts",
+    "src/__tests__/decoracion-catalogo-ui.test.tsx",
+    "src/__tests__/decoracion-no-gasta-de-mas.test.ts"
+  ],
+  "originalProbes": [
+    {
+      "source": "741-fiesta-fronteras.test.ts",
+      "target": "qa-761-fiesta.test.ts",
+      "sha256": "5204b72dbb41254c2c9f754c05ea35d4cd2b8a657c9708221db1961158f50753"
+    },
+    {
+      "source": "743-historicos.test.ts",
+      "target": "qa-761-historicos.test.ts",
+      "sha256": "fce01ae978895c2dea05673cae2bea73301bfd8e035625c033c4c8507e1c388e"
+    }
+  ],
+  "diffApp": "",
+  "limits": "Acciones y motor reales con datos, autorizacion, persistencia y terceros controlados. No SDK, navegador, proveedores reales, build nuevo ni certificado legal/despliegue. Dependencias reutilizadas, no npm ci limpio. La sonda737 conserva literal historico de fuente en su observacion; fuente ejecutada efectiva es este recibo."
+}

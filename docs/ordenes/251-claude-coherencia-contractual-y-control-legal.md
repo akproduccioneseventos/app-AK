@@ -1,5 +1,14 @@
 # Orden251 - Claude: coherencia contractual y revision legal diferenciada
 
+## Retest31/10/2026: L1 CERRADA por alcance
+
+Main `e6db627f74301706d5e51fc7e1838808c1d767fe`: sonda737 intacta3PASS;
+FAQ/motor explican115000total menos50000pagados=65000saldo. No cambiar formula.
+Las13suites contractuales historicas tambien se ejecutaron dentro de761.
+Ver `docs/evidencias/760-763-cierre-main-e6db627.md`,760/761resultados.
+No es certificado legal ni aprobacion de todos los contratos/PDF individuales.
+El informe0abe que sigue es historico; no reabrir su copiaL1 ya corregida.
+
 27/10/2026. Codex revisa/documenta; Claude conserva dinero, condiciones, permisos,
 validacion/compilacion y fusion. No alterar contratos ya firmados ni reglas del dueno.
 Una causa de copia reproducida; riesgos legales aparte, NO sentencias de invalidez.

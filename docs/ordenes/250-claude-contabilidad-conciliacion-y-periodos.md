@@ -1,5 +1,14 @@
 # Orden250 - Claude: conciliacion completa en reportes y periodos
 
+## Retest31/10/2026: tres causas CERRADAS por alcance
+
+Main `e6db627f74301706d5e51fc7e1838808c1d767fe`: sonda732 intacta8PASS;
+comision97000, proveedor por fecha de pago y sena1000sinpresupuesto pasan.
+760 con737 y regresiones entregadas:20PASS/0FAIL. No reprogramar estas causas.
+Evidencia `docs/evidencias/760-763-cierre-main-e6db627.md` y760recibos.
+Lo siguiente es HISTORICO0abe, no un estado actual sin corregir.
+No certifica toda contabilidad/SDK/proveedores/despliegue ni0errores.
+
 27/10/2026. TRES causas nuevas comprobadas, fuera de247 y249; NO implementadas.
 Claude conserva dinero/permisos, validacion/compilacion y fusion. Codex solo audita.
 No fusionar documentacion sola. Mantener sin cambios reglas comerciales, monedas,

@@ -1,0 +1,146 @@
+{
+  "source": "e6db627f74301706d5e51fc7e1838808c1d767fe",
+  "appEdited": false,
+  "mergedByCodex": false,
+  "sourceTree": "6c40ecdb5842a79d80b679880916eb4db8cd3325",
+  "files": [
+    {
+      "file": "760-jest.json",
+      "archive": "760-jest.json.gz",
+      "bytes": 11165,
+      "sha256": "1f8146281d68a36d89a42e88f9e7c1ee74e3dedb6faee471d3294402dafb5e0f",
+      "gzipSha256": "c41f377c26bca031177808f054185a0ffcf1dacf4d79362a9daa4f0fe51dc64b"
+    },
+    {
+      "file": "760-jest.log",
+      "archive": "760-jest.log.gz",
+      "bytes": 593,
+      "sha256": "7c7d1a20b7cadccac413ffcb01e47beb5fcc3869e8b5ad5d2e937602e2ccaaac",
+      "gzipSha256": "bd327f9c3cbb6334648ef33add3613b668da11e3ce1e35f5b0cdd2b909fea26d"
+    },
+    {
+      "file": "760-observaciones.json",
+      "archive": "760-observaciones.json.gz",
+      "bytes": 822,
+      "sha256": "89f2c7029e539eb569671faed12ce8b4751d6e986a88e506ae495472b1d16803",
+      "gzipSha256": "401bf9f805cc3d0835eeff53eca3ebf5e40076fbe836f23c2e5098c6407b5bfb"
+    },
+    {
+      "file": "761-jest.json",
+      "archive": "761-jest.json.gz",
+      "bytes": 72987,
+      "sha256": "5913ac9b1922c9736fdde55e3b317fac6de20d35caa1c14242be16e254253d5f",
+      "gzipSha256": "d02ec516066af79174a486512d38417520c078b897fb5ebd7288e31c37033d3f"
+    },
+    {
+      "file": "761-jest.log",
+      "archive": "761-jest.log.gz",
+      "bytes": 35506,
+      "sha256": "4c8461cae30c62405cf7a586d2ba4f028f68a472bb9972bf7cea86f0737cbfc9",
+      "gzipSha256": "f749e197a85a7142f8946a3b4f9ca8d83dff7bae0457a27e97a1fa6487010681"
+    },
+    {
+      "file": "761-observaciones-fiesta.json",
+      "archive": "761-observaciones-fiesta.json.gz",
+      "bytes": 3188,
+      "sha256": "0526241334c9f277db1a9d1a04f14efab600ff73acfaf375f78f3d3b682dd9bc",
+      "gzipSha256": "5e4c8a6c9820bc44bcf995ee4097e98f55b8aa56af6a7175fb3b5b87d94c3f90"
+    },
+    {
+      "file": "761-observaciones-historia.json",
+      "archive": "761-observaciones-historia.json.gz",
+      "bytes": 36121,
+      "sha256": "6cf385cf0cbb62d8da042e0d9ccf38a4ae4dc1fbf97ee88108807d72cb8eab41",
+      "gzipSha256": "cc79c2762d99e5c12c182ca9d858b1d0a776b16b8abc69e870cc71ba502c55cd"
+    },
+    {
+      "file": "762-jest.json",
+      "archive": "762-jest.json.gz",
+      "bytes": 2522,
+      "sha256": "3eecbb843e737a68d6ef61fbecaa0a582c7e69307bd5cc199afdd45164f9fed9",
+      "gzipSha256": "3f2969e52c134b16d791e57852ee2ce8904818f56c7f95c345cbfe5b9df25361"
+    },
+    {
+      "file": "762-jest.log",
+      "archive": "762-jest.log.gz",
+      "bytes": 664,
+      "sha256": "a7377d244b88f5c33f87cba61700c22754a860f987a89bacad9fe4218083ab37",
+      "gzipSha256": "3b311d1b88b4936993d289885c046ecc4030c788085978fc24f3a06e02cbd58e"
+    },
+    {
+      "file": "762-observaciones-sesiones.json",
+      "archive": "762-observaciones-sesiones.json.gz",
+      "bytes": 1554,
+      "sha256": "b89a7728b54a1a9ec5ca255a1dbd8c5f6e85d5684a40fb78717a7de56674aa66",
+      "gzipSha256": "e5abc4fd01541499b3a47b298a8d1b1000215465e8892068c5afbf7b72c799c2"
+    },
+    {
+      "file": "763-jest.json",
+      "archive": "763-jest.json.gz",
+      "bytes": 6228,
+      "sha256": "ec7a81d827508ea7bfc1a6fb41be37d740ea5fbd50bad2d809c9a30636d84b20",
+      "gzipSha256": "1779dacd7dc9f4ac54f74bab2ad63af96d2978c87f9521cc70316d466247ef45"
+    },
+    {
+      "file": "763-jest.log",
+      "archive": "763-jest.log.gz",
+      "bytes": 1399,
+      "sha256": "3f637208e80dcd3d84c7f50fd68673bce71e41adaed391bef438568c45e38a9b",
+      "gzipSha256": "44cc3d3e4307de60f94174a6cccd7cbcb359c763415209d10823d28419e0b2a8"
+    },
+    {
+      "file": "760-retest-main.mjs",
+      "sha256": "83d48b04646fbdde129a620f83d545a5cd85fb639e571eb52ba150c30d38cb43"
+    },
+    {
+      "file": "763-decoracion-topes-extra.ts",
+      "sha256": "82c0f036aa0279a2ae005dd92aef73e5dcd42f96f0b12475d266f1e93d1ed7f6"
+    }
+  ],
+  "runs": [
+    {
+      "id": 760,
+      "pass": 20,
+      "fail": 0,
+      "deselected": 0,
+      "suites": 4,
+      "failures": []
+    },
+    {
+      "id": 761,
+      "pass": 129,
+      "fail": 1,
+      "deselected": 0,
+      "suites": 25,
+      "failures": [
+        {
+          "suite": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-760-main-e6db627\\src\\__tests__\\qa-761-historicos.test.ts",
+          "title": "dos cargas distintas con iguales cinco caracteres finales NO comparten factura",
+          "messages": [
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n    at Object.toBe (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-760-main-e6db627\\src\\__tests__\\qa-761-historicos.test.ts:104:484)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 762,
+      "pass": 3,
+      "fail": 0,
+      "deselected": 2,
+      "suites": 1,
+      "failures": []
+    },
+    {
+      "id": 763,
+      "pass": 4,
+      "fail": 0,
+      "deselected": 7,
+      "suites": 1,
+      "failures": []
+    }
+  ],
+  "official763Fixture": {
+    "file": "src/__tests__/las-plantillas-de-decoracion-se-publican-solas.test.ts",
+    "blob": "e2e8906babade02fad0c68d338c0ed0de38f340f"
+  }
+}

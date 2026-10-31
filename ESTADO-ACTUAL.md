@@ -1,40 +1,36 @@
-# Estado actual - 28/10/2026
+# Estado actual - 31/10/2026
 
 Rama codex/697-auditoria-automatismos-20261026, PR1366 abierta/borrador.
-Codex SOLOaudita/prueba/documenta. Gemini programa;Claude plata/permisos/compila/fusiona.
-Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. Noappedit/deploy.
-759:main0abe=Claudece193(app/config);1370igual90cc:4publicados+6candidataSINcierre.
-759contrastefinal+matriz;Claude251-Gemini YArecoge732/737,252devuelve1370,noduplicar.
-758:86PNG+borradoresimplementadosPR1372porCodex;NOmain/NO3Dexacto/NOsyncMeta certificado.
-## Nueva1371 /749-755 /orden253
-PR1371 OPEN76855a1d4496b54b323edf83919212f32e2c6109,base/main0abe9199.
-9diffs,2511fuentes/config/lockQA iguales antes/despues.
-750DOSsuites12originalesPASS. E2E4claimNOhomologado:ServerActiondoble/media.
-7516criterios4PASS2FAIL+7526criterios2PASS4FAIL=CUATROcausas:
-R1P1BASE64comoURLinutilizable(cuenta/guarda);R2P2erroresinvisibles;
-R3P2generasin3Dlisto/undefined;R4P1dosinstancias gastan2siqueda1cupo.
-R1/R2comentariosprevios confirmados;R3ReactDOM,R4intercalado nuevo.
-Mutexlocalpreexistia,NO decir regresion1371. PrivadosNO CONTRASTADOS.
-Controlesportal/tope/falloproveedorPASS;guardadofallidoSIcuenta gasto real.
-ModelohelperREAL/protocoloDOBLE LOCAL,no modeloexterno/cargos/SDK/HTTPnativo.
-UIReactDOM,3D/NextImage/dynamic/APIcontrolados,NOwebGL/pixelesnativos.
-253completa250-Gemini-foto,NO250-Claude-contabilidad. FaltaYA/ESTADOenPR.
-753dictamen/754contraste/755higiene,agenteLunalow cerrado. No fusionar aun.
-##1370 /739-748 /orden252 vigente,NOrepetido
-1370 sigue90cc18b5;base0abe.52originalesPASS,13sondas5PASS8FAIL=SEIScausas:
-C1P1RPCfiestaborracobros+secretos;C2P1loginversion2emite1;
-C3P1cookierevocadareseteaclaveAJENA;C4P1dosbajas0duenos;
-C5P2SeñaYAexistenteNOguardamusica;C6P1Historicosmismosufijo compartenfactura.
-D1modulesUI/resumenNOrender,D2apagarEnlacesinUI/rechazo,D3noYAenPR.
-UI743/744inconclusa NOappbugs;CSVcentavosPASShelper. Transaccionfactura
-PRESENTE/originalesPASS NOcierreSDK/dosinstancias. CambioPasswordNOversiona.
-## Anteriores, conservar alcances
-250Claude/732TRES causas:comisionMP/periodosproveedor/seniaindependientereporte.
-251737FAQsaldo57500vscontrato/motor65000:corregircopia,nopolitica;738legal
-limites/no certificado.Ley20531cambio general1/1/2027,NOaplicar futurohoy.
-243FAQ5vs30vigente;241Club/244piloto360 existentes,noduplicar.
-239corregida1368poralcance709-714;voz238transportelocalNOproveedorreal.
-## Limites
-Sinappedit/build/merge/produccion/datos/cuentas/cargos/enviosreales,NO0errores/todosroles.
+Codex audita/prueba/documenta;Gemini programa;Claude plata/permisos/valida/fusiona.
+Codex NUNCA fusiona. TODO enYA/evidencias y remoto. Noappedit/deploy.
+Main probado e6db627f74301706d5e51fc7e1838808c1d767fe. PrivadosNO CONTRASTADOS.
+1370/1372/1374/1376 fusionadas;solo1366abierta alcontraste.759historico superado.
+##760-763 retest actual
+732R1/R2/R3 y737L1 CERRADAS poralcance:7604suites20PASS0FAIL.
+Comision97000/proveedorfechapago/sena1000/FAQsaldo65000;no reencargar.
+76125suites129PASS1FAIL;contratos/seguridad/decoracion/sondas741y743.
+762originalsesiones3PASS2deseleccionados;763recortes4PASS7deseleccionados.
+No decir ceroomitidos de filtros: los7decoracion yaPASS761,duenos4originalesPASS.
+741C1/C5 originales5PASS,C2/C3 seleccionoriginal3PASS;C4cuatrooriginalesPASS
+con doblecandado compartido,NO SDK/dosservidores reales ni todaUI247.
+## UN pendiente residual de esta tanda, MISMA743/C6/orden252
+HelperYAno devuelve facturaAJENA; control sufijos distintosPASS.
+A1000/B2000 con intentos distintos sufijoabcde: segundo fallaHISTduplicado,
+quedan2presupuestos1factura. No afirmar mezcla actual de fondos ni datos reales.
+Claude valida numeracion estable sin colision;Gemini implementa segunreparto.
+NO quitar guardanumero,NOaceptarfacturaajena,conservar retry/identidadcompleta.
+Informe760-763-cierre-main-e6db627 yraw761 contienen prueba exacta intacta743.
+No nuevaorden ni repetir todo hastaSHAcorregido;retest focal al entregar delta.
+## Decoracion
+Autopublicacion>=2/Sacar/biblioteca/recorte:7oficialesPASS +otrasregresiones761.
+763:5porfoto,19->20diarios,rechazocuentaintento,PNG1024->512PASS.
+MainYAresize512/600KiB/finallyconsumo;NOreemitir riesgos viejosPR1374.
+Proveedor/almacenamiento controlados,no modeloMeta real ni3Dexacto.
+## Otros historicos y limites
+753/orden253foto3D sigue historico,NO retesteado con esta tanda contable.
+738riesgoslegales NOcertificado ni todoscontratosPDF.243/241/244 no duplicar.
+Sinbuildnuevo/SDK/browsernativo/env/cuentas/cargos/enviosreales/redcambiada.
+No homologar5450tests/typecheck/global100% con estasfocales. No0errores/todaapp.
+QAapp/configdiff0;temporalessolo propios;agenteLunacerrado,sin serviciospropios.
 ManualduenoNOpendienteCodex. Automatizacion eliminada,no recrear.
-Claude integra registro conarreglos;NO fusionar documentos solos.
+Claude integra registro con correcciones,NO fusionar documentos solos.
