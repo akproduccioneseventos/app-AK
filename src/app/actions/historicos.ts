@@ -3,6 +3,7 @@
 import { readData, writeData, createDataItem } from '@/lib/data-service';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import fs from 'fs/promises';
+import { createHash } from 'crypto';
 import path from 'path';
 
 import type { Customer } from '@/types/customer';
@@ -161,7 +162,9 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             invoiceId = facturas[0].id;
         } else {
             const newInvoice: Omit<Invoice, 'id'> = {
-                invoiceNumber: `HIST-${presupuestoId.slice(-5)}`,
+                // El número sale del presupuesto entero: dos cargas distintas no chocan aunque sus
+                // intentos terminen igual, y el reintento de la misma carga da el mismo número.
+                invoiceNumber: `HIST-${createHash('sha256').update(presupuestoId).digest('hex').slice(0, 10).toUpperCase()}`,
                 customer: customer,
                 issueDate: eventoFecha,
                 dueDate: eventoFecha,
