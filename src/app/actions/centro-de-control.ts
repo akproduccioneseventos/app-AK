@@ -241,6 +241,22 @@ export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
   // 5. Lo que hizo sola
   const itemsSola: AccionSolaItem[] = [];
   try {
+    const { getBlogPosts } = await import('@/app/actions/blog');
+    const blogPosts = await getBlogPosts();
+    for (const post of blogPosts || []) {
+      itemsSola.push({
+        id: `blog-post-${post.slug}`,
+        tipo: 'blog',
+        titulo: `Nota de blog: ${post.title}`,
+        descripcion: `Publicó la nota "${post.title}" en el blog corporativo.`,
+        fecha: post.publishedAt ? `${post.publishedAt}T12:00:00.000Z` : new Date().toISOString(),
+        enlace: `/public/blog/${post.slug}`,
+      });
+    }
+  } catch (error) {
+    console.warn('[Centro de Control] Error al leer posts del blog para Lo que hizo sola:', error);
+  }
+  try {
     const accionesSolas = await getRegistroAccionesSolas();
     for (const a of accionesSolas || []) {
       itemsSola.push({
@@ -594,15 +610,21 @@ export async function darOrdenPorVozOTexto(
         };
       }
 
+      const esBaseSinIA = Boolean((armada as any)?.esBaseSinIA || (armada?.invitacionDigital as any)?.esBaseSinIA);
+
       await registrarAccionSola({
         tareaId: 'armar_web_evento',
-        que: `Armé el diseño y textos de la web de invitación para la fiesta de ${nombreFiesta} con la plantilla recomendada.`,
+        que: esBaseSinIA
+          ? `Armé una versión base sin IA para la fiesta de ${nombreFiesta}.`
+          : `Armé el diseño y textos de la web de invitación para la fiesta de ${nombreFiesta} con la plantilla recomendada.`,
         enlace: `/fiestas/${fiestaId}/pagina-web`,
       });
 
       return {
         success: true,
-        mensaje: `Listo, ya le armé la web a la fiesta de ${nombreFiesta}. Quedó guardada y lista para revisar.`,
+        mensaje: esBaseSinIA
+          ? 'Armé una versión base sin IA; revisala'
+          : `Listo, ya le armé la web a la fiesta de ${nombreFiesta}. Quedó guardada y lista para revisar.`,
       };
     }
 

@@ -7,6 +7,8 @@ import { EditableText } from '../edit/EditableText';
 import { cn } from '@/lib/utils';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Phone } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface CartaTragosMenuProps {
     fiesta: FiestaEnPlanificacion;
@@ -41,6 +43,8 @@ const Ornament: React.FC<{ position: string; color: string }> = ({ position, col
 
 export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
     const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+    const [selectedTrago, setSelectedTrago] = React.useState<Trago | null>(null);
+    const [tragoVersion, setTragoVersion] = React.useState<'con_alcohol' | 'sin_alcohol'>('con_alcohol');
 
     React.useEffect(() => {
         getInvoiceTemplateSettings().then(settings => {
@@ -111,13 +115,18 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
 
                     <main className="grid grid-cols-5 gap-1.5 my-2">
                         {carta.items.slice(0, 10).map(item => (
-                            <div key={item.id} className="text-center group flex flex-col items-center" onClick={() => isPreview && openEditModal?.(item)}>
+                            <div key={item.id} className="text-center group flex flex-col items-center cursor-pointer" onClick={() => { if (isPreview && openEditModal) { openEditModal(item); } else { setSelectedTrago(item); setTragoVersion('con_alcohol'); } }}>
                                  <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden border-[1.5px] group-hover:border-primary bg-white/80 shadow-sm" style={{borderColor: paleta.accent}}>
                                     {item.imageUrl ? (
                                         <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
                                     ) : <div className="w-full h-full bg-gray-100"></div>}
                                 </div>
-                                <p className="text-[7px] font-bold uppercase mt-1 leading-[1.1] h-4 overflow-hidden" style={{color: paleta.secondary}}>{item.nombre}</p>
+                                <div className="mt-1 leading-[1.1] h-5 overflow-hidden">
+                                    <p className="text-[7px] font-bold uppercase truncate" style={{color: paleta.secondary}}>{item.nombre}</p>
+                                    {item.nombreSinAlcohol && (
+                                        <p className="text-[5.5px] italic text-muted-foreground truncate leading-none">({item.nombreSinAlcohol})</p>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </main>
@@ -145,6 +154,64 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                     <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain" data-ai-hint="logo"/>
                 </div>
             )}
+
+            {/* Modal para ver detalles y recetas del trago */}
+            <Dialog open={!!selectedTrago} onOpenChange={(open) => { if (!open) setSelectedTrago(null); }}>
+                <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-xl bg-white p-5 text-slate-900 shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-black">{selectedTrago?.nombre}</DialogTitle>
+                    </DialogHeader>
+                    {selectedTrago && (
+                        <div className="space-y-4">
+                            {selectedTrago.imageUrl && (
+                                <div className="relative w-full h-44 rounded-lg overflow-hidden bg-slate-100">
+                                    <NextImage src={selectedTrago.imageUrl} alt={selectedTrago.nombre} fill className="object-cover" />
+                                </div>
+                            )}
+
+                            {/* Dos botones Con alcohol / Sin alcohol */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                    type="button"
+                                    variant={tragoVersion === 'con_alcohol' ? 'default' : 'outline'}
+                                    onClick={() => setTragoVersion('con_alcohol')}
+                                    className="min-h-12 flex-col items-start justify-center p-3 text-left font-bold"
+                                >
+                                    <span>Con alcohol</span>
+                                    <span className="text-[10px] font-normal opacity-75">Mayores de 18</span>
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant={tragoVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                                    onClick={() => setTragoVersion('sin_alcohol')}
+                                    className="min-h-12 flex-col items-start justify-center p-3 text-left font-bold"
+                                >
+                                    <span>{selectedTrago.nombreSinAlcohol || 'Sin alcohol'}</span>
+                                    <span className="text-[10px] font-normal opacity-75">
+                                        {selectedTrago.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
+                                    </span>
+                                </Button>
+                            </div>
+
+                            {/* Receta */}
+                            <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-700">
+                                <p className="font-bold uppercase tracking-wider text-slate-400">
+                                    Receta {tragoVersion === 'con_alcohol' ? 'Con alcohol' : 'Sin alcohol'}:
+                                </p>
+                                <p className="mt-1">
+                                    {tragoVersion === 'con_alcohol'
+                                        ? (selectedTrago.ingredientes?.join(' · ') || 'Ingredientes clásicos')
+                                        : (selectedTrago.recetaSinAlcohol?.join(' · ') || 'Receta sin alcohol')}
+                                </p>
+                            </div>
+
+                            <Button variant="outline" onClick={() => setSelectedTrago(null)} className="w-full min-h-11">
+                                Cerrar
+                            </Button>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

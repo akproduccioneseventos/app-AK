@@ -121,17 +121,27 @@ export function ReceiptProcessor({ onDataExtracted }: ReceiptProcessorProps = {}
             </Alert>
           )}
           {extractedData && !isLoading && (
-            <Alert variant="default" className="bg-green-50 border-green-300 text-green-700 dark:bg-green-900/50 dark:border-green-700 dark:text-green-300">
-              <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" />
-              <AlertTitle className="text-green-800 dark:text-green-200">¡Extracción Exitosa!</AlertTitle>
-              <AlertDescription className="text-green-700 dark:text-green-300">
-                <ul className="mt-2 space-y-1 list-disc list-inside">
-                  <li><strong>Proveedor:</strong> {extractedData.vendor}</li>
-                  <li><strong>Fecha:</strong> {new Date(extractedData.date).toLocaleDateString('es-ES')}</li>
-                  <li><strong>Importe:</strong> {extractedData.amount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
+            extractedData.confidence === 'baja' ? (
+              <Alert variant="default" className="bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/50 dark:border-amber-700 dark:text-amber-200">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <AlertTitle className="text-amber-900 dark:text-amber-100 font-bold">No se pudo leer el comprobante. Completá los datos a mano.</AlertTitle>
+                <AlertDescription className="text-amber-800 dark:text-amber-200">
+                  {extractedData.notes || 'Completá los datos a mano para registrar este gasto.'}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert variant="default" className="bg-green-50 border-green-300 text-green-700 dark:bg-green-900/50 dark:border-green-700 dark:text-green-300">
+                <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400" />
+                <AlertTitle className="text-green-800 dark:text-green-200">¡Extracción Exitosa!</AlertTitle>
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  <ul className="mt-2 space-y-1 list-disc list-inside">
+                    <li><strong>Proveedor:</strong> {extractedData.vendor}</li>
+                    <li><strong>Fecha:</strong> {extractedData.date ? new Date(extractedData.date).toLocaleDateString('es-ES') : ''}</li>
+                    <li><strong>Importe:</strong> {extractedData.amount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )
           )}
         </CardContent>
         <CardFooter>

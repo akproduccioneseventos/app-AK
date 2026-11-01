@@ -1,41 +1,38 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { readData, mutarDocumento } from '@/lib/data-service';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
-import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
+import { syncOtherPublicHistory } from '@/lib/social-media/other-platforms-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
+import { syncDecorationCatalog } from '@/lib/decoracion-ia/catalogo-servicio';
+import { processDecorationDraft } from '@/lib/decoracion-ia/generador-servicio';
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
-import { readData } from '@/lib/data-service';
-import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
-import { syncDecorationCatalog, processDecorationDraft } from '@/lib/decoracion/catalog-service';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 
 /**
- * Guarda los numeros de las redes, una vez por dia.
+ * Tarea programada diaria que guarda las metricas de todas las redes de AK.
  *
- * Por que existe: las plataformas **no entregan los numeros viejos hacia atras**.
- * Lo que no se guarda hoy se pierde para siempre. Antes esto sólo pasaba cuando
- * alguien abria la pantalla de presencia digital: una semana sin entrar era una
- * semana de historia que no se recuperaba nunca.
+ * Corre todos los dias con el cron de Google Cloud Scheduler a las 03:00 de
+ * Uruguay. La clave de las tareas la habilita a escribir; si no esta
+ * configurada, solo corre si no se guardaron metricas todavia hoy.
  *
- * Ademas, la misma tarea reconstruye el historial publico de las cuentas de
- * Facebook, Instagram, YouTube, TikTok, Threads y X. Cada proveedor se pagina
- * hasta agotar lo disponible desde septiembre de 2019 y nunca se marca como
- * completo si la API impone un tope antes de llegar al inicio del historial.
- * Las redes sin autorización configurada se omiten sin bloquear las demás.
+ * ## Por que esta protegida
  *
- * Se protege con la misma clave que el resto de las tareas programadas.
+ * Escribe en `daily-social-metrics.json` y puede disparar el backfill historico
+ * de Meta. Si cualquiera pudiera llamarla mil veces, llenaria el archivo de
+ * entradas duplicadas o consumiria la cuota de la Graph API de Instagram.
  */
 export async function GET(request: Request) {
-  return correrTarea(request);
+  return handleCron(request);
 }
 
 export async function POST(request: Request) {
-  return correrTarea(request);
+  return handleCron(request);
 }
 
-async function correrTarea(request: Request) {
+async function handleCron(request: Request) {
   try {
     const puerta = await abrirPuertaDeLaTarea(request, 'metricas-de-redes');
     if (!puerta.permitido) {
@@ -100,6 +97,24 @@ async function correrTarea(request: Request) {
       console.warn('[cron-metricas-redes] Error generando revisión diaria:', err);
     }
 
+    const fallaron: string[] = [];
+    if (comentariosSincronizados && comentariosSincronizados.success === false) {
+      fallaron.push(`comentarios: ${comentariosSincronizados.error || 'falló'}`);
+    }
+
+    if (fallaron.length > 0) {
+      return NextResponse.json(respuestaDeLaTarea(puerta, {
+        ok: false,
+        error: fallaron.join(', '),
+        historialPublico: {
+          meta: historialMeta,
+          youtube: historialYouTube,
+          otrasRedes: historialOtrasRedes,
+        },
+        comentarios: comentariosSincronizados,
+      }), { status: 500 });
+    }
+
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('metricas-de-redes');
@@ -119,7 +134,7 @@ async function correrTarea(request: Request) {
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);
     return NextResponse.json(
-      { error: error?.message || 'No se pudieron guardar los numeros de las redes.' },
+      { ok: false, error: error?.message || 'No se pudieron guardar los numeros de las redes.' },
       { status: 500 },
     );
   }

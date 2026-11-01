@@ -1,56 +1,62 @@
 import type { Metadata } from 'next';
-import Image, { type ImageLoaderProps } from 'next/image';
 import Link from 'next/link';
-import { Accessibility, Building2, CalendarDays, Car, Check, MapPin, MessageCircle, Users } from 'lucide-react';
+import {
+  Accessibility,
+  Building2,
+  CalendarDays,
+  Car,
+  Check,
+  Clock,
+  History,
+  MapPin,
+  PartyPopper,
+  Sparkles,
+  Users,
+  UtensilsCrossed,
+  Volume2,
+} from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { getSalonesPublicos } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
-import { canUseNextImage } from '@/lib/next-image-url';
-import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
-
+import {
+  dedupeSalonPhotos,
+  getClubUruguayHeroPhoto,
+  getDynamicSalonPhotos,
+  type SalonPhoto,
+} from '@/lib/salon-helper';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
-import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
+import {
+  ClubUruguayClosingActions,
+  ClubUruguayHeroActions,
+  ClubUruguayInteractive,
+  SalonMedia,
+} from '@/components/club-uruguay/ClubUruguayInteractive';
 
 export const metadata: Metadata = {
-  title: 'Fiestas en Club Uruguay | AK Producciones Eventos',
+  title: 'Club Uruguay Salto | Salón de Fiestas y Eventos | AK Producciones',
   description:
-    'Conocé el salón Club Uruguay en Uruguay 754, Salto. Mirá montajes reales y cotizá una producción integral de AK Producciones.',
+    'Conocé el salón Club Uruguay en Uruguay 754, Salto. Opciones informadas para 50 y 250 personas, montajes reales y organización integral con AK Producciones.',
   alternates: {
     canonical: 'https://akproducciones.uy/club-uruguay',
+  },
+  openGraph: {
+    title: 'Club Uruguay Salto | Salón para Fiestas y Eventos',
+    description:
+      'Salón patrimonial en pleno centro de Salto (Uruguay 754). Espacios para 50 y 250 invitados con organización integral de AK Producciones.',
+    url: 'https://akproducciones.uy/club-uruguay',
+    images: [
+      {
+        url: 'https://akproducciones.uy/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'Salón Club Uruguay Salto preparado por AK Producciones',
+      },
+    ],
   },
 };
 
 const WHATSAPP = AK_WHATSAPP_NUMBER;
-const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
-
-function SalonMedia({ src, alt, sizes, priority, className }: { src: string; alt: string; sizes: string; priority?: boolean; className: string }) {
-  if (canUseNextImage(src)) {
-    return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={className} />;
-  }
-
-  return (
-    <Image
-      loader={passthroughImageLoader}
-      unoptimized
-      src={src}
-      alt={alt}
-      fill
-      sizes={sizes}
-      priority={priority}
-      className={className}
-    />
-  );
-}
-
-function uniquePhotos(photos: SalonPhoto[]) {
-  const seen = new Set<string>();
-  return photos.filter((photo) => {
-    if (!photo.src || seen.has(photo.src)) return false;
-    seen.add(photo.src);
-    return true;
-  });
-}
 
 async function getSalonesWithoutBlockingSale() {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -71,40 +77,48 @@ async function getSalonesWithoutBlockingSale() {
 export default async function ClubUruguayPage() {
   const salones = await getSalonesWithoutBlockingSale();
   const salon = salones.find((item) => item.esClubUruguay || isClubUruguay(item.nombre));
+
   const masterPhotos: SalonPhoto[] = (salon?.fotos || []).map((src, index) => ({
     src,
     alt: `Club Uruguay, vista ${index + 1}`,
-    title: index === 0 ? 'El salon' : `Vista del salon ${index + 1}`,
-    description: 'Foto cargada desde el modulo maestro de salones.',
+    title: index === 0 ? 'El salón' : `Vista del salón ${index + 1}`,
+    description: 'Foto cargada desde el módulo maestro de salones.',
+    aprobada: true,
   }));
-  const photos = uniquePhotos([...masterPhotos, ...getDynamicSalonPhotos()]);
-  const heroPhoto = photos[0]?.src || '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
-  const salonAddress = salon?.direccion?.trim();
+
+  const curated = getDynamicSalonPhotos();
+  const heroPhoto = getClubUruguayHeroPhoto(curated);
+  // El hero aprobado siempre encabeza la presentación sin ser desplazado por el orden del maestro
+  const allPhotos = dedupeSalonPhotos([
+    heroPhoto,
+    ...curated.filter((p) => p.src !== heroPhoto.src),
+    ...masterPhotos,
+  ]);
+
+  const salonAddress = salon?.direccion?.trim() || 'Uruguay 754, Salto';
   const salonDescription = salon?.descripcion?.trim();
-  const salonCapacity = salon?.capacidad && salon.capacidad > 0 ? salon.capacidad : undefined;
   const salonEstacionamiento = salon?.estacionamiento?.trim();
   const salonAccesibilidad = salon?.accesibilidad?.trim();
-  const whatsappHref = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    'Hola AK Producciones. Quiero conocer y cotizar una fiesta en Club Uruguay.',
+
+  const whatsappHeroHref = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+    'Hola AK Producciones. Quiero coordinar una visita para conocer el Club Uruguay.',
   )}`;
 
+  const mapsUrl =
+    salon?.googleMapsUrl ||
+    'https://www.google.com/maps/search/?api=1&query=Uruguay+754,+Salto,+Uruguay';
+
   /**
-   * La ficha del salon para Google.
-   *
-   * **Esta es la unica direccion de calle que va en toda la web**, y va aca porque el
-   * Club Uruguay si es un salon de verdad con direccion real. Confirmado por el dueno el
-   * 26 de agosto de 2026: Uruguay 754, Salto.
-   *
-   * AK Producciones **no** lleva direccion: no tiene local, trabaja en salones y a
-   * domicilio. Su ficha va sin calle y con zona de cobertura
-   * (`src/components/seo/LocalBusinessJsonLd.tsx`). No mezclar las dos.
+   * Ficha técnica del salón para motores de búsqueda (JSON-LD).
+   * Dirección confirmada en calle Uruguay 754, Salto.
+   * Sin atribuciones legales no certificadas.
    */
   const salonJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EventVenue',
-    name: 'Salon Club Uruguay',
+    name: 'Club Uruguay Salto',
     description:
-      'Salon de fiestas en Salto donde AK Producciones realiza bodas, quince anos y eventos de empresa.',
+      'Salón histórico en el centro de Salto con dos espacios (principal e íntimo), climatización y cocina para bodas, 15 años y eventos con organización de AK Producciones.',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Uruguay 754',
@@ -125,154 +139,380 @@ export default async function ClubUruguayPage() {
       <LandingNav />
 
       <main>
-        <section className="relative flex min-h-[78vh] items-end overflow-hidden border-b border-white/10 pt-24">
+        {/* ── BANDA 1: Portada + Dirección Uruguay 754 + Capacidades informadas 50/250 ── */}
+        <section className="relative flex min-h-[82vh] items-end overflow-hidden border-b border-white/10 pt-28">
           <SalonMedia
-            src={heroPhoto}
-            alt="Salon de Club Uruguay preparado por AK Producciones"
+            src={heroPhoto.src}
+            alt={heroPhoto.alt}
             priority
             sizes="100vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-black/60" />
+          {/* Contraste medido: deja inspeccionar el espacio sin oscurecer toda la sala */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-black/55 to-black/35" />
 
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16 lg:px-8">
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
             <div className="max-w-3xl">
-              <p className="mb-4 flex items-center gap-2 text-sm font-bold uppercase text-red-300">
-                <Building2 className="h-4 w-4" /> Club Uruguay, Salto
-              </p>
-              <h1 className="font-headline text-5xl font-black leading-[1.02] sm:text-7xl">
-                Tu fiesta en Club Uruguay
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-950/60 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-red-300 backdrop-blur-sm">
+                <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
+                Uruguay 754 • Centro de Salto
+              </div>
+
+              <h1 className="font-headline text-5xl font-black leading-[1.03] tracking-tight sm:text-7xl lg:text-8xl">
+                Club Uruguay Salto
               </h1>
+
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-200 sm:text-xl">
-                Conoce el espacio en montajes reales y arma una propuesta para tu celebración.
+                Espacio con historia en el centro de Salto, con organización integral de AK Producciones.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/simulador-de-presupuesto?salon=club"
-                  className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-red-600 px-6 py-3 font-black text-white transition-colors hover:bg-red-500"
-                >
-                  <CalendarDays className="h-5 w-5" /> Cotizar mi fiesta
-                </Link>
+
+              {/* Resumen de capacidades informadas 50/250 */}
+              <div className="mt-6 inline-flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-xs text-zinc-300 backdrop-blur-sm">
+                <Users className="h-4 w-4 text-red-400" aria-hidden="true" />
+                <span>
+                  <strong>Opciones informadas:</strong> 50 a 250 personas según el montaje (informadas, no habilitación legal certificada).
+                </span>
+              </div>
+
+              <div className="mt-8">
+                <ClubUruguayHeroActions whatsappHref={whatsappHeroHref} />
+                <p className="mt-3 text-xs text-zinc-400">
+                  La consulta por WhatsApp inicia la conversación para coordinar fecha y horario; no es una cita confirmada automáticamente.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── BANDA 2 & 3: Dos espacios comparables & Galería real con lightbox ── */}
+        <ClubUruguayInteractive photos={allPhotos} whatsappNumber={WHATSAPP} />
+
+        {/* ── BANDA 4: Historia y patrimonio breve (no museo) ── */}
+        <section className="border-b border-white/10 bg-zinc-900 py-20 text-white sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-md bg-red-950/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-400 border border-red-800/40">
+                  <History className="h-3.5 w-3.5" aria-hidden="true" />
+                  Patrimonio vivo
+                </span>
+                <h2 className="mt-4 font-headline text-3xl font-black sm:text-5xl">
+                  150 aniversario en 2025: celebrar donde la historia tiene peso
+                </h2>
+                <p className="mt-5 text-base leading-relaxed text-zinc-300 sm:text-lg">
+                  Fundado en 1875, el Club Uruguay conmemora su sesquicentenario en 2025 en el corazón de Salto. No es un museo intocable: es un edificio vivo donde conviven techos altos de época y arquitectura clásica con la dinámica de una fiesta moderna.
+                </p>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+                  El salón resguarda su mural patrimonial característico como rasgo de identidad visual, aportando un marco señorial que realza tanto una recepción protocolar como una fiesta bailable de quince años o una boda.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 shadow-xl">
+                <h3 className="font-headline text-xl font-black text-white">
+                  Por qué elegir un salón patrimonial
+                </h3>
+                <ul className="mt-6 space-y-4 text-sm text-zinc-300">
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Presencia fotográfica:</strong> La altura de los techos y las molduras clásicas brindan fondos naturales con porte propio.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Identidad local:</strong> Una referencia indiscutida en Salto que todo invitado ubica con facilidad.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Contraste con tecnología moderna:</strong> Pistas de luces LED, sonido robótico y estaciones interactivas integradas sin desentonar con la estructura.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── BANDA 5: Ubicación y visita práctica ── */}
+        <section id="ubicacion" className="border-b border-white/10 bg-white py-20 text-zinc-950 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase tracking-widest text-red-600">
+                Llegada práctica y punto de encuentro
+              </p>
+              <h2 className="mt-3 font-headline text-3xl font-black sm:text-5xl">
+                Ubicación céntrica en Uruguay 754
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-zinc-600 sm:text-lg">
+                Ubicado sobre la arteria principal de Salto, permite una llegada cómoda y directa desde todos los barrios y accesos a la ciudad.
+              </p>
+            </div>
+
+            <div className={`mt-10 grid gap-4 ${
+              salonEstacionamiento || salonAccesibilidad
+                ? 'sm:grid-cols-2 lg:grid-cols-4'
+                : 'sm:grid-cols-3'
+            }`}>
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+                <MapPin className="mb-3 h-6 w-6 text-red-600" aria-hidden="true" />
+                <h3 className="font-headline text-lg font-black">Dirección física</h3>
+                <p className="mt-2 text-sm text-zinc-600">{salonAddress}</p>
                 <a
-                  href={whatsappHref}
+                  href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-emerald-400 px-6 py-3 font-black text-zinc-950 transition-colors hover:bg-emerald-300"
+                  className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-red-700 hover:text-red-800"
                 >
-                  <MessageCircle className="h-5 w-5" /> Coordinar una visita
+                  Abrir en Google Maps →
                 </a>
               </div>
-            </div>
-          </div>
-        </section>
 
-        <section className="border-b border-white/10 bg-white text-zinc-950">
-          <div className={`mx-auto grid max-w-7xl gap-px bg-zinc-200 ${
-            salonEstacionamiento || salonAccesibilidad
-              ? 'sm:grid-cols-2 lg:grid-cols-4'
-              : 'sm:grid-cols-3'
-          }`}>
-            <div className="bg-white px-6 py-7">
-              <Building2 className="mb-3 h-6 w-6 text-red-600" />
-              <h2 className="font-headline text-xl font-black">Club Uruguay</h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-600">El salón que estás buscando para tu evento en Salto.</p>
-            </div>
-            <div className="bg-white px-6 py-7">
-              <MapPin className="mb-3 h-6 w-6 text-red-600" />
-              <h2 className="font-headline text-xl font-black">Ubicación</h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonAddress || 'Salto, Uruguay'}</p>
-            </div>
-            {salonCapacity !== undefined ? (
-              <div className="bg-white px-6 py-7">
-                <Users className="mb-3 h-6 w-6 text-red-600" />
-                <h2 className="font-headline text-xl font-black">Capacidad informada</h2>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonCapacity} invitados</p>
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+                <Building2 className="mb-3 h-6 w-6 text-red-600" aria-hidden="true" />
+                <h3 className="font-headline text-lg font-black">Zona comercial</h3>
+                <p className="mt-2 text-sm text-zinc-600">
+                  En pleno centro de Salto, con disponibilidad de taxis, transporte y cercanía a hoteles para invitados del interior.
+                </p>
               </div>
-            ) : (
-              <div className="bg-white px-6 py-7">
-                <Check className="mb-3 h-6 w-6 text-red-600" />
-                <h2 className="font-headline text-xl font-black">Información clara</h2>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">Consultá una propuesta acorde a tu celebración.</p>
-              </div>
-            )}
-            {salonEstacionamiento && (
-              <div className="bg-white px-6 py-7">
-                <Car className="mb-3 h-6 w-6 text-red-600" />
-                <h2 className="font-headline text-xl font-black">Estacionamiento</h2>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonEstacionamiento}</p>
-              </div>
-            )}
-            {salonAccesibilidad && (
-              <div className="bg-white px-6 py-7">
-                <Accessibility className="mb-3 h-6 w-6 text-red-600" />
-                <h2 className="font-headline text-xl font-black">Accesibilidad</h2>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonAccesibilidad}</p>
-              </div>
-            )}
-          </div>
-        </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
-            <div>
-              <p className="text-sm font-bold uppercase text-red-400">Recorrido visual</p>
-              <h2 className="mt-3 font-headline text-4xl font-black sm:text-5xl">Mira el salon en uso</h2>
-            </div>
-            <p className="max-w-2xl text-base leading-relaxed text-zinc-400">
-              Mirá el salón y algunos montajes reales para imaginar la disposición de tu evento.
-            </p>
-          </div>
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+                <Clock className="mb-3 h-6 w-6 text-red-600" aria-hidden="true" />
+                <h3 className="font-headline text-lg font-black">Coordinación de visita</h3>
+                <p className="mt-2 text-sm text-zinc-600">
+                  Recorridos presenciales coordinados con antelación junto al equipo de producción de AK.
+                </p>
+              </div>
 
-          {salonDescription && (
-            <p className="mt-6 max-w-3xl text-base leading-relaxed text-zinc-300">{salonDescription}</p>
-          )}
-
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {photos.map((photo, index) => (
-              <figure
-                key={photo.src}
-                className={`group relative overflow-hidden rounded-md bg-zinc-900 ${index === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
-              >
-                <div className={index === 0 ? 'aspect-[16/10] md:h-full' : 'aspect-[4/3]'}>
-                  <SalonMedia
-                    src={photo.src}
-                    alt={photo.alt}
-                    sizes={index === 0 ? '(max-width: 1024px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-                    className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.025] motion-reduce:transition-none"
-                  />
-                  <div className="absolute inset-0 bg-black/20" />
+              {salonEstacionamiento && (
+                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+                  <Car className="mb-3 h-6 w-6 text-red-600" aria-hidden="true" />
+                  <h3 className="font-headline text-lg font-black">Estacionamiento</h3>
+                  <p className="mt-2 text-sm text-zinc-600">{salonEstacionamiento}</p>
                 </div>
-                <figcaption className="absolute inset-x-0 bottom-0 p-5">
-                  <h3 className="font-headline text-lg font-black">{photo.title}</h3>
-                  {photo.description && <p className="mt-1 text-sm text-zinc-300">{photo.description}</p>}
-                </figcaption>
-              </figure>
-            ))}
+              )}
+
+              {salonAccesibilidad && (
+                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+                  <Accessibility className="mb-3 h-6 w-6 text-red-600" aria-hidden="true" />
+                  <h3 className="font-headline text-lg font-black">Accesibilidad</h3>
+                  <p className="mt-2 text-sm text-zinc-600">{salonAccesibilidad}</p>
+                </div>
+              )}
+            </div>
+
+            {salonDescription && (
+              <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm leading-relaxed text-zinc-700">
+                <p>{salonDescription}</p>
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="border-y border-white/10 bg-zinc-900">
-          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
-            <div>
-              <p className="text-sm font-bold uppercase text-red-400">Propuesta a medida</p>
-              <h2 className="mt-3 font-headline text-3xl font-black sm:text-5xl">Calcula una fiesta completa, sin precios viejos</h2>
-              <p className="mt-4 max-w-2xl text-zinc-400">Usá el simulador para ordenar una propuesta con el catálogo vigente o escribinos para coordinar la conversación.</p>
+        {/* ── BANDA 6: Organización con AK (contratables vs instalaciones + tecnología visible) ── */}
+        <section id="organizacion-ak" className="border-b border-white/10 bg-zinc-950 py-20 text-white sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-md bg-red-950/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-400 border border-red-800/40">
+                <PartyPopper className="h-3.5 w-3.5" aria-hidden="true" />
+                Producción integral
+              </span>
+              <h2 className="mt-4 font-headline text-3xl font-black sm:text-5xl">
+                Organización integral con AK Producciones
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-zinc-300 sm:text-lg">
+                Diferenciamos con honestidad las instalaciones provistas por el club de los servicios de producción integral que podés contratar con AK.
+              </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <Link
-                href="/simulador-de-presupuesto?salon=club"
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-white px-6 py-3 font-black text-zinc-950 transition-colors hover:bg-zinc-200"
-              >
-                <CalendarDays className="h-5 w-5" /> Abrir simulador
-              </Link>
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-white/25 px-6 py-3 font-black text-white transition-colors hover:bg-white/10"
-              >
-                <MessageCircle className="h-5 w-5" /> Escribir por WhatsApp
-              </a>
+
+            <div className="mt-12 grid gap-8 lg:grid-cols-2">
+              {/* Instalaciones incluidas del club */}
+              <div className="rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-lg">
+                <h3 className="font-headline text-2xl font-black text-white">
+                  Instalaciones incluidas del salón
+                </h3>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Infraestructura propia del edificio de Club Uruguay en Uruguay 754:
+                </p>
+
+                <ul className="mt-6 space-y-4 text-sm text-zinc-300">
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                    <span><strong>Climatización integral:</strong> Equipos de frío y calor para mantener la temperatura en cualquier época del año.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                    <span><strong>Área técnica para cocina:</strong> Espacio de soporte para preparación y servicio de catering.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                    <span><strong>Batería de baños higienizados:</strong> Servicios higiénicos con personal de mantenimiento durante el evento.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Check className="h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                    <span><strong>Seguridad básica edilicia:</strong> Ingreso céntrico controlado según protocolo de recepción.</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Servicios contratables con AK Producciones */}
+              <div className="rounded-3xl border border-red-600/40 bg-zinc-900/90 p-8 shadow-xl">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="font-headline text-2xl font-black text-white">
+                    Servicios contratables con AK
+                  </h3>
+                  <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white">
+                    Catálogo vigente
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Soluciones de producción coordinadas bajo un único contrato y equipo:
+                </p>
+
+                <ul className="mt-6 space-y-4 text-sm text-zinc-200">
+                  <li className="flex items-start gap-3">
+                    <UtensilsCrossed className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Gastronomía & Catering:</strong> Bocados fríos/calientes, plato principal, postres y opciones celíacas/vegetarianas.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Volume2 className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Discoteca & Pistas de luces:</strong> Sonido profesional, iluminación robótica y pista LED de alto impacto.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Sparkles className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Ambientación & Barras:</strong> Livings, mantelería, centros de mesa y coctelería con/sin alcohol.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Camera className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
+                    <span><strong>Fotografía & Video profesional:</strong> Registro en vivo de toda la fiesta.</span>
+                  </li>
+                </ul>
+
+                {/* TECNOLOGÍA VISIBLE (fotocabina, 360, espejo) */}
+                <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-red-400">
+                    Estaciones interactivas visibles
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3 text-xs text-zinc-300">
+                    <div className="rounded-xl border border-white/10 bg-zinc-800/60 p-3">
+                      <p className="font-bold text-white">Fotocabina QR</p>
+                      <p className="mt-1 text-[11px] text-zinc-400">Impresión de tiras al instante y descarga digital.</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-zinc-800/60 p-3">
+                      <p className="font-bold text-white">Plataforma 360°</p>
+                      <p className="mt-1 text-[11px] text-zinc-400">Videos lentos con efectos dinámicos para redes.</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-zinc-800/60 p-3">
+                      <p className="font-bold text-white">Espejo Mágico</p>
+                      <p className="mt-1 text-[11px] text-zinc-400">Animaciones interactivas táctiles y recuerdos.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bonificación comercial del 50% en alquiler */}
+            <div className="mt-10 rounded-3xl border border-red-500/30 bg-gradient-to-r from-red-950/60 via-zinc-900 to-zinc-950 p-8 shadow-xl">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-2xl">
+                  <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-wider text-white">
+                    Condición comercial del dueño
+                  </span>
+                  <h3 className="mt-3 font-headline text-2xl font-black text-white sm:text-3xl">
+                    50% de bonificación en el alquiler del salón
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+                    Acuerdo comercial directo con la dirección del Club Uruguay para eventos contratados con producción integral de AK Producciones. El descuento aplica al valor del alquiler del local según las condiciones del catálogo vigente. Sin cuentas regresivas inventadas ni modificaciones en el simulador.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <Link
+                    href="/simulador-de-presupuesto?salon=club"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-black text-zinc-950 transition hover:bg-zinc-200"
+                  >
+                    <CalendarDays className="h-4 w-4 text-red-600" aria-hidden="true" />
+                    Calcular en el simulador
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── BANDA 7: FAQ corta y cierre con CTAs ── */}
+        <section id="faq-cierre" className="border-b border-white/10 bg-white py-20 text-zinc-950 sm:py-24">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-xs font-black uppercase tracking-widest text-red-600">
+                Respuestas directas
+              </p>
+              <h2 className="mt-3 font-headline text-3xl font-black sm:text-5xl">
+                Preguntas frecuentes sobre Club Uruguay
+              </h2>
+              <p className="mt-4 text-base text-zinc-600">
+                Información transparente para que evalúes tu evento con tranquilidad.
+              </p>
+            </div>
+
+            <div className="mt-12 space-y-4">
+              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
+                  <span>¿Cómo se coordina una visita para conocer el salón?</span>
+                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+                  Nos escribís por WhatsApp y coordinamos un día y horario para recorrer las instalaciones con el equipo de AK Producciones. El clic inicia la consulta; coordinamos la cita con vos según disponibilidad.
+                </p>
+              </details>
+
+              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
+                  <span>¿A qué aplica la bonificación del 50% en el alquiler?</span>
+                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+                  Aplica sobre el costo de alquiler del espacio de Club Uruguay cuando se contrata la producción integral de la fiesta con AK Producciones. No modifica los costos de servicios individuales (comida, discoteca o barras).
+                </p>
+              </details>
+
+              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
+                  <span>¿Puedo elegir qué servicios contratar con AK?</span>
+                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+                  Sí. Podés armar una propuesta a medida desde el simulador de presupuesto, eligiendo la combinación de gastronomía, sonido, decoración, tecnología interactiva y fotografía que se ajuste a tu plan.
+                </p>
+              </details>
+
+              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
+                  <span>¿Qué aforo real tienen los dos espacios?</span>
+                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+                  Las capacidades informadas son de hasta ~250 personas en el salón principal y hasta ~50 en el espacio íntimo, sujetas a la distribución de mesas, pista de baile y livings. Son espacios independientes, no un aforo acumulativo de 300 invitados.
+                </p>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Cierre de página con CTAs ── */}
+        <section className="bg-zinc-950 py-20 text-white sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-8 rounded-3xl border border-white/10 bg-zinc-900 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-red-400">
+                  Propuesta clara y sin compromiso
+                </p>
+                <h2 className="mt-3 font-headline text-3xl font-black sm:text-5xl">
+                  Coordiná tu visita o calculá tu presupuesto
+                </h2>
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-300">
+                  Escribinos para recorrer las instalaciones en Uruguay 754 o simulá los números de tu fiesta con el catálogo vigente de AK Producciones.
+                </p>
+              </div>
+
+              <div className="w-full lg:w-auto">
+                <ClubUruguayClosingActions whatsappHref={whatsappHeroHref} />
+              </div>
             </div>
           </div>
         </section>

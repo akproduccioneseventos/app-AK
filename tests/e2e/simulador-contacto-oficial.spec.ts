@@ -49,7 +49,7 @@ test('los botones de WhatsApp del simulador abren el numero oficial de AK', asyn
   await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
   await verPropuesta.click();
 
-  const consultar = page.getByRole('button', { name: /Coordinar Reunión/i }).first();
+  const consultar = page.getByRole('button', { name: /Consultar por WhatsApp|Coordinar Reunión/i }).first();
   await expect(page.getByText('Presupuesto registrado con éxito').first()).toBeVisible({ timeout: 90_000 });
 
   await page.getByRole('button', { name: 'Compartir WhatsApp' }).first().click();

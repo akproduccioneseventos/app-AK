@@ -69,7 +69,7 @@ const PASOS_METODO = [
   {
     numero: '2',
     titulo: '2. Plan de pagos mensuales a tu medida',
-    descripcion: 'Abonás en cuotas fijas hasta la fecha del evento sin estrés ni sorpresas financieras.',
+    descripcion: 'Pagás en cuotas hasta la fecha del evento, con las condiciones claras desde el principio.',
     icon: CreditCard,
   },
   {

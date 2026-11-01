@@ -90,3 +90,87 @@ export async function getRelatedPosts(post: BlogPost): Promise<BlogPost[]> {
   if (related.length > 0) return related;
   return posts.filter(item => item.slug !== post.slug && item.category === post.category).slice(0, 2);
 }
+
+export interface EstadoBlogAdmin {
+  ultimaNota?: { fecha: string; titulo: string; slug: string } | null;
+  proximaFecha?: string | null;
+  ultimoFallo?: { fecha: string; motivo: string } | null;
+  diasSinNota?: number;
+}
+
+export async function getEstadoBlogAdmin(): Promise<EstadoBlogAdmin> {
+  const posts = await getBlogPosts();
+  let ultimaNota: EstadoBlogAdmin['ultimaNota'] = null;
+  let diasSinNota = 0;
+  let proximaFecha: string | null = null;
+
+  if (posts.length > 0) {
+    const ordenados = [...posts].sort((a, b) => {
+      const da = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const db = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return db - da;
+    });
+    const masReciente = ordenados[0];
+    if (masReciente) {
+      ultimaNota = {
+        fecha: masReciente.publishedAt || '',
+        titulo: masReciente.title,
+        slug: masReciente.slug,
+      };
+      if (masReciente.publishedAt) {
+        const fechaMs = new Date(masReciente.publishedAt).getTime();
+        if (!Number.isNaN(fechaMs)) {
+          diasSinNota = Math.floor((Date.now() - fechaMs) / (24 * 60 * 60 * 1000));
+          const proxMs = fechaMs + 48 * 60 * 60 * 1000;
+          proximaFecha = new Date(proxMs).toISOString().split('T')[0];
+        }
+      }
+    }
+  }
+
+  if (diasSinNota > 4) {
+    try {
+      const { createNotification } = await import('@/lib/notifications/create-notification');
+      await createNotification({
+        titulo: 'Blog sin publicaciones recientes',
+        mensaje: `Hace ${diasSinNota} días que no se publica una nueva nota en el blog.`,
+        tipo: 'aviso',
+        rolDestino: 'admin',
+        href: '/settings/contenido-publico',
+        icono: 'FileText',
+      }).catch(() => null);
+    } catch {
+      // no pasa nada si falla la notificación
+    }
+  }
+
+  let ultimoFallo: EstadoBlogAdmin['ultimoFallo'] = null;
+  try {
+    const estado = await readData<any>('tareas-al-entrar-estado.json', {});
+    const fallo = estado?.ultimoFallo?.blog;
+    if (fallo && fallo.error) {
+      let motivoCriollo = fallo.error;
+      const errLower = fallo.error.toLowerCase();
+      if (errLower.includes('falta la clave') || errLower.includes('falta una clave') || errLower.includes('gemini')) {
+        motivoCriollo = 'falta la clave de la IA';
+      } else if (errLower.includes('tope de gasto') || errLower.includes('presupuesto')) {
+        motivoCriollo = 'se llegó al tope de gasto del mes';
+      } else if (errLower.includes('promesa') || errLower.includes('palabra prohibida')) {
+        motivoCriollo = 'la IA escribió una promesa prohibida';
+      }
+      ultimoFallo = {
+        fecha: fallo.fecha ? fallo.fecha.split('T')[0] : '',
+        motivo: motivoCriollo,
+      };
+    }
+  } catch (err) {
+    console.warn('[blog-actions] Error al leer estado de tareas:', err);
+  }
+
+  return {
+    ultimaNota,
+    proximaFecha: proximaFecha || new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0],
+    ultimoFallo,
+    diasSinNota,
+  };
+}

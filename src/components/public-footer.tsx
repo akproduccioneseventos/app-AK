@@ -173,13 +173,13 @@ export function PublicFooter({ className }: PublicFooterProps) {
               <li>
                 <Link href="/club-uruguay" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500 group-hover:w-3 transition-all duration-300" />
-                  Salón Club Uruguay (Exclusivo)
+                  Club Uruguay Salto (Uruguay 754)
                 </Link>
               </li>
               <li>
                 <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
-                  Gastronomía Gourmet & Catering
+                  Gastronomía y catering
                 </a>
               </li>
               <li>

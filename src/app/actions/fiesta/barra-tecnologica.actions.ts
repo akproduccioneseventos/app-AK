@@ -290,9 +290,15 @@ async function reintentarDevolucionesPendientes() {
   }
 }
 
-function aggregateRecipe(drink: Trago): Array<{ insumoId: string; cantidad: number }> {
+function aggregateRecipe(
+  drink: Trago,
+  version: 'con_alcohol' | 'sin_alcohol' = 'sin_alcohol',
+): Array<{ insumoId: string; cantidad: number }> {
   const totals = new Map<string, number>();
-  for (const ingredient of drink.recetaIngredientes || []) {
+  const ingredients = version === 'con_alcohol'
+    ? (drink.recetaIngredientes || [])
+    : (drink.recetaIngredientesSinAlcohol !== undefined ? drink.recetaIngredientesSinAlcohol : (drink.recetaIngredientes || []));
+  for (const ingredient of ingredients) {
     if (!ingredient.insumoId || ingredient.cantidad <= 0) continue;
     totals.set(ingredient.insumoId, (totals.get(ingredient.insumoId) || 0) + ingredient.cantidad);
   }
@@ -304,8 +310,11 @@ function aggregateRecipe(drink: Trago): Array<{ insumoId: string; cantidad: numb
  * que se controla no alcanza no descuenta nada y tira el aviso: no se confirma un trago sin
  * ingredientes. El pedido manual del barman no lo exige: el barman ve las botellas de verdad.
  */
-async function descontarStock(drink: Trago, opciones: { exigirCompleto?: boolean } = {}): Promise<BarStockMovement[]> {
-  const recipe = aggregateRecipe(drink);
+async function descontarStock(
+  drink: Trago,
+  opciones: { exigirCompleto?: boolean; version?: 'con_alcohol' | 'sin_alcohol' } = {},
+): Promise<BarStockMovement[]> {
+  const recipe = aggregateRecipe(drink, opciones.version);
   if (recipe.length === 0) return [];
   const db = await getDb();
   if (db) {
@@ -370,8 +379,9 @@ async function descontarYGuardarEnUnaOperacion(
   db: Firestore,
   drink: Trago,
   order: BarDrinkOrder,
+  version: 'con_alcohol' | 'sin_alcohol' = 'sin_alcohol',
 ): Promise<{ yaEstaba?: BarDrinkOrder; sinStock?: boolean; movimientos: BarStockMovement[] }> {
-  const recipe = aggregateRecipe(drink);
+  const recipe = aggregateRecipe(drink, version);
   const resultado = await db.runTransaction(async (transaction) => {
     const orderRef = db.collection(BAR_ORDERS_COLLECTION).doc(order.id);
     const existente = await transaction.get(orderRef);
@@ -569,6 +579,11 @@ export async function getPublicBarraTecnologicaDashboard(
       videoUrl: drink.videoUrl,
       ingredientes: drink.ingredientes || [],
       stockDisponible: drink.stockDisponible,
+      soloMayores: drink.soloMayores,
+      recetaSinAlcohol: drink.recetaSinAlcohol,
+      nombreSinAlcohol: drink.nombreSinAlcohol,
+      recetaIngredientes: drink.recetaIngredientes,
+      recetaIngredientesSinAlcohol: drink.recetaIngredientesSinAlcohol,
     }));
 
     return {
@@ -637,10 +652,15 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 
     // Pedir a nombre de un invitado exige SU enlace. El totem de la barra pide por
     // nombre, sin invitado, y eso sigue igual.
+    const version = input.version || 'sin_alcohol';
+
     let invitado: ReturnType<typeof findAuthorizedGuest> = null;
     if (input.guestId) {
       invitado = findAuthorizedGuest(fiesta, input.guestId, input.guestAccessToken || '');
       if (!invitado) return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
+      if (invitado.categoria && invitado.categoria !== 'Adulto' && version === 'con_alcohol') {
+        return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
+      }
     }
 
     const pedidoId = input.clientRequestId
@@ -668,11 +688,16 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     }
 
     const now = new Date().toISOString();
+    const drinkName = (version === 'sin_alcohol' && drink.nombreSinAlcohol)
+      ? drink.nombreSinAlcohol
+      : drink.nombre;
+
     const order: BarDrinkOrder = {
       id: pedidoId || `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       fiestaId: input.fiestaId,
       drinkId: drink.id,
-      drinkName: drink.nombre,
+      drinkName,
+      version,
       guestName,
       guestId: invitado?.id,
       tableNumber: sanitizeText(input.tableNumber),
@@ -687,7 +712,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     const dbDelPedido = await getDb();
     if (dbDelPedido) {
       try {
-        const r = await descontarYGuardarEnUnaOperacion(dbDelPedido, drink, order);
+        const r = await descontarYGuardarEnUnaOperacion(dbDelPedido, drink, order, version);
         if (r.yaEstaba) {
           if (r.yaEstaba.fiestaId !== input.fiestaId || !esElMismoQuePidio(r.yaEstaba, invitado)) return { success: false, error: 'Pedido invalido.' };
           return { success: true, order: r.yaEstaba };
@@ -703,7 +728,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     }
 
     if (!hechoEnUnaOperacion) {
-    order.stockMovements = await descontarStock(drink, { exigirCompleto: true });
+    order.stockMovements = await descontarStock(drink, { exigirCompleto: true, version });
 
     // **El pedido se guarda, Y SE MIRA SI SE GUARDO.**
     //
@@ -792,6 +817,15 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
+    const version = input.version || 'sin_alcohol';
+
+    if (input.guestId) {
+      const invitado = (fiesta.invitados || []).find((g) => g.id === input.guestId);
+      if (invitado && invitado.categoria && invitado.categoria !== 'Adulto' && version === 'con_alcohol') {
+        return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
+      }
+    }
+
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
@@ -809,12 +843,17 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       }
     }
 
+    const drinkName = (version === 'sin_alcohol' && drink.nombreSinAlcohol)
+      ? drink.nombreSinAlcohol
+      : drink.nombre;
+
     const now = new Date().toISOString();
     const order: BarDrinkOrder = {
       id: pedidoId || `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       fiestaId: input.fiestaId,
       drinkId: drink.id,
-      drinkName: drink.nombre,
+      drinkName,
+      version,
       guestName: 'Barman',
       status: 'entregado',
       createdAt: now,
@@ -822,7 +861,7 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       source: 'staff',
     };
 
-    order.stockMovements = await descontarStock(drink);
+    order.stockMovements = await descontarStock(drink, { version });
 
     const db = await getDb();
     const stored = getStoredBarData(fiesta);
@@ -900,6 +939,7 @@ export async function changeBarDrinkOrder(
   newDrinkId: string,
   guestId: string,
   guestAccessToken: string,
+  version?: 'con_alcohol' | 'sin_alcohol',
 ): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
@@ -913,7 +953,13 @@ export async function changeBarDrinkOrder(
     if (existing.status !== 'nuevo') {
       return { success: false, error: 'El pedido ya esta en preparacion y no se puede cambiar.' };
     }
-    if (existing.drinkId === newDrinkId) return { success: true, order: existing };
+    const targetVersion = version || 'sin_alcohol';
+    if (guest.categoria && guest.categoria !== 'Adulto' && targetVersion === 'con_alcohol') {
+      return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
+    }
+    if (existing.drinkId === newDrinkId && (existing.version || 'sin_alcohol') === targetVersion) {
+      return { success: true, order: existing };
+    }
 
     // **Primero se consigue el trago nuevo, y recien despues se cancela el viejo.**
     //
@@ -936,6 +982,7 @@ export async function changeBarDrinkOrder(
       guestAccessToken,
       tableNumber: existing.tableNumber,
       note: existing.note,
+      version: targetVersion,
     });
     if (!nuevo.success || !nuevo.order) return nuevo;
 

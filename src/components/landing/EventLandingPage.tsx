@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -28,6 +28,8 @@ import { LeadCaptureForm } from '@/components/landing/LeadCaptureForm';
 import { PublicFooter } from '@/components/public-footer';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import type { LandingLeadData } from '@/app/actions/crm';
+import { getTestimonials } from '@/app/actions/feedback';
+import fallbackTestimonials from '@/data/testimonials.json';
 
 export interface LandingService {
   title: string;
@@ -74,27 +76,6 @@ export interface EventLandingPageProps {
   services: LandingService[];
 }
 
-const TESTIMONIALS = [
-  {
-    quote: "La organización fue impecable de punta a punta. No tuvimos que preocuparnos por nada durante la noche.",
-    author: "Familia Rodríguez",
-    role: "Boda en Salto",
-    stars: 5,
-  },
-  {
-    quote: "La fotocabina y el show de luces fueron la sensación de los 15 de mi hija. Excelente servicio técnico.",
-    author: "Mariana S.",
-    role: "Fiesta de 15",
-    stars: 5,
-  },
-  {
-    quote: "Cumplieron con todo lo presupuestado, sin sorpresas ni costos ocultos. Súper profesionales.",
-    author: "Martín G.",
-    role: "Evento Corporativo",
-    stars: 5,
-  },
-];
-
 const containerVariants = {
   oculto: {},
   visible: {
@@ -132,6 +113,35 @@ export function EventLandingPage({
   const reduceMotion = useReducedMotion();
   const whatsappMessage = `Hola AK Producciones, quiero cotizar ${eventType.toLowerCase()}.`;
   const whatsappHref = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+
+  const [testimonials, setTestimonials] = useState<Array<{ quote: string; author: string; role: string; stars: number }>>(() =>
+    fallbackTestimonials
+      .filter((t) => t.isApproved)
+      .slice(0, 3)
+      .map((t) => ({
+        quote: t.testimonialText,
+        author: t.clientName,
+        role: t.fiestaNombre,
+        stars: 5,
+      }))
+  );
+
+  useEffect(() => {
+    getTestimonials()
+      .then((items) => {
+        if (Array.isArray(items) && items.length > 0) {
+          setTestimonials(
+            items.slice(0, 3).map((t) => ({
+              quote: t.testimonialText,
+              author: t.clientName,
+              role: t.fiestaNombre,
+              stars: 5,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 pb-16 lg:pb-0">
@@ -262,14 +272,13 @@ export function EventLandingPage({
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <p className="text-xs font-bold uppercase tracking-widest text-red-400">Experiencias Verificadas</p>
-              <h2 className="mt-2 text-2xl font-black sm:text-3xl">Lo que dicen las familias que festejaron con AK</h2>
+              <h2 className="text-2xl font-black sm:text-3xl">Lo que dicen nuestros clientes</h2>
             </div>
             <motion.div
               variants={containerVariants}
               className="mt-10 grid gap-6 md:grid-cols-3"
             >
-              {TESTIMONIALS.map((t, idx) => (
+              {testimonials.map((t, idx) => (
                 <motion.div
                   key={idx}
                   variants={cardItemVariants}

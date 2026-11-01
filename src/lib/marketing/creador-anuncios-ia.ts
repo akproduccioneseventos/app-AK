@@ -44,11 +44,11 @@ const PLANTILLAS_EVENTOS: Record<
       '¿Tu hija cumple 15 en 2026/2027 y no sabés por dónde arrancar a organizar?',
       'El secreto de las fiestas de 15 donde la pista NUNCA se vacía 💃✨',
       'Tu hija sólo cumple 15 una vez: cómo lograr una noche inolvidable sin volverte loca',
-      '¿Presupuesto cerrado sin sorpresas? Así organizamos los 15 soñados en Salto',
+      '¿Presupuesto detallado y sin compromiso? Así organizamos los 15 soñados en Salto',
     ],
     copys: [
       `Sabemos que planear los 15 de tu hija es una mezcla hermosa de emoción y muchos detalles por resolver. 💖\n\nEn AK Producciones podés armar una propuesta integral y elegir los servicios que mejor encajan con su fiesta:\n✨ Salón y ambientación\n🎧 Música, iluminación y pista\n📸 Fotografía y video\n🍹 Barra de tragos y catering\n\n👉 Entrá al simulador interactivo y armá una propuesta personalizada sin compromiso.`,
-      `El verdadero valor de una fiesta de 15 no está en los cables ni en las luces: está en la cara de felicidad de tu hija cuando entra al salón y ve a toda su gente esperándola. ✨👑\n\nDejá la logística, el sonido, la pantalla gigante y la coordinación en manos de profesionales.\n\n📱 Hacé clic y chateá con nuestro equipo para congelar la fecha y recibir una propuesta a medida.`,
+      `El verdadero valor de una fiesta de 15 no está en los cables ni en las luces: está en la cara de felicidad de tu hija cuando entra al salón y ve a toda su gente esperándola. ✨👑\n\nDejá la logística, el sonido, la pantalla gigante y la coordinación en manos de profesionales.\n\n📱 Hacé clic y chateá con nuestro equipo para reservar la fecha y recibir una propuesta a medida.`,
     ],
     llamadosAccion: ['Armar Presupuesto Online', 'Consultar Disponibilidad de Fecha', 'Ver Fotos y Salones en WhatsApp'],
     sugerenciasVisuales: [
@@ -271,14 +271,14 @@ const PLANTILLAS_EVENTOS: Record<
         escenas: [
           {
             segundo: '0-3s',
-            visual: 'Texto en grande "¡CONGELÁ EL PRECIO DE TU FIESTA!" con fondo de fiesta real.',
+            visual: 'Texto en grande "¡RESERVÁ LA FECHA DE TU FIESTA!" con fondo de fiesta real.',
             textoPantalla: '¡Promo Anticipada 2026/2027! 🔥',
             audioLocucion: '¿Tenés fiesta en los próximos meses? Esto te interesa.',
           },
           {
             segundo: '4-8s',
             visual: 'Fiesta con luces, barra y gente disfrutando.',
-            textoPantalla: 'Congelá hoy y pagá en cuotas fijas 🎁',
+            textoPantalla: 'Reservá tu fecha con una seña y pagá en cuotas 🎁',
             audioLocucion: 'Consultá las condiciones vigentes y prepará una propuesta para tu fecha.',
           },
           {

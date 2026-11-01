@@ -24,15 +24,27 @@ async function handleCron(request: Request) {
       force: searchParams.get('force') === '1',
     });
 
+    const fallo = !result.success || Boolean(result.seoError) || result.seoSucceeded === false || Boolean(result.error);
+    if (fallo) {
+      return NextResponse.json(
+        respuestaDeLaTarea(puerta, {
+          ok: false,
+          error: result.seoError || result.error || 'No se pudo publicar la nota del blog.',
+          result,
+        }),
+        { status: 500 }
+      );
+    }
+
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('generate-blog-post');
 
-    return NextResponse.json(respuestaDeLaTarea(puerta, result));
+    return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, ...result }));
   } catch (error: any) {
     console.error('[cron-blog] Error running blog generation cron:', error);
     return NextResponse.json(
-      { error: error.message || 'Ocurrio un error inesperado al correr el cron de IA.' },
+      { ok: false, error: error.message || 'Ocurrio un error inesperado al correr el cron de IA.' },
       { status: 500 }
     );
   }

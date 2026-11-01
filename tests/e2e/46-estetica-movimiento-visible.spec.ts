@@ -152,7 +152,7 @@ test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
     await page.waitForTimeout(300);
 
     // El siguiente paso o modal aparece con dimensiones visibles
-    const pasoSiguiente = page.locator('#simulator-name, button:has-text("Cotizar mi fiesta")').first();
+    const pasoSiguiente = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Cotizar mi fiesta")').first();
     await expect(pasoSiguiente).toBeVisible();
     const boxPaso = await pasoSiguiente.boundingBox();
     expect(boxPaso!.width).toBeGreaterThan(0);

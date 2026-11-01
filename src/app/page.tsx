@@ -52,7 +52,7 @@ import { getPublicEventTypeImage } from "@/components/landing/event-type-images"
 import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
-import { getDynamicSalonPhotos, type SalonPhoto } from "@/lib/salon-helper";
+import { getDynamicSalonPhotos, getClubUruguayHeroPhoto, type SalonPhoto } from "@/lib/salon-helper";
 import { getBlogPosts } from "@/app/actions/blog";
 import { ponerAlDiaAlEntrar } from "@/lib/automatico/al-entrar-a-la-app";
 export const revalidate = 300;
@@ -60,7 +60,6 @@ const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
   "https://www.instagram.com/akproduccionesfiestasyeventos/";
 const SITE_URL = "https://akproducciones.uy";
-
 
 const DEFAULT_SEO_TITLE = "AK Producciones Eventos";
 const DEFAULT_SEO_DESCRIPTION =
@@ -359,7 +358,13 @@ async function AsyncSalonSection() {
     title: index === 0 ? "Club Uruguay" : `Vista ${index + 1}`,
     description: "Foto cargada desde el módulo maestro de salones.",
   }));
-  const clubPhotos = dedupeSalonPhotos([...masterClubPhotos, ...getDynamicSalonPhotos()]);
+  const curated = getDynamicSalonPhotos();
+  const heroPhoto = getClubUruguayHeroPhoto(curated);
+  const clubPhotos = dedupeSalonPhotos([
+    heroPhoto,
+    ...curated.filter((p) => p.src !== heroPhoto.src),
+    ...masterClubPhotos,
+  ]);
   return <SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />;
 }
 
@@ -769,7 +774,7 @@ export default async function HomePage() {
         name: "Salón Club Uruguay",
         address: {
           "@type": "PostalAddress",
-          streetAddress: "Uruguay 851",
+          streetAddress: "Uruguay 754",
           addressLocality: "Salto",
           addressCountry: "UY",
         },
@@ -811,6 +816,11 @@ export default async function HomePage() {
             services={servicesForLanding}
           />
         }
+        testimonials={
+          <Suspense fallback={<TestimonialsSkeleton />}>
+            <AsyncTestimonialsSection />
+          </Suspense>
+        }
         technology={
           <div className="space-y-6">
             <LaAppDeTuFiestaSection whatsappNumber={whatsapp} />
@@ -840,11 +850,6 @@ export default async function HomePage() {
           </Suspense>
         }
         video={null}
-        testimonials={
-          <Suspense fallback={<TestimonialsSkeleton />}>
-            <AsyncTestimonialsSection />
-          </Suspense>
-        }
         faq={<FAQSection faqs={landingSettings.faqs} />}
         cta={
           <CTASection

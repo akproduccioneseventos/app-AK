@@ -41,7 +41,7 @@ test.describe('Orden 45 - Recorridos humanos pendientes', () => {
     await btnIniciar.click();
 
     // Verificación de avance hacia el selector o campos de cotización
-    const campoNombre = page.locator('#simulator-name, button:has-text("Cotizar mi fiesta")').first();
+    const campoNombre = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Cotizar mi fiesta")').first();
     await expect(campoNombre).toBeVisible({ timeout: 15_000 });
   });
 

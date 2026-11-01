@@ -97,14 +97,35 @@ function leTocaCorrer(ultima: string | undefined, cadaCuantoMs: number, ahoraMs:
  * corrida con las cuatro partes caídas; el reintento se postergaba 24 horas. Ahora corren todas,
  * y si alguna tiró o contestó `success: false`, la tarea entera se anota como fallida con cuáles.
  */
-async function todasSalieron(partes: Record<string, () => Promise<unknown>>): Promise<unknown[]> {
+export function esFalla(valor: unknown): { fallo: boolean; motivo?: string } {
+  if (!valor || typeof valor !== 'object') return { fallo: false };
+  const v = valor as Record<string, any>;
+  if (v.success === false) return { fallo: true, motivo: v.error || 'success: false' };
+  if (v.ok === false) return { fallo: true, motivo: v.error || (Array.isArray(v.errores) && v.errores.length > 0 ? v.errores.join(', ') : 'ok: false') };
+  if (v.corrio === false) return { fallo: true, motivo: v.motivo || 'corrio: false' };
+  if (v.error && typeof v.error === 'string' && v.error.trim().length > 0) return { fallo: true, motivo: v.error };
+  if (Array.isArray(v.errores) && v.errores.length > 0) return { fallo: true, motivo: v.errores.join(', ') };
+  if (typeof v.reservasFallidas === 'number' && v.reservasFallidas > 0) return { fallo: true, motivo: `${v.reservasFallidas} reservas fallidas` };
+  if (Array.isArray(v.reservasFallidas) && v.reservasFallidas.length > 0) return { fallo: true, motivo: `${v.reservasFallidas.length} reservas fallidas` };
+  if (v.seoError && typeof v.seoError === 'string' && v.seoError.trim().length > 0) return { fallo: true, motivo: v.seoError };
+  if (v.seoSucceeded === false) return { fallo: true, motivo: v.seoError || 'seoSucceeded: false' };
+  return { fallo: false };
+}
+
+export async function todasSalieron(partes: Record<string, () => Promise<unknown>>): Promise<unknown[]> {
   const nombres = Object.keys(partes);
   const resultados = await Promise.allSettled(nombres.map((n) => partes[n]()));
-  const fallaron = nombres.filter((_, i) => {
-    const r = resultados[i];
-    if (r.status === 'rejected') return true;
-    const valor = r.value as { success?: boolean } | null | undefined;
-    return Boolean(valor && typeof valor === 'object' && valor.success === false);
+  const fallaron: string[] = [];
+  resultados.forEach((r, i) => {
+    const nombre = nombres[i];
+    if (r.status === 'rejected') {
+      fallaron.push(`${nombre} (${r.reason?.message || 'error desconocido'})`);
+    } else {
+      const check = esFalla(r.value);
+      if (check.fallo) {
+        fallaron.push(`${nombre} (${check.motivo || 'falló'})`);
+      }
+    }
   });
   if (fallaron.length > 0) {
     throw new Error(`No salió: ${fallaron.join(', ')}.`);
@@ -170,8 +191,35 @@ export async function ponerAlDiaAlEntrar(
       {
         nombre: 'blog',
         correr: async () => {
+          const { readData: readDataBlog } = await import('@/lib/data-service');
+          const posts = await readDataBlog<any[]>('blog-posts.json', []);
+          if (posts && posts.length > 0) {
+            const fechas = posts
+              .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))
+              .filter((t: number) => !Number.isNaN(t) && t > 0);
+            const ultimaFechaMs = fechas.length > 0 ? Math.max(...fechas) : 0;
+            if (ultimaFechaMs > 0) {
+              const diffMs = ahora.getTime() - ultimaFechaMs;
+              if (diffMs > 4 * 24 * 60 * 60 * 1000) {
+                const diasSinNota = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+                const { createNotification } = await import('@/lib/notifications/create-notification');
+                await createNotification({
+                  titulo: 'Blog sin publicaciones recientes',
+                  mensaje: `Hace ${diasSinNota} días que no se publica una nueva nota en el blog.`,
+                  tipo: 'aviso',
+                  rolDestino: 'admin',
+                  href: '/settings/contenido-publico',
+                  icono: 'FileText',
+                }).catch(() => null);
+              }
+            }
+          }
           const { runMarketingAutomation } = await import('@/lib/marketing-automation');
-          return runMarketingAutomation({ includeRecontacto: false });
+          const res = await runMarketingAutomation({ includeRecontacto: false });
+          if ((res as any)?.seoError || (res as any)?.seoSucceeded === false) {
+            throw new Error((res as any)?.seoError || 'No se pudo publicar la nota del blog.');
+          }
+          return res;
         },
       },
       {
@@ -248,7 +296,11 @@ export async function ponerAlDiaAlEntrar(
       }
 
       try {
-        await tarea.correr();
+        const res = await tarea.correr();
+        const check = esFalla(res);
+        if (check.fallo) {
+          throw new Error(check.motivo || 'No se pudo completar la tarea.');
+        }
         ultimaCorrida[tarea.nombre] = ahora.toISOString();
         delete ultimoFallo[tarea.nombre];
         resultado.corrio.push(tarea.nombre);

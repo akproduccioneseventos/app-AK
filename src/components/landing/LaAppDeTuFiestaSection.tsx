@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
@@ -22,7 +23,9 @@ import {
   Tv,
 } from "lucide-react";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
+import { defaultCartaTragosData } from "@/lib/fiesta-defaults";
 import { cn } from "@/lib/utils";
+import { EntrevistaGratuitaModal } from "./EntrevistaGratuitaModal";
 
 interface LaAppDeTuFiestaSectionProps {
   whatsappNumber?: string;
@@ -46,17 +49,17 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
   {
     id: "antes",
     etapa: "1. Antes",
-    badge: "Planificación sin fricción",
-    titulo: "Portal del cliente: decisiones y acuerdos en orden",
-    subtitulo: "Menú, selección musical, decoración y tareas organizadas sin perderte en chats.",
+    badge: "Todo en un solo lugar",
+    titulo: "Tu fiesta organizada desde el celular",
+    subtitulo: "Elegís el menú, la música y la decoración, y ves qué falta, sin perder nada en chats.",
     loQueEntiende: "Organizás tu fiesta sin perder conversaciones en chats ni papeles sueltos.",
     icon: CalendarCheck,
   },
   {
     id: "invitacion",
     etapa: "2. Invitación",
-    badge: "Acceso digital al instante",
-    titulo: "Invitación digital interactiva y confirmación ágil",
+    badge: "Invitación en el celular",
+    titulo: "Una invitación que tus invitados abren con un toque",
     subtitulo: "Mapa, recomendaciones, dress code y confirmación de asistencia con QR.",
     loQueEntiende: "Tus invitados encuentran todo desde su enlace y confirman en un toque.",
     icon: Send,
@@ -64,26 +67,26 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
   {
     id: "durante",
     etapa: "3. Durante",
-    badge: "Mural y DJ en vivo",
+    badge: "Pantalla gigante",
     titulo: "Participación en tiempo real en la pantalla gigante",
-    subtitulo: "Dedicatorias, fotos de los invitados y pedidos musicales con moderación previa.",
+    subtitulo: "Dedicatorias, fotos de los invitados y pedidos de canciones. Antes de salir en pantalla, alguien del equipo las revisa.",
     loQueEntiende: "Tus invitados participan activamente de la fiesta, no solo miran.",
     icon: MessageSquare,
   },
   {
     id: "barra",
     etapa: "4. Barra y Tótem",
-    badge: "Carta digital y pedidos",
-    titulo: "Carta de tragos digital con seguimiento de turno",
+    badge: "Pedís el trago desde el celular",
+    titulo: "Pedís tu trago, con o sin alcohol, y te avisa cuando está listo",
     subtitulo: "Los invitados exploran la coctelería y piden sin amontonarse frente a la barra.",
-    loQueEntiende: "El pedido llega directo a quien lo prepara, con cola separada del DJ.",
+    loQueEntiende: "No hay que hacer fila en la barra.",
     icon: GlassWater,
   },
   {
     id: "despues",
     etapa: "5. Después",
     badge: "Recuerdos intactos",
-    titulo: "Álbum digital completo disponible al día siguiente",
+    titulo: "Los recuerdos de la noche, juntos en un álbum",
     subtitulo: "Fotos de fotocabina, videos 360 y mensajes de los invitados para revivir la noche.",
     loQueEntiende: "Te quedan los recuerdos de tu fiesta organizados y listos para compartir.",
     icon: ImageIcon,
@@ -97,6 +100,7 @@ export function LaAppDeTuFiestaSection({
 }: LaAppDeTuFiestaSectionProps) {
   const reduceMotion = useReducedMotion();
   const [momentoActivo, setMomentoActivo] = useState<MomentoId>("antes");
+  const [showEntrevistaModal, setShowEntrevistaModal] = useState(false);
 
   // Estados interactivos simulados para la demo aislada (sin tocar datos reales)
   const [demoMenuTab, setDemoMenuTab] = useState<"menu" | "musica" | "deco">("menu");
@@ -105,6 +109,40 @@ export function LaAppDeTuFiestaSection({
   const [demoMensajesEnviados, setDemoMensajesEnviados] = useState<Array<{ id: string; texto: string; autor: string; estado: "moderando" | "aprobado" }>>([
     { id: "msg-1", texto: "¡Qué fiestón! Te queremos mucho Cami 🎉", autor: "Santi y Martina", estado: "aprobado" },
   ]);
+
+  // Barra de tragos: 4 tragos reales de defaultCartaTragosData
+  const tragosBarra = [
+    defaultCartaTragosData.items.find((i) => i.id === "daiquiri-frutilla") || {
+      id: "daiquiri-frutilla",
+      nombre: "Daiquiri de frutilla",
+      imageUrl: "/images/tragos/02_daiquiri_frutilla.jpg",
+      descripcion: "Ron con frutillas, licuado con hielo.",
+      nombreSinAlcohol: "Frutilla Frozen",
+    },
+    defaultCartaTragosData.items.find((i) => i.id === "caipirinha") || {
+      id: "caipirinha",
+      nombre: "Caipirinha con caña",
+      imageUrl: "/images/tragos/06_caipirinha.jpg",
+      descripcion: "Caña uruguaya con limón machacado, azúcar, hielo picado y soda.",
+      nombreSinAlcohol: "Caipirinha sin alcohol",
+    },
+    defaultCartaTragosData.items.find((i) => i.id === "arizona") || {
+      id: "arizona",
+      nombre: "Arizona",
+      imageUrl: "/images/tragos/07_arizona.jpg",
+      descripcion: "Vodka con jugo de naranja, jugo de ananá y granadina sin alcohol.",
+      nombreSinAlcohol: "Arizona sin alcohol",
+    },
+    defaultCartaTragosData.items.find((i) => i.id === "fernet-con-coca") || {
+      id: "fernet-con-coca",
+      nombre: "Fernet con Coca",
+      imageUrl: "/images/tragos/08_fernet_con_coca.jpg",
+      descripcion: "Fernet con Coca-Cola y hielo.",
+      nombreSinAlcohol: "Cola con naranja",
+    },
+  ];
+
+  const [tragoSeleccionadoId, setTragoSeleccionadoId] = useState<string>("fernet-con-coca");
   const [pedidoTragoEstado, setPedidoTragoEstado] = useState<"ninguno" | "en_cola" | "listo">("ninguno");
   const [pedidoTragoNombre, setPedidoTragoNombre] = useState<string>("");
   const [pedidoTragoNumero, setPedidoTragoNumero] = useState<number>(42);
@@ -122,7 +160,7 @@ export function LaAppDeTuFiestaSection({
     const nuevo = {
       id: `demo-msg-${Date.now()}`,
       texto: demoMensaje.trim(),
-      autor: "Vos (Invitado Demo)",
+      autor: "Vos",
       estado: "moderando" as const,
     };
     setDemoMensajesEnviados((prev) => [nuevo, ...prev]);
@@ -173,24 +211,22 @@ export function LaAppDeTuFiestaSection({
           </p>
         </div>
 
-        {/* Selector de los 5 Momentos (Tabs progresivos) */}
+        {/* Selector de los 5 Momentos (Sin scroll horizontal en 390px, todas visibles) */}
         <div className="mt-12">
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-2 sm:grid sm:grid-cols-5 sm:gap-3">
-            {MOMENTOS.map((m) => {
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+            {MOMENTOS.map((m, idx) => {
               const Icon = m.icon;
               const activo = m.id === momentoActivo;
               return (
                 <button
                   key={m.id}
                   type="button"
-                  // Marca el boton de cada momento. La prueba de la orden 50 cuenta
-                  // estos y no "todos los botones de la seccion": adentro hay
-                  // tambien los de la demo, y contarlos todos la volvia fragil.
                   data-testid="momento-de-la-app"
                   onClick={() => setMomentoActivo(m.id)}
                   aria-pressed={activo}
                   className={cn(
-                    "flex flex-shrink-0 items-center gap-2.5 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
+                    "min-h-[44px] flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
+                    idx === 4 ? "col-span-2 sm:col-span-1" : "",
                     activo
                       ? "border-red-600 bg-white shadow-lg shadow-red-500/10 ring-2 ring-red-600/20"
                       : "border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white text-slate-600"
@@ -199,26 +235,23 @@ export function LaAppDeTuFiestaSection({
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                        "flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-colors",
                         activo ? "bg-red-600 text-white" : "bg-slate-100 text-slate-500"
                       )}
                     >
                       <Icon className="h-4 w-4" />
                     </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                       {m.etapa}
                     </span>
                   </div>
                   <div>
-                    <p className={cn("text-sm font-semibold", activo ? "text-slate-900" : "text-slate-700")}>
-                      {m.id === "antes" && "Portal Cliente"}
+                    <p className={cn("text-xs sm:text-sm font-semibold", activo ? "text-slate-900" : "text-slate-700")}>
+                      {m.id === "antes" && "Organizar"}
                       {m.id === "invitacion" && "Invitación"}
-                      {m.id === "durante" && "Mural en Vivo"}
-                      {m.id === "barra" && "Barra & Cócteles"}
+                      {m.id === "durante" && "Pantalla gigante"}
+                      {m.id === "barra" && "Barra"}
                       {m.id === "despues" && "Recuerdos"}
-                    </p>
-                    <p className="hidden text-xs text-slate-500 sm:block sm:line-clamp-1">
-                      {m.badge}
                     </p>
                   </div>
                 </button>
@@ -227,76 +260,20 @@ export function LaAppDeTuFiestaSection({
           </div>
         </div>
 
-        {/* Panel Interactivo: Recorrido y Demostración Aislada */}
+        {/* Panel Interactivo: En celular la muestra va ARRIBA (order-1) y la explicación ABAJO (order-2) */}
         <div className="mt-8 rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 lg:p-10">
-          <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
-            {/* Columna Izquierda: Explicación de Valor Comercial */}
-            <div className="space-y-6 lg:col-span-5">
-              <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-1 text-xs font-bold tracking-wide text-red-700">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                {configActual.badge}
-              </div>
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:items-center">
 
-              <div>
-                <h3 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                  {configActual.titulo}
-                </h3>
-                <p className="mt-3 text-base leading-relaxed text-slate-600">
-                  {configActual.subtitulo}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
-                      Lo que sentís como cliente
-                    </p>
-                    <p className="mt-0.5 text-sm font-medium text-emerald-900">
-                      &ldquo;{configActual.loQueEntiende}&rdquo;
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Botones de acción directa */}
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/simulador-de-presupuesto"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-red-600/20 transition-transform duration-150 hover:bg-red-700 active:scale-95"
-                >
-                  Simular mi presupuesto
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                >
-                  Consultar disponibilidad por WhatsApp
-                </a>
-              </div>
-
-              <p className="text-xs text-slate-400">
-                * Es un ejemplo con datos de prueba: no manda mensajes de verdad.
-              </p>
-            </div>
-
-            {/* Columna Derecha: Pantalla Interactiva Real Simulada */}
-            <div className="lg:col-span-7">
+            {/* Muestra Interactiva de la App (En móvil arriba: order-1) */}
+            <div className="order-1 lg:order-2 lg:col-span-7">
               <div className="relative rounded-2xl border border-slate-800 bg-slate-950 p-4 text-white shadow-2xl sm:p-6">
                 {/* Barra superior de dispositivo demo */}
                 <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-3 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="font-semibold text-slate-300">DEMO EN VIVO</span>
+                    <span className="font-semibold text-slate-300">EJEMPLO</span>
                     <span className="text-slate-500">• 15 de Camila (Muestra)</span>
                   </div>
-                  <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-400">
-                    Modo seguro
-                  </span>
                 </div>
 
                 {/* Contenido interactivo dinámico según el momento seleccionado */}
@@ -315,7 +292,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("menu")}
                           className={cn(
-                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-[44px] rounded-lg px-3 py-2 text-xs font-semibold transition",
                             demoMenuTab === "menu" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -325,7 +302,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("musica")}
                           className={cn(
-                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-[44px] rounded-lg px-3 py-2 text-xs font-semibold transition",
                             demoMenuTab === "musica" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -335,7 +312,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("deco")}
                           className={cn(
-                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-[44px] rounded-lg px-3 py-2 text-xs font-semibold transition",
                             demoMenuTab === "deco" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -357,7 +334,7 @@ export function LaAppDeTuFiestaSection({
                               🍽️ <strong>Celíacos:</strong> 3 menúes adaptados
                             </div>
                             <div className="rounded bg-slate-800 p-2">
-                              🥗 <strong>Vegetarianos:</strong> 4 opciones gourmet
+                              🥗 <strong>Vegetarianos:</strong> 4 opciones
                             </div>
                           </div>
                         </div>
@@ -375,7 +352,7 @@ export function LaAppDeTuFiestaSection({
                               <span className="text-[10px] text-slate-400">Momento Clave</span>
                             </div>
                             <div className="flex items-center justify-between rounded bg-slate-800/80 px-2.5 py-1.5">
-                              <span>🔥 Cachengue & Fiesta: Hits 2026 seleccionados</span>
+                              <span>🔥 Cachengue & Fiesta: Hits seleccionados</span>
                               <span className="text-[10px] text-slate-400">Tanda Central</span>
                             </div>
                           </div>
@@ -392,13 +369,13 @@ export function LaAppDeTuFiestaSection({
                             Centros de mesa con flores de estación, iluminación perimetral en tonos cálidos.
                           </p>
                           <div className="rounded bg-slate-800/80 p-2 text-slate-300">
-                            ✨ 8 fotos de referencia aprobadas con tu organizador.
+                            ✨ Fotos de referencia aprobadas con tu organizador.
                           </div>
                         </div>
                       )}
 
                       <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-900 px-3 py-2 text-[11px] text-slate-400">
-                        <span>💬 Conversación centralizada con tu productor asignado</span>
+                        <span>💬 Conversación centralizada con tu equipo asignado</span>
                         <span className="text-emerald-400 font-semibold">Al día</span>
                       </div>
                     </motion.div>
@@ -424,7 +401,7 @@ export function LaAppDeTuFiestaSection({
                           <QrCode className="h-8 w-8 text-slate-400" />
                         </div>
                         <p className="mt-2 text-xs text-slate-300">
-                          Sábado 18 de Octubre • 21:00 hs • Salón Los Robles
+                          Sábado 18 de Octubre • 21:00 hs • Salón Club Uruguay
                         </p>
 
                         <div className="mt-4 rounded-lg bg-slate-950 p-3">
@@ -436,7 +413,7 @@ export function LaAppDeTuFiestaSection({
                               type="button"
                               onClick={() => setRsvpState("confirmado")}
                               className={cn(
-                                "rounded-lg px-3 py-1.5 text-xs font-semibold transition",
+                                "min-h-[44px] rounded-lg px-3 py-2 text-xs font-semibold transition",
                                 rsvpState === "confirmado"
                                   ? "bg-emerald-600 text-white"
                                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -448,7 +425,7 @@ export function LaAppDeTuFiestaSection({
                               type="button"
                               onClick={() => setRsvpState("celiaco")}
                               className={cn(
-                                "rounded-lg px-3 py-1.5 text-xs font-semibold transition",
+                                "min-h-[44px] rounded-lg px-3 py-2 text-xs font-semibold transition",
                                 rsvpState === "celiaco"
                                   ? "bg-amber-600 text-white"
                                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -459,7 +436,7 @@ export function LaAppDeTuFiestaSection({
                           </div>
 
                           {rsvpState !== "pendiente" && (
-                            <p className="mt-2 text-[11px] text-emerald-400 animate-fadeIn">
+                            <p className="mt-2 text-[11px] text-emerald-400">
                               🎉 ¡Asistencia registrada! Tu lugar en la Mesa 4 ya está guardado.
                             </p>
                           )}
@@ -516,11 +493,11 @@ export function LaAppDeTuFiestaSection({
                           value={demoMensaje}
                           onChange={(e) => setDemoMensaje(e.target.value)}
                           placeholder="Escribí una dedicatoria de prueba..."
-                          className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-red-500 focus:outline-none"
+                          className="flex-1 min-h-[44px] rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-red-500 focus:outline-none"
                         />
                         <button
                           type="submit"
-                          className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-red-700"
+                          className="min-h-[44px] inline-flex items-center gap-1 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-700 active:scale-95"
                         >
                           <Send className="h-3.5 w-3.5" />
                           Enviar
@@ -546,33 +523,71 @@ export function LaAppDeTuFiestaSection({
                           <span className="flex items-center gap-1.5">
                             <Wine className="h-4 w-4 text-amber-400" /> Carta Digital de Tragos
                           </span>
-                          <span className="text-[10px] text-slate-500">Cola independiente del DJ</span>
+                          <span className="text-[10px] text-slate-500">Pedís y te avisa</span>
                         </div>
 
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <div className="rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs">
-                            <p className="font-bold text-white">Mojito de Maracuyá</p>
-                            <p className="text-[11px] text-slate-400">Ron blanco, maracuyá natural, menta fresca y lima.</p>
-                            <button
-                              type="button"
-                              onClick={() => handleSimularPedidoTrago("Mojito de Maracuyá")}
-                              className="mt-2 w-full rounded bg-amber-600/30 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-600/50"
-                            >
-                              Pedir en barra
-                            </button>
-                          </div>
+                        {/* 4 Tragos Reales con sus fotos de /images/tragos/ */}
+                        <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                          {tragosBarra.map((trago) => {
+                            const seleccionado = tragoSeleccionadoId === trago.id;
+                            const esFernet = trago.id === "fernet-con-coca";
+                            const nombreSinAlcohol = esFernet ? "Cola con naranja" : (trago.nombreSinAlcohol || `${trago.nombre} (Sin alcohol)`);
 
-                          <div className="rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs">
-                            <p className="font-bold text-white">Citrus Mocktail (Sin Alcohol)</p>
-                            <p className="text-[11px] text-slate-400">Pomelo rosado, tónica, romero fresco y almíbar de frutos.</p>
-                            <button
-                              type="button"
-                              onClick={() => handleSimularPedidoTrago("Citrus Mocktail (Sin Alcohol)")}
-                              className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] font-semibold text-slate-300 hover:bg-slate-700"
-                            >
-                              Pedir en barra
-                            </button>
-                          </div>
+                            return (
+                              <div
+                                key={trago.id}
+                                onClick={() => setTragoSeleccionadoId(trago.id)}
+                                className={cn(
+                                  "cursor-pointer rounded-xl border p-2.5 transition text-xs flex flex-col justify-between",
+                                  seleccionado
+                                    ? "border-red-500 bg-slate-900 shadow-md ring-1 ring-red-500/30"
+                                    : "border-slate-800 bg-slate-950 hover:border-slate-700"
+                                )}
+                              >
+                                <div className="flex gap-2.5 items-center">
+                                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-800">
+                                    <Image
+                                      src={trago.imageUrl}
+                                      alt={trago.nombre}
+                                      fill
+                                      className="object-cover"
+                                      sizes="48px"
+                                    />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-bold text-white text-xs truncate">{trago.nombre}</p>
+                                    <p className="text-[10px] text-slate-400 line-clamp-1">{trago.descripcion}</p>
+                                  </div>
+                                </div>
+
+                                {/* Botones Con alcohol y Sin alcohol al tocar el trago */}
+                                {seleccionado && (
+                                  <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSimularPedidoTrago(trago.nombre);
+                                      }}
+                                      className="min-h-[44px] flex-1 rounded-lg bg-amber-600/30 border border-amber-500/40 px-2 py-2 text-[11px] font-bold text-amber-200 hover:bg-amber-600/50 transition active:scale-95"
+                                    >
+                                      Con alcohol
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSimularPedidoTrago(nombreSinAlcohol);
+                                      }}
+                                      className="min-h-[44px] flex-1 rounded-lg bg-emerald-600/30 border border-emerald-500/40 px-2 py-2 text-[11px] font-bold text-emerald-200 hover:bg-emerald-600/50 transition active:scale-95"
+                                    >
+                                      {esFernet ? "Sin alcohol (Cola con naranja)" : "Sin alcohol"}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
 
                         {pedidoTragoEstado !== "ninguno" && (
@@ -603,7 +618,7 @@ export function LaAppDeTuFiestaSection({
                     >
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="font-semibold">Álbum de Recuerdos de la Fiesta</span>
-                        <span className="text-[10px] text-slate-500">Al día siguiente</span>
+                        <span className="text-[10px] text-slate-500">Álbum digital</span>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2">
@@ -622,7 +637,7 @@ export function LaAppDeTuFiestaSection({
                       </div>
 
                       <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-                        <p className="font-semibold text-slate-200">Acceso seguro para vos y tus invitados</p>
+                        <p className="font-semibold text-slate-200">Acceso organizado para vos y tus invitados</p>
                         <p className="mt-1 text-[11px] text-slate-400">
                           Cada invitado puede volver a entrar a su enlace para descargar sus tiras de recuerdo, ver los momentos en alta resolución y revivir los mejores momentos sin contraseñas difíciles.
                         </p>
@@ -632,9 +647,81 @@ export function LaAppDeTuFiestaSection({
                 </AnimatePresence>
               </div>
             </div>
+
+            {/* Explicación de Valor Comercial (En móvil abajo: order-2) */}
+            <div className="order-2 lg:order-1 space-y-6 lg:col-span-5">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-1 text-xs font-bold tracking-wide text-red-700">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                {configActual.badge}
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                  {configActual.titulo}
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-slate-600">
+                  {configActual.subtitulo}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                      Lo que sentís como cliente
+                    </p>
+                    <p className="mt-0.5 text-sm font-medium text-emerald-900">
+                      &ldquo;{configActual.loQueEntiende}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de acción directa (Bloque 4) */}
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEntrevistaModal(true)}
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-red-600/20 transition-all hover:bg-red-700 active:scale-95"
+                >
+                  <CalendarCheck className="h-4 w-4" />
+                  Coordinar una entrevista gratuita
+                </button>
+
+                <Link
+                  href="/simulador-de-presupuesto"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 active:scale-95"
+                >
+                  Simular mi presupuesto
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+
+                <div className="text-center pt-1">
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-800 underline underline-offset-4 transition"
+                  >
+                    o escribinos por WhatsApp
+                  </a>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-400">
+                * Es un ejemplo con datos de prueba: no manda mensajes de verdad.
+              </p>
+            </div>
+
           </div>
         </div>
       </div>
+
+      <EntrevistaGratuitaModal
+        isOpen={showEntrevistaModal}
+        onClose={() => setShowEntrevistaModal(false)}
+      />
     </section>
   );
 }

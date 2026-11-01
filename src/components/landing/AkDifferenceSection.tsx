@@ -11,8 +11,8 @@ const benefits = [
     icon: ClipboardList,
   },
   {
-    title: 'Cero sorpresas ni intermediarios',
-    text: 'Desde la gastronomía gourmet hasta la discoteca y pantallas LED, todo funciona bajo una misma visión integral. Menos proveedores, todo coordinado por el mismo equipo.',
+    title: 'Servicios claros y una organización coordinada de principio a fin.',
+    text: 'Comida para disfrutar y compartir con tus invitados.',
     icon: Sparkles,
   },
   {
@@ -47,7 +47,7 @@ export function AkDifferenceSection() {
               ✨ El Valor de la Tranquilidad
             </span>
             <h2 className="font-headline text-4xl sm:text-5xl font-black text-white leading-tight">
-              No vendemos luces ni sonido: diseñamos tu tranquilidad
+              Vos disfrutás la fiesta. Nosotros coordinamos los detalles.
             </h2>
             <p className="mt-5 max-w-xl text-zinc-400 text-lg leading-relaxed font-medium">
               El verdadero lujo es llegar al día de tu evento sin estrés. Olvidate de perseguir proveedores o comparar presupuestos incompletos.
