@@ -103,6 +103,10 @@ jest.mock('@/lib/auth/require-session', () => ({
 }));
 
 jest.mock('@/ai/genkit', () => ({
+  ai: {
+    definePrompt: jest.fn().mockReturnValue(jest.fn()),
+  },
+  geminiModel: 'mock-gemini-model',
   ejecutarPromptConFallback: jest.fn().mockRejectedValue(new Error('IA no disponible')),
   generateWithGeminiFallback: jest.fn().mockRejectedValue(new Error('IA no disponible')),
   getGeminiModelForAgent: jest.fn().mockReturnValue('mock-model'),

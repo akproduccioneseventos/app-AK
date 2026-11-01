@@ -210,6 +210,7 @@ async function correrMarketingAutomation(options?: {
         const diffDias = (now.getTime() - ultimaFechaMs) / (24 * 60 * 60 * 1000);
         if (diffDias > 4) {
           const { createNotification } = await import('@/lib/notifications/create-notification');
+          // no-mira-el-resultado: aviso secundario al dueño si pasan días sin publicar en el blog
           await createNotification({
             titulo: 'Blog sin publicaciones recientes',
             mensaje: `Hace ${Math.floor(diffDias)} días que no se publica una nueva nota en el blog.`,

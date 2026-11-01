@@ -144,6 +144,15 @@ async function resolverFiestaDeLaOrden(frase: string): Promise<FiestaDeLaOrden> 
  * 5) Registro unificado de lo que hizo sola
  * 6) Resumen mensual del aprendizaje
  */
+const SLUGS_BLOG_HUMANO = new Set([
+  'como-empezar-a-organizar-una-fiesta-sin-estres',
+  'presupuesto-de-fiesta-que-debe-incluir',
+  'como-elegir-el-menu-para-un-evento',
+  'ideas-para-fiesta-de-xv-en-salto',
+  'errores-comunes-al-organizar-una-boda',
+  'checklist-final-antes-del-evento',
+]);
+
 export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
   const sesion = await requirePermiso(PERMISOS.ADMINISTRACION);
   if (!sesion.ok) {
@@ -244,6 +253,26 @@ export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
     const { getBlogPosts } = await import('@/app/actions/blog');
     const blogPosts = await getBlogPosts();
     for (const post of blogPosts || []) {
+      const p = post as any;
+      const status = String(p.status || '').toLowerCase().trim();
+
+      // Borradores y notas programadas no van en "Lo que hizo sola"
+      if (status === 'draft' || status === 'borrador' || p.draft || p.borrador) continue;
+      if (status === 'scheduled' || status === 'programado' || status === 'programada') continue;
+      if (post.publishedAt && new Date(post.publishedAt).getTime() > Date.now()) continue;
+
+      // Notas escritas por una persona no van
+      const autor = String(p.autor || p.author || '').toLowerCase().trim();
+      const esHumano = autor === 'persona' || autor === 'humano' || autor === 'manual' || SLUGS_BLOG_HUMANO.has(post.slug);
+      if (esHumano) continue;
+
+      // Solo entran las que publicó la IA de verdad (status === 'published' y escritas por IA)
+      const esIA = autor === 'ia' || autor === 'ai' || Boolean(post.topicKey) || p.image?.source === 'gemini' || p.generadoPorIA || p.esIA || status === 'published';
+      if (!esIA) continue;
+
+      // Si tiene status, debe ser published/publicado
+      if (status && status !== 'published' && status !== 'publicado') continue;
+
       itemsSola.push({
         id: `blog-post-${post.slug}`,
         tipo: 'blog',
@@ -585,9 +614,10 @@ export async function darOrdenPorVozOTexto(
     const { id: fiestaId, nombre: nombreFiesta } = fiestaOrden;
 
     if (modo === 'sola') {
+      let armada: Awaited<ReturnType<typeof armarWebConIA>> | null = null;
       let falla: string | null = null;
       try {
-        const armada = await armarWebConIA(fiestaId);
+        armada = await armarWebConIA(fiestaId);
         if (!armada.success || !armada.invitacionDigital) {
           falla = armada.error || 'No se pudo armar la web.';
         } else {
@@ -610,7 +640,7 @@ export async function darOrdenPorVozOTexto(
         };
       }
 
-      const esBaseSinIA = Boolean((armada as any)?.esBaseSinIA || (armada?.invitacionDigital as any)?.esBaseSinIA);
+      const esBaseSinIA = Boolean(armada?.esBaseSinIA || (armada?.invitacionDigital as any)?.esBaseSinIA);
 
       await registrarAccionSola({
         tareaId: 'armar_web_evento',

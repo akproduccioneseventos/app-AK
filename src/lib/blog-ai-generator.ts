@@ -213,6 +213,8 @@ Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no l
       message: generated.ctaMessage.trim().slice(0, 240),
     },
     topicKey: selectedTopicKey,
+    status: 'published',
+    autor: 'ia',
     fuentes: fuentesInvestigacion.length > 0 ? fuentesInvestigacion : undefined,
   };
 

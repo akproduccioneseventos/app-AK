@@ -546,13 +546,15 @@ export function LaAppDeTuFiestaSection({
                               >
                                 <div className="flex gap-2.5 items-center">
                                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-800">
-                                    <Image
-                                      src={trago.imageUrl}
-                                      alt={trago.nombre}
-                                      fill
-                                      className="object-cover"
-                                      sizes="48px"
-                                    />
+                                    {trago.imageUrl ? (
+                                      <Image
+                                        src={trago.imageUrl}
+                                        alt={trago.nombre}
+                                        fill
+                                        className="object-cover"
+                                        sizes="48px"
+                                      />
+                                    ) : null}
                                   </div>
                                   <div className="min-w-0 flex-1">
                                     <p className="font-bold text-white text-xs truncate">{trago.nombre}</p>

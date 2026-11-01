@@ -4,6 +4,7 @@ import {
   Accessibility,
   Building2,
   CalendarDays,
+  Camera,
   Car,
   Check,
   Clock,

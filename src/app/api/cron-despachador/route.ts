@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
  * - 'recordatorios-de-pago'
  * - 'posicionamiento-diario'
  */
-export const TAREAS_CRON_DESPACHADAS = [
+const TAREAS_CRON_DESPACHADAS = [
   'generate-blog-post',
   'metricas-de-redes',
   'publicar-programados',

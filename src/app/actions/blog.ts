@@ -131,6 +131,7 @@ export async function getEstadoBlogAdmin(): Promise<EstadoBlogAdmin> {
   if (diasSinNota > 4) {
     try {
       const { createNotification } = await import('@/lib/notifications/create-notification');
+      // no-mira-el-resultado: aviso secundario al dueño por días sin publicar notas en blog
       await createNotification({
         titulo: 'Blog sin publicaciones recientes',
         mensaje: `Hace ${diasSinNota} días que no se publica una nueva nota en el blog.`,
