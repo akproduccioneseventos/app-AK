@@ -61,8 +61,8 @@ test.describe('Orden 242 — La barra: elegir Con alcohol o Sin alcohol al pedir
     await fernetCard.click();
 
     // 1. Tocar un trago muestra los dos botones: "Con alcohol" y "Sin alcohol"
-    const botonConAlcohol = page.locator('button:has-text("Con alcohol")').or(page.locator('[data-testid="boton-con-alcohol"]')).first();
-    const botonSinAlcohol = page.locator('button:has-text("Sin alcohol")').or(page.locator('button:has-text("Cola con naranja")')).or(page.locator('[data-testid="boton-sin-alcohol"]')).first();
+    const botonConAlcohol = page.getByTestId('boton-con-alcohol');
+    const botonSinAlcohol = page.getByTestId('boton-sin-alcohol');
 
     await expect(botonConAlcohol).toBeVisible();
     await expect(botonSinAlcohol).toBeVisible();

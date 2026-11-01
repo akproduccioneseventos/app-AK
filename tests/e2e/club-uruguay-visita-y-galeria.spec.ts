@@ -8,8 +8,8 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     const h1 = page.locator('h1');
     await expect(h1).toHaveText('Club Uruguay Salto');
 
-    await expect(page.locator('text=Uruguay 754').first()).toBeVisible();
-    await expect(page.locator('text=50 a 250 personas').first()).toBeVisible();
+    await expect(page.getByText('Uruguay 754').first().first()).toBeVisible();
+    await expect(page.getByText('50 a 250 personas').first().first()).toBeVisible();
 
     // CTAs principales en portada
     const waButtonHero = page.locator('a:has-text("Coordinar visita por WhatsApp")').first();
@@ -23,8 +23,8 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     // BANDA 2: Dos espacios comparables (Salón Principal y Espacio Íntimo)
     await expect(page.getByRole('heading', { name: 'Salón Principal', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Espacio Íntimo', exact: true })).toBeVisible();
-    await expect(page.locator('text=Hasta ~250 personas')).toBeVisible();
-    await expect(page.locator('text=Hasta ~50 personas')).toBeVisible();
+    await expect(page.getByText('Hasta ~250 personas', { exact: true })).toBeVisible();
+    await expect(page.getByText('Hasta ~50 personas').first()).toBeVisible();
 
     // BANDA 3: Galería real con captions descriptivos fuera de la foto
     await expect(page.locator('h2:has-text("Galería real de montajes en Club Uruguay")')).toBeVisible();
@@ -44,8 +44,8 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     await expect(dialog).not.toBeVisible();
 
     // BANDA 4: Historia y patrimonio (150 aniversario 2025 y mural)
-    await expect(page.locator('text=150 aniversario en 2025')).toBeVisible();
-    await expect(page.locator('text=mural patrimonial')).toBeVisible();
+    await expect(page.getByText('150 aniversario en 2025').first()).toBeVisible();
+    await expect(page.getByText('mural patrimonial').first()).toBeVisible();
 
     // BANDA 5: Ubicación céntrica
     await expect(page.locator('h2:has-text("Ubicación céntrica en Uruguay 754")')).toBeVisible();
@@ -55,10 +55,10 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
 
     // BANDA 6: Organización integral con AK (tecnología visible y 50% de bonificación)
     await expect(page.locator('h2:has-text("Organización integral con AK Producciones")')).toBeVisible();
-    await expect(page.locator('text=Fotocabina QR')).toBeVisible();
-    await expect(page.locator('text=Plataforma 360°')).toBeVisible();
-    await expect(page.locator('text=Espejo Mágico')).toBeVisible();
-    await expect(page.locator('text=50% de bonificación en el alquiler del salón')).toBeVisible();
+    await expect(page.getByText('Fotocabina QR').first()).toBeVisible();
+    await expect(page.getByText('Plataforma 360°').first()).toBeVisible();
+    await expect(page.getByText('Espejo Mágico').first()).toBeVisible();
+    await expect(page.getByText('50% de bonificación en el alquiler del salón').first()).toBeVisible();
 
     // BANDA 7: FAQ corta y cierre con CTAs
     await expect(page.locator('h2:has-text("Preguntas frecuentes sobre Club Uruguay")')).toBeVisible();
