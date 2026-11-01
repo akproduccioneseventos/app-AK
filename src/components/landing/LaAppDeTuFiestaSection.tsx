@@ -551,6 +551,7 @@ export function LaAppDeTuFiestaSection({
                                         src={trago.imageUrl}
                                         alt={trago.nombre}
                                         fill
+                                        unoptimized
                                         className="object-cover"
                                         sizes="48px"
                                       />

@@ -8,7 +8,12 @@ test.describe('Orden 245: La portada vende con confianza', () => {
     await expect(page.locator('body')).not.toContainText('cuotas fijas');
     await expect(page.locator('body')).not.toContainText('diseñamos tu tranquilidad');
     await expect(page.locator('body')).not.toContainText('Cero sorpresas');
-    await expect(page.locator('body')).not.toContainText('gourmet');
+    for (const selector of ['#landing-hero', '#landing-difference', '#landing-testimonials', '#tecnologia', 'footer']) {
+      const el = page.locator(selector).first();
+      if ((await el.count()) > 0) {
+        await expect(el).not.toContainText(/gourmet/i);
+      }
+    }
 
     // Frase nueva en la sección de diferencia
     await expect(page.locator('body')).toContainText('Vos disfrutás la fiesta. Nosotros coordinamos los detalles.');

@@ -1565,7 +1565,10 @@ function SimuladorContent() {
                             </p>
                             <div className="mt-8 flex flex-wrap items-center gap-4">
                               <Button
-                                  onClick={() => setHasStarted(true)}
+                                  onClick={() => {
+                                      setHasStarted(true);
+                                      if (typeof window !== 'undefined') window.scrollTo(0, 0);
+                                  }}
                                   data-testid="simulator-cover-start"
                                   className="h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
                                   disabled={isLoading}
@@ -2083,29 +2086,29 @@ function SimuladorContent() {
     }
 
     return (
-        <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
+        <div className="ak-public-page flex min-h-screen flex-col items-center justify-start sm:justify-center gap-2 sm:gap-4 p-2 sm:p-6 lg:p-8">
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-                <CardHeader className="text-center bg-slate-50 p-4 sm:p-10 border-b border-slate-200">
-                    <div className="flex justify-between items-center mb-4">
+                <CardHeader className="text-center bg-slate-50 p-3 sm:p-10 border-b border-slate-200">
+                    <div className="flex justify-between items-center mb-2 sm:mb-4">
                       <div className="w-8 hidden sm:block" />
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
                       <VideoDeAyuda lugar="simulador" />
                     </div>
-                    <CardTitle className="text-2xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
-                    <CardDescription className="mt-2 text-sm font-bold text-slate-500">
+                    <CardTitle className="text-xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
+                    <CardDescription className="mt-1 text-xs sm:text-sm font-bold text-slate-500">
                         Paso {step} de 5 · {STEP_LABELS[step - 1]}
                     </CardDescription>
-                    <div className="mt-6">
+                    <div className="mt-2 sm:mt-6">
                         <Progress value={(step / 5) * 100} className="h-2 bg-slate-200" />
                     </div>
                 </CardHeader>
 
-                <CardContent className="p-4 sm:p-10">
+                <CardContent className="p-3 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-2 text-left">
+                        <div className="space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-1 sm:py-2 text-left">
                             {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
                             <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
-                                <div className="relative min-h-[300px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-4 sm:p-8">
+                                <div className="relative min-h-[220px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-3.5 sm:p-8">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src="/media/catalogo-servicios/simulador_hero_pro.jpg"
@@ -2114,29 +2117,29 @@ function SimuladorContent() {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
 
-                                    <div className="relative z-10 space-y-4">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                                    <div className="relative z-10 space-y-2.5 sm:space-y-4">
+                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3 py-1 text-[10px] sm:text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                                             <Sparkles className="h-4 w-4 text-amber-400" />
                                             Presupuesto Transparente · AK Producciones Salto
                                         </div>
 
-                                        <h1 className="font-headline text-xl sm:text-4xl font-black leading-tight text-white tracking-tight">
+                                        <h1 className="font-headline text-lg sm:text-4xl font-black leading-tight text-white tracking-tight">
                                             Tu fiesta, como la imaginás. Nosotros te ayudamos a hacerla realidad.
                                         </h1>
 
-                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
+                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-snug sm:leading-relaxed max-w-2xl">
                                             En AK Producciones Eventos reunimos todo lo que necesitás para celebrar: salón, comida, decoración, discoteca, fotografía, filmación, barra de tragos y mucho más.
                                         </p>
                                         <p className="text-xs sm:text-base font-semibold text-slate-200 leading-snug sm:leading-relaxed max-w-2xl">
                                             Elegí los servicios que te interesan, conocé un presupuesto estimado y descubrí las opciones para organizar tu fiesta.
                                         </p>
 
-                                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                        <div className="pt-1 sm:pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                                             <Button
                                                 type="button"
                                                 onClick={() => setStep(2)}
                                                 data-testid="simulator-first-step-cta"
-                                                className="h-12 sm:h-14 px-6 sm:px-8 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                                className="h-11 sm:h-14 px-6 sm:px-8 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
                                             >
                                                 <span>Armar mi presupuesto</span>
                                                 <ArrowRight className="w-5 h-5" />

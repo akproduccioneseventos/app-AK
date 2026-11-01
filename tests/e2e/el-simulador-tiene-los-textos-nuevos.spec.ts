@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { expect, test } from '@playwright/test';
 
 function parseMonto(texto: string): number {
@@ -5,16 +7,42 @@ function parseMonto(texto: string): number {
   return parseInt(soloDigitos, 10);
 }
 
+const MUTABLE_FILES = [
+  'data/presupuestos.json',
+  'src/data/presupuestos.json',
+  'data/crm-leads.json',
+  'src/data/crm-leads.json',
+  'data/notifications.json',
+  'src/data/notifications.json',
+];
+
+const snapshots = new Map<string, Buffer | null>();
+
+test.beforeAll(() => {
+  for (const relativePath of MUTABLE_FILES) {
+    const absolutePath = path.join(process.cwd(), relativePath);
+    snapshots.set(
+      absolutePath,
+      fs.existsSync(absolutePath) ? fs.readFileSync(absolutePath) : null,
+    );
+  }
+});
+
+test.afterAll(() => {
+  for (const [absolutePath, snapshot] of snapshots) {
+    if (snapshot === null) fs.rmSync(absolutePath, { force: true });
+    else fs.writeFileSync(absolutePath, snapshot);
+  }
+});
+
 test.describe('Orden 243: Los textos nuevos del simulador', () => {
   test('Paso 1 tiene los textos nuevos, cuatro tarjetas y el boton es visible en 390x844', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
-    // Iniciar el simulador si está en la portada general
-    const coverStart = page.getByTestId('simulator-cover-start');
-    if (await coverStart.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      await coverStart.click();
-    }
+    // Iniciar el simulador
+    await page.getByTestId('simulator-cover-start').click({ timeout: 25_000 });
+    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible({ timeout: 15_000 });
 
     // Verificar h1 nuevo
     const h1 = page.locator('h1', { hasText: 'Tu fiesta, como la imaginás. Nosotros te ayudamos a hacerla realidad.' });
@@ -41,34 +69,33 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     test.setTimeout(180_000);
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
-    // Entrar a paso 1
-    const coverStart = page.getByTestId('simulator-cover-start');
-    if (await coverStart.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      await coverStart.click();
-    }
-
-    // Ir al paso 2
+    // Entrar al simulador
+    await page.getByTestId('simulator-cover-start').click({ timeout: 25_000 });
+    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible({ timeout: 15_000 });
     const ctaPaso1 = page.getByTestId('simulator-first-step-cta');
     await expect(ctaPaso1).toBeVisible({ timeout: 15_000 });
     await ctaPaso1.click();
 
-    const continuar = page.getByRole('button', { name: /Continuar/i });
-
     // Paso 2: Datos
     await page.locator('#simulator-name').fill('Cliente Textos Nuevos');
-    await page.locator('#simulator-phone').fill('099888777');
+    const phoneInput = page.locator('#simulator-whatsapp').or(page.locator('#simulator-phone')).first();
+    await phoneInput.fill('099888777');
 
-    // Elegir Club Uruguay
     const btnClub = page.getByRole('button', { name: /Quiero Club Uruguay/i }).first();
-    await expect(btnClub).toBeVisible({ timeout: 10_000 });
+    await expect(btnClub).toBeVisible({ timeout: 15_000 });
     await btnClub.click();
 
-    // Fecha
     await page.getByRole('button', { name: /fecha|Elegí|Seleccion/i }).first().click();
-    await page.getByRole('button', { name: /next|siguiente|Go to next month/i }).first().click().catch(() => undefined);
-    await page.locator('[role="gridcell"] button:not([disabled])').nth(10).click();
+    const nextBtn = page.getByRole('button', { name: /next|siguiente|Go to next month/i }).first();
+    if (await nextBtn.isVisible().catch(() => false)) {
+      await nextBtn.click();
+    }
+    const diaBtn = page.getByRole('grid').getByRole('button', { name: /\b15\b/, disabled: false }).or(page.locator('[role="gridcell"] button:not([disabled])')).first();
+    await diaBtn.click();
+    await page.waitForFunction(() => !document.body.innerText.includes('Verificando disponibilidad')).catch(() => undefined);
 
-    await continuar.click();
+    const btnSiguientePaso2 = page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first();
+    await btnSiguientePaso2.click();
 
     // Paso 3: Encabezado nuevo y continuar
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
@@ -78,22 +105,24 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     if (await mantenerSeleccion.isVisible().catch(() => false)) {
       await mantenerSeleccion.click();
     }
-    await expect(continuar).toBeEnabled({ timeout: 30_000 });
-    await continuar.click();
+    await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
     // Paso 4: Paquetes - Encabezado nuevo y continuar
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
     if (await mantenerSeleccion.isVisible().catch(() => false)) {
       await mantenerSeleccion.click();
     }
-    await expect(continuar).toBeEnabled({ timeout: 30_000 });
-    await continuar.click();
+    await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
     // Paso 5: Resumen y desglose
-    if (await mantenerSeleccion.isVisible().catch(() => false)) {
-      await mantenerSeleccion.click();
+    await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible({ timeout: 20_000 });
+    const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
+    await keepSelection.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => undefined);
+    if (await keepSelection.isVisible().catch(() => false)) {
+      await keepSelection.click();
+      await keepSelection.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => undefined);
     }
-    const verPropuesta = page.getByRole('button', { name: /Ver Resumen y Propuesta/i });
+    const verPropuesta = page.getByRole('button', { name: /Ver Resumen y Propuesta|^Generar$/i }).first();
     await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
     await verPropuesta.click();
 

@@ -21,8 +21,8 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     await expect(simButtonHero).toHaveAttribute('href', '/simulador-de-presupuesto?salon=club');
 
     // BANDA 2: Dos espacios comparables (Salón Principal y Espacio Íntimo)
-    await expect(page.locator('h3:has-text("Salón Principal")')).toBeVisible();
-    await expect(page.locator('h3:has-text("Espacio Íntimo")')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Salón Principal', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Espacio Íntimo', exact: true })).toBeVisible();
     await expect(page.locator('text=Hasta ~250 personas')).toBeVisible();
     await expect(page.locator('text=Hasta ~50 personas')).toBeVisible();
 

@@ -130,7 +130,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
               </div>
             </div>
             <p className="text-sm text-zinc-300 max-w-lg font-medium leading-relaxed">
-              Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.
+              Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía y catering, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.
             </p>
           </div>
 

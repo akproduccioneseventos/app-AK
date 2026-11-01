@@ -49,16 +49,16 @@ test.describe('Orden 242 — La barra: elegir Con alcohol o Sin alcohol al pedir
     // Abrir la pantalla del tótem de la barra
     await page.goto(`/evento/barra/${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
 
-    // Si aparece modal de nombre o bienvenida, saltarlo o continuar al menú
-    const botonMenu = page.locator('button:has-text("Ver carta")').or(page.locator('button:has-text("Pedir trago")')).or(page.locator('button:has-text("Explorar")'));
-    if (await botonMenu.first().isVisible({ timeout: 5000 }).catch(() => false)) {
-      await botonMenu.first().click();
+    await page.getByRole('button', { name: /Elegí tu Trago/i }).click({ timeout: 30_000 });
+    for (const letra of ['A', 'N', 'A']) {
+      await page.getByRole('button', { name: letra, exact: true }).click();
     }
+    await page.getByRole('button', { name: /Confirmar e Ingresar/i }).click();
 
-    // Buscar la tarjeta de Fernet con Coca
-    const tarjetaFernet = page.locator('text=Fernet con Coca').first();
-    await expect(tarjetaFernet).toBeVisible({ timeout: 15_000 });
-    await tarjetaFernet.click();
+    // Elegir el trago Fernet con Coca
+    const fernetCard = page.getByText('Fernet con Coca').first();
+    await expect(fernetCard).toBeVisible({ timeout: 15_000 });
+    await fernetCard.click();
 
     // 1. Tocar un trago muestra los dos botones: "Con alcohol" y "Sin alcohol"
     const botonConAlcohol = page.locator('button:has-text("Con alcohol")').or(page.locator('[data-testid="boton-con-alcohol"]')).first();
@@ -74,9 +74,9 @@ test.describe('Orden 242 — La barra: elegir Con alcohol o Sin alcohol al pedir
     await botonSinAlcohol.click();
 
     // 3. Lo que se manda al servidor lleva version: 'sin_alcohol'
-    const botonEnviar = page.locator('[data-testid="boton-enviar-barra"]').or(page.locator('button:has-text("Enviar a la barra")')).first();
-    if (await botonEnviar.isVisible()) {
-      await botonEnviar.click();
-    }
+    const botonEnviar = page.getByTestId('boton-enviar-barra');
+    await expect(botonEnviar).toBeVisible();
+    await botonEnviar.click();
+    await expect.poll(() => datosEnviados, { timeout: 15_000 }).toContain('sin_alcohol');
   });
 });
