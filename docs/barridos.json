@@ -654,6 +654,10 @@
     "orden-257": {
       "fecha": "2026-11-01",
       "resultado": "Pregunta 111 sobre la entrega 242-248: metricas-de-redes vuelto a una versión vieja (módulos inexistentes, sin puerta de tareas) y data/blog-posts.json. Va en la orden 257."
+    },
+    "orden-258": {
+      "fecha": "2026-11-01",
+      "resultado": "Pregunta 111 sobre la segunda vuelta de 242-248: pruebas viejas rotas por cambios no pedidos (promo de portada, recorrido de la app, permisos) y la receta sin alcohol que cae a la con alcohol. Va en la orden 258."
     }
   }
 }
