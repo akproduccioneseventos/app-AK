@@ -117,9 +117,11 @@ interface ClubUruguayInteractiveProps {
 
 export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayInteractiveProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
+    setIsHydrated(true);
     trackClubEvent('interesClub');
   }, []);
 
@@ -313,7 +315,7 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
               >
                 <div
                   tabIndex={0}
-                  role="button"
+                  role={isHydrated ? 'button' : undefined}
                   aria-label={`Ver foto ampliada: ${photo.title}`}
                   onClick={() => setLightboxIndex(index)}
                   onKeyDown={(e) => {
@@ -328,10 +330,10 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
                     src={photo.src}
                     alt={photo.alt}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition duration-500 group-hover:scale-105 motion-reduce:transition-none"
+                    className="pointer-events-none object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/10 transition group-hover:bg-black/0" />
-                  <span className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                  <div className="pointer-events-none absolute inset-0 bg-black/10 transition group-hover:bg-black/0" />
+                  <span className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
                     <Maximize2 className="h-3 w-3" aria-hidden="true" /> Ampliar
                   </span>
                 </div>
