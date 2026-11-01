@@ -140,6 +140,7 @@ export function EventLandingPage({
           );
         }
       })
+      // no pasa nada si falla: quedan los testimonios fijos de la página.
       .catch(() => {});
   }, []);
 
