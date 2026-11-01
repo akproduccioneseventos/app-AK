@@ -205,4 +205,35 @@ describe('Orden 242 — La barra no le da alcohol a un menor', () => {
     // El stock no se altera
     expect(getInsumoStock('ing-vodka')).toBe(10);
   });
+
+  it('(g) un trago sin receta sin alcohol, pedido sin_alcohol, no descuenta vodka (ninguna bebida alcohólica)', async () => {
+    const fiesta = almacen[`fiestas/${FIESTA_ID}.json`];
+    fiesta.cartaTragos = {
+      ...fiesta.cartaTragos,
+      items: [
+        ...(fiesta.cartaTragos?.items || []),
+        {
+          id: 'vodka-puro',
+          nombre: 'Vodka Puro',
+          soloMayores: true,
+          ingredientes: ['Vodka'],
+          recetaIngredientes: [{ insumoId: 'ing-vodka', cantidad: 0.05, nombre: 'Vodka' }],
+          // Sin recetaIngredientesSinAlcohol
+        },
+      ],
+    };
+
+    const res = await createBarDrinkOrder({
+      fiestaId: FIESTA_ID,
+      drinkId: 'vodka-puro',
+      guestId: 'inv-adulto',
+      guestAccessToken: 'tok-adulto-40',
+      version: 'sin_alcohol',
+      clientRequestId: 'req-g-1',
+    });
+
+    expect(res.success).toBe(true);
+    expect(getInsumoStock('ing-vodka')).toBe(10);
+    expect(res.order?.stockMovements || []).toEqual([]);
+  });
 });

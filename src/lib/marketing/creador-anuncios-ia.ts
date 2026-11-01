@@ -243,19 +243,19 @@ const PLANTILLAS_EVENTOS: Record<
   },
   promocion_temporada: {
     ganchos: [
-      '🔥 Promo Anticipada: Congelá el precio de tu fiesta hoy y asegurá tu fecha para 2026/2027',
+      '🔥 Promo Anticipada: Asegurá tu fecha y planificá tu fiesta con tiempo para 2026/2027',
       '¿Querés servicios bonificados de regalo en tu fiesta? Mirá esta promo por tiempo limitado 🎁',
       'Consultá las condiciones vigentes para reservar tu fecha',
     ],
     copys: [
       `¿Tenés una promoción activa para una fecha o servicio específico? Cargá abajo el beneficio y la bonificación reales para preparar un anuncio claro. 🛡️✨\n\nLa publicación llevará a la persona al simulador o al contacto de AK para que confirme disponibilidad, condiciones y servicios antes de reservar.`,
     ],
-    llamadosAccion: ['Congelar Precio Ahora', 'Consultar Cupos de Promo', 'Reclamar Bonificación'],
+    llamadosAccion: ['Asegurar Fecha Ahora', 'Consultar Cupos de Promo', 'Reclamar Bonificación'],
     sugerenciasVisuales: [
       {
-        tipoImagen: 'Banner dinámico con fiesta encendida y sello dorado de PRECIO CONGELADO',
+        tipoImagen: 'Banner dinámico con fiesta encendida y sello dorado de FECHA RESERVADA',
         elementosRecomendados: ['Colores contrastantes', 'Sensación de oportunidad', 'Badge de Garantía AK'],
-        textoSuperpuesto: 'PROMO ANTICIPADA · PRECIO CONGELADO 2026/2027',
+        textoSuperpuesto: 'PROMO ANTICIPADA · RESERVA TU FECHA 2026/2027',
       },
     ],
     publicos: {

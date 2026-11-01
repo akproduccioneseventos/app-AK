@@ -72,13 +72,18 @@ export function getDrinkTags(drink: DrinkMarketingFields): string[] {
   const text = `${drink.nombre} ${drink.ingredientes?.join(' ') || ''} ${drink.descripcion || drink.description || ''}`.toLowerCase();
   const tags = new Set<string>();
 
-  const tieneAlcohol = drink.soloMayores === true || tieneIngredientesAlcoholicos(drink.recetaIngredientes);
+  const tieneAlcoholPorDatos = drink.soloMayores === true || tieneIngredientesAlcoholicos(drink.recetaIngredientes);
+  const tieneAlcoholPorTexto = drink.soloMayores === undefined && !drink.recetaIngredientes?.length && (
+    text.includes('ron') || text.includes('vodka') || text.includes('tequila') || text.includes('fernet') ||
+    text.includes('caña') || text.includes('cana') || text.includes('gin') || text.includes('licor') ||
+    text.includes('cachaca') || text.includes('cachaça')
+  );
 
-  if (tieneAlcohol) {
+  if (tieneAlcoholPorDatos || tieneAlcoholPorTexto) {
     tags.add('Con alcohol');
-  } else if (drink.soloMayores === false) {
+  } else if (drink.soloMayores === false || (drink.recetaIngredientes && drink.recetaIngredientes.length > 0 && !tieneAlcoholPorDatos)) {
     tags.add('Sin alcohol');
-  } else if (drink.recetaIngredientes && drink.recetaIngredientes.length > 0 && !tieneAlcohol) {
+  } else if (text.includes('sin alcohol') || text.includes('mocktail') || text.includes('virgen')) {
     tags.add('Sin alcohol');
   }
 

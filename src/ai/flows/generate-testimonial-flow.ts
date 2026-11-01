@@ -16,9 +16,26 @@ export interface GenerateTestimonialOutput {
   error?: string;
 }
 
+function buildFallback(input: GenerateTestimonialInput): GenerateTestimonialOutput {
+  const clientName = input.clientName?.trim() || 'Nuestro cliente';
+  const eventType = input.eventType?.trim() || 'evento';
+  const ratingText = input.rating ? ` con una valoracion de ${input.rating}/5` : '';
+  const highlights = input.highlights?.filter(Boolean).slice(0, 3).join(', ');
+  const extra = highlights ? ` Lo que mas se destaco fue: ${highlights}.` : '';
+
+  return {
+    testimonial: `${clientName} celebro su ${eventType} el ${input.eventDate}${ratingText}. La experiencia AK combino organizacion, tecnologia y atencion cercana para que la fiesta se viviera simple, linda y sin estres.${extra}`,
+    shortQuote: `AK hizo que nuestro ${eventType} se sintiera organizado, moderno y especial.`,
+  };
+}
+
 export async function generateTestimonialFlow(input: GenerateTestimonialInput): Promise<GenerateTestimonialOutput> {
+  const fallback = buildFallback(input);
+  const tieneHighlights = Boolean(input.highlights && input.highlights.filter(Boolean).length > 0);
+
   const canUseAI = await hayPresupuestoParaIA().catch(() => false);
   if (!canUseAI) {
+    if (tieneHighlights) return fallback;
     return {
       testimonial: '',
       shortQuote: '',
@@ -55,12 +72,14 @@ Devolvé SOLO un JSON válido con:
         };
       }
     }
+    if (tieneHighlights) return fallback;
     return {
       testimonial: '',
       shortQuote: '',
       error: 'No se pudo armar el testimonio con IA; probá más tarde',
     };
   } catch {
+    if (tieneHighlights) return fallback;
     return {
       testimonial: '',
       shortQuote: '',

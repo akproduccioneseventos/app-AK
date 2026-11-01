@@ -258,7 +258,7 @@ async function correrMarketingAutomation(options?: {
         }
       }
     } else {
-      seoError = 'falta la clave de la IA';
+      seoError = 'SEO automatico pendiente: falta la clave de Gemini.';
     }
   }
 

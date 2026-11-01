@@ -1192,24 +1192,26 @@ export default function BarraTecnologicaTouchPage() {
                           <p className="text-base font-black uppercase tracking-wide">Con alcohol</p>
                           <p className="mt-1 text-xs text-zinc-400">Versión clásica · Sólo mayores de 18</p>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setDrinkVersion('sin_alcohol')}
-                          data-testid="boton-sin-alcohol"
-                          className={cn(
-                            'min-h-[48px] flex-1 rounded-xl p-4 text-left transition-all border text-white',
-                            drinkVersion === 'sin_alcohol'
-                              ? 'border-emerald-500 bg-emerald-600/20 shadow-lg ring-2 ring-emerald-500'
-                              : 'border-white/10 bg-zinc-900 hover:border-white/20'
-                          )}
-                        >
-                          <p className="text-base font-black uppercase tracking-wide">
-                            {selectedDrink.nombreSinAlcohol ? selectedDrink.nombreSinAlcohol : 'Sin alcohol'}
-                          </p>
-                          <p className="mt-1 text-xs text-emerald-400 font-medium">
-                            {selectedDrink.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
-                          </p>
-                        </button>
+                        {Boolean(selectedDrink.recetaIngredientesSinAlcohol && selectedDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                          <button
+                            type="button"
+                            onClick={() => setDrinkVersion('sin_alcohol')}
+                            data-testid="boton-sin-alcohol"
+                            className={cn(
+                              'min-h-[48px] flex-1 rounded-xl p-4 text-left transition-all border text-white',
+                              drinkVersion === 'sin_alcohol'
+                                ? 'border-emerald-500 bg-emerald-600/20 shadow-lg ring-2 ring-emerald-500'
+                                : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                            )}
+                          >
+                            <p className="text-base font-black uppercase tracking-wide">
+                              {selectedDrink.nombreSinAlcohol ? selectedDrink.nombreSinAlcohol : 'Sin alcohol'}
+                            </p>
+                            <p className="mt-1 text-xs text-emerald-400 font-medium">
+                              {selectedDrink.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
+                            </p>
+                          </button>
+                        )}
                       </div>
 
                       {/* Receta según la versión elegida */}

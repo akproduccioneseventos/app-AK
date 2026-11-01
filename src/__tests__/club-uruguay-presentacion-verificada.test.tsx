@@ -19,6 +19,12 @@ import { MARKETING_CONSENT_STORAGE_KEY } from '@/lib/analytics/marketing-consent
 
 const { renderToStaticMarkup } = require('react-dom/server');
 
+jest.mock('@/lib/analytics-ga', () => ({
+  __esModule: true,
+  trackGaEvent: jest.fn(),
+  GA_MEASUREMENT_ID: 'G-TEST',
+}));
+
 let mockSalones: Salon[] = [];
 
 jest.mock('@/app/actions/salones', () => ({
@@ -201,16 +207,14 @@ describe('Orden 248: Club Uruguay - Presentación verificada y auténtica', () =
 
   describe('Analítica con consentimiento y sin PII', () => {
     it('sin consentimiento de marketing no se envían eventos', () => {
-      const trackSpy = jest.spyOn(analyticsGa, 'trackGaEvent');
       window.localStorage.removeItem(MARKETING_CONSENT_STORAGE_KEY);
 
       const dispatched = trackClubEvent('clickWhatsApp', { ubicacion: 'hero' });
       expect(dispatched).toBe(false);
-      expect(trackSpy).not.toHaveBeenCalled();
+      expect(analyticsGa.trackGaEvent).not.toHaveBeenCalled();
     });
 
     it('con consentimiento aceptado registra evento con parámetros no personales (sin PII)', () => {
-      const trackSpy = jest.spyOn(analyticsGa, 'trackGaEvent').mockImplementation(() => {});
       window.localStorage.setItem(MARKETING_CONSENT_STORAGE_KEY, 'accepted');
 
       const dispatched = trackClubEvent('clickWhatsApp', {
@@ -219,7 +223,7 @@ describe('Orden 248: Club Uruguay - Presentación verificada y auténtica', () =
       });
 
       expect(dispatched).toBe(true);
-      expect(trackSpy).toHaveBeenCalledWith(
+      expect(analyticsGa.trackGaEvent).toHaveBeenCalledWith(
         'clickWhatsApp',
         expect.objectContaining({
           category: 'ClubUruguay',
@@ -230,28 +234,23 @@ describe('Orden 248: Club Uruguay - Presentación verificada y auténtica', () =
       );
 
       // Verificar que NO contiene PII
-      const callArgs = trackSpy.mock.calls[0][1];
+      const callArgs = (analyticsGa.trackGaEvent as jest.Mock).mock.calls[0][1];
       expect(callArgs).not.toHaveProperty('nombre');
       expect(callArgs).not.toHaveProperty('telefono');
       expect(callArgs).not.toHaveProperty('email');
       expect(callArgs).not.toHaveProperty('mensaje');
       expect(callArgs).not.toHaveProperty('fecha');
-
-      trackSpy.mockRestore();
     });
 
     it('un clic en WhatsApp o Simulador no se etiqueta como reserva o cita confirmada', () => {
-      const trackSpy = jest.spyOn(analyticsGa, 'trackGaEvent').mockImplementation(() => {});
       window.localStorage.setItem(MARKETING_CONSENT_STORAGE_KEY, 'accepted');
 
       trackClubEvent('clickWhatsApp', { cta: 'coordinar_visita' });
-      const actionCalled = trackSpy.mock.calls[0][0];
+      const actionCalled = (analyticsGa.trackGaEvent as jest.Mock).mock.calls[0][0];
 
       expect(actionCalled).toBe('clickWhatsApp');
       expect(actionCalled).not.toBe('citaConfirmada');
       expect(actionCalled).not.toBe('reservaConfirmada');
-
-      trackSpy.mockRestore();
     });
   });
 });

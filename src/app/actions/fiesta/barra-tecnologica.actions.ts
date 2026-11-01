@@ -297,7 +297,7 @@ function aggregateRecipe(
   const totals = new Map<string, number>();
   const ingredients = version === 'con_alcohol'
     ? (drink.recetaIngredientes || [])
-    : (drink.recetaIngredientesSinAlcohol !== undefined ? drink.recetaIngredientesSinAlcohol : (drink.recetaIngredientes || []));
+    : (drink.recetaIngredientesSinAlcohol || []);
   for (const ingredient of ingredients) {
     if (!ingredient.insumoId || ingredient.cantidad <= 0) continue;
     totals.set(ingredient.insumoId, (totals.get(ingredient.insumoId) || 0) + ingredient.cantidad);
@@ -652,15 +652,10 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 
     // Pedir a nombre de un invitado exige SU enlace. El totem de la barra pide por
     // nombre, sin invitado, y eso sigue igual.
-    const version = input.version || 'sin_alcohol';
-
     let invitado: ReturnType<typeof findAuthorizedGuest> = null;
     if (input.guestId) {
       invitado = findAuthorizedGuest(fiesta, input.guestId, input.guestAccessToken || '');
       if (!invitado) return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
-      if (invitado.categoria && invitado.categoria !== 'Adulto' && version === 'con_alcohol') {
-        return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
-      }
     }
 
     const pedidoId = input.clientRequestId
@@ -680,6 +675,22 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
     if ((drink.stockDisponible ?? 1) <= 0) return { success: false, error: 'Ese trago figura sin stock disponible.' };
+
+    const isMinor = Boolean(invitado && invitado.categoria && invitado.categoria !== 'Adulto');
+    const hasSinAlcohol = Boolean(drink.recetaIngredientesSinAlcohol && drink.recetaIngredientesSinAlcohol.length > 0);
+
+    let version: 'con_alcohol' | 'sin_alcohol';
+    if (input.version) {
+      version = input.version;
+    } else if (isMinor || hasSinAlcohol) {
+      version = 'sin_alcohol';
+    } else {
+      version = 'con_alcohol';
+    }
+
+    if (isMinor && version === 'con_alcohol') {
+      return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
+    }
 
 
     const guestName = invitado ? sanitizeText(invitado.nombre, 'Invitado') : sanitizeText(input.guestName, 'Invitado');
@@ -728,7 +739,9 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     }
 
     if (!hechoEnUnaOperacion) {
-    order.stockMovements = await descontarStock(drink, { exigirCompleto: true, version });
+      order.stockMovements = version
+        ? await descontarStock(drink, { exigirCompleto: true, version })
+        : await descontarStock(drink, { exigirCompleto: true });
 
     // **El pedido se guarda, Y SE MIRA SI SE GUARDO.**
     //
@@ -817,18 +830,32 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
-    const version = input.version || 'sin_alcohol';
-
+    let invitado: any = null;
     if (input.guestId) {
-      const invitado = (fiesta.invitados || []).find((g) => g.id === input.guestId);
-      if (invitado && invitado.categoria && invitado.categoria !== 'Adulto' && version === 'con_alcohol') {
-        return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
-      }
+      invitado = (fiesta.invitados || []).find((g) => g.id === input.guestId);
     }
 
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
+
+    const isMinor = Boolean(invitado && invitado.categoria && invitado.categoria !== 'Adulto');
+    const hasSinAlcohol = Boolean(drink.recetaIngredientesSinAlcohol && drink.recetaIngredientesSinAlcohol.length > 0);
+
+    let version: 'con_alcohol' | 'sin_alcohol';
+    if (input.version) {
+      version = input.version;
+    } else if (isMinor) {
+      version = 'sin_alcohol';
+    } else if (hasSinAlcohol && input.guestId) {
+      version = 'sin_alcohol';
+    } else {
+      version = 'con_alcohol';
+    }
+
+    if (isMinor && version === 'con_alcohol') {
+      return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
+    }
 
     // Pregunta 58: si la respuesta se perdio y el barman reintenta, el pedido ya esta con ese id:
     // se devuelve ese y NO se vuelven a descontar las botellas.
@@ -953,10 +980,25 @@ export async function changeBarDrinkOrder(
     if (existing.status !== 'nuevo') {
       return { success: false, error: 'El pedido ya esta en preparacion y no se puede cambiar.' };
     }
-    const targetVersion = version || 'sin_alcohol';
-    if (guest.categoria && guest.categoria !== 'Adulto' && targetVersion === 'con_alcohol') {
+
+    const drinks = await getBarDrinks(fiesta);
+    const newDrink = drinks.find((item) => item.id === newDrinkId);
+    const isMinor = Boolean(guest.categoria && guest.categoria !== 'Adulto');
+    const hasSinAlcohol = Boolean(newDrink?.recetaIngredientesSinAlcohol && newDrink.recetaIngredientesSinAlcohol.length > 0);
+
+    let targetVersion: 'con_alcohol' | 'sin_alcohol';
+    if (version) {
+      targetVersion = version;
+    } else if (isMinor || hasSinAlcohol) {
+      targetVersion = 'sin_alcohol';
+    } else {
+      targetVersion = 'con_alcohol';
+    }
+
+    if (isMinor && targetVersion === 'con_alcohol') {
       return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
     }
+
     if (existing.drinkId === newDrinkId && (existing.version || 'sin_alcohol') === targetVersion) {
       return { success: true, order: existing };
     }

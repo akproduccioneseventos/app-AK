@@ -180,17 +180,19 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                                     <span>Con alcohol</span>
                                     <span className="text-[10px] font-normal opacity-75">Mayores de 18</span>
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant={tragoVersion === 'sin_alcohol' ? 'default' : 'outline'}
-                                    onClick={() => setTragoVersion('sin_alcohol')}
-                                    className="min-h-12 flex-col items-start justify-center p-3 text-left font-bold"
-                                >
-                                    <span>{selectedTrago.nombreSinAlcohol || 'Sin alcohol'}</span>
-                                    <span className="text-[10px] font-normal opacity-75">
-                                        {selectedTrago.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
-                                    </span>
-                                </Button>
+                                {Boolean(selectedTrago.recetaIngredientesSinAlcohol && selectedTrago.recetaIngredientesSinAlcohol.length > 0) && (
+                                    <Button
+                                        type="button"
+                                        variant={tragoVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                                        onClick={() => setTragoVersion('sin_alcohol')}
+                                        className="min-h-12 flex-col items-start justify-center p-3 text-left font-bold"
+                                    >
+                                        <span>{selectedTrago.nombreSinAlcohol || 'Sin alcohol'}</span>
+                                        <span className="text-[10px] font-normal opacity-75">
+                                            {selectedTrago.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
+                                        </span>
+                                    </Button>
+                                )}
                             </div>
 
                             {/* Receta */}

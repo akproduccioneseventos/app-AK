@@ -304,20 +304,22 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
                     <span className="text-xs opacity-75">Solo mayores de 18</span>
                   </Button>
                 )}
-                <Button
-                  type="button"
-                  variant={selectedVersion === 'sin_alcohol' ? 'default' : 'outline'}
-                  onClick={() => setSelectedVersion('sin_alcohol')}
-                  className="min-h-12 w-full justify-between px-4 text-left font-bold"
-                >
-                  <div className="flex flex-col text-left">
-                    <span>{selectedDrink.nombreSinAlcohol || 'Sin alcohol'}</span>
-                    {selectedDrink.nombreSinAlcohol && (
-                      <span className="text-[11px] font-normal opacity-75">Sabor distinto, sin alcohol</span>
-                    )}
-                  </div>
-                  <span className="text-xs font-semibold text-emerald-600">0% alcohol</span>
-                </Button>
+                {Boolean(selectedDrink.recetaIngredientesSinAlcohol && selectedDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                  <Button
+                    type="button"
+                    variant={selectedVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                    onClick={() => setSelectedVersion('sin_alcohol')}
+                    className="min-h-12 w-full justify-between px-4 text-left font-bold"
+                  >
+                    <div className="flex flex-col text-left">
+                      <span>{selectedDrink.nombreSinAlcohol || 'Sin alcohol'}</span>
+                      {selectedDrink.nombreSinAlcohol && (
+                        <span className="text-[11px] font-normal opacity-75">Sabor distinto, sin alcohol</span>
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-600">0% alcohol</span>
+                  </Button>
+                )}
               </div>
 
               {/* Receta */}
@@ -335,7 +337,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
           ) : (
             <p className="py-3 text-sm leading-relaxed text-slate-600">Elegí el nuevo trago de la carta para cambiar tu pedido actual.</p>
           )}
-          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
+          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering || (esMenor && !selectedDrink.recetaIngredientesSinAlcohol?.length)} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
         </DialogContent>
       </Dialog>
       <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>

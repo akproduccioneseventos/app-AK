@@ -97,7 +97,7 @@ export interface BarTechnologyDashboard {
 
 export type PublicBarDrink = Pick<
   Trago,
-  'id' | 'nombre' | 'imageUrl' | 'descripcion' | 'description' | 'videoUrl' | 'ingredientes' | 'stockDisponible' | 'soloMayores' | 'recetaSinAlcohol' | 'nombreSinAlcohol' | 'recetaIngredientes'
+  'id' | 'nombre' | 'imageUrl' | 'descripcion' | 'description' | 'videoUrl' | 'ingredientes' | 'stockDisponible' | 'soloMayores' | 'recetaSinAlcohol' | 'nombreSinAlcohol' | 'recetaIngredientes' | 'recetaIngredientesSinAlcohol'
 >;
 
 export interface PublicBarTechnologyDashboard {

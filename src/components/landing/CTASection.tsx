@@ -6,7 +6,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import type { PromoActiva } from '@/types/promo';
-import { SimulatorMeetingScheduler } from '@/components/simulator/SimulatorMeetingScheduler';
 import { EntrevistaGratuitaModal } from './EntrevistaGratuitaModal';
 
 function formatearFechaFin(fechaStr?: string): string {

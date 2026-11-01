@@ -430,17 +430,19 @@ export default function BarmanScreenPage() {
                 >
                   Con alcohol
                 </Button>
-                <Button
-                  type="button"
-                  variant={quickVersion === 'sin_alcohol' ? 'default' : 'outline'}
-                  onClick={() => setQuickVersion('sin_alcohol')}
-                  className={cn(
-                    'min-h-[48px] border-white/20 font-bold',
-                    quickVersion === 'sin_alcohol' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-white/80'
-                  )}
-                >
-                  {quickDrink.nombreSinAlcohol || 'Sin alcohol'}
-                </Button>
+                {Boolean(quickDrink.recetaIngredientesSinAlcohol && quickDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                  <Button
+                    type="button"
+                    variant={quickVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                    onClick={() => setQuickVersion('sin_alcohol')}
+                    className={cn(
+                      'min-h-[48px] border-white/20 font-bold',
+                      quickVersion === 'sin_alcohol' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-white/80'
+                    )}
+                  >
+                    {quickDrink.nombreSinAlcohol || 'Sin alcohol'}
+                  </Button>
+                )}
               </div>
               <div className="rounded-lg bg-white/5 p-3 text-xs text-white/70">
                 <p className="font-semibold text-white/50">Receta {quickVersion === 'con_alcohol' ? 'con alcohol' : 'sin alcohol'}:</p>
