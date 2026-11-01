@@ -658,6 +658,10 @@
     "orden-258": {
       "fecha": "2026-11-01",
       "resultado": "Pregunta 111 sobre la segunda vuelta de 242-248: pruebas viejas rotas por cambios no pedidos (promo de portada, recorrido de la app, permisos) y la receta sin alcohol que cae a la con alcohol. Va en la orden 258."
+    },
+    "orden-259": {
+      "fecha": "2026-11-01",
+      "resultado": "Tercera vuelta 242-248: las 7 pruebas de navegador nuevas no se habían corrido (id repetido, título duplicado, textos que no se ven). Va en la orden 259."
     }
   }
 }
