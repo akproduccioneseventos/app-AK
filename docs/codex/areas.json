@@ -99,6 +99,7 @@
         "src/app/(app)/settings/feature-flags",
         "src/app/(app)/auditoria",
         "src/app/signup",
+        "src/app/entrar",
         "src/app/(app)/empleados/roles",
         "src/app/api/admin",
         "src/app/(app)/settings/company",

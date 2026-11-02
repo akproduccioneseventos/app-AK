@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { entrarAlPortalPorTelefono } from '@/app/actions/fiesta/portal.actions';
+import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
 
 export function EntrarClient() {
   const router = useRouter();
@@ -296,6 +297,8 @@ export function EntrarClient() {
                         {errorCliente}
                       </p>
                     )}
+
+                    <AvisoDeDatos para="cliente" />
 
                     <button
                       type="submit"

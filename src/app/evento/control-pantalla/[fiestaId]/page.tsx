@@ -40,6 +40,7 @@ import {
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { getSocialPosts, moderateSocialPost } from '@/app/actions/social-gallery';
 import { terminarTrivia, revelarRespuestaTrivia } from '@/app/actions/games.actions';
+import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
 import type { ActiveGameData, ScreenPlaylistItem } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
@@ -581,6 +582,10 @@ export default function ControlPantallaPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="text-center opacity-70 scale-90">
+            <AvisoDeDatos para="invitado" />
           </div>
         </section>
 

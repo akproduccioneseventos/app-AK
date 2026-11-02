@@ -54,7 +54,7 @@ function createScreenAssetId() {
   return `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export const DEFAULT_SCREEN_PLAYLIST: ScreenPlaylistItem[] = [
+const DEFAULT_SCREEN_PLAYLIST: ScreenPlaylistItem[] = [
   { id: 'item_video', type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
   { id: 'item_mural', type: 'mural', title: 'Mural de fotos', durationSeconds: 30, enabled: true, layout: 'auto' },
   { id: 'item_audioritmico', type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: false, layout: 'auto' },
@@ -129,7 +129,7 @@ export async function pauseScreenPlaylist(fiestaId: string): Promise<{ success: 
 
 /** Avanza al siguiente ítem de la playlist */
 export async function nextScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, PERMISOS.NOCHE);
   return patchScreenMode(fiestaId, (mode) => {
     const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
     if (playlist.length === 0) return {};
@@ -141,7 +141,7 @@ export async function nextScreenItem(fiestaId: string): Promise<{ success: boole
 
 /** Retrocede al ítem anterior de la playlist */
 export async function prevScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, PERMISOS.NOCHE);
   return patchScreenMode(fiestaId, (mode) => {
     const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
     if (playlist.length === 0) return {};
@@ -175,7 +175,6 @@ export async function updateLedMessage(
   fiestaId: string,
   text: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const resultado = await actualizarFiesta(fiestaId, (fiesta) => ({
@@ -246,7 +245,8 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
   }
 }
 
-export const verificarAccesoControlPantalla = obtenerEstadoControlPantalla;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const verificarAccesoControlPantalla = obtenerEstadoControlPantalla;
 
 /** Registra un momento especial en vivo (aparece como overlay en la pantalla gigante) */
 export async function triggerLiveMoment(
@@ -301,7 +301,6 @@ export async function updateScreenBrand(
 export async function uploadScreenMediaAsset(
   formData: FormData
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
-  await requireAppSession();
   try {
     const fiestaId = formData.get('fiestaId') as string | null;
     const file = formData.get('file') as File | null;
@@ -369,7 +368,6 @@ export async function launchGame(
   fiestaId: string,
   game: Omit<ActiveGameData, 'launchedAt'>
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     if (game.type === 'trivia' && fiesta.triviaGame && !fiesta.triviaGame.confirmadaPorEquipo) {
