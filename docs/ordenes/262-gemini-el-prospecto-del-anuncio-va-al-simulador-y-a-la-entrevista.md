@@ -67,6 +67,18 @@ repite el mensaje.
 Hoy `atenderProspectoAnuncioWhatsApp` arma `respuestaTexto` pidiendo lo que falta, pero **nadie lo manda**. Que el webhook
 lo envíe igual que en el bloque 1, y siga con `processIncomingMessage` sólo si no hubo respuesta del anuncio.
 
+## Bloque 3 — los mensajes que preparan los agentes no pisan la bandeja
+
+`src/lib/agentes/motor-agentes.ts:~495` hace `writeData('scheduled-messages.json', [...scheduledMessages, ...nuevos])`.
+Lee la bandeja, le suma y la guarda **entera**. Si en el medio alguien agrega o borra un mensaje, eso se pierde.
+
+Cambialo por un guardado con turno:
+
+- `mutateGenericJsonArray` (`src/lib/generic-json-store.ts`), agregando sólo los nuevos;
+- sin duplicar por `idEstable`.
+
+**Prueba:** dos guardados a la vez, con una base de mentira que devuelve **copias**, conservan los mensajes de los dos.
+
 ## Pruebas
 
 **Jest**, en `src/__tests__/el-prospecto-del-anuncio-va-al-simulador.test.ts`, con Meta simulado. Tiene que comprobar:
@@ -85,6 +97,7 @@ Corré `npx tsc --noEmit`, `npx jest --silent` y `npm run check:acentos`, y peg�
 `src/data/`.
 
 ```comprobar
+no-usa: writeData('scheduled-messages.json' en src/lib/agentes/motor-agentes.ts
 usa: enlaceAlSimuladorDelProspecto en src/app/api/whatsapp/webhook/route.ts
 usa: sendMetaWhatsAppMessage en src/app/api/whatsapp/webhook/route.ts
 prueba: src/__tests__/el-prospecto-del-anuncio-va-al-simulador.test.ts
