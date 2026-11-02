@@ -50,7 +50,7 @@ En los ajustes de la estación 360 sumá `estiloEdicion360`, con tres opciones:
 - **"Sólo cámara lenta"**: sin la ida y vuelta.
 - **"Normal"**: sin efectos de velocidad.
 
-El invitado no elige nada: graba y sale editado. El ajuste tiene que llegar a la estación; usá el mismo camino que
+La 360 la maneja el operador de AK, no el invitado: el operador toca grabar y el video sale editado solo, sin elegir nada en cada toma. Los textos de la pantalla de la estación le hablan al operador; el invitado sólo ve el resultado y el QR. El ajuste tiene que llegar a la estación; usá el mismo camino que
 `vueltas360`.
 
 ## Pruebas
