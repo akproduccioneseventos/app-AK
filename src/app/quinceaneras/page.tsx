@@ -7,7 +7,7 @@ import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'quinceaneras',
   title: 'Fiestas de 15 en Salto, Uruguay | AK Producciones',
-  description: 'Organizamos fiestas de 15 en Salto de principio a fin: salón, comida, discoteca, barra sin alcohol, fotocabina y espejo mágico. Un solo equipo a cargo. Presupuesto cerrado y sin compromiso.',
+  description: 'Organizamos fiestas de 15 en Salto de principio a fin: salón, comida, discoteca, barra sin alcohol, fotocabina y espejo mágico. Un solo equipo a cargo. Presupuesto detallado y sin compromiso.',
   image: '/media/catalogo-servicios/quinceanera_persuasiva.png',
   imageAlt: 'Fiesta de 15 años producida por AK Producciones',
 });

@@ -276,6 +276,9 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.06, unidad: 'Litro' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.075, unidad: 'Litro' },
+      ],
       recetaSinAlcohol: ['Durazno en almíbar: 1 mitad', 'Jugo de naranja: 2½ oz (75 ml)', 'Azúcar: 1 cucharadita', 'Hielo: 3–4 cubitos', 'Agua: cantidad necesaria hasta rendir 300 ml'],
     },
     {
@@ -289,6 +292,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
       ],
+      recetaIngredientesSinAlcohol: [],
       recetaSinAlcohol: ['Frutillas: 5–6 unidades', 'Azúcar: 1–2 cucharaditas', 'Hielo: 3–4 cubitos', 'Agua: cantidad necesaria hasta rendir 300 ml'],
     },
     {
@@ -303,6 +307,9 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.06, unidad: 'Litro' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.075, unidad: 'Litro' },
+      ],
       recetaSinAlcohol: ['Ananá: 2 rodajas chicas', 'Jugo de ananá: 2½ oz (75 ml)', 'Azúcar: 1 cucharadita', 'Hielo: 3–4 cubitos', 'Agua: cantidad necesaria hasta rendir 300 ml'],
     },
     {
@@ -316,6 +323,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.06, unidad: 'Litro' },
+      ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.075, unidad: 'Litro' },
       ],
       recetaSinAlcohol: ['Durazno: 1 rodaja', 'Ananá: 2 rodajas chicas', 'Jugo de naranja: 2½ oz (75 ml)', 'Azúcar: 1 cucharadita', 'Hielo: 3–4 cubitos', 'Agua: cantidad necesaria hasta rendir 300 ml'],
     },
@@ -332,6 +342,10 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-blue-curacao-sin-alcohol', nombre: 'Jarabe Blue Curaçao sin alcohol', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.17, unidad: 'Litro' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-blue-curacao-sin-alcohol', nombre: 'Jarabe Blue Curaçao sin alcohol', cantidad: 0.02, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.185, unidad: 'Litro' },
+      ],
       recetaSinAlcohol: ['Jarabe Blue Curaçao sin alcohol: ½ oz (15 ml)', 'Hielo: ½ vaso', 'Jugo de naranja: completar hasta 300 ml'],
     },
     {
@@ -345,6 +359,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-cana-uruguaya', nombre: 'Caña uruguaya', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-soda', nombre: 'Soda', cantidad: 0.185, unidad: 'Litro' },
+      ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-soda', nombre: 'Soda', cantidad: 0.2, unidad: 'Litro' },
       ],
       recetaSinAlcohol: ['Limón: ½ unidad', 'Azúcar: 2 cucharaditas', 'Hielo picado: ½ vaso', 'Soda o agua con gas: completar hasta 300 ml'],
     },
@@ -362,6 +379,11 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.03, unidad: 'Litro' },
         { insumoId: 'ing-granadina-sin-alcohol', nombre: 'Granadina sin alcohol', cantidad: 0.0067, unidad: 'Botella' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.165, unidad: 'Litro' },
+        { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.03, unidad: 'Litro' },
+        { insumoId: 'ing-granadina-sin-alcohol', nombre: 'Granadina sin alcohol', cantidad: 0.0067, unidad: 'Botella' },
+      ],
       recetaSinAlcohol: ['Jugo de naranja: 2½ oz (75 ml)', 'Jugo de ananá: 1 oz (30 ml)', 'Granadina sin alcohol: 1 cucharadita (5 ml)', 'Hielo: ½ vaso', 'Jugo de naranja: completar hasta 300 ml'],
     },
     {
@@ -375,6 +397,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-fernet', nombre: 'Fernet', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.185, unidad: 'Litro' },
+      ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.185, unidad: 'Litro' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.015, unidad: 'Litro' },
       ],
       recetaSinAlcohol: ['Coca-Cola: completar hasta 300 ml', 'Jugo de naranja: 1 cucharada (15 ml)', 'Hielo: ½ vaso'],
       nombreSinAlcohol: 'Cola con naranja',
@@ -393,6 +419,11 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.03, unidad: 'Litro' },
         { insumoId: 'ing-granadina-sin-alcohol', nombre: 'Granadina sin alcohol', cantidad: 0.0067, unidad: 'Botella' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.165, unidad: 'Litro' },
+        { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.03, unidad: 'Litro' },
+        { insumoId: 'ing-granadina-sin-alcohol', nombre: 'Granadina sin alcohol', cantidad: 0.0067, unidad: 'Botella' },
+      ],
       recetaSinAlcohol: ['Jugo de naranja: 3½ oz (105 ml)', 'Jugo de ananá: 1 oz (30 ml)', 'Granadina sin alcohol: 1 cucharadita (5 ml)', 'Hielo: ½ vaso', 'Jugo de naranja: completar hasta 300 ml'],
     },
     {
@@ -406,6 +437,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.185, unidad: 'Litro' },
+      ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.09, unidad: 'Litro' },
+        { insumoId: 'ing-soda', nombre: 'Soda', cantidad: 0.105, unidad: 'Litro' },
       ],
       recetaSinAlcohol: ['Jugo de naranja: 3 oz (90 ml)', 'Jugo de limón: 1 cucharadita (5 ml)', 'Hielo: ½ vaso', 'Soda o agua con gas: completar hasta 300 ml'],
       nombreSinAlcohol: 'Naranjada',
@@ -422,6 +457,9 @@ export const defaultCartaTragosData: CartaTragosData = {
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.185, unidad: 'Litro' },
       ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.2, unidad: 'Litro' },
+      ],
       recetaSinAlcohol: ['Coca-Cola: completar hasta 300 ml', 'Limón: 1 rodaja', 'Hielo: ½ vaso'],
       nombreSinAlcohol: 'Cola con limón',
     },
@@ -436,6 +474,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-pomelo', nombre: 'Gaseosa de Pomelo', cantidad: 0.185, unidad: 'Litro' },
+      ],
+      recetaIngredientesSinAlcohol: [
+        { insumoId: 'ing-pomelo', nombre: 'Gaseosa de Pomelo', cantidad: 0.2, unidad: 'Litro' },
       ],
       recetaSinAlcohol: ['Refresco de pomelo: completar hasta 300 ml', 'Limón: 1 rodaja', 'Hielo: ½ vaso'],
       nombreSinAlcohol: 'Pomelo con limón',

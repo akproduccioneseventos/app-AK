@@ -80,6 +80,16 @@ export function LandingSpaContainer({
         {/* Bloque 2: Tipos de evento */}
         {dashboardSection("services", services)}
 
+        {/* Testimonios: justo después de services y antes de technology */}
+        {dashboardSection(
+          "testimonials",
+          <Fragment>
+            <div id="landing-testimonials-faq" className="contents">
+              {testimonials}
+            </div>
+          </Fragment>,
+        )}
+
         {/* Bloque 3: Tranquilidad + trayectoria + equipo */}
         {dashboardSection(
           "difference",
@@ -103,16 +113,6 @@ export function LandingSpaContainer({
           <Fragment>
             {gallery}
             {video}
-          </Fragment>,
-        )}
-
-        {/* Bloque 7: Prueba social + método en 3 pasos */}
-        {dashboardSection(
-          "testimonials",
-          <Fragment>
-            <div id="landing-testimonials-faq" className="contents">
-              {testimonials}
-            </div>
           </Fragment>,
         )}
 

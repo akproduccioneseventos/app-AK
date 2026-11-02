@@ -39,6 +39,8 @@ export interface MarketingAutomationResult {
   skipped: boolean;
   source: 'admin' | 'cron';
   ranSeo: boolean;
+  seoSucceeded?: boolean;
+  seoError?: string;
   ranInstagram: boolean;
   nextSeoAt?: string;
   nextInstagramAt?: string;
@@ -196,6 +198,34 @@ async function correrMarketingAutomation(options?: {
     }
   }
 
+  try {
+    const { readData: readDataBlog } = await import('@/lib/data-service');
+    const existingPosts = await readDataBlog<any[]>('blog-posts.json', []);
+    if (existingPosts && existingPosts.length > 0) {
+      const fechas = existingPosts
+        .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))
+        .filter((t: number) => !Number.isNaN(t) && t > 0);
+      const ultimaFechaMs = fechas.length > 0 ? Math.max(...fechas) : 0;
+      if (ultimaFechaMs > 0) {
+        const diffDias = (now.getTime() - ultimaFechaMs) / (24 * 60 * 60 * 1000);
+        if (diffDias > 4) {
+          const { createNotification } = await import('@/lib/notifications/create-notification');
+          // no-mira-el-resultado: aviso secundario al dueño si pasan días sin publicar en el blog
+          await createNotification({
+            titulo: 'Blog sin publicaciones recientes',
+            mensaje: `Hace ${Math.floor(diffDias)} días que no se publica una nueva nota en el blog.`,
+            tipo: 'aviso',
+            rolDestino: 'admin',
+            href: '/settings/contenido-publico',
+            icono: 'FileText',
+          }).catch(() => null);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[marketing-automation] Error revisando antigüedad de notas del blog:', err);
+  }
+
   if (seoDue) {
     if (hasUsableAiKey()) {
       // Lo que se paga pasa por el contador. Antes generaba sin mirar el tope
@@ -204,14 +234,31 @@ async function correrMarketingAutomation(options?: {
       const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
 
       if (!(await hayPresupuestoParaIA())) {
-        seoError = 'SEO automatico en pausa: se llego al tope de gasto de inteligencia artificial del mes.';
+        seoError = 'se llegó al tope de gasto del mes';
       } else {
-        blogResult = await generateBlogPostAndSocialDraft();
-        await registrarConsumoIA('nota-del-blog');
-        nextState.lastSeoRunAt = now.toISOString();
+        try {
+          blogResult = await generateBlogPostAndSocialDraft();
+          await registrarConsumoIA('nota-del-blog');
+          nextState.lastSeoRunAt = now.toISOString();
+        } catch (err: any) {
+          await registrarConsumoIA('nota-del-blog').catch(() => null);
+          const esPromesa = err?.message && /promesas? no permitidas?|promesa/i.test(err.message);
+          if (esPromesa) {
+            try {
+              blogResult = await generateBlogPostAndSocialDraft({ offset: 1 });
+              await registrarConsumoIA('nota-del-blog').catch(() => null);
+              nextState.lastSeoRunAt = now.toISOString();
+            } catch (err2: any) {
+              await registrarConsumoIA('nota-del-blog').catch(() => null);
+              seoError = 'la IA escribió una promesa prohibida';
+            }
+          } else {
+            seoError = err?.message || 'Error al generar nota de blog';
+          }
+        }
       }
     } else {
-      seoError = 'SEO automatico pendiente: falta una clave valida de Gemini.';
+      seoError = 'SEO automatico pendiente: falta la clave de Gemini.';
     }
   }
 
@@ -233,6 +280,8 @@ async function correrMarketingAutomation(options?: {
     skipped: false,
     source,
     ranSeo: seoSucceeded,
+    seoSucceeded,
+    seoError,
     ranInstagram: instagramSucceeded,
     nextSeoAt: nextState.lastSeoRunAt ? addMs(nextState.lastSeoRunAt, SEO_INTERVAL_MS) : nextSeoAt,
     nextInstagramAt: nextState.lastInstagramSyncAt ? addMs(nextState.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS) : nextInstagramAt,

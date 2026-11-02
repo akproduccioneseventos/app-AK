@@ -130,7 +130,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
               </div>
             </div>
             <p className="text-sm text-zinc-300 max-w-lg font-medium leading-relaxed">
-              Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.
+              Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía y catering, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.
             </p>
           </div>
 
@@ -173,13 +173,13 @@ export function PublicFooter({ className }: PublicFooterProps) {
               <li>
                 <Link href="/club-uruguay" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500 group-hover:w-3 transition-all duration-300" />
-                  Salón Club Uruguay (Exclusivo)
+                  Club Uruguay Salto (Uruguay 754)
                 </Link>
               </li>
               <li>
                 <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
-                  Gastronomía Gourmet & Catering
+                  Gastronomía y catering
                 </a>
               </li>
               <li>

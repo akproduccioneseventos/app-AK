@@ -104,7 +104,7 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await expect(openSummary, 'No se encontro el boton que arma la propuesta final').toBeVisible({ timeout: 20_000 });
   await openSummary.click();
 
-  await expect(page.getByRole('heading', { name: /Tu presupuesto est[aá] listo/i })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('heading', { name: /Tu presupuesto est[aá] listo|Esta es tu fiesta, y este es tu presupuesto estimado/i })).toBeVisible({ timeout: 60_000 });
   // Antes la pantalla prometia una respuesta "en 15 minutos" y esa promesa se
   // saco: el negocio no la puede garantizar, y una promesa que no se cumple es
   // peor que no hacerla. Lo que si tiene que estar es la forma de cerrar, que es

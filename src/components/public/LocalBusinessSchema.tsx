@@ -1,4 +1,4 @@
-﻿import { AK_SAME_AS_URLS, AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { AK_SAME_AS_URLS, AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export function LocalBusinessSchema() {
   const schemaData = {
@@ -27,7 +27,7 @@ export function LocalBusinessSchema() {
       "name": "Salto",
       "sameAs": "https://es.wikipedia.org/wiki/Salto_(Uruguay)"
     },
-    "description": "Organización completa y producción integral de fiestas de 15 años, bodas y eventos en Salto, Uruguay. Cobertura en todos los salones de fiestas con discoteca, gastronomía gourmet, salones de gala y tecnología interactiva.",
+    "description": "Organización completa y producción integral de fiestas de 15 años, bodas y eventos en Salto, Uruguay. Cobertura en todos los salones de fiestas con discoteca, gastronomía y catering, salones de gala y tecnología interactiva.",
     "sameAs": AK_SAME_AS_URLS
   };
 

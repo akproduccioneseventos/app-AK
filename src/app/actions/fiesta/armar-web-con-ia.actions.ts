@@ -285,7 +285,13 @@ const FALTA_EL_NOMBRE = 'Falta cargar el nombre del agasajado en la fiesta. Carg
 export async function armarWebConIA(
   fiestaId: string,
   options?: { rehacer?: boolean },
-): Promise<{ success: boolean; invitacionDigital?: InvitacionDigitalData; error?: string }> {
+): Promise<{
+  success: boolean;
+  invitacionDigital?: InvitacionDigitalData;
+  error?: string;
+  esBaseSinIA?: boolean;
+  mensaje?: string;
+}> {
   await requireFiestaWriteAccess(fiestaId);
 
   try {
@@ -302,8 +308,14 @@ export async function armarWebConIA(
       fiesta.invitacionDigital,
       options?.rehacer ?? false,
     );
+    const esBaseSinIA = Boolean((generada as any)?.esBaseSinIA);
 
-    return { success: true, invitacionDigital };
+    return {
+      success: true,
+      invitacionDigital,
+      esBaseSinIA,
+      mensaje: esBaseSinIA ? 'Armé una versión base sin IA; revisala' : undefined,
+    };
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : 'Error inesperado al armar la web con IA.';
     return { success: false, error: errorMsg };

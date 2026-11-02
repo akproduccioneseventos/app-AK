@@ -90,7 +90,7 @@ export const PROMO_PAGES: Record<string, PromoConfig> = {
         title: 'Todo incluido',
         subtitle: 'Paquete Bodas 2026',
         description:
-          'Un paquete completo y personalizado que cubre desde la decoración hasta el último baile. Precio fijo, sin sorpresas.',
+          'Un paquete completo y personalizado que cubre desde la decoración hasta el último baile. Precio claro, sin sorpresas.',
         features: [
           'Coordinación completa del día',
           'Decoración floral y ambientación',

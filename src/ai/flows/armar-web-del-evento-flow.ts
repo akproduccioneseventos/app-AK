@@ -234,6 +234,7 @@ Devolvé un único objeto JSON con esta estructura exacta:
 }`;
 
   let parsedIA: ArmarWebOutput;
+  let usoFallbackSinIA = false;
 
   try {
     const model = getGeminiModelForAgent('fiestas_general');
@@ -246,7 +247,10 @@ Devolvé un único objeto JSON con esta estructura exacta:
     const crudo = (result.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
     const jsonParsed = JSON.parse(crudo);
     parsedIA = ArmarWebOutputSchema.parse(jsonParsed);
+    // Solo si la IA generó exitosamente registramos consumo
+    await registrarConsumoIA('armar-web-evento');
   } catch (error) {
+    usoFallbackSinIA = true;
     console.error('Error al generar web con IA fallback manual:', error);
     // En caso de falla del modelo, armamos una estructura limpia y determinista sin romper
     const plantillaFallback = elegirPlantillaPorDefecto(tipoEvento);
@@ -277,9 +281,6 @@ Devolvé un único objeto JSON con esta estructura exacta:
       },
     };
   }
-
-  // 4. Registrar consumo tras la llamada
-  await registrarConsumoIA('armar-web-evento');
 
   // Asegurar protagonista1 limpio si vino 15 de X
   const protagonista1Final =
@@ -571,6 +572,10 @@ Devolvé un único objeto JSON con esta estructura exacta:
   ];
 
   invitacionData.secciones = secciones;
+  if (usoFallbackSinIA) {
+    (invitacionData as any).esBaseSinIA = true;
+    (invitacionData as any).aviso = 'Armé una versión base sin IA; revisala';
+  }
   return invitacionData;
 }
 

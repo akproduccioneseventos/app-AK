@@ -82,6 +82,7 @@ export default function BarmanScreenPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [quickDrink, setQuickDrink] = useState<Trago | null>(null);
+  const [quickVersion, setQuickVersion] = useState<'con_alcohol' | 'sin_alcohol'>('con_alcohol');
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
 
   const beep = useCallback(() => {
@@ -137,12 +138,12 @@ export default function BarmanScreenPage() {
     setUpdatingId(null);
   };
 
-  const handleQuickOrder = async (drinkId: string) => {
+  const handleQuickOrder = async (drinkId: string, version: 'con_alcohol' | 'sin_alcohol' = quickVersion) => {
     setUpdatingId(drinkId);
     // Pregunta 58: reintento de una respuesta perdida = el mismo pedido, sin descontar botellas otra vez.
     const alcance = `barman:${fiestaId}`;
-    const clientRequestId = await obtenerIntento(alcance, { drinkId });
-    const result = await createBarmanManualOrder({ fiestaId, drinkId, clientRequestId });
+    const clientRequestId = await obtenerIntento(alcance, { drinkId, version });
+    const result = await createBarmanManualOrder({ fiestaId, drinkId, clientRequestId, version });
     if (!result.success) {
       toast({ title: 'Error', description: result.error, variant: 'destructive' });
     } else {
@@ -330,7 +331,7 @@ export default function BarmanScreenPage() {
                 key={drink.id}
                 variant="secondary"
                 className="whitespace-nowrap rounded-lg h-12 font-bold bg-white/10 hover:bg-white/20 text-white border border-white/5"
-                onClick={() => setQuickDrink(drink)}
+                onClick={() => { setQuickDrink(drink); setQuickVersion('con_alcohol'); }}
               >
                 {drink.nombre}
               </Button>
@@ -413,12 +414,53 @@ export default function BarmanScreenPage() {
               ¿Registrar entrega de {quickDrink?.nombre}? Se descontará del stock.
             </DialogDescription>
           </DialogHeader>
+
+          {quickDrink && (
+            <div className="mt-2 space-y-3">
+              <p className="text-xs font-bold uppercase text-white/50">Elegí la versión a entregar:</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={quickVersion === 'con_alcohol' ? 'default' : 'outline'}
+                  onClick={() => setQuickVersion('con_alcohol')}
+                  className={cn(
+                    'min-h-[48px] border-white/20 font-bold',
+                    quickVersion === 'con_alcohol' ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-white/80'
+                  )}
+                >
+                  Con alcohol
+                </Button>
+                {Boolean(quickDrink.recetaIngredientesSinAlcohol && quickDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                  <Button
+                    type="button"
+                    variant={quickVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                    onClick={() => setQuickVersion('sin_alcohol')}
+                    className={cn(
+                      'min-h-[48px] border-white/20 font-bold',
+                      quickVersion === 'sin_alcohol' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-white/80'
+                    )}
+                  >
+                    {quickDrink.nombreSinAlcohol || 'Sin alcohol'}
+                  </Button>
+                )}
+              </div>
+              <div className="rounded-lg bg-white/5 p-3 text-xs text-white/70">
+                <p className="font-semibold text-white/50">Receta {quickVersion === 'con_alcohol' ? 'con alcohol' : 'sin alcohol'}:</p>
+                <p className="mt-1">
+                  {quickVersion === 'con_alcohol'
+                    ? (quickDrink.ingredientes?.join(', ') || 'Ingredientes clásicos')
+                    : (quickDrink.recetaSinAlcohol?.join(', ') || '0% alcohol')}
+                </p>
+              </div>
+            </div>
+          )}
+
           <DialogFooter className="sm:justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setQuickDrink(null)} className="border-white/20 bg-transparent text-white hover:bg-white/10">No, cancelar</Button>
             <Button
                disabled={updatingId === quickDrink?.id}
-               onClick={() => quickDrink && handleQuickOrder(quickDrink.id)}
-               className="bg-emerald-600 hover:bg-emerald-700 text-white"
+               onClick={() => quickDrink && handleQuickOrder(quickDrink.id, quickVersion)}
+               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold min-h-12"
             >
               Sí, registrar
             </Button>
@@ -615,6 +657,17 @@ function OrderColumn({
                 <div>
                   <p className="text-xl font-black leading-tight">{order.drinkName}</p>
                   <p className="font-bold text-slate-500">{order.guestName}{order.tableNumber ? ` · ${order.tableNumber}` : ''}</p>
+                  <div className="mt-2">
+                    {order.version === 'con_alcohol' ? (
+                      <span className="inline-block rounded-md bg-purple-700 px-2.5 py-1 text-xs font-black tracking-wider text-white shadow-sm">
+                        CON ALCOHOL
+                      </span>
+                    ) : (
+                      <span className="inline-block rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-black tracking-wider text-white shadow-sm">
+                        SIN ALCOHOL
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="rounded-lg bg-slate-100 px-3 py-2 text-right">
                   <p className="text-xs font-black uppercase text-slate-400">Hace</p>

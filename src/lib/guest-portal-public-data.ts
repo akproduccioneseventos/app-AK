@@ -75,6 +75,7 @@ export type PublicGuest = Pick<
   | "nombre"
   | "rsvp"
   | "tableNumber"
+  | "categoria"
   | "dietaryRestriction"
   | "alergiasEspecificas"
   | "cancionesDJ"
@@ -186,6 +187,7 @@ export function buildPublicGuestPortalData(
       nombre: guest.nombre,
       rsvp: guest.rsvp,
       tableNumber: guest.tableNumber,
+      categoria: guest.categoria,
       dietaryRestriction: guest.dietaryRestriction,
       alergiasEspecificas: guest.alergiasEspecificas,
       cancionesDJ: guest.cancionesDJ,

@@ -852,7 +852,7 @@ function GuestPortalContent() {
       {showQuiosco && (
         <MiniQuiosco
           fiestaId={fiestaId}
-          guest={{ id: guest.id, nombre: guest.nombre, tableNumber: guest.tableNumber }}
+          guest={{ id: guest.id, nombre: guest.nombre, tableNumber: guest.tableNumber, categoria: guest.categoria }}
           guestAccessToken={guestAccessToken}
           canShareToSocial={socialEnabled}
           onClose={() => setShowQuiosco(false)}

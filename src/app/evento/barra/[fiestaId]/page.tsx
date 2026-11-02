@@ -28,6 +28,7 @@ import {
   QrCode,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -83,6 +84,7 @@ export default function BarraTecnologicaTouchPage() {
 
   // Ordering State
   const [selectedDrink, setSelectedDrink] = useState<PublicBarDrink | null>(null);
+  const [drinkVersion, setDrinkVersion] = useState<'con_alcohol' | 'sin_alcohol'>('con_alcohol');
   const [lastOrderedDrink, setLastOrderedDrink] = useState<PublicBarDrink | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
@@ -693,6 +695,7 @@ export default function BarraTecnologicaTouchPage() {
         guestName,
         tableNumber: 'Totem Táctil',
         clientRequestId: pedidoId,
+        version: drinkVersion,
       });
       if (result.success && result.order) {
         currentClientRequestIdRef.current = null;
@@ -1161,20 +1164,71 @@ export default function BarraTecnologicaTouchPage() {
 
                     <div className="flex flex-col justify-center p-7 md:p-10">
                       <p className="text-sm font-bold uppercase text-red-500">Tu elección</p>
-                      <h2 className="mt-2 text-4xl font-black text-white md:text-5xl">{selectedDrink.nombre}</h2>
+                      <h2 className="mt-2 text-4xl font-black text-white md:text-5xl">
+                        {drinkVersion === 'sin_alcohol' && selectedDrink.nombreSinAlcohol
+                          ? selectedDrink.nombreSinAlcohol
+                          : selectedDrink.nombre}
+                      </h2>
 
                       {settings?.showDrinkDescription && (
-                        <p className="mt-5 text-lg leading-relaxed text-zinc-300">
+                        <p className="mt-3 text-base leading-relaxed text-zinc-300">
                           {getDrinkDescription(selectedDrink)}
                         </p>
                       )}
 
-                      {settings?.showIngredients && selectedDrink.ingredientes && selectedDrink.ingredientes.length > 0 && (
-                        <div className="mt-6 border-y border-white/10 py-5">
-                          <p className="text-xs font-bold uppercase text-zinc-500">Qué lleva</p>
-                          <p className="mt-2 text-lg font-semibold text-white">{selectedDrink.ingredientes.join(' · ')}</p>
-                        </div>
-                      )}
+                      {/* Selector de versión Con alcohol / Sin alcohol */}
+                      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <button
+                          type="button"
+                          onClick={() => setDrinkVersion('con_alcohol')}
+                          data-testid="boton-con-alcohol"
+                          className={cn(
+                            'min-h-[48px] flex-1 rounded-xl p-4 text-left transition-all border text-white',
+                            drinkVersion === 'con_alcohol'
+                              ? 'border-red-500 bg-red-600/20 shadow-lg ring-2 ring-red-500'
+                              : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                          )}
+                        >
+                          <p className="text-base font-black uppercase tracking-wide">Con alcohol</p>
+                          <p className="mt-1 text-xs text-zinc-400">Versión clásica · Sólo mayores de 18</p>
+                        </button>
+                        {Boolean(selectedDrink.recetaIngredientesSinAlcohol && selectedDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                          <button
+                            type="button"
+                            onClick={() => setDrinkVersion('sin_alcohol')}
+                            data-testid="boton-sin-alcohol"
+                            className={cn(
+                              'min-h-[48px] flex-1 rounded-xl p-4 text-left transition-all border text-white',
+                              drinkVersion === 'sin_alcohol'
+                                ? 'border-emerald-500 bg-emerald-600/20 shadow-lg ring-2 ring-emerald-500'
+                                : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                            )}
+                          >
+                            <p className="text-base font-black uppercase tracking-wide">
+                              {selectedDrink.nombreSinAlcohol ? selectedDrink.nombreSinAlcohol : 'Sin alcohol'}
+                            </p>
+                            <p className="mt-1 text-xs text-emerald-400 font-medium">
+                              {selectedDrink.nombreSinAlcohol ? 'Sabor distinto, sin alcohol' : '0% alcohol'}
+                            </p>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Receta según la versión elegida */}
+                      <div className="mt-5 border-y border-white/10 py-4">
+                        <p className="text-xs font-bold uppercase text-zinc-500">
+                          Receta {drinkVersion === 'con_alcohol' ? 'Con alcohol' : 'Sin alcohol'}
+                        </p>
+                        {drinkVersion === 'con_alcohol' ? (
+                          <p className="mt-2 text-base font-semibold text-white">
+                            {selectedDrink.ingredientes?.join(' · ') || 'Ingredientes clásicos'}
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-base font-semibold text-emerald-300">
+                            {selectedDrink.recetaSinAlcohol?.join(' · ') || 'Preparación 0% alcohol'}
+                          </p>
+                        )}
+                      </div>
 
                       {settings?.showDrinkVideo && selectedDrink.videoUrl && (
                         <a

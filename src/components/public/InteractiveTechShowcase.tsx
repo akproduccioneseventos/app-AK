@@ -303,7 +303,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
             Tecnología Interactiva · AK Producciones
           </span>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white drop-shadow-sm">
-            Experiencias que hacen tu fiesta inolvidable
+            Más diversión, más momentos para recordar.
           </h2>
           <p className="mt-3 text-slate-300 max-w-2xl mx-auto font-medium text-sm sm:text-base">
             No es sólo equipamiento: es diversión en vivo, recuerdos impresos en el momento y conexión real con cada uno de tus invitados.

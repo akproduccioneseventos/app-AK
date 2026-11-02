@@ -12,7 +12,7 @@ test.describe('Orden 96 - Bloque 4: El carrusel de tecnología se ve entero', ()
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
       // Localizamos la sección del carrusel interactivo
-      const seccion = page.locator('text=Experiencias que hacen tu fiesta inolvidable').first();
+      const seccion = page.locator('text=Más diversión, más momentos para recordar.').first();
       await seccion.scrollIntoViewIfNeeded();
       await expect(seccion).toBeVisible({ timeout: 15_000 });
 

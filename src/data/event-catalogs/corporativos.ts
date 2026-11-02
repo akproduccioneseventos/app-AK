@@ -39,7 +39,7 @@ const corporativosData: EventCatalogData = {
       description: 'La opción ideal para cenas de fin de año y celebraciones de logros.',
       included: [
         'Decoración temática de gala',
-        'Cena de 3 pasos + barra libre',
+        'Cena de 3 pasos + barra de tragos',
         'Presentador/MC profesional',
         'Show musical o espectáculo',
         'Fotografía y video',

@@ -69,7 +69,7 @@ const PASOS_METODO = [
   {
     numero: '2',
     titulo: '2. Plan de pagos mensuales a tu medida',
-    descripcion: 'Abonás en cuotas fijas hasta la fecha del evento sin estrés ni sorpresas financieras.',
+    descripcion: 'Pagás en cuotas hasta la fecha del evento, con las condiciones claras desde el principio.',
     icon: CreditCard,
   },
   {
@@ -128,7 +128,7 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
   if (stories.length === 0) return null;
 
   return (
-    <section id="landing-testimonials" className="relative overflow-hidden border-t border-slate-200 bg-white py-24 text-slate-950">
+    <section className="relative overflow-hidden border-t border-slate-200 bg-white py-24 text-slate-950">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent pointer-events-none" />
 

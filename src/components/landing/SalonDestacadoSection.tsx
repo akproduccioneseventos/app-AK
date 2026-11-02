@@ -78,8 +78,8 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
                 <MapPin className="h-5 w-5 text-red-700" aria-hidden="true" />
-                <p className="mt-3 font-black text-slate-950">Pleno centro de Salto</p>
-                <p className="mt-1 text-sm text-slate-600">Club Uruguay, ubicación estratégica e histórica.</p>
+                <p className="mt-3 font-black text-slate-950">Uruguay 754, Salto</p>
+                <p className="mt-1 text-sm text-slate-600">Pleno centro de Salto, histórico y comercial.</p>
               </div>
               {capacity !== undefined && capacity > 0 && (
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
@@ -158,7 +158,7 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
             )}
             <div className="flex flex-col items-center text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
               <MapPin className="h-6 w-6 text-red-600 mb-2" />
-              <span className="text-xs font-bold text-slate-800">Pleno centro de Salto</span>
+              <span className="text-xs font-bold text-slate-800">Uruguay 754, Salto</span>
               <span className="text-[11px] text-slate-500">Acceso inmejorable</span>
             </div>
             <div className="flex flex-col items-center text-center p-3 rounded-xl bg-slate-50 border border-slate-100">

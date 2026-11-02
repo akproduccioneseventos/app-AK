@@ -19,7 +19,7 @@ import {
 import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenido-publico';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
-import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
+import { getBlogPosts, saveBlogPost, deleteBlogPost, getEstadoBlogAdmin, type EstadoBlogAdmin } from '@/app/actions/blog';
 import { runMarketingAutomationFromAdmin } from '@/app/actions/marketing-automation';
 import { RecontactoAutomaticoCard } from '@/components/marketing/recontacto-automatico-card';
 import { GastoIaCard } from '@/components/marketing/gasto-ia-card';
@@ -44,6 +44,7 @@ export default function ContenidoPublicoSettingsPage() {
   const [presentacion, setPresentacion] = useState<PresentacionLedSettings | null>(null);
   const [catalogo, setCatalogo] = useState<CatalogoSettings | null>(null);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [estadoBlogAdmin, setEstadoBlogAdmin] = useState<EstadoBlogAdmin | null>(null);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [blogActionLoading, setBlogActionLoading] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
@@ -84,8 +85,12 @@ export default function ContenidoPublicoSettingsPage() {
 
   const loadBlog = useCallback(async () => {
     try {
-      const posts = await getBlogPosts();
+      const [posts, estado] = await Promise.all([
+        getBlogPosts(),
+        getEstadoBlogAdmin().catch(() => null),
+      ]);
       setBlogPosts(posts);
+      if (estado) setEstadoBlogAdmin(estado);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los artículos del blog.', variant: 'destructive' });
     }
@@ -483,11 +488,28 @@ export default function ContenidoPublicoSettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Blog Corporativo</CardTitle>
-            <CardDescription>SEO automatico: revisa Instagram cada 6 horas y crea articulos de valor semanalmente.</CardDescription>
+        <CardHeader className="space-y-4">
+          {/* Información de publicación del blog */}
+          <div className="space-y-1.5 pb-2 border-b border-slate-100">
+            <div className="text-sm font-semibold text-slate-700 flex flex-wrap items-center gap-2">
+              <span>
+                Última nota publicada: {estadoBlogAdmin?.ultimaNota?.fecha || 'Sin notas aún'}. Próxima: {estadoBlogAdmin?.proximaFecha || '-'}.
+              </span>
+            </div>
+            {estadoBlogAdmin?.ultimoFallo && (
+              <div role="alert" className="text-sm font-bold text-rose-600 flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg">
+                <span>
+                  No se publicó la nota del {estadoBlogAdmin.ultimoFallo.fecha || 'último intento'}: {estadoBlogAdmin.ultimoFallo.motivo}
+                </span>
+              </div>
+            )}
           </div>
+
+          <div className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Blog Corporativo</CardTitle>
+              <CardDescription>SEO automatico: revisa Instagram cada 6 horas y crea articulos de valor semanalmente.</CardDescription>
+            </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => handleRunMarketingAutomation(true)}
@@ -507,6 +529,7 @@ export default function ContenidoPublicoSettingsPage() {
               <PlusCircle className="w-4 h-4 mr-2" />
               Nuevo artículo
             </Button>
+          </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">

@@ -5,6 +5,22 @@ import { marcarToqueDespertador } from '@/lib/automatico/tareas-automaticas';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Tareas automáticas incluidas y despachadas periódicamente:
+ * - 'generate-blog-post' (publicación de notas de blog y SEO)
+ * - 'metricas-de-redes'
+ * - 'publicar-programados'
+ * - 'recordatorios-de-pago'
+ * - 'posicionamiento-diario'
+ */
+const TAREAS_CRON_DESPACHADAS = [
+  'generate-blog-post',
+  'metricas-de-redes',
+  'publicar-programados',
+  'recordatorios-de-pago',
+  'posicionamiento-diario',
+] as const;
+
 function verificarClave(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET;
   if (!cronSecret) return true; // Sin clave configurada, opera con freno de concurrencia
@@ -54,7 +70,7 @@ async function handleDespacho(request: Request) {
   return NextResponse.json({
     ok: true,
     origen,
+    despachadas: TAREAS_CRON_DESPACHADAS,
     ...resultado,
   });
 }
-

@@ -6,7 +6,7 @@ import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'cumpleanos',
   title: 'Cumpleaños y fiestas en Salto, Uruguay | AK Producciones',
-  description: 'Organizamos cumpleaños y fiestas sociales en Salto: salón, catering, barra de tragos, discoteca y fotografía, con un solo equipo a cargo. Presupuesto cerrado y sin compromiso.',
+  description: 'Organizamos cumpleaños y fiestas sociales en Salto: salón, catering, barra de tragos, discoteca y fotografía, con un solo equipo a cargo. Presupuesto detallado y sin compromiso.',
   image: '/media/catalogo-servicios/social_persuasivo.png',
   imageAlt: 'Cumpleaños producido por AK Producciones',
 });
@@ -21,14 +21,14 @@ export default function CumpleanosLanding() {
         heroImage="/media/catalogo-servicios/social_persuasivo.png"
         heroImageAlt="Cumpleaños producido por AK Producciones"
         intro="Festejá tu cumpleaños a lo grande con amigos y familia, sin preocuparte por la organización."
-        detailTitle="Tu fiesta con ambientación, barra libre y la mejor música"
-        detailDescription="Propuestas dinámicas con finger food, barra de trago libre, discoteca con DJ en vivo y sorpresas para disfrutar cada minuto."
+        detailTitle="Tu fiesta con ambientación, barra de tragos y la mejor música"
+        detailDescription="Elegí entre comida, discoteca, barra de tragos, fotografía y servicios adicionales para organizar tu cumpleaños a medida"
         detailImage="/media/catalogo-servicios/discoteca-salon-ak-02.jpeg"
         detailImageAlt="Fiesta de cumpleaños con discoteca y amigos"
         simulatorHref="/simulador-de-presupuesto?tipo=Cumplea%C3%B1os"
         services={[
           { title: 'Discoteca & DJ en Vivo', description: 'La mejor selección musical adaptada a tu gusto y la vibra de tus invitados.' },
-          { title: 'Barra Libre de Tragos', description: 'Tragos clásicos, de autor y tragos temáticos preparados en el acto.' },
+          { title: 'Barra de Tragos', description: 'Tragos clásicos, de autor y tragos temáticos preparados en el acto.' },
           { title: 'Finger Food & Parrilla', description: 'Opciones ágiles, informales y deliciosas para disfrutar mientras bailás.' },
           { title: 'Fotocabina & Recuerdos', description: 'Impresiones en el acto y registro digital de los momentos más divertidos.' },
           { title: 'Ambientación & Luces LED', description: 'Transformación del espacio con iluminación de fiesta y espacios lounge.' },

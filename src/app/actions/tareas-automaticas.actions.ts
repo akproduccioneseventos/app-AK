@@ -13,6 +13,7 @@ import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
+import { todasSalieron } from '@/lib/automatico/al-entrar-a-la-app';
 
 export async function getEstadoTareasAutomaticas(): Promise<EstadoDeTarea[]> {
   await requireAppSession();
@@ -58,17 +59,21 @@ export async function dispararTareasVencidasDeFondo(): Promise<{
         // justo lo que dice arriba que nunca pasa solo. Hoy no se nota porque ese
         // recontacto viene apagado; el dia que el dueno lo prenda, saldrian
         // mensajes con solo abrir la aplicacion.
-        await runMarketingAutomation({ includeRecontacto: false });
+        const res = await runMarketingAutomation({ includeRecontacto: false });
+        if ((res as any)?.seoError || (res as any)?.seoSucceeded === false || !res?.success) {
+          throw new Error((res as any)?.seoError || res?.error || 'No se pudo publicar la nota del blog.');
+        }
+        await marcarCorrida(tarea.id);
         ejecutadas.push(tarea.id);
       } catch (err: any) {
         errores.push(`${tarea.id}: ${err.message}`);
       }
     } else if (tarea.id === 'metricas-de-redes') {
       try {
-        await Promise.all([
-          guardarMetricasDelDia().catch(() => null),
-          syncCommentsFromNetworks().catch(() => null),
-        ]);
+        await todasSalieron({
+          'métricas del día': () => guardarMetricasDelDia(),
+          'comentarios de las redes': () => syncCommentsFromNetworks(),
+        });
         await marcarCorrida(tarea.id);
         ejecutadas.push(tarea.id);
       } catch (err: any) {
@@ -101,15 +106,19 @@ export async function ejecutarTareaManual(id: string): Promise<{ success: boolea
       // El boton dice "nota del blog" y hace la nota del blog. Sin esto tambien
       // saldrian los mensajes de recontacto a los prospectos, que no es lo que el
       // operador aprieta ni lo que la pantalla le anuncia.
-      await runMarketingAutomation({ includeRecontacto: false });
+      const res = await runMarketingAutomation({ includeRecontacto: false });
+      if ((res as any)?.seoError || (res as any)?.seoSucceeded === false || !res?.success) {
+        throw new Error((res as any)?.seoError || res?.error || 'No se pudo publicar la nota del blog.');
+      }
+      await marcarCorrida(id);
       return { success: true };
     }
 
     if (id === 'metricas-de-redes') {
-      await Promise.all([
-        guardarMetricasDelDia().catch(() => null),
-        syncCommentsFromNetworks().catch(() => null),
-      ]);
+      await todasSalieron({
+        'métricas del día': () => guardarMetricasDelDia(),
+        'comentarios de las redes': () => syncCommentsFromNetworks(),
+      });
       await marcarCorrida(id);
       return { success: true };
     }
@@ -121,7 +130,13 @@ export async function ejecutarTareaManual(id: string): Promise<{ success: boolea
     }
 
     if (id === 'recordatorios-de-pago') {
-      // El operador apretó explícitamente el botón en el panel
+      const { ejecutarEscaneoDeRecordatorios } = await import('@/app/actions/invoices');
+      const { checkAndCreateReunionReminders } = await import('@/app/actions/notifications');
+      const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
+      await todasSalieron({
+        'recordatorios de cuotas': () => ejecutarEscaneoDeRecordatorios(WHATSAPP_AUTOMATION_INTERNAL_TOKEN),
+        'avisos de reuniones': () => checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN),
+      });
       await marcarCorrida(id);
       return { success: true };
     }

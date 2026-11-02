@@ -29,7 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 
 interface MiniQuioscoProps {
   fiestaId: string;
-  guest: Pick<Invitado, 'id' | 'nombre' | 'tableNumber'>;
+  guest: Pick<Invitado, 'id' | 'nombre' | 'tableNumber'> & { categoria?: string };
   guestAccessToken: string;
   canShareToSocial: boolean;
   onClose: () => void;
@@ -47,7 +47,9 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
   const [myOrders, setMyOrders] = useState<BarDrinkOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const esMenor = Boolean(guest.categoria && guest.categoria !== 'Adulto');
   const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
+  const [selectedVersion, setSelectedVersion] = useState<'con_alcohol' | 'sin_alcohol'>('sin_alcohol');
   const [drinkToChange, setDrinkToChange] = useState<BarDrinkOrder | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [isCanceling, setIsCanceling] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
     const clientRequestId = currentClientRequestIdRef.current;
     try {
       const result = drinkToChange
-        ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken)
+        ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken, selectedVersion)
         : await createBarDrinkOrder({
           fiestaId,
           drinkId,
@@ -98,6 +100,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
           guestAccessToken,
           clientRequestId,
           tableNumber: guest.tableNumber,
+          version: selectedVersion,
         });
       if (result.success) {
         currentClientRequestIdRef.current = null;
@@ -256,7 +259,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
                     {/* El boton va abajo de todo y ocupa el ancho: se alcanza con el
                         pulgar y se toca sin apuntar, que es como se usa en una fiesta. */}
                     <Button
-                      onClick={() => setSelectedDrink(drink)}
+                      onClick={() => { setSelectedDrink(drink); setSelectedVersion(esMenor ? 'sin_alcohol' : 'con_alcohol'); }}
                       disabled={Boolean(activeOrder) || isAgotado}
                       data-testid="boton-pedir-trago"
                       className="mt-4 min-h-12 w-full rounded-xl text-base font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
@@ -276,8 +279,65 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       <Dialog open={Boolean(selectedDrink || drinkToChange)} onOpenChange={(open) => { if (!open) { setSelectedDrink(null); setDrinkToChange(null); } }}>
         <DialogContent className="w-[calc(100%-2rem)] rounded-lg border-slate-200 bg-white text-slate-950 sm:max-w-md">
           <DialogHeader><DialogTitle className="text-xl font-black">{drinkToChange ? 'Cambiar trago' : 'Confirmar pedido'}</DialogTitle></DialogHeader>
-          {selectedDrink ? <div className="py-3"><div className="grid h-14 w-14 place-items-center rounded-lg bg-slate-100" style={{ color: accentColor }}><Martini className="h-7 w-7" /></div><p className="mt-4 text-lg font-black">{selectedDrink.nombre}</p><p className="mt-1 text-sm text-slate-500">Se preparara a nombre de {guest.nombre}.</p></div> : <p className="py-3 text-sm leading-relaxed text-slate-600">Elegí el nuevo trago de la carta para cambiar tu pedido actual.</p>}
-          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
+          {selectedDrink ? (
+            <div className="py-3">
+              <div className="grid h-14 w-14 place-items-center rounded-lg bg-slate-100" style={{ color: accentColor }}>
+                <Martini className="h-7 w-7" />
+              </div>
+              <p className="mt-4 text-lg font-black">
+                {selectedVersion === 'sin_alcohol' && selectedDrink.nombreSinAlcohol
+                  ? selectedDrink.nombreSinAlcohol
+                  : selectedDrink.nombre}
+              </p>
+              <p className="mt-1 text-sm text-slate-500">Se preparará a nombre de {guest.nombre}.</p>
+
+              {/* Botones Con alcohol / Sin alcohol */}
+              <div className="mt-4 flex flex-col gap-2.5">
+                {!esMenor && (
+                  <Button
+                    type="button"
+                    variant={selectedVersion === 'con_alcohol' ? 'default' : 'outline'}
+                    onClick={() => setSelectedVersion('con_alcohol')}
+                    className="min-h-12 w-full justify-between px-4 text-left font-bold"
+                  >
+                    <span>Con alcohol</span>
+                    <span className="text-xs opacity-75">Solo mayores de 18</span>
+                  </Button>
+                )}
+                {Boolean(selectedDrink.recetaIngredientesSinAlcohol && selectedDrink.recetaIngredientesSinAlcohol.length > 0) && (
+                  <Button
+                    type="button"
+                    variant={selectedVersion === 'sin_alcohol' ? 'default' : 'outline'}
+                    onClick={() => setSelectedVersion('sin_alcohol')}
+                    className="min-h-12 w-full justify-between px-4 text-left font-bold"
+                  >
+                    <div className="flex flex-col text-left">
+                      <span>{selectedDrink.nombreSinAlcohol || 'Sin alcohol'}</span>
+                      {selectedDrink.nombreSinAlcohol && (
+                        <span className="text-[11px] font-normal opacity-75">Sabor distinto, sin alcohol</span>
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-600">0% alcohol</span>
+                  </Button>
+                )}
+              </div>
+
+              {/* Receta */}
+              <div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                <p className="font-bold uppercase tracking-wider text-slate-400">
+                  Receta {selectedVersion === 'con_alcohol' ? 'con alcohol' : 'sin alcohol'}:
+                </p>
+                <p className="mt-1">
+                  {selectedVersion === 'con_alcohol'
+                    ? (selectedDrink.ingredientes?.join(', ') || 'Ingredientes clásicos')
+                    : (selectedDrink.recetaSinAlcohol?.join(', ') || 'Receta sin alcohol')}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="py-3 text-sm leading-relaxed text-slate-600">Elegí el nuevo trago de la carta para cambiar tu pedido actual.</p>
+          )}
+          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering || (esMenor && !selectedDrink.recetaIngredientesSinAlcohol?.length)} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
         </DialogContent>
       </Dialog>
       <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>

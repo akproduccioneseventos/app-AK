@@ -1,7 +1,7 @@
 import { applyAutomaticStaffByGuests } from '@/lib/commercial/live-budget-editor';
 import type { BlogPost } from '@/types/blog';
 
-const REGEX_PROMESAS = /garant|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b/i;
+const REGEX_PROMESAS = /garant|congel|cuotas fijas|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b/i;
 
 /**
  * Devuelve la coincidencia encontrada si el texto tiene promesas no verificables,

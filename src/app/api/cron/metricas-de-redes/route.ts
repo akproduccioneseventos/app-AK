@@ -119,7 +119,7 @@ async function correrTarea(request: Request) {
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);
     return NextResponse.json(
-      { error: error?.message || 'No se pudieron guardar los numeros de las redes.' },
+      { ok: false, error: error?.message || 'No se pudieron guardar los numeros de las redes.' },
       { status: 500 },
     );
   }

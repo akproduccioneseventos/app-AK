@@ -64,12 +64,12 @@ function topicIsRepresented(topic: string, post: BlogPost) {
   return topicTerms.filter((term) => postText.includes(term)).length >= 2;
 }
 
-function selectUnusedTopic(posts: BlogPost[], daySeed: number) {
-  for (let offset = 0; offset < TOPIC_SEEDS.length; offset += 1) {
+function selectUnusedTopic(posts: BlogPost[], daySeed: number, extraOffset = 0) {
+  for (let offset = extraOffset; offset < TOPIC_SEEDS.length + extraOffset; offset += 1) {
     const topic = TOPIC_SEEDS[(daySeed + offset) % TOPIC_SEEDS.length];
     if (!posts.some((post) => topicIsRepresented(topic, post))) return topic;
   }
-  return TOPIC_SEEDS[daySeed % TOPIC_SEEDS.length];
+  return TOPIC_SEEDS[(daySeed + extraOffset) % TOPIC_SEEDS.length];
 }
 
 function safeSlug(value: string) {
@@ -116,11 +116,11 @@ async function saveGeneratedBlogPost(post: BlogPost, existingPosts?: BlogPost[])
   await writeData(BLOG_FILE, posts);
 }
 
-export async function generateBlogPostAndSocialDraft() {
+export async function generateBlogPostAndSocialDraft(options?: { offset?: number }) {
   const existingPosts = [...await readData<BlogPost[]>(BLOG_FILE, [])];
   const date = new Date();
   const daySeed = date.getDate() + date.getMonth() * 31 + (date.getFullYear() % 100) * 365;
-  const selectedTopic = selectUnusedTopic(existingPosts, daySeed);
+  const selectedTopic = selectUnusedTopic(existingPosts, daySeed, options?.offset ?? 0);
   const selectedTopicKey = normalizeTopic(selectedTopic);
 
   let notasInvestigacion = '';
@@ -155,7 +155,7 @@ No repitas temas ni enfoques de articulos ya publicados. La portada debe ilustra
 Es obligatorio que el resultado respete el esquema JSON especificado.
 
 REGLAS DE SEGURIDAD Y RESPALDO (OBLIGATORIAS):
-- No prometas plazos, garantías, resultados ni seguridad. No escribas 'garantía', 'garantizado', '24/7', 'cero fallas', 'seguro para interiores' ni 'te aseguramos'.
+- No prometas plazos, garantías, resultados ni seguridad. No escribas 'garantía', 'garantizado', 'congelar', 'congelá', 'congel', 'cuotas fijas', '24/7', 'cero fallas', 'seguro para interiores' ni 'te aseguramos'.
 - No inventes estadísticas ni preferencias de clientes: nada de 'la mayoría de los clientes', 'la opción preferida' ni porcentajes que no te dimos.
 - Las cantidades (bebida, hielo, comida) son orientativas: decilo en el mismo párrafo.
 ${notasInvestigacion ? `\nNotas de investigación de eventos:\n${notasInvestigacion}\n` : ''}
@@ -213,6 +213,8 @@ Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no l
       message: generated.ctaMessage.trim().slice(0, 240),
     },
     topicKey: selectedTopicKey,
+    status: 'published',
+    autor: 'ia',
     fuentes: fuentesInvestigacion.length > 0 ? fuentesInvestigacion : undefined,
   };
 

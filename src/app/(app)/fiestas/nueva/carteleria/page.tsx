@@ -1020,9 +1020,47 @@ function CarteleriaContent() {
           <div className={cn('w-full grid justify-items-center content-center', activeCardLayout.itemsPerPage === 4 ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4')}>
             {Array.from({ length: activeCardLayout.itemsPerPage }).map((_, idx) => (
               <CardFrame key={`carta-${idx}`} widthCm={activeCardLayout.widthCm} heightCm={activeCardLayout.heightCm}>
-                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={false} />
+                <div className="w-full h-full flex flex-col justify-between">
+                  <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={false} />
+                  <p className="text-center text-[7px] text-slate-500 font-bold uppercase tracking-wider py-0.5 print:block">
+                    Tragos con alcohol sólo para mayores de 18 años
+                  </p>
+                </div>
               </CardFrame>
             ))}
+          </div>
+        </A4Page>
+
+        {/* PAGE 1B – Recetario de Barra impreso con las dos recetas */}
+        <A4Page>
+          <div className="w-full h-full p-6 flex flex-col justify-between text-slate-800 bg-white">
+            <header className="border-b pb-3 text-center">
+              <h2 className="text-xl font-black uppercase tracking-wider text-slate-900">
+                Recetario de Barra — Con y Sin Alcohol
+              </h2>
+              <p className="text-xs font-bold text-rose-600 mt-1 uppercase">
+                Tragos con alcohol sólo para mayores de 18 años
+              </p>
+            </header>
+
+            <div className="grid grid-cols-2 gap-3 my-4 overflow-hidden text-[10px]">
+              {(cartaTragos.items || []).slice(0, 12).map((trago) => (
+                <div key={trago.id} className="border rounded p-2 bg-slate-50/50">
+                  <p className="font-bold text-slate-900 uppercase">{trago.nombre}</p>
+                  {trago.nombreSinAlcohol && (
+                    <p className="text-[9px] text-emerald-700 italic">Versión 0%: {trago.nombreSinAlcohol}</p>
+                  )}
+                  <div className="mt-1 space-y-0.5">
+                    <p><strong className="text-purple-700">Con alcohol:</strong> {trago.ingredientes?.join(', ') || 'Receta clásica'}</p>
+                    <p><strong className="text-emerald-700">Sin alcohol:</strong> {trago.recetaSinAlcohol?.join(', ') || '0% alcohol'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <footer className="border-t pt-2 text-center text-[9px] text-slate-500 font-medium">
+              AK Producciones Eventos · Tragos con alcohol sólo para mayores de 18 años
+            </footer>
           </div>
         </A4Page>
 

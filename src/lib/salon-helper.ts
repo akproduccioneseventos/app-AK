@@ -1,11 +1,11 @@
-import defaultCatalogoFotos from '@/data/catalogo-fotos.json';
-import defaultGaleriaPublica from '@/data/galeria-publica.json';
-
 export interface SalonPhoto {
   src: string;
   alt: string;
   title: string;
   description?: string;
+  isHero?: boolean;
+  espacio?: 'principal' | 'intimo' | 'general';
+  aprobada?: boolean;
 }
 
 export const CURATED_CLUB_URUGUAY_PHOTOS: SalonPhoto[] = [
@@ -14,68 +14,58 @@ export const CURATED_CLUB_URUGUAY_PHOTOS: SalonPhoto[] = [
     alt: 'Salón principal de Club Uruguay preparado para una fiesta',
     title: 'Salón principal',
     description: 'Montaje real con mesas, pista y servicio de discoteca de AK Producciones.',
+    isHero: true,
+    espacio: 'general',
+    aprobada: true,
   },
   {
     src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
     alt: 'Pista y discoteca instaladas en Club Uruguay',
     title: 'Pista y discoteca',
     description: 'Iluminación, sonido y pista preparados para el evento.',
+    espacio: 'general',
+    aprobada: true,
   },
   {
     src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
     alt: 'Fiesta de quince años con pista iluminada',
     title: 'Una fiesta en funcionamiento',
     description: 'Una producción real con ambientación, pista y coordinación integral.',
+    espacio: 'general',
+    aprobada: true,
   },
 ];
 
-function explicitlyReferencesClubUruguay(value: string) {
-  const normalized = value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+export const HERO_CLUB_URUGUAY_PHOTO: SalonPhoto = CURATED_CLUB_URUGUAY_PHOTOS[0];
 
-  return normalized.includes('club uruguay') || normalized.includes('cluburuguay');
+export function getClubUruguayHeroPhoto(photos?: SalonPhoto[]): SalonPhoto {
+  const explicitHero = photos?.find((p) => p.isHero && p.aprobada);
+  return explicitHero || HERO_CLUB_URUGUAY_PHOTO;
 }
 
-export function getDynamicSalonPhotos(): SalonPhoto[] {
-  const curatedUrls = new Set(CURATED_CLUB_URUGUAY_PHOTOS.map((photo) => photo.src));
-  const allItems = [
-    ...defaultCatalogoFotos.map((item) => ({
-      url: item.url,
-      titulo: item.titulo,
-      descripcion: item.descripcion,
-      categoria: item.categoriaServicio,
-    })),
-    ...defaultGaleriaPublica.fotos.map((item) => ({
-      url: item.url,
-      titulo: item.titulo,
-      descripcion: item.descripcion,
-      categoria: item.categoria,
-    })),
-  ];
-
-  const explicitPhotos = allItems
-    .filter((item) => {
-      if (!item.url || curatedUrls.has(item.url)) return false;
-      return explicitlyReferencesClubUruguay(
-        `${item.titulo || ''} ${item.descripcion || ''} ${item.categoria || ''} ${item.url}`,
-      );
-    })
-    .map((item) => ({
-      src: item.url,
-      alt: item.titulo || 'Evento de AK Producciones en Club Uruguay',
-      title: item.titulo || 'Evento en Club Uruguay',
-      description: item.descripcion || 'Registro real asociado a Club Uruguay.',
-    }));
-
+export function dedupeSalonPhotos(photos: SalonPhoto[]): SalonPhoto[] {
   const seen = new Set<string>();
-  return [...CURATED_CLUB_URUGUAY_PHOTOS, ...explicitPhotos].filter((photo) => {
-    if (seen.has(photo.src)) return false;
+  return photos.filter((photo) => {
+    if (!photo.src || seen.has(photo.src)) return false;
     seen.add(photo.src);
     return true;
   });
+}
+
+/**
+ * Retorna las fotos aprobadas y verificadas para Club Uruguay.
+ *
+ * Desliga la galería de coincidencias accidentales de texto en el catálogo:
+ * un activo con título o etiqueta "Club" que no esté expresamente aprobado
+ * NO se atribuye al salón.
+ *
+ * Admite incorporar nuevas fotos aprobadas sin límite artificial.
+ */
+export function getDynamicSalonPhotos(additionalApproved: SalonPhoto[] = []): SalonPhoto[] {
+  const approvedList = [
+    ...CURATED_CLUB_URUGUAY_PHOTOS,
+    ...additionalApproved.filter((p) => p.aprobada === true),
+  ];
+
+  return dedupeSalonPhotos(approvedList);
 }

@@ -52,7 +52,8 @@ test.describe('Orden 177: La portada nueva (Plan Argon)', () => {
 
     // 8. Ficha técnica del Salón Club Uruguay
     await seVe(page.getByText('Ficha técnica del salón'));
-    await seVe(page.getByText('Pleno centro de Salto'));
+    await seVe(page.getByText('Uruguay 754, Salto'));
+    await seVe(page.getByText(/Pleno centro de Salto/i));
     await seVe(page.getByText('Climatización'));
 
     // 9. Esquema en 3 pasos en testimonios

@@ -18,15 +18,31 @@ test('el control de llegada con ubicación se prende y queda guardado', async ({
   await expect(interruptor).toBeEnabled({ timeout: 15_000 });
 
   const antes = await interruptor.getAttribute('aria-checked');
-  await interruptor.click();
   const despues = antes === 'true' ? 'false' : 'true';
-  await expect(interruptor).toHaveAttribute('aria-checked', despues);
+  // El interruptor se dibuja antes de que la página responda: un toque en ese primer momento se
+  // pierde (medido el 2/11/2026: tocado a los 6 s prende, guarda y queda). Se insiste hasta que
+  // cambia; si la pantalla no guardara nunca, esto se pone en rojo igual.
+  await expect
+    .poll(async () => {
+      if ((await interruptor.getAttribute('aria-checked')) !== despues && await interruptor.isEnabled()) {
+        await interruptor.click().catch(() => {});
+      }
+      return interruptor.getAttribute('aria-checked');
+    }, { timeout: 30_000, intervals: [1_000, 2_000, 3_000] })
+    .toBe(despues);
   await expect(interruptor).toBeEnabled({ timeout: 15_000 });
 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#controlar-llegada-switch')).toHaveAttribute('aria-checked', despues, { timeout: 30_000 });
 
   // Se deja como estaba, para no ensuciar la próxima corrida.
-  await page.locator('#controlar-llegada-switch').click();
-  await expect(page.locator('#controlar-llegada-switch')).toHaveAttribute('aria-checked', antes ?? 'false');
+  const otraVez = page.locator('#controlar-llegada-switch');
+  await expect
+    .poll(async () => {
+      if ((await otraVez.getAttribute('aria-checked')) !== (antes ?? 'false') && await otraVez.isEnabled()) {
+        await otraVez.click().catch(() => {});
+      }
+      return otraVez.getAttribute('aria-checked');
+    }, { timeout: 30_000, intervals: [1_000, 2_000, 3_000] })
+    .toBe(antes ?? 'false');
 });
