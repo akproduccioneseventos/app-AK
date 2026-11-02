@@ -79,6 +79,15 @@ Cambialo por un guardado con turno:
 
 **Prueba:** dos guardados a la vez, con una base de mentira que devuelve **copias**, conservan los mensajes de los dos.
 
+## Bloque 4 — el Centro de control usa el mismo resumen del negocio
+
+`darOrdenPorVozOTexto` (`src/app/actions/centro-de-control.ts:~441`) contesta sin el resumen del negocio que usan WhatsApp
+y la voz. Pasale `armarContextoDelNegocio(usuario, …)` (`src/lib/multiagent/contexto-negocio.ts`), recortado por perfil,
+igual que en `por-whatsapp.ts:~217`.
+
+**Prueba:** una pregunta desde el Centro de control sobre "¿cuántas fiestas tengo este mes?" recibe el contexto con las
+fiestas; para un perfil sin plata, el contexto **no** trae importes.
+
 ## Pruebas
 
 **Jest**, en `src/__tests__/el-prospecto-del-anuncio-va-al-simulador.test.ts`, con Meta simulado. Tiene que comprobar:
@@ -98,6 +107,7 @@ Corré `npx tsc --noEmit`, `npx jest --silent` y `npm run check:acentos`, y peg�
 
 ```comprobar
 no-usa: writeData('scheduled-messages.json' en src/lib/agentes/motor-agentes.ts
+usa: armarContextoDelNegocio en src/app/actions/centro-de-control.ts
 usa: enlaceAlSimuladorDelProspecto en src/app/api/whatsapp/webhook/route.ts
 usa: sendMetaWhatsAppMessage en src/app/api/whatsapp/webhook/route.ts
 prueba: src/__tests__/el-prospecto-del-anuncio-va-al-simulador.test.ts

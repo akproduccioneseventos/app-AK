@@ -73,7 +73,8 @@ no-usa: cuotas fijas en src/components/landing/TestimonialsSection.tsx
 no-usa: Congelá en src/lib/marketing/creador-anuncios-ia.ts
 no-usa: diseñamos tu tranquilidad en src/components/landing/AkDifferenceSection.tsx
 usa: Coordinar una entrevista gratuita en src/components/landing/HeroSection.tsx
-usa: SimulatorMeetingScheduler en src/components/landing/CTASection.tsx
+usa: EntrevistaGratuitaModal en src/components/landing/CTASection.tsx
+usa: SimulatorMeetingScheduler en src/components/landing/EntrevistaGratuitaModal.tsx
 prueba: tests/e2e/la-portada-vende-con-confianza.spec.ts
 ```
 

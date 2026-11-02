@@ -170,7 +170,7 @@ prueba: tests/e2e/el-totem-de-bienvenida.spec.ts
 # Bloque 2
 usa: modoConversacion en src/components/multiagent/multiagent-widget.tsx
 # Bloque 3
-usa: generateBudgetAndLeadFromSimulator en src/lib/asistente/por-whatsapp.ts
+usa: prepararBorradorProspectoAnuncio en src/lib/asistente/por-whatsapp.ts
 # Bloque 4
 usa: SpeechRecognition en src/app/(app)/empresa/configurador-reunion/page.tsx
 # Bloque 5
