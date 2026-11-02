@@ -2791,8 +2791,9 @@ function MuroSocialContent() {
                 size="sm"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    navigator.clipboard.writeText(`${window.location.origin}/evento/control-pantalla/${fiestaId}`);
-                    toast({ title: 'Enlace copiado al portapapeles' });
+                    navigator.clipboard.writeText(`${window.location.origin}/evento/control-pantalla/${fiestaId}`)
+                      .then(() => toast({ title: 'Enlace copiado al portapapeles' }))
+                      .catch(() => toast({ title: 'No se pudo copiar el enlace', description: 'Escanealo con el QR.', variant: 'destructive' }));
                   }
                 }}
               >
