@@ -59,7 +59,7 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
     etapa: "2. Invitación",
     badge: "Invitación en el celular",
     titulo: "Una invitación que tus invitados abren con un toque",
-    subtitulo: "Mapa, recomendaciones, dress code y confirmación de asistencia con QR (Mis 15 - Camila).",
+    subtitulo: "Mapa, recomendaciones, dress code y confirmación de asistencia con QR.",
     loQueEntiende: "Tus invitados encuentran todo desde su enlace y confirman en un toque.",
     icon: Send,
   },
@@ -77,7 +77,7 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
     etapa: "4. Barra y Tótem",
     badge: "Pedís el trago desde el celular",
     titulo: "Pedís tu trago, con o sin alcohol, y te avisa cuando está listo",
-    subtitulo: "Los invitados exploran la coctelería y piden sin amontonarse frente a la barra (Fernet con Coca y opciones sin alcohol).",
+    subtitulo: "Los invitados exploran la coctelería y piden sin amontonarse frente a la barra.",
     loQueEntiende: "No hay que hacer fila en la barra.",
     icon: GlassWater,
   },
@@ -223,7 +223,6 @@ export function LaAppDeTuFiestaSection({
                   data-testid="momento-de-la-app"
                   data-momento={m.id}
                   onClick={() => setMomentoActivo(m.id)}
-                  onPointerDown={() => setMomentoActivo(m.id)}
                   aria-pressed={activo}
                   className={cn(
                     "cursor-pointer relative z-10 select-none min-h-[44px] flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
@@ -392,7 +391,7 @@ export function LaAppDeTuFiestaSection({
                             <span className="text-[10px] font-bold tracking-wider text-red-400 uppercase">
                               Invitación Digital
                             </span>
-                            <h4 className="text-sm font-bold text-white">Mis 15 - Camila</h4>
+                            <h4 className="text-sm font-bold text-white">¡Mis 15 - Camila!</h4>
                           </div>
                           <QrCode className="h-8 w-8 text-slate-400" />
                         </div>
