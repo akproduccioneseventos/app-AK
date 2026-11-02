@@ -268,11 +268,13 @@ export default function ControlPantallaPage() {
   const handleTerminarJuego = () => {
     ejecutarAccion(async () => {
       if (activeGame?.type === 'trivia') {
-        await terminarTrivia(fiestaId);
+        const fin = await terminarTrivia(fiestaId);
+        if (!fin.success) return fin;
       }
-      return clearActiveGame(fiestaId);
+      const res = await clearActiveGame(fiestaId);
+      if (res.success) mostrarFeedback('Juego terminado');
+      return res;
     }, () => setActiveGame(null));
-    mostrarFeedback('Juego terminado');
   };
 
   // Sorteo
