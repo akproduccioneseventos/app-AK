@@ -468,7 +468,7 @@ export default function FotocabinaPage() {
               primaryColor: fiesta?.primaryColor,
             });
           }
-    drawFrameOverlay(ctx, canvas.width, canvas.height);
+    drawFrameOverlay(ctx, canvas.width, canvas.height, count / totalCuadros);
         }
         frames.push(canvas);
         count++;
@@ -784,6 +784,9 @@ export default function FotocabinaPage() {
         const cCtx = c.getContext('2d');
         const img = new Image();
         img.src = fUrl;
+        try {
+          await img.decode();
+        } catch {}
         cCtx?.drawImage(img, 0, 0);
         canvasFotos.push(c);
       }
@@ -851,7 +854,7 @@ export default function FotocabinaPage() {
     }
   };
 
-  const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+  const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number, progresoAnimacion: number = 0) => {
     if (selectedFrame === 'none') return;
 
     if (selectedFrame === 'animado') {
@@ -861,6 +864,7 @@ export default function FotocabinaPage() {
         nombreEvento: fiesta?.eventName,
         fechaEvento: fiesta?.eventDate,
         colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+        progresoAnimacion,
       });
       return;
     }

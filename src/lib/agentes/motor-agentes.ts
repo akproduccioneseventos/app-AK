@@ -492,7 +492,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   }
 
   if (nuevosScheduled.length > 0) {
-    await writeData('scheduled-messages.json', [...(scheduledMessages || []), ...nuevosScheduled]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (actuales) => { const lista = actuales || []; const ids = new Set(lista.map((m: any) => m.idEstable || m.id)); return [...lista, ...nuevosScheduled.filter((n: any) => !ids.has(n.idEstable || n.id))]; });
   }
 
   const registro: RegistroEjecucionAgente = {

@@ -58,6 +58,7 @@ export interface ResultadoPresupuestoProspecto {
   linkPresupuesto?: string;
   error?: string;
   borradorAtendido?: boolean;
+  datos?: DatosPresupuestoProspecto;
 }
 
 /**
@@ -75,10 +76,16 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     if (cant > 0) res.invitados = cant;
   }
 
-  // 2. Fecha: ej "2027-08-08", "15/11/2026", "15 de noviembre de 2026", etc.
+  // 2. Fecha: ej "2027-08-08", "15/11/2026", "15 de noviembre de 2026", "marzo 2027", etc.
   const mFechaIso = t.match(/\b(\d{4}-\d{2}-\d{2})\b/);
   const mFechaSlash = t.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})\b/);
   const mFechaTexto = t.match(/\b(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)(?:\s+de(?:l)?\s+(\d{4}))?\b/i);
+  const mFechaMesAno = t.match(/\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)(?:\s+de(?:l)?|\s+)?\s+(\d{4})\b/i);
+
+  const meses: Record<string, string> = {
+    enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
+    julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
+  };
 
   if (mFechaIso) {
     res.fecha = mFechaIso[1];
@@ -89,29 +96,34 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     if (y.length === 2) y = '20' + y;
     res.fecha = y + '-' + m + '-' + d;
   } else if (mFechaTexto && mFechaTexto[3]) {
-    const meses: Record<string, string> = {
-      enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
-      julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
-    };
     const d = mFechaTexto[1].padStart(2, '0');
     const m = meses[mFechaTexto[2].toLowerCase()] || '01';
     const y = mFechaTexto[3];
     res.fecha = y + '-' + m + '-' + d;
+  } else if (mFechaMesAno && mFechaMesAno[2]) {
+    const m = meses[mFechaMesAno[1].toLowerCase()] || '01';
+    const y = mFechaMesAno[2];
+    res.fecha = `${y}-${m}-01`;
   }
 
-  // 3. Salón: ej "salon Los Robles", "salón: Club Uruguay", "en Club Uruguay", etc.
-  const mSalon = t.match(/(?:en el salon|en salon|en el sal[oó]n|en sal[oó]n|sal[oó]n:|salon:?)\s+([^,\.\n]+)/i) ||
-                 t.match(/(?:en)\s+([A-ZÁÉÍÓÚ][a-záéíóúA-ZÁÉÍÓÚ0-9\s]{3,30})/);
-  if (mSalon) {
-    const s = mSalon[1].trim();
-    if (s && !/^(cuanto|enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)/i.test(s)) {
-      res.salon = s;
+
+  // 3. Salón: ej "salon Los Robles", "salón: Club Uruguay", "en Club Uruguay", o directamente "Club Uruguay", etc.
+  if (/club\s+uruguay/i.test(t)) {
+    res.salon = 'Club Uruguay';
+  } else {
+    const mSalon = t.match(/(?:en el salon|en salon|en el sal[oó]n|en sal[oó]n|sal[oó]n:|salon:?)\s+([^,\.\n]+)/i) ||
+                   t.match(/(?:en)\s+([A-ZÁÉÍÓÚ][a-záéíóúA-ZÁÉÍÓÚ0-9\s]{3,30})/);
+    if (mSalon) {
+      const s = mSalon[1].trim();
+      if (s && !/^(cuanto|enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)/i.test(s)) {
+        res.salon = s;
+      }
     }
   }
 
   const normalizado = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   if (/\b(?:boda|casamiento|nos casamos)\b/.test(normalizado)) res.tipoEvento = 'Boda';
-  else if (/\b(?:xv|quince|15 anos)\b/.test(normalizado)) res.tipoEvento = 'XV años';
+  else if (/\b(?:xv|quince|15\s*anos|15\s*anios)\b/.test(normalizado) || /\b15\s*años\b/i.test(t)) res.tipoEvento = 'XV años';
   else if (/\b(?:corporativo|empresarial)\b/.test(normalizado)) res.tipoEvento = 'Evento corporativo';
   else if (/\b(?:infantil|cumple de ninos)\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños infantil';
   else if (/\bcumple(?:anos)?\b/.test(normalizado)) res.tipoEvento = 'Cumpleaños';
@@ -124,6 +136,53 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
  * Con los tres datos, prepara el enlace al simulador
  * sin dar nada por cerrado ni prometer precios ni plazos.
  */
+/**
+ * Arma la URL del simulador de presupuesto precargada con los datos del prospecto.
+ */
+export function enlaceAlSimuladorDelProspecto(datos: {
+  fecha?: string;
+  invitados?: number;
+  salon?: string;
+  tipoEvento?: string;
+}): string {
+  const params = new URLSearchParams();
+
+  if (datos.invitados) {
+    params.set('guests', String(datos.invitados));
+  }
+
+  const normTipo = (datos.tipoEvento || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  let tipo = 'cumpleanos';
+  if (normTipo.includes('15') || normTipo.includes('xv') || normTipo.includes('quince')) {
+    tipo = '15';
+  } else if (normTipo.includes('boda') || normTipo.includes('casamiento')) {
+    tipo = 'boda';
+  } else if (normTipo.includes('infantil')) {
+    tipo = 'infantil';
+  } else if (normTipo.includes('empresa') || normTipo.includes('corporativo')) {
+    tipo = 'empresa';
+  }
+  params.set('tipo', tipo);
+
+  if (datos.fecha) {
+    const mMes = datos.fecha.match(/(\d{4}-\d{2})/);
+    if (mMes) {
+      params.set('mes', mMes[1]);
+    }
+  }
+
+  if (datos.salon) {
+    const normSalon = datos.salon.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (normSalon.includes('club') && normSalon.includes('uruguay')) {
+      params.set('salon', 'club');
+    }
+  }
+
+  params.set('entry', 'whatsapp_anuncio');
+
+  return `https://akproducciones.uy/simulador-de-presupuesto?${params.toString()}`;
+}
+
 export async function atenderProspectoAnuncioWhatsApp(params: {
   phone: string;
   name?: string;
@@ -157,6 +216,7 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
       completo: false,
       borradorAtendido: true,
       faltantes,
+      datos,
       respuestaTexto: '¡Hola! Para prepararte una propuesta a medida necesitamos saber: ' + listaFaltantes + '. ¿Nos podrías confirmar esos detalles? 😊',
     };
   }
@@ -183,6 +243,7 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   return {
     completo: borrador.status === 'draft_created', borradorAtendido: true, faltantes: [],
     presupuestoId: borrador.presupuestoId,
+    datos,
     respuestaTexto: borrador.status === 'draft_created'
       ? 'El presupuesto y las fotos autorizadas quedaron en la bandeja para revisión. No se enviaron al prospecto.'
       : 'La propuesta necesita revisión manual. No se envió ningún mensaje al prospecto.',

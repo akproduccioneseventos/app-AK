@@ -3,13 +3,14 @@
 import path from 'path';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
-import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
+import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import admin from 'firebase-admin';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-interaction-rate-limit';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 /** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
@@ -53,31 +54,60 @@ function createScreenAssetId() {
   return `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+export const DEFAULT_SCREEN_PLAYLIST: ScreenPlaylistItem[] = [
+  { id: 'item_video', type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
+  { id: 'item_mural', type: 'mural', title: 'Mural de fotos', durationSeconds: 30, enabled: true, layout: 'auto' },
+  { id: 'item_audioritmico', type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: false, layout: 'auto' },
+  {
+    id: 'item_redes',
+    type: 'redes',
+    title: 'Pantalla de redes',
+    durationSeconds: 15,
+    enabled: true,
+    layout: 'auto',
+    socialTemplate: {
+      templateId: 'vip',
+      showInstagram: true,
+      showTikTok: true,
+      showWhatsApp: true,
+      showFacebook: false,
+      ctaText: 'Seguinos y escaneá el QR',
+    },
+  },
+];
+
+type ScreenModePatch =
+  | Partial<ScreenModeSettings>
+  | ((currentMode: ScreenModeSettings | undefined) => Partial<ScreenModeSettings>);
+
 async function patchScreenMode(
   fiestaId: string,
-  patch: Partial<ScreenModeSettings>
+  patch: ScreenModePatch
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const currentMode = fiesta.socialGallerySettings?.screenMode;
-    const updatedMode: ScreenModeSettings = {
-      enabled: currentMode?.enabled ?? true,
-      loop: currentMode?.loop ?? true,
-      isPlaying: currentMode?.isPlaying ?? false,
-      currentItemIndex: currentMode?.currentItemIndex ?? 0,
-      playlist: currentMode?.playlist ?? [],
-      ...currentMode,
-      ...patch,
-    };
-    const guardado = await saveFiesta({
-      ...fiesta,
-      socialGallerySettings: {
-        ...normalizeSocialSettings(fiesta.socialGallerySettings),
-        screenMode: updatedMode,
-      },
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const resultado = await actualizarFiesta(fiestaId, (fiesta) => {
+      const currentMode = fiesta.socialGallerySettings?.screenMode;
+      const patchValues = typeof patch === 'function' ? patch(currentMode) : patch;
+      const updatedMode: ScreenModeSettings = {
+        enabled: currentMode?.enabled ?? true,
+        loop: currentMode?.loop ?? true,
+        isPlaying: currentMode?.isPlaying ?? false,
+        currentItemIndex: currentMode?.currentItemIndex ?? 0,
+        playlist: currentMode?.playlist && currentMode.playlist.length > 0 ? currentMode.playlist : DEFAULT_SCREEN_PLAYLIST,
+        ...currentMode,
+        ...patchValues,
+      };
+      return {
+        ...fiesta,
+        socialGallerySettings: {
+          ...normalizeSocialSettings(fiesta.socialGallerySettings),
+          screenMode: updatedMode,
+        },
+      };
     });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'Error al actualizar pantalla.' };
+    if (!resultado.success) {
+      return { success: false, error: resultado.error || 'Error al actualizar pantalla.' };
     }
     return { success: true };
   } catch (error: any) {
@@ -100,48 +130,38 @@ export async function pauseScreenPlaylist(fiestaId: string): Promise<{ success: 
 /** Avanza al siguiente ítem de la playlist */
 export async function nextScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  try {
-    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const mode = fiesta.socialGallerySettings?.screenMode;
-    const playlist = mode?.playlist ?? [];
-    if (playlist.length === 0) return { success: true };
+  return patchScreenMode(fiestaId, (mode) => {
+    const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
+    if (playlist.length === 0) return {};
     const current = mode?.currentItemIndex ?? 0;
     const next = (current + 1) % playlist.length;
-    return patchScreenMode(fiestaId, { currentItemIndex: next, startedAt: new Date().toISOString() });
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al avanzar ítem.' };
-  }
+    return { playlist, currentItemIndex: next, startedAt: new Date().toISOString() };
+  });
 }
 
 /** Retrocede al ítem anterior de la playlist */
 export async function prevScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  try {
-    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const mode = fiesta.socialGallerySettings?.screenMode;
-    const playlist = mode?.playlist ?? [];
-    if (playlist.length === 0) return { success: true };
+  return patchScreenMode(fiestaId, (mode) => {
+    const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
+    if (playlist.length === 0) return {};
     const current = mode?.currentItemIndex ?? 0;
     const prev = (current - 1 + playlist.length) % playlist.length;
-    return patchScreenMode(fiestaId, { currentItemIndex: prev, startedAt: new Date().toISOString() });
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al retroceder ítem.' };
-  }
+    return { playlist, currentItemIndex: prev, startedAt: new Date().toISOString() };
+  });
 }
 
-/** Salta directamente a un ítem por su ID */
+/** Salta directamente a un ítem por su ID o tipo */
 export async function goToScreenItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  try {
-    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const mode = fiesta.socialGallerySettings?.screenMode;
-    const playlist = mode?.playlist ?? [];
-    const idx = playlist.findIndex(i => i.id === itemId);
-    if (idx === -1) return { success: false, error: 'Ítem no encontrado en la playlist.' };
-    return patchScreenMode(fiestaId, { currentItemIndex: idx, startedAt: new Date().toISOString() });
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al saltar al ítem.' };
-  }
+  return patchScreenMode(fiestaId, (mode) => {
+    const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
+    const idx = playlist.findIndex((i) => i.id === itemId || i.type === itemId);
+    if (idx === -1) {
+      throw new Error('Ítem no encontrado en la playlist.');
+    }
+    return { playlist, currentItemIndex: idx, startedAt: new Date().toISOString() };
+  });
 }
 
 /** Configura si la pantalla gigante debe ciclar en bucle continuo */
@@ -157,22 +177,76 @@ export async function updateLedMessage(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const guardado = await saveFiesta({
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const resultado = await actualizarFiesta(fiestaId, (fiesta) => ({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         ledMarqueeText: text,
+        ledMarqueeEnabled: text.trim().length > 0 ? true : (fiesta.socialGallerySettings?.ledMarqueeEnabled ?? true),
       },
-    });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'Error al actualizar mensaje LED.' };
+    }));
+    if (!resultado.success) {
+      return { success: false, error: resultado.error || 'Error al actualizar mensaje LED.' };
     }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar mensaje LED.' };
   }
 }
+
+/**
+ * Obtiene el estado en vivo de la pantalla gigante para el control remoto desde celular.
+ * Requiere permisos de noche (PERMISOS.NOCHE).
+ */
+export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
+  success: boolean;
+  authorized?: boolean;
+  error?: string;
+  fiestaNombre?: string;
+  isPlaying?: boolean;
+  currentItemIndex?: number;
+  currentItem?: { id: string; title: string; type: string };
+  playlist?: ScreenPlaylistItem[];
+  ledMarqueeText?: string;
+  activeGame?: ActiveGameData | null;
+  activeSorteoWinner?: string | null;
+  sorteoSpinStartedAt?: string | null;
+}> {
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const mode = settings.screenMode;
+    const playlist = mode?.playlist && mode.playlist.length > 0 ? mode.playlist : DEFAULT_SCREEN_PLAYLIST;
+    const currentItemIndex = mode?.currentItemIndex ?? 0;
+    const currentItem = playlist[currentItemIndex % playlist.length] || playlist[0];
+
+    return {
+      success: true,
+      authorized: true,
+      fiestaNombre: fiesta.configuracion?.nombreEvento || (fiesta as any).nombre || 'Fiesta',
+      isPlaying: mode?.isPlaying ?? false,
+      currentItemIndex,
+      currentItem: currentItem ? { id: currentItem.id, title: currentItem.title, type: currentItem.type } : undefined,
+      playlist,
+      ledMarqueeText: settings.ledMarqueeText || '',
+      activeGame: settings.activeGame || null,
+      activeSorteoWinner: settings.activeSorteoWinner || null,
+      sorteoSpinStartedAt: settings.sorteoSpinStartedAt || null,
+    };
+  } catch (error: any) {
+    const msg = error.message || 'Error de acceso';
+    return {
+      success: false,
+      authorized: false,
+      error: msg.includes('permiso') || msg.includes('asignado') || msg.includes('sesión') || msg.includes('Sesion')
+        ? 'Acceso no autorizado. Se requieren permisos de noche.'
+        : msg,
+    };
+  }
+}
+
+export const verificarAccesoControlPantalla = obtenerEstadoControlPantalla;
 
 /** Registra un momento especial en vivo (aparece como overlay en la pantalla gigante) */
 export async function triggerLiveMoment(

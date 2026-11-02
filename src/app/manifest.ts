@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'AK Producciones',
     description: 'Plataforma inteligente de AK Producciones para organizar eventos, clientes, invitados y operacion.',
     id: '/ak-producciones-pwa',
-    start_url: '/?source=pwa',
+    start_url: '/entrar?source=pwa',
     scope: '/',
     display: 'standalone',
     display_override: ['window-controls-overlay', 'standalone', 'minimal-ui', 'browser'],

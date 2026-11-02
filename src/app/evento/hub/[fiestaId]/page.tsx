@@ -91,6 +91,11 @@ export default function EventoHubPage() {
       ]);
       if (!active) return;
       setPortal(portalData);
+      if (portalData && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('ak_invitado_fiesta', fiestaId);
+        } catch {}
+      }
       setStations(portalData?.entertainmentLinks ?? []);
       setPhotoCount(approvedPostCount);
       setEnlaceResena(reviewUrl || '');
@@ -183,6 +188,19 @@ export default function EventoHubPage() {
             </Link>
             <div className="flex items-center gap-2">
               <VideoDeAyuda lugar="hub-de-la-fiesta" />
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('ak_invitado_fiesta');
+                    localStorage.removeItem('ak_portal_fiesta');
+                  } catch {}
+                  window.location.href = '/entrar';
+                }}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/25 bg-black/20 px-3 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
+              >
+                Cambiar de cuenta
+              </button>
               <Link
                 href={invitationHref}
                 className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-black/40"

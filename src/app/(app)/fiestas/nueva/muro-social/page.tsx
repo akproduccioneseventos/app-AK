@@ -6,13 +6,21 @@ import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { RefreshCw,  ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon, Check  } from 'lucide-react';
+import { RefreshCw,  ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon, Check, Smartphone, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
@@ -235,6 +243,7 @@ function MuroSocialContent() {
   const [gameCorrectIndex, setGameCorrectIndex] = useState<number | null>(null);
   const [isTriviaAction, setIsTriviaAction] = useState(false);
   const [selectedGameTemplate, setSelectedGameTemplate] = useState<typeof GAME_TEMPLATES[number] | null>(null);
+  const [showControlPantallaModal, setShowControlPantallaModal] = useState(false);
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Lightweight auto-refresh: refreshes only status data (activeGame, postCount)
@@ -610,7 +619,7 @@ function MuroSocialContent() {
     if (!fiestaId) return;
     setIsPlayAction(true);
     try {
-      const saveResult = await updateSocialGallerySettingsFiestaActual(fiestaId, settingsRef.current);
+      const saveResult = await updateSocialGallerySettingsFiestaActual(fiestaId, { screenMode: settingsRef.current.screenMode });
       if (!saveResult.success) throw new Error(saveResult.error || 'No se pudo guardar la playlist.');
       const result = await playScreenPlaylist(fiestaId);
       if (!result.success) throw new Error(result.error || 'No se pudo iniciar la reproducción.');
@@ -705,7 +714,12 @@ function MuroSocialContent() {
       } as SocialGallerySettings['screenMode'],
     });
     setSettings(updatedSettings);
-    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, {
+      screenMode: {
+        ...(settingsRef.current.screenMode ?? {}),
+        playlist: updatedPlaylist,
+      } as SocialGallerySettings['screenMode'],
+    });
     if (!result.success) {
       toast({ title: 'Error al guardar ítem', description: result.error, variant: 'destructive' });
       handlePlaylistItemChange(itemId, { enabled: !enabled }); // Revert
@@ -1012,6 +1026,7 @@ function MuroSocialContent() {
 
   const handleDownloadAndClearGallery = async () => {
     if (!fiestaId) return;
+    if (!window.confirm(`¿Descargar y borrar todas las ${postCount ?? 0} fotos del muro? Esta acción no se puede deshacer.`)) return;
     setIsDownloadingAndClearing(true);
     try {
       const response = await fetch(`/api/social-gallery/${fiestaId}/download`);
@@ -1177,6 +1192,14 @@ function MuroSocialContent() {
                 <ShieldCheck className="mr-2 h-4 w-4" />
                 Moderar desde el celular
               </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowControlPantallaModal(true)}
+            >
+              <Smartphone className="mr-2 h-4 w-4" />
+              Manejar la pantalla desde el celular
             </Button>
             <Button
               variant={settings.enabled ? 'outline' : 'default'}
@@ -2741,6 +2764,55 @@ function MuroSocialContent() {
         </Card>
       </div>
       )}
+      <Dialog open={showControlPantallaModal} onOpenChange={setShowControlPantallaModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manejar la pantalla desde el celular</DialogTitle>
+            <DialogDescription>
+              Escaneá el código QR con tu celular para abrir el control remoto de la pantalla gigante.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-4 gap-4">
+            <div className="p-4 bg-white rounded-2xl shadow-sm border">
+              <QRCodeSVG
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/control-pantalla/${fiestaId}`}
+                size={220}
+              />
+            </div>
+            <div className="w-full flex items-center gap-2">
+              <Input
+                readOnly
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/control-pantalla/${fiestaId}`}
+                className="text-xs"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    navigator.clipboard.writeText(`${window.location.origin}/evento/control-pantalla/${fiestaId}`);
+                    toast({ title: 'Enlace copiado al portapapeles' });
+                  }
+                }}
+              >
+                Copiar
+              </Button>
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={`/evento/control-pantalla/${fiestaId}`} target="_blank">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Abrir en nueva pestaña
+              </Link>
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setShowControlPantallaModal(false)} className="w-full sm:w-auto">
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -595,6 +595,21 @@ export default function PortalClientePage() {
             <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
               Portal VIP
             </Badge>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem('ak_invitado_fiesta');
+                  localStorage.removeItem('ak_portal_fiesta');
+                  sessionStorage.removeItem(sessionKey);
+                } catch {}
+                window.location.href = '/entrar';
+              }}
+              className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/60 hover:bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
+              title="Cambiar de cuenta"
+            >
+              Cambiar de cuenta
+            </button>
           </div>
         </div>
       </header>

@@ -2,7 +2,8 @@ import 'server-only';
 
 import { getEmpleados } from '@/app/actions/empleados';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { perfilDe, puede, esPerfilValido, type Permiso } from '@/lib/auth/perfiles';
+import { perfilDe, puede, esPerfilValido, type Permiso, PERMISOS } from '@/lib/auth/perfiles';
+export { PERMISOS };
 import { verifySession } from '@/lib/auth/session-token';
 
 export async function requireEventPermission(fiestaId: string, permiso: Permiso | readonly Permiso[]) {
