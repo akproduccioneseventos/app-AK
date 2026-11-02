@@ -16167,3 +16167,5 @@ prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
 - **31/10/2026, Claude (Codex 743/C6, orden 252):** al cargar fiestas viejas, el número de factura salía de las últimas 5 letras del presupuesto; dos cargas distintas que terminaban igual chocaban y la segunda quedaba con presupuesto y sin factura. Ahora sale de una huella del presupuesto entero: distinto para cada carga y el mismo al reintentar. El rechazo de un número ya usado por otro presupuesto sigue puesto. Prueba: `la-carga-historica-no-choca-numeros` (la sonda de Codex), en rojo sin el arreglo.
 
 - **02/11/2026, Claude:** la prueba del interruptor "Controlar la llegada con ubicación" fallaba porque tocaba el interruptor antes de que la página respondiera y el toque se perdía. Medido: el interruptor prende, guarda y queda prendido al recargar. La prueba ahora insiste hasta que cambia, y sigue en rojo si no guardara nunca.
+
+- **03/11/2026, Claude sobre la entrega 262-265:** el ingreso del cliente por celular leía las fiestas como si fueran una sola lista; ahora usa el mismo lector que el resto de la app (sin archivadas ni suspendidas).

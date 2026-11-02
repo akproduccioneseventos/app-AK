@@ -9,6 +9,11 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(),
 }));
 
+// Las fiestas se leen con el lector de la app; acá sale de la misma lista de mentira.
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({
+  leerFiestasCrudas: jest.fn(async () => require('@/lib/data-service').readData('fiestas.json', [])),
+}));
+
 jest.mock('@/lib/commercial/public-rate-limit', () => ({
   enforcePublicRateLimit: jest.fn(),
 }));

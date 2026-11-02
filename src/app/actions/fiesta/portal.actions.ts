@@ -162,8 +162,11 @@ export async function entrarAlPortalPorTelefono(
   let customers: any[] = [];
 
   try {
+    // Las fiestas viven una por documento: se leen con el mismo lector que el resto de la app,
+    // sin las archivadas ni las suspendidas.
+    const { leerFiestasCrudas } = await import('@/lib/fiesta/leer-fiestas');
     const [fiestasRes, customersRes] = await Promise.all([
-      readData<any[]>('fiestas.json', []),
+      leerFiestasCrudas(false),
       readData<any[]>('customers.json', []),
     ]);
     fiestas = Array.isArray(fiestasRes) ? fiestasRes : [];
