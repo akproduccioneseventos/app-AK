@@ -666,6 +666,10 @@
     "orden-260": {
       "fecha": "2026-11-02",
       "resultado": "Cuarta vuelta 242-248: pruebas viejas de la portada que miran textos y marcas sacados por 245/246. Va en la orden 260."
+    },
+    "orden-261": {
+      "fecha": "2026-11-02",
+      "resultado": "Quinta vuelta 242-248: la sección de la app no cambia de momento en computadora (en celular sí). Medido con una prueba de toque. Va en la orden 261."
     }
   }
 }
