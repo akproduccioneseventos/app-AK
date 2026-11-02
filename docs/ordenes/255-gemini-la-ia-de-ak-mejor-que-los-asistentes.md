@@ -211,7 +211,7 @@ usa: loQueSe en src/lib/asistente/por-whatsapp.ts
 usa: resumen_de_la_manana en src/lib/ia/reglas-de-la-ia.ts
 usa: enviarResumenMananaWhatsApp en src/app/api/cron/asistente-proactivo/route.ts
 usa: sendMetaWhatsAppMessage en src/lib/asistente/resumen-manana-whatsapp.ts
-usa: extractReceiptData en src/lib/asistente/por-whatsapp.ts
+usa: clasificarImagenWhatsApp en src/lib/asistente/por-whatsapp.ts
 usa: prepararBorradorProspectoAnuncio en src/lib/asistente/por-whatsapp.ts
 usa: persistPublicSimulatorBudget en src/lib/asistente/comercial-borrador.ts
 usa: fotosDeFiestasParecidas en src/lib/asistente/comercial-borrador.ts
