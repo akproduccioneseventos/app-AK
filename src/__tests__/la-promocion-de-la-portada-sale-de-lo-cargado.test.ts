@@ -36,7 +36,7 @@ jest.mock('@/lib/data-service', () => ({
 }));
 
 const stripMotionProps = (props: any) => {
-  const { whileHover, whileTap, initial, animate, exit, transition, ...rest } = props;
+  const { whileHover, whileTap, whileInView, viewport, initial, animate, exit, transition, ...rest } = props;
   return rest;
 };
 
@@ -48,6 +48,7 @@ jest.mock('framer-motion', () => ({
     p: ({ children, ...props }: any) => React.createElement('p', stripMotionProps(props), children),
     a: ({ children, ...props }: any) => React.createElement('a', stripMotionProps(props), children),
     span: ({ children, ...props }: any) => React.createElement('span', stripMotionProps(props), children),
+    button: ({ children, ...props }: any) => React.createElement('button', stripMotionProps(props), children),
   },
   useReducedMotion: () => false,
 }));

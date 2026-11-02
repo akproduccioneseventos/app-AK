@@ -3,11 +3,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Calendar, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowRight, Calendar, CalendarCheck, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { canUseNextImage } from "@/lib/next-image-url";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import type { PromoActiva } from "@/types/promo";
+import { EntrevistaGratuitaModal } from "./EntrevistaGratuitaModal";
 
 interface HeroSectionProps {
   whatsappNumber?: string;
@@ -25,7 +26,7 @@ interface HeroSectionProps {
 }
 
 const details = [
-  "Comida gourmet y barra",
+  "Comida y barra",
   "Ambientación y mobiliario",
   "Discoteca, pantallas y luces",
 ];
@@ -54,6 +55,7 @@ export function HeroSection({
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
   const [invitadosEstimados, setInvitadosEstimados] = useState("100");
+  const [showEntrevistaModal, setShowEntrevistaModal] = useState(false);
 
   // Detección segura de conexión y viewport
   useEffect(() => {
@@ -329,20 +331,23 @@ export function HeroSection({
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
               className="inline-flex"
             >
-              <a
-                href={waHref}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setShowEntrevistaModal(true)}
                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
               >
-                <MessageCircle className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-                {ctaLabel}
-              </a>
+                <CalendarCheck className="h-4 w-4 text-white" aria-hidden="true" />
+                Coordinar una entrevista gratuita
+              </button>
             </motion.div>
           </motion.div>
         </div>
       </div>
+
+      <EntrevistaGratuitaModal
+        isOpen={showEntrevistaModal}
+        onClose={() => setShowEntrevistaModal(false)}
+      />
     </section>
   );
 }
-

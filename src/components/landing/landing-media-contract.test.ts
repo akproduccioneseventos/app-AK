@@ -187,8 +187,10 @@ describe("public landing media contracts", () => {
     expect(getVisibleSalonPhotos(photos)).toHaveLength(3);
 
     const clubPage = read("src/app/club-uruguay/page.tsx");
-    expect(clubPage).toContain("uniquePhotos([...masterPhotos, ...getDynamicSalonPhotos()])");
-    expect(clubPage).toContain("canUseNextImage");
+    const clubInteractive = read("src/components/club-uruguay/ClubUruguayInteractive.tsx");
+    expect(clubPage).toContain("dedupeSalonPhotos");
+    expect(clubPage).toContain("getDynamicSalonPhotos()");
+    expect(clubInteractive).toContain("canUseNextImage");
     expect(clubPage).not.toContain("<GallerySection");
   });
 });

@@ -36,4 +36,8 @@ export interface BlogPost {
   topicKey?: string;
   /** Fuentes externas consultadas en la investigación previa. */
   fuentes?: string[];
+  /** Estado de publicación de la nota. */
+  status?: 'published' | 'draft' | 'scheduled' | string;
+  /** Quién escribió la nota: 'ia' o 'persona'. */
+  autor?: 'ia' | 'persona' | 'humano' | string;
 }

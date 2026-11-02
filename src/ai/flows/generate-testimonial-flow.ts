@@ -13,6 +13,7 @@ export interface GenerateTestimonialInput {
 export interface GenerateTestimonialOutput {
   testimonial: string;
   shortQuote: string;
+  error?: string;
 }
 
 function buildFallback(input: GenerateTestimonialInput): GenerateTestimonialOutput {
@@ -30,9 +31,17 @@ function buildFallback(input: GenerateTestimonialInput): GenerateTestimonialOutp
 
 export async function generateTestimonialFlow(input: GenerateTestimonialInput): Promise<GenerateTestimonialOutput> {
   const fallback = buildFallback(input);
+  const tieneHighlights = Boolean(input.highlights && input.highlights.filter(Boolean).length > 0);
 
   const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-  if (!canUseAI) return fallback;
+  if (!canUseAI) {
+    if (tieneHighlights) return fallback;
+    return {
+      testimonial: '',
+      shortQuote: '',
+      error: 'No se pudo armar el testimonio con IA; probá más tarde',
+    };
+  }
 
   try {
     const model = getGeminiModelForAgent('marketing');
@@ -63,9 +72,18 @@ Devolvé SOLO un JSON válido con:
         };
       }
     }
-    return fallback;
+    if (tieneHighlights) return fallback;
+    return {
+      testimonial: '',
+      shortQuote: '',
+      error: 'No se pudo armar el testimonio con IA; probá más tarde',
+    };
   } catch {
-    return fallback;
+    if (tieneHighlights) return fallback;
+    return {
+      testimonial: '',
+      shortQuote: '',
+      error: 'No se pudo armar el testimonio con IA; probá más tarde',
+    };
   }
 }
-

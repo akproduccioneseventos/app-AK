@@ -141,6 +141,13 @@ export default function GastosGeneralesPage() {
                 </p>
                 <ReceiptProcessor
                   onDataExtracted={(data) => {
+                    if (data.confidence === 'baja') {
+                      toast({
+                        title: "No se pudo leer el comprobante. Completá los datos a mano.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
                     if (data.vendor) setConcepto(data.vendor);
                     if (data.amount) setMonto(data.amount.toString());
                     if (data.date) {

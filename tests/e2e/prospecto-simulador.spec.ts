@@ -40,7 +40,7 @@ test.describe('recorrido del prospecto', () => {
     await empezar.click();
 
     // La portada del simulador tiene su propio botón para arrancar el paso a paso.
-    const arrancar = page.getByRole('button', { name: /Cotizar mi fiesta/i }).first();
+    const arrancar = page.getByRole('button', { name: /Armar mi presupuesto|Cotizar mi fiesta/i }).first();
     await expect(arrancar, 'No aparece el botón que arranca el paso a paso').toBeVisible({ timeout: 45_000 });
     await arrancar.click();
 

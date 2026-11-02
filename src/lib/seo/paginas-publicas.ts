@@ -33,6 +33,9 @@ export const PAGINAS_PARA_GOOGLE = [
   '/public/bodas',
   '/public/xv-anos',
   '/public/fiestas',
+  '/public/cumpleanos',
+  '/public/corporativos',
+  '/public/aniversarios',
   '/public/blog',
   ...blogPosts.map((post) => `/public/blog/${post.slug}` as const),
 ] as const;
@@ -72,6 +75,9 @@ const PRIORIDAD: Record<string, number> = {
   '/public/bodas': 0.7,
   '/public/xv-anos': 0.7,
   '/public/fiestas': 0.7,
+  '/public/cumpleanos': 0.7,
+  '/public/corporativos': 0.7,
+  '/public/aniversarios': 0.7,
   '/public/blog': 0.7,
   // Tiene que existir y que Google la vea, pero no compite con las que venden.
   '/privacidad': 0.3,

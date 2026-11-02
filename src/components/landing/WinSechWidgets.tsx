@@ -42,7 +42,7 @@ const OFFERS: OfferWidget[] = [
     id: 3,
     icon: Gift,
     title: 'Producción integral',
-    description: 'Cero estrés: música, comida gourmet, ambientación y organización en un solo paquete.',
+    description: 'Cero estrés: música, comida y barra, ambientación y organización en un solo paquete.',
     ctaText: 'Explorar Servicios',
     ctaUrl: '#servicios',
     iconColor: 'text-emerald-400',

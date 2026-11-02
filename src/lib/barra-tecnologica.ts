@@ -1,8 +1,31 @@
-import type { Trago } from '@/types/fiesta';
+import type { Trago, TragoRecetaIngrediente } from '@/types/fiesta';
 import type { BarDrinkOrderStatus } from '@/types/barra-tecnologica';
 import type { BarTechnologySettings } from '@/types/barra-tecnologica';
 
-type DrinkMarketingFields = Pick<Trago, 'nombre' | 'ingredientes' | 'descripcion' | 'description' | 'videoUrl'>;
+type DrinkMarketingFields = Pick<
+  Trago,
+  'nombre' | 'ingredientes' | 'descripcion' | 'description' | 'videoUrl'
+> & Partial<Pick<Trago, 'soloMayores' | 'recetaIngredientes'>>;
+
+function tieneIngredientesAlcoholicos(receta?: TragoRecetaIngrediente[]): boolean {
+  if (!receta || receta.length === 0) return false;
+  return receta.some((ing) => {
+    const id = (ing.insumoId || '').toLowerCase();
+    const nombre = (ing.nombre || '').toLowerCase();
+    if (id.includes('sin-alcohol') || nombre.includes('sin alcohol')) return false;
+    return (
+      id.includes('cana') || id.includes('caña') ||
+      id.includes('ron') || id.includes('vodka') ||
+      id.includes('gin') || id.includes('fernet') ||
+      id.includes('tequila') || id.includes('cachaca') || id.includes('cachaça') ||
+      id.includes('licor') ||
+      nombre.includes('caña') || nombre.includes('cana') ||
+      nombre.includes('ron') || nombre.includes('vodka') ||
+      nombre.includes('gin') || nombre.includes('fernet') ||
+      nombre.includes('tequila') || nombre.includes('cachaça') || nombre.includes('cachaca')
+    );
+  });
+}
 
 const BAR_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -49,12 +72,25 @@ export function getDrinkTags(drink: DrinkMarketingFields): string[] {
   const text = `${drink.nombre} ${drink.ingredientes?.join(' ') || ''} ${drink.descripcion || drink.description || ''}`.toLowerCase();
   const tags = new Set<string>();
 
-  if (text.includes('sin alcohol') || text.includes('mocktail') || text.includes('virgen')) tags.add('Sin alcohol');
+  const tieneAlcoholPorDatos = drink.soloMayores === true || tieneIngredientesAlcoholicos(drink.recetaIngredientes);
+  const tieneAlcoholPorTexto = drink.soloMayores === undefined && !drink.recetaIngredientes?.length && (
+    text.includes('ron') || text.includes('vodka') || text.includes('tequila') || text.includes('fernet') ||
+    text.includes('caña') || text.includes('cana') || text.includes('gin') || text.includes('licor') ||
+    text.includes('cachaca') || text.includes('cachaça')
+  );
+
+  if (tieneAlcoholPorDatos || tieneAlcoholPorTexto) {
+    tags.add('Con alcohol');
+  } else if (drink.soloMayores === false || (drink.recetaIngredientes && drink.recetaIngredientes.length > 0 && !tieneAlcoholPorDatos)) {
+    tags.add('Sin alcohol');
+  } else if (text.includes('sin alcohol') || text.includes('mocktail') || text.includes('virgen')) {
+    tags.add('Sin alcohol');
+  }
+
   if (text.includes('limon') || text.includes('lima') || text.includes('citr')) tags.add('Citrico');
   if (text.includes('frut') || text.includes('durazno') || text.includes('anana') || text.includes('frutilla')) tags.add('Frutal');
   if (text.includes('sprite') || text.includes('coca') || text.includes('te') || text.includes('jugo')) tags.add('Refrescante');
   if (text.includes('granadina') || text.includes('azucar') || text.includes('dulce')) tags.add('Dulce');
-  if (text.includes('ron') || text.includes('vodka') || text.includes('tequila') || text.includes('fernet')) tags.add('Con alcohol');
 
   if (!tags.size) tags.add('AK Bar');
   return Array.from(tags).slice(0, 4);

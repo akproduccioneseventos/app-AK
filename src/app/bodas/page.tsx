@@ -7,7 +7,7 @@ import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'bodas',
   title: 'Casamientos en Salto, Uruguay | AK Producciones',
-  description: 'Organizamos tu casamiento en Salto de principio a fin: salón, catering de gala, ambientación, discoteca y fotografía, con un solo equipo a cargo. Presupuesto cerrado y sin compromiso.',
+  description: 'Organizamos tu casamiento en Salto de principio a fin: salón, catering de gala, ambientación, discoteca y fotografía, con un solo equipo a cargo. Presupuesto detallado y sin compromiso.',
   image: '/media/catalogo-servicios/boda_persuasiva.png',
   imageAlt: 'Boda producida por AK Producciones',
 });

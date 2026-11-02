@@ -144,6 +144,15 @@ async function resolverFiestaDeLaOrden(frase: string): Promise<FiestaDeLaOrden> 
  * 5) Registro unificado de lo que hizo sola
  * 6) Resumen mensual del aprendizaje
  */
+const SLUGS_BLOG_HUMANO = new Set([
+  'como-empezar-a-organizar-una-fiesta-sin-estres',
+  'presupuesto-de-fiesta-que-debe-incluir',
+  'como-elegir-el-menu-para-un-evento',
+  'ideas-para-fiesta-de-xv-en-salto',
+  'errores-comunes-al-organizar-una-boda',
+  'checklist-final-antes-del-evento',
+]);
+
 export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
   const sesion = await requirePermiso(PERMISOS.ADMINISTRACION);
   if (!sesion.ok) {
@@ -240,6 +249,42 @@ export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
 
   // 5. Lo que hizo sola
   const itemsSola: AccionSolaItem[] = [];
+  try {
+    const { getBlogPosts } = await import('@/app/actions/blog');
+    const blogPosts = await getBlogPosts();
+    for (const post of blogPosts || []) {
+      const p = post as any;
+      const status = String(p.status || '').toLowerCase().trim();
+
+      // Borradores y notas programadas no van en "Lo que hizo sola"
+      if (status === 'draft' || status === 'borrador' || p.draft || p.borrador) continue;
+      if (status === 'scheduled' || status === 'programado' || status === 'programada') continue;
+      if (post.publishedAt && new Date(post.publishedAt).getTime() > Date.now()) continue;
+
+      // Notas escritas por una persona no van
+      const autor = String(p.autor || p.author || '').toLowerCase().trim();
+      const esHumano = autor === 'persona' || autor === 'humano' || autor === 'manual' || SLUGS_BLOG_HUMANO.has(post.slug);
+      if (esHumano) continue;
+
+      // Solo entran las que publicó la IA de verdad (status === 'published' y escritas por IA)
+      const esIA = autor === 'ia' || autor === 'ai' || Boolean(post.topicKey) || p.image?.source === 'gemini' || p.generadoPorIA || p.esIA || status === 'published';
+      if (!esIA) continue;
+
+      // Si tiene status, debe ser published/publicado
+      if (status && status !== 'published' && status !== 'publicado') continue;
+
+      itemsSola.push({
+        id: `blog-post-${post.slug}`,
+        tipo: 'blog',
+        titulo: `Nota de blog: ${post.title}`,
+        descripcion: `Publicó la nota "${post.title}" en el blog corporativo.`,
+        fecha: post.publishedAt ? `${post.publishedAt}T12:00:00.000Z` : new Date().toISOString(),
+        enlace: `/public/blog/${post.slug}`,
+      });
+    }
+  } catch (error) {
+    console.warn('[Centro de Control] Error al leer posts del blog para Lo que hizo sola:', error);
+  }
   try {
     const accionesSolas = await getRegistroAccionesSolas();
     for (const a of accionesSolas || []) {
@@ -569,9 +614,10 @@ export async function darOrdenPorVozOTexto(
     const { id: fiestaId, nombre: nombreFiesta } = fiestaOrden;
 
     if (modo === 'sola') {
+      let armada: Awaited<ReturnType<typeof armarWebConIA>> | null = null;
       let falla: string | null = null;
       try {
-        const armada = await armarWebConIA(fiestaId);
+        armada = await armarWebConIA(fiestaId);
         if (!armada.success || !armada.invitacionDigital) {
           falla = armada.error || 'No se pudo armar la web.';
         } else {
@@ -594,15 +640,21 @@ export async function darOrdenPorVozOTexto(
         };
       }
 
+      const esBaseSinIA = Boolean(armada?.esBaseSinIA || (armada?.invitacionDigital as any)?.esBaseSinIA);
+
       await registrarAccionSola({
         tareaId: 'armar_web_evento',
-        que: `Armé el diseño y textos de la web de invitación para la fiesta de ${nombreFiesta} con la plantilla recomendada.`,
+        que: esBaseSinIA
+          ? `Armé una versión base sin IA para la fiesta de ${nombreFiesta}.`
+          : `Armé el diseño y textos de la web de invitación para la fiesta de ${nombreFiesta} con la plantilla recomendada.`,
         enlace: `/fiestas/${fiestaId}/pagina-web`,
       });
 
       return {
         success: true,
-        mensaje: `Listo, ya le armé la web a la fiesta de ${nombreFiesta}. Quedó guardada y lista para revisar.`,
+        mensaje: esBaseSinIA
+          ? 'Armé una versión base sin IA; revisala'
+          : `Listo, ya le armé la web a la fiesta de ${nombreFiesta}. Quedó guardada y lista para revisar.`,
       };
     }
 

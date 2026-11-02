@@ -52,8 +52,8 @@ export async function extractReceiptData(input: ExtractReceiptDataInput): Promis
   } catch (error) {
     console.warn('[extractReceiptData] Error con Gemini, retornando valores base:', error);
     return {
-      vendor: 'Proveedor sin identificar',
-      date: new Date().toISOString().slice(0, 10),
+      vendor: '',
+      date: '',
       amount: 0,
       category: 'Insumos',
       confidence: 'baja',

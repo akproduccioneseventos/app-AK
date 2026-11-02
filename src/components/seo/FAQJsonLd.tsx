@@ -44,7 +44,7 @@ export const EVENTOS_FAQS: Record<'bodas' | 'quinceaneras' | 'cumpleanos' | 'gen
   general: [
     {
       question: '¿Qué incluye el servicio integral de AK Producciones en Salto?',
-      answer: 'Incluye discoteca con sonido profesional e iluminación LED, gastronomía gourmet con catering completo, salones exclusivos como Club Uruguay, coordinación presencial y tecnología interactiva como fotocabinas y pantalla gigante.',
+      answer: 'Incluye discoteca con sonido profesional e iluminación LED, gastronomía y catering con catering completo, salones exclusivos como Club Uruguay, coordinación presencial y tecnología interactiva como fotocabinas y pantalla gigante.',
     },
     {
       question: '¿Con cuánta anticipación se debe reservar una fecha de evento?',
@@ -62,7 +62,7 @@ export const EVENTOS_FAQS: Record<'bodas' | 'quinceaneras' | 'cumpleanos' | 'gen
     },
     {
       question: '¿Se puede personalizar el menú gastronómico de la boda?',
-      answer: 'Sí, contamos con opciones de menú gourmet adaptables a preferencias, incluyendo platos celíacos, vegetarianos e infantiles.',
+      answer: 'Sí, contamos con opciones de menú completo adaptables a preferencias, incluyendo platos celíacos, vegetarianos e infantiles.',
     },
   ],
   quinceaneras: [

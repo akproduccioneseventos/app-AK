@@ -20,9 +20,12 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     // Tabs de los 5 momentos
     await expect(techSection.locator('[data-testid="momento-de-la-app"]')).toHaveCount(5);
 
-    // Verificación de la fiesta demo identificada y segura
-    await expect(techSection.locator('text=DEMO EN VIVO')).toHaveText(/DEMO EN VIVO/);
-    await expect(techSection.locator('text=Modo seguro')).toHaveText(/Modo seguro/);
+
+    // Verificación de la fiesta de ejemplo identificada y aclaración de datos de prueba
+    await expect(techSection.getByText('EJEMPLO', { exact: true })).toBeVisible();
+    await expect(techSection.getByText(/15 de Camila \(Muestra\)/i)).toBeVisible();
+    await expect(techSection.getByText(/datos de prueba/i)).toBeVisible();
+
 
     /**
      * SE TOCA EL MOMENTO POR SU LUGAR, NO POR SU TEXTO, Y SE MIRA LA SECCION ENTERA.
@@ -62,10 +65,10 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     await tocarHastaQueResponda(1, /Mis 15 - Camila/);
 
     // 4. Barra y Tótem
-    await tocarHastaQueResponda(3, /Mojito de Maracuyá/);
+    await tocarHastaQueResponda(3, /Fernet con Coca/);
 
     // Botón de consulta a WhatsApp con mensaje contextual
-    const ctaWa = techSection.getByRole('link', { name: /Consultar disponibilidad por WhatsApp/i });
+    const ctaWa = techSection.getByRole('link', { name: /escribinos por WhatsApp/i });
     await expect(ctaWa).toHaveAttribute('href', /wa\.me/);
   });
 });

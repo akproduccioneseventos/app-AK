@@ -45,7 +45,7 @@ test.describe('Orden 27: La Vidriera de la Tecnología', () => {
     // buscaba "Tecnologia Interactiva" adentro de la vidriera, y ese texto esta
     // en OTRA seccion de la portada: la prueba esperaba para siempre por algo
     // que nunca iba a aparecer ahi.
-    await expect(vidriera).toContainText('Experiencias que hacen tu fiesta inolvidable', {
+    await expect(vidriera).toContainText('Más diversión, más momentos para recordar.', {
       timeout: 30_000,
     });
     await expect(vidriera).toContainText('Fotocabina Impresa', { timeout: 30_000 });

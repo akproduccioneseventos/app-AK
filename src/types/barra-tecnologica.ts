@@ -23,6 +23,7 @@ export interface BarDrinkOrder {
   queuePosition?: number;
   stockMovements?: BarStockMovement[];
   stockRestoredAt?: string;
+  version?: 'con_alcohol' | 'sin_alcohol';
 }
 
 export interface BarTechnologySettings {
@@ -96,7 +97,7 @@ export interface BarTechnologyDashboard {
 
 export type PublicBarDrink = Pick<
   Trago,
-  'id' | 'nombre' | 'imageUrl' | 'descripcion' | 'description' | 'videoUrl' | 'ingredientes' | 'stockDisponible'
+  'id' | 'nombre' | 'imageUrl' | 'descripcion' | 'description' | 'videoUrl' | 'ingredientes' | 'stockDisponible' | 'soloMayores' | 'recetaSinAlcohol' | 'nombreSinAlcohol' | 'recetaIngredientes' | 'recetaIngredientesSinAlcohol'
 >;
 
 export interface PublicBarTechnologyDashboard {
@@ -123,4 +124,7 @@ export interface CreateBarDrinkOrderInput {
   clientRequestId?: string;
   tableNumber?: string;
   note?: string;
+  version?: 'con_alcohol' | 'sin_alcohol';
 }
+
+

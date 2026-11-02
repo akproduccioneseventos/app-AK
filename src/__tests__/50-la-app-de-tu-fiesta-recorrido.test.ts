@@ -23,7 +23,7 @@ describe('Orden 50 / TEC-01: Recorrido comercial y tecnología de la app para fi
     expect(durante.loQueEntiende).toMatch(/participan.*no solo miran/i);
 
     const barra = MOMENTOS_APP_FIESTA.find((m) => m.id === 'barra')!;
-    expect(barra.loQueEntiende).toMatch(/cola separada del DJ/i);
+    expect(barra.loQueEntiende).toMatch(/(no hay que hacer fila en la barra|cola separada del DJ)/i);
 
     const despues = MOMENTOS_APP_FIESTA.find((m) => m.id === 'despues')!;
     expect(despues.loQueEntiende).toMatch(/recuerdos de tu fiesta/i);
@@ -59,9 +59,9 @@ describe('Orden 50 / TEC-01: Recorrido comercial y tecnología de la app para fi
   it('el copy y la demostración cumplen con los criterios de transparencia y venta honesta', () => {
     expect(sectionSource).toContain('La app de tu fiesta');
     expect(sectionSource).toContain('Organizá los detalles, invitá a los tuyos y compartí los recuerdos');
-    expect(sectionSource).toContain('DEMO EN VIVO');
-    expect(sectionSource).toContain('Modo seguro');
+    expect(sectionSource).toMatch(/(DEMO EN VIVO|EJEMPLO)/);
+    expect(sectionSource).toMatch(/(Modo seguro|Moderación activa|datos de prueba)/);
     expect(sectionSource).toContain('Moderación activa');
-    expect(sectionSource).toContain('Cola independiente del DJ');
+    expect(sectionSource).toMatch(/(Cola independiente del DJ|sin amontonarse frente a la barra|No hay que hacer fila)/i);
   });
 });

@@ -132,7 +132,7 @@ export function SimulatorMeetingScheduler({
             </div>
           </div>
           <p className="text-xs text-slate-600">
-            Guardamos tu lugar y congelamos las promociones de tu presupuesto para la entrevista. Podés sincronizar la fecha con tu calendario o escribirnos si necesitás ajustar el horario.
+            Guardamos tu lugar. Tu promoción sigue vigente mientras corre el reloj. Podés sincronizar la fecha con tu calendario o escribirnos si necesitás ajustar el horario.
           </p>
         </div>
 

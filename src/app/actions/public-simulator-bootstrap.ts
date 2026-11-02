@@ -9,6 +9,7 @@ import {
 } from "@/app/actions/settings";
 import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
+import { createNotification } from "@/lib/notifications/create-notification";
 import type { ArmadoRapidoConfig } from "@/types/armado-rapido";
 import { defaultClubUruguayConfig } from "@/types/armado-rapido";
 import type { FullMenu } from "@/types/catering";
@@ -26,6 +27,7 @@ export interface PublicSimulatorBootstrap {
   menus: FullMenu[];
   whatsappNumber: string;
   logoUrl: string | null;
+  origenDePrecios: 'vivo' | 'respaldo';
 }
 
 const FALLBACK_CONFIG_DATA = fallbackConfigJson as unknown as ArmadoRapidoConfig;
@@ -38,6 +40,12 @@ const FALLBACK_CONFIG: ArmadoRapidoConfig = {
 };
 const FALLBACK_MENUS = fallbackMenusJson as unknown as FullMenu[];
 const FALLBACK_SERVICES = fallbackServicesJson as unknown as ServicioEmpresa[];
+
+let lastSimulatorFallbackNotificationDate: string | null = null;
+
+export async function _resetSimulatorFallbackNotificationDateForTesting(): Promise<void> {
+  lastSimulatorFallbackNotificationDate = null;
+}
 
 async function withBootstrapFallback<T>(
   promise: Promise<T>,
@@ -78,9 +86,38 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
   ]);
 
   const resolvedConfig = config || FALLBACK_CONFIG;
-  const resolvedServicesRaw = (services && services.length > 0) ? services : FALLBACK_SERVICES;
+  const isServicesFromFallback = services === FALLBACK_SERVICES || !services || services.length === 0;
+  const resolvedServicesRaw = (!isServicesFromFallback && services && services.length > 0) ? services : FALLBACK_SERVICES;
   const resolvedServices = resolvedServicesRaw.filter((service) => service.tipoItem === "Servicio");
   const finalServices = resolvedServices.length > 0 ? resolvedServices : FALLBACK_SERVICES;
+  const origenDePrecios: 'vivo' | 'respaldo' =
+    isServicesFromFallback || finalServices === FALLBACK_SERVICES || resolvedServices.length === 0
+      ? 'respaldo'
+      : 'vivo';
+
+  if (origenDePrecios === 'respaldo') {
+    const todayInMontevideo = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Montevideo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+
+    if (lastSimulatorFallbackNotificationDate !== todayInMontevideo) {
+      lastSimulatorFallbackNotificationDate = todayInMontevideo;
+      try {
+        // no-mira-el-resultado: es un aviso interno en el panel; si falla no debe interrumpir el presupuesto del cliente
+        await createNotification({
+          titulo: 'Simulador de presupuesto',
+          mensaje: 'El simulador usó la lista de precios guardada porque no pudo leer la del momento.',
+          tipo: 'aviso',
+          href: '/settings/catalogo-servicios',
+        });
+      } catch (err) {
+        console.error('Error enviando notificacion de respaldo de precios:', err);
+      }
+    }
+  }
   const resolvedMenus = (menus && menus.length > 0) ? menus : FALLBACK_MENUS;
 
   const whatsappConnection = (socialConnections || []).find(
@@ -99,5 +136,6 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     // la nada**. Nunca un dato de contacto escrito a mano.
     whatsappNumber: whatsappConnection?.phoneNumber || AK_WHATSAPP_NUMBER,
     logoUrl: templateSettings?.logoUrl || null,
+    origenDePrecios,
   };
 }

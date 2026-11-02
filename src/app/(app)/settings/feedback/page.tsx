@@ -104,7 +104,15 @@ export default function FeedbackPage() {
     setGeneratingFeedbackId(feedback.id);
     try {
       const gen = await generateTestimonialAction(feedback);
-      const testimonialText = gen.testimonial || feedback.generalComments?.trim() || feedback.enjoyedMost;
+      if (!gen || !gen.testimonial || gen.error) {
+        toast({
+          title: 'No se pudo armar el testimonio con IA; probá más tarde',
+          description: gen?.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      const testimonialText = gen.testimonial;
       const result = await saveTestimonial({
         feedbackId: feedback.id,
         fiestaId: feedback.fiestaId,
@@ -113,11 +121,16 @@ export default function FeedbackPage() {
         testimonialText,
       });
       if (!result.success) {
-        toast({ title: 'No se pudo generar el testimonio', description: result.error, variant: 'destructive' });
+        toast({ title: 'No se pudo armar el testimonio con IA; probá más tarde', description: result.error, variant: 'destructive' });
         return;
       }
       toast({ title: 'Borrador de testimonio creado', description: 'Revisalo y aprobalo antes de publicarlo.' });
       await loadData();
+    } catch {
+      toast({
+        title: 'No se pudo armar el testimonio con IA; probá más tarde',
+        variant: 'destructive',
+      });
     } finally {
       setGeneratingFeedbackId(null);
     }

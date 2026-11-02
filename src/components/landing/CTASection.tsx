@@ -1,10 +1,12 @@
 'use client';
 
-import { MessageSquare, Phone, Instagram, Facebook, Music, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { MessageSquare, Phone, Instagram, Facebook, Music, Sparkles, CalendarCheck } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import type { PromoActiva } from '@/types/promo';
+import { EntrevistaGratuitaModal } from './EntrevistaGratuitaModal';
 
 function formatearFechaFin(fechaStr?: string): string {
   if (!fechaStr) return '';
@@ -43,6 +45,7 @@ export function CTASection({
   promo,
 }: CTASectionProps) {
   const reduceMotion = useReducedMotion();
+  const [modalOpen, setModalOpen] = useState(false);
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const socialLinks = [
     {
@@ -61,84 +64,58 @@ export function CTASection({
       platform: 'TikTok',
       href: AK_SOCIAL_LINKS.tiktok,
       icon: Music,
-      bgClass: 'bg-black hover:shadow-slate-700/60',
+      bgClass: 'bg-black hover:shadow-zinc-500/60',
     },
   ];
 
   const reveal = reduceMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 22 },
+        initial: { opacity: 0, y: 20 },
         whileInView: { opacity: 1, y: 0 },
-        viewport: { once: true, amount: 0.25 },
-        transition: { duration: 0.55, ease: 'easeOut' as const },
+        viewport: { once: true, margin: '-40px' },
+        transition: { duration: 0.5 },
       };
 
   return (
-    <section
-      id="contacto"
-      className="relative overflow-hidden bg-zinc-950 py-24 border-t border-white/5"
-    >
-      {/* Resplandores ambientales de fiesta animados */}
-      {!reduceMotion && (
-        <>
-          <motion.div
-            className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-red-600/10 blur-[150px]"
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="pointer-events-none absolute top-1/4 right-1/4 h-[350px] w-[350px] rounded-full bg-amber-500/10 blur-[130px]"
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </>
-      )}
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white">
+      {/* Background glow and subtle mesh */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(220,38,38,0.18),rgba(255,255,255,0))]" />
+      <div className="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-red-600/10 rounded-full blur-3xl" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
+      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center space-y-10">
 
-        {/* Status Badge con pulso de luz */}
-        <motion.div {...reveal} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-400 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          Calendario 2026/2027 Abierto
-        </motion.div>
+        {/* Header copy */}
+        <div className="space-y-4">
+          <motion.div {...reveal} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-red-400 backdrop-blur">
+            <Sparkles className="w-3.5 h-3.5" />
+            Empezá a Planificar Hoy
+          </motion.div>
+          <motion.h2
+            {...reveal}
+            className="font-headline text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight whitespace-pre-line"
+          >
+            {headline}
+          </motion.h2>
+          <motion.p
+            {...reveal}
+            className="max-w-2xl mx-auto text-zinc-400 text-base sm:text-lg font-medium leading-relaxed"
+          >
+            {subheadline}
+          </motion.p>
+        </div>
 
-        {/* Headline */}
-        <motion.h2
-          {...reveal}
-          className="text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl font-headline tracking-tight"
-        >
-          {headline.split('\n').map((line, i) => (
-            <span
-              key={i}
-              className={cn(
-                'block',
-                i === 1 && 'bg-gradient-to-r from-red-500 via-rose-500 to-pink-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(244,63,94,0.3)]'
-              )}
-            >
-              {line}
-            </span>
-          ))}
-        </motion.h2>
-
-        {/* Subheadline */}
-        <motion.p {...reveal} className="text-zinc-300 text-lg sm:text-xl max-w-xl mx-auto leading-relaxed font-medium">
-          {subheadline}
-        </motion.p>
-
-        {/* Reciprocity Gift Box (Neuroventas: regalo incentivo con efecto hover) */}
+        {/* Banner de Urgencia / Oferta Especial (Invisible Funnel) */}
         {promo && (
           <motion.div
             {...reveal}
-            whileHover={reduceMotion ? undefined : { scale: 1.02 }}
-            className="max-w-2xl mx-auto p-5 rounded-3xl border border-dashed border-red-500/30 bg-red-950/15 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-4 text-left transition-all hover:border-red-500/50 hover:bg-red-950/25 shadow-lg shadow-red-950/20"
+            className="inline-block p-1 rounded-2xl bg-gradient-to-r from-red-500/20 via-orange-500/20 to-amber-500/20 border border-red-500/30"
           >
-            <div className="h-11 w-11 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black text-white">{promo.titulo}</h4>
-              <p className="text-xs font-semibold text-zinc-300 mt-1 leading-relaxed">
+            <div className="px-6 py-3 rounded-xl bg-zinc-900/90 backdrop-blur text-xs sm:text-sm font-medium text-zinc-300">
+              <span className="text-red-400 font-black uppercase tracking-wider mr-2">
+                ⚡ {promo.titulo}:
+              </span>
+              <p className="mt-1">
                 {promo.descripcion ? (
                   promo.descripcion
                 ) : (
@@ -154,47 +131,68 @@ export function CTASection({
 
         {/* Pain of Payment Reduction Banner */}
         <motion.div {...reveal} className="max-w-xl mx-auto text-xs font-bold text-zinc-400 uppercase tracking-widest leading-relaxed">
-          🔒 Reserva flexible: Señá tu fecha y armamos un plan de cuotas a tu medida.
+          Consultá tu fecha y conocé las opciones de contratación y pago.
         </motion.div>
 
         {/* CTAs con micro-interacciones */}
-        <motion.div {...reveal} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <motion.a
-            href={waHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Consultar disponibilidad por WhatsApp"
+        <motion.div {...reveal} className="flex flex-col items-center justify-center gap-4">
+          <motion.button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            aria-label="Coordinar una entrevista gratuita"
             whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
             whileTap={reduceMotion ? undefined : { scale: 0.98 }}
             className={cn(
               'flex items-center gap-3 px-8 py-5 rounded-2xl',
-              'bg-[#25D366] hover:bg-[#1eb356] text-white',
+              'bg-red-600 hover:bg-red-500 text-white',
               'font-black text-xs uppercase tracking-widest',
-              'shadow-2xl shadow-green-950/50',
+              'shadow-2xl shadow-red-950/50',
               'transition-colors',
-              'min-w-[250px] justify-center'
+              'min-w-[250px] justify-center min-h-[44px]'
             )}
           >
-            <MessageSquare className="w-5 h-5 shrink-0" />
-            {ctaLabel}
-          </motion.a>
-          <motion.a
-            href={`tel:${whatsappNumber.replace(/[\s-]/g, '').replace(/^([^+])/, '+$1')}`}
-            aria-label="Llamar por teléfono a AK Producciones"
-            whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
-            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-            className={cn(
-              'flex items-center gap-3 px-8 py-5 rounded-2xl',
-              'bg-white/10 backdrop-blur-md hover:bg-white/15 text-white',
-              'font-black text-xs uppercase tracking-widest',
-              'border border-white/15',
-              'transition-colors',
-              'min-w-[200px] justify-center'
-            )}
-          >
-            <Phone className="w-4 h-4 shrink-0" />
-            Llamar Directo
-          </motion.a>
+            <CalendarCheck className="w-5 h-5 shrink-0" />
+            Coordinar una entrevista gratuita
+          </motion.button>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <motion.a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Consultar disponibilidad por WhatsApp"
+              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              className={cn(
+                'flex items-center gap-3 px-8 py-5 rounded-2xl',
+                'bg-[#25D366] hover:bg-[#1eb356] text-white',
+                'font-black text-xs uppercase tracking-widest',
+                'shadow-2xl shadow-green-950/50',
+                'transition-colors',
+                'min-w-[250px] justify-center min-h-[44px]'
+              )}
+            >
+              <MessageSquare className="w-5 h-5 shrink-0" />
+              {ctaLabel}
+            </motion.a>
+            <motion.a
+              href={`tel:${whatsappNumber.replace(/[\s-]/g, '').replace(/^([^+])/, '+$1')}`}
+              aria-label="Llamar por teléfono a AK Producciones"
+              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              className={cn(
+                'flex items-center gap-3 px-8 py-5 rounded-2xl',
+                'bg-white/10 backdrop-blur-md hover:bg-white/15 text-white',
+                'font-black text-xs uppercase tracking-widest',
+                'border border-white/15',
+                'transition-colors',
+                'min-w-[200px] justify-center min-h-[44px]'
+              )}
+            >
+              <Phone className="w-4 h-4 shrink-0" />
+              Llamar Directo
+            </motion.a>
+          </div>
         </motion.div>
 
         {/* Divider */}
@@ -228,6 +226,11 @@ export function CTASection({
         </div>
 
       </div>
+
+      <EntrevistaGratuitaModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </section>
   );
 }

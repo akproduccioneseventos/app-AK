@@ -69,7 +69,7 @@ export function auditarAnuncioConIA(opciones: OpcionesAuditoria): AuditoriaAnunc
     puntajeNeuro = 5;
     obsNeuro = 'Falta conexión emocional. El texto describe lo que hacés, pero no transmite la paz mental ni el estatus de contratar una productora profesional.';
     fallasCriticas.push('Falta justificación emocional: el cerebro decide por emoción y justifica por lógica.');
-    consejosSinGastarMas.push('Agregá palabras de alivio como "sin estrés", "presupuesto cerrado garantizado" o "coordinación integral".');
+    consejosSinGastarMas.push('Agregá palabras de alivio como "sin estrés", "presupuesto detallado y sin compromiso" o "coordinación integral".');
   }
 
   // 3. ANÁLISIS DE OFERTA Y FRICCIÓN (CALL TO ACTION)
@@ -114,7 +114,7 @@ export function auditarAnuncioConIA(opciones: OpcionesAuditoria): AuditoriaAnunc
 
   // GENERAR VERSIÓN REESCRITA OPTIMIZADA
   const tituloMejorado = '¿Organizando tu fiesta soñada sin saber por dónde empezar? ✨';
-  const copyOptimizado = `Sabemos que planear una fiesta inolvidable lleva tiempo, dudas y mil decisiones.\n\nEn AK Producciones nos encargamos de TODO para que ustedes sólo disfruten con su gente:\n✨ Salones exclusivos y ambientación integral\n🎧 Pista encendida toda la noche con DJ y técnica de primer nivel\n🍹 Barras y gastronomía coordinada al detalle\n\n👉 Tocá acá y calculá tu presupuesto cerrado en 2 minutos sin compromiso.`;
+  const copyOptimizado = `Sabemos que planear una fiesta inolvidable lleva tiempo, dudas y mil decisiones.\n\nEn AK Producciones nos encargamos de TODO para que ustedes sólo disfruten con su gente:\n✨ Salones exclusivos y ambientación integral\n🎧 Pista encendida toda la noche con DJ y técnica de primer nivel\n🍹 Barras y gastronomía coordinada al detalle\n\n👉 Tocá acá y calculá tu presupuesto detallado y sin compromiso en 2 minutos.`;
 
   return {
     id: `audit_${Date.now()}`,
