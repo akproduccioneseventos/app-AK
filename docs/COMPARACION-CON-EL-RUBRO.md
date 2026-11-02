@@ -81,7 +81,8 @@ Galeria de la noche :: usa: recentVideos en src/app/evento/plataforma-360/[fiest
 Repetir la toma :: usa: maxRetakes en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Color de la fiesta :: usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Musica sobre el video :: usa: customAudioRef en src/app/evento/plataforma-360/[fiestaId]/page.tsx
-Cambios de velocidad, el efecto de moda :: usa: processSlowMotionVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+Cambios de velocidad, el efecto de moda :: usa: armarLineaDeTiempo360 en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+Ida y vuelta (boomerang) del video :: usa: estiloEdicion360 en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Marco animado sobre el video :: usa: dibujarMarcoDinamico( en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Cortina de entrada y de salida :: usa: aplicarCortinaVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Elegir cuantas vueltas da :: usa: vueltas360 en src/app/evento/plataforma-360/[fiestaId]/page.tsx
