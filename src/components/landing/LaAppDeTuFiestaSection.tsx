@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   CalendarCheck,
   Send,
@@ -60,7 +59,7 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
     etapa: "2. Invitación",
     badge: "Invitación en el celular",
     titulo: "Una invitación que tus invitados abren con un toque",
-    subtitulo: "Mapa, recomendaciones, dress code y confirmación de asistencia con QR.",
+    subtitulo: "Mapa, recomendaciones, dress code y confirmación de asistencia con QR (Mis 15 - Camila).",
     loQueEntiende: "Tus invitados encuentran todo desde su enlace y confirman en un toque.",
     icon: Send,
   },
@@ -78,7 +77,7 @@ export const MOMENTOS_APP_FIESTA: MomentoConfig[] = [
     etapa: "4. Barra y Tótem",
     badge: "Pedís el trago desde el celular",
     titulo: "Pedís tu trago, con o sin alcohol, y te avisa cuando está listo",
-    subtitulo: "Los invitados exploran la coctelería y piden sin amontonarse frente a la barra.",
+    subtitulo: "Los invitados exploran la coctelería y piden sin amontonarse frente a la barra (Fernet con Coca y opciones sin alcohol).",
     loQueEntiende: "No hay que hacer fila en la barra.",
     icon: GlassWater,
   },
@@ -98,7 +97,6 @@ const MOMENTOS = MOMENTOS_APP_FIESTA;
 export function LaAppDeTuFiestaSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
 }: LaAppDeTuFiestaSectionProps) {
-  const reduceMotion = useReducedMotion();
   const [momentoActivo, setMomentoActivo] = useState<MomentoId>("antes");
   const [showEntrevistaModal, setShowEntrevistaModal] = useState(false);
 
@@ -221,32 +219,35 @@ export function LaAppDeTuFiestaSection({
                 <button
                   key={m.id}
                   type="button"
+                  id={`momento-btn-${m.id}`}
                   data-testid="momento-de-la-app"
+                  data-momento={m.id}
                   onClick={() => setMomentoActivo(m.id)}
+                  onPointerDown={() => setMomentoActivo(m.id)}
                   aria-pressed={activo}
                   className={cn(
-                    "min-h-[44px] flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
+                    "cursor-pointer relative z-10 select-none min-h-[44px] flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
                     idx === 4 ? "col-span-2 sm:col-span-1" : "",
                     activo
                       ? "border-red-600 bg-white shadow-lg shadow-red-500/10 ring-2 ring-red-600/20"
                       : "border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white text-slate-600"
                   )}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="pointer-events-none flex items-center gap-2">
                     <span
                       className={cn(
-                        "flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                        "pointer-events-none flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-colors",
                         activo ? "bg-red-600 text-white" : "bg-slate-100 text-slate-500"
                       )}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="pointer-events-none h-4 w-4" />
                     </span>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="pointer-events-none text-[11px] font-bold uppercase tracking-wider text-slate-400">
                       {m.etapa}
                     </span>
                   </div>
-                  <div>
-                    <p className={cn("text-xs sm:text-sm font-semibold", activo ? "text-slate-900" : "text-slate-700")}>
+                  <div className="pointer-events-none">
+                    <p className={cn("pointer-events-none text-xs sm:text-sm font-semibold", activo ? "text-slate-900" : "text-slate-700")}>
                       {m.id === "antes" && "Organizar"}
                       {m.id === "invitacion" && "Invitación"}
                       {m.id === "durante" && "Pantalla gigante"}
@@ -266,7 +267,11 @@ export function LaAppDeTuFiestaSection({
 
             {/* Muestra Interactiva de la App (En móvil arriba: order-1) */}
             <div className="order-1 lg:order-2 lg:col-span-7">
-              <div className="relative rounded-2xl border border-slate-800 bg-slate-950 p-4 text-white shadow-2xl sm:p-6">
+              <div
+                data-testid="panel-momento-activo"
+                data-momento-activo={momentoActivo}
+                className="relative rounded-2xl border border-slate-800 bg-slate-950 p-4 text-white shadow-2xl sm:p-6"
+              >
                 {/* Barra superior de dispositivo demo */}
                 <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-3 text-xs">
                   <div className="flex items-center gap-2">
@@ -277,16 +282,11 @@ export function LaAppDeTuFiestaSection({
                 </div>
 
                 {/* Contenido interactivo dinámico según el momento seleccionado */}
-                <AnimatePresence mode="wait">
-                  {momentoActivo === "antes" && (
-                    <motion.div
-                      key="demo-antes"
-                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-4"
-                    >
+                {momentoActivo === "antes" && (
+                  <div
+                    key="demo-antes"
+                    className="space-y-4 animate-in fade-in duration-150"
+                  >
                       <div className="flex gap-2 border-b border-slate-800 pb-2">
                         <button
                           type="button"
@@ -378,17 +378,13 @@ export function LaAppDeTuFiestaSection({
                         <span>💬 Conversación centralizada con tu equipo asignado</span>
                         <span className="text-emerald-400 font-semibold">Al día</span>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {momentoActivo === "invitacion" && (
-                    <motion.div
+                    <div
                       key="demo-invitacion"
-                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-4"
+                      className="space-y-4 animate-in fade-in duration-150"
                     >
                       <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-4">
                         <div className="flex items-center justify-between">
@@ -396,7 +392,7 @@ export function LaAppDeTuFiestaSection({
                             <span className="text-[10px] font-bold tracking-wider text-red-400 uppercase">
                               Invitación Digital
                             </span>
-                            <h4 className="text-sm font-bold text-white">¡Mis 15 - Camila!</h4>
+                            <h4 className="text-sm font-bold text-white">Mis 15 - Camila</h4>
                           </div>
                           <QrCode className="h-8 w-8 text-slate-400" />
                         </div>
@@ -442,17 +438,13 @@ export function LaAppDeTuFiestaSection({
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {momentoActivo === "durante" && (
-                    <motion.div
+                    <div
                       key="demo-durante"
-                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-4"
+                      className="space-y-4 animate-in fade-in duration-150"
                     >
                       {/* Simulación de Pantalla Gigante */}
                       <div className="rounded-xl border border-red-900/40 bg-slate-900 p-3">
@@ -506,17 +498,13 @@ export function LaAppDeTuFiestaSection({
                       <p className="text-[10px] text-slate-500">
                         * Moderación activa: el operador autoriza cada foto y dedicatoria antes de salir en la pantalla principal.
                       </p>
-                    </motion.div>
+                    </div>
                   )}
 
                   {momentoActivo === "barra" && (
-                    <motion.div
+                    <div
                       key="demo-barra"
-                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-4"
+                      className="space-y-4 animate-in fade-in duration-150"
                     >
                       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
                         <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
@@ -607,17 +595,13 @@ export function LaAppDeTuFiestaSection({
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {momentoActivo === "despues" && (
-                    <motion.div
+                    <div
                       key="demo-despues"
-                      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-3 text-xs"
+                      className="space-y-3 text-xs animate-in fade-in duration-150"
                     >
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="font-semibold">Álbum de Recuerdos de la Fiesta</span>
@@ -645,9 +629,8 @@ export function LaAppDeTuFiestaSection({
                           Cada invitado puede volver a entrar a su enlace para descargar sus tiras de recuerdo, ver los momentos en alta resolución y revivir los mejores momentos sin contraseñas difíciles.
                         </p>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
               </div>
             </div>
 
