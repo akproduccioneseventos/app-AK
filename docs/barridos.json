@@ -682,6 +682,10 @@
     "orden-265": {
       "fecha": "2026-11-03",
       "resultado": "Pregunta 22: los ajustes del muro se guardaban enteros desde dos pantallas. Buscados otros guardados de socialGallerySettings enteros: screen-mode y portal, los dos pasados a transacción con cambios parciales."
+    },
+    "orden-266": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 111: el armado nuevo de la 360 rompió dos avisos que ya andaban (corte de red, subida rechazada) y estira el video a 26 s. Va en la orden 266."
     }
   }
 }
