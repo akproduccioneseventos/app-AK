@@ -109,6 +109,9 @@ export default function BudgetPrintTemplate({
     presupuesto.numero ||
     (presupuesto.id.split('_').pop() || presupuesto.id).substring(0, 6).toUpperCase();
 
+  const budgetStatus = (presupuesto as any).status || presupuesto.estado;
+  const isContracted = budgetStatus === 'Aceptado' || budgetStatus === 'Facturado';
+
   const clientName = clienteNombre || presupuesto.clienteNombre;
 
   const validUntil = new Date(presupuesto.timestamp);
@@ -434,7 +437,7 @@ export default function BudgetPrintTemplate({
           </section>
         )}
 
-        {projectionRows.length > 0 && (
+        {isContracted && projectionRows.length > 0 && (
           <section className="mb-3 budget-print-avoid-break">
             <h2 className="mb-1 text-xs font-bold uppercase tracking-wide text-gray-800 print:text-[8pt]">
               Proyeccion informativa por ajuste anual ({annualProjection?.adjustmentPct ?? adjustmentPct}%)

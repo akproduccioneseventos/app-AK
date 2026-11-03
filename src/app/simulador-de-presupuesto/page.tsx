@@ -2033,24 +2033,6 @@ function SimuladorContent() {
                                      </p>
                                  </div>
                             </div>
-                            {stats.annualProjection.applies && (
-                                <div className="rounded-md border border-slate-200 bg-white p-4 text-sm" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                                        Proyeccion de ajuste anual ({stats.annualProjection.adjustmentPct}%)
-                                    </p>
-                                    <div className="space-y-2">
-                                        {stats.annualProjection.rows.map(row => (
-                                            <div key={row.year} className="flex items-center justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                                                <span className="font-semibold text-slate-600">Total estimado {row.year}</span>
-                                                <span className="font-black text-slate-900">{formatCurrency(row.total)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <p className="mt-3 text-xs font-medium text-slate-500">
-                                        El presupuesto principal muestra el precio vigente {stats.annualProjection.currentYear}. El ajuste futuro es informativo y se aplica por contrato si la fecha pasa a otro anio.
-                                    </p>
-                                </div>
-                            )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
                             <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -2061,7 +2043,6 @@ function SimuladorContent() {
                                 <div className="space-y-2 text-xs font-semibold leading-relaxed text-slate-700 text-left">
                                     <p>Confirmá tu evento con una seña de {bookingDepositLabel} y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.</p>
                                     <p>El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.</p>
-                                    <p>Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.</p>
                                     <p className="font-bold text-slate-900 pt-1">No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones.</p>
                                 </div>
                                 {budgetSettings.bookingTerms && (
@@ -2638,10 +2619,7 @@ function SimuladorContent() {
                             )}
 
                             <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                              <strong>Precios {currentYear}</strong>
-                              {stats.annualProjection.applies
-                                ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                : <> — El total corresponde al precio vigente.</>}
+                              <strong>Precios {currentYear}</strong> — El total corresponde al precio vigente.
                             </div>
                         </div>
                     )}
@@ -3023,10 +3001,7 @@ function SimuladorContent() {
                             </div>
 
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                                <strong>Precios {currentYear}</strong>
-                                {stats.annualProjection.applies
-                                    ? <> — El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                    : <> — El total mostrado corresponde al precio vigente.</>}
+                                <strong>Precios {currentYear}</strong> — El total mostrado corresponde al precio vigente.
                             </div>
 
                             <div className="pt-2 flex justify-center">
@@ -3129,14 +3104,7 @@ function SimuladorContent() {
                         </div>
 
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                            <h4 className="font-black text-sm text-slate-900">4. ¿Cómo aplica el ajuste para eventos en 2027 o 2028?</h4>
-                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
-                                El total mostrado corresponde al precio promocional vigente del año 2026. Para eventos en años posteriores (2027 en adelante), se aplica un ajuste del 15% por cada año adicional transcurrido.
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                            <h4 className="font-black text-sm text-slate-900">5. ¿Puedo modificar menús o agregar adicionales después?</h4>
+                            <h4 className="font-black text-sm text-slate-900">4. ¿Puedo modificar menús o agregar adicionales después?</h4>
                             <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
                                 ¡Sí! Podés personalizar menús, tecnología y opcionales hasta 30 días antes del evento.
                             </p>

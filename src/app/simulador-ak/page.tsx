@@ -887,11 +887,9 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             <BudgetDocument
               presupuesto={budgetForPdf}
               adjustmentPct={priceStats.annualProjection.adjustmentPct}
-              annualProjection={priceStats.annualProjection}
               pricePerPerson={priceStats.precioPorPersona}
               showSignatures={false}
               clubUruguayCosto={clubUruguayDetails?.precioActual ?? 0}
-              clubUruguayAnnualProjection={clubUruguayDetails?.projection}
               subtotalBrutoOverride={priceStats.subtotalBruto}
               descuentoPromoOverride={priceStats.descPromo}
               totalFinalOverride={priceStats.totalFinal}

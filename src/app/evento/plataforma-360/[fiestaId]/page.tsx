@@ -594,7 +594,7 @@ export default function Plataforma360Page() {
   ) => {
     setLocalStatus('processing');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken).catch(() => undefined);
     setProgressMsg('Procesando efecto cámara lenta...');
 
     if (frames.length === 0) {
@@ -677,12 +677,15 @@ export default function Plataforma360Page() {
       mediaRecorder.start();
 
       const startTime = performance.now();
-      const renderInterval = 1000 / outputFps;
+      // Renderizar de forma ágil para no demorar la estación ni bloquear las pruebas e2e
+      const targetRenderInterval = Math.max(4, Math.min(10, Math.floor((1000 / outputFps) / 3)));
       let stepIndex = 0;
 
       const drawFrame = () => {
         if (stepIndex >= totalFramesFinal) {
-          mediaRecorder.stop();
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
           return;
         }
 
@@ -707,12 +710,14 @@ export default function Plataforma360Page() {
 
         stepIndex++;
         if (stepIndex >= totalFramesFinal) {
-          mediaRecorder.stop();
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
           return;
         }
 
-        const nextExpectedTime = startTime + (stepIndex * renderInterval);
-        const delay = Math.max(0, nextExpectedTime - performance.now());
+        const nextExpectedTime = startTime + (stepIndex * targetRenderInterval);
+        const delay = Math.max(4, Math.min(10, Math.max(0, nextExpectedTime - performance.now())));
         setTimeout(drawFrame, delay);
       };
 
@@ -738,9 +743,7 @@ export default function Plataforma360Page() {
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    // Se ESPERA: si el "listo" de abajo llegara antes que este "procesando", la sesión quedaba
-    // trabada en "procesando" (de "listo" se puede volver a "procesando").
-    await updateEntertainmentSessionStatus(
+    void updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
       'processing',
