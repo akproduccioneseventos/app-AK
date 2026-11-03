@@ -676,8 +676,9 @@ export default function Plataforma360Page() {
 
       mediaRecorder.start();
 
-      let stepIndex = 0;
+      const startTime = performance.now();
       const renderInterval = 1000 / outputFps;
+      let stepIndex = 0;
 
       const drawFrame = () => {
         if (stepIndex >= totalFramesFinal) {
@@ -705,7 +706,14 @@ export default function Plataforma360Page() {
         aplicarCortinaVideo(ctx, drawCanvas.width, drawCanvas.height, stepIndex, totalFramesFinal);
 
         stepIndex++;
-        setTimeout(drawFrame, renderInterval);
+        if (stepIndex >= totalFramesFinal) {
+          mediaRecorder.stop();
+          return;
+        }
+
+        const nextExpectedTime = startTime + (stepIndex * renderInterval);
+        const delay = Math.max(0, nextExpectedTime - performance.now());
+        setTimeout(drawFrame, delay);
       };
 
       drawFrame();
@@ -1398,4 +1406,3 @@ export default function Plataforma360Page() {
 </div>
   );
 }
-

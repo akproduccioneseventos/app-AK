@@ -61,11 +61,11 @@ export function armarLineaDeTiempo360(
 
   // 2. Transición suave de entrada a cámara lenta (~0.4s)
   const duracionTransicionSec = 0.4;
-  let transicionCuadros = Math.round(duracionTransicionSec * fps);
+  const transicionFramesMax = Math.round(duracionTransicionSec * fps);
   const rangoMedio = c2 - c1;
-  if (rangoMedio < transicionCuadros * 2 + 1) {
-    transicionCuadros = Math.max(1, Math.floor(rangoMedio / 4));
-  }
+  // En grabaciones normales dura ~0.4s (12 cuadros a 30 fps);
+  // en grabaciones cortas se acota proporcionalmente al tamaño del tramo medio
+  const transicionCuadros = Math.max(1, Math.min(transicionFramesMax, Math.floor(rangoMedio * 0.15)));
 
   const transInStart = c1;
   const transInEnd = c1 + transicionCuadros;
@@ -81,44 +81,109 @@ export function armarLineaDeTiempo360(
   }
 
   // 3. Tramo 2 (Cámara lenta pura): del 25% al 75%
-  // Mantiene cada cuadro repetido unas 3 veces de manera fluida
+  // Mantiene cada cuadro repetido unas 3 veces en el centro de manera fluida
   const esBoomerang = estiloNorm === 'lento_y_vuelta';
-  const maxSegundos = 20;
-  const maxTotalFrames = Math.round(maxSegundos * fps);
+  const duracionGrabadaSec = cantidadCuadros / fps;
   const cuadrosBoomerangDeseados = esBoomerang ? Math.round(1.5 * fps) : 0;
-  const maxForwardFrames = maxTotalFrames - cuadrosBoomerangDeseados;
+
+  // Calculamos la duración final objetivo en segundos según la duración grabada:
+  // - Para grabaciones cortas (ej. 2s grabados): ~3s a 4s (90 a 120 cuadros)
+  // - Para 10s grabados (300 cuadros): ~14-15s (420-450 cuadros)
+  // - Para 12s grabados (360 cuadros): ~16-17s (480-510 cuadros)
+  // - Para 15s grabados (450 cuadros): ~18-19s (540-570 cuadros)
+  let targetTotalSegundos: number;
+  if (duracionGrabadaSec <= 2.5) {
+    targetTotalSegundos = Math.max(duracionGrabadaSec * 1.2, duracionGrabadaSec * 1.75);
+  } else if (duracionGrabadaSec <= 5) {
+    targetTotalSegundos = 3.5 + (duracionGrabadaSec - 2.5) * 1.6;
+  } else if (duracionGrabadaSec <= 10) {
+    const p = (duracionGrabadaSec - 5) / 5;
+    targetTotalSegundos = 7.5 + p * (14.5 - 7.5);
+  } else if (duracionGrabadaSec <= 12) {
+    const p = (duracionGrabadaSec - 10) / 2;
+    targetTotalSegundos = 14.5 + p * (16.5 - 14.5);
+  } else if (duracionGrabadaSec <= 15) {
+    const p = (duracionGrabadaSec - 12) / 3;
+    targetTotalSegundos = 16.5 + p * (18.5 - 16.5);
+  } else {
+    targetTotalSegundos = Math.min(19.5, 18.5 + (duracionGrabadaSec - 15) * 0.2);
+  }
+
+  // Para solo_camara_lenta (sin boomerang), ajustamos para mantener el rango 12s a 20s en grabaciones de 10 a 15s
+  if (!esBoomerang && duracionGrabadaSec >= 10 && duracionGrabadaSec <= 15) {
+    targetTotalSegundos = Math.max(12.5, targetTotalSegundos - 1.5);
+  }
+
+  const targetTotalFrames = Math.round(targetTotalSegundos * fps);
+  const targetForwardFrames = Math.max(cantidadCuadros, targetTotalFrames - cuadrosBoomerangDeseados);
 
   const pureSlowIndices: number[] = [];
   for (let i = transInEnd; i < transOutStart; i++) {
     pureSlowIndices.push(i);
   }
 
-  // Calculamos el espacio restante para la zona lenta pura
-  const framesEstimadosFinal = (cantidadCuadros - c2) + transicionCuadros * 2;
-  const framesDisponibles = Math.max(3, maxForwardFrames - forward.length - framesEstimadosFinal);
+  // Cuadros restantes fijos después de pureSlow
+  let transOutCuadrosEstimados = 0;
+  for (let i = transOutStart; i < transOutEnd; i++) {
+    const p = transicionCuadros > 1 ? (i - transOutStart) / (transicionCuadros - 1) : 1;
+    transOutCuadrosEstimados += Math.max(1, Math.min(3, Math.round(3 - p * 2)));
+  }
+  const tramo3Cuadros = cantidadCuadros - c2;
+  const framesDespuesDePureSlow = transOutCuadrosEstimados + tramo3Cuadros;
 
-  // Si entran todos con 3 repeticiones
-  if (pureSlowIndices.length * 3 <= framesDisponibles) {
-    for (const idx of pureSlowIndices) {
-      forward.push(idx, idx, idx);
-    }
-  } else if (pureSlowIndices.length * 2 <= framesDisponibles) {
-    // Si entran todos los cuadros entre 2 y 3 repeticiones sin saltear ninguno
-    const extras = framesDisponibles - pureSlowIndices.length * 2;
-    for (let i = 0; i < pureSlowIndices.length; i++) {
-      const idx = pureSlowIndices[i];
-      const rep = i < extras ? 3 : 2;
-      for (let r = 0; r < rep; r++) {
-        forward.push(idx);
+  // Calculamos el espacio disponible para la zona lenta pura
+  const framesDisponibles = Math.max(
+    pureSlowIndices.length,
+    targetForwardFrames - forward.length - framesDespuesDePureSlow
+  );
+
+  if (pureSlowIndices.length > 0) {
+    if (pureSlowIndices.length * 3 <= framesDisponibles) {
+      // Si entran todos con 3 repeticiones
+      for (const idx of pureSlowIndices) {
+        forward.push(idx, idx, idx);
       }
-    }
-  } else {
-    // Grabaciones largas (ej. 15s): muestreo uniforme a 3 repeticiones para no exceder los 20s
-    const count = Math.floor(framesDisponibles / 3);
-    for (let k = 0; k < count; k++) {
-      const idxInArray = Math.floor((k * pureSlowIndices.length) / count);
-      const frameIdx = pureSlowIndices[idxInArray];
-      forward.push(frameIdx, frameIdx, frameIdx);
+    } else {
+      // Cada cuadro arranca con 1 repetición base sin saltear ninguno
+      const repeticionesPorCuadro = new Array(pureSlowIndices.length).fill(1);
+      let extrasDisponibles = Math.min(
+        pureSlowIndices.length * 2,
+        Math.max(0, framesDisponibles - pureSlowIndices.length)
+      );
+
+      // Centro del tramo medio
+      const centroFrame = (transInEnd + transOutStart - 1) / 2;
+
+      // Ordenamos por distancia al centro (los más cercanos al centro tienen prioridad de repetición)
+      const ordenadosPorDistancia = pureSlowIndices
+        .map((frame, idx) => ({ idx, dist: Math.abs(frame - centroFrame) }))
+        .sort((a, b) => a.dist - b.dist);
+
+      // Asignamos +2 extras (llegando a 3 repeticiones) a los cuadros más cercanos al centro
+      // para asegurar que los cuadros clave (ej: 140, 150, 160) se repitan exactamente 3 veces
+      let k = 0;
+      while (extrasDisponibles >= 2 && k < ordenadosPorDistancia.length) {
+        const item = ordenadosPorDistancia[k];
+        repeticionesPorCuadro[item.idx] += 2;
+        extrasDisponibles -= 2;
+        k++;
+      }
+
+      // Si sobra 1 repetición extra, se la damos al siguiente cuadro más cercano
+      if (extrasDisponibles > 0 && k < ordenadosPorDistancia.length) {
+        const item = ordenadosPorDistancia[k];
+        repeticionesPorCuadro[item.idx] += 1;
+        extrasDisponibles -= 1;
+      }
+
+      // Empujamos los cuadros de pureSlow en orden secuencial
+      for (let i = 0; i < pureSlowIndices.length; i++) {
+        const frameIdx = pureSlowIndices[i];
+        const reps = repeticionesPorCuadro[i];
+        for (let r = 0; r < reps; r++) {
+          forward.push(frameIdx);
+        }
+      }
     }
   }
 

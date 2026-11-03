@@ -95,6 +95,44 @@ describe('Orden 264: La plataforma 360 edita sola', () => {
     });
   });
 
+  describe('Orden 266: Duraciones proporcionales y acotadas según duración grabada', () => {
+    it('para 10s grabados (300 cuadros) con "lento_y_vuelta" dura ~14-15s (420-450 cuadros)', () => {
+      const linea = armarLineaDeTiempo360(300, 30, 'lento_y_vuelta');
+      expect(linea.length).toBeGreaterThanOrEqual(420);
+      expect(linea.length).toBeLessThanOrEqual(450);
+      const duracionSec = linea.length / 30;
+      expect(duracionSec).toBeGreaterThanOrEqual(14);
+      expect(duracionSec).toBeLessThanOrEqual(15);
+    });
+
+    it('para 12s grabados (360 cuadros) con "lento_y_vuelta" dura ~16-17s (480-510 cuadros)', () => {
+      const linea = armarLineaDeTiempo360(360, 30, 'lento_y_vuelta');
+      expect(linea.length).toBeGreaterThanOrEqual(480);
+      expect(linea.length).toBeLessThanOrEqual(510);
+      const duracionSec = linea.length / 30;
+      expect(duracionSec).toBeGreaterThanOrEqual(16);
+      expect(duracionSec).toBeLessThanOrEqual(17);
+    });
+
+    it('para 15s grabados (450 cuadros) con "lento_y_vuelta" dura ~18-19s (540-570 cuadros)', () => {
+      const linea = armarLineaDeTiempo360(450, 30, 'lento_y_vuelta');
+      expect(linea.length).toBeGreaterThanOrEqual(540);
+      expect(linea.length).toBeLessThanOrEqual(570);
+      const duracionSec = linea.length / 30;
+      expect(duracionSec).toBeGreaterThanOrEqual(18);
+      expect(duracionSec).toBeLessThanOrEqual(19);
+    });
+
+    it('para 2s grabados (60 cuadros, ej. corte de red) dura entre 3s y 4s (90 a 120 cuadros)', () => {
+      const linea = armarLineaDeTiempo360(60, 30, 'lento_y_vuelta');
+      expect(linea.length).toBeGreaterThanOrEqual(90);
+      expect(linea.length).toBeLessThanOrEqual(120);
+      const duracionSec = linea.length / 30;
+      expect(duracionSec).toBeGreaterThanOrEqual(3);
+      expect(duracionSec).toBeLessThanOrEqual(4);
+    });
+  });
+
   describe('Casos borde', () => {
     it('maneja 0 cuadros o negativos sin fallar', () => {
       expect(armarLineaDeTiempo360(0, 30)).toEqual([]);
