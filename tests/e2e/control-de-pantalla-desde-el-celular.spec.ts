@@ -82,10 +82,10 @@ test.describe('Orden 265 — Control de pantalla gigante desde el celular', () =
 
     // Verificar que se envía sin errores (no hay mensaje de alerta y feedback es visible)
     await expect(page.getByText(/Anuncio enviado a la pantalla/i)).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole('alert')).not.toBeVisible();
+    await expect(page.getByText('No llegó a la pantalla')).not.toBeVisible();
 
     // Verificar que el estado refleja el anuncio en la pantalla de control
-    await expect(page.getByText('¡A la pista!')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Cartel LED: "¡A la pista!"')).toBeVisible({ timeout: 10_000 });
 
     // Verificar en la pantalla gigante (/evento/muro-en-vivo/${fiesta.id})
     const pantallaGigante = await context.newPage();

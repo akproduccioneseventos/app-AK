@@ -94,7 +94,7 @@ test.describe('Orden 264 — La 360 edita sola', () => {
     await btnGrabar.click();
 
     // Debe mostrar la cuenta regresiva e iniciar la captura
-    await expect(page.getByText(/¡A bailar!|Grabando/i).or(page.getByText(/segundo/i))).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/¡A bailar!|Grabando/i).or(page.getByText(/segundo/i)).first()).toBeVisible({ timeout: 15_000 });
 
     // Esperar a que procese y aparezca la vista previa final del video editado
     await expect(page.getByText(/Previsualizacion lista/i)).toBeVisible({ timeout: 60_000 });

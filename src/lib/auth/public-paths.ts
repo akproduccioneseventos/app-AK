@@ -1,5 +1,8 @@
 export const PUBLIC_PATH_PREFIXES = [
   '/login',
+  // La puerta de la app instalada (orden 263): sólo muestra los botones de "¿Quién sos?"; cada
+  // botón lleva a su propia entrada, que pide su clave o su sesión.
+  '/entrar',
   '/landing',
   '/evento/actual',
   '/evento/social',
