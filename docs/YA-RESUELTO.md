@@ -11,6 +11,9 @@
   probar, y como se llama desde el navegador, cualquiera podía hacerse pasar por el dueño y saltear el permiso. Se sacó;
   el perfil sale de la sesión. Lo frena la prueba "el perfil sale de la sesión" en
   `el-prospecto-del-anuncio-va-al-simulador.test.ts`.
+- **El acceso directo "Hablar con AK" de la app instalada está en el manifiesto que la app usa** (`src/app/manifest.ts`).
+  Antes vivía en `public/manifest.json`, que no estaba enlazado y la entrega 262 borró. La comprobación de la orden 263
+  mira `EntrarClient.tsx`, que es donde la pantalla de "¿Quién sos?" llama a la acción.
 - **La bandeja de mensajes de `src/data/` entra en la limpieza de la corrida:** quedaba de 300 KB entre puertas y la prueba
   del plan del asistente no encontraba su mensaje.
 - **La espera del "procesando" antes de subir no se saca:** sin ella, el "listo" podía llegar antes y la sesión del
