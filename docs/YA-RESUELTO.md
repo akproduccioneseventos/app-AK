@@ -7,6 +7,12 @@
   "Bonificación especial (15%)" es el descuento de la promoción y sí va.
 - **La 360 arma el video en tiempo real, a propósito:** la grabadora graba lo que dura el dibujo, así que dibujar más
   rápido acorta el video (medido: 5 s en vez de 12 a 20). Por eso el aviso de subida rechazada tarda unos 30 s.
+- **La orden por voz del centro de control no acepta un perfil por parámetro:** la entrega 262 le agregó uno para
+  probar, y como se llama desde el navegador, cualquiera podía hacerse pasar por el dueño y saltear el permiso. Se sacó;
+  el perfil sale de la sesión. Lo frena la prueba "el perfil sale de la sesión" en
+  `el-prospecto-del-anuncio-va-al-simulador.test.ts`.
+- **La bandeja de mensajes de `src/data/` entra en la limpieza de la corrida:** quedaba de 300 KB entre puertas y la prueba
+  del plan del asistente no encontraba su mensaje.
 - **La espera del "procesando" antes de subir no se saca:** sin ella, el "listo" podía llegar antes y la sesión del
   operador quedaba trabada. Gemini la sacó y se volvió a poner.
 

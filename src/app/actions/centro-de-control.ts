@@ -485,12 +485,11 @@ export async function actualizarReglaIA(
  * Procesa órdenes directas por voz o texto del dueño con lenguaje criollo rioplatense.
  */
 export async function darOrdenPorVozOTexto(
-  frase: string,
-  usuarioOverride?: { perfil?: string; role?: string }
+  frase: string
 ): Promise<{ success: boolean; mensaje: string }> {
-  const sesion = usuarioOverride
-    ? { ok: true as const, user: usuarioOverride }
-    : await requirePermiso(PERMISOS.ADMINISTRACION);
+  // El perfil sale SIEMPRE de la sesión. Esta función se puede llamar desde el navegador: si aceptara
+  // un perfil por parámetro, cualquiera se haría pasar por el dueño (se sacó así una vez, 04/11/2026).
+  const sesion = await requirePermiso(PERMISOS.ADMINISTRACION);
   if (!sesion.ok) {
     return { success: false, mensaje: sesion.error || 'No tenés permisos para dar órdenes a la IA.' };
   }
@@ -629,7 +628,7 @@ export async function darOrdenPorVozOTexto(
     f.includes('pendiente');
 
   if (esConsultaNegocio && !esOrdenDeAccion) {
-    const usuarioActual = usuarioOverride || { perfil: sesion.user?.perfil || 'dueno', role: sesion.user?.role };
+    const usuarioActual = { perfil: sesion.user?.perfil, role: sesion.user?.role } as { perfil?: string; role?: string };
     const puedeVerAgenda = usuarioActual.perfil === 'dueno' || usuarioActual.perfil === 'secretaria' || puede(usuarioActual, PERMISOS.ORGANIZACION);
     const [fiestas, presupuestos, prospectos] = await Promise.all([
       puedeVerAgenda ? readDataConDetalle<any[]>('fiestas.json', []) : Promise.resolve({ valor: [], huboFalla: false }),

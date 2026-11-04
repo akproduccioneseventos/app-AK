@@ -94,7 +94,8 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   }
 
   await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible();
-  await expect(page.getByText(new RegExp(`ajuste anual proyectado.*${targetYear}`, 'i')).first()).toBeVisible();
+  // Decisión del dueño (03/11/2026): el ajuste anual NO se le muestra al prospecto, ni en pantalla ni en el PDF.
+  await expect(page.getByText(/ajuste anual proyectado/i)).toHaveCount(0);
   await expect(page.getByText(/p\/p|por persona/i).first()).toBeVisible();
 
   // El paso 5 cierra con "Ver Resumen y Propuesta" en pantalla grande y con
@@ -112,9 +113,9 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   // WhatsApp.
   await expect(page.getByText(/congelar la tarifa|WhatsApp/i).first()).toBeVisible();
 
-  // Antes de descargar, leer de la pantalla el total, el total ajustado del año siguiente y los servicios
+  // Antes de descargar, leer de la pantalla el total y los servicios
   const totalEnPantalla = (await page.locator('text=Precio vigente:').locator('..').locator('span').nth(1).innerText()).trim();
-  const totalAjustadoEnPantalla = (await page.locator(`text=Total estimado ${targetYear}`).locator('..').locator('span').nth(1).innerText()).trim();
+  await expect(page.getByText(`Total estimado ${targetYear}`)).toHaveCount(0);
   const serviciosEnPantalla = await page.locator('table tbody tr:not([data-pdf-exclude="true"])').filter({ has: page.locator('p.font-bold') }).locator('p.font-bold').allInnerTexts();
 
   const downloadPromise = page.waitForEvent('download');
@@ -129,7 +130,7 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   const pdfBuffer = fs.readFileSync(outputPath);
   const textoPdf = extractTextFromPdf(pdfBuffer);
   expect(textoPdf).toContain(totalEnPantalla);
-  expect(textoPdf).toContain(totalAjustadoEnPantalla);
+  expect(textoPdf).not.toMatch(/ajuste acumulativo|Total estimado \d{4}/i);
   expect(serviciosEnPantalla.length).toBeGreaterThan(0);
   for (const servicio of serviciosEnPantalla) {
     expect(textoPdf).toContain(servicio);

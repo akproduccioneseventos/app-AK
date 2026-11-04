@@ -4,6 +4,12 @@ import { NextRequest } from 'next/server';
 
 const memoryStore: Record<string, any> = {};
 
+let usuarioDeLaSesion: { perfil?: string; role?: string } = { perfil: 'dueno', role: 'admin' };
+jest.mock('@/lib/auth/require-session', () => ({
+  ...jest.requireActual('@/lib/auth/require-session'),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: usuarioDeLaSesion })),
+}));
+
 jest.mock('@/lib/firebase/server', () => ({
   dbAdmin: null,
   authAdmin: null,
@@ -303,9 +309,8 @@ describe('Orden 262: El prospecto del anuncio va al simulador', () => {
     ];
 
     // 1. Perfil sin plata (operador sin permiso de contabilidad): recibe fiestas pero NO plata ni signos de pesos con importes
-    const resOperador = await darOrdenPorVozOTexto('¿cuántas fiestas tengo este mes?', {
-      perfil: 'operador',
-    });
+    usuarioDeLaSesion = { perfil: 'operador', role: 'staff' };
+    const resOperador = await darOrdenPorVozOTexto('¿cuántas fiestas tengo este mes?');
     expect(resOperador.success).toBe(true);
     expect(resOperador.mensaje).toContain('XV de Martina');
     expect(resOperador.mensaje).toContain('FIESTAS PRÓXIMOS 30 DÍAS');
@@ -313,13 +318,19 @@ describe('Orden 262: El prospecto del anuncio va al simulador', () => {
     expect(resOperador.mensaje).not.toMatch(/\$\s*\d+/);
 
     // 2. Perfil dueño con contabilidad: contiene información completa (fiestas y bloque de plata)
-    const resDueno = await darOrdenPorVozOTexto('¿cuántas fiestas tengo este mes?', {
-      perfil: 'dueno',
-    });
+    usuarioDeLaSesion = { perfil: 'dueno', role: 'admin' };
+    const resDueno = await darOrdenPorVozOTexto('¿cuántas fiestas tengo este mes?');
     expect(resDueno.success).toBe(true);
     expect(resDueno.mensaje).toContain('XV de Martina');
     expect(resDueno.mensaje).toContain('FIESTAS PRÓXIMOS 30 DÍAS');
     expect(resDueno.mensaje).toContain('PLATA:');
     expect(resDueno.mensaje).toMatch(/\$\s*120\.000/);
+  });
+
+  it('el perfil sale de la sesión: pasarle un perfil por parámetro no saltea el permiso', async () => {
+    const { requirePermiso } = jest.requireMock('@/lib/auth/require-session');
+    requirePermiso.mockResolvedValueOnce({ ok: false, error: 'Tu perfil no tiene acceso a esta parte.' });
+    const res = await (darOrdenPorVozOTexto as any)('¿cuántas fiestas tengo este mes?', { perfil: 'dueno' });
+    expect(res.success).toBe(false);
   });
 });
