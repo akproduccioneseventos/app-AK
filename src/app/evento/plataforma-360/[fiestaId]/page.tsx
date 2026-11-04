@@ -677,8 +677,9 @@ export default function Plataforma360Page() {
       mediaRecorder.start();
 
       const startTime = performance.now();
-      // Renderizar de forma ágil para no demorar la estación ni bloquear las pruebas e2e
-      const targetRenderInterval = Math.max(4, Math.min(10, Math.floor((1000 / outputFps) / 3)));
+      // Se dibuja a los cuadros por segundo de SALIDA: la grabadora graba en tiempo real, así que dibujar
+      // más rápido acorta el video (medido: 5 s en vez de 12 a 20). El armado tarda lo que dura el video.
+      const renderInterval = 1000 / outputFps;
       let stepIndex = 0;
 
       const drawFrame = () => {
@@ -716,8 +717,8 @@ export default function Plataforma360Page() {
           return;
         }
 
-        const nextExpectedTime = startTime + (stepIndex * targetRenderInterval);
-        const delay = Math.max(4, Math.min(10, Math.max(0, nextExpectedTime - performance.now())));
+        const nextExpectedTime = startTime + (stepIndex * renderInterval);
+        const delay = Math.max(0, nextExpectedTime - performance.now());
         setTimeout(drawFrame, delay);
       };
 
@@ -743,7 +744,9 @@ export default function Plataforma360Page() {
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    void updateEntertainmentSessionStatus(
+    // Se ESPERA: si el "listo" de abajo llegara antes que este "procesando", la sesión quedaba
+    // trabada en "procesando" (de "listo" se puede volver a "procesando"). Ya se sacó una vez: no se saca.
+    await updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
       'processing',

@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 04/11/2026 - Órdenes 262 a 268 (Gemini, con arreglos de Claude)
+
+- **El ajuste anual no se le muestra al prospecto** (decisión del dueño): sin proyección ni texto del 15% en el simulador,
+  el presupuesto y su PDF; aparece sólo con el presupuesto Aceptado o Facturado. El contrato y el cálculo no cambian. La
+  "Bonificación especial (15%)" es el descuento de la promoción y sí va.
+- **La 360 arma el video en tiempo real, a propósito:** la grabadora graba lo que dura el dibujo, así que dibujar más
+  rápido acorta el video (medido: 5 s en vez de 12 a 20). Por eso el aviso de subida rechazada tarda unos 30 s.
+- **La espera del "procesando" antes de subir no se saca:** sin ella, el "listo" podía llegar antes y la sesión del
+  operador quedaba trabada. Gemini la sacó y se volvió a poner.
+
 ## 30/10/2026 - Continuacion de orden 255 y devolucion 256, PR 1375, no publicada
 
 - Cierre adicional pedido por el dueno: build de `3d875eba8` bloqueo exports auxiliares de ruta API. Movidos ambos a `src/lib/asistente/propuestas-operativas.ts`, misma logica/consumidor y prueba de exports reales con sonda negativa. Build completo `5ce061900` PASS, puerta final `f605a5e57` PASS. Sobre next start: contrato4/observaciones2 PASS y plan2 PASS tras corregir una limpieza de prueba que confundia historial-diccionario con lista. Ocho criterios en dos corridas, no un solo 8 PASS. Plan guarda un unico borrador manual, persiste al recargar y no altera el presupuesto. CI remota no arranca por bloqueo de facturacion de la cuenta GitHub; evidencia oficial en el registro, no CI aprobada ni despliegue.

@@ -59,33 +59,19 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
     await expect(ctaPaso1).toBeVisible({ timeout: 15_000 });
     await ctaPaso1.click();
 
-    // Paso 2: Datos del evento
+    // Paso 2: Datos del evento (mismo recorrido que el-simulador-tiene-los-textos-nuevos, que anda)
     await expect(page.getByText(/Paso 2 de 5/i)).toBeVisible({ timeout: 20_000 });
-    const nameInput = page.locator('#simulator-name');
-    if (await nameInput.isVisible().catch(() => false)) {
-      const val = await nameInput.inputValue();
-      if (!val) await nameInput.fill('Prospecto Ajuste');
-    }
+    await page.locator('#simulator-name').fill('Prospecto Ajuste');
     const phoneInput = page.locator('#simulator-whatsapp').or(page.locator('#simulator-phone')).first();
     await phoneInput.fill('099123456');
+    const btnClub = page.getByRole('button', { name: /Quiero Club Uruguay/i }).first();
+    await expect(btnClub).toBeVisible({ timeout: 15_000 });
+    await btnClub.click();
 
-    // Confirmar o seleccionar fecha si no estuviera ya fijada
-    const btnFecha = page.getByRole('button', { name: /fecha|Elegí|Seleccion/i }).first();
-    if (await btnFecha.isVisible().catch(() => false)) {
-      const fechaTexto = (await btnFecha.innerText()).trim();
-      if (!fechaTexto || fechaTexto.toLowerCase().includes('elegí') || fechaTexto.toLowerCase().includes('seleccion')) {
-        await btnFecha.click();
-        const diaBtn = page.getByRole('grid').getByRole('button', { disabled: false }).or(page.locator('[role="gridcell"] button:not([disabled])')).first();
-        if (await diaBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
-          await diaBtn.click();
-        }
-      }
-    }
-
+    // La fecha a dos años viene puesta por la dirección (?mes=): se comprueba que esté, no se elige a mano
+    await expect(page.getByRole('button', { name: new RegExp(`de ${anioFuturo}`) }).first()).toBeVisible({ timeout: 15_000 });
     await page.waitForFunction(() => !document.body.innerText.includes('Verificando disponibilidad')).catch(() => undefined);
-
-    const btnSiguientePaso2 = page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first();
-    await btnSiguientePaso2.click();
+    await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
     // Paso 3: Catering / Comida
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
@@ -105,6 +91,13 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
 
     // Paso 5: Personalización y generación de propuesta
     await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible({ timeout: 20_000 });
+    const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
+    // La oferta de pasar a premium aparece unos segundos después y tapa el botón: se espera y se cierra
+    await keepSelection.waitFor({ state: 'visible', timeout: 12_000 }).catch(() => undefined);
+    if (await keepSelection.isVisible().catch(() => false)) {
+      await keepSelection.click();
+      await keepSelection.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => undefined);
+    }
     const verPropuesta = page.getByRole('button', { name: /Ver Resumen y Propuesta|^Generar$/i }).first();
     await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
     await verPropuesta.click();
@@ -114,8 +107,14 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
 
     const cuerpoTexto = (await page.locator('body').innerText()).toLowerCase();
 
+    // Que la fecha elegida sea de verdad la de dos años adelante: si no, no prueba nada
+    expect(cuerpoTexto).toContain(String(anioFuturo));
+
     // El prospecto no debe ver el 15% ni menciones de ajuste acumulativo / proyección anual
-    expect(cuerpoTexto).not.toContain('15%');
+    // Ojo: "Bonificación especial (15%)" es el descuento de la promoción y SÍ va. Lo que no va es el ajuste.
+    expect(cuerpoTexto).toContain('precio vigente');
+    expect(cuerpoTexto).not.toMatch(/ajuste[^\n]{0,60}15\s*%|15\s*%[^\n]{0,40}(anual|por cada a)/);
+    expect(cuerpoTexto).not.toMatch(/total estimado \d{4}/);
     expect(cuerpoTexto).not.toContain('ajuste acumulativo');
     expect(cuerpoTexto).not.toContain('proyeccion de ajuste anual');
     expect(cuerpoTexto).not.toContain('proyección de ajuste anual');
