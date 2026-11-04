@@ -62,6 +62,7 @@ export interface QuienJuega {
   guestAccessToken?: string;
   dispositivoId?: string;
   nombre?: string;
+  mesa?: string;
 }
 
 /**
@@ -74,14 +75,25 @@ export function resolverJugador(
 ): { clave: string; nombre: string; mesa?: string; esInvitado: boolean } | null {
   const guestId = typeof quien.guestId === 'string' ? quien.guestId : '';
   const token = typeof quien.guestAccessToken === 'string' ? quien.guestAccessToken : '';
+  const mesaEnviada = typeof quien.mesa === 'string' ? quien.mesa.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 30) : '';
   const invitado = guestId ? (fiesta.invitados || []).find((g) => g.id === guestId) : undefined;
   if (invitado && invitado.guestAccessToken && token && invitado.guestAccessToken === token) {
-    return { clave: guestId, nombre: invitado.nombre || 'Invitado', mesa: invitado.tableNumber || undefined, esInvitado: true };
+    return {
+      clave: guestId,
+      nombre: invitado.nombre || 'Invitado',
+      mesa: mesaEnviada || invitado.tableNumber || undefined,
+      esInvitado: true,
+    };
   }
   const dispositivo = dispositivoValido(quien.dispositivoId);
   if (dispositivo) {
     const nombre = (typeof quien.nombre === 'string' ? quien.nombre : '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 40);
-    return { clave: `d:${dispositivo}`, nombre: nombre || 'Invitado', esInvitado: false };
+    return {
+      clave: `d:${dispositivo}`,
+      nombre: nombre || 'Invitado',
+      ...(mesaEnviada ? { mesa: mesaEnviada } : {}),
+      esInvitado: false,
+    };
   }
   return null;
 }

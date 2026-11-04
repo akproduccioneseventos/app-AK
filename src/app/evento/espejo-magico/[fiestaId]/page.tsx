@@ -267,15 +267,18 @@ export default function EspejoMagicoPage() {
     }
   }, [voiceEnabled]);
 
+  const tomaIndexRef = useRef(0);
+  const [indiceAnimacion, setIndiceAnimacion] = useState(0);
+
   const animacionActiva = useMemo(() => {
     const allowedAnimIds = fiesta?.station?.allowedTemplateIds ?? [];
     const tipoCelebracion = fiesta?.tipoCelebracion || fiesta?.station?.location;
-    if (localStatus === 'idle') return obtenerAnimacionPorMomento('saludo', allowedAnimIds, tipoCelebracion);
-    if (localStatus === 'countdown') return obtenerAnimacionPorMomento('cuenta', allowedAnimIds, tipoCelebracion);
-    if (localStatus === 'recording') return obtenerAnimacionPorMomento('pose', allowedAnimIds, tipoCelebracion);
-    if (localStatus === 'done') return obtenerAnimacionPorMomento('despedida', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'idle') return obtenerAnimacionPorMomento('saludo', allowedAnimIds, tipoCelebracion, indiceAnimacion);
+    if (localStatus === 'countdown') return obtenerAnimacionPorMomento('cuenta', allowedAnimIds, tipoCelebracion, indiceAnimacion);
+    if (localStatus === 'recording') return obtenerAnimacionPorMomento('pose', allowedAnimIds, tipoCelebracion, indiceAnimacion);
+    if (localStatus === 'done') return obtenerAnimacionPorMomento('despedida', allowedAnimIds, tipoCelebracion, indiceAnimacion);
     return undefined;
-  }, [localStatus, fiesta?.station?.allowedTemplateIds, fiesta?.tipoCelebracion, fiesta?.station?.location]);
+  }, [localStatus, fiesta?.station?.allowedTemplateIds, fiesta?.tipoCelebracion, fiesta?.station?.location, indiceAnimacion]);
 
   useEffect(() => {
     if (animacionActiva?.textoHablado) {
@@ -656,6 +659,8 @@ export default function EspejoMagicoPage() {
       return;
     }
     setErrorMsg(null);
+    tomaIndexRef.current += 1;
+    setIndiceAnimacion(tomaIndexRef.current);
     setLocalStatus('countdown');
     if (role === 'display') {
       // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -1066,6 +1071,8 @@ export default function EspejoMagicoPage() {
     setAiImageBase64(null);
     setAiStep('idle');
     setAiProcessing(false);
+    tomaIndexRef.current += 1;
+    setIndiceAnimacion(tomaIndexRef.current);
     setLocalStatus('idle');
     sesionCaptureIdRef.current = undefined;
     const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -1115,6 +1122,8 @@ export default function EspejoMagicoPage() {
   };
 
   const handleOperatorReset = async () => {
+    tomaIndexRef.current += 1;
+    setIndiceAnimacion(tomaIndexRef.current);
     setErrorMsg(null);
     const now = new Date().toISOString();
     const result = await resetEntertainmentSession(fiestaId, moduleId, accessToken);
@@ -1279,20 +1288,29 @@ export default function EspejoMagicoPage() {
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
       {/* Animación con Locución (Mirror Me) en pantalla */}
-      {animacionActiva && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]">
-          <div className={`px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl ${animacionActiva.animacion}`}>
-            <p className="text-xl md:text-2xl font-black text-amber-300 drop-shadow-md">
-              {animacionActiva.emoji} {animacionActiva.titulo}
-            </p>
-            {animacionActiva.subtitulo && (
-              <p className="text-xs font-semibold text-white/90 mt-0.5 tracking-wider uppercase">
-                {animacionActiva.subtitulo}
+      <AnimatePresence mode="wait">
+        {animacionActiva && (
+          <motion.div
+            key={animacionActiva.id}
+            initial={animacionActiva.motionConfig?.initial ?? { opacity: 0, scale: 0.85, y: -20 }}
+            animate={animacionActiva.motionConfig?.animate ?? { opacity: 1, scale: 1, y: 0 }}
+            exit={animacionActiva.motionConfig?.exit ?? { opacity: 0, scale: 0.9, y: -10 }}
+            transition={animacionActiva.motionConfig?.transition ?? { duration: 0.5, ease: 'easeOut' }}
+            className="absolute top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]"
+          >
+            <div className={`px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl ${animacionActiva.animacion}`}>
+              <p className="text-xl md:text-2xl font-black text-amber-300 drop-shadow-md">
+                {animacionActiva.emoji} {animacionActiva.titulo}
               </p>
-            )}
-          </div>
-        </div>
-      )}
+              {animacionActiva.subtitulo && (
+                <p className="text-xs font-semibold text-white/90 mt-0.5 tracking-wider uppercase">
+                  {animacionActiva.subtitulo}
+                </p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* VIEWPORT */}
       <div

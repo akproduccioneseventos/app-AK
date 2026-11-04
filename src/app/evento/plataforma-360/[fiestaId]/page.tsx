@@ -57,6 +57,7 @@ import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionam
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
+import { armarLineaDeTiempo360, type EstiloEdicion360 } from '@/lib/entretenimiento/edicion-360';
 
 /**
  * Aplica cortina de fundido desde negro al inicio y hacia negro al final
@@ -133,7 +134,9 @@ export default function Plataforma360Page() {
   const [selectedDuration, setSelectedDuration] = useState(15);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
-  const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
+  const [capturedFrames, setCapturedFrames] = useState<(ImageBitmap | HTMLCanvasElement)[]>([]);
+  const [estiloEdicion360, setEstiloEdicion360] = useState<EstiloEdicion360>('lento_y_vuelta');
+  const captureTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [retakesCount, setRetakesCount] = useState(0);
   const customAudioRef = useRef<HTMLAudioElement | null>(null);
   const drawCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -302,6 +305,9 @@ export default function Plataforma360Page() {
         const s = await getEntertainmentSession(fiestaId, 'plataforma360', accessToken);
         setSession(s);
 
+        if (s?.settings?.estiloEdicion360) {
+          setEstiloEdicion360(s.settings.estiloEdicion360 as EstiloEdicion360);
+        }
         const currentStatus = localStatusRef.current;
         if (role === 'display' && s && s.status !== currentStatus) {
           if (s.status === 'countdown' && currentStatus === 'idle') {
@@ -343,7 +349,18 @@ export default function Plataforma360Page() {
     sesionCaptureIdRef.current = undefined;
     setLocalStatus('idle');
     setCountdown(null);
-    setCapturedFrames([]);
+    if (captureTimerRef.current) {
+      clearInterval(captureTimerRef.current);
+      captureTimerRef.current = null;
+    }
+    setCapturedFrames((prev) => {
+      prev.forEach((frame) => {
+        if ('close' in frame && typeof frame.close === 'function') {
+          try { frame.close(); } catch {}
+        }
+      });
+      return [];
+    });
     setRecordingProgress(0);
     setRecordingTimeLeft(0);
     setFinalVideoUrl(null);
@@ -479,47 +496,105 @@ export default function Plataforma360Page() {
       customAudioRef.current.play().catch(() => {});
     }
 
-    // Capturar frames durante targetDurationSec / 3 (ej. si piden 15s, grabamos 5s reales)
-    // para luego expandirlo a cámara lenta.
-    const realCaptureSeconds = Math.max(3, Math.floor(targetDurationSec / 3));
-    const captureFps = 15;
+    // Grabar durante todo el tiempo real elegido (selectedDuration), no solo un tercio
+    const realCaptureSeconds = targetDurationSec;
+    const captureFps = 30;
     const maxFrames = realCaptureSeconds * captureFps;
     const intervalMs = 1000 / captureFps;
 
-    const frames: HTMLCanvasElement[] = [];
+    const frames: (ImageBitmap | HTMLCanvasElement)[] = [];
     let count = 0;
 
-    // Setup capture canvas at 480p to avoid memory crash
-    const captureW = 480;
-    const captureH = (videoRef.current.videoHeight / videoRef.current.videoWidth) * captureW || 854;
+    // Detección de baja potencia o memoria reducida en móviles
+    const esBajaPotencia =
+      typeof navigator !== 'undefined' &&
+      ((navigator as any).deviceMemory !== undefined && (navigator as any).deviceMemory <= 2);
 
-    const captureTimer = setInterval(() => {
+    let captureW = esBajaPotencia ? 540 : 720;
+    const videoAspect =
+      videoRef.current.videoHeight > 0 && videoRef.current.videoWidth > 0
+        ? videoRef.current.videoHeight / videoRef.current.videoWidth
+        : 1280 / 720;
+    let captureH = Math.round(captureW * videoAspect);
+
+    const intermediateCanvas = document.createElement('canvas');
+    intermediateCanvas.width = captureW;
+    intermediateCanvas.height = captureH;
+    const intermediateCtx = intermediateCanvas.getContext('2d');
+    let useFallback540 = esBajaPotencia;
+
+    if (captureTimerRef.current) {
+      clearInterval(captureTimerRef.current);
+    }
+
+    const captureTimer = setInterval(async () => {
       count++;
-      setRecordingTimeLeft(realCaptureSeconds - Math.floor(count / captureFps));
-      setRecordingProgress((count / maxFrames) * 100);
+      setRecordingTimeLeft(Math.max(0, realCaptureSeconds - Math.floor(count / captureFps)));
+      setRecordingProgress(Math.min(100, (count / maxFrames) * 100));
 
-      const cvs = document.createElement('canvas');
-      cvs.width = captureW;
-      cvs.height = captureH;
-      const ctx = cvs.getContext('2d');
-      if (ctx && videoRef.current) {
-        ctx.drawImage(videoRef.current, 0, 0, captureW, captureH);
-        drawWatermark(ctx, captureW, captureH);
-        frames.push(cvs);
+      if (intermediateCtx && videoRef.current) {
+        intermediateCtx.drawImage(videoRef.current, 0, 0, captureW, captureH);
+        drawWatermark(intermediateCtx, captureW, captureH);
+
+        let frameItem: ImageBitmap | HTMLCanvasElement;
+        if (typeof createImageBitmap === 'function') {
+          try {
+            frameItem = await createImageBitmap(intermediateCanvas);
+          } catch {
+            // Fallback automático a 540 si falla la asignación
+            if (!useFallback540 && captureW > 540) {
+              useFallback540 = true;
+              captureW = 540;
+              captureH = Math.round(captureW * videoAspect);
+              intermediateCanvas.width = captureW;
+              intermediateCanvas.height = captureH;
+              intermediateCtx.drawImage(videoRef.current, 0, 0, captureW, captureH);
+              drawWatermark(intermediateCtx, captureW, captureH);
+              try {
+                frameItem = await createImageBitmap(intermediateCanvas);
+              } catch {
+                const cvs = document.createElement('canvas');
+                cvs.width = captureW;
+                cvs.height = captureH;
+                cvs.getContext('2d')?.drawImage(intermediateCanvas, 0, 0);
+                frameItem = cvs;
+              }
+            } else {
+              const cvs = document.createElement('canvas');
+              cvs.width = captureW;
+              cvs.height = captureH;
+              cvs.getContext('2d')?.drawImage(intermediateCanvas, 0, 0);
+              frameItem = cvs;
+            }
+          }
+        } else {
+          const cvs = document.createElement('canvas');
+          cvs.width = captureW;
+          cvs.height = captureH;
+          cvs.getContext('2d')?.drawImage(intermediateCanvas, 0, 0);
+          frameItem = cvs;
+        }
+        frames.push(frameItem);
       }
 
       if (count >= maxFrames) {
         clearInterval(captureTimer);
+        captureTimerRef.current = null;
         setCapturedFrames(frames);
         processSlowMotionVideo(frames, targetDurationSec);
       }
     }, intervalMs);
+
+    captureTimerRef.current = captureTimer;
   };
 
-  const processSlowMotionVideo = async (frames: HTMLCanvasElement[], targetDurationSec: number) => {
+  const processSlowMotionVideo = async (
+    frames: (ImageBitmap | HTMLCanvasElement)[],
+    _targetDurationSec: number
+  ) => {
     setLocalStatus('processing');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken).catch(() => undefined);
     setProgressMsg('Procesando efecto cámara lenta...');
 
     if (frames.length === 0) {
@@ -534,11 +609,12 @@ export default function Plataforma360Page() {
     const ctx = drawCanvas.getContext('2d');
     if (!ctx) return;
 
-    // Queremos que el video resultante dure `targetDurationSec`.
-    // Tenemos N frames. Vamos a renderizarlos a una tasa más lenta.
-    const outputFps = frames.length / targetDurationSec; // ej. 75 frames / 15s = 5 fps.
+    // Generar secuencia de cuadros según estilo seleccionado
+    const outputFps = 30;
+    const lineaDeTiempo = armarLineaDeTiempo360(frames.length, outputFps, estiloEdicion360);
+    const totalFramesFinal = lineaDeTiempo.length;
 
-    const canvasStream = drawCanvas.captureStream(Math.max(12, Math.floor(outputFps))); // Forzar un minimo
+    const canvasStream = drawCanvas.captureStream(outputFps);
 
     let combinedStream = canvasStream;
     // Si hay musica, agregarla al stream
@@ -574,13 +650,23 @@ export default function Plataforma360Page() {
     try {
       const mediaRecorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 2500000 });
       const chunks: Blob[] = [];
-      mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
 
       mediaRecorder.onstop = async () => {
         if (customAudioRef.current) {
           customAudioRef.current.pause();
           customAudioRef.current.currentTime = 0;
         }
+        // Liberar bitmaps en memoria para celulares
+        frames.forEach((f) => {
+          if ('close' in f && typeof f.close === 'function') {
+            try {
+              f.close();
+            } catch {}
+          }
+        });
         const videoBlob = new Blob(chunks, { type: mimeType });
         const videoUrl = URL.createObjectURL(videoBlob);
         setFinalVideoUrl(videoUrl);
@@ -590,16 +676,25 @@ export default function Plataforma360Page() {
 
       mediaRecorder.start();
 
-      let frameIndex = 0;
-      const renderInterval = targetDurationSec * 1000 / frames.length;
+      const startTime = performance.now();
+      // Se dibuja a los cuadros por segundo de SALIDA: la grabadora graba en tiempo real, así que dibujar
+      // más rápido acorta el video (medido: 5 s en vez de 12 a 20). El armado tarda lo que dura el video.
+      const renderInterval = 1000 / outputFps;
+      let stepIndex = 0;
 
       const drawFrame = () => {
-        if (frameIndex >= frames.length) {
-          mediaRecorder.stop();
+        if (stepIndex >= totalFramesFinal) {
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
           return;
         }
+
+        const frameIdx = lineaDeTiempo[stepIndex] ?? 0;
+        const currentFrame = frames[frameIdx] ?? frames[frames.length - 1];
+
         ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        ctx.drawImage(frames[frameIndex], 0, 0);
+        ctx.drawImage(currentFrame, 0, 0, drawCanvas.width, drawCanvas.height);
 
         // Marco dinámico animado sobre el video
         dibujarMarcoDinamico(ctx, drawCanvas.width, drawCanvas.height, {
@@ -608,13 +703,23 @@ export default function Plataforma360Page() {
           nombreEvento: fiesta?.eventName,
           fechaEvento: fiesta?.eventDate,
           colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+          progresoAnimacion: stepIndex / (totalFramesFinal || 1),
         });
 
         // Cortina de entrada y salida grabada dentro del video
-        aplicarCortinaVideo(ctx, drawCanvas.width, drawCanvas.height, frameIndex, frames.length);
+        aplicarCortinaVideo(ctx, drawCanvas.width, drawCanvas.height, stepIndex, totalFramesFinal);
 
-        frameIndex++;
-        setTimeout(drawFrame, renderInterval);
+        stepIndex++;
+        if (stepIndex >= totalFramesFinal) {
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
+          return;
+        }
+
+        const nextExpectedTime = startTime + (stepIndex * renderInterval);
+        const delay = Math.max(0, nextExpectedTime - performance.now());
+        setTimeout(drawFrame, delay);
       };
 
       drawFrame();
@@ -640,7 +745,7 @@ export default function Plataforma360Page() {
 
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     // Se ESPERA: si el "listo" de abajo llegara antes que este "procesando", la sesión quedaba
-    // trabada en "procesando" (de "listo" se puede volver a "procesando").
+    // trabada en "procesando" (de "listo" se puede volver a "procesando"). Ya se sacó una vez: no se saca.
     await updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
@@ -823,6 +928,7 @@ export default function Plataforma360Page() {
         vueltas360,
         countdownSeconds: fiesta?.station.countdownSeconds || 5,
         operatorName: fiesta?.station.operatorName,
+        estiloEdicion360,
       },
       accessToken
     );
@@ -905,21 +1011,28 @@ export default function Plataforma360Page() {
               </div>
             </div>
 
-            {/* Slow Motion */}
+            {/* Estilo de Edición 360 */}
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Efecto</p>
-              {/*
-                No es un boton: la camara lenta se aplica siempre a todos los
-                videos de la plataforma. Estaba dibujado como boton y el operador
-                lo tocaba esperando prenderla o apagarla, y no pasaba nada. Ahora
-                es lo que siempre fue: un cartel que avisa que esta activa.
-              */}
-              <div
-                role="status"
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300"
-              >
-                <Zap className="w-4 h-4" />
-                Cámara Lenta (Slow Motion) Activada
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Estilo de Edición</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'lento_y_vuelta' as EstiloEdicion360, label: 'Lento y vuelta' },
+                  { id: 'solo_camara_lenta' as EstiloEdicion360, label: 'Sólo cámara lenta' },
+                  { id: 'normal' as EstiloEdicion360, label: 'Normal' },
+                ].map((opcion) => (
+                  <button
+                    key={opcion.id}
+                    type="button"
+                    onClick={() => setEstiloEdicion360(opcion.id)}
+                    className={`flex flex-col items-center justify-center text-center rounded-lg border p-3 text-xs font-bold transition ${
+                      estiloEdicion360 === opcion.id
+                        ? 'border-purple-500 bg-purple-500/20 text-purple-300 shadow-sm shadow-purple-500/20'
+                        : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
+                    }`}
+                  >
+                    <span>{opcion.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -1299,4 +1412,3 @@ export default function Plataforma360Page() {
 </div>
   );
 }
-

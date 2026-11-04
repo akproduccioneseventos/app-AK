@@ -1372,6 +1372,14 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 259 → pregunta 111
 - Orden 260 → pregunta 111
 - Orden 261 → pregunta 111
+- Orden 262 → pregunta 111
+- Orden 263 → no es un defecto
+- Orden 264 → pregunta 4
+- Orden 265 → pregunta 22
+- Orden 266 → pregunta 111
+- Orden 267 → no es un defecto
+- Orden 268 → pregunta 111
+- Orden 265 → propia de Claude
 - Auditoria 732 (comisión, mes del pago a proveedores, seña sin presupuesto fuera del reporte) → pregunta 110
 - Auditoria 737 (la pregunta frecuente promete un ajuste distinto al del contrato) → pregunta 4
 - Auditoria 743 (dos cargas históricas con el mismo final chocaban en el número de factura) → pregunta 112

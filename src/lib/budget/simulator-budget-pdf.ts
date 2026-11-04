@@ -32,6 +32,7 @@ export type SimulatorBudgetPdfInput = {
   >;
   bookingTerms?: string;
   bookingDepositAmount?: number;
+  status?: string;
 };
 
 export type SimulatorBudgetPdfModel = {
@@ -383,7 +384,8 @@ export async function createSimulatorBudgetPdf(
     y += 15;
   }
 
-  if (input.stats.annualProjection.applies) {
+  const isContracted = input.status === 'Aceptado' || input.status === 'Facturado';
+  if (isContracted && input.stats.annualProjection.applies) {
     const requiredHeight = 17 + input.stats.annualProjection.rows.length * 6;
     ensureSpace(requiredHeight);
     pdf.setFont("helvetica", "bold");
@@ -443,7 +445,7 @@ export async function createSimulatorBudgetPdf(
     /30\s+d[ií]as/i.test(configuredTerms)
       ? ""
       : "El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.",
-    input.stats.annualProjection.applies
+    (isContracted && input.stats.annualProjection.applies)
       ? `El precio principal corresponde a ${input.stats.annualProjection.currentYear}. Para fechas desde ${input.stats.annualProjection.currentYear + 1} se aplica un ajuste acumulativo del ${input.stats.annualProjection.adjustmentPct}% por cada año adicional.`
       : `Los valores corresponden a eventos realizados en ${input.stats.annualProjection.currentYear}.`,
     "La fecha se reserva cuando AK Producciones confirma la disponibilidad, recibe la seña y se firma el contrato.",

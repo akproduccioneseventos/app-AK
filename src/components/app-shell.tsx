@@ -426,6 +426,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      try {
+                        localStorage.removeItem('ak_invitado_fiesta');
+                        localStorage.removeItem('ak_portal_fiesta');
+                      } catch {}
+                      window.location.href = '/entrar';
+                    }}
+                    className="text-slate-600 focus:text-slate-900"
+                  >
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Cambiar de cuenta</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogoutClick} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Cerrar Sesión</span>

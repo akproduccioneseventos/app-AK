@@ -10,7 +10,10 @@ import {
   correspondeContestarSolo,
   type ReferenciaDeOrigen,
 } from '@/lib/whatsapp/vino-de-la-publicidad';
-import { atenderProspectoAnuncioWhatsApp } from '@/lib/asistente/por-whatsapp';
+import { atenderProspectoAnuncioWhatsApp, enlaceAlSimuladorDelProspecto } from '@/lib/asistente/por-whatsapp';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -217,6 +220,97 @@ export async function POST(request: NextRequest) {
       text: messageText,
       messageId,
     });
+
+    if (atencionAnuncio.borradorAtendido) {
+      if (messageId) {
+        let yaRespondido = false;
+        await mutateGenericJsonArray<string>('asistente/anuncio-mensajes-respondidos.json', (actuales) => {
+          const lista = actuales || [];
+          if (lista.includes(messageId)) {
+            yaRespondido = true;
+            return null;
+          }
+          return [...lista, messageId];
+        });
+        if (yaRespondido) {
+          return NextResponse.json({ status: 'ok', respondido: false, motivo: 'Mensaje duplicado ya atendido' }, { status: 200 });
+        }
+      }
+
+      const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
+      const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+
+      if (atencionAnuncio.completo && atencionAnuncio.datos) {
+        const texto = `¡Gracias! Con lo que nos contaste ya podés ver tu presupuesto en el momento: ${enlaceAlSimuladorDelProspecto(atencionAnuncio.datos)}\nAl final vas a poder reservar una entrevista gratuita y sin compromiso con nosotros para ver todos los detalles.`;
+        let envioExitoso = false;
+        try {
+          const envio = await sendMetaWhatsAppMessage({
+            to: phone,
+            text: texto,
+            apiToken,
+            phoneNumberId,
+          });
+          envioExitoso = Boolean(envio?.success);
+        } catch {
+          envioExitoso = false;
+        }
+
+        if (!envioExitoso) {
+          await agregarPropuestasDeduplicadas([{
+            clave: 'prospecto-anuncio-fallo-envio:' + (messageId || phone),
+            titulo: 'Contestar al prospecto: no salió el mensaje automático',
+            area: 'ventas',
+            tipoPropuesta: 'prospecto_envio_fallido',
+            nivelRiesgo: 'aviso' as any,
+            quePasa: `No se pudo enviar el mensaje automático al prospecto (${phone}).`,
+            porQueImporta: 'El prospecto espera respuesta a su consulta por el anuncio.',
+            quePropone: `Contactar manualmente a ${clientName || phone} para darle seguimiento al presupuesto.`,
+          }]);
+        }
+
+        return NextResponse.json({ status: 'ok', tipo: 'prospecto_anuncio_completo', respondido: true }, { status: 200 });
+      }
+
+      if (atencionAnuncio.completo) {
+        return NextResponse.json({
+          status: 'ok', tipo: 'prospecto_anuncio_borrador',
+          completo: true, respondido: false, requiereRevision: true,
+        }, { status: 200 });
+      }
+
+      if (!atencionAnuncio.completo && atencionAnuncio.respuestaTexto) {
+        let envioExitoso = false;
+        try {
+          const envio = await sendMetaWhatsAppMessage({
+            to: phone,
+            text: atencionAnuncio.respuestaTexto,
+            apiToken,
+            phoneNumberId,
+          });
+          envioExitoso = Boolean(envio?.success);
+        } catch {
+          envioExitoso = false;
+        }
+
+        if (!envioExitoso) {
+          await agregarPropuestasDeduplicadas([{
+            clave: 'prospecto-anuncio-fallo-envio:' + (messageId || phone),
+            titulo: 'Contestar al prospecto: no salió el mensaje automático',
+            area: 'ventas',
+            tipoPropuesta: 'prospecto_envio_fallido',
+            nivelRiesgo: 'aviso' as any,
+            quePasa: `No se pudo enviar la consulta de datos faltantes al prospecto (${phone}).`,
+            porQueImporta: 'El prospecto no recibió el pedido de datos para su presupuesto.',
+            quePropone: `Contactar manualmente a ${clientName || phone} para pedirle los datos faltantes.`,
+          }]);
+        }
+
+        return NextResponse.json({ status: 'ok', tipo: 'prospecto_anuncio_incompleto', respondido: true }, { status: 200 });
+      }
+
+      return NextResponse.json({ status: 'ok', tipo: 'prospecto_anuncio_atendido', respondido: false }, { status: 200 });
+    }
+
     if (atencionAnuncio.completo) {
       return NextResponse.json({
         status: 'ok', tipo: 'prospecto_anuncio_borrador',

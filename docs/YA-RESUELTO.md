@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 04/11/2026 - Órdenes 262 a 268 (Gemini, con arreglos de Claude)
+
+- **El ajuste anual no se le muestra al prospecto** (decisión del dueño): sin proyección ni texto del 15% en el simulador,
+  el presupuesto y su PDF; aparece sólo con el presupuesto Aceptado o Facturado. El contrato y el cálculo no cambian. La
+  "Bonificación especial (15%)" es el descuento de la promoción y sí va.
+- **La 360 arma el video en tiempo real, a propósito:** la grabadora graba lo que dura el dibujo, así que dibujar más
+  rápido acorta el video (medido: 5 s en vez de 12 a 20). Por eso el aviso de subida rechazada tarda unos 30 s.
+- **La orden por voz del centro de control no acepta un perfil por parámetro:** la entrega 262 le agregó uno para
+  probar, y como se llama desde el navegador, cualquiera podía hacerse pasar por el dueño y saltear el permiso. Se sacó;
+  el perfil sale de la sesión. Lo frena la prueba "el perfil sale de la sesión" en
+  `el-prospecto-del-anuncio-va-al-simulador.test.ts`.
+- **La bandeja de mensajes de `src/data/` entra en la limpieza de la corrida:** quedaba de 300 KB entre puertas y la prueba
+  del plan del asistente no encontraba su mensaje.
+- **La espera del "procesando" antes de subir no se saca:** sin ella, el "listo" podía llegar antes y la sesión del
+  operador quedaba trabada. Gemini la sacó y se volvió a poner.
+
 ## 30/10/2026 - Continuacion de orden 255 y devolucion 256, PR 1375, no publicada
 
 - Cierre adicional pedido por el dueno: build de `3d875eba8` bloqueo exports auxiliares de ruta API. Movidos ambos a `src/lib/asistente/propuestas-operativas.ts`, misma logica/consumidor y prueba de exports reales con sonda negativa. Build completo `5ce061900` PASS, puerta final `f605a5e57` PASS. Sobre next start: contrato4/observaciones2 PASS y plan2 PASS tras corregir una limpieza de prueba que confundia historial-diccionario con lista. Ocho criterios en dos corridas, no un solo 8 PASS. Plan guarda un unico borrador manual, persiste al recargar y no altera el presupuesto. CI remota no arranca por bloqueo de facturacion de la cuenta GitHub; evidencia oficial en el registro, no CI aprobada ni despliegue.
@@ -16167,3 +16183,6 @@ prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
 - **31/10/2026, Claude (Codex 743/C6, orden 252):** al cargar fiestas viejas, el número de factura salía de las últimas 5 letras del presupuesto; dos cargas distintas que terminaban igual chocaban y la segunda quedaba con presupuesto y sin factura. Ahora sale de una huella del presupuesto entero: distinto para cada carga y el mismo al reintentar. El rechazo de un número ya usado por otro presupuesto sigue puesto. Prueba: `la-carga-historica-no-choca-numeros` (la sonda de Codex), en rojo sin el arreglo.
 
 - **02/11/2026, Claude:** la prueba del interruptor "Controlar la llegada con ubicación" fallaba porque tocaba el interruptor antes de que la página respondiera y el toque se perdía. Medido: el interruptor prende, guarda y queda prendido al recargar. La prueba ahora insiste hasta que cambia, y sigue en rojo si no guardara nunca.
+
+- **03/11/2026, Claude sobre la entrega 262-265:** el ingreso del cliente por celular leía las fiestas como si fueran una sola lista; ahora usa el mismo lector que el resto de la app (sin archivadas ni suspendidas).
+- **03/11/2026, Claude:** la pantalla "¿Quién sos?" (`/entrar`) mandaba al ingreso del equipo porque no figuraba entre las direcciones públicas; ahora sí (sólo muestra los botones; cada uno pide su propia clave o sesión). Y tres pruebas de pantalla nuevas buscaban textos que aparecían dos veces.

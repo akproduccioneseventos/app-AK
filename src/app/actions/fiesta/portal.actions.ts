@@ -20,12 +20,13 @@ import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/port
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireEventPermission, PERMISOS } from '@/lib/auth/event-access';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import type { PromotionalPhotoConsent, PromotionalPhotoConsentVersion } from '@/types/promotional-photo-consent';
 
@@ -131,6 +132,102 @@ import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
 import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
 import { presupuestoRecalculado } from '@/lib/budget/recalcular-presupuesto';
 import type { Presupuesto } from '@/types/presupuesto';
+
+export async function entrarAlPortalPorTelefono(
+  telefono: string,
+  clave: string,
+): Promise<{ success: boolean; fiestaId?: string; fiestas?: Array<{ id: string; nombreEvento: string }>; error?: string }> {
+  const telefonoNormalizado = (telefono || '').replace(/\D/g, '');
+  const claveLimpia = (clave || '').trim();
+
+  try {
+    await enforcePublicRateLimit({
+      scope: 'portal-entrar-telefono',
+      identity: telefonoNormalizado,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+  } catch (error: any) {
+    return {
+      success: false,
+      error: 'Demasiados intentos. Esperá unos minutos.',
+    };
+  }
+
+  if (!telefonoNormalizado || !claveLimpia) {
+    return { success: false, error: 'No encontramos una fiesta con esos datos' };
+  }
+
+  let fiestas: any[] = [];
+  let customers: any[] = [];
+
+  try {
+    // Las fiestas viven una por documento: se leen con el mismo lector que el resto de la app,
+    // sin las archivadas ni las suspendidas.
+    const { leerFiestasCrudas } = await import('@/lib/fiesta/leer-fiestas');
+    const [fiestasRes, customersRes] = await Promise.all([
+      leerFiestasCrudas(false),
+      readData<any[]>('customers.json', []),
+    ]);
+    fiestas = Array.isArray(fiestasRes) ? fiestasRes : [];
+    customers = Array.isArray(customersRes) ? customersRes : [];
+  } catch {
+    return { success: false, error: 'No encontramos una fiesta con esos datos' };
+  }
+
+  const matchingCustomerIds = new Set<string>();
+  for (const c of customers) {
+    if (!c) continue;
+    const telCustomer = String(c.phone || c.telefono || c.celular || c.phone1 || c.tel || '').replace(/\D/g, '');
+    if (telCustomer && telCustomer === telefonoNormalizado && c.id) {
+      matchingCustomerIds.add(String(c.id));
+    }
+  }
+
+  const fiestasCandidatas = fiestas.filter((f) => {
+    if (!f) return false;
+    const estado = String(f.estado || '').toLowerCase().trim();
+    const status = String(f.status || '').toLowerCase().trim();
+    if (estado === 'cerrada' || estado === 'archivada' || status === 'cerrada') {
+      return false;
+    }
+
+    const telFiesta = String(f.configuracion?.telefono || f.telefono || '').replace(/\D/g, '');
+    const clienteId = f.configuracion?.clienteId || f.clienteId;
+
+    const coincideTelefono = telFiesta.length > 0 && telFiesta === telefonoNormalizado;
+    const coincideCliente = clienteId && matchingCustomerIds.has(String(clienteId));
+
+    return Boolean(coincideTelefono || coincideCliente);
+  });
+
+  if (fiestasCandidatas.length === 0) {
+    return { success: false, error: 'No encontramos una fiesta con esos datos' };
+  }
+
+  const fiestasValidas: Array<{ id: string; nombreEvento: string }> = [];
+
+  for (const f of fiestasCandidatas) {
+    const fid = String(f.id);
+    const sessionRes = await initializePortalSession(fid, claveLimpia);
+    if (sessionRes.success) {
+      fiestasValidas.push({
+        id: fid,
+        nombreEvento: f.configuracion?.nombreEvento || f.nombreEvento || f.nombre || 'Fiesta',
+      });
+    }
+  }
+
+  if (fiestasValidas.length === 0) {
+    return { success: false, error: 'No encontramos una fiesta con esos datos' };
+  }
+
+  if (fiestasValidas.length === 1) {
+    return { success: true, fiestaId: fiestasValidas[0].id };
+  }
+
+  return { success: true, fiestas: fiestasValidas };
+}
 
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -269,10 +366,16 @@ export async function updateFaqPortal(fiestaId: string, faqItems: import('@/type
 
 export async function updateSocialGallerySettings(
   fiestaId: string,
-  socialGallerySettings: SocialGallerySettings
+  cambios: Partial<SocialGallerySettings>
 ) {
-  await requireAppSession();
-  return updateFiestaData(fiestaId, data => ({ ...data, socialGallerySettings }));
+  await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+  return actualizarFiesta(fiestaId, (fiesta) => ({
+    ...fiesta,
+    socialGallerySettings: {
+      ...(fiesta.socialGallerySettings ?? {}),
+      ...cambios,
+    } as SocialGallerySettings,
+  }));
 }
 
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {

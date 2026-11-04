@@ -670,6 +670,26 @@
     "orden-261": {
       "fecha": "2026-11-02",
       "resultado": "Quinta vuelta 242-248: la sección de la app no cambia de momento en computadora (en celular sí). Medido con una prueba de toque. Va en la orden 261."
+    },
+    "orden-262": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 111: el bot dejó de contestar al prospecto con datos completos desde la 1375; vuelve el enlace al simulador. Buscadas otras respuestas automáticas sacadas en el webhook: ninguna más."
+    },
+    "orden-264": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 4: la línea del rubro de la 360 prometía cambios de velocidad que no existían. Revisadas las otras líneas del rubro de las estaciones: el marco animado tampoco se animaba (va en la 265)."
+    },
+    "orden-265": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 22: los ajustes del muro se guardaban enteros desde dos pantallas. Buscados otros guardados de socialGallerySettings enteros: screen-mode y portal, los dos pasados a transacción con cambios parciales."
+    },
+    "orden-266": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 111: el armado nuevo de la 360 rompió dos avisos que ya andaban (corte de red, subida rechazada) y estira el video a 26 s. Va en la orden 266."
+    },
+    "orden-268": {
+      "fecha": "2026-11-03",
+      "resultado": "Pregunta 111: la 360 sigue sin mostrar el error de subida a tiempo con la máquina ocupada; va en la orden 268 junto con la 267 pendiente."
     }
   }
 }

@@ -176,7 +176,7 @@ test.describe('Orden 90 — Bloque 2: la pantalla dice la verdad según dónde q
   });
 
   test('Plataforma 360 con subida rechazada: muestra el error y NO dice que se sube sola', async ({ context, page }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(150_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
     await enchufarCamaraFalsa(page);
@@ -203,7 +203,9 @@ test.describe('Orden 90 — Bloque 2: la pantalla dice la verdad según dónde q
 
     // Debe mostrar el rechazo
     const avisoError = page.getByText(/contenido inapropiado|no se pudo publicar/i).first();
-    await expect(avisoError).toBeVisible({ timeout: 45_000 });
+    // La 360 arma un video editado de 12 a 20 s y la grabadora lo arma en tiempo real: con 10 s grabados
+    // más el armado, el aviso no puede llegar antes de ~30 s. Con la máquina cargada pasaba los 45 (medido).
+    await expect(avisoError).toBeVisible({ timeout: 90_000 });
 
     // Y NO debe decir que se sube sola ni que quedó guardado en esta pantalla
     const textoPagina = (await page.locator('body').innerText()).toLowerCase();

@@ -603,6 +603,20 @@ function ClientPortalContent() {
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <Badge className="bg-white/20 text-white border-white/30">{fiesta.configuracion.tipoCelebracion || 'Evento'}</Badge>
               <Badge className="bg-black/30 text-white border-white/20">Portal VIP</Badge>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('ak_invitado_fiesta');
+                    localStorage.removeItem('ak_portal_fiesta');
+                    sessionStorage.removeItem(`portal_auth_${fiesta.id}`);
+                  } catch {}
+                  window.location.href = '/entrar';
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 hover:bg-white/20 px-3 py-1 text-xs font-semibold text-white transition backdrop-blur border border-white/20"
+              >
+                <KeyRound className="w-3.5 h-3.5" /> Cambiar de cuenta
+              </button>
             </div>
 
             <div className="space-y-2">

@@ -17,6 +17,8 @@ const ESCRITOS_POR_LA_CORRIDA = [
   // navegador. Aparecieron sin estar en la lista el 21 de octubre de 2026, y la copia de `data/` tapaba
   // la que siembran las pruebas en `src/data/`.
   'data/scheduled-messages.json',
+  // La copia de `src/data/` también la escribe la corrida: quedaba de 300 KB entre puertas (04/11/2026).
+  'src/data/scheduled-messages.json',
   'data/company-info.json',
   'data/empleados.json',
   'data/invoice-template-settings.json',

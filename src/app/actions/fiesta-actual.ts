@@ -115,7 +115,7 @@ export async function updateClientChecklistFiestaActual(fiestaId: string, checkl
 export async function updateClientNotesFiestaActual(fiestaId: string, notes: string) { return await PortalModule.updateClientNotes(fiestaId, notes); }
 export async function updatePortalSettingsFiestaActual(fiestaId: string, clientSettings: ClientPortalSettings) { return await PortalModule.updatePortalSettings(fiestaId, clientSettings); }
 export async function updateClientePortalExperienceFiestaActual(fiestaId: string, experience: import('@/types/fiesta').ClientePortalExperience) { return await PortalModule.updateClientePortalExperience(fiestaId, experience); }
-export async function updateSocialGallerySettingsFiestaActual(fiestaId: string, socialGallerySettings: SocialGallerySettings) { return await PortalModule.updateSocialGallerySettings(fiestaId, socialGallerySettings); }
+export async function updateSocialGallerySettingsFiestaActual(fiestaId: string, cambios: Partial<SocialGallerySettings>) { return await PortalModule.updateSocialGallerySettings(fiestaId, cambios); }
 export async function getZonaDigitalSettingsFiestaActual(fiestaId: string) { return await ZonaDigitalModule.getZonaDigitalSettings(fiestaId); }
 export async function updateZonaDigitalSettingsFiestaActual(fiestaId: string, settings: import('@/types/fiesta').ZonaDigitalAdolescentesSettings) { return await ZonaDigitalModule.updateZonaDigitalSettings(fiestaId, settings); }
 

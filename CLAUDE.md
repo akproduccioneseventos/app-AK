@@ -1195,6 +1195,18 @@ Nadie miró los borrados, y ninguna pregunta comparaba lo que sale de la app con
 (orden 249). Y cuando se barre una pregunta de plata, se listan las operaciones por tipo (crear, cambiar, cobrar,
 **borrar**, exportar) y se pasa la pregunta por cada tipo, no sólo por el primero que aparece.
 
+### 49. Decirle al dueño que algo "edita solo" leyendo el nombre de una función
+
+**Pasó el 2 de noviembre de 2026.** Comparando con funEvent, le dije que la Plataforma 360 ya cambiaba la velocidad sola,
+porque la lista del rubro lo daba por hecho con `processSlowMotionVideo`. Y dije que el Vogue hacía algo parecido al
+boomerang, y es de fotos. El dueño: *"mi app no edita sola"*.
+
+**Qué era lo cierto:** la función estira todo el video parejo, sin cambios de velocidad ni ida y vuelta. Y la línea del
+rubro pedía el nombre de la función, no el efecto (error 7 otra vez).
+
+**Qué se hace distinto:** antes de comparar con la competencia, se abre la función y se mira **qué hace**, no cómo se
+llama. La línea del rubro quedó apuntando a la receta nueva (orden 264).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

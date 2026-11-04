@@ -38,7 +38,7 @@ import {
 import TriviaEnVivo from '@/components/games/TriviaEnVivo';
 import { responderTrivia, getMiProgresoDeJuegos } from '@/app/actions/games.actions';
 import { type PhotoMission } from '@/lib/games/game-engine';
-import { misionesDeLaFiesta } from '@/lib/games/juegos-en-vivo';
+import { misionesDeLaFiesta, type QuienJuega } from '@/lib/games/juegos-en-vivo';
 import PhotoMissionScreen from '@/components/games/PhotoMissionScreen';
 import {
   addChatMessage,
@@ -303,6 +303,7 @@ export default function SocialEventPage() {
   const [hasError, setHasError] = useState(false);
   const [sectionStale, setSectionStale] = useState(false);
   const [authorName, setAuthorName] = useState('');
+  const [guestTableNumber, setGuestTableNumber] = useState('');
   const [nameDraft, setNameDraft] = useState('');
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -393,13 +394,23 @@ export default function SocialEventPage() {
   useEffect(() => {
     const initName = async () => {
       let savedName = sessionStorage.getItem(`socialWallAuthor_${fiestaId}`) || '';
+      let savedMesa = '';
+      try {
+        savedMesa = localStorage.getItem(`trivia_mesa_${fiestaId}`) || '';
+      } catch {}
 
-      if (guestId && guestAccessToken && !savedName) {
+      if (guestId && guestAccessToken && (!savedName || !savedMesa)) {
         try {
           const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
-          if (portal?.guest?.nombre) {
+          if (portal?.guest?.nombre && !savedName) {
             savedName = portal.guest.nombre;
             sessionStorage.setItem(`socialWallAuthor_${fiestaId}`, savedName);
+          }
+          if (portal?.guest?.tableNumber && !savedMesa) {
+            savedMesa = portal.guest.tableNumber;
+            try {
+              localStorage.setItem(`trivia_mesa_${fiestaId}`, savedMesa);
+            } catch {}
           }
         } catch (error) {
           console.warn('[SocialEvent] Failed to load guest name:', error);
@@ -407,6 +418,9 @@ export default function SocialEventPage() {
       }
 
       setAuthorName(savedName);
+      if (savedMesa) {
+        setGuestTableNumber(savedMesa);
+      }
       setNameDraft(savedName);
       setNameDialogOpen(!savedName && !guestId); // Solo abrir si no hay nombre Y no vino por enlace personal
     };
@@ -946,12 +960,18 @@ export default function SocialEventPage() {
     }
   };
 
-  const quienJuega = useCallback(() => ({
-    guestId: guestId || undefined,
-    guestAccessToken: guestAccessToken || undefined,
-    dispositivoId: idDelTelefono(),
-    nombre: authorName || undefined,
-  }), [guestId, guestAccessToken, authorName]);
+  const quienJuega = useCallback(() => {
+    const jugador: QuienJuega = {
+      guestId: guestId || undefined,
+      guestAccessToken: guestAccessToken || undefined,
+      dispositivoId: idDelTelefono(),
+      nombre: authorName || undefined,
+    };
+    if (guestTableNumber) {
+      jugador.mesa = guestTableNumber;
+    }
+    return jugador;
+  }, [guestId, guestAccessToken, authorName, guestTableNumber]);
 
   // Lo que el servidor tiene anotado de ESTE jugador (trivia y misiones): se lee de allá, no de memoria.
   const cargarProgreso = useCallback(async () => {
@@ -975,12 +995,23 @@ export default function SocialEventPage() {
 
   useEffect(() => { setMensajeTrivia(''); }, [activeGame?.launchedAt]);
 
-  const responderLaTrivia = async (optionId: string) => {
+  const responderLaTrivia = async (optionId: string, tableNumber?: string) => {
     if (!activeGame || activeGame.type !== 'trivia' || enviandoRespuesta) return;
     setEnviandoRespuesta(true);
     setMensajeTrivia('');
     try {
-      const r = await responderTrivia(fiestaId, optionId, quienJuega());
+      const mesaEfectiva = tableNumber || guestTableNumber || undefined;
+      if (tableNumber && tableNumber !== guestTableNumber) {
+        setGuestTableNumber(tableNumber);
+        try {
+          localStorage.setItem(`trivia_mesa_${fiestaId}`, tableNumber);
+        } catch {}
+      }
+      const jugador: QuienJuega = {
+        ...quienJuega(),
+        ...(mesaEfectiva ? { mesa: mesaEfectiva } : {}),
+      };
+      const r = await responderTrivia(fiestaId, optionId, jugador);
       if (!r.success) setMensajeTrivia(r.error || 'No se pudo enviar tu respuesta. Probá de nuevo.');
       else if (r.fueraDeTiempo) setMensajeTrivia('Se acabó el tiempo para esta pregunta.');
       await cargarProgreso();
@@ -1313,7 +1344,9 @@ export default function SocialEventPage() {
               enviando={enviandoRespuesta}
               mensaje={mensajeTrivia}
               accentColor={accentColor}
-              onResponder={(optionId) => void responderLaTrivia(optionId)}
+              fiestaId={fiestaId}
+              mesaInicial={guestTableNumber}
+              onResponder={(optionId, tableNumber) => void responderLaTrivia(optionId, tableNumber)}
             />
           )}
 

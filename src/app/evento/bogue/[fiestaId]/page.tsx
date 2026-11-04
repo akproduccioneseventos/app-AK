@@ -555,7 +555,7 @@ export default function VoguePage() {
         colorDeAcento,
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
-        textoDeMarca: 'VOGUE LIVE'
+        textoDeMarca: fiesta?.station?.brandText || 'AK Producciones'
       });
       setFinalStripUrl(stripUrl);
     } catch (e) {
@@ -709,7 +709,7 @@ export default function VoguePage() {
       ctx.fillStyle = '#000000';
       ctx.font = `bold ${h * 0.016}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('VOGUE LIVE', w - 110, h - 48);
+      ctx.fillText(fiesta?.station?.brandText || 'AK Producciones', w - 110, h - 48);
     }
 
     // Reset shadow values

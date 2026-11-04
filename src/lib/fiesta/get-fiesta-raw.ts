@@ -52,6 +52,15 @@ export async function getFiestaByIdRaw(fiestaId: string): Promise<FiestaEnPlanif
     if (active && active.id === fiestaId) return active;
   } catch (e) {}
 
+  // Fallback a fiestas.json si la colección vive consolidada en un solo archivo
+  try {
+    const lista = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+    if (Array.isArray(lista)) {
+      const encontrada = lista.find(f => f && f.id === fiestaId);
+      if (encontrada) return encontrada;
+    }
+  } catch {}
+
   // Try archive/history as fallback
   try {
     const { getHistorialFiestas } = await import('@/app/actions/fiesta/fiesta.actions');

@@ -7,6 +7,10 @@ import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const GENERIC_JSON_COLLECTION = 'json_documents';
 
+function isSafeArrayFilePath(filePath: string): boolean {
+  return isSafeTopLevelJsonFile(filePath) || /^asistente\/[A-Za-z0-9][A-Za-z0-9._-]*\.json$/.test(filePath);
+}
+
 function getGenericDocId(filePath: string): string {
   return encodeURIComponent(filePath.replace(/\\/g, '/'));
 }
@@ -29,7 +33,7 @@ async function getDbAdmin() {
 
 export async function syncGenericJsonFile(filePath: string, data: any): Promise<void> {
   const normalizedPath = filePath.replace(/\\/g, '/');
-  if (!isSafeTopLevelJsonFile(normalizedPath)) return;
+  if (!isSafeArrayFilePath(normalizedPath)) return;
   if (logger.shouldSkipFirestoreDuringBuild()) return;
 
   const db = await getDbAdmin();
@@ -61,7 +65,7 @@ export async function mutateGenericJsonArray<T>(
   cambiar: (lista: T[]) => T[] | null,
 ): Promise<T[] | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
-  if (!isSafeTopLevelJsonFile(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
+  if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
 
   if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
     const { readData, writeData } = await import('./data-service');
@@ -107,7 +111,7 @@ export async function mutateGenericJsonArrayConTransaccion<T>(
   ) => Promise<T[] | null>,
 ): Promise<T[] | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
-  if (!isSafeTopLevelJsonFile(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
+  if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
   const db = await getDbAdmin();
   const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
   let resultado: T[] | null = null;

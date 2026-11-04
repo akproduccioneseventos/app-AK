@@ -322,3 +322,30 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
 
   return canvas.toDataURL('image/jpeg', 0.92);
 }
+
+/**
+ * Procesa los cuadros de la tanda para generar el boomerang en fotocabina.
+ * Espera `img.decode()` en cada imagen antes de dibujarla en el canvas con `drawImage`,
+ * garantizando que los cuadros no salgan vacíos ni negros (Orden 265).
+ */
+export async function procesarCuadrosBoomerang(
+  tanda: string[],
+  ancho = 720,
+  alto = 1280,
+): Promise<HTMLCanvasElement[]> {
+  const canvasFotos: HTMLCanvasElement[] = [];
+  for (const fUrl of tanda) {
+    const c = document.createElement('canvas');
+    c.width = ancho;
+    c.height = alto;
+    const cCtx = c.getContext('2d');
+    const img = new Image();
+    img.src = fUrl;
+    try {
+      await img.decode();
+    } catch {}
+    cCtx?.drawImage(img, 0, 0);
+    canvasFotos.push(c);
+  }
+  return canvasFotos;
+}

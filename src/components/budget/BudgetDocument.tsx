@@ -160,6 +160,8 @@ export default function BudgetDocument({
     (presupuesto.id.split('_').pop() || presupuesto.id).substring(0, 6).toUpperCase();
 
   const clientName = clienteNombre || presupuesto.clienteNombre;
+  const budgetStatus = (presupuesto as any).status || presupuesto.estado;
+  const isContracted = budgetStatus === 'Aceptado' || budgetStatus === 'Facturado';
 
   const timestampDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
   const validUntil = isNaN(timestampDate.getTime()) ? new Date() : new Date(timestampDate);
@@ -581,7 +583,7 @@ export default function BudgetDocument({
             </p>
             <p className="text-xs text-emerald-700 mt-1">
               Alquiler independiente vigente: {formatCurrency(clubUruguayCostoCalculated)}.
-              {clubUruguayAnnualProjection?.applies && (
+              {isContracted && clubUruguayAnnualProjection?.applies && (
                 <> Referencia {clubUruguayAnnualProjection.eventYear}: {formatCurrency(clubUruguayAnnualProjection.adjustedTotal)}.</>
               )} Este monto no integra el total de servicios AK y se abona mediante contrato y recibo separado del salón.
             </p>
@@ -635,7 +637,7 @@ export default function BudgetDocument({
           </div>
         </section>
 
-        {projectionRows.length > 0 && (
+        {isContracted && projectionRows.length > 0 && (
           <section className="mb-4 budget-print-avoid-break">
             <h3
               className="text-xs font-bold text-slate-800 mb-2 print:text-[9pt] text-center uppercase"
@@ -677,7 +679,7 @@ export default function BudgetDocument({
         <footer className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3">
           <p className="font-semibold text-slate-700 print:text-black">
             {buildFormalBudgetBookingNote({
-              hasAnnualAdjustment: Boolean(presupuesto.ajusteAnualActivo || projectionRows.length > 0),
+              hasAnnualAdjustment: isContracted && Boolean(presupuesto.ajusteAnualActivo || projectionRows.length > 0),
               adjustmentPct,
               bookingDepositAmount,
               currentYear: new Date(presupuesto.timestamp).getFullYear(),
