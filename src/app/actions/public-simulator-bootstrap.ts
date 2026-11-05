@@ -11,7 +11,8 @@ import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { createNotification } from "@/lib/notifications/create-notification";
 import type { ArmadoRapidoConfig } from "@/types/armado-rapido";
-import { defaultClubUruguayConfig } from "@/types/armado-rapido";
+import { normalizeClubUruguayConfig } from "@/types/armado-rapido";
+import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu } from "@/types/catering";
 import type { ServicioEmpresa } from "@/types/empresa";
 import type { BudgetDisplaySettings } from "@/types/settings";
@@ -33,13 +34,19 @@ export interface PublicSimulatorBootstrap {
 const FALLBACK_CONFIG_DATA = fallbackConfigJson as unknown as ArmadoRapidoConfig;
 const FALLBACK_CONFIG: ArmadoRapidoConfig = {
   ...FALLBACK_CONFIG_DATA,
-  clubUruguayConfig: {
-    ...defaultClubUruguayConfig,
-    ...(FALLBACK_CONFIG_DATA.clubUruguayConfig || {}),
-  },
+  clubUruguayConfig: normalizeClubUruguayConfig(FALLBACK_CONFIG_DATA.clubUruguayConfig),
 };
-const FALLBACK_MENUS = fallbackMenusJson as unknown as FullMenu[];
-const FALLBACK_SERVICES = fallbackServicesJson as unknown as ServicioEmpresa[];
+const FALLBACK_MENUS = (fallbackMenusJson as unknown as FullMenu[]).map(menu => ({
+  ...menu,
+  items: (menu.items || []).map(item => {
+    const { ingredients, profitMargin, totalDishCost, ...visible } = item;
+    void ingredients; void profitMargin; void totalDishCost;
+    return { ...visible, ingredients: [], totalDishCost: 0, suggestedSellingPrice: getMenuItemSellingPrice(item) };
+  }),
+}));
+const FALLBACK_SERVICES = (fallbackServicesJson as unknown as ServicioEmpresa[])
+  .filter(service => service.tipoItem === 'Servicio')
+  .map(service => ({ ...service, valorUnitarioEstimado: 0, proveedor: undefined, notas: undefined }));
 
 let lastSimulatorFallbackNotificationDate: string | null = null;
 
@@ -85,7 +92,8 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     withBootstrapFallback(getMenusPublicos(), FALLBACK_MENUS),
   ]);
 
-  const resolvedConfig = config || FALLBACK_CONFIG;
+  const sourceConfig = config || FALLBACK_CONFIG;
+  const resolvedConfig = { ...sourceConfig, clubUruguayConfig: normalizeClubUruguayConfig(sourceConfig.clubUruguayConfig) };
   const isServicesFromFallback = services === FALLBACK_SERVICES || !services || services.length === 0;
   const resolvedServicesRaw = (!isServicesFromFallback && services && services.length > 0) ? services : FALLBACK_SERVICES;
   const resolvedServices = resolvedServicesRaw.filter((service) => service.tipoItem === "Servicio");
