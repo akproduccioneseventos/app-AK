@@ -1,0 +1,12 @@
+[
+  {
+    "original": "770-jest.json",
+    "sha256": "47d427f4c685473855c1ffd4338a5e2e51a9891335584f30b60b6b1ab9d46b0f",
+    "gzipBytes": 303208
+  },
+  {
+    "original": "770-jest.log",
+    "sha256": "99b443243f9d8c9caadf1897cd79343540822d15adb2872ebdcce7b36fcf8828",
+    "gzipBytes": 175262
+  }
+]

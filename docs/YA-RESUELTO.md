@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 5/11/2026 - Codex777, delta sobre main31662b207; NO publicado
+
+- Fuente9ab4b9239. Se descarta integrar la tanda764 antigua completa: Gemini y
+  Claude ya publicaron1377/1378/1379. Preservada localmente en c16f5c48e, no
+  debe sobrescribir esas pantallas. Sus pruebas viejas no aceptan main actual.
+- Recuperar una factura historica sin enlace exige cliente estable, no solo
+  cinco letras. Sin intento explicito usa UUID, no milisegundo. Se conserva el
+  hash de numero de factura incorporado por Claude y no se renumeran facturas.
+- El respaldo publico del simulador tampoco entrega costos/proveedor/notas ni
+  ingredientes con costos/margen del menu; conserva precios de venta originales.
+- Ultima decision del dueno16900UYU sustituye20000. Se normaliza configuracion
+  heredada y se respeta una futura edicion autenticada con revision. Ficha y
+  selector consumen ese precio; alquiler sigue fuera del total de serviciosAK.
+- Focales778:4suites24PASS0FAIL0omitidos. ESLint de los seis consumidores/tipos
+  cambiados PASS sin advertencias.779 repite solo para asociar la evidencia a
+  fuente congelada. Tipos globales iniciados4/11 quedaron sin recibo final y el
+  proceso ya no existe: INCONCLUSO, no PASS. Claude conserva build/fusion.
+- Actualizacion780: tipos globales repetidos completos5/11 sobre42836cc0d
+  exit0, src c651e84dc3b7af1b5da42e7308cbe1657410c74c sin cambios durante corrida.
+  Esto cierra la deuda de tipos, no invalida el recibo inconcluso anterior.
+- Amplia770:949suites,5756PASS13FAIL3omitidos; original conservado sin convertir
+  la corrida en verde. Cinco suites se reejecutaron:78117PASS y782voz11PASS.
+  CausasQA: carpeta/archivo sparse ausentes, pruebaJSON sinmodoJSON, contrato de
+  fuente viejo y paquete temporal eliminado. Solo dos fixtures corregidos,
+  runtime9ab sin cambios. Tres SDKdecoracion omitidos no se aceptan. Claude
+  conserva build/E2E/SDK/fusion; detalles en777 y comprobacion de integridad782.
+- No aceptacion de todaapp, roles, proveedor real o produccion. Detalle y
+  archivos de prueba en docs/evidencias/777-contraste-main-y-delta.md.
+
 ## 04/11/2026 - Órdenes 262 a 268 (Gemini, con arreglos de Claude)
 
 - **El ajuste anual no se le muestra al prospecto** (decisión del dueño): sin proyección ni texto del 15% en el simulador,

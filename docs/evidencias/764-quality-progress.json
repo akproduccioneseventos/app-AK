@@ -1,0 +1,23 @@
+{
+  "phase": "jest",
+  "pid": 15968,
+  "started": "2026-11-05T11:38:12.943Z",
+  "base": "42836cc0db4551d9c73609f69eaf89b809fd7e2e",
+  "sourceTree": "c651e84dc3b7af1b5da42e7308cbe1657410c74c",
+  "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "--max-old-space-size=768",
+    "./node_modules/jest/bin/jest.js",
+    "--maxWorkers=1",
+    "--workerIdleMemoryLimit=400MB",
+    "--no-cache",
+    "--json",
+    "--outputFile=docs/evidencias/770-jest.json"
+  ],
+  "limits": "Fuente propia aislada, dependencias enlazadas+un paquete QA, sin cuentas/cargos/mensajes/proveedores reales; no build ni despliegue.",
+  "exit": 1,
+  "signal": null,
+  "finished": "2026-11-05T11:49:16.585Z",
+  "after": "cb43ccdf78ef2d90d208b700157fbad62526a7999f82bf186c05c17e941f132f",
+  "headAfter": "42836cc0db4551d9c73609f69eaf89b809fd7e2e"
+}

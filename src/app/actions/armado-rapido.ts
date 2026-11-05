@@ -2,7 +2,7 @@
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
-import { defaultClubUruguayConfig } from '@/types/armado-rapido';
+import { defaultClubUruguayConfig, normalizeClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
 import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
@@ -36,7 +36,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
     descuentoGeneral: SIMULATOR_DISCOUNT_PERCENTAGE,
     clubUruguayConfig: {
       ...defaultClubUruguayConfig,
-      ...(config?.clubUruguayConfig || {}),
+      ...normalizeClubUruguayConfig(config?.clubUruguayConfig),
       prestaciones: (config?.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
         .map((item) => item.trim())
         .filter(Boolean),
@@ -87,6 +87,7 @@ export async function saveArmadoRapidoConfig(
       clubUruguayConfig: {
         activo: newConfigData.clubUruguayConfig?.activo ?? defaultClubUruguayConfig.activo,
         precio: Number(newConfigData.clubUruguayConfig?.precio) || defaultClubUruguayConfig.precio,
+        precioRevision: defaultClubUruguayConfig.precioRevision,
         prestaciones: (newConfigData.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
           .map((item) => item.trim())
           .filter(Boolean),

@@ -597,7 +597,7 @@ function SimuladorContent() {
         const club = config?.clubUruguayConfig;
         if (salonChoice !== 'club') return null;
         const precioReal = 36000;
-        const precioBasePromo = 16900;
+        const precioBasePromo = config?.clubUruguayConfig?.precio || 16900;
 
         const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
         const diffYears = Math.max(0, eventYear - 2026);
@@ -2361,7 +2361,7 @@ function SimuladorContent() {
                                         <div>
                                             <p className="text-sm font-black text-slate-900">Quiero Club Uruguay</p>
                                             <p className="mt-1 text-[10px] text-slate-400 font-semibold leading-normal">
-                                                <span className="line-through mr-1">{formatCurrency((config?.clubUruguayConfig?.precio || 20000) * 2)}</span>
+                                                <span className="line-through mr-1">{formatCurrency(36000)}</span>
                                                 <span className="font-bold text-amber-600">{formatCurrency(config?.clubUruguayConfig?.precio || 0)}</span>
                                                 <span className="ml-1">agregados.</span>
                                             </p>

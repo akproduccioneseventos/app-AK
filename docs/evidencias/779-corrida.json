@@ -1,0 +1,16 @@
+{
+  "started": "2026-11-05T11:06:10.668Z",
+  "finished": "2026-11-05T11:06:23.548Z",
+  "base": "9ab4b923936c9b844c8aa91d33b282a7c53102cb",
+  "runtimeDiff": "",
+  "suites": [
+    "src/__tests__/simulador-origen-precios.test.ts",
+    "src/__tests__/la-carga-historica-no-duplica.test.ts",
+    "src/__tests__/la-carga-historica-no-choca-numeros.test.ts",
+    "src/__tests__/simulador-contacto-con-configuracion-caida.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "QA ficticio sin entorno heredado/credenciales/cuentas/servicios reales; no build ni publicacion. Diff de trabajo queda en recibo hasta congelar fuente. Dependencias reutilizadas, no npm ci limpio."
+}

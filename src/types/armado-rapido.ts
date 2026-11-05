@@ -36,18 +36,27 @@ export interface ServiceDependency {
 export interface ClubUruguayConfig {
   activo: boolean;
   precio: number;
+  precioRevision?: string;
   prestaciones: string[];
 }
 
 export const defaultClubUruguayConfig: ClubUruguayConfig = {
   activo: true,
-  precio: 20000,
+  precio: 16900,
+  precioRevision: '2026-10-31',
   prestaciones: [
     'Capacidad 50-200 personas',
     'Ubicación céntrica en Salto',
     'Estacionamiento disponible',
   ],
 };
+
+export function normalizeClubUruguayConfig(config?: Partial<ClubUruguayConfig>): ClubUruguayConfig {
+  const merged = { ...defaultClubUruguayConfig, ...config };
+  // Decision expresa del dueno del31/10. Las ediciones futuras guardan revision y se respetan.
+  if (!config?.precioRevision && Number(config?.precio) === 20000) merged.precio = 16900;
+  return { ...merged, precioRevision: merged.precioRevision || defaultClubUruguayConfig.precioRevision };
+}
 
 export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[];

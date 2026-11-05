@@ -1,0 +1,6 @@
+{
+  "version": "1.2.7",
+  "target": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-deps-764\\node_modules\\@breezystack\\lamejs",
+  "integrity": "sha512-6wc7ck65ctA75Hq7FYHTtTvGnYs6msgdxiSUICQ+A01nVOWg6rqouZB8IdyteRlfpYYiFovkf67dIeOgWIUzTA==",
+  "limits": "Restaura SOLO paquete QA temporal propio, sin editar package/lock/node_modules compartido ni ejecutar scripts."
+}

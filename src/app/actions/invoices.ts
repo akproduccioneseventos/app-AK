@@ -136,7 +136,7 @@ export async function getInvoicesByPresupuestoId(presupuestoId: string): Promise
     return exactMatches;
   }
 
-  if (presupuestoId.length >= 5) {
+  if (presupuestoId.startsWith('pres_hist_')) {
     const suffix = presupuestoId.slice(-5);
     const legacyMatches = invoices.filter((inv) => {
       if (inv.sourcePresupuestoId && inv.sourcePresupuestoId !== presupuestoId) {
@@ -150,8 +150,11 @@ export async function getInvoicesByPresupuestoId(presupuestoId: string): Promise
         (typeof inv.invoiceNumber === 'string' && inv.invoiceNumber.endsWith(suffix))
       );
     });
-    if (legacyMatches.length === 1) {
-      return legacyMatches;
+    const expectedCustomerId = `cust_${presupuestoId.slice('pres_'.length)}`;
+    const sameCustomer = legacyMatches.filter(inv => inv.customer?.id === expectedCustomerId);
+    if (sameCustomer.length === 1) return sameCustomer;
+    if (sameCustomer.length > 1 || legacyMatches.some(inv => !inv.customer?.id)) {
+      throw new Error('Hay una factura histórica sin vínculo verificable. Revisá su cliente y presupuesto antes de reintentar.');
     }
   }
 
