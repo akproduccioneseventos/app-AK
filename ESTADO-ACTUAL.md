@@ -6,7 +6,10 @@
 - Tres deltas: recuperacion historica/UUID; costos del respaldo publico;
   precio16900 confirmado y coherente, sin sumar alquiler al presupuestoAK.
 - 778:4suites24PASS; lint6archivosPASS.779 sobre commit congelado en evidencia.
-- Tipos globales4/11 sin recibo final/proceso desaparecido: INCONCLUSO.
+- Tipos globales5/11 PASS completos42836cc0d/src c651e84d; anterior4/11 archivado.
+- Amplia770:5756PASS13FAIL3omitidos, conservada NO verde. Triage781/782:
+  17PASS+11PASS en corridas separadas;5suites resueltas como preparacionQA.
+-3omitidos SDKdecoracion requieren emulador. Claude conserva cierre build/SDK/E2E.
 - Claude revisa/compila/fusiona. No afirmar todaappni0errores. Privados NOcontrastados.
 - Evidencia: docs/evidencias/777-contraste-main-y-delta.md.
 

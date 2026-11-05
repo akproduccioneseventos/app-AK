@@ -17,6 +17,15 @@
   cambiados PASS sin advertencias.779 repite solo para asociar la evidencia a
   fuente congelada. Tipos globales iniciados4/11 quedaron sin recibo final y el
   proceso ya no existe: INCONCLUSO, no PASS. Claude conserva build/fusion.
+- Actualizacion780: tipos globales repetidos completos5/11 sobre42836cc0d
+  exit0, src c651e84dc3b7af1b5da42e7308cbe1657410c74c sin cambios durante corrida.
+  Esto cierra la deuda de tipos, no invalida el recibo inconcluso anterior.
+- Amplia770:949suites,5756PASS13FAIL3omitidos; original conservado sin convertir
+  la corrida en verde. Cinco suites se reejecutaron:78117PASS y782voz11PASS.
+  CausasQA: carpeta/archivo sparse ausentes, pruebaJSON sinmodoJSON, contrato de
+  fuente viejo y paquete temporal eliminado. Solo dos fixtures corregidos,
+  runtime9ab sin cambios. Tres SDKdecoracion omitidos no se aceptan. Claude
+  conserva build/E2E/SDK/fusion; detalles en777 y comprobacion de integridad782.
 - No aceptacion de todaapp, roles, proveedor real o produccion. Detalle y
   archivos de prueba en docs/evidencias/777-contraste-main-y-delta.md.
 

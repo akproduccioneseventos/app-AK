@@ -1,0 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+
+const prefix = path.join(process.env.LOCALAPPDATA, 'Temp', 'ak-deps-764');
+const target = path.join(prefix, 'node_modules', '@breezystack', 'lamejs');
+if (fs.existsSync(path.join(target, 'package.json'))) throw new Error('No sobrescribir paquete existente');
+const metadata = await fetch('https://registry.npmjs.org/@breezystack/lamejs/1.2.7').then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json(); });
+if (metadata.version !== '1.2.7' || !metadata.dist.tarball.startsWith('https://registry.npmjs.org/')) throw new Error('Origen/version no verificable');
+const bytes = Buffer.from(await fetch(metadata.dist.tarball).then(r => { if (!r.ok) throw new Error(String(r.status)); return r.arrayBuffer(); }));
+const integrity = `sha512-${crypto.createHash('sha512').update(bytes).digest('base64')}`;
+if (integrity !== metadata.dist.integrity) throw new Error('Integridad incorrecta');
+fs.mkdirSync(target, { recursive: true });
+const archive = path.join(prefix, 'lamejs-1.2.7.tgz');
+fs.writeFileSync(archive, bytes);
+const entries = execFileSync('tar', ['-tf', archive], { encoding: 'utf8' }).trim().split(/\r?\n/);
+if (entries.some(entry => !entry.startsWith('package/') || entry.split('/').includes('..'))) throw new Error('Ruta insegura');
+execFileSync('tar', ['-xf', archive, '--strip-components=1', '-C', target]);
+fs.writeFileSync('docs/evidencias/782-paquete-qa.json', JSON.stringify({ version: metadata.version, target, integrity, limits: 'Restaura SOLO paquete QA temporal propio, sin editar package/lock/node_modules compartido ni ejecutar scripts.' }, null, 2));

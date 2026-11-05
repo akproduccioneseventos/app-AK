@@ -5,7 +5,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 const cwd = process.cwd();
 const prefix = process.argv[2] || '764';
 const suites = process.argv.slice(3);
-if (!/^7(?:6[4-9]|7[0-9])$/.test(prefix)) throw new Error('Prefijo QA invalido');
+if (!/^7(?:6[4-9]|7[0-9]|8[0-9])$/.test(prefix)) throw new Error('Prefijo QA invalido');
 if (fs.readdirSync(cwd).some(n => /^\.env(?:\.|$)/.test(n) && !/example|sample/.test(n))) throw new Error('No usar .env reales');
 const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => /^(SystemRoot|WINDIR|COMSPEC|PATH|PATHEXT|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA|HOMEDRIVE|HOMEPATH|NUMBER_OF_PROCESSORS|PROCESSOR_ARCHITECTURE)$/i.test(k)));
 Object.assign(env, { NODE_ENV: 'test', TZ: 'America/Montevideo', CI: '1', SESSION_SECRET: 'qa764-isolated-secret-no-real-credentials-0000000000', AK_QA_EVIDENCE_OUT: path.join(cwd, `docs/evidencias/${prefix}-observaciones.json`) });

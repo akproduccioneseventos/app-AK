@@ -1,0 +1,13 @@
+{
+  "started": "2026-11-05T11:51:45.886Z",
+  "finished": "2026-11-05T11:51:52.424Z",
+  "base": "42836cc0db4551d9c73609f69eaf89b809fd7e2e",
+  "runtimeDiff": "diff --git a/src/__tests__/invoice-deletion-integrity.test.ts b/src/__tests__/invoice-deletion-integrity.test.ts\nindex abf576a8f..1f15bf5c9 100644\n--- a/src/__tests__/invoice-deletion-integrity.test.ts\n+++ b/src/__tests__/invoice-deletion-integrity.test.ts\n@@ -40,7 +40,14 @@ const invoice = {\n };\n \n describe('invoice deletion integrity', () => {\n+  const previousLocalMode = process.env.AK_USE_LOCAL_JSON_ONLY;\n+  afterAll(() => {\n+    if (previousLocalMode === undefined) delete process.env.AK_USE_LOCAL_JSON_ONLY;\n+    else process.env.AK_USE_LOCAL_JSON_ONLY = previousLocalMode;\n+  });\n   beforeEach(() => {\n+    // Estas aserciones prueban la compensacion JSON; la rama transaccional tiene sus propias pruebas.\n+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';\n     jest.clearAllMocks();\n     (verifySession as jest.Mock).mockResolvedValue(adminSession);\n     (readData as jest.Mock).mockResolvedValue([invoice]);\ndiff --git a/src/__tests__/public-simulator-bootstrap-fallback.test.ts b/src/__tests__/public-simulator-bootstrap-fallback.test.ts\nindex 2f8419eca..cdb7a3061 100644\n--- a/src/__tests__/public-simulator-bootstrap-fallback.test.ts\n+++ b/src/__tests__/public-simulator-bootstrap-fallback.test.ts\n@@ -19,7 +19,7 @@ describe('public simulator bootstrap fallback', () => {\n     expect(source).toContain('withBootstrapFallback(getServiciosEmpresaPublicos(), FALLBACK_SERVICES)');\n     expect(source).toContain('withBootstrapFallback(getMenusPublicos(), FALLBACK_MENUS)');\n     expect(source).toContain('withBootstrapFallback(getSocialConnectionsPublicas(), [])');\n-    expect(source).toContain('...defaultClubUruguayConfig');\n+    expect(source).toContain('normalizeClubUruguayConfig(FALLBACK_CONFIG_DATA.clubUruguayConfig)');\n     expect(source).toContain('timeoutMs = 4_500');\n   });\n });",
+  "suites": [
+    "src/lib/asistente/whatsapp-voz.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "QA ficticio sin entorno heredado/credenciales/cuentas/servicios reales; no build ni publicacion. Diff de trabajo queda en recibo hasta congelar fuente. Dependencias reutilizadas, no npm ci limpio."
+}
