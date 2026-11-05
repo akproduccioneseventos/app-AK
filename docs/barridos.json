@@ -694,6 +694,10 @@
     "orden-269": {
       "fecha": "2026-11-05",
       "resultado": "Pregunta 8: el catálogo de decoración analiza dos veces la misma foto con dos análisis seguidos (lista leída antes del candado); va en la orden 269."
+    },
+    "orden-270": {
+      "fecha": "2026-11-05",
+      "resultado": "Pregunta 4: el recontacto le habla de 'la propuesta que te armamos' a quien nunca generó presupuesto; buscado en las demás plantillas de recontacto y seguimiento (candidatos-recontacto, motor-agentes perseguidor que sólo mira presupuestos Enviado): sólo ese paso. Va en la orden 270."
     }
   }
 }
