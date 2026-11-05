@@ -1,0 +1,328 @@
+
+PASS src/__tests__/la-carga-historica-no-duplica.test.ts
+PASS src/__tests__/la-carga-historica-no-choca-numeros.test.ts
+  ● Console
+
+    console.warn
+      Error syncing fiesta on invoice TypeError: isFirebaseAvailable is not a function
+          at isFirebaseAvailable (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:55:25)
+          at leerFiestasCrudas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:78:19)
+          at getFiestas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\fiesta\fiesta.actions.ts:234:18)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:799:23
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at markPresupuestoAsFacturado (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:767:10)
+          at saveInvoiceInner (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\invoices.ts:402:23)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at processHistoricRecord (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\historicos.ts:191:35)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\la-carga-historica-no-choca-numeros.test.ts:104:102)
+
+    [0m [90m 808 |[39m       [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m suggestContractFlow[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 809 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 810 |[39m       console[33m.[39mwarn([32m"Error syncing fiesta on invoice"[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 811 |[39m     }
+     [90m 812 |[39m
+     [90m 813 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m }[33m;[39m[0m
+
+      at warn (src/app/actions/presupuestos.ts:810:15)
+      at src/lib/mutex.ts:34:16
+      at markPresupuestoAsFacturado (src/app/actions/presupuestos.ts:767:10)
+      at saveInvoiceInner (src/app/actions/invoices.ts:402:23)
+      at src/lib/mutex.ts:34:16
+      at processHistoricRecord (src/app/actions/historicos.ts:191:35)
+      at Object.<anonymous> (src/__tests__/la-carga-historica-no-choca-numeros.test.ts:104:102)
+
+    console.warn
+      Error syncing fiesta on invoice TypeError: isFirebaseAvailable is not a function
+          at isFirebaseAvailable (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:55:25)
+          at leerFiestasCrudas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:78:19)
+          at getFiestas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\fiesta\fiesta.actions.ts:234:18)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:799:23
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at markPresupuestoAsFacturado (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:767:10)
+          at saveInvoiceInner (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\invoices.ts:402:23)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at processHistoricRecord (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\historicos.ts:191:35)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\la-carga-historica-no-choca-numeros.test.ts:104:173)
+
+    [0m [90m 808 |[39m       [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m suggestContractFlow[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 809 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 810 |[39m       console[33m.[39mwarn([32m"Error syncing fiesta on invoice"[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 811 |[39m     }
+     [90m 812 |[39m
+     [90m 813 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m }[33m;[39m[0m
+
+      at warn (src/app/actions/presupuestos.ts:810:15)
+      at src/lib/mutex.ts:34:16
+      at markPresupuestoAsFacturado (src/app/actions/presupuestos.ts:767:10)
+      at saveInvoiceInner (src/app/actions/invoices.ts:402:23)
+      at src/lib/mutex.ts:34:16
+      at processHistoricRecord (src/app/actions/historicos.ts:191:35)
+      at Object.<anonymous> (src/__tests__/la-carga-historica-no-choca-numeros.test.ts:104:173)
+
+    console.warn
+      Error syncing fiesta on invoice TypeError: isFirebaseAvailable is not a function
+          at isFirebaseAvailable (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:55:25)
+          at leerFiestasCrudas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:78:19)
+          at getFiestas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\fiesta\fiesta.actions.ts:234:18)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:799:23
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at markPresupuestoAsFacturado (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:767:10)
+          at saveInvoiceInner (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\invoices.ts:402:23)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at processHistoricRecord (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\historicos.ts:191:35)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\la-carga-historica-no-choca-numeros.test.ts:105:105)
+
+    [0m [90m 808 |[39m       [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m suggestContractFlow[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 809 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 810 |[39m       console[33m.[39mwarn([32m"Error syncing fiesta on invoice"[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 811 |[39m     }
+     [90m 812 |[39m
+     [90m 813 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m }[33m;[39m[0m
+
+      at warn (src/app/actions/presupuestos.ts:810:15)
+      at src/lib/mutex.ts:34:16
+      at markPresupuestoAsFacturado (src/app/actions/presupuestos.ts:767:10)
+      at saveInvoiceInner (src/app/actions/invoices.ts:402:23)
+      at src/lib/mutex.ts:34:16
+      at processHistoricRecord (src/app/actions/historicos.ts:191:35)
+      at Object.<anonymous> (src/__tests__/la-carga-historica-no-choca-numeros.test.ts:105:105)
+
+    console.warn
+      Error syncing fiesta on invoice TypeError: isFirebaseAvailable is not a function
+          at isFirebaseAvailable (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:55:25)
+          at leerFiestasCrudas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:78:19)
+          at getFiestas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\fiesta\fiesta.actions.ts:234:18)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:799:23
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at markPresupuestoAsFacturado (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:767:10)
+          at saveInvoiceInner (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\invoices.ts:402:23)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at processHistoricRecord (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\historicos.ts:191:35)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\la-carga-historica-no-choca-numeros.test.ts:105:176)
+
+    [0m [90m 808 |[39m       [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m suggestContractFlow[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 809 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 810 |[39m       console[33m.[39mwarn([32m"Error syncing fiesta on invoice"[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 811 |[39m     }
+     [90m 812 |[39m
+     [90m 813 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m }[33m;[39m[0m
+
+      at warn (src/app/actions/presupuestos.ts:810:15)
+      at src/lib/mutex.ts:34:16
+      at markPresupuestoAsFacturado (src/app/actions/presupuestos.ts:767:10)
+      at saveInvoiceInner (src/app/actions/invoices.ts:402:23)
+      at src/lib/mutex.ts:34:16
+      at processHistoricRecord (src/app/actions/historicos.ts:191:35)
+      at Object.<anonymous> (src/__tests__/la-carga-historica-no-choca-numeros.test.ts:105:176)
+
+    console.warn
+      Error syncing fiesta on invoice TypeError: isFirebaseAvailable is not a function
+          at isFirebaseAvailable (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:55:25)
+          at leerFiestasCrudas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\fiesta\leer-fiestas.ts:78:19)
+          at getFiestas (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\fiesta\fiesta.actions.ts:234:18)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:799:23
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at markPresupuestoAsFacturado (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:767:10)
+          at saveInvoiceInner (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\invoices.ts:402:23)
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\mutex.ts:34:16
+          at processHistoricRecord (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\historicos.ts:191:35)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\la-carga-historica-no-choca-numeros.test.ts:110:3)
+
+    [0m [90m 808 |[39m       [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m suggestContractFlow[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 809 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 810 |[39m       console[33m.[39mwarn([32m"Error syncing fiesta on invoice"[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 811 |[39m     }
+     [90m 812 |[39m
+     [90m 813 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m }[33m;[39m[0m
+
+      at warn (src/app/actions/presupuestos.ts:810:15)
+      at src/lib/mutex.ts:34:16
+      at markPresupuestoAsFacturado (src/app/actions/presupuestos.ts:767:10)
+      at saveInvoiceInner (src/app/actions/invoices.ts:402:23)
+      at src/lib/mutex.ts:34:16
+      at processHistoricRecord (src/app/actions/historicos.ts:191:35)
+      at Object.<anonymous> (src/__tests__/la-carga-historica-no-choca-numeros.test.ts:110:3)
+
+PASS src/__tests__/simulador-origen-precios.test.ts
+PASS src/__tests__/simulador-contacto-con-configuracion-caida.test.ts
+  ● Console
+
+    console.log
+      Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.
+
+      at Object.log (src/lib/firebase/server.ts:25:15)
+
+    console.error
+      Error getting Firestore/Auth instance: Unexpected token 'export'
+
+    [0m [90m 90 |[39m   }
+     [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+    [31m[1m>[22m[39m[90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:92:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:49:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/public-simulator-bootstrap.ts:26:29)
+      at Object.<anonymous> (src/__tests__/simulador-contacto-con-configuracion-caida.test.ts:39:35)
+
+    console.error
+      Full error: Jest encountered an unexpected token
+      
+      Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+      
+      Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+      
+      By default "node_modules" folder is ignored by transformers.
+      
+      Here's what you can do:
+       • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+       • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+       • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+       • If you need a custom transformation, specify a "transform" option in your config.
+       • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+      
+      You'll find more details and examples of these config options in the docs:
+      https://jestjs.io/docs/configuration
+      For information about custom transformations, see:
+      https://jestjs.io/docs/code-transformation
+      
+      Details:
+      
+      C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jose\dist\browser\index.js:1
+      export { compactDecrypt } from './jwe/compact/decrypt.js';
+      ^^^^^^
+      
+      SyntaxError: Unexpected token 'export'
+          at internalCompileFunction (node:internal/vm:137:18)
+          at compileFunction (node:vm:365:10)
+          at Runtime.createScriptFromCode (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1314:40)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1240:35)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\utils.js:1:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\JwksClient.js:2:33)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\index.js:1:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\utils\jwt.js:24:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\token-verifier.js:26:15)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\base-auth.js:26:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\tenant-manager.js:23:21)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\auth.js:22:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at FirebaseNamespace.get auth [as auth] (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\app\firebase-namespace.js:94:22)
+          at Object.auth (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\firebase\server.ts:80:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\firebase\firestore.ts:39:17)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\notifications.ts:49:20)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\notifications\create-notification.ts:12:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\public-simulator-bootstrap.ts:26:29)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\simulador-contacto-con-configuracion-caida.test.ts:39:35)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at jestAdapter (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+     [90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+    [31m[1m>[22m[39m[90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m
+     [90m 96 |[39m [36mexport[39m [36mconst[39m dbAdmin [33m=[39m dbInstance[33m;[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:93:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:49:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/public-simulator-bootstrap.ts:26:29)
+      at Object.<anonymous> (src/__tests__/simulador-contacto-con-configuracion-caida.test.ts:39:35)
+
+    console.warn
+      No se pudo leer la ficha del prospecto para enlazar la cita: Error: base caida
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\simulador-contacto-con-configuracion-caida.test.ts:22:57
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-mock\build\index.js:62:19)
+          at bookAppointmentFromSimulator (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\simulator-agenda.ts:110:37)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\__tests__\simulador-contacto-con-configuracion-caida.test.ts:77:15)
+
+    [0m [90m 111 |[39m         leadId [33m=[39m leads[33m.[39mfind((lead) [33m=>[39m lead[33m.[39mpresupuestoId [33m===[39m data[33m.[39mpresupuestoId)[33m?[39m[33m.[39mid [33m||[39m undefined[33m;[39m
+     [90m 112 |[39m       } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 113 |[39m         console[33m.[39mwarn([32m'No se pudo leer la ficha del prospecto para enlazar la cita:'[39m[33m,[39m e)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 114 |[39m       }
+     [90m 115 |[39m     }
+     [90m 116 |[39m[0m
+
+      at warn (src/app/actions/simulator-agenda.ts:113:17)
+      at Object.<anonymous> (src/__tests__/simulador-contacto-con-configuracion-caida.test.ts:77:15)
+
+
+Test Suites: 4 passed, 4 total
+Tests:       24 passed, 24 total
+Snapshots:   0 total
+Time:        6.966 s
+Ran all test suites within paths "src/__tests__/simulador-origen-precios.test.ts", "src/__tests__/la-carga-historica-no-duplica.test.ts", "src/__tests__/la-carga-historica-no-choca-numeros.test.ts", "src/__tests__/simulador-contacto-con-configuracion-caida.test.ts".
+Test results written to: docs\evidencias\779-jest.json

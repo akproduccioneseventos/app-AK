@@ -1,5 +1,15 @@
 # Estado actual — 2 de noviembre de 2026
 
+## Delta Codex777 - 5/11, NO publicado
+- Rama codex/777-delta-main-20261104 desde main31662b207; fuente9ab4b9239.
+- No integrar764/c16f5c48e entera: reemplazada por entregas1377/1378/1379.
+- Tres deltas: recuperacion historica/UUID; costos del respaldo publico;
+  precio16900 confirmado y coherente, sin sumar alquiler al presupuestoAK.
+- 778:4suites24PASS; lint6archivosPASS.779 sobre commit congelado en evidencia.
+- Tipos globales4/11 sin recibo final/proceso desaparecido: INCONCLUSO.
+- Claude revisa/compila/fusiona. No afirmar todaappni0errores. Privados NOcontrastados.
+- Evidencia: docs/evidencias/777-contraste-main-y-delta.md.
+
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la 1378 (órdenes 242 a 248 de Gemini).
 
 ## Publicado

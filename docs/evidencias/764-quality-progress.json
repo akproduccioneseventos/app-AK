@@ -1,0 +1,17 @@
+{
+  "phase": "types",
+  "pid": 14284,
+  "started": "2026-11-04T11:07:58.936Z",
+  "base": "31662b207f570ab240527214f6a63880da6be2d2",
+  "sourceTree": "d32fcb14ae8365216f580c645bd2a3ec95ddb950",
+  "before": "3f347ac61b1397d0112b1e624cc6a96dec704ee5aa0ef7226c356ab91158b5e8",
+  "command": [
+    "--max-old-space-size=4096",
+    "./node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "--tsBuildInfoFile",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-764-types.tsbuildinfo"
+  ],
+  "limits": "Fuente propia aislada, dependencias enlazadas+un paquete QA, sin cuentas/cargos/mensajes/proveedores reales; no build ni despliegue."
+}
