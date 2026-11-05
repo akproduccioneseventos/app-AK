@@ -690,6 +690,10 @@
     "orden-268": {
       "fecha": "2026-11-03",
       "resultado": "Pregunta 111: la 360 sigue sin mostrar el error de subida a tiempo con la máquina ocupada; va en la orden 268 junto con la 267 pendiente."
+    },
+    "orden-269": {
+      "fecha": "2026-11-05",
+      "resultado": "Pregunta 8: el catálogo de decoración analiza dos veces la misma foto con dos análisis seguidos (lista leída antes del candado); va en la orden 269."
     }
   }
 }
