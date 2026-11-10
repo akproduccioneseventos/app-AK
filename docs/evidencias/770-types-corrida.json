@@ -1,0 +1,22 @@
+{
+  "phase": "types",
+  "pid": 484,
+  "started": "2026-11-05T11:35:01.825Z",
+  "base": "42836cc0db4551d9c73609f69eaf89b809fd7e2e",
+  "sourceTree": "c651e84dc3b7af1b5da42e7308cbe1657410c74c",
+  "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "--max-old-space-size=4096",
+    "./node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "--tsBuildInfoFile",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-764-types.tsbuildinfo"
+  ],
+  "limits": "Fuente propia aislada, dependencias enlazadas+un paquete QA, sin cuentas/cargos/mensajes/proveedores reales; no build ni despliegue.",
+  "exit": 0,
+  "signal": null,
+  "finished": "2026-11-05T11:38:03.607Z",
+  "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "headAfter": "42836cc0db4551d9c73609f69eaf89b809fd7e2e"
+}

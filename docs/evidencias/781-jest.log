@@ -1,0 +1,365 @@
+
+PASS src/__tests__/el-centro-de-control-manda.test.ts (5.534 s)
+  ● Console
+
+    console.log
+      Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.
+
+      at Object.log (src/lib/firebase/server.ts:25:15)
+
+    console.error
+      Error getting Firestore/Auth instance: Unexpected token 'export'
+
+    [0m [90m 90 |[39m   }
+     [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+    [31m[1m>[22m[39m[90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:92:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:49:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/customers.ts:48:29)
+      at Object.<anonymous> (src/app/actions/crm.ts:81:20)
+      at Object.<anonymous> (src/app/actions/presupuestos.ts:79:14)
+      at Object.<anonymous> (src/lib/multiagent/diagnostics.ts:23:23)
+      at Object.<anonymous> (src/app/actions/multiagent.ts:56:22)
+      at Object.<anonymous> (src/lib/asistente/propuestas-service.ts:64:21)
+      at Object.<anonymous> (src/app/actions/centro-de-control.ts:33:28)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:50:26)
+
+    console.error
+      Full error: Jest encountered an unexpected token
+      
+      Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+      
+      Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+      
+      By default "node_modules" folder is ignored by transformers.
+      
+      Here's what you can do:
+       • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+       • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+       • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+       • If you need a custom transformation, specify a "transform" option in your config.
+       • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+      
+      You'll find more details and examples of these config options in the docs:
+      https://jestjs.io/docs/configuration
+      For information about custom transformations, see:
+      https://jestjs.io/docs/code-transformation
+      
+      Details:
+      
+      C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jose\dist\browser\index.js:1
+      export { compactDecrypt } from './jwe/compact/decrypt.js';
+      ^^^^^^
+      
+      SyntaxError: Unexpected token 'export'
+          at internalCompileFunction (node:internal/vm:137:18)
+          at compileFunction (node:vm:365:10)
+          at Runtime.createScriptFromCode (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1314:40)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1240:35)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\utils.js:1:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\JwksClient.js:2:33)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jwks-rsa\src\index.js:1:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\utils\jwt.js:24:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\token-verifier.js:26:15)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\base-auth.js:26:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\tenant-manager.js:23:21)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\auth\auth.js:22:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at FirebaseNamespace.get auth [as auth] (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\firebase-admin\lib\app\firebase-namespace.js:94:22)
+          at Object.auth (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\firebase\server.ts:80:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\firebase\firestore.ts:39:17)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\notifications.ts:49:20)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\notifications\create-notification.ts:12:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\customers.ts:48:29)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\crm.ts:81:20)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\presupuestos.ts:79:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\multiagent\diagnostics.ts:23:23)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\multiagent.ts:56:22)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\lib\asistente\propuestas-service.ts:64:21)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-delta777\src\app\actions\centro-de-control.ts:33:28)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\node_modules\jest-runtime\build\index.js:1264:24)
+
+    [0m [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+     [90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+    [31m[1m>[22m[39m[90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m
+     [90m 96 |[39m [36mexport[39m [36mconst[39m dbAdmin [33m=[39m dbInstance[33m;[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:93:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:49:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/customers.ts:48:29)
+      at Object.<anonymous> (src/app/actions/crm.ts:81:20)
+      at Object.<anonymous> (src/app/actions/presupuestos.ts:79:14)
+      at Object.<anonymous> (src/lib/multiagent/diagnostics.ts:23:23)
+      at Object.<anonymous> (src/app/actions/multiagent.ts:56:22)
+      at Object.<anonymous> (src/lib/asistente/propuestas-service.ts:64:21)
+      at Object.<anonymous> (src/app/actions/centro-de-control.ts:33:28)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:50:26)
+
+    console.warn
+      [Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.
+
+    [0m [90m  97 |[39m
+     [90m  98 |[39m [36mif[39m ([33m![39mapiKey) {
+    [31m[1m>[22m[39m[90m  99 |[39m   console[33m.[39mwarn([32m'[Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.'[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 100 |[39m }
+     [90m 101 |[39m
+     [90m 102 |[39m [36mexport[39m [36mconst[39m ai [33m=[39m genkit({[0m
+
+      at Object.warn (src/ai/genkit.ts:99:11)
+      at Object.<anonymous> (src/lib/commercial/commercial-followup.ts:11:17)
+      at Object.<anonymous> (src/lib/agentes/motor-agentes.ts:64:29)
+      at Object.<anonymous> (src/app/actions/centro-de-control.ts:40:23)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:50:26)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at getPropuestas (src/lib/asistente/propuestas-service.ts:87:12)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:115:24)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "ia-aprendizaje.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at leerDecisiones (src/lib/ia/aprender-de-lo-aprobado.ts:8:21)
+      at aprenderDeLoAprobado (src/lib/ia/aprender-de-lo-aprobado.ts:42:24)
+      at agregarPropuestasDeduplicadas (src/lib/asistente/propuestas-service.ts:162:22)
+      at darOrdenPorVozOTexto (src/app/actions/centro-de-control.ts:713:5)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:124:17)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at src/lib/asistente/propuestas-service.ts:112:19
+      at src/lib/mutex.ts:34:16
+      at agregarPropuestasDeduplicadas (src/lib/asistente/propuestas-service.ts:171:3)
+      at darOrdenPorVozOTexto (src/app/actions/centro-de-control.ts:713:5)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:124:17)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at getPropuestas (src/lib/asistente/propuestas-service.ts:87:12)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:128:24)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at getPropuestas (src/lib/asistente/propuestas-service.ts:87:12)
+      at aceptarPropuesta (src/lib/asistente/propuestas-service.ts:253:22)
+      at aprobarItemOK (src/app/actions/centro-de-control.ts:367:17)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:133:24)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at src/lib/asistente/propuestas-service.ts:112:19
+      at src/lib/mutex.ts:34:16
+      at cambiarPropuesta (src/lib/asistente/propuestas-service.ts:126:3)
+      at aceptarPropuesta (src/lib/asistente/propuestas-service.ts:350:20)
+      at aprobarItemOK (src/app/actions/centro-de-control.ts:367:17)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:133:24)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "asistente-propuestas.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at Object.readData (src/lib/data-service.ts:213:21)
+      at getPropuestas (src/lib/asistente/propuestas-service.ts:87:12)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:141:31)
+
+    console.warn
+      [AK] [readData] FALLBACK JSON usado para "ia-aprendizaje.json"; Firestore vacio o no disponible.
+
+    [0m [90m 37 |[39m
+     [90m 38 |[39m [36mexport[39m [36mfunction[39m warn(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {
+    [31m[1m>[22m[39m[90m 39 |[39m   console[33m.[39mwarn([33mPREFIX[39m[33m,[39m message[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 40 |[39m }
+     [90m 41 |[39m
+     [90m 42 |[39m [36mexport[39m [36mfunction[39m error(message[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[])[33m:[39m [36mvoid[39m {[0m
+
+      at Object.warn (src/lib/logger.ts:39:11)
+      at warn (src/lib/data-service.ts:50:18)
+      at readDataConDetalle (src/lib/data-service.ts:164:26)
+      at leerDecisiones (src/lib/ia/aprender-de-lo-aprobado.ts:8:21)
+      at aprenderDeLoAprobado (src/lib/ia/aprender-de-lo-aprobado.ts:42:24)
+      at Object.<anonymous> (src/__tests__/el-centro-de-control-manda.test.ts:253:22)
+
+PASS src/__tests__/invoice-deletion-integrity.test.ts
+PASS src/__tests__/el-blog-de-bebidas-no-promete.test.ts
+PASS src/__tests__/public-simulator-bootstrap-fallback.test.ts
+
+Test Suites: 4 passed, 4 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        7.082 s
+Ran all test suites within paths "src/__tests__/public-simulator-bootstrap-fallback.test.ts", "src/__tests__/invoice-deletion-integrity.test.ts", "src/__tests__/el-centro-de-control-manda.test.ts", "src/__tests__/el-blog-de-bebidas-no-promete.test.ts".
+Test results written to: docs\evidencias\779-jest.json

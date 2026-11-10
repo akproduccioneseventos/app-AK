@@ -7,6 +7,10 @@ import {
 } from "@/app/actions/settings";
 import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import { createNotification } from "@/lib/notifications/create-notification";
+import { normalizeClubUruguayConfig } from '@/types/armado-rapido';
+import servicesSource from '@/data/servicios-empresa.json';
+import menusSource from '@/data/menus-catering.json';
+import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import {
   getPublicSimulatorBootstrap,
   _resetSimulatorFallbackNotificationDateForTesting,
@@ -33,6 +37,10 @@ jest.mock("@/lib/notifications/create-notification", () => ({
 }));
 
 describe("simulador-origen-precios", () => {
+  it('respeta el precio final del dueno y no pisa una edicion futura explicita', () => {
+    expect(normalizeClubUruguayConfig({ precio: 20000 }).precio).toBe(16900);
+    expect(normalizeClubUruguayConfig({ precio: 20000, precioRevision: 'futura' }).precio).toBe(20000);
+  });
   beforeEach(async () => {
     jest.clearAllMocks();
     await _resetSimulatorFallbackNotificationDateForTesting();
@@ -50,6 +58,28 @@ describe("simulador-origen-precios", () => {
     const result = await getPublicSimulatorBootstrap();
 
     expect(result.origenDePrecios).toBe("respaldo");
+    expect(result.config.clubUruguayConfig?.precio).toBe(16900);
+    expect(result.services.length).toBeGreaterThan(0);
+    for (const service of result.services) {
+      const original = servicesSource.find(item => item.id === service.id)!;
+      expect(original).toBeDefined();
+      expect(service.precioVenta).toBe(original.precioVenta);
+      expect(service.precioPorPersona).toBe(original.precioPorPersona);
+      expect(service.calculationMethod).toBe(original.calculationMethod);
+      expect(service.valorUnitarioEstimado).toBe(0);
+      expect(service.proveedor).toBeUndefined();
+      expect(service.notas).toBeUndefined();
+    }
+    expect(result.menus.length).toBeGreaterThan(0);
+    for (const menu of result.menus) {
+      for (const item of menu.items) {
+        const original = menusSource.flatMap(source => source.items).find(source => source.id === item.id)!;
+        expect(item.suggestedSellingPrice).toBe(getMenuItemSellingPrice(original as never));
+        expect(item.totalDishCost).toBe(0);
+        expect(item.ingredients).toEqual([]);
+        expect(item.profitMargin).toBeUndefined();
+      }
+    }
     expect(createNotification).toHaveBeenCalledTimes(1);
     expect(createNotification).toHaveBeenCalledWith({
       titulo: "Simulador de presupuesto",

@@ -40,7 +40,14 @@ const invoice = {
 };
 
 describe('invoice deletion integrity', () => {
+  const previousLocalMode = process.env.AK_USE_LOCAL_JSON_ONLY;
+  afterAll(() => {
+    if (previousLocalMode === undefined) delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    else process.env.AK_USE_LOCAL_JSON_ONLY = previousLocalMode;
+  });
   beforeEach(() => {
+    // Estas aserciones prueban la compensacion JSON; la rama transaccional tiene sus propias pruebas.
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
     jest.clearAllMocks();
     (verifySession as jest.Mock).mockResolvedValue(adminSession);
     (readData as jest.Mock).mockResolvedValue([invoice]);

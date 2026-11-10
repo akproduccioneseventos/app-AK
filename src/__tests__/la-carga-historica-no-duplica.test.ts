@@ -92,6 +92,7 @@ jest.mock('@/app/actions/invoices', () => {
 });
 
 import { processHistoricRecord } from '@/app/actions/historicos';
+import { getInvoicesByPresupuestoId } from '@/app/actions/invoices';
 
 describe('Carga histórica no duplica por idIntento', () => {
   beforeAll(() => {
@@ -176,6 +177,79 @@ describe('Carga histórica no duplica por idIntento', () => {
     // Sin duplicación de cobros ni facturas
     expect(almacen['presupuestos.json'][0].pagosCliente).toHaveLength(1);
     expect(almacen['invoices.json'][0].payments).toHaveLength(1);
+  });
+
+  test('dos cargas distintas con el mismo sufijo completan sus facturas sin mezclarse', async () => {
+    const a = createValidFormData('carga-A-abcde');
+    const b = createValidFormData('carga-B-abcde');
+    a.set('clienteNombre', 'Cliente A ficticio');
+    a.set('montoTotal', '1000');
+    b.set('clienteNombre', 'Cliente B ficticio');
+    b.set('montoTotal', '2000');
+
+    expect(await processHistoricRecord(a)).toEqual({ success: true });
+    expect(await processHistoricRecord(b)).toEqual({ success: true });
+    const invoices = almacen['invoices.json'];
+    expect(invoices).toHaveLength(2);
+    expect(new Set(invoices.map((i: any) => i.invoiceNumber)).size).toBe(2);
+    expect(invoices.find((i: any) => i.sourcePresupuestoId === 'pres_hist_carga-A-abcde').totalAmount).toBe(1000);
+    expect(invoices.find((i: any) => i.sourcePresupuestoId === 'pres_hist_carga-B-abcde').totalAmount).toBe(2000);
+
+    const ids = invoices.map((i: any) => i.id);
+    expect(await processHistoricRecord(b)).toEqual({ success: true });
+    expect(almacen['invoices.json'].map((i: any) => i.id)).toEqual(ids);
+    expect(almacen['presupuestos.json']).toHaveLength(2);
+    expect(almacen['invoices.json'].every((i: any) => i.payments.length === 1)).toBe(true);
+  });
+
+  test('un reintento conserva el comprobante historico viejo vinculado sin renumerarlo', async () => {
+    const a = createValidFormData('carga-A-abcde');
+    const b = createValidFormData('carga-B-abcde');
+    expect(await processHistoricRecord(a)).toEqual({ success: true });
+    const originalId = almacen['invoices.json'][0].id;
+    almacen['invoices.json'][0].invoiceNumber = 'HIST-abcde';
+
+    expect(await processHistoricRecord(a)).toEqual({ success: true });
+    expect(almacen['invoices.json'][0]).toMatchObject({ id: originalId, invoiceNumber: 'HIST-abcde' });
+    expect(await getInvoicesByPresupuestoId('pres_hist_carga-B-abcde')).toEqual([]);
+    expect(await processHistoricRecord(b)).toEqual({ success: true });
+    expect(almacen['invoices.json']).toHaveLength(2);
+    expect(almacen['invoices.json'][0]).toMatchObject({ id: originalId, invoiceNumber: 'HIST-abcde' });
+  });
+
+  test('una factura heredada sin presupuesto solo se reutiliza para su cliente estable', async () => {
+    const a = createValidFormData('carga-A-abcde');
+    const b = createValidFormData('carga-B-abcde');
+    expect(await processHistoricRecord(a)).toEqual({ success: true });
+    const invoice = almacen['invoices.json'][0];
+    invoice.invoiceNumber = 'HIST-abcde';
+    delete invoice.sourcePresupuestoId;
+    expect((await getInvoicesByPresupuestoId('pres_hist_carga-A-abcde'))[0].id).toBe(invoice.id);
+    expect(await getInvoicesByPresupuestoId('pres_hist_carga-B-abcde')).toEqual([]);
+    expect(await processHistoricRecord(b)).toEqual({ success: true });
+    expect(almacen['invoices.json']).toHaveLength(2);
+  });
+
+  test('un comprobante heredado de origen desconocido no se atribuye por cinco letras', async () => {
+    almacen['invoices.json'] = [{ id: 'legacy-unknown', invoiceNumber: 'HIST-abcde', customer: {}, payments: [] }];
+    await expect(getInvoicesByPresupuestoId('pres_hist_carga-B-abcde')).rejects.toThrow('sin vínculo verificable');
+    expect(almacen['invoices.json']).toHaveLength(1);
+  });
+
+  test('dos cargas sin id de intento en el mismo milisegundo no se identifican como una sola', async () => {
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(1793444400000);
+    try {
+      const a = createValidFormData('sin-intento-A');
+      const b = createValidFormData('sin-intento-B');
+      a.delete('idIntento');
+      b.delete('idIntento');
+      expect(await processHistoricRecord(a)).toEqual({ success: true });
+      expect(await processHistoricRecord(b)).toEqual({ success: true });
+      expect(almacen['presupuestos.json']).toHaveLength(2);
+      expect(almacen['invoices.json']).toHaveLength(2);
+    } finally {
+      clock.mockRestore();
+    }
   });
 
   test('c) Validación de archivo en servidor: tamaño mayor a 10MB falla y no crea registros', async () => {
