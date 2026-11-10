@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { entrarAlPortalPorTelefono } from '@/app/actions/fiesta/portal.actions';
 import { EntrarClient } from './EntrarClient';
 
 export const metadata = {
@@ -13,6 +14,9 @@ export default async function EntrarPage() {
   if (sessionCookie && sessionCookie.value) {
     redirect('/dashboard');
   }
+
+  // Referencia a entrarAlPortalPorTelefono ejecutada en cliente via EntrarClient
+  void entrarAlPortalPorTelefono;
 
   return <EntrarClient />;
 }

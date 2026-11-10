@@ -47,6 +47,13 @@
   ],
   "shortcuts": [
     {
+      "name": "Hablar con AK",
+      "short_name": "Hablar",
+      "description": "Hablar con el asistente de voz de AK.",
+      "url": "/mi-dia?hablar=1",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
       "name": "Nueva fiesta",
       "short_name": "Nueva fiesta",
       "description": "Abrir el alta rapida de una fiesta.",
