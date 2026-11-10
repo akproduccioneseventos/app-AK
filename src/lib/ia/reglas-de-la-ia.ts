@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { readDataConDetalle, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
+import { AsyncMutex } from '@/lib/mutex';
 
 export type ReglaModo = 'sola' | 'preguntar' | 'apagada';
 
@@ -40,13 +42,11 @@ const MAX_APRENDIZAJE = 300;
 async function leerJson<T>(filename: string, fallback: T): Promise<T> {
   // La base manda (con varios servidores, apagar una tarea tiene que valer en todos).
   // La copia local es sólo respaldo si la base no está o no tiene el dato.
-  if (!(process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    try {
-      const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
-      if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
-    } catch {
-      // Sin base: cae a la copia local
-    }
+  try {
+    const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
+    if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
+  } catch {
+    // Sin base: cae a la copia local
   }
 
   const localPath = path.join(process.cwd(), 'data', filename);
@@ -87,6 +87,40 @@ async function guardarJson<T>(filename: string, data: T): Promise<void> {
     if (sinBaseRemota) throw err;
     console.warn(`[Reglas IA] Error al escribir ${filename} localmente:`, err);
   }
+}
+
+const turnoLocalDeReglas = new AsyncMutex();
+
+/**
+ * Cambia UNA regla sin pisar la de al lado: con la base, adentro de una transacción (`mutarDocumento`),
+ * así dos personas o dos servidores no se pierden un cambio; sin base (pruebas o modo local), con un turno
+ * sobre la copia local. Antes se leía todo, se cambiaba una y se reescribía todo sin turno (orden 270, bloque 6).
+ */
+async function cambiarReglas(
+  cambiar: (actual: Record<string, ReglaModo>) => Record<string, ReglaModo>,
+): Promise<Record<string, ReglaModo>> {
+  const sinBaseRemota =
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) ||
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+  if (sinBaseRemota) {
+    return turnoLocalDeReglas.runExclusive(async () => {
+      const actual = await leerJson<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {});
+      const nuevo = cambiar(actual || {});
+      await guardarJson(ARCHIVO_REGLAS, nuevo);
+      return nuevo;
+    });
+  }
+  const nuevo = await mutarDocumento<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {}, (actual) => cambiar(actual || {}));
+  if (nuevo === null) throw new Error('No se pudo guardar la regla.');
+  // Copia local de respaldo, sólo después de que la base confirmó.
+  try {
+    const localPath = path.join(process.cwd(), 'data', ARCHIVO_REGLAS);
+    fs.mkdirSync(path.dirname(localPath), { recursive: true });
+    fs.writeFileSync(localPath, JSON.stringify(nuevo, null, 2), 'utf8');
+  } catch {
+    // la base ya guardó: la copia local es sólo respaldo
+  }
+  return nuevo;
 }
 
 export const TAREAS_PROHIBIDAS_SOLA = [
@@ -260,15 +294,9 @@ export async function guardarReglaIA(
     throw new Error(`Permisos insuficientes para modificar reglas de IA (perfil: ${perfilUsuario})`);
   }
 
-  const guardadas = await leerJson<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {});
-  const actualizadas: Record<string, ReglaModo> = {
-    ...(guardadas || {}),
-    [tareaId]: modo,
-  };
-
   try {
-    await guardarJson(ARCHIVO_REGLAS, actualizadas);
-  } catch (err) {
+    await cambiarReglas((actual) => ({ ...actual, [tareaId]: modo }));
+  } catch (err: any) {
     console.warn('[Reglas IA] No se pudo guardar la regla:', err);
     return { success: false, error: 'No se pudo guardar la regla. Probá de nuevo.' };
   }
@@ -397,12 +425,7 @@ export async function registrarDecisionDuenio(decision: {
 
       // Si las últimas 3 decisiones consecutivas son 'no'
       if (delMismoTipo.length >= 3 && delMismoTipo.slice(0, 3).every((d) => d.decision === 'no')) {
-        const guardadas = await leerJson<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {});
-        const actualizadas = {
-          ...(guardadas || {}),
-          [decision.tipoTarea]: 'apagada' as ReglaModo,
-        };
-        await guardarJson(ARCHIVO_REGLAS, actualizadas);
+        await cambiarReglas((actual) => ({ ...actual, [decision.tipoTarea]: 'apagada' as ReglaModo }));
 
         await registrarAccionSola({
           tareaId: decision.tipoTarea,

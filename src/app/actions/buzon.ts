@@ -61,7 +61,15 @@ export async function getBuzonMessagesConDetalle(
 ): Promise<{ mensajes: BuzonMessage[]; huboFalla: boolean }> {
   // La sesion se comprueba ANTES del try: quien no tiene permiso recibe un error,
   // no un "no se pudo leer" que se confunde con un problema de conexion.
+  // **Sin parámetro para saltearla**: esto se llama desde el navegador, y un "permitir sin sesión"
+  // dejaba a cualquiera bajarse los videos y audios de los invitados (revisión de la orden 270).
   await requireAppSession();
+  return leerMensajesDelBuzon(fiestaId);
+}
+
+async function leerMensajesDelBuzon(
+  fiestaId: string,
+): Promise<{ mensajes: BuzonMessage[]; huboFalla: boolean }> {
   if (!fiestaId) return { mensajes: [], huboFalla: false };
   try {
     const db = await getDb();
@@ -80,6 +88,17 @@ export async function getBuzonMessagesConDetalle(
     logger.warn('[buzon] getBuzonMessages failed:', error);
     return { mensajes: [], huboFalla: true };
   }
+}
+
+/**
+ * Para "Tu fiesta en números" del portal: SÓLO la cantidad de saludos, y sólo con la sesión del portal
+ * de ESA fiesta. Nunca los mensajes. `null` si no se pudo leer (nunca un 0 que parezca real).
+ */
+export async function contarSaludosDelBuzonParaElPortal(fiestaId: string): Promise<number | null> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!fiestaId || !(await verifyPortalSession(fiestaId))) return null;
+  const { mensajes, huboFalla } = await leerMensajesDelBuzon(fiestaId);
+  return huboFalla ? null : mensajes.length;
 }
 
 export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {

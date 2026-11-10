@@ -28,6 +28,7 @@ import {
   BookHeart,
   PackageCheck,
   MessageCircle,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,8 @@ import {
   guardarCorreoDeRecuperacion,
   updateClientGuestTable,
   updateClientPackingList,
+  resumenDeLaFiestaParaElCliente,
+  type ResumenFiestaCliente,
 } from '@/app/actions/fiesta/portal.actions';
 import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
@@ -154,6 +157,7 @@ export default function PortalClientePage() {
   const [editingId, setEditingId]         = useState<string | null>(null);
   const [editingTable, setEditingTable]   = useState('');
   const [isSavingSeat, setIsSavingSeat]   = useState(false);
+  const [resumenNumeros, setResumenNumeros] = useState<ResumenFiestaCliente | null>(null);
 
   const sessionKey = `${SESSION_KEY_PREFIX}${fiestaId}`;
 
@@ -578,6 +582,18 @@ export default function PortalClientePage() {
     .sort((a, b) => b.checkInTimestamp!.localeCompare(a.checkInTimestamp!))
     .slice(0, 10);
 
+  useEffect(() => {
+    if (isAuthenticated && isEventPast) {
+      resumenDeLaFiestaParaElCliente(fiestaId)
+        .then((res) => {
+          if (res.success && res.data) {
+            setResumenNumeros(res.data);
+          }
+        })
+        .catch(() => null);
+    }
+  }, [isAuthenticated, isEventPast, fiestaId]);
+
   return (
     <div className="ak-public-page">
       {/* Header */}
@@ -878,6 +894,61 @@ export default function PortalClientePage() {
               )}
             </CardContent>
           </Card>
+          </motion.div>
+        )}
+
+        {/* ── Tu fiesta en números (sólo post-evento) ─────────── */}
+        {isEventPast && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
+            <Card className="rounded-xl border-border bg-card shadow-sm" data-testid="tarjeta-fiesta-en-numeros">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base font-black text-foreground">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Tu fiesta en números
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
+                  Los momentos y recuerdos que quedaron grabados de tu noche.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {resumenNumeros?.invitadosAsistieronCount !== undefined && resumenNumeros?.invitadosAsistieronCount !== null && (
+                    <div className="text-center p-3 bg-primary/10 rounded-xl border border-primary/20">
+                      <p className="text-3xl font-black text-primary">{resumenNumeros.invitadosAsistieronCount}</p>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">Invitados presentes</p>
+                    </div>
+                  )}
+                  {resumenNumeros?.fotosYVideosCount !== undefined && resumenNumeros?.fotosYVideosCount !== null && (
+                    <div className="text-center p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                      <p className="text-3xl font-black text-purple-700 dark:text-purple-400">{resumenNumeros.fotosYVideosCount}</p>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">Fotos y videos</p>
+                    </div>
+                  )}
+                  {resumenNumeros?.mensajesBuzonCount !== undefined && resumenNumeros?.mensajesBuzonCount !== null && (
+                    <div className="text-center p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                      <p className="text-3xl font-black text-amber-700 dark:text-amber-400">{resumenNumeros.mensajesBuzonCount}</p>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">Mensajes del buzón</p>
+                    </div>
+                  )}
+                  {resumenNumeros?.cancionesPedidasCount !== undefined && resumenNumeros?.cancionesPedidasCount !== null && (
+                    <div className="text-center p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                      <p className="text-3xl font-black text-blue-700 dark:text-blue-400">{resumenNumeros.cancionesPedidasCount}</p>
+                      <p className="text-xs text-muted-foreground font-semibold mt-1">Canciones pedidas</p>
+                    </div>
+                  )}
+                </div>
+                {resumenNumeros?.estacionMasUsada && (
+                  <div className="text-center p-2 rounded-lg bg-muted/40 border border-border text-xs text-muted-foreground">
+                    Estación más usada: <span className="font-bold text-foreground">{resumenNumeros.estacionMasUsada}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         )}
 

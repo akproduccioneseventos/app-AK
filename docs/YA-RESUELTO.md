@@ -7,6 +7,22 @@
 - **El programa no sabe si lo están probando:** tenía un atajo que, ante un archivo de prueba, devolvía datos fijos.
   Se sacó, y las pruebas usan videos chicos de verdad. `MEDICION.md` lo escribe el programa con una corrida real.
 
+## 10/11/2026 - Revisión de la orden 270 (Gemini)
+
+- **El almacén genérico guarda siempre en la base en el servidor publicado.** La entrega lo hacía caer a un archivo
+  del disco cuando no veía credenciales en variables de entorno, y el servidor publicado no las tiene (usa las de la
+  máquina): cobros, avisos y reglas habrían ido a un disco que se borra. Se volvió atrás. Lo frena
+  `sin-credenciales-a-la-vista-igual-guarda-en-la-base.test.ts`.
+- **Los saludos del buzón no se leen sin sesión.** La entrega le agregó a `getBuzonMessagesConDetalle` un parámetro
+  "permitir sin sesión" para el portal, y cualquiera podía bajarse los videos y audios de los invitados. El portal usa
+  `contarSaludosDelBuzonParaElPortal`, que pide la sesión del portal de esa fiesta y devuelve sólo el número. Lo frena
+  `el-buzon-no-se-abre-sin-sesion.test.ts`.
+- **Las reglas de la IA se cambian con turno** (`cambiarReglas` en `reglas-de-la-ia.ts`): con la base, transacción;
+  sin base, un turno sobre la copia local. La copia local se escribe recién después de que la base confirmó.
+- **Sigue abierto: la decoración puede pagarle dos veces a la IA** cuando dos análisis del catálogo corren seguidos
+  (orden 269). La entrega relee la lista después del candado, y la prueba con la base de prueba sigue dando 2 llamadas
+  en vez de 1. No es de plata del cliente: es gasto de IA en un caso raro. Queda para otra vuelta.
+
 ## 10/11/2026 - Revisión de la 1380 (Codex 777)
 
 - **La prueba de "Galería HD" en el celular espera el menú antes de buscar el enlace:** miraba el botón del menú apenas

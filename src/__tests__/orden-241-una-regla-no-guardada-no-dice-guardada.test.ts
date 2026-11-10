@@ -1,5 +1,9 @@
 /** Orden 241, grupo H: si la base rechaza el guardado de una regla, no se anuncia éxito ni queda copia local. */
 const mockWriteData = jest.fn();
+const mockMutarDocumento = jest.fn();
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumento: (...a: any[]) => mockMutarDocumento(...a),
+}));
 jest.mock('@/lib/data-service', () => ({
   readDataConDetalle: jest.fn(async () => ({ valor: null, huboFalla: false })),
   writeData: (...a: any[]) => mockWriteData(...a),
@@ -19,6 +23,7 @@ describe('guardar una regla con la base caída', () => {
     (process.env as any).NODE_ENV = 'production';
     delete process.env.AK_USE_LOCAL_JSON_ONLY;
     mockWriteData.mockReset();
+    mockMutarDocumento.mockReset();
   });
   afterEach(() => {
     (process.env as any).NODE_ENV = entorno.node;
@@ -28,7 +33,8 @@ describe('guardar una regla con la base caída', () => {
   });
 
   it('devuelve error y no deja una copia local que parezca guardado', async () => {
-    mockWriteData.mockRejectedValue(new Error('base caída'));
+    // Con la base: el guardado va por la transacción. Si la base lo rechaza, no hay éxito ni copia local.
+    mockMutarDocumento.mockRejectedValue(new Error('base caída'));
     const antes = fs.existsSync(archivo) ? fs.readFileSync(archivo, 'utf8') : null;
     const r = await guardarReglaIA('armar_web_evento', 'apagada', 'dueno');
     expect(r.success).toBe(false);
@@ -38,9 +44,9 @@ describe('guardar una regla con la base caída', () => {
   });
 
   it('con la base andando, guarda', async () => {
-    mockWriteData.mockResolvedValue(undefined);
+    mockMutarDocumento.mockImplementation(async (_f: string, vacio: any, cambiar: any) => cambiar(vacio));
     const r = await guardarReglaIA('armar_web_evento', 'apagada', 'dueno');
     expect(r.success).toBe(true);
-    expect(mockWriteData).toHaveBeenCalled();
+    expect(mockMutarDocumento).toHaveBeenCalled();
   });
 });
