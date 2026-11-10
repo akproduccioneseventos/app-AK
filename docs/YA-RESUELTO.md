@@ -1,5 +1,10 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/11/2026 - Revisión de la 1380 (Codex 777)
+
+- **La prueba de "Galería HD" en el celular espera el menú antes de buscar el enlace:** miraba el botón del menú apenas
+  cargaba la página, no lo veía, no abría el menú y se colgaba esperando un enlace oculto. El enlace anda.
+
 ## 5/11/2026 - Codex777, delta sobre main31662b207; NO publicado
 
 - Fuente9ab4b9239. Se descarta integrar la tanda764 antigua completa: Gemini y
