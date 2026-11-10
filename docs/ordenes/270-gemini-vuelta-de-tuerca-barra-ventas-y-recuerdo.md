@@ -1,7 +1,7 @@
 # Orden 270 — Vuelta de tuerca: tragos por temporada, ventas que avisan solas y la fiesta en números (05/11/2026)
 
 **Para Gemini.** Arrancá de la versión principal **actualizada** (`git fetch origin main`), rama nueva
-`gemini/orden-270-vuelta-de-tuerca`. **UNA sola entrega con los cinco bloques, no fusiones.** Si un bloque se traba,
+`gemini/orden-270-vuelta-de-tuerca`. **UNA sola entrega con los seis bloques, no fusiones.** Si un bloque se traba,
 entregá el resto igual y avisá cuál faltó. Antes de decir "terminé", repasá `docs/ANTES-DE-ENTREGAR.md`.
 
 **Lo que NO se toca**, porque son decisiones del dueño: el reloj del simulador, el descuento del 50% del Club Uruguay,
@@ -78,6 +78,18 @@ Es el recuerdo hecho y es lo que hace que recomienden. Hoy el portal muestra só
   números" con los números grandes y un movimiento suave al aparecer (skill `animaciones-pro`). Que se vea bien en el
   celular (skill `celular-primero`). Sólo aparece **después** de la fecha de la fiesta.
 
+## Bloque 6 — Dos cambios de regla de la IA a la vez no pierden uno
+
+`guardarReglaIA` (`src/lib/ia/reglas-de-la-ia.ts`, ~263) lee todas las reglas, cambia una y reescribe todo **sin turno**.
+Si el dueño y la secretaria cambian dos reglas casi a la vez, se pierde una, y las dos pantallas dicen "guardado".
+
+- `ARCHIVO_REGLAS` es `'reglas-de-la-ia.json'`, un archivo de primer nivel del almacén genérico (no es una colección).
+  Usá **`mutarDocumento`** (`src/lib/generic-json-store.ts`, ~247), que es la que sirve para eso, con transacción en la
+  base y candado en local. **No uses `mutarDocumentoConTransaccion`**, que exige `coleccion/archivo.json` y tira error.
+  Si `isSafeTopLevelJsonFile` no lo admite, sumalo a esa lista. Mirá que `leerJson`, en el mismo archivo, siga leyendo el
+  mismo lugar (error 18 de `CLAUDE.md`).
+- **No se toca** el control de perfil de arriba (sólo dueño y admin) ni el mensaje de error.
+
 ## Al terminar
 
 `npx tsc --noEmit` y `npx jest --silent` con cero errores. No subas `data/` ni `src/data/`.
@@ -95,6 +107,8 @@ usa: resumenDeLaFiestaParaElCliente en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/la-fiesta-en-numeros-no-inventa-ceros.test.ts
 prueba: tests/e2e/el-portal-muestra-la-fiesta-en-numeros.spec.ts
 prueba: src/__tests__/decoracion-catalogo-sdk.test.ts
+usa: mutarDocumento en src/lib/ia/reglas-de-la-ia.ts
+prueba: src/__tests__/dos-reglas-de-la-ia-a-la-vez-no-se-pierden.test.ts
 ```
 
 **Qué tiene que comprobar cada prueba**, y que dé rojo con la función apagada:
@@ -109,3 +123,5 @@ prueba: src/__tests__/decoracion-catalogo-sdk.test.ts
 - **Fiesta en números:** sin sesión del portal no devuelve nada. Si falla la lectura del buzón, no devuelve el número
   de saludos (ni un 0). Nunca devuelve enlaces ni nombres. En el navegador, la tarjeta aparece en una fiesta pasada y
   no en una futura.
+- **Reglas de la IA:** dos cambios simultáneos de reglas distintas quedan los dos (la base de mentira devuelve una COPIA
+  en cada lectura; error 11 de `CLAUDE.md`). Que se ponga en rojo con el guardado viejo.
