@@ -352,6 +352,22 @@ export default function PortalClientePage() {
     }
   };
 
+  // "Tu fiesta en números" (orden 270): se pide recién después de la fecha. Va ANTES de los retornos de
+  // carga y de error: un efecto después de un `return` rompía la compilación (los efectos van siempre en el
+  // mismo orden).
+  const fechaDelEventoPortal = fiesta?.configuracion?.fechaEvento;
+  useEffect(() => {
+    if (!isAuthenticated || !fechaDelEventoPortal) return;
+    if (!diaDelEvento(fechaDelEventoPortal).yaPaso) return;
+    resumenDeLaFiestaParaElCliente(fiestaId)
+      .then((res) => {
+        if (res.success && res.data) {
+          setResumenNumeros(res.data);
+        }
+      })
+      .catch(() => null);
+  }, [isAuthenticated, fechaDelEventoPortal, fiestaId]);
+
   // ── Loading ──────────────────────────────────────────────────
   if (isLoading) {
     return (
@@ -581,18 +597,6 @@ export default function PortalClientePage() {
     .filter(i => i.checkInTimestamp)
     .sort((a, b) => b.checkInTimestamp!.localeCompare(a.checkInTimestamp!))
     .slice(0, 10);
-
-  useEffect(() => {
-    if (isAuthenticated && isEventPast) {
-      resumenDeLaFiestaParaElCliente(fiestaId)
-        .then((res) => {
-          if (res.success && res.data) {
-            setResumenNumeros(res.data);
-          }
-        })
-        .catch(() => null);
-    }
-  }, [isAuthenticated, isEventPast, fiestaId]);
 
   return (
     <div className="ak-public-page">
