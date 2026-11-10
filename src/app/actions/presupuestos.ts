@@ -230,6 +230,7 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
           (encontrado as any).cliente?.nombre ||
           encontrado.clienteNombre ||
           'El cliente';
+        // no-mira-el-resultado: aviso secundario al equipo; si no sale, el cliente igual ve su presupuesto
         await createNotification({
           titulo: 'Presupuesto abierto',
           mensaje: `${nombreCliente} abrió su presupuesto recién: buen momento para escribirle.`,
