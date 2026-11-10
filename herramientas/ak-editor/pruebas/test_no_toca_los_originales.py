@@ -65,7 +65,7 @@ def test_no_toca_los_originales():
         # 2. Ejecutar análisis y guardado en base de datos separada
         ruta_db = os.path.join(carpeta_datos, "proyecto.sqlite")
         almacen = Almacen(ruta_db)
-        analizador = Analizador(almacen)
+        analizador = Analizador(almacen, ruta_medicion=os.path.join(carpeta_datos, "MEDICION.md"))
 
         analizador.analizar_carpeta(carpeta_originales)
 

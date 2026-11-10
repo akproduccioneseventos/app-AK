@@ -46,7 +46,7 @@ def test_sigue_donde_quedo():
 
         ruta_db = os.path.join(temp_dir, "proyecto.sqlite")
         almacen = Almacen(ruta_db)
-        analizador = Analizador(almacen)
+        analizador = Analizador(almacen, ruta_medicion=os.path.join(temp_dir, "MEDICION.md"))
 
         # 1. Registrar archivos en la base de datos
         for ruta in archivos:
