@@ -55,6 +55,10 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/recursos-multi-evento"
   },
   {
+    "etiqueta": "Edición de Videos",
+    "ruta": "/edicion-videos"
+  },
+  {
     "etiqueta": "Gestión de Empresa",
     "ruta": "/empresa"
   },
@@ -249,6 +253,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/customers/:id/edit",
     "/customers/new",
     "/customers/reporte",
+    "/edicion-videos",
     "/empleados",
     "/empleados/:id/editar",
     "/empleados/:id/historial",

@@ -189,3 +189,11 @@ data/ia-registro.json
 data/reglas-de-la-ia.json
 src/data/asistente-historial-aceptaciones.json
 src/data/asistente-propuestas.json
+
+# Python y AK Editor
+__pycache__/
+*.py[cod]
+.pytest_cache/
+herramientas/ak-editor/.venv/
+herramientas/ak-editor/venv/
+*.sqlite

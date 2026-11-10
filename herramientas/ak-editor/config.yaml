@@ -1,0 +1,25 @@
+edicion:
+  previa:
+    duracion_min_segundos_con_personas: 3.5
+    duracion_max_segundos_con_personas: 6.0
+    duracion_min_segundos_sin_personas: 3.0
+    duracion_max_segundos_sin_personas: 5.0
+    volumen_audio_ambiente: 0.05
+    duracion_transicion_segundos: 1.0
+  entrada:
+    atenuacion_musica_al_hablar: 0.15
+  vals:
+    musica_continua: true
+    duracion_fundido_segundos: 0.8
+  baile:
+    max_segundos_sin_corte: 50.0
+    duracion_osmo_rescate_segundos: 5.0
+    duracion_min_corte_segundos: 4.0
+    duracion_max_corte_segundos: 8.0
+  discursos_y_velas:
+    margen_antes_de_llegar_segundos: 1.5
+    duracion_pose_segundos: 3.5
+    cortar_mientras_hablan: false
+  marca:
+    margen_pantalla_porcentaje: 4
+    color_primario: "#d71920"
