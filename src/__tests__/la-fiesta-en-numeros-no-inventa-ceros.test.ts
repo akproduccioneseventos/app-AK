@@ -26,10 +26,7 @@ jest.mock('@/app/actions/social-gallery', () => ({
 }));
 
 jest.mock('@/app/actions/buzon', () => ({
-  getBuzonMessagesConDetalle: jest.fn(async () => {
-    if (buzonHuboFalla) return { mensajes: [], huboFalla: true };
-    return { mensajes: buzonMensajes, huboFalla: false };
-  }),
+  contarSaludosDelBuzonParaElPortal: jest.fn(async () => (buzonHuboFalla ? null : buzonMensajes.length)),
 }));
 
 jest.mock('@/app/actions/social-interactive', () => ({

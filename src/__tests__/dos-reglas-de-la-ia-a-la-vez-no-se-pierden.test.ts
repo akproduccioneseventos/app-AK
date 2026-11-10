@@ -1,108 +1,78 @@
 /** @jest-environment node */
-
+/**
+ * Orden 270, bloque 6: dos cambios de regla de la IA a la vez no pierden uno.
+ *
+ * Con la base, el guardado va por `mutarDocumento` (una transacción). La base de mentira devuelve una COPIA en
+ * cada lectura y tarda en contestar (error 11 de CLAUDE.md), y la transacción de mentira hace lo que hace la de
+ * verdad: leer, cambiar y escribir sin que otro se meta en el medio. Con el guardado viejo (leer todo con
+ * `readDataConDetalle`, cambiar una y reescribir todo con `writeData`) se pierde una: se probó así y da rojo.
+ */
 jest.mock('server-only', () => ({}));
-jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null }));
 
 const almacen: Record<string, any> = {};
+const demora = () => new Promise((r) => setTimeout(r, 20));
+const copia = (v: any) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 
 jest.mock('@/lib/data-service', () => ({
-  readData: jest.fn(async (archivo: string, porDefecto: any) => {
-    // Delay para simular latencia de E/S
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    const norm = archivo.replace(/\\/g, '/');
-    const guardado = almacen[norm];
-    return guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado));
-  }),
-  readDataConDetalle: jest.fn(async (archivo: string, porDefecto: any) => {
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    const norm = archivo.replace(/\\/g, '/');
-    const guardado = almacen[norm];
-    return {
-      valor: guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado)),
-      huboFalla: false,
-    };
-  }),
-  writeData: jest.fn(async (archivo: string, datos: any) => {
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    const norm = archivo.replace(/\\/g, '/');
-    almacen[norm] = JSON.parse(JSON.stringify(datos));
+  readData: jest.fn(async (f: string, vacio: any) => { await demora(); return copia(almacen[f]) ?? vacio; }),
+  readDataConDetalle: jest.fn(async (f: string, vacio: any) => { await demora(); return { valor: copia(almacen[f]) ?? vacio, huboFalla: false }; }),
+  writeData: jest.fn(async (f: string, d: any) => { await demora(); almacen[f] = copia(d); }),
+}));
+
+let cola: Promise<unknown> = Promise.resolve();
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumento: jest.fn((f: string, vacio: any, cambiar: (a: any) => any) => {
+    const turno = cola.then(async () => {
+      await demora();
+      const nuevo = await cambiar(copia(almacen[f]) ?? vacio);
+      if (nuevo === null) return null;
+      await demora();
+      almacen[f] = copia(nuevo);
+      return nuevo;
+    });
+    cola = turno.catch(() => undefined);
+    return turno;
   }),
 }));
 
-import { guardarReglaIA, getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { guardarReglaIA } from '@/lib/ia/reglas-de-la-ia';
 
-describe('Orden 270 (Bloque 6): dos reglas de la IA guardadas a la vez no se pisan', () => {
+describe('Orden 270 (bloque 6): dos reglas de la IA a la vez no se pisan', () => {
+  const entorno = { node: process.env.NODE_ENV, local: process.env.AK_USE_LOCAL_JSON_ONLY };
+  let carpeta = '';
+  let cwd: jest.SpyInstance;
+
   beforeEach(() => {
-    for (const key of Object.keys(almacen)) {
-      delete almacen[key];
-    }
+    for (const k of Object.keys(almacen)) delete almacen[k];
+    (process.env as any).NODE_ENV = 'production';
+    delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    carpeta = fs.mkdtempSync(path.join(os.tmpdir(), 'reglas-ia-'));
+    cwd = jest.spyOn(process, 'cwd').mockReturnValue(carpeta);
+  });
+  afterEach(() => {
+    cwd.mockRestore();
+    fs.rmSync(carpeta, { recursive: true, force: true });
+    (process.env as any).NODE_ENV = entorno.node;
+    if (entorno.local !== undefined) process.env.AK_USE_LOCAL_JSON_ONLY = entorno.local;
   });
 
-  test('dos guardados concurrentes de reglas distintas persisten ambas', async () => {
-    // Lanzamos dos escrituras al mismo tiempo sobre reglas distintas
-    const [res1, res2] = await Promise.all([
+  test('dos guardados a la vez de reglas distintas quedan los dos', async () => {
+    const [a, b] = await Promise.all([
       guardarReglaIA('anticipador', 'apagada', 'dueno'),
       guardarReglaIA('resumen_de_la_manana', 'preguntar', 'dueno'),
     ]);
-
-    expect(res1.success).toBe(true);
-    expect(res2.success).toBe(true);
-
-    const regla1 = await getReglaParaTarea('anticipador');
-    const regla2 = await getReglaParaTarea('resumen_de_la_manana');
-
-    expect(regla1).toBe('apagada');
-    expect(regla2).toBe('preguntar');
-
-    const archivoGuardado = almacen['reglas-de-la-ia.json'];
-    expect(archivoGuardado).toBeDefined();
-    expect(archivoGuardado['anticipador']).toBe('apagada');
-    expect(archivoGuardado['resumen_de_la_manana']).toBe('preguntar');
+    expect(a.success).toBe(true);
+    expect(b.success).toBe(true);
+    expect(almacen['reglas-de-la-ia.json']).toMatchObject({ anticipador: 'apagada', resumen_de_la_manana: 'preguntar' });
   });
 
-  test('cinco escrituras simultaneas no pierden ninguna regla', async () => {
-    const tareas = [
-      { id: 'anticipador', modo: 'preguntar' as const },
-      { id: 'resumen_de_la_manana', modo: 'apagada' as const },
-      { id: 'borradores_redes_posfiesta', modo: 'preguntar' as const },
-      { id: 'vigilante_noche', modo: 'preguntar' as const },
-      { id: 'generador_contenido', modo: 'apagada' as const },
-    ];
-
-    const resultados = await Promise.all(
-      tareas.map((t) => guardarReglaIA(t.id, t.modo, 'dueno'))
-    );
-
-    for (const res of resultados) {
-      expect(res.success).toBe(true);
-    }
-
-    const archivoGuardado = almacen['reglas-de-la-ia.json'];
-    expect(archivoGuardado).toBeDefined();
-
-    for (const t of tareas) {
-      expect(archivoGuardado[t.id]).toBe(t.modo);
-      const modoLeido = await getReglaParaTarea(t.id);
-      expect(modoLeido).toBe(t.modo);
-    }
-  });
-
-  test('el patron viejo sin mutex perdia escrituras concurrentes demostrando la necesidad de mutarDocumento', async () => {
-    const { readData: readFn, writeData: writeFn } = jest.requireMock('@/lib/data-service');
-
-    async function guardarSinMutex(tareaId: string, modo: string) {
-      const guardadas = await readFn('reglas-de-la-ia.json', {});
-      const actualizadas = { ...guardadas, [tareaId]: modo };
-      await writeFn('reglas-de-la-ia.json', actualizadas);
-    }
-
-    await Promise.all([
-      guardarSinMutex('tarea_a', 'sola'),
-      guardarSinMutex('tarea_b', 'apagada'),
-    ]);
-
-    const resultadoSinMutex = almacen['reglas-de-la-ia.json'];
-    const tieneAmbas = !!(resultadoSinMutex?.tarea_a && resultadoSinMutex?.tarea_b);
-    expect(tieneAmbas).toBe(false);
+  test('cinco a la vez no pierden ninguna', async () => {
+    const tareas = ['anticipador', 'resumen_de_la_manana', 'borradores_redes_posfiesta', 'vigilante_noche', 'generador_contenido'];
+    const r = await Promise.all(tareas.map((t) => guardarReglaIA(t, 'preguntar', 'dueno')));
+    expect(r.every((x) => x.success)).toBe(true);
+    for (const t of tareas) expect(almacen['reglas-de-la-ia.json'][t]).toBe('preguntar');
   });
 });

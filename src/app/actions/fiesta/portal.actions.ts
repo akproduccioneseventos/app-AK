@@ -2176,13 +2176,9 @@ export async function resumenDeLaFiestaParaElCliente(
 
   // 2. Saludos del buzón
   try {
-    const { getBuzonMessagesConDetalle } = await import('@/app/actions/buzon');
-    const buzon = await getBuzonMessagesConDetalle(fiestaId, true);
-    if (buzon.huboFalla) {
-      resultado.mensajesBuzonCount = undefined;
-    } else {
-      resultado.mensajesBuzonCount = buzon.mensajes.length;
-    }
+    const { contarSaludosDelBuzonParaElPortal } = await import('@/app/actions/buzon');
+    const saludos = await contarSaludosDelBuzonParaElPortal(fiestaId);
+    resultado.mensajesBuzonCount = saludos === null ? undefined : saludos;
   } catch {
     resultado.mensajesBuzonCount = undefined;
   }
