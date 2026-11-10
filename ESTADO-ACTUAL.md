@@ -12,8 +12,10 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (= principal + órdenes 269
   "tu fiesta en números" en el portal, la decoración que no le paga dos veces a la IA y las reglas de la IA con turno.
   Gemini arranca de esta rama. En la misma entrega viaja el acceso "Hablar con AK" del manifiesto (ya commiteado acá).
 
+## Esperando a Gemini (2)
+- **Orden 271**: AK Editor Inteligente (programa local en `herramientas/ak-editor/` + sección "Edición de videos" en la app), costo cero, exporta XML para Filmora 16.
+
 ## Decisiones pendientes del dueño (no escribir órdenes hasta que decida)
-- AK Editor Inteligente (edición de video): lo está pensando. Pidió NO escribir nada sobre eso.
 - 15% de contratos nuevos: fijo sobre el primer presupuesto o acumulativo. Panel del cliente: ajuste de entrada o año a año.
 - Play Store: falta la huella SHA-256 (Play Console → Integridad de la app → Firma de apps). La cuenta ya existe.
 - Mejoras propuestas sin decidir: estilo unificado, WhatsApp del invitado en la fotocabina, GIF en la fotocabina, aviso antes de que venza la promo.
