@@ -13,6 +13,8 @@ export interface Notificacion {
   mensaje: string;
   tipo?: NotificacionTipo;
   href?: string;
+  link?: string;
+  modulo?: string;
   fecha: string;
   leida: boolean;
   icono?: string;
@@ -1062,6 +1064,8 @@ export interface Trago {
   /** Nombre de la versión sin alcohol, si tiene uno distinto. */
   nombreSinAlcohol?: string;
   stockDisponible?: number;
+  activo?: boolean;
+  meses?: number[];
 }
 
 export type RecetaIngrediente = TragoRecetaIngrediente;

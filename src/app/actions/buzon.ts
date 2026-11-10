@@ -58,10 +58,13 @@ async function getDb(): Promise<Firestore> {
  */
 export async function getBuzonMessagesConDetalle(
   fiestaId: string,
+  permitirSinSesionApp?: boolean,
 ): Promise<{ mensajes: BuzonMessage[]; huboFalla: boolean }> {
   // La sesion se comprueba ANTES del try: quien no tiene permiso recibe un error,
   // no un "no se pudo leer" que se confunde con un problema de conexion.
-  await requireAppSession();
+  if (!permitirSinSesionApp) {
+    await requireAppSession();
+  }
   if (!fiestaId) return { mensajes: [], huboFalla: false };
   try {
     const db = await getDb();

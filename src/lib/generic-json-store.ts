@@ -25,6 +25,14 @@ function unwrapGenericDocument(data: Record<string, any> | undefined): any | nul
   return rest;
 }
 
+function hasFirestoreCredentials(): boolean {
+  return !!(
+    process.env.FIRESTORE_EMULATOR_HOST ||
+    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+    (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY)
+  );
+}
+
 async function getDbAdmin() {
   const { dbAdmin } = await import('./firebase/server');
   if (!dbAdmin) throw new Error('[Generic JSON Store] Firebase no disponible.');
@@ -67,14 +75,51 @@ export async function mutateGenericJsonArray<T>(
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) ||
+    !hasFirestoreCredentials()
+  ) {
+    const ds = await import('./data-service');
+    const readFn =
+      typeof ds.readData === 'function'
+        ? ds.readData
+        : async <U>(f: string, fb: U) => {
+            if (typeof ds.readDataConDetalle === 'function') {
+              const det = await ds.readDataConDetalle(f, fb);
+              return (det?.valor !== null && det?.valor !== undefined ? det.valor : fb) as U;
+            }
+            return fb;
+          };
+    const writeFn = async (f: string, d: any) => {
+      try {
+        if (typeof ds.writeData === 'function') {
+          await ds.writeData(f, d);
+          return;
+        }
+      } catch (err: any) {
+        if (err?.message?.includes('La escritura esta deshabilitada en el modo local de pruebas')) {
+          const fs = await import('fs/promises');
+          const path = await import('path');
+          const localPath = path.join(process.cwd(), 'data', f);
+          await fs.mkdir(path.dirname(localPath), { recursive: true });
+          await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+          return;
+        }
+        throw err;
+      }
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'data', f);
+      await fs.mkdir(path.dirname(localPath), { recursive: true });
+      await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+    };
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T[]>(normalizedPath, []);
+      const actual = await readFn<T[]>(normalizedPath, []);
       const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
       if (!nueva) return null;
-      await writeData(normalizedPath, nueva);
+      await writeFn(normalizedPath, nueva);
       return nueva;
     });
   }
@@ -181,14 +226,51 @@ export async function mutarDocumentoConTransaccion<T>(
     );
   }
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) ||
+    !hasFirestoreCredentials()
+  ) {
+    const ds = await import('./data-service');
+    const readFn =
+      typeof ds.readData === 'function'
+        ? ds.readData
+        : async <U>(f: string, fb: U) => {
+            if (typeof ds.readDataConDetalle === 'function') {
+              const det = await ds.readDataConDetalle(f, fb);
+              return (det?.valor !== null && det?.valor !== undefined ? det.valor : fb) as U;
+            }
+            return fb;
+          };
+    const writeFn = async (f: string, d: any) => {
+      try {
+        if (typeof ds.writeData === 'function') {
+          await ds.writeData(f, d);
+          return;
+        }
+      } catch (err: any) {
+        if (err?.message?.includes('La escritura esta deshabilitada en el modo local de pruebas')) {
+          const fs = await import('fs/promises');
+          const path = await import('path');
+          const localPath = path.join(process.cwd(), 'data', f);
+          await fs.mkdir(path.dirname(localPath), { recursive: true });
+          await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+          return;
+        }
+        throw err;
+      }
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'data', f);
+      await fs.mkdir(path.dirname(localPath), { recursive: true });
+      await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+    };
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T>(normalizedPath, vacio);
+      const actual = await readFn<T>(normalizedPath, vacio);
       const nuevo = await cambiar(actual ?? vacio);
       if (nuevo === null) return null;
-      await writeData(normalizedPath, nuevo);
+      await writeFn(normalizedPath, nuevo);
       return nuevo;
     });
   }
@@ -260,14 +342,51 @@ export async function mutarDocumento<T>(
     );
   }
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) ||
+    !hasFirestoreCredentials()
+  ) {
+    const ds = await import('./data-service');
+    const readFn =
+      typeof ds.readData === 'function'
+        ? ds.readData
+        : async <U>(f: string, fb: U) => {
+            if (typeof ds.readDataConDetalle === 'function') {
+              const det = await ds.readDataConDetalle(f, fb);
+              return (det?.valor !== null && det?.valor !== undefined ? det.valor : fb) as U;
+            }
+            return fb;
+          };
+    const writeFn = async (f: string, d: any) => {
+      try {
+        if (typeof ds.writeData === 'function') {
+          await ds.writeData(f, d);
+          return;
+        }
+      } catch (err: any) {
+        if (err?.message?.includes('La escritura esta deshabilitada en el modo local de pruebas')) {
+          const fs = await import('fs/promises');
+          const path = await import('path');
+          const localPath = path.join(process.cwd(), 'data', f);
+          await fs.mkdir(path.dirname(localPath), { recursive: true });
+          await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+          return;
+        }
+        throw err;
+      }
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'data', f);
+      await fs.mkdir(path.dirname(localPath), { recursive: true });
+      await fs.writeFile(localPath, JSON.stringify(d, null, 2), 'utf-8');
+    };
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T>(normalizedPath, vacio);
+      const actual = await readFn<T>(normalizedPath, vacio);
       const nuevo = await cambiar(actual ?? vacio);
       if (nuevo === null) return null;
-      await writeData(normalizedPath, nuevo);
+      await writeFn(normalizedPath, nuevo);
       return nuevo;
     });
   }

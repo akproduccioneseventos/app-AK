@@ -147,7 +147,8 @@ async function getDb(): Promise<Firestore | null> {
 async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
   const masterItems = await leerCartaTragosMaster().catch(() => defaultCartaTragosData.items);
   const fiestaItems = fiesta.cartaTragos?.items || defaultCartaTragosData.items;
-  const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems);
+  const fechaEvento = fiesta.configuracion?.fechaEvento || (fiesta as any).eventDate;
+  const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems, fechaEvento);
 
   const sorted = [...merged].sort((a, b) => {
     const aCustom = a.id?.startsWith('custom_') ? 1 : 0;

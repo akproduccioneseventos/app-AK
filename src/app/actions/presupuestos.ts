@@ -28,7 +28,7 @@ import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
-import { PERMISOS, puede } from '@/lib/auth/perfiles';
+import { PERMISOS, puede, PERFILES_DEL_EQUIPO } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
@@ -194,6 +194,52 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
     const isValidToken = await verifyBudgetToken(id, token!, encontrado.versionDeEnlace ?? 0);
     if (!isValidToken) {
       return null;
+    }
+  }
+
+  const esSesionDelEquipo = sessionAuth.success && PERFILES_DEL_EQUIPO.includes((sessionAuth.user as any)?.perfil);
+  if (token && !esSesionDelEquipo) {
+    try {
+      const nowIso = new Date().toISOString();
+      const todayStr = nowIso.slice(0, 10);
+      let primeraDelDia = false;
+
+      const mut = await mutarPresupuesto(id, (actual) => {
+        const prevIso = actual.vistoPorElClienteAt;
+        const prevDay = prevIso ? prevIso.slice(0, 10) : '';
+        primeraDelDia = prevDay !== todayStr;
+        return {
+          ...actual,
+          vecesVisto: (actual.vecesVisto || 0) + 1,
+          vistoPorElClienteAt: nowIso,
+        };
+      });
+
+      if (mut.presupuesto) {
+        encontrado = mut.presupuesto;
+      } else {
+        encontrado = {
+          ...encontrado,
+          vecesVisto: (encontrado.vecesVisto || 0) + 1,
+          vistoPorElClienteAt: nowIso,
+        };
+      }
+
+      if (primeraDelDia) {
+        const nombreCliente =
+          (encontrado as any).cliente?.nombre ||
+          encontrado.clienteNombre ||
+          'El cliente';
+        await createNotification({
+          titulo: 'Presupuesto abierto',
+          mensaje: `${nombreCliente} abrió su presupuesto recién: buen momento para escribirle.`,
+          href: `/presupuestos/${id}/ver`,
+          link: `/presupuestos/${id}/ver`,
+          modulo: 'presupuestos',
+        }).catch(() => null);
+      }
+    } catch {
+      // Si falla anotar la visita, la visita nunca puede tapar la pantalla del cliente
     }
   }
 

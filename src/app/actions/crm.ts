@@ -151,7 +151,11 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
   const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
   const decoratedLeads = await (async () => {
     try {
-      const fiestas = await leerFiestasCrudas(true);
+      const [fiestas, presupuestos] = await Promise.all([
+        leerFiestasCrudas(true),
+        readData<Presupuesto[]>('presupuestos.json', []).catch(() => []),
+      ]);
+      const budgetById = new Map(presupuestos.map((p) => [p.id, p]));
       const latestContractByPresupuesto = new Map<string, { tipo?: string; fecha?: string; plantillaId?: string }>();
       for (const fiesta of fiestas) {
         if (!fiesta.presupuestoId || !fiesta.contratoGenerado?.tipo) continue;
@@ -161,10 +165,16 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
         }
       }
       return allLeads.map((lead) => {
-        const contract = lead.presupuestoId ? latestContractByPresupuesto.get(lead.presupuestoId) : undefined;
-        if (!contract?.tipo) return lead;
-        return {
+        const budget = lead.presupuestoId ? budgetById.get(lead.presupuestoId) : undefined;
+        const withBudgetVisits = budget ? {
           ...lead,
+          presupuestoVecesVisto: budget.vecesVisto ?? lead.presupuestoVecesVisto,
+          presupuestoVistoAt: budget.vistoPorElClienteAt ?? lead.presupuestoVistoAt,
+        } : lead;
+        const contract = lead.presupuestoId ? latestContractByPresupuesto.get(lead.presupuestoId) : undefined;
+        if (!contract?.tipo) return withBudgetVisits;
+        return {
+          ...withBudgetVisits,
           contractGeneratedType: contract.tipo,
           contractGeneratedAt: contract.fecha,
           contractTemplateId: contract.plantillaId,

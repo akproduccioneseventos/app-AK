@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { readDataConDetalle, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 
 export type ReglaModo = 'sola' | 'preguntar' | 'apagada';
 
@@ -40,13 +41,11 @@ const MAX_APRENDIZAJE = 300;
 async function leerJson<T>(filename: string, fallback: T): Promise<T> {
   // La base manda (con varios servidores, apagar una tarea tiene que valer en todos).
   // La copia local es sólo respaldo si la base no está o no tiene el dato.
-  if (!(process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    try {
-      const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
-      if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
-    } catch {
-      // Sin base: cae a la copia local
-    }
+  try {
+    const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
+    if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
+  } catch {
+    // Sin base: cae a la copia local
   }
 
   const localPath = path.join(process.cwd(), 'data', filename);
@@ -260,17 +259,22 @@ export async function guardarReglaIA(
     throw new Error(`Permisos insuficientes para modificar reglas de IA (perfil: ${perfilUsuario})`);
   }
 
-  const guardadas = await leerJson<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {});
-  const actualizadas: Record<string, ReglaModo> = {
-    ...(guardadas || {}),
-    [tareaId]: modo,
-  };
-
   try {
-    await guardarJson(ARCHIVO_REGLAS, actualizadas);
-  } catch (err) {
+    const resultado = await mutarDocumento<Record<string, ReglaModo>>(
+      ARCHIVO_REGLAS,
+      {},
+      (actual) => ({
+        ...(actual || {}),
+        [tareaId]: modo,
+      })
+    );
+
+    if (resultado === null) {
+      return { success: false, error: 'No se pudo guardar la regla. Probá de nuevo.' };
+    }
+  } catch (err: any) {
     console.warn('[Reglas IA] No se pudo guardar la regla:', err);
-    return { success: false, error: 'No se pudo guardar la regla. Probá de nuevo.' };
+    return { success: false, error: err?.message || 'No se pudo guardar la regla. Probá de nuevo.' };
   }
   return { success: true };
 }
@@ -397,12 +401,14 @@ export async function registrarDecisionDuenio(decision: {
 
       // Si las últimas 3 decisiones consecutivas son 'no'
       if (delMismoTipo.length >= 3 && delMismoTipo.slice(0, 3).every((d) => d.decision === 'no')) {
-        const guardadas = await leerJson<Record<string, ReglaModo>>(ARCHIVO_REGLAS, {});
-        const actualizadas = {
-          ...(guardadas || {}),
-          [decision.tipoTarea]: 'apagada' as ReglaModo,
-        };
-        await guardarJson(ARCHIVO_REGLAS, actualizadas);
+        await mutarDocumento<Record<string, ReglaModo>>(
+          ARCHIVO_REGLAS,
+          {},
+          (actual) => ({
+            ...(actual || {}),
+            [decision.tipoTarea]: 'apagada' as ReglaModo,
+          })
+        );
 
         await registrarAccionSola({
           tareaId: decision.tipoTarea,

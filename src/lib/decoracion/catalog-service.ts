@@ -179,9 +179,9 @@ export async function listDecorationDrafts(): Promise<DraftList> {
 /** One bounded job across all server instances; transaction callbacks have no provider effects. */
 export async function processDecorationDraft(): Promise<{ processed: boolean; error?: string }> {
   const { activeIds } = await syncDecorationCatalog();
-  const rows = await drafts();
-  const next = rows.find(d => d.status === 'queued' && activeIds.includes(d.id));
-  if (!next) return { processed: false };
+  const initialRows = await drafts();
+  const candidate = initialRows.find(d => d.status === 'queued' && activeIds.includes(d.id));
+  if (!candidate) return { processed: false };
   if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
     return { processed: false, error: 'La IA de decoracion no esta configurada. Las fotos y los 86 elementos siguen disponibles.' };
   }
@@ -195,7 +195,12 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
   });
   if (!lock || lock.token !== token) return { processed: false, error: 'Hay otro analisis en curso o se alcanzo el limite diario (20). Las fotos quedan pendientes.' };
   let started = false;
+  let claimedId: string | null = null;
   try {
+    const currentRows = await drafts();
+    const next = currentRows.find(d => d.status === 'queued' && activeIds.includes(d.id));
+    if (!next) return { processed: false };
+    claimedId = next.id;
     const claimed = await change(next.id, current => current.status === 'queued'
       ? { ...current, status: 'analyzing', analysisToken: token, updatedAt: new Date().toISOString() } : null);
     if (!claimed) return { processed: false };
@@ -203,7 +208,8 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
     const photo = await loadDecorationPhoto(claimed.source.url);
     const contentHash = hashDecoration(photo);
 
-    const previouslyDismissed = rows.find(d => d.id !== next.id && d.contentHash === contentHash && (d.sacada || d.status === 'dismissed'));
+    const freshRows = await drafts();
+    const previouslyDismissed = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && (d.sacada || d.status === 'dismissed'));
     if (previouslyDismissed || claimed.sacada) {
       await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
         ? { ...current, contentHash, status: 'dismissed', sacada: true, revision: current.revision + 1, updatedAt: new Date().toISOString(),
@@ -211,7 +217,7 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
       return { processed: true };
     }
 
-    const reused = rows.find(d => d.id !== next.id && d.contentHash === contentHash && ['review', 'approved'].includes(d.status));
+    const reused = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && ['review', 'approved'].includes(d.status));
     let analysis: { elementos: ElementoDecorativo[]; unknowns: string[] };
     if (reused) {
       analysis = { elementos: reused.elementos, unknowns: reused.unknowns };
@@ -357,7 +363,7 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
 
     return { processed: true };
   } catch {
-    if (started) await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
+    if (started && claimedId) await change(claimedId, current => current.status === 'analyzing' && current.analysisToken === token
       ? { ...current, status: 'error', revision: current.revision + 1, updatedAt: new Date().toISOString(),
         error: 'No se pudo analizar esta foto. No se publico ninguna plantilla. Revisar el archivo o reintentar.' } : null);
     return { processed: false, error: 'No se pudo completar el analisis. La foto queda para revision.' };

@@ -2122,3 +2122,89 @@ export async function subirIdeasDecoracionCliente(
   return res;
 }
 
+export interface ResumenFiestaCliente {
+  fotosYVideosCount?: number | null;
+  estacionMasUsada?: string | null;
+  mensajesBuzonCount?: number | null;
+  cancionesPedidasCount?: number | null;
+  invitadosAsistieronCount?: number | null;
+}
+
+/**
+ * Devuelve el resumen numérico de la fiesta para el cliente en el portal.
+ * Solo métricas numéricas sin nombres, fotos ni enlaces personales.
+ * Si algún módulo falla al leer, su propiedad queda como undefined (nunca un 0 falso).
+ */
+export async function resumenDeLaFiestaParaElCliente(
+  fiestaId: string,
+): Promise<{ success: boolean; data?: ResumenFiestaCliente; error?: string }> {
+  if (!fiestaId || typeof fiestaId !== 'string') {
+    return { success: false, error: 'Identificador de fiesta inválido.' };
+  }
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) {
+    return { success: false, error: 'Fiesta no encontrada.' };
+  }
+
+  const resultado: ResumenFiestaCliente = {};
+
+  // 1. Fotos y videos de las estaciones + estación más usada
+  try {
+    const { getSocialPosts } = await import('@/app/actions/social-gallery');
+    const { calcularResumenNoche } = await import('@/lib/entretenimiento/resumen-noche');
+    const posts = await getSocialPosts(fiestaId);
+    const capturas = (posts || [])
+      .filter((post) => Boolean(post.sourceModule))
+      .map((post) => ({
+        id: post.id,
+        estacionId: String(post.sourceModule),
+        timestamp: post.timestamp,
+      }));
+    const resNoche = calcularResumenNoche(capturas as any, fiesta.configuracion?.nombreEvento || 'la fiesta');
+    resultado.fotosYVideosCount = resNoche.totalCapturas;
+    resultado.estacionMasUsada = resNoche.estacionMasUsada?.nombre && resNoche.estacionMasUsada.nombre !== 'Sin registros'
+      ? resNoche.estacionMasUsada.nombre
+      : null;
+  } catch {
+    resultado.fotosYVideosCount = undefined;
+    resultado.estacionMasUsada = undefined;
+  }
+
+  // 2. Saludos del buzón
+  try {
+    const { getBuzonMessagesConDetalle } = await import('@/app/actions/buzon');
+    const buzon = await getBuzonMessagesConDetalle(fiestaId, true);
+    if (buzon.huboFalla) {
+      resultado.mensajesBuzonCount = undefined;
+    } else {
+      resultado.mensajesBuzonCount = buzon.mensajes.length;
+    }
+  } catch {
+    resultado.mensajesBuzonCount = undefined;
+  }
+
+  // 3. Canciones pedidas
+  try {
+    const { getSongRequests } = await import('@/app/actions/social-interactive');
+    const canciones = await getSongRequests(fiestaId);
+    resultado.cancionesPedidasCount = canciones.length;
+  } catch {
+    resultado.cancionesPedidasCount = undefined;
+  }
+
+  // 4. Invitados que asistieron
+  try {
+    const { contarPersonasDelPortal } = await import('@/lib/fiesta/guest-counts');
+    const personas = contarPersonasDelPortal(fiesta.invitados ?? []);
+    resultado.invitadosAsistieronCount = personas.llegaron;
+  } catch {
+    resultado.invitadosAsistieronCount = undefined;
+  }
+
+  return { success: true, data: resultado };
+}
+

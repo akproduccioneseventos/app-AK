@@ -1,6 +1,7 @@
 import { idsDeEtapasTerminadas } from '@/lib/crm/etapas-finales';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import type { UnbookedLeadRemarketingCandidate } from '@/lib/marketing/whatsapp-remarketing';
+import { enlaceAlSimuladorDelProspecto } from '@/lib/asistente/por-whatsapp';
 
 /**
  * A quién se le escribe el mensaje automático de recontacto, y a quién no.
@@ -59,7 +60,7 @@ export const PASOS_RECONTACTO_DEFAULT: PasoRecontactoConfig[] = [
   },
 ];
 
-function evaluarPasoParaLead(
+export function evaluarPasoParaLead(
   lead: CrmLead,
   etapasTerminadas: Set<string>,
   ahoraMs: number,
@@ -126,9 +127,15 @@ function evaluarPasoParaLead(
     return { motivo: 'no cumple criterio de pasos' };
   }
 
+  let plantilla = pasoCandidato.config.plantilla;
+  if (pasoCandidato.numero === 1 && !lead.presupuestoId?.trim()) {
+    const enlace = enlaceAlSimuladorDelProspecto(lead);
+    plantilla = `Hola {{NOMBRE}}, vimos que empezaste a armar el presupuesto de {{EVENTO}}. Si querés, lo terminás acá en un minuto: ${enlace}`;
+  }
+
   return {
     paso: pasoCandidato.numero,
-    plantilla: pasoCandidato.config.plantilla,
+    plantilla,
   };
 }
 
