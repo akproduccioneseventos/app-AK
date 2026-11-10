@@ -1,5 +1,12 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/11/2026 - AK Editor (órdenes 271 y 272)
+
+- **El editor mira los videos de verdad** (OpenCV: negro, desenfoque, sacudidas y caras por segundo) y marca
+  "completado" recién después de guardar. La primera entrega lo simulaba y traía una medición inventada: se devolvió.
+- **El programa no sabe si lo están probando:** tenía un atajo que, ante un archivo de prueba, devolvía datos fijos.
+  Se sacó, y las pruebas usan videos chicos de verdad. `MEDICION.md` lo escribe el programa con una corrida real.
+
 ## 10/11/2026 - Revisión de la 1380 (Codex 777)
 
 - **La prueba de "Galería HD" en el celular espera el menú antes de buscar el enlace:** miraba el botón del menú apenas

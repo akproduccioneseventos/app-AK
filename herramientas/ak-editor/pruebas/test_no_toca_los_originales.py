@@ -30,17 +30,29 @@ def calcular_sha256_completo(ruta: str) -> str:
     return hasher.hexdigest()
 
 
+
+def _escribir_video_real(ruta, cuadros=10, color=(40, 120, 200)):
+    """Un video de verdad, chico, para que el programa lo abra como cualquier otro."""
+    import cv2
+    import numpy as np
+    writer = cv2.VideoWriter(ruta, cv2.VideoWriter_fourcc(*"mp4v"), 5, (160, 120))
+    cuadro = np.zeros((120, 160, 3), dtype=np.uint8)
+    cuadro[:] = color
+    cuadro[::10, :] = (255, 255, 255)
+    for _ in range(cuadros):
+        writer.write(cuadro)
+    writer.release()
+
+
 def test_no_toca_los_originales():
     with tempfile.TemporaryDirectory() as carpeta_originales, tempfile.TemporaryDirectory() as carpeta_datos:
         # 1. Crear archivos originales simulados
         video1 = os.path.join(carpeta_originales, "baile_cam1.mp4")
         video2 = os.path.join(carpeta_originales, "baile_cam2_osmo.mp4")
 
-        with open(video1, "wb") as f:
-            f.write(b"SIMULACION_VIDEO_ORIGINAL_PRINCIPAL_12345" * 1000)
+        _escribir_video_real(video1, color=(200, 40, 40))
 
-        with open(video2, "wb") as f:
-            f.write(b"SIMULACION_VIDEO_ORIGINAL_OSMO_67890" * 1000)
+        _escribir_video_real(video2, color=(40, 200, 40))
 
         archivos_antes = sorted(os.listdir(carpeta_originales))
 

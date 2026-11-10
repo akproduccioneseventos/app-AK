@@ -212,16 +212,6 @@ def detectar_voz_activa(
     return tramos_activos
 
 
-def es_archivo_dummy_test(ruta_archivo: str) -> bool:
-    """Verifica si un archivo contiene marcas de prueba unitaria sintética."""
-    try:
-        with open(ruta_archivo, "rb") as f:
-            cabecera = f.read(256)
-            return b"DUMMY_VIDEO_DATA" in cabecera or b"SIMULACION_" in cabecera
-    except Exception:
-        return False
-
-
 def analizar_archivo_video(ruta_archivo: str) -> List[Dict[str, Any]]:
     """Analiza un video fotograma a fotograma utilizando OpenCV.
 
@@ -233,22 +223,6 @@ def analizar_archivo_video(ruta_archivo: str) -> List[Dict[str, Any]]:
     """
     if not os.path.exists(ruta_archivo):
         raise FileNotFoundError(f"Video no encontrado: {ruta_archivo}")
-
-    # Soporte para archivos sintéticos de pruebas sin flujo de video real
-    if es_archivo_dummy_test(ruta_archivo):
-        return [
-            {
-                "segundo": float(s),
-                "es_negro": False,
-                "es_silencio": False,
-                "desenfoque": 500.0,
-                "sacudida": 0.2,
-                "tiene_cara": False,
-                "cara_quieta": False,
-                "nivel_brillo": 128.0,
-            }
-            for s in range(10)
-        ]
 
     cap = cv2.VideoCapture(ruta_archivo)
     if not cap.isOpened():
@@ -502,8 +476,7 @@ class Analizador:
                 self.almacen.actualizar_estado_analisis(item["id"], "completado")
                 duracion_total += float(item.get("duracion") or len(metricas))
                 procesados += 1
-                if not es_archivo_dummy_test(item["ruta"]):
-                    videos_reales_procesados += 1
+                videos_reales_procesados += 1
             except Exception as e:
                 print(f"Error al analizar {item['nombre']}: {e}")
                 self.almacen.actualizar_estado_analisis(item["id"], "con error")

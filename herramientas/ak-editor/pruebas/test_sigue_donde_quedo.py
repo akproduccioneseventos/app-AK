@@ -19,6 +19,20 @@ from almacen import Almacen
 from analizador import Analizador
 
 
+
+def _escribir_video_real(ruta, cuadros=10, color=(40, 120, 200)):
+    """Un video de verdad, chico, para que el programa lo abra como cualquier otro."""
+    import cv2
+    import numpy as np
+    writer = cv2.VideoWriter(ruta, cv2.VideoWriter_fourcc(*"mp4v"), 5, (160, 120))
+    cuadro = np.zeros((120, 160, 3), dtype=np.uint8)
+    cuadro[:] = color
+    cuadro[::10, :] = (255, 255, 255)
+    for _ in range(cuadros):
+        writer.write(cuadro)
+    writer.release()
+
+
 def test_sigue_donde_quedo():
     with tempfile.TemporaryDirectory() as temp_dir:
         carpeta_videos = os.path.join(temp_dir, "videos")
@@ -27,8 +41,7 @@ def test_sigue_donde_quedo():
         archivos = []
         for i in range(5):
             ruta = os.path.join(carpeta_videos, f"video_{i+1:02d}.mp4")
-            with open(ruta, "wb") as f:
-                f.write(b"DUMMY_VIDEO_DATA")
+            _escribir_video_real(ruta, color=(20 * i, 100, 200))
             archivos.append(ruta)
 
         ruta_db = os.path.join(temp_dir, "proyecto.sqlite")
