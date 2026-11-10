@@ -3,7 +3,7 @@
 import { readData, writeData, createDataItem } from '@/lib/data-service';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import fs from 'fs/promises';
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import path from 'path';
 
 import type { Customer } from '@/types/customer';
@@ -62,7 +62,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
     try {
         const rawIntento = formData.get('idIntento') || formData.get('intentoId');
         const intentoKey = idDelIntento('hist', rawIntento);
-        const seed = intentoKey || `hist_${Date.now()}`;
+        const seed = intentoKey || `hist_${randomUUID()}`;
 
         const customerId = `cust_${seed}`;
         const presupuestoId = `pres_${seed}`;

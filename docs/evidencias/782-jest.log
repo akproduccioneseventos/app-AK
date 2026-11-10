@@ -1,0 +1,21 @@
+
+PASS src/lib/asistente/whatsapp-voz.test.ts
+  voz saliente de WhatsApp
+    √ convierte WAV PCM16 real en MP3 con cabecera ID3 o sincronismo MPEG (351 ms)
+    √ acepta PCM16 estéreo y conserva sincronismo MP3 (178 ms)
+    √ rechaza chunks truncados, WAV PCM no admitido y duración sobre el límite (99 ms)
+    √ rechaza frecuencias no soportadas por MPEG y bytes sobrantes o chunk final incompleto (76 ms)
+    √ sube bytes MP3 reales y envía el mensaje Meta solo después de recibir media id y message id (216 ms)
+    √ no gasta cuota con destinatario no autorizado y no sintetiza voz (40 ms)
+    √ libera el presupuesto mensual si la cuota diaria compartida está agotada (32 ms)
+    √ convierte un error de reserva mensual en fallback explícito antes de reservar cupo diario (37 ms)
+    √ ante pérdida de confirmación no reintenta ni habilita envío de texto que podría duplicar (284 ms)
+    √ habilita fallback de texto y no llama a Meta si falla la conversión de audio (37 ms)
+    √ rechaza WAV inválido sin llamar al encoder (32 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        2.181 s
+Ran all test suites within paths "src/lib/asistente/whatsapp-voz.test.ts".
+Test results written to: docs\evidencias\782-jest.json

@@ -8,10 +8,14 @@ import { test, expect } from '@playwright/test';
 test('Galería HD lleva a la galería de fotos de la portada', async ({ page, context }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   const abrirMenu = page.getByRole('button', { name: 'Abrir menú' });
+  const enlace = page.getByRole('link', { name: 'Galería HD' }).filter({ visible: true }).first();
+  // En el celular el enlace está dentro del menú. Se espera a que aparezca uno de los dos: mirar el botón
+  // apenas carga la página daba "no está", se salteaba el menú y la prueba se colgaba (05/11/2026).
+  await expect(abrirMenu.or(enlace).first()).toBeVisible({ timeout: 30_000 });
   if (await abrirMenu.isVisible().catch(() => false)) await abrirMenu.click();
 
   const pestanasAntes = context.pages().length;
-  await page.getByRole('link', { name: 'Galería HD' }).filter({ visible: true }).first().click();
+  await enlace.click();
 
   const galeria = page.locator('section#landing-gallery');
   await expect(galeria).toBeInViewport({ timeout: 30_000 });

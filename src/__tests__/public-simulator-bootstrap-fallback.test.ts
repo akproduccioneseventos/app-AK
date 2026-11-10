@@ -19,7 +19,7 @@ describe('public simulator bootstrap fallback', () => {
     expect(source).toContain('withBootstrapFallback(getServiciosEmpresaPublicos(), FALLBACK_SERVICES)');
     expect(source).toContain('withBootstrapFallback(getMenusPublicos(), FALLBACK_MENUS)');
     expect(source).toContain('withBootstrapFallback(getSocialConnectionsPublicas(), [])');
-    expect(source).toContain('...defaultClubUruguayConfig');
+    expect(source).toContain('normalizeClubUruguayConfig(FALLBACK_CONFIG_DATA.clubUruguayConfig)');
     expect(source).toContain('timeoutMs = 4_500');
   });
 });

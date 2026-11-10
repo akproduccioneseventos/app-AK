@@ -1,0 +1,16 @@
+{
+  "started": "2026-11-05T11:05:06.216Z",
+  "finished": "2026-11-05T11:05:28.668Z",
+  "base": "31662b207f570ab240527214f6a63880da6be2d2",
+  "runtimeDiff": "diff --git a/src/__tests__/simulador-origen-precios.test.ts b/src/__tests__/simulador-origen-precios.test.ts\nindex 14d199611..73e0835a7 100644\n--- a/src/__tests__/simulador-origen-precios.test.ts\n+++ b/src/__tests__/simulador-origen-precios.test.ts\n@@ -62,7 +62,10 @@ describe(\"simulador-origen-precios\", () => {\n     expect(result.services.length).toBeGreaterThan(0);\n     for (const service of result.services) {\n       const original = servicesSource.find(item => item.id === service.id)!;\n-      expect(service.precio).toBe(original.precio);\n+      expect(original).toBeDefined();\n+      expect(service.precioVenta).toBe(original.precioVenta);\n+      expect(service.precioPorPersona).toBe(original.precioPorPersona);\n+      expect(service.calculationMethod).toBe(original.calculationMethod);\n       expect(service.valorUnitarioEstimado).toBe(0);\n       expect(service.proveedor).toBeUndefined();\n       expect(service.notas).toBeUndefined();\ndiff --git a/src/types/armado-rapido.ts b/src/types/armado-rapido.ts\nindex 3850a91f5..a8577226f 100644\n--- a/src/types/armado-rapido.ts\n+++ b/src/types/armado-rapido.ts\n@@ -36,14 +36,14 @@ export interface ServiceDependency {\n export interface ClubUruguayConfig {\n   activo: boolean;\n   precio: number;\n-    precioRevision?: string;\n+  precioRevision?: string;\n   prestaciones: string[];\n }\n \n export const defaultClubUruguayConfig: ClubUruguayConfig = {\n   activo: true,\n-    precio: 16900,\n-    precioRevision: '2026-10-31',\n+  precio: 16900,\n+  precioRevision: '2026-10-31',\n   prestaciones: [\n     'Capacidad 50-200 personas',\n     'Ubicación céntrica en Salto',",
+  "suites": [
+    "src/__tests__/simulador-origen-precios.test.ts",
+    "src/__tests__/la-carga-historica-no-duplica.test.ts",
+    "src/__tests__/la-carga-historica-no-choca-numeros.test.ts",
+    "src/__tests__/simulador-contacto-con-configuracion-caida.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "QA ficticio sin entorno heredado/credenciales/cuentas/servicios reales; no build ni publicacion. Diff de trabajo queda en recibo hasta congelar fuente. Dependencias reutilizadas, no npm ci limpio."
+}
