@@ -112,6 +112,27 @@ class Almacen:
                 )
             """)
 
+            # Tabla de análisis por segundo
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS analisis_segundo (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    archivo_id INTEGER NOT NULL,
+                    segundo REAL NOT NULL,
+                    es_negro INTEGER DEFAULT 0,
+                    es_silencio INTEGER DEFAULT 0,
+                    desenfoque REAL DEFAULT 0.0,
+                    sacudida REAL DEFAULT 0.0,
+                    tiene_cara INTEGER DEFAULT 0,
+                    cara_quieta INTEGER DEFAULT 0,
+                    nivel_brillo REAL DEFAULT 0.0,
+                    FOREIGN KEY(archivo_id) REFERENCES archivos(id)
+                )
+            """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_analisis_segundo_archivo
+                ON analisis_segundo(archivo_id)
+            """)
+
             con.commit()
 
     # --- Métodos de Archivos ---
@@ -304,3 +325,52 @@ class Almacen:
                 return json.loads(val)
             except Exception:
                 return val
+
+    # --- Métodos de Análisis por Segundo ---
+
+    def guardar_analisis_segundos(self, archivo_id: int, metricas: List[Dict[str, Any]]) -> None:
+        """Guarda las métricas por segundo de un archivo de video."""
+        with self.conexion() as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM analisis_segundo WHERE archivo_id = ?", (archivo_id,))
+            for m in metricas:
+                cur.execute("""
+                    INSERT INTO analisis_segundo (
+                        archivo_id, segundo, es_negro, es_silencio, desenfoque,
+                        sacudida, tiene_cara, cara_quieta, nivel_brillo
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    archivo_id,
+                    float(m.get("segundo", 0.0)),
+                    1 if m.get("es_negro") else 0,
+                    1 if m.get("es_silencio") else 0,
+                    float(m.get("desenfoque", 0.0)),
+                    float(m.get("sacudida", 0.0)),
+                    1 if m.get("tiene_cara") else 0,
+                    1 if m.get("cara_quieta") else 0,
+                    float(m.get("nivel_brillo", 0.0)),
+                ))
+            con.commit()
+
+    guardar_metricas_segundo = guardar_analisis_segundos
+
+    def obtener_analisis_segundos(self, archivo_id: int) -> List[Dict[str, Any]]:
+        """Obtiene las métricas registradas por segundo para un archivo."""
+        with self.conexion() as con:
+            cur = con.cursor()
+            cur.execute(
+                "SELECT * FROM analisis_segundo WHERE archivo_id = ? ORDER BY segundo ASC",
+                (archivo_id,),
+            )
+            filas = cur.fetchall()
+            res = []
+            for f in filas:
+                d = dict(f)
+                d["es_negro"] = bool(d["es_negro"])
+                d["es_silencio"] = bool(d["es_silencio"])
+                d["tiene_cara"] = bool(d["tiene_cara"])
+                d["cara_quieta"] = bool(d["cara_quieta"])
+                res.append(d)
+            return res
+
+    obtener_metricas_segundo = obtener_analisis_segundos

@@ -83,8 +83,13 @@ def cargar_configuracion(ruta_yaml: Optional[str] = None) -> Dict[str, Any]:
 class ReglasEdicion:
     """Aplica las reglas de negocio de edición según config.yaml."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        almacen: Optional[Any] = None,
+    ):
         self.config = config or cargar_configuracion()
+        self.almacen = almacen
         self.cfg_edicion = self.config.get("edicion", CONFIG_DEFECTO["edicion"])
         self._ultima_transicion = ""
 
@@ -102,61 +107,183 @@ class ReglasEdicion:
         self,
         archivos: List[Dict[str, Any]],
         hay_personas: bool = True,
+        almacen: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """Genera cortes para la previa con duraciones cuidadas y transiciones alternadas."""
         cfg = self.cfg_edicion.get("previa", CONFIG_DEFECTO["edicion"]["previa"])
-        dur_min = (
-            cfg.get("duracion_min_segundos_con_personas", 3.5)
-            if hay_personas
-            else cfg.get("duracion_min_segundos_sin_personas", 3.0)
-        )
-        dur_max = (
-            cfg.get("duracion_max_segundos_con_personas", 6.0)
-            if hay_personas
-            else cfg.get("duracion_max_segundos_sin_personas", 5.0)
-        )
+        dur_min_personas = cfg.get("duracion_min_segundos_con_personas", 3.5)
+        dur_max_personas = cfg.get("duracion_max_segundos_con_personas", 6.0)
+        dur_min_sin = cfg.get("duracion_min_segundos_sin_personas", 3.0)
+        dur_max_sin = cfg.get("duracion_max_segundos_sin_personas", 5.0)
         volumen_audio = cfg.get("volumen_audio_ambiente", 0.05)
 
+        alm = almacen or getattr(self, "almacen", None)
         cortes = []
+
         for arch in archivos:
-            dur_total = arch.get("duracion", 10.0)
             archivo_id = arch.get("id")
+            dur_total = float(arch.get("duracion", 10.0))
 
-            # Quitar sacudida inicial (1.0s) y final (1.0s) si hay suficiente duración
-            margen_inicio = 1.0 if dur_total >= (dur_min + 2.0) else 0.0
-            margen_fin = 1.0 if dur_total >= (dur_min + 2.0) else 0.0
-            tiempo_util = max(dur_total - margen_inicio - margen_fin, dur_min)
+            # 1. Obtener análisis del archivo
+            metricas = []
+            if "analisis" in arch and isinstance(arch["analisis"], list):
+                metricas = arch["analisis"]
+            elif "metricas" in arch and isinstance(arch["metricas"], list):
+                metricas = arch["metricas"]
+            elif alm is not None and archivo_id:
+                metricas = alm.obtener_analisis_segundos(archivo_id)
 
-            tiempo_actual = margen_inicio
-            while tiempo_actual + dur_min <= (dur_total - margen_fin + 0.1):
-                dur_toma = min(dur_max, dur_total - margen_fin - tiempo_actual)
-                if dur_toma < dur_min:
-                    dur_toma = dur_min
+            # 2. Manejo cuando no hay análisis
+            if not metricas:
+                # Si el archivo está en BD o se pasó almacén y no tiene análisis:
+                # Regla: marcar 'sin analizar' y no inventar cortes
+                if alm is not None or "estado_analisis" in arch:
+                    cortes.append({
+                        "archivo_id": archivo_id,
+                        "bloque": "previa",
+                        "entrada": 0.0,
+                        "salida": 0.0,
+                        "duracion": 0.0,
+                        "in_sec": 0.0,
+                        "out_sec": 0.0,
+                        "tipo": "sin_analizar",
+                        "transicion": "ninguna",
+                        "regla_aplicada": "sin analizar",
+                        "camara": arch.get("camara", "principal"),
+                        "pista_video": 1,
+                        "pista_audio": 1,
+                    })
+                    continue
 
-                entrada = round(tiempo_actual, 2)
-                salida = round(min(tiempo_actual + dur_toma, dur_total), 2)
-                duracion_real = round(salida - entrada, 2)
+                # Fallback para pruebas unitarias tradicionales sin BD ni análisis sintético
+                dur_min = dur_min_personas if hay_personas else dur_min_sin
+                dur_max = dur_max_personas if hay_personas else dur_max_sin
+                margen_inicio = 1.0 if dur_total >= (dur_min + 2.0) else 0.0
+                margen_fin = 1.0 if dur_total >= (dur_min + 2.0) else 0.0
 
+                tiempo_actual = margen_inicio
+                while tiempo_actual + dur_min <= (dur_total - margen_fin + 0.1):
+                    dur_toma = min(dur_max, dur_total - margen_fin - tiempo_actual)
+                    if dur_toma < dur_min:
+                        dur_toma = dur_min
+
+                    entrada = round(tiempo_actual, 2)
+                    salida = round(min(tiempo_actual + dur_toma, dur_total), 2)
+                    duracion_real = round(salida - entrada, 2)
+
+                    trans = self.elegir_transicion_sin_repetir()
+                    cortes.append({
+                        "archivo_id": archivo_id,
+                        "bloque": "previa",
+                        "entrada": entrada,
+                        "salida": salida,
+                        "duracion": duracion_real,
+                        "in_sec": entrada,
+                        "out_sec": salida,
+                        "tipo": "transicion",
+                        "transicion": trans,
+                        "regla_aplicada": f"previa_personas_{hay_personas}",
+                        "camara": arch.get("camara", "principal"),
+                        "pista_video": 1,
+                        "pista_audio": 1,
+                        "volumen_audio": volumen_audio,
+                    })
+                    tiempo_actual = salida
+                    if salida >= (dur_total - margen_fin - 0.5):
+                        break
+                continue
+
+            # 3. Selección del mejor tramo cuando SÍ hay análisis
+            tiene_caras = any(m.get("tiene_cara") for m in metricas)
+            busca_caras = hay_personas and tiene_caras
+
+            dur_min = dur_min_personas if busca_caras else dur_min_sin
+            dur_max = dur_max_personas if busca_caras else dur_max_sin
+
+            total_segundos = len(metricas)
+            ventana_duracion = min(dur_max, max(dur_min, float(total_segundos)))
+
+            mejor_ventana = None
+            mejor_puntaje = float("inf")
+
+            dict_seg = {int(round(m["segundo"])): m for m in metricas}
+            paso_seg = int(round(ventana_duracion))
+            limite_inicio = max(0, total_segundos - paso_seg + 1)
+
+            for t_ini in range(limite_inicio):
+                t_fin = t_ini + paso_seg
+                tramo = [dict_seg.get(s) for s in range(t_ini, t_fin) if dict_seg.get(s) is not None]
+                if len(tramo) < paso_seg:
+                    continue
+
+                hay_negro = any(s.get("es_negro") for s in tramo)
+                hay_desenfoque = any((not s.get("es_negro") and s.get("desenfoque", 500.0) < 100.0) for s in tramo)
+                hay_sacudida_fuerte = any(s.get("sacudida", 0.0) > 2.5 for s in tramo)
+
+                if hay_negro or hay_desenfoque or hay_sacudida_fuerte:
+                    continue
+
+                sacudida_media = sum(s.get("sacudida", 0.0) for s in tramo) / len(tramo)
+
+                if busca_caras:
+                    caras_quietas = sum(1 for s in tramo if s.get("cara_quieta"))
+                    puntaje = - (caras_quietas * 10.0) + sacudida_media
+                else:
+                    puntaje = sacudida_media
+
+                if puntaje < mejor_puntaje:
+                    mejor_puntaje = puntaje
+                    mejor_ventana = (float(t_ini), float(t_fin))
+
+            # Fallback si ninguna ventana fue 100% limpia
+            if mejor_ventana is None:
+                for t_ini in range(limite_inicio):
+                    t_fin = t_ini + paso_seg
+                    tramo = [dict_seg.get(s) for s in range(t_ini, t_fin) if dict_seg.get(s) is not None]
+                    if len(tramo) < paso_seg:
+                        continue
+                    if any(s.get("es_negro") for s in tramo):
+                        continue
+                    sac_media = sum(s.get("sacudida", 0.0) for s in tramo) / len(tramo)
+                    if sac_media < mejor_puntaje:
+                        mejor_puntaje = sac_media
+                        mejor_ventana = (float(t_ini), float(t_fin))
+
+            if mejor_ventana is not None:
+                ent, sal = mejor_ventana
                 trans = self.elegir_transicion_sin_repetir()
-
                 cortes.append({
                     "archivo_id": archivo_id,
                     "bloque": "previa",
-                    "entrada": entrada,
-                    "salida": salida,
-                    "duracion": duracion_real,
+                    "entrada": round(ent, 2),
+                    "salida": round(sal, 2),
+                    "duracion": round(sal - ent, 2),
+                    "in_sec": round(ent, 2),
+                    "out_sec": round(sal, 2),
                     "tipo": "transicion",
                     "transicion": trans,
-                    "regla_aplicada": f"previa_personas_{hay_personas}",
+                    "regla_aplicada": "previa_rostros_quietos" if busca_caras else "previa_movimiento_suave",
                     "camara": arch.get("camara", "principal"),
                     "pista_video": 1,
                     "pista_audio": 1,
                     "volumen_audio": volumen_audio,
                 })
-
-                tiempo_actual = salida
-                if salida >= (dur_total - margen_fin - 0.5):
-                    break
+            else:
+                cortes.append({
+                    "archivo_id": archivo_id,
+                    "bloque": "previa",
+                    "entrada": 0.0,
+                    "salida": 0.0,
+                    "duracion": 0.0,
+                    "in_sec": 0.0,
+                    "out_sec": 0.0,
+                    "tipo": "descartado",
+                    "transicion": "ninguna",
+                    "regla_aplicada": "descartado_por_defectos",
+                    "camara": arch.get("camara", "principal"),
+                    "pista_video": 1,
+                    "pista_audio": 1,
+                })
 
         return cortes
 
@@ -306,11 +433,12 @@ class ReglasEdicion:
         archivo_principal: Dict[str, Any],
         archivo_osmo: Optional[Dict[str, Any]],
         errores_principal: Optional[List[Tuple[float, float]]] = None,
+        almacen: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """Edición multicámara de tanda de baile.
 
         - Máximo 50s sin corte.
-        - Si hay error en la principal (sacudida, desenfoque), entra Osmo en Video 2.
+        - Si hay error en la principal (sacudida, desenfoque, negro), entra Osmo en Video 2.
         """
         cfg = self.cfg_edicion.get("baile", CONFIG_DEFECTO["edicion"]["baile"])
         max_sin_corte = cfg.get("max_segundos_sin_corte", 50.0)
@@ -319,8 +447,40 @@ class ReglasEdicion:
         dur_total = archivo_principal.get("duracion", 180.0)
         cortes = []
 
-        tiempo_actual = 0.0
-        errores = errores_principal or []
+        alm = almacen or getattr(self, "almacen", None)
+
+        if errores_principal is None:
+            metricas_prin = []
+            if "analisis" in archivo_principal and isinstance(archivo_principal["analisis"], list):
+                metricas_prin = archivo_principal["analisis"]
+            elif alm is not None and archivo_principal.get("id"):
+                metricas_prin = alm.obtener_analisis_segundos(archivo_principal["id"])
+
+            errores_detectados: List[Tuple[float, float]] = []
+            segundos_error = [
+                m["segundo"]
+                for m in metricas_prin
+                if m.get("es_negro")
+                or m.get("sacudida", 0.0) > 2.5
+                or (not m.get("es_negro") and m.get("desenfoque", 500.0) < 100.0)
+            ]
+
+            if segundos_error:
+                segundos_error.sort()
+                ini_err = segundos_error[0]
+                prev_s = ini_err
+                for s in segundos_error[1:]:
+                    if s <= prev_s + 1.5:
+                        prev_s = s
+                    else:
+                        errores_detectados.append((round(ini_err, 2), round(prev_s + 1.0, 2)))
+                        ini_err = s
+                        prev_s = s
+                errores_detectados.append((round(ini_err, 2), round(prev_s + 1.0, 2)))
+
+            errores = errores_detectados
+        else:
+            errores = errores_principal
 
         while tiempo_actual < dur_total:
             # Revisar si hay un error próximo
