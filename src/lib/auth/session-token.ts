@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
 const SESSION_VERSION = 'v1';
@@ -219,12 +219,26 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
           if (!dbAdmin) {
             return { success: false, error: 'Base de datos no disponible para verificar auditor.' };
           }
-          const idDoc = user.userId || user.email;
-          if (!idDoc) {
+          if (!user.userId && !email) {
             return { success: false, error: 'Usuario auditor sin identificador válido.' };
           }
-          const docSnap = await dbAdmin.collection('users').doc(idDoc).get();
-          if (!docSnap.exists) {
+          let docSnap: any = null;
+          if (user.userId) {
+            docSnap = await dbAdmin.collection('users').doc(user.userId).get();
+          }
+          if ((!docSnap || !docSnap.exists) && email) {
+            const usersCol = dbAdmin.collection('users');
+            if (typeof usersCol.where === 'function') {
+              const querySnap = await usersCol.where('email', '==', email).limit(1).get();
+              if (!querySnap.empty && querySnap.docs?.length > 0) {
+                docSnap = querySnap.docs[0];
+                if (docSnap && docSnap.exists === undefined) {
+                  docSnap.exists = true;
+                }
+              }
+            }
+          }
+          if (!docSnap || !docSnap.exists) {
             if (cacheKey) cacheEstadoAuditor.set(cacheKey, { valido: false, expiraEn: ahora + 60_000 });
             return { success: false, error: 'El acceso de auditor fue cerrado.' };
           }
