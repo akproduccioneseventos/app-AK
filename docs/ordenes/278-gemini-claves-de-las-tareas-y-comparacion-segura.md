@@ -36,6 +36,12 @@ automáticas se paran**):
 
 No cambies `TAREAS_QUE_NO_HACEN_DANO` ni el freno por intentos: con la clave puesta ya no se usan.
 
+**Ojo, lo encontró el barrido de Claude:** `src/app/api/cron-despachador/route.ts:26` hace `if (!cronSecret) return true`
+y **no pasa por la puerta**: hoy cualquiera desde internet dispara la tanda entera, incluidos los recordatorios a los
+invitados y los avisos al cliente. Es la ruta que llama el despertador (`functions/src/index.ts` ~68). Con el paso 3
+hecho queda cerrada; además cambiá esa línea para que **sin clave en producción devuelva 503** (fuera de producción
+puede seguir abierta, como la puerta).
+
 ## Bloque 2 — Las claves se comparan de forma segura, y la de borrar la base no va en la dirección
 
 **Hoy** se compara con `===` en cinco lugares:
@@ -45,6 +51,9 @@ No cambies `TAREAS_QUE_NO_HACEN_DANO` ni el freno por intentos: con la clave pue
 - `src/app/api/admin/clean-db/route.ts:22` (que además acepta la clave en la dirección, `?secret=`)
 - `src/app/api/v1/marketing/insights/route.ts:16`
 - `src/app/api/meta/webhook/route.ts:47`
+- `src/app/api/cron-despachador/route.ts:32`
+- `src/app/api/whatsapp/webhook/route.ts:41`
+- `src/app/actions/auth.ts:326` y `src/app/actions/simple-auth.ts:425` (la clave maestra `APP_PASSWORD`)
 
 **Qué se hace:**
 
@@ -53,12 +62,14 @@ No cambies `TAREAS_QUE_NO_HACEN_DANO` ni el freno por intentos: con la clave pue
   `src/lib/whatsapp/webhook-security.ts` ~11). Usala en los cinco lugares.
 - En `clean-db`, la clave de mantenimiento **sólo por cabecera** (`Authorization: Bearer`); sacá la de la dirección.
   La sesión de administrador sigue como está.
+- `src/lib/google-workspace.ts:71`: si faltan `AK_SESSION_SECRET` y `SESSION_SECRET` firma con una constante escrita en
+  el código. Que en producción tire error, igual que `src/lib/auth/session-token.ts` ~56.
 - Las tareas siguen aceptando `?clave=` (hay servicios que sólo dejan pegar una dirección): no lo saques.
 
 ## Pruebas
 
 - `src/__tests__/las-claves-se-comparan-seguro.test.ts`: `clavesIguales` da verdadero con dos iguales, falso con una
-  distinta, con una vacía y con largos distintos; y en los cinco archivos no queda ninguna comparación con `===` contra
+  distinta, con una vacía y con largos distintos; y en los archivos del bloque 2 no queda ninguna comparación con `===` contra
   la clave (leé los archivos y buscá el patrón). `clean-db` con la clave correcta en `?secret=` y sin sesión **no
   autoriza**.
 - `src/__tests__/el-despertador-lleva-la-clave.test.ts`: `functions/src/index.ts` declara `secrets: ['CRON_SECRET']` en
@@ -73,6 +84,12 @@ usa: clavesIguales en src/app/api/v1/marketing/insights/route.ts
 usa: clavesIguales en src/app/api/meta/webhook/route.ts
 usa: CRON_SECRET en apphosting.yaml
 usa: secrets: ['CRON_SECRET'] en functions/src/index.ts
+usa: clavesIguales en src/app/api/cron-despachador/route.ts
+usa: clavesIguales en src/app/api/whatsapp/webhook/route.ts
+usa: clavesIguales en src/app/actions/auth.ts
+usa: clavesIguales en src/app/actions/simple-auth.ts
+no-usa: ak-google-state-secret-2026 en src/lib/google-workspace.ts
+no-usa: if (!cronSecret) return true; en src/app/api/cron-despachador/route.ts
 prueba: src/__tests__/las-claves-se-comparan-seguro.test.ts
 prueba: src/__tests__/el-despertador-lleva-la-clave.test.ts
 ```
