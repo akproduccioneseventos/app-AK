@@ -62,6 +62,52 @@ sincronizar las dos cámaras del baile" si la correlación no encontró un desfa
    - la revisión trae el aviso del negro.
 4. Con `tarea_analisis` armando sólo la previa (como hoy), **tiene que dar rojo**.
 
+## Bloque 4 — Recortar como recorta el dueño, solo (lo que más tiempo le lleva)
+
+Palabras del dueño: en la decoración, la recepción, el libro de firmas y las fotos detrás de la torta *"voy cortando
+cuando la gente pasa a sacarse una foto o a firmar; mientras entra, después que se va o se mueve, ahí corto"*.
+
+- **Regla "la pose"**, para la previa, la recepción, las firmas y las fotos con la torta (velas). En cada clip, el
+  programa busca los tramos en que hay caras, **las caras están quietas** (posición de la cara casi igual de un cuadro
+  al otro) y la cámara también.
+  - Se queda con **cada pose** (puede haber varias en un mismo clip), de 3 a 6 s, empezando 0,3 s después de que se
+    quedan quietos.
+  - **Corta lo de antes y lo de después**: cuando entran, se acomodan, se dan vuelta o se van.
+  - Las caras salen del análisis por segundo que ya existe (`tiene_cara`, `cara_quieta`). Si hace falta más detalle,
+    que analice 5 imágenes por segundo sólo en los tramos con caras.
+- **Las firmas en el libro:** hay una persona agachada escribiendo y casi sin cara de frente. Ahí se toma el tramo de
+  menos movimiento de cámara con una persona en cuadro, de 3 a 5 s.
+- **El baile, que es lo más largo:** el audio de la fiesta sigue entero. Cada error de la cámara principal (sacudida,
+  desenfoque, lente tapado, encuadre al piso o al techo):
+  - si hay Osmo sincronizada, **se tapa con la Osmo**, como ya pide la regla;
+  - si no hay Osmo en ese momento, **se corta ese tramo y se sigue**, con un fundido de 0,2 s para que el corte no salte.
+- Todo lo que se cortó queda listado en la revisión con su minuto, para devolverlo con un toque si el dueño lo quería.
+
+## Bloque 5 — Que Filmora reciba el logo, la intro con el nombre y las transiciones
+
+Filmora 16 toma de afuera **los clips y las imágenes**, no los efectos de otro programa. Por eso lo que hace la
+máquina se le entrega **como clips**, que Filmora sí acepta:
+
+- **La intro de la quinceañera con su nombre:** el programa la **arma como un video** (`intro_nombre.mp4`, de 6 a
+  8 s, 1920×1080) con el nombre y la fecha del evento, sobre la plantilla que elija el dueño en "Marca AK". El nombre se
+  escribe una vez en "Nuevo evento", o lo trae el `estilo.json` de la app. Va como el **segundo clip** de la línea de
+  tiempo, después de `intro_ak.mp4`, y otra vez al final.
+- **El logo:** el PNG va en la pista de video 3, de punta a punta menos sobre la intro de AK. Ya está pedido; que el XML
+  lo lleve como imagen fija con su duración.
+- **Las transiciones, con dos opciones en "Exportar a Filmora":**
+  1. **"Transiciones de Filmora"**: en el XML va un fundido (`transitionitem` "Cross Dissolve") entre cada clip, que es
+     lo que Filmora suele tomar. Las demás se agregan a mano.
+  2. **"Transiciones ya hechas"**: el programa **arma cada transición como un clip corto** (de 0,8 a 1,2 s, con
+     `xfade`) y la pone entre los dos clips. En Filmora se ven terminadas, sin tocar nada.
+
+  Que en pantalla diga en criollo qué hace cada una.
+- El archivo de prueba para Filmora (`generar_xml_prueba`) suma la intro armada y una transición ya hecha, para que el
+  dueño compruebe en su Filmora que llegan.
+
+**Prueba nueva de este bloque**, `pruebas/test_corta_cuando_se_van.py`: un clip armado por la prueba con una cara que
+entra moviéndose (0-2 s), queda quieta (2-6 s) y se va (6-8 s). El corte cae adentro de 2-6 s. Si la cara se mueve
+todo el tiempo, no hay corte de pose.
+
 ## Lo que no se toca
 
 El instalador, la sección de la app, el análisis por segundo, el almacén, el XML de prueba para Filmora y los dos
@@ -73,4 +119,7 @@ usa: generar_cortes_discursos_y_velas en herramientas/ak-editor/app.py
 usa: sincronizar_dos_camaras en herramientas/ak-editor/app.py
 prueba: herramientas/ak-editor/pruebas/test_la_fiesta_entera_llega_a_filmora.py
 prueba: herramientas/ak-editor/pruebas/test_todo_compila.py
+prueba: herramientas/ak-editor/pruebas/test_corta_cuando_se_van.py
+usa: intro_nombre en herramientas/ak-editor/exportador_filmora.py
+usa: transitionitem en herramientas/ak-editor/exportador_filmora.py
 ```
