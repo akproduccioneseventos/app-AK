@@ -59,7 +59,8 @@ def concatenar_videos(lista_rutas: List[str], ruta_salida_final: str) -> bool:
     """Concatena una lista de videos recodificados sin recodificar (copy)."""
     with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as f:
         for r in lista_rutas:
-            linea = f"file '{os.path.abspath(r).replace('\\', '/')}'\n"
+            ruta_unix = os.path.abspath(r).replace("\\", "/")
+            linea = f"file '{ruta_unix}'\n"
             f.write(linea)
         lista_txt = f.name
 

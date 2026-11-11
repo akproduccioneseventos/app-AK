@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/11/2026 - AK Editor probado de punta a punta por Claude
+
+- **El programa no arrancaba con el Python que instala su instalador (3.11):** una f-string con barra invertida en
+  `exportador_video.py`. Arreglado; `pruebas/test_todo_compila.py` compila e importa todo.
+- **Los cortes de la previa salían de 0 segundos:** `app.py` creaba las reglas sin el almacén y no veían el análisis.
+  Arreglado (`ReglasEdicion(almacen=almacen)`).
+- **Sigue en la orden 274:** la línea de tiempo trae sólo la previa (vals, baile, velas y sincronización no se llaman) y
+  la revisión no avisa los tramos malos.
+
 ## 10/11/2026 - AK Editor (órdenes 271 y 272)
 
 - **El editor mira los videos de verdad** (OpenCV: negro, desenfoque, sacudidas y caras por segundo) y marca

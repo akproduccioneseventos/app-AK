@@ -702,6 +702,10 @@
     "orden-272": {
       "fecha": "2026-11-10",
       "resultado": "Pregunta 3: el AK Editor marcaba el análisis como hecho sin mirar los videos, y su medición traía números inventados. Buscado 'simul', 'en producción', 'TODO' y 'placeholder' en herramientas/ak-editor: sólo ese lugar. Va en la orden 272."
+    },
+    "orden-274": {
+      "fecha": "2026-11-11",
+      "resultado": "Pregunta 2: en el AK Editor, las reglas del vals, el baile con dos cámaras, los discursos y velas, y la sincronización existían pero app.py no las llamaba (sólo la previa). Buscado en herramientas/ak-editor qué función de reglas.py/analizador.py no llama nadie desde app.py: esas cuatro. Va en la orden 274."
     }
   }
 }

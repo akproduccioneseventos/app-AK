@@ -209,7 +209,7 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                     # Una vez analizado, generar cortes con ReglasEdicion
                     almacen = obtener_almacen_actual()
                     archivos = almacen.obtener_archivos()
-                    reglas = ReglasEdicion()
+                    reglas = ReglasEdicion(almacen=almacen)
 
                     cortes_previa = reglas.generar_cortes_previa([a for a in archivos if a["bloque"] == "previa"])
                     almacen.limpiar_cortes()
