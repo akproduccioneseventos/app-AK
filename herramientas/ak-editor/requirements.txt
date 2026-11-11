@@ -1,0 +1,6 @@
+numpy
+scipy
+pyyaml
+pytest
+opencv-python
+psutil

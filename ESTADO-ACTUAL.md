@@ -1,31 +1,24 @@
-# Estado actual — 2 de noviembre de 2026
+# Estado actual — 10 de noviembre de 2026
 
-## Delta Codex777 - 5/11, NO publicado
-- Rama codex/777-delta-main-20261104 desde main31662b207; fuente9ab4b9239.
-- No integrar764/c16f5c48e entera: reemplazada por entregas1377/1378/1379.
-- Tres deltas: recuperacion historica/UUID; costos del respaldo publico;
-  precio16900 confirmado y coherente, sin sumar alquiler al presupuestoAK.
-- 778:4suites24PASS; lint6archivosPASS.779 sobre commit congelado en evidencia.
-- Tipos globales5/11 PASS completos42836cc0d/src c651e84d; anterior4/11 archivado.
-- Amplia770:5756PASS13FAIL3omitidos, conservada NO verde. Triage781/782:
-  17PASS+11PASS en corridas separadas;5suites resueltas como preparacionQA.
--3omitidos SDKdecoracion requieren emulador. Claude conserva cierre build/SDK/E2E.
-- Claude revisa/compila/fusiona. No afirmar todaappni0errores. Privados NOcontrastados.
-- Evidencia: docs/evidencias/777-contraste-main-y-delta.md.
-
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: la 1378 (órdenes 242 a 248 de Gemini).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (= principal + órdenes 269/270 y el acceso "Hablar con AK"). Publicada: la 1380.
 
 ## Publicado
-- **1375:** asistente de AK (memoria, voz, planes, vigilancia, cierre posfiesta).
-- **1377:** número de factura de la carga histórica sin choques (Codex 743/C6).
-- **1378 (Gemini, órdenes 242-248 con devoluciones 257-261):** barra con o sin alcohol (menores sólo sin alcohol; sin receta sin alcohol cargada no descuenta alcohol), textos del simulador con lista de respaldo, blog que no anuncia lo que no publicó, portada nueva, sección "La app de tu fiesta" y Club Uruguay. Claude arregló pruebas que buscaban mal y la del control de llegada (tocaba antes de que la página respondiera; el interruptor anda).
+- **1380 (Codex 777):** la carga de presupuestos viejos no choca ni duplica; el respaldo público del simulador no muestra
+  costos internos; el alquiler del Club Uruguay es $16.900 en pantalla y en el PDF (antes la pantalla decía $20.000).
+- **1379:** órdenes 262 a 268 de Gemini.
 
-## Pendiente
-- Nada encargado. Gemini no puede subir solo: el dueño pega en PowerShell `git add -A`, `git reset -q -- data src/data`, `git commit`, `git push`.
-- Decisión del dueño pendiente: al prospecto de anuncio con datos completos, ¿el bot le contesta con el enlace al simulador (A, recomendado) o queda sin respuesta hasta que alguien mande el presupuesto (B, como está)?
+## Esperando a Gemini
+- **Orden 270** (incluye la 269): tragos por temporada, aviso de presupuesto abierto, recontacto sin promesa falsa,
+  "tu fiesta en números" en el portal, la decoración que no le paga dos veces a la IA y las reglas de la IA con turno.
+  Gemini arranca de esta rama. En la misma entrega viaja el acceso "Hablar con AK" del manifiesto (ya commiteado acá).
 
-## Para el dueño (abogado)
-- Revisión legal del contrato de Codex: `docs/evidencias/738-legal-contratos-dictamen.md` en la rama de Codex.
+## Esperando a Gemini (2)
+- **Orden 271**: AK Editor Inteligente (programa local en `herramientas/ak-editor/` + sección "Edición de videos" en la app), costo cero, exporta XML para Filmora 16.
+
+## Decisiones pendientes del dueño (no escribir órdenes hasta que decida)
+- 15% de contratos nuevos: fijo sobre el primer presupuesto o acumulativo. Panel del cliente: ajuste de entrada o año a año.
+- Play Store: falta la huella SHA-256 (Play Console → Integridad de la app → Firma de apps). La cuenta ya existe.
+- Mejoras propuestas sin decidir: estilo unificado, WhatsApp del invitado en la fotocabina, GIF en la fotocabina, aviso antes de que venza la promo.
 
 ## Errores de plata y permisos abiertos
-- Ninguno conocido.
+- Ninguno conocido. La 1366 se cerró: sus seis pendientes del centro de control ya estaban arreglados.

@@ -53,6 +53,7 @@ import {
   Tag,
   Bot,
   Cpu,
+  Video,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -129,6 +130,7 @@ export const navGroups: NavGroup[] = [
       { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
       { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
       { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2, permiso: PERMISOS.ORGANIZACION },
+      { title: "Edición de Videos", href: "/edicion-videos", icon: Video, permiso: PERMISOS.ADMINISTRACION },
     ],
   },
   {

@@ -76,7 +76,8 @@ function CartaTragosContent() {
       if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       if (!mergedData.titulo) mergedData.titulo = 'CARTA DE TRAGOS';
       if (!mergedData.numeroPrincipal) mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
-      mergedData.items = mergeMasterTragosWithFiesta(masterItems, mergedData.items || []);
+      const fechaEvento = fiestaData.configuracion?.fechaEvento || (fiestaData as any).fecha;
+      mergedData.items = mergeMasterTragosWithFiesta(masterItems, mergedData.items || [], fechaEvento);
 
       setCartaTragos(mergedData);
 
@@ -111,7 +112,8 @@ function CartaTragosContent() {
     try {
       const masterItems = await getCartaTragosMaster();
       setMasterItems(masterItems);
-      setCartaTragos(prev => ({ ...prev, items: mergeMasterTragosWithFiesta(masterItems, prev.items || []) }));
+      const fechaEvento = fiesta?.configuracion?.fechaEvento || (fiesta as any)?.fecha;
+      setCartaTragos(prev => ({ ...prev, items: mergeMasterTragosWithFiesta(masterItems, prev.items || [], fechaEvento) }));
       toast({ title: 'Base sincronizada', description: 'Se actualizaron los tragos base del módulo general.' });
     } catch (e: any) {
       toast({ title: 'Error al sincronizar', description: e.message, variant: 'destructive' });

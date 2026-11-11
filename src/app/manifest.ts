@@ -50,6 +50,15 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       {
+        // Orden 190: la entrada de la llamada con el asistente. Vivía en un public/manifest.json que la app no
+        // enlazaba y que se borró en la 262; ahora está en el manifiesto que sí se usa.
+        name: 'Hablar con AK',
+        short_name: 'Hablar',
+        description: 'Asistente por voz para tu día',
+        url: '/mi-dia?hablar=1',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }],
+      },
+      {
         name: 'Nueva fiesta',
         short_name: 'Nueva fiesta',
         description: 'Abrir el alta rapida de una fiesta.',

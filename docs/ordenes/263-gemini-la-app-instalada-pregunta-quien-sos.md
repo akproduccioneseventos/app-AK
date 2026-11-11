@@ -101,7 +101,7 @@ No subas `data/` ni `src/data/`.
 archivo: src/app/entrar/page.tsx
 usa: /entrar en src/app/manifest.ts
 usa: initializePortalSession en src/app/actions/fiesta/portal.actions.ts
-usa: entrarAlPortalPorTelefono en src/app/entrar/page.tsx
+usa: entrarAlPortalPorTelefono en src/app/entrar/EntrarClient.tsx
 prueba: src/__tests__/entrar-al-portal-por-telefono.test.ts
 prueba: tests/e2e/entrar-quien-sos.spec.ts
 ```

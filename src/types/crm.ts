@@ -71,6 +71,8 @@ export interface CrmLead {
   invoiceId?: string; // If the budget was invoiced
   budgetSource?: PresupuestoSource;
   lastBudgetAt?: string;
+  presupuestoVecesVisto?: number;
+  presupuestoVistoAt?: string;
   // Contact tracking
   lastContactedAt?: string; // ISO date string
   lastContactMethod?: 'whatsapp' | 'phone' | 'email' | 'in_person';

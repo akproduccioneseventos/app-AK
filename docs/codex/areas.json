@@ -136,7 +136,8 @@
         "src/app/recepcion",
         "src/app/q",
         "src/app/(app)/settings/feedback",
-        "src/app/(app)/contabilidad/fiestas-historicas"
+        "src/app/(app)/contabilidad/fiestas-historicas",
+        "src/app/(app)/edicion-videos"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {

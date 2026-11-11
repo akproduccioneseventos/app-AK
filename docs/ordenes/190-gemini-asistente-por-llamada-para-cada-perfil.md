@@ -232,7 +232,7 @@ usa: objetivos en src/lib/agentes/motor-agentes.ts
 usa: apodo en src/app/(app)/settings/agentes-autonomos/page.tsx
 usa: getHistorialAgentes en src/app/(app)/mi-dia/page.tsx
 prueba: src/__tests__/los-dots-de-ak-respetan-las-cuatro-reglas.test.ts
-usa: hablar=1 en public/manifest.json
+usa: hablar=1 en src/app/manifest.ts
 usa: get('hablar') en src/components/multiagent/multiagent-widget.tsx
 usa: server-messaging en src/app/api/cron/asistente-proactivo/route.ts
 prueba: src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts

@@ -185,3 +185,15 @@ data/company-info.json
 data/empleados.json
 data/invoice-template-settings.json
 data/ajustes-llegada.json
+data/ia-registro.json
+data/reglas-de-la-ia.json
+src/data/asistente-historial-aceptaciones.json
+src/data/asistente-propuestas.json
+
+# Python y AK Editor
+__pycache__/
+*.py[cod]
+.pytest_cache/
+herramientas/ak-editor/.venv/
+herramientas/ak-editor/venv/
+*.sqlite

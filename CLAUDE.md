@@ -993,7 +993,10 @@ Los saqué con otro commit. Y ese mismo día **cambié de rama mientras la puert
 código: por suerte la compilación ya había terminado.
 
 **Qué se hace distinto:** después de una corrida, `git add` **con los archivos nombrados**, nunca `-a`
-ni `-A`. Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
+ni `-A`.
+
+**Y otra vez el 10 de noviembre de 2026:** `git add -A src docs` en la revisión de la 270 se llevó cuatro archivos de
+`src/data/`. Los saqué antes de subir. **`-A` con una carpeta también arrastra: nombrar archivo por archivo.** Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
 **nunca** cambiando de rama.
 
 ### 32. Commitear una fusión con un conflicto que no había visto

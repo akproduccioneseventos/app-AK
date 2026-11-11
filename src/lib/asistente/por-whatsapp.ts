@@ -144,14 +144,20 @@ export function enlaceAlSimuladorDelProspecto(datos: {
   invitados?: number;
   salon?: string;
   tipoEvento?: string;
+  eventDate?: string;
+  guestCount?: number;
+  venueName?: string;
+  partyType?: string;
 }): string {
   const params = new URLSearchParams();
 
-  if (datos.invitados) {
-    params.set('guests', String(datos.invitados));
+  const invitados = datos.invitados ?? datos.guestCount;
+  if (invitados) {
+    params.set('guests', String(invitados));
   }
 
-  const normTipo = (datos.tipoEvento || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const tipoEventoStr = datos.tipoEvento || datos.partyType || '';
+  const normTipo = tipoEventoStr.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   let tipo = 'cumpleanos';
   if (normTipo.includes('15') || normTipo.includes('xv') || normTipo.includes('quince')) {
     tipo = '15';
@@ -164,15 +170,17 @@ export function enlaceAlSimuladorDelProspecto(datos: {
   }
   params.set('tipo', tipo);
 
-  if (datos.fecha) {
-    const mMes = datos.fecha.match(/(\d{4}-\d{2})/);
+  const fechaStr = datos.fecha || datos.eventDate;
+  if (fechaStr) {
+    const mMes = fechaStr.match(/(\d{4}-\d{2})/);
     if (mMes) {
       params.set('mes', mMes[1]);
     }
   }
 
-  if (datos.salon) {
-    const normSalon = datos.salon.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const salonStr = datos.salon || datos.venueName;
+  if (salonStr) {
+    const normSalon = salonStr.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     if (normSalon.includes('club') && normSalon.includes('uruguay')) {
       params.set('salon', 'club');
     }

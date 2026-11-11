@@ -20,12 +20,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import type { CartaTragosData, FiestaEnPlanificacion, Trago, TragoRecetaIngrediente } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMenu';
@@ -41,6 +43,8 @@ const formatCurrency = (amount?: number) =>
 const emptyPreviewFiesta = {} as FiestaEnPlanificacion;
 
 const fonts = ['Playfair Display', 'Inter', 'Belleza', 'Dancing Script'];
+
+const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 const isBebidaInsumo = (insumo: ServicioEmpresa) =>
   insumo.tipoItem === 'Bebida (Insumo)' ||
@@ -200,6 +204,8 @@ export default function TragosMasterPage() {
         const recipe = getRecipe(item);
         return {
           ...item,
+          activo: item.activo !== false,
+          meses: item.meses || [],
           ingredientes: recipe.length
             ? recipe.map((ing) => `${ing.cantidad} ${ing.unidad} ${ing.nombre}`.trim())
             : item.ingredientes || [],
@@ -384,6 +390,78 @@ export default function TragosMasterPage() {
                     <Button variant="destructive" onClick={() => removeItem(item.id)}>
                       <Trash2 className="w-4 h-4 mr-2" /> Eliminar
                     </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id={`disponible-${item.id}`}
+                        checked={item.activo !== false}
+                        onCheckedChange={(checked) => updateItem(item.id, { activo: checked })}
+                      />
+                      <Label htmlFor={`disponible-${item.id}`} className="text-sm font-semibold cursor-pointer">
+                        Disponible
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground mr-1">Atajos:</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs px-2"
+                        onClick={() => updateItem(item.id, { meses: [12, 1, 2, 3] })}
+                      >
+                        Verano
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs px-2"
+                        onClick={() => updateItem(item.id, { meses: [6, 7, 8, 9] })}
+                      >
+                        Invierno
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs px-2"
+                        onClick={() => updateItem(item.id, { meses: [] })}
+                      >
+                        Todo el año
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    {MESES_CORTOS.map((mesNombre, idx) => {
+                      const numMes = idx + 1;
+                      const mesesActivos = item.meses && item.meses.length > 0 ? item.meses : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                      const estaActivo = mesesActivos.includes(numMes);
+                      return (
+                        <Button
+                          key={numMes}
+                          type="button"
+                          size="sm"
+                          variant={estaActivo ? 'default' : 'outline'}
+                          className={cn(
+                            'h-7 text-xs px-2 min-w-[36px]',
+                            !estaActivo && 'opacity-50 text-muted-foreground'
+                          )}
+                          onClick={() => {
+                            const next = estaActivo
+                              ? mesesActivos.filter((m) => m !== numMes)
+                              : [...mesesActivos, numMes].sort((a, b) => a - b);
+                            updateItem(item.id, { meses: next.length === 12 ? [] : next });
+                          }}
+                        >
+                          {mesNombre}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
