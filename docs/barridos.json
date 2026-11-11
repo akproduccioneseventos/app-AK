@@ -706,6 +706,10 @@
     "orden-274": {
       "fecha": "2026-11-11",
       "resultado": "Pregunta 2: en el AK Editor, las reglas del vals, el baile con dos cámaras, los discursos y velas, y la sincronización existían pero app.py no las llamaba (sólo la previa). Buscado en herramientas/ak-editor qué función de reglas.py/analizador.py no llama nadie desde app.py: esas cuatro. Va en la orden 274."
+    },
+    "orden-277": {
+      "fecha": "2026-11-11",
+      "resultado": "Pregunta 4: la web decía 'Consultar por WhatsApp' y mandaba a un número de ejemplo; el catálogo decía llevar la elección al simulador y no la llevaba; el contador de la galería contaba fotos que no se veían. Buscado 59899123456 y 099123456 en src fuera de ejemplos de casillas: sólo los seis catálogos (arreglados por Claude). Buscadas las claves de sessionStorage del catálogo: sólo las lee la pantalla del equipo. Va en la orden 277."
     }
   }
 }
