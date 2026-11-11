@@ -26,7 +26,7 @@ function isUrlAllowed(urlStr: string): boolean {
   }
 }
 
-export function mapearEstacionCarpeta(sourceModule?: string | null): string {
+function mapearEstacionCarpeta(sourceModule?: string | null): string {
   if (!sourceModule) return 'muro';
   const mod = sourceModule.toLowerCase().trim().replace(/_/g, '-');
   if (mod.includes('fotocabina')) return 'fotocabina';

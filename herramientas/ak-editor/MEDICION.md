@@ -22,3 +22,10 @@ Todavía no se probó con una fiesta real.
 - **Memoria RAM máxima (proceso)**: 124.42 MB
 - **Cortes revisados por el dueño**: sin revisar
 - **Compatibilidad con Filmora**: sin probar
+
+## Medición de corrida real — 2026-11-11 16:52:38
+- **Material analizado**: 132.0 s (7 archivos)
+- **Tiempo transcurrido**: 20.27 s
+- **Memoria RAM máxima (proceso)**: 124.80 MB
+- **Cortes revisados por el dueño**: sin revisar
+- **Compatibilidad con Filmora**: sin probar

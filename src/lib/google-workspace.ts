@@ -6,6 +6,9 @@ import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/ty
 import type { Rol } from '@/types/rol';
 import type { GoogleTokenResponse, GoogleWorkspaceAccount, GoogleWorkspaceAccountKind } from '@/types/google-workspace';
 export type { GoogleTokenResponse, GoogleWorkspaceAccount, GoogleWorkspaceAccountKind };
+export { buildGoogleCalendarTemplateUrl, googleCalendarDate } from './google-workspace-urls';
+export type { GoogleWorkspaceEventInput } from './google-workspace-urls';
+import type { GoogleWorkspaceEventInput } from './google-workspace-urls';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -44,15 +47,6 @@ export interface GoogleOAuthState {
   kind: GoogleWorkspaceAccountKind;
   employeeId?: string;
   returnTo?: string;
-}
-
-export interface GoogleWorkspaceEventInput {
-  summary: string;
-  description: string;
-  location?: string;
-  startIso: string;
-  endIso: string;
-  attendees?: string[];
 }
 
 function base64UrlEncode(value: string) {
@@ -710,20 +704,6 @@ export async function sendGoogleGmailMessage(
   }
 
   return response.json() as Promise<{ id: string }>;
-}
-
-function googleCalendarDate(date: Date) {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
-}
-
-export function buildGoogleCalendarTemplateUrl(input: GoogleWorkspaceEventInput) {
-  const url = new URL('https://calendar.google.com/calendar/render');
-  url.searchParams.set('action', 'TEMPLATE');
-  url.searchParams.set('text', input.summary);
-  url.searchParams.set('details', input.description);
-  url.searchParams.set('dates', `${googleCalendarDate(new Date(input.startIso))}/${googleCalendarDate(new Date(input.endIso))}`);
-  if (input.location) url.searchParams.set('location', input.location);
-  return url.toString();
 }
 
 type GoogleCalendarListItem = {
