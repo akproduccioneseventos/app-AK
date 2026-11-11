@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/11/2026 - Los catálogos mandaban las consultas a un WhatsApp de ejemplo
+
+- **Lo encontró la auditoría pública del 11/11 (F01).** Los seis catálogos (`src/data/event-catalogs/*.ts`) tenían
+  `whatsappNumber: '59899123456'`, un número de ejemplo, y las seis páginas `/public/<evento>` lo toman de ahí. El
+  prospecto que tocaba "Consultar por WhatsApp" le escribía a nadie. Ahora usan `AK_WHATSAPP_NUMBER`
+  (`src/lib/public-contact.ts`). Lo frena `los-catalogos-mandan-al-whatsapp-de-ak.test.ts`, comprobado en rojo con un
+  catálogo vuelto atrás.
+
+```comprobar
+usa: AK_WHATSAPP_NUMBER en src/data/event-catalogs/bodas.ts
+prueba: src/__tests__/los-catalogos-mandan-al-whatsapp-de-ak.test.ts
+```
+
 ## 11/11/2026 - El blog muestra todas las notas, ordenadas por fecha
 
 - **Antes**, apenas la base tenía una nota, la página dejaba de mostrar las seis escritas a mano, y mostraba las notas en

@@ -1,4 +1,5 @@
 import type { EventCatalogData } from '@/types/public-landing';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import {
   sharedServices,
   sharedFAQs,
@@ -99,7 +100,7 @@ const xvAnosData: EventCatalogData = {
   ],
   whyUs: sharedWhyUs,
   process: sharedProcess,
-  whatsappNumber: '59899123456',
+  whatsappNumber: AK_WHATSAPP_NUMBER,
   whatsappMessage:
     '¡Hola AK Producciones! Quiero cotizar una FIESTA DE XV AÑOS. Me gustaría conocer sus paquetes.',
 };
