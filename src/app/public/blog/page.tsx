@@ -43,13 +43,15 @@ export const metadata: Metadata = {
 };
 
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { notasDelBlogParaMostrar } from '@/lib/blog/notas-para-mostrar';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 const WHATSAPP_MESSAGE = 'Hola AK Producciones, leí el blog y quiero asesoramiento para organizar mi evento.';
 
 export default async function BlogPage() {
   const postsFromDb = await getBlogPosts().catch(() => []);
-  const posts = postsFromDb.length > 0 ? postsFromDb : defaultBlogPosts;
+  const posts = notasDelBlogParaMostrar(postsFromDb, defaultBlogPosts, hoyEnUruguay());
   const featured = posts[0];
   const FeaturedIcon = getBlogIcon(featured.icon);
 

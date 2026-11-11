@@ -1,4 +1,5 @@
 import 'server-only';
+import { hoyEnUruguay } from '@/lib/utils';
 
 import { z } from 'zod';
 import { generateWithGeminiFallback, geminiProModel } from '@/ai/genkit';
@@ -199,7 +200,8 @@ Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no l
     excerpt: generated.excerpt,
     category: generated.category,
     readTime: generated.readTime,
-    publishedAt: new Date().toISOString().split('T')[0],
+    // Fecha de Uruguay: con la de Greenwich, una nota de la noche salía con la fecha de mañana.
+    publishedAt: hoyEnUruguay(),
     accent: generated.accent,
     icon: generated.icon,
     takeaway: generated.takeaway,

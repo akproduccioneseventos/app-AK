@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/11/2026 - El blog muestra todas las notas, ordenadas por fecha
+
+- **Antes**, apenas la base tenía una nota, la página dejaba de mostrar las seis escritas a mano, y mostraba las notas en
+  el orden en que estaban guardadas. Ahora `notasDelBlogParaMostrar` (`src/lib/blog/notas-para-mostrar.ts`) junta las
+  dos, la de la base manda si comparten enlace, saca borradores y fechas futuras, y ordena de la más nueva a la más
+  vieja. Lo frena `el-blog-muestra-todas-las-notas-ordenadas.test.ts`.
+- **La fecha de las notas de la IA es la de Uruguay** (`hoyEnUruguay`): con la de Greenwich, una nota de la noche salía
+  con la fecha de mañana.
+- **Cuántas se escriben:** una cada 48 horas (unas tres y media por semana), con la tarea del despertador cada 15
+  minutos. El registro `tareas-automaticas.ts` decía "56 horas, lunes, miércoles y viernes": es sólo un texto, no lo usa
+  nadie. Desde este contenedor no se puede mirar la base publicada para confirmar que salen.
+
 ## 11/11/2026 - AK Editor probado de punta a punta por Claude
 
 - **El programa no arrancaba con el Python que instala su instalador (3.11):** una f-string con barra invertida en
