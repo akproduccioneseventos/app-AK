@@ -67,6 +67,31 @@ El dueño quiere elegir un estilo y que el video se arme solo con ese estilo, co
 - **Lo que el dueño ajuste se guarda como plantilla propia** ("Guardar como mi plantilla"), para usarla en la próxima
   fiesta.
 
+## Bloque 3 ter — Más plantillas, intro automática, estilo libro y Video de Vida de boda (pedido del dueño, 11/11/2026)
+
+- **Doce plantillas, no seis.** A las seis de arriba se suman:
+  - Libro de cuentos: cada capítulo es una página que se da vuelta, con el título escrito a mano;
+  - Álbum de recortes, con fotos pegadas con cinta y textos tipo etiqueta;
+  - Flores animadas, una tendencia que crece fuerte en Pinterest para 2026;
+  - Cine (cuenta regresiva y bandas negras);
+  - Polaroid;
+  - Acuarela.
+- **Intro automática, armada sola en este orden:**
+  1. el logo de AK, desde "Marca AK", sin modificarlo;
+  2. la intro de la quinceañera con su **nombre** y la fecha (de `estilo.json`) en la tipografía de la plantilla;
+  3. el primer capítulo.
+
+  Si el dueño tiene cargado un `intro_ak.mp4` en "Marca AK", va ese en lugar del logo solo. Al final, el cierre con
+  la dedicatoria y el logo.
+- **Títulos en cada capítulo**, con la animación de la plantilla, y la edad o el año (se pueden apagar).
+- **Video de Vida de boda**, no sólo de XV. Al empezar se elige "XV años" o "Boda":
+  - **Boda:** dos carpetas, las fotos de cada novio. Arma **dos líneas de vida en paralelo** (pantalla partida, él y
+    ella de chicos a la misma edad), hasta que se conocen. Desde ahí sigue una sola línea con las fotos juntos.
+    Capítulos: Él · Ella · Cuando nos conocimos · Juntos · Hoy.
+  - El `estilo.json` de una boda trae los dos nombres (`cabecera.protagonista1` y `protagonista2`).
+- **Vista previa obligatoria:** el botón de armar el video final se habilita recién después de mirar la vista previa
+  entera o de tocar "Ya la vi".
+
 ## Bloque 4 — Vista previa y salida
 
 - **Vista previa liviana** (480p) en la pantalla del programa, para ver el resultado entero antes de armar el final.
@@ -88,6 +113,10 @@ El dueño quiere elegir un estilo y que el video se arme solo con ese estilo, co
 - `test_vida_sin_tope_de_fotos.py`: 300 fotos se ordenan y arman la línea de tiempo sin error.
 - `test_vida_usa_los_colores_de_la_web.py`: con un `estilo.json` de colores rosa, los títulos del video salen con
   ese color (se mide el color de los píxeles del título en un cuadro), y sin `estilo.json` sale la plantilla elegida.
+- `test_vida_de_boda_arma_dos_lineas.py`: con fotos de él y de ella, los cuadros del capítulo "Él · Ella" tienen
+  las dos fotos lado a lado, y después de "Cuando nos conocimos" queda una sola.
+- `test_vida_arranca_con_la_intro.py`: los primeros segundos del video tienen el logo de AK (se compara contra el PNG
+  de "Marca AK") y después el nombre de la quinceañera.
 - `test_vida_no_toca_las_originales.py`: después de todo, las fotos originales tienen la misma huella.
 
 Las pruebas tienen que ponerse en rojo con la función apagada. **El programa no puede tener caminos distintos para
@@ -96,6 +125,9 @@ cuando lo prueban** (se sacó uno en la orden 272).
 ```comprobar
 archivo: herramientas/ak-editor/video_de_vida.py
 archivo: herramientas/ak-editor/plantillas_vida/clasica-dorada.json
+archivo: herramientas/ak-editor/plantillas_vida/libro-de-cuentos.json
+prueba: herramientas/ak-editor/pruebas/test_vida_de_boda_arma_dos_lineas.py
+prueba: herramientas/ak-editor/pruebas/test_vida_arranca_con_la_intro.py
 usa: estilo.json en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
 prueba: herramientas/ak-editor/pruebas/test_vida_usa_los_colores_de_la_web.py
 usa: zoompan en herramientas/ak-editor/video_de_vida.py
