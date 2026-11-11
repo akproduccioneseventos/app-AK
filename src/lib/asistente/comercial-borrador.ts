@@ -123,29 +123,18 @@ async function listPhotos(consents: ConsentMap): Promise<FotoPromocionalElegible
     readData<GaleriaData>('galeria-publica.json', { fotos: [], videos: [] }),
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
   ]);
-  const authorizedIds = new Set<string>(
-    (Array.isArray(events) ? events : [])
-      .filter(event => hasCurrentPhotoConsent(consents[event.id], event.id))
-      .map(event => event.id)
-  );
-  for (const id of Object.keys(consents)) {
-    if (hasCurrentPhotoConsent(consents[id], id)) {
-      authorizedIds.add(id);
-    }
-  }
-  const eventMap = new Map((Array.isArray(events) ? events : []).map(e => [e.id, e]));
-
-  const publicAlbums = await Promise.all(Array.from(authorizedIds).map(async eventId => {
-    const event = eventMap.get(eventId);
-    const posts = await getPublicSocialPosts(eventId);
+  const authorizedEvents = (Array.isArray(events) ? events : []).filter(event =>
+    hasCurrentPhotoConsent(consents[event.id], event.id));
+  const publicAlbums = await Promise.all(authorizedEvents.map(async event => {
+    const posts = await getPublicSocialPosts(event.id);
     return posts
       .map((post: SocialGalleryPost) => ({
         id: post.id,
-        eventId,
+        eventId: event.id,
         url: post.imageUrl,
-        tipoFiesta: event?.configuracion?.tipoCelebracion || '',
-        invitados: event?.configuracion?.invitadosEstimados,
-        salon: event?.configuracion?.nombreLugar,
+        tipoFiesta: event.configuracion?.tipoCelebracion || '',
+        invitados: event.configuracion?.invitadosEstimados,
+        salon: event.configuracion?.nombreLugar,
         sourceModule: post.sourceModule,
         mediaType: post.mediaType || 'image',
       }));

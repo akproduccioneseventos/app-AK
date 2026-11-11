@@ -2,9 +2,11 @@ import {
   subirVideosDeLaFiesta,
   publicarBorradorConUnToque,
   descartarBorrador,
+} from '@/app/actions/videos-para-redes';
+import {
   limpiarTextoRedes,
   plataformasParaFormato,
-} from '@/app/actions/videos-para-redes';
+} from '@/lib/presencia-digital/formato-redes';
 
 let storeSocialPosts: any[] = [];
 let turno = Promise.resolve();

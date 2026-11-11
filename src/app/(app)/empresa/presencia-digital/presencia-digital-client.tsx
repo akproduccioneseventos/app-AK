@@ -86,8 +86,8 @@ import {
   subirVideosDeLaFiesta,
   publicarBorradorConUnToque,
   descartarBorrador,
-  contarBorradoresACrear,
 } from '@/app/actions/videos-para-redes';
+import { contarBorradoresACrear } from '@/lib/presencia-digital/formato-redes';
 
 interface Props {
   initialData: DigitalPresenceDashboardData;

@@ -40,7 +40,7 @@ export const sharedServices: ServiceItem[] = [
       'Catering completo (entrada, principal y postre)',
       'Barra de bebidas',
       'DJ + iluminación profesional',
-      'Fotografía y video',
+      'Fotografía profesional',
       'Torta personalizada',
       'Cotillón para invitados',
     ],
@@ -75,7 +75,7 @@ export const sharedFAQs: FAQItem[] = [
     id: 'seña',
     question: '¿Se requiere una seña para reservar la fecha?',
     answer:
-      'Sí. Para confirmar la fecha se requiere una seña del 30% del total del presupuesto acordado. El saldo restante se abona en cuotas según lo convenido.',
+      'Sí. Para confirmar la fecha se requiere una seña de {SENIA}. En caso de cancelación rige una penalidad del 30% sobre el valor señado. El saldo restante se abona en cuotas según lo convenido.',
   },
   {
     id: 'lluvia',
