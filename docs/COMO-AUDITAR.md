@@ -1531,3 +1531,34 @@ cargas que terminaban igual chocaban y la segunda quedaba sin factura. Se busca 
 en lo que se guarda o se usa para buscar (números de factura, claves, nombres de archivo únicos). Lo que sólo se muestra
 en pantalla como etiqueta no cuenta.
 
+
+### 113. Un teléfono, una cuenta de redes o una dirección que ve el cliente o el invitado, ¿sale de `src/lib/public-contact.ts` o está escrito a mano?
+
+Auditoría pública y barrido del 11/11/2026. Los seis catálogos mandaban a un WhatsApp de ejemplo (59899123456), y la
+barra y el muro mostraban cuentas de Instagram que no son la de AK (`@akproduccioneseventos`, `@akproducciones`). Se
+busca `wa.me/`, `tel:`, `mailto:`, `instagram.com/`, `@akproducciones` y números con forma de teléfono en `src/` fuera de
+`public-contact.ts`, de los `placeholder=` y de los ejemplos de ayuda. Escrito a mano y **distinto** del oficial es
+hallazgo; escrito a mano e igual es deuda menor, no se manda a cambiar.
+
+### 114. Un monto, un porcentaje o un plazo comercial escrito en un texto, ¿coincide con el ajuste que lo define?
+
+Mismo día. La seña figuraba como "30% del total" en el catálogo y "20% del total" en el presupuesto del equipo, cuando
+es un monto fijo de Ajustes (`bookingDepositAmount`); el PDF y el simulador tachaban "$36.000" escritos a mano aunque el
+precio de Club Uruguay se cambia en Ajustes. Se busca `\$ ?\d{1,3}\.\d{3}` y `\d+ ?%` en textos que ve el cliente
+(catálogos, simulador, presupuesto, PDF, portal) y se compara con `src/types/settings.ts` y `src/types/armado-rapido.ts`.
+Es plata: lo arregla quien la orden diga, pero lo verifica Claude.
+
+### 115. Lo que una pantalla guarda para la siguiente (`sessionStorage`, `localStorage`, la dirección), ¿lo lee la pantalla a la que de verdad navega?
+
+Mismo día. El catálogo guardaba el evento y el paquete para la pantalla del equipo y después mandaba al simulador
+público, que no los lee: el prospecto perdía lo elegido. Se listan los `setItem` con su clave y se busca su `getItem`;
+y cada `router.push`/`Link` que sale de una pantalla donde ya se eligió algo, ¿pasa lo elegido en la dirección? Una
+clave escrita que nadie lee no es hallazgo si lo mismo viaja por la dirección (así pasa en la presentación LED).
+
+### 116. Si falta la variable de entorno de una clave, ¿la puerta queda cerrada o abierta?
+
+Revisión de seguridad del 11/11/2026. Sin `CRON_SECRET`, el despachador de tareas (`/api/cron-despachador`) dejaba
+pasar a cualquiera y disparaba recordatorios a invitados; y la firma del ingreso con Google caía a una constante escrita
+en el código. Se busca `if (!secret) return true`, `|| 'texto-fijo'` sobre variables de claves, y comparaciones de
+claves con `===` (van con `timingSafeEqual`). Sin la variable, en producción tiene que cerrar (401/503), nunca abrir.
+Es permiso: lo verifica Claude.

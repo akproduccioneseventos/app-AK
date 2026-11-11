@@ -1,5 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/11/2026 - Next.js actualizado a 15.5.29, y la revisión de seguridad externa
+
+- **Next.js 15.5.27 estaba dentro de dos avisos de seguridad publicados**: uno deja tumbar el servidor con pedidos
+  armados contra las acciones del servidor, y otro de imágenes (este ya lo tapaba `sharp` 0.35.5). Se subió `next` y
+  `eslint-config-next` a 15.5.29.
+- **De la misma revisión, a la orden 278 (Gemini):** las tareas automáticas corren sin clave porque la app publicada
+  no tiene `CRON_SECRET`, y cinco claves se comparan con `===`.
+- **Descartado, con motivo:**
+  - La CSP en modo informe es a propósito.
+  - Que el servidor compile sin revisar los tipos no es un riesgo: a la principal sólo entra lo que pasó la puerta,
+    que sí los revisa.
+  - Los teléfonos que encontró en el repositorio son el de AK y el de ejemplo.
+  - El correo de recuperación es el de la empresa, que ya figura en la web.
+  - `npm audit fix` en masa queda afuera: los demás avisos son de dependencias de otras dependencias, y tocarlas a
+    ciegas rompe más de lo que arregla.
+
+```comprobar
+usa: "next": "15.5.29" en package.json
+```
+
 ## 11/11/2026 - Los catálogos mandaban las consultas a un WhatsApp de ejemplo
 
 - **Lo encontró la auditoría pública del 11/11 (F01).** Los seis catálogos (`src/data/event-catalogs/*.ts`) tenían

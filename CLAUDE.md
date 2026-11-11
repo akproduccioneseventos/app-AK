@@ -937,6 +937,8 @@ avisos cortos mientras se trabaja. Antes de mandar, se relee el idioma.
 **Y otra vez el 29 de octubre de 2026**, al publicar la foto del salón: los avisos y el informe final salieron en
 inglés. **Antes de mandar CUALQUIER mensaje al dueño, aunque sea de una línea, se mira que esté en castellano.**
 
+**Y otra vez el 11 de noviembre de 2026**, en los avisos cortos mientras corría la puerta ("Waiting for…", "The commit isn't pushed"). El dueño: *"no me escribas más en inglés"*. **Los avisos de espera también son mensajes al dueño.**
+
 ### 28. Programar entretenimiento porque "es para hoy"
 
 **Pasó el 28 de septiembre de 2026.** El dueño dijo que sí a tres mejoras de las estaciones (tótem,
@@ -1420,6 +1422,14 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **La seña, la multa, la filmación y Club Uruguay (11 de noviembre de 2026).** La seña es **$5.000 y se cambia en
+  Ajustes**; el **30% es la penalidad por cancelar**, no la seña. **Intermedio no incluye filmación.** El tachado de
+  Club Uruguay es **siempre el doble del precio** (dice 50% OFF con cualquier precio). Va en la orden 277, bloques 8-10.
+- **Los presupuestos que aparecen al poner el celular quedan como están (11 de noviembre de 2026).** Palabras suyas:
+  *"es un marketing de llamada a la acción… los clientes no se conocen… la idea es que el cliente pruebe varios
+  presupuestos"*. Lo marcó una auditoría externa como privacidad: **falso positivo, no se vuelve a plantear.** El reloj
+  del simulador tampoco se toca.
 
 - **Los despertadores automáticos quedaron APAGADOS (27 de octubre de 2026).** Palabras del dueño: *"apagala"*, porque gastaban de su plan cada media hora aunque no hubiera nada. Ahora el dueño avisa "terminó" y recién ahí se revisa. No se vuelven a prender sin que lo pida.
 
