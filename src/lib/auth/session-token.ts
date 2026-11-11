@@ -7,6 +7,26 @@ const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 let localDevelopmentSecret: string | undefined;
 
+const listaAccesosAuditorCortados = new Set<string>();
+
+export function registrarAuditorCortado(identificador: string) {
+  if (identificador) {
+    listaAccesosAuditorCortados.add(identificador.toLowerCase().trim());
+  }
+}
+
+export function limpiarAuditorCortado(identificador?: string) {
+  if (identificador) {
+    listaAccesosAuditorCortados.delete(identificador.toLowerCase().trim());
+  } else {
+    listaAccesosAuditorCortados.clear();
+  }
+}
+
+export function estaAuditorCortadoEnMemoria(identificador: string): boolean {
+  return listaAccesosAuditorCortados.has(identificador.toLowerCase().trim());
+}
+
 export interface SessionUserData {
   email: string;
   role: string;
@@ -157,9 +177,18 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
     if (!isValid) {
       return { success: false, error: 'Sesión no válida o expirada.' };
     }
+    if (user && (user.perfil === 'auditor' || user.role === 'auditor')) {
+      const email = user.email?.toLowerCase().trim() || '';
+      const userId = user.userId?.toLowerCase().trim() || '';
+      if ((email && listaAccesosAuditorCortados.has(email)) || (userId && listaAccesosAuditorCortados.has(userId))) {
+        return { success: false, error: 'El acceso de auditor fue cerrado.' };
+      }
+    }
     return { success: true, user };
-  } catch (error) {
-    console.error('[verifySession] Error verifying session:', error);
+  } catch (error: any) {
+    if (!error?.message?.includes('outside a request scope')) {
+      console.error('[verifySession] Error verifying session:', error);
+    }
     return { success: false, error: 'No se pudo verificar la sesión.' };
   }
 }

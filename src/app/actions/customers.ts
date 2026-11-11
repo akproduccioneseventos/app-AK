@@ -216,6 +216,9 @@ export async function saveCustomer(
     logger.info('[Cliente] Guardado exitoso:', customerId, (customerToSave as Customer).name);
   } catch (writeError: any) {
     logger.error('[Cliente] Error al guardar:', writeError.message || writeError);
+    if (writeError?.message?.includes('Acceso de auditor')) {
+      return { success: false, error: writeError.message };
+    }
     return { success: false, error: 'No se pudo guardar el cliente. Intentá de nuevo.' };
   }
 

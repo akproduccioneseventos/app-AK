@@ -39,6 +39,8 @@ export interface FotoPromocionalElegible {
   tipoFiesta: string;
   invitados?: number;
   salon?: string;
+  sourceModule?: string;
+  mediaType?: 'image' | 'video';
 }
 
 type ConsentMap = Record<string, PromotionalPhotoConsent>;
@@ -47,7 +49,7 @@ function validDate(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0 && Number.isFinite(Date.parse(value));
 }
 
-function hasCurrentPhotoConsent(consent: PromotionalPhotoConsent | undefined, eventId: string): boolean {
+export function hasCurrentPhotoConsent(consent: PromotionalPhotoConsent | undefined, eventId: string): boolean {
   return Boolean(
     consent
     && consent.eventId === eventId
@@ -86,6 +88,8 @@ function toPhoto(asset: GaleriaFoto): FotoPromocionalElegible | null {
     eventId: asset.eventoId,
     url: asset.url,
     tipoFiesta: gallery.tipoFiesta || '',
+    sourceModule: gallery.servicio || gallery.categoria,
+    mediaType: 'image',
   };
 }
 
@@ -119,19 +123,31 @@ async function listPhotos(consents: ConsentMap): Promise<FotoPromocionalElegible
     readData<GaleriaData>('galeria-publica.json', { fotos: [], videos: [] }),
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
   ]);
-  const authorizedEvents = (Array.isArray(events) ? events : []).filter(event =>
-    hasCurrentPhotoConsent(consents[event.id], event.id));
-  const publicAlbums = await Promise.all(authorizedEvents.map(async event => {
-    const posts = await getPublicSocialPosts(event.id);
+  const authorizedIds = new Set<string>(
+    (Array.isArray(events) ? events : [])
+      .filter(event => hasCurrentPhotoConsent(consents[event.id], event.id))
+      .map(event => event.id)
+  );
+  for (const id of Object.keys(consents)) {
+    if (hasCurrentPhotoConsent(consents[id], id)) {
+      authorizedIds.add(id);
+    }
+  }
+  const eventMap = new Map((Array.isArray(events) ? events : []).map(e => [e.id, e]));
+
+  const publicAlbums = await Promise.all(Array.from(authorizedIds).map(async eventId => {
+    const event = eventMap.get(eventId);
+    const posts = await getPublicSocialPosts(eventId);
     return posts
-      .filter((post: SocialGalleryPost) => post.mediaType !== 'video')
       .map((post: SocialGalleryPost) => ({
         id: post.id,
-        eventId: event.id,
+        eventId,
         url: post.imageUrl,
-        tipoFiesta: event.configuracion?.tipoCelebracion || '',
-        invitados: event.configuracion?.invitadosEstimados,
-        salon: event.configuracion?.nombreLugar,
+        tipoFiesta: event?.configuracion?.tipoCelebracion || '',
+        invitados: event?.configuracion?.invitadosEstimados,
+        salon: event?.configuracion?.nombreLugar,
+        sourceModule: post.sourceModule,
+        mediaType: post.mediaType || 'image',
       }));
   }));
   const galleryPhotos = (Array.isArray(gallery?.fotos) ? gallery.fotos : [])
@@ -140,6 +156,12 @@ async function listPhotos(consents: ConsentMap): Promise<FotoPromocionalElegible
   const unique = new Map<string, FotoPromocionalElegible>();
   [...galleryPhotos, ...publicAlbums.flat()].forEach(photo => unique.set(photo.id, photo));
   return Array.from(unique.values());
+}
+
+export async function tienePermisoPromocional(eventId: string): Promise<boolean> {
+  if (!eventId) return false;
+  const consents = await loadConsentMap();
+  return hasCurrentPhotoConsent(consents[eventId], eventId);
 }
 
 export async function fotosDeFiestasParecidas(
@@ -151,6 +173,7 @@ export async function fotosDeFiestasParecidas(
   const consents = await loadConsentMap();
   const photos = await listPhotos(consents);
   return rankPromotionalPhotos(photos.filter(photo => {
+    if (photo.mediaType === 'video') return false;
     const consent = consents[photo.eventId];
     return hasCurrentPhotoConsent(consent, photo.eventId);
   }), tipoEvento, invitados, salon, limit);

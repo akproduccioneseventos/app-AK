@@ -1,0 +1,20 @@
+{
+  "id": "cine",
+  "nombre": "Cine",
+  "paletaColores": {
+    "primary": "#E50914",
+    "secondary": "#000000",
+    "accent": "#E5E5E5"
+  },
+  "tipografia": "Bebas Neue",
+  "transiciones": ["fadeblack", "dissolve", "wipeleft"],
+  "transicion_capitulo": "fadeblack",
+  "estilo_titulo": "titulo_cinematografico",
+  "superposiciones": {
+    "cuenta_regresiva": true,
+    "bandas_negras": true,
+    "marco": false,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

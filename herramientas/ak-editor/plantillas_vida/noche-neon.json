@@ -1,0 +1,18 @@
+{
+  "id": "noche-neon",
+  "nombre": "Noche neón",
+  "paletaColores": {
+    "primary": "#FF007F",
+    "secondary": "#0A0A1A",
+    "accent": "#00F0FF"
+  },
+  "tipografia": "Orbitron",
+  "transiciones": ["glitch", "wipeleft", "wiperight", "zoomIn"],
+  "transicion_capitulo": "glitch",
+  "estilo_titulo": "resplandor_neon",
+  "superposiciones": {
+    "marco": false,
+    "destellos_luz": true,
+    "textura_pelicula": false
+  }
+}

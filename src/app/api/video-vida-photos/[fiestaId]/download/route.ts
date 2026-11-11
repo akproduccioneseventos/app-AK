@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { construirEstiloJson } from '@/lib/video-vida/estilo-video';
 import { hasAppSession } from '@/lib/auth/require-session';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
@@ -128,6 +130,15 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     }
     if (limitExceeded) {
       zip.file('DESCARGA_INCOMPLETA_LIMITE_50MB.txt', 'Se ha superado el límite máximo de 50MB de descarga. Algunos archivos no fueron incluidos para evitar agotar los recursos del servidor.');
+    }
+
+    try {
+      const fiesta = await getFiestaById(fiestaId);
+      const estilo = construirEstiloJson(fiesta);
+      zip.file('estilo.json', JSON.stringify(estilo, null, 2));
+    } catch (e) {
+      console.warn(`[VideoVida Download] No se pudo adjuntar estilo.json para fiesta ${fiestaId}:`, e);
+      zip.file('estilo.json', JSON.stringify({}, null, 2));
     }
 
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });

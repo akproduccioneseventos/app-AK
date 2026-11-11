@@ -17,6 +17,7 @@ export default function CumpleanosLanding() {
       <LocalBusinessJsonLd url="https://akproducciones.uy/cumpleanos" />
       <EventLandingPage
         eventType="Cumpleaños & Fiestas"
+        tipoEventoInicial="Sociales"
         source="landing-cumpleanos"
         heroImage="/media/catalogo-servicios/social_persuasivo.png"
         heroImageAlt="Cumpleaños producido por AK Producciones"

@@ -385,6 +385,20 @@ function PostEventoContent() {
                   </>
                 )}
               </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (fiestaId) {
+                    window.location.href = `/api/fiestas/${fiestaId}/material-redes`;
+                  }
+                }}
+                className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-xl font-bold h-10 flex items-center justify-center gap-2"
+              >
+                <FolderDown className="w-4 h-4" />
+                Bajar material para redes
+              </Button>
             </div>
           </CardContent>
         </Card>

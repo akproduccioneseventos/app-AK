@@ -1,0 +1,18 @@
+{
+  "id": "minimal-blanca",
+  "nombre": "Minimal blanca",
+  "paletaColores": {
+    "primary": "#111111",
+    "secondary": "#FAFAFA",
+    "accent": "#888888"
+  },
+  "tipografia": "Helvetica Neue",
+  "transiciones": ["fade", "dissolve"],
+  "transicion_capitulo": "fade",
+  "estilo_titulo": "limpio_austero",
+  "superposiciones": {
+    "marco": false,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

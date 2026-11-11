@@ -1,0 +1,19 @@
+{
+  "id": "flores-animadas",
+  "nombre": "Flores animadas",
+  "paletaColores": {
+    "primary": "#E56B6F",
+    "secondary": "#F9F5F0",
+    "accent": "#6B9080"
+  },
+  "tipografia": "Great Vibes",
+  "transiciones": ["circlecrop", "fade", "dissolve"],
+  "transicion_capitulo": "circlecrop",
+  "estilo_titulo": "floral_elegante",
+  "superposiciones": {
+    "flores": true,
+    "destellos_luz": true,
+    "marco": false,
+    "textura_pelicula": false
+  }
+}

@@ -74,6 +74,7 @@ export interface EventLandingPageProps {
   detailImageAlt: string;
   simulatorHref: string;
   services: LandingService[];
+  tipoEventoInicial?: string;
 }
 
 const containerVariants = {
@@ -109,6 +110,7 @@ export function EventLandingPage({
   detailImageAlt,
   simulatorHref,
   services,
+  tipoEventoInicial,
 }: EventLandingPageProps) {
   const reduceMotion = useReducedMotion();
   const whatsappMessage = `Hola AK Producciones, quiero cotizar ${eventType.toLowerCase()}.`;
@@ -158,6 +160,7 @@ export function EventLandingPage({
           simulatorHref={simulatorHref}
           simulatorLabel="Descubrir mi fiesta ideal"
           showEventTypes={false}
+          tipoEventoInicial={tipoEventoInicial}
         />
 
         {/* Compromiso y Transparencia */}

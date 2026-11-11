@@ -78,7 +78,16 @@ import {
   Star,
   MessageSquarePlus,
   Wand2,
+  FolderDown,
+  Video,
+  UploadCloud,
 } from 'lucide-react';
+import {
+  subirVideosDeLaFiesta,
+  publicarBorradorConUnToque,
+  descartarBorrador,
+  contarBorradoresACrear,
+} from '@/app/actions/videos-para-redes';
 
 interface Props {
   initialData: DigitalPresenceDashboardData;
@@ -171,6 +180,149 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   // Estado para Seguimiento de Reseñas por Fiesta (últimos 30 días)
   const [resenasData, setResenasData] = useState<ResenasSeguimientoResumen | null>(null);
   const [loadingResenas, setLoadingResenas] = useState<boolean>(false);
+
+  // Estado para subida de videos de la fiesta
+  const [showUploadVideos, setShowUploadVideos] = useState(false);
+  const [uploadingVideos, setUploadingVideos] = useState(false);
+  const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [redesJsonContent, setRedesJsonContent] = useState<any>(null);
+  const [borradoresACrearCount, setBorradoresACrearCount] = useState<number | null>(null);
+  const [subidaResultado, setSubidaResultado] = useState<{ createdCount: number; posts: SocialPost[] } | null>(null);
+  const [publishingActionId, setPublishingActionId] = useState<string | null>(null);
+
+  const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setVideoFiles(files);
+    setSubidaResultado(null);
+
+    const jsonFile = files.find((f) => f.name.toLowerCase() === 'redes.json');
+    if (jsonFile) {
+      try {
+        const text = await jsonFile.text();
+        const parsed = JSON.parse(text);
+        setRedesJsonContent(parsed);
+        const count = contarBorradoresACrear(parsed);
+        setBorradoresACrearCount(count);
+      } catch (err) {
+        console.warn('Error al leer redes.json:', err);
+        const mp4s = files.filter((f) => f.name.toLowerCase().endsWith('.mp4'));
+        setBorradoresACrearCount(mp4s.length * 3);
+      }
+    } else {
+      const mp4s = files.filter((f) => f.name.toLowerCase().endsWith('.mp4'));
+      if (mp4s.length > 0) {
+        setBorradoresACrearCount(mp4s.length * 3);
+      } else {
+        setBorradoresACrearCount(0);
+      }
+    }
+  };
+
+  const handleSubirVideos = async () => {
+    if (videoFiles.length === 0) return;
+    setUploadingVideos(true);
+    try {
+      const formData = new FormData();
+      if (redesJsonContent) {
+        formData.set('redesJson', JSON.stringify(redesJsonContent));
+      } else {
+        const mp4s = videoFiles.filter((f) => f.name.toLowerCase().endsWith('.mp4'));
+        const autoRedes = mp4s.map((f) => ({
+          estacion: f.name.replace(/\.[^/.]+$/, '').split('-')[0] || 'fiesta',
+          formato: f.name.includes('cuadrado') ? 'cuadrado' : f.name.includes('muro') ? '4:5' : 'reel',
+          archivo: f.name,
+        }));
+        formData.set('redesJson', JSON.stringify(autoRedes));
+      }
+
+      for (const file of videoFiles) {
+        formData.append('files', file);
+      }
+
+      const res = await subirVideosDeLaFiesta(formData);
+      if (res.success) {
+        toast({
+          title: 'Videos subidos',
+          description: `¡Se crearon ${res.createdCount} borradores para redes con éxito!`,
+        });
+        setSubidaResultado({ createdCount: res.createdCount, posts: res.posts });
+        setPosts((prev) => [...res.posts, ...prev]);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error al subir videos',
+          description: res.error || 'No se pudieron subir los videos.',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error inesperado',
+        description: err?.message || 'Ocurrió un error al procesar los videos.',
+      });
+    } finally {
+      setUploadingVideos(false);
+    }
+  };
+
+  const handlePublicarUnToque = async (postId: string, texto?: string) => {
+    setPublishingActionId(postId);
+    try {
+      const res = await publicarBorradorConUnToque(postId, texto);
+      if (res.success && res.post) {
+        toast({
+          title: 'Publicación programada',
+          description: 'El borrador quedó programado para el mejor horario.',
+        });
+        setPosts((prev) => prev.map((p) => (p.id === postId ? res.post! : p)));
+        setSubidaResultado((prev) =>
+          prev
+            ? {
+                ...prev,
+                posts: prev.posts.map((p) => (p.id === postId ? res.post! : p)),
+              }
+            : null
+        );
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: res.error || 'No se pudo programar el borrador.',
+        });
+      }
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'No se pudo programar la publicación.',
+      });
+    } finally {
+      setPublishingActionId(null);
+    }
+  };
+
+  const handleDescartarUnToque = async (postId: string) => {
+    setPublishingActionId(postId);
+    try {
+      const res = await descartarBorrador(postId);
+      if (res.success) {
+        toast({
+          title: 'Borrador descartado',
+        });
+        setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'Descartado' } : p)));
+        setSubidaResultado((prev) =>
+          prev
+            ? {
+                ...prev,
+                posts: prev.posts.filter((p) => p.id !== postId),
+              }
+            : null
+        );
+      }
+    } finally {
+      setPublishingActionId(null);
+    }
+  };
   // Estado para la solapa "Comentarios de redes" (Bloque 4)
   const [commentsData, setCommentsData] = useState<CommentsDashboardResponse['data'] | null>(null);
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
@@ -1100,6 +1252,131 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             </button>
           </div>
 
+          {/* Bloque: Subir los videos de la fiesta */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Video className="w-4 h-4 text-pink-400" />
+                  Videos para redes de cada fiesta
+                </h3>
+                <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+                  Subí la carpeta <code className="text-slate-300">redes\</code> creada por AK Editor. Se crearán los borradores con el texto listo y podrás publicarlos con un solo toque.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                data-testid="btn-subir-videos-fiesta"
+                onClick={() => setShowUploadVideos((prev) => !prev)}
+                className="px-4 py-2.5 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-pink-500/20 transition flex items-center gap-2 shrink-0"
+              >
+                <UploadCloud className="w-4 h-4" />
+                Subir los videos de la fiesta
+              </button>
+            </div>
+
+            {showUploadVideos && (
+              <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 block">
+                    Seleccioná los archivos de la carpeta redes (incluyendo redes.json):
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    data-testid="input-files-redes"
+                    onChange={handleFilesSelected}
+                    className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer"
+                  />
+                </div>
+
+                {borradoresACrearCount !== null && (
+                  <div
+                    data-testid="conteo-borradores"
+                    className="p-3 bg-blue-950/40 border border-blue-800/60 rounded-lg text-xs text-blue-200 font-medium"
+                  >
+                    Va a crear {borradoresACrearCount} borradores para redes.
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUploadVideos(false);
+                      setVideoFiles([]);
+                      setBorradoresACrearCount(null);
+                    }}
+                    className="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="btn-confirmar-subida"
+                    onClick={handleSubirVideos}
+                    disabled={uploadingVideos || videoFiles.length === 0}
+                    className="px-4 py-1.5 text-xs font-bold bg-pink-600 hover:bg-pink-500 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {uploadingVideos && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    {uploadingVideos ? 'Subiendo videos...' : 'Confirmar y crear borradores'}
+                  </button>
+                </div>
+
+                {subidaResultado && subidaResultado.posts.length > 0 && (
+                  <div className="pt-4 border-t border-slate-800 space-y-3">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Borradores creados ({subidaResultado.posts.length}) — Publicá con un toque:
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {subidaResultado.posts.map((post) => (
+                        <div
+                          key={post.id}
+                          className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 text-xs"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-200">{post.platform}</span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300">
+                              {post.status}
+                            </span>
+                          </div>
+                          {post.mediaUrl && (
+                            <div className="rounded overflow-hidden bg-black max-h-36 flex items-center justify-center">
+                              <video src={post.mediaUrl} controls className="max-h-36 w-full object-contain" />
+                            </div>
+                          )}
+                          <p className="text-slate-300 text-xs whitespace-pre-wrap line-clamp-3 font-sans">
+                            {post.text}
+                          </p>
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                            <button
+                              type="button"
+                              onClick={() => handleDescartarUnToque(post.id)}
+                              disabled={publishingActionId === post.id}
+                              className="px-2.5 py-1 text-slate-400 hover:text-red-400 text-xs rounded transition"
+                            >
+                              Descartar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handlePublicarUnToque(post.id)}
+                              disabled={publishingActionId === post.id}
+                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded transition flex items-center gap-1"
+                            >
+                              {publishingActionId === post.id && <Loader2 className="w-3 h-3 animate-spin" />}
+                              Publicar
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Publicación con mejor rendimiento */}
           {review.topPost && (
             <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3">
@@ -1602,17 +1879,27 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                         )}
                       </div>
 
-                      <button
-                        onClick={() => handleMarcarResenaSolicitada(f.id, f.whatsappUrl)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow ${
-                          f.reviewRequested
-                            ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                        }`}
-                      >
-                        <MessageSquarePlus className="w-3.5 h-3.5" />
-                        {f.reviewRequested ? 'Reenviar WhatsApp' : 'Pedir por WhatsApp'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`/api/fiestas/${f.id}/material-redes`}
+                          download
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow bg-blue-600 hover:bg-blue-500 text-white"
+                        >
+                          <FolderDown className="w-3.5 h-3.5" />
+                          Bajar material para redes
+                        </a>
+                        <button
+                          onClick={() => handleMarcarResenaSolicitada(f.id, f.whatsappUrl)}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow ${
+                            f.reviewRequested
+                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                              : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          }`}
+                        >
+                          <MessageSquarePlus className="w-3.5 h-3.5" />
+                          {f.reviewRequested ? 'Reenviar WhatsApp' : 'Pedir por WhatsApp'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -9,17 +9,20 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 import urllib.parse
+import numpy as np
 
 from almacen import Almacen, obtener_ruta_base_datos
-from analizador import Analizador
+from analizador import Analizador, detectar_voz_activa, sincronizar_dos_camaras
 from exportador_filmora import exportar_timeline_filmora, generar_xml_prueba
 from exportador_video import estimar_tiempo_render_formateado, exportar_video_ffmpeg
-from reglas import ReglasEdicion, cargar_configuracion
+from reglas import ReglasEdicion, aprender_de_mis_videos, cargar_configuracion
+import video_de_vida
 
 PUERTO = 8765
 
@@ -48,6 +51,250 @@ def obtener_almacen_actual() -> Almacen:
 def obtener_analizador_actual() -> Analizador:
     obtener_almacen_actual()
     return ESTADO_GLOBAL["analizador"]
+
+
+def extraer_audio_mono(ruta_video: str, tasa_muestreo: int = 1000) -> np.ndarray:
+    """Extrae audio mono como array float32 mediante ffmpeg."""
+    try:
+        cmd = [
+            "ffmpeg", "-v", "quiet", "-y", "-i", ruta_video,
+            "-ar", str(tasa_muestreo), "-ac", "1", "-f", "f32le", "-"
+        ]
+        res = subprocess.run(cmd, capture_output=True, check=False)
+        if res.returncode == 0 and res.stdout:
+            return np.frombuffer(res.stdout, dtype=np.float32)
+    except Exception:
+        pass
+    return np.zeros(0, dtype=np.float32)
+
+
+def armar_proyecto(
+    carpeta: str,
+    almacen: Almacen,
+    progreso_callback: Optional[Callable[[int, int, str], None]] = None,
+) -> List[Dict[str, Any]]:
+    """Arma el proyecto completo de la fiesta (Orden 274).
+
+    Ejecuta en orden:
+    1. Previa (cortes con regla 'la pose' o transiciones)
+    2. Entrada (si hay archivos, ducking de música al hablar)
+    3. Vals (generar_pistas_vals con música continua)
+    4. Baile (sincronizar_dos_camaras con offset en almacén, cortes multicámara con Osmo en pista 2 o fundido de 0,2s)
+    5. Discursos y velas (detectar_voz_activa y generar_cortes_discursos_y_velas)
+
+    Cada bloque empieza donde terminó el anterior (start acumulativo) y ningún clip dura menos de 1 s.
+    Agrega avisos detallados con archivo y minuto por cada tramo defectuoso.
+    """
+    analizador = Analizador(almacen)
+    if carpeta and os.path.exists(carpeta):
+        analizador.analizar_carpeta(carpeta, progreso_callback=progreso_callback)
+
+    archivos = almacen.obtener_archivos()
+    reglas = ReglasEdicion(almacen=almacen)
+
+    cortes_totales: List[Dict[str, Any]] = []
+    start_acumulado: float = 0.0
+
+    # 1. Previa
+    archivos_previa = [a for a in archivos if a.get("bloque") == "previa"]
+    for arch in archivos_previa:
+        metricas = almacen.obtener_analisis_segundos(arch["id"])
+        cortes_arch = reglas.generar_cortes_pose(arch, metricas=metricas, almacen=almacen)
+        if not cortes_arch:
+            cortes_arch = reglas.generar_cortes_previa([arch], almacen=almacen)
+
+        for c in cortes_arch:
+            dur = round(c.get("salida", 0.0) - c.get("entrada", 0.0), 2)
+            if dur >= 1.0:
+                c["archivo_ruta"] = arch["ruta"]
+                c["archivo_nombre"] = arch["nombre"]
+                c["duracion"] = dur
+                c["start"] = round(start_acumulado, 2)
+                c["end"] = round(start_acumulado + dur, 2)
+                start_acumulado += dur
+                cortes_totales.append(c)
+
+    # 2. Entrada
+    archivos_entrada = [a for a in archivos if a.get("bloque") == "entrada"]
+    for arch in archivos_entrada:
+        dur = float(arch.get("duracion", 10.0))
+        if dur >= 1.0:
+            c = {
+                "archivo_id": arch["id"],
+                "archivo_ruta": arch["ruta"],
+                "archivo_nombre": arch["nombre"],
+                "bloque": "entrada",
+                "entrada": 0.0,
+                "salida": round(dur, 2),
+                "duracion": round(dur, 2),
+                "start": round(start_acumulado, 2),
+                "end": round(start_acumulado + dur, 2),
+                "tipo": "corte_directo",
+                "transicion": "disolvencia",
+                "regla_aplicada": "entrada_locutor_ducking",
+                "camara": arch.get("camara", "principal"),
+                "pista_video": 1,
+                "pista_audio": 1,
+                "volumen_audio": 0.7,
+            }
+            start_acumulado += dur
+            cortes_totales.append(c)
+
+    # 3. Vals
+    archivos_vals = [a for a in archivos if a.get("bloque") == "vals"]
+    if not archivos_vals:
+        almacen.agregar_aviso_revision({
+            "tipo_aviso": "momento_faltante",
+            "archivo_id": None,
+            "segundo_inicio": 0.0,
+            "segundo_fin": 0.0,
+            "severidad": "advertencia",
+            "descripcion": "No se encontró ningún video identificado como vals en este evento.",
+        })
+    else:
+        arch_musica = archivos_vals[0]
+        pistas_vals = reglas.generar_pistas_vals(arch_musica, archivos_vals)
+        inicio_vals = start_acumulado
+        for c in pistas_vals.get("cortes_video", []):
+            dur = round(c["salida"] - c["entrada"], 2)
+            if dur >= 1.0:
+                arch_ref = next((a for a in archivos if a["id"] == c.get("archivo_id")), None)
+                if arch_ref:
+                    c["archivo_ruta"] = arch_ref["ruta"]
+                    c["archivo_nombre"] = arch_ref["nombre"]
+                c["duracion"] = dur
+                c["start"] = round(start_acumulado, 2)
+                c["end"] = round(start_acumulado + dur, 2)
+                start_acumulado += dur
+                cortes_totales.append(c)
+
+        c_mus = pistas_vals.get("pista_musica")
+        if c_mus:
+            c_mus["archivo_ruta"] = arch_musica["ruta"]
+            c_mus["archivo_nombre"] = arch_musica["nombre"]
+            c_mus["start"] = round(inicio_vals, 2)
+            c_mus["end"] = round(start_acumulado, 2)
+            cortes_totales.append(c_mus)
+
+    # 4. Baile
+    archivos_baile = [a for a in archivos if a.get("bloque") == "baile"]
+    arch_prin = next((a for a in archivos_baile if a.get("camara") == "principal"), None)
+    if not arch_prin and archivos_baile:
+        arch_prin = archivos_baile[0]
+    arch_osmo = next((a for a in archivos_baile if a.get("camara") == "osmo"), None)
+
+    if arch_prin and arch_osmo:
+        try:
+            audio_p = extraer_audio_mono(arch_prin["ruta"], tasa_muestreo=1000)
+            audio_o = extraer_audio_mono(arch_osmo["ruta"], tasa_muestreo=1000)
+            if len(audio_p) > 500 and len(audio_o) > 500:
+                desfase = abs(sincronizar_dos_camaras(audio_p, audio_o, tasa_muestreo=1000))
+                almacen.guardar_preferencia("desfase_baile", round(desfase, 2))
+            else:
+                almacen.agregar_aviso_revision({
+                    "tipo_aviso": "error_sincronizacion",
+                    "archivo_id": arch_prin["id"],
+                    "segundo_inicio": 0.0,
+                    "segundo_fin": 0.0,
+                    "severidad": "advertencia",
+                    "descripcion": "no se pudieron sincronizar las dos cámaras del baile",
+                })
+        except Exception:
+            almacen.agregar_aviso_revision({
+                "tipo_aviso": "error_sincronizacion",
+                "archivo_id": arch_prin["id"],
+                "segundo_inicio": 0.0,
+                "segundo_fin": 0.0,
+                "severidad": "advertencia",
+                "descripcion": "no se pudieron sincronizar las dos cámaras del baile",
+            })
+
+    if arch_prin:
+        cortes_baile = reglas.generar_cortes_baile_multicamara(arch_prin, arch_osmo, almacen=almacen)
+        inicio_baile = start_acumulado
+        for c in cortes_baile:
+            dur = round(c["salida"] - c["entrada"], 2)
+            if dur >= 1.0:
+                arch_ref = next((a for a in archivos if a["id"] == c.get("archivo_id")), None)
+                if arch_ref:
+                    c["archivo_ruta"] = arch_ref["ruta"]
+                    c["archivo_nombre"] = arch_ref["nombre"]
+                c["duracion"] = dur
+                if c.get("pista_video", 1) == 1:
+                    c["start"] = round(start_acumulado, 2)
+                    c["end"] = round(start_acumulado + dur, 2)
+                    start_acumulado += dur
+                else:
+                    c["start"] = round(inicio_baile + c["entrada"], 2)
+                    c["end"] = round(inicio_baile + c["salida"], 2)
+                cortes_totales.append(c)
+
+    # 5. Discursos y velas
+    archivos_velas = [a for a in archivos if a.get("bloque") == "discursos_y_velas"]
+    for arch in archivos_velas:
+        try:
+            audio_v = extraer_audio_mono(arch["ruta"], tasa_muestreo=1000)
+            inter_voz = detectar_voz_activa(audio_v, tasa_muestreo=1000) if len(audio_v) > 0 else []
+        except Exception:
+            inter_voz = []
+        cortes_v = reglas.generar_cortes_discursos_y_velas(arch, intervalos_voz=inter_voz)
+        for c in cortes_v:
+            dur = round(c["salida"] - c["entrada"], 2)
+            if dur >= 1.0:
+                c["archivo_ruta"] = arch["ruta"]
+                c["archivo_nombre"] = arch["nombre"]
+                c["duracion"] = dur
+                c["start"] = round(start_acumulado, 2)
+                c["end"] = round(start_acumulado + dur, 2)
+                start_acumulado += dur
+                cortes_totales.append(c)
+
+    # Revisión detallada de tramos defectuosos encontrados por el análisis
+    for arch in archivos:
+        metricas = almacen.obtener_analisis_segundos(arch["id"])
+        # Pantalla negra
+        seg_negro = [m["segundo"] for m in metricas if m.get("es_negro")]
+        if seg_negro:
+            minuto = f"{int(seg_negro[0] // 60):02d}:{int(seg_negro[0] % 60):02d}"
+            almacen.agregar_aviso_revision({
+                "tipo_aviso": "pantalla_negra",
+                "archivo_id": arch["id"],
+                "segundo_inicio": seg_negro[0],
+                "segundo_fin": seg_negro[-1] + 1.0,
+                "severidad": "advertencia",
+                "descripcion": f"Pantalla negra detectada en {arch['nombre']} en el segundo {seg_negro[0]:.1f} ({minuto})",
+            })
+        # Desenfoque
+        seg_desenfoque = [m["segundo"] for m in metricas if not m.get("es_negro") and m.get("desenfoque", 500.0) < 100.0]
+        if seg_desenfoque:
+            minuto = f"{int(seg_desenfoque[0] // 60):02d}:{int(seg_desenfoque[0] % 60):02d}"
+            almacen.agregar_aviso_revision({
+                "tipo_aviso": "desenfoque",
+                "archivo_id": arch["id"],
+                "segundo_inicio": seg_desenfoque[0],
+                "segundo_fin": seg_desenfoque[-1] + 1.0,
+                "severidad": "advertencia",
+                "descripcion": f"Desenfoque detectado en {arch['nombre']} en el segundo {seg_desenfoque[0]:.1f} ({minuto})",
+            })
+        # Sacudida sin Osmo para tapar
+        if arch.get("bloque") == "baile" and not arch_osmo:
+            seg_sacudida = [m["segundo"] for m in metricas if m.get("sacudida", 0.0) > 2.5]
+            if seg_sacudida:
+                minuto = f"{int(seg_sacudida[0] // 60):02d}:{int(seg_sacudida[0] % 60):02d}"
+                almacen.agregar_aviso_revision({
+                    "tipo_aviso": "sacudida_sin_osmo",
+                    "archivo_id": arch["id"],
+                    "segundo_inicio": seg_sacudida[0],
+                    "segundo_fin": seg_sacudida[-1] + 1.0,
+                    "severidad": "advertencia",
+                    "descripcion": f"Sacudida sin Osmo para tapar en {arch['nombre']} en el segundo {seg_sacudida[0]:.1f} ({minuto})",
+                })
+
+    # Guardar en base de datos
+    almacen.limpiar_cortes()
+    almacen.guardar_cortes(cortes_totales)
+
+    return cortes_totales
 
 
 class AKEditorHandler(BaseHTTPRequestHandler):
@@ -205,27 +452,9 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             def tarea_analisis():
                 ESTADO_GLOBAL["en_progreso"] = True
                 try:
-                    analizador.analizar_carpeta(carpeta or ".", progreso_callback=callback_prog)
-                    # Una vez analizado, generar cortes con ReglasEdicion
                     almacen = obtener_almacen_actual()
-                    archivos = almacen.obtener_archivos()
-                    reglas = ReglasEdicion(almacen=almacen)
-
-                    cortes_previa = reglas.generar_cortes_previa([a for a in archivos if a["bloque"] == "previa"])
-                    almacen.limpiar_cortes()
-                    almacen.guardar_cortes(cortes_previa)
-
-                    # Simular chequeos para revisión
-                    if not any(a["bloque"] == "vals" for a in archivos):
-                        almacen.agregar_aviso_revision({
-                            "tipo_aviso": "momento_faltante",
-                            "segundo_inicio": 0.0,
-                            "segundo_fin": 0.0,
-                            "severidad": "advertencia",
-                            "descripcion": "No se encontró ningún video identificado como vals en este evento.",
-                        })
-
-                    ESTADO_GLOBAL["mensaje_progreso"] = "Análisis completo y cortes generados."
+                    armar_proyecto(carpeta or ".", almacen, progreso_callback=callback_prog)
+                    ESTADO_GLOBAL["mensaje_progreso"] = "Análisis completo y cortes de la fiesta entera generados."
                 finally:
                     ESTADO_GLOBAL["en_progreso"] = False
 

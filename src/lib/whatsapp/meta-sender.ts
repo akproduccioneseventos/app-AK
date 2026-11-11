@@ -1,3 +1,5 @@
+import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+
 const DEFAULT_META_API_VERSION = 'v23.0';
 const META_REQUEST_TIMEOUT_MS = 10_000;
 
@@ -25,6 +27,7 @@ export async function sendMetaWhatsAppMessage(params: {
   apiToken: string;
   phoneNumberId: string;
 }): Promise<MetaSendResult> {
+  await exigirQueSePuedaGuardar();
   const apiToken = params.apiToken.trim();
   const phoneNumberId = params.phoneNumberId.replace(/\D/g, '');
   const to = normalizeRecipient(params.to);
@@ -96,6 +99,7 @@ export async function sendMetaWhatsAppAudioMessage(params: {
   apiToken: string;
   phoneNumberId: string;
 }): Promise<MetaSendResult> {
+  await exigirQueSePuedaGuardar();
   const apiToken = params.apiToken.trim();
   const phoneNumberId = params.phoneNumberId.replace(/\D/g, '');
   const to = normalizeRecipient(params.to);
