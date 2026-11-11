@@ -1,4 +1,5 @@
 import type { EventCatalogData } from '@/types/public-landing';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import {
   sharedFAQs,
   sharedPaymentMethods,
@@ -131,7 +132,7 @@ const corporativosData: EventCatalogData = {
   ],
   whyUs: sharedWhyUs,
   process: sharedProcess,
-  whatsappNumber: '59899123456',
+  whatsappNumber: AK_WHATSAPP_NUMBER,
   whatsappMessage:
     '¡Hola AK Producciones! Quiero cotizar un EVENTO CORPORATIVO para mi empresa. Me gustaría recibir una propuesta.',
 };

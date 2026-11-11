@@ -1,5 +1,39 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/11/2026 - Los catálogos mandaban las consultas a un WhatsApp de ejemplo
+
+- **Lo encontró la auditoría pública del 11/11 (F01).** Los seis catálogos (`src/data/event-catalogs/*.ts`) tenían
+  `whatsappNumber: '59899123456'`, un número de ejemplo, y las seis páginas `/public/<evento>` lo toman de ahí. El
+  prospecto que tocaba "Consultar por WhatsApp" le escribía a nadie. Ahora usan `AK_WHATSAPP_NUMBER`
+  (`src/lib/public-contact.ts`). Lo frena `los-catalogos-mandan-al-whatsapp-de-ak.test.ts`, comprobado en rojo con un
+  catálogo vuelto atrás.
+
+```comprobar
+usa: AK_WHATSAPP_NUMBER en src/data/event-catalogs/bodas.ts
+prueba: src/__tests__/los-catalogos-mandan-al-whatsapp-de-ak.test.ts
+```
+
+## 11/11/2026 - El blog muestra todas las notas, ordenadas por fecha
+
+- **Antes**, apenas la base tenía una nota, la página dejaba de mostrar las seis escritas a mano, y mostraba las notas en
+  el orden en que estaban guardadas. Ahora `notasDelBlogParaMostrar` (`src/lib/blog/notas-para-mostrar.ts`) junta las
+  dos, la de la base manda si comparten enlace, saca borradores y fechas futuras, y ordena de la más nueva a la más
+  vieja. Lo frena `el-blog-muestra-todas-las-notas-ordenadas.test.ts`.
+- **La fecha de las notas de la IA es la de Uruguay** (`hoyEnUruguay`): con la de Greenwich, una nota de la noche salía
+  con la fecha de mañana.
+- **Cuántas se escriben:** una cada 48 horas (unas tres y media por semana), con la tarea del despertador cada 15
+  minutos. El registro `tareas-automaticas.ts` decía "56 horas, lunes, miércoles y viernes": es sólo un texto, no lo usa
+  nadie. Desde este contenedor no se puede mirar la base publicada para confirmar que salen.
+
+## 11/11/2026 - AK Editor probado de punta a punta por Claude
+
+- **El programa no arrancaba con el Python que instala su instalador (3.11):** una f-string con barra invertida en
+  `exportador_video.py`. Arreglado; `pruebas/test_todo_compila.py` compila e importa todo.
+- **Los cortes de la previa salían de 0 segundos:** `app.py` creaba las reglas sin el almacén y no veían el análisis.
+  Arreglado (`ReglasEdicion(almacen=almacen)`).
+- **Sigue en la orden 274:** la línea de tiempo trae sólo la previa (vals, baile, velas y sincronización no se llaman) y
+  la revisión no avisa los tramos malos.
+
 ## 10/11/2026 - AK Editor (órdenes 271 y 272)
 
 - **El editor mira los videos de verdad** (OpenCV: negro, desenfoque, sacudidas y caras por segundo) y marca

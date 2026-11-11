@@ -1,24 +1,25 @@
-# Estado actual — 10 de noviembre de 2026
+# Estado actual — 11 de noviembre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (= principal + órdenes 269/270 y el acceso "Hablar con AK"). Publicada: la 1380.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la 1383.
 
 ## Publicado
-- **1380 (Codex 777):** la carga de presupuestos viejos no choca ni duplica; el respaldo público del simulador no muestra
-  costos internos; el alquiler del Club Uruguay es $16.900 en pantalla y en el PDF (antes la pantalla decía $20.000).
-- **1379:** órdenes 262 a 268 de Gemini.
+- **1383:** órdenes 270 a 272. Tragos por temporada, aviso de presupuesto abierto, recontacto sin promesa falsa,
+  "tu fiesta en números" en el portal, reglas de la IA con turno, y el AK Editor (programa local + sección "Edición de
+  videos"). Claude arregló en la revisión: el guardado general que caía a disco sin credenciales, el buzón abierto sin
+  sesión, el portal que no compilaba y el atajo para pruebas del editor.
+- **1380:** Codex 777 (históricos, respaldo público, Club Uruguay a $16.900).
 
-## Esperando a Gemini
-- **Orden 270** (incluye la 269): tragos por temporada, aviso de presupuesto abierto, recontacto sin promesa falsa,
-  "tu fiesta en números" en el portal, la decoración que no le paga dos veces a la IA y las reglas de la IA con turno.
-  Gemini arranca de esta rama. En la misma entrega viaja el acceso "Hablar con AK" del manifiesto (ya commiteado acá).
+## Para Gemini
+- **Orden 273:** el Video de Vida armado solo, como modo del AK Editor.
+- **Orden 269 sigue abierta:** la decoración puede pagarle dos veces a la IA (la prueba con emulador da 2 llamadas).
+  Se corre con el emulador en el puerto 8085 (ver la orden).
+- El agregado de Gemini en la rama 270 (`c93f2d0d6`, manifiestos en `public/`) NO se tomó: repetía lo ya hecho y
+  volvía a meter un manifiesto que choca con `src/app/manifest.ts`.
 
-## Esperando a Gemini (2)
-- **Orden 271**: AK Editor Inteligente (programa local en `herramientas/ak-editor/` + sección "Edición de videos" en la app), costo cero, exporta XML para Filmora 16.
-
-## Decisiones pendientes del dueño (no escribir órdenes hasta que decida)
-- 15% de contratos nuevos: fijo sobre el primer presupuesto o acumulativo. Panel del cliente: ajuste de entrada o año a año.
-- Play Store: falta la huella SHA-256 (Play Console → Integridad de la app → Firma de apps). La cuenta ya existe.
+## Decisiones pendientes del dueño
+- 15% de contratos nuevos: fijo o acumulativo. Panel del cliente: ajuste de entrada o año a año.
+- Play Store: falta la huella SHA-256.
 - Mejoras propuestas sin decidir: estilo unificado, WhatsApp del invitado en la fotocabina, GIF en la fotocabina, aviso antes de que venza la promo.
 
 ## Errores de plata y permisos abiertos
-- Ninguno conocido. La 1366 se cerró: sus seis pendientes del centro de control ya estaban arreglados.
+- Ninguno conocido.
