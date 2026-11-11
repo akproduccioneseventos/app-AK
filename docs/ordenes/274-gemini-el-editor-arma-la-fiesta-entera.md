@@ -108,6 +108,24 @@ máquina se le entrega **como clips**, que Filmora sí acepta:
 entra moviéndose (0-2 s), queda quieta (2-6 s) y se va (6-8 s). El corte cae adentro de 2-6 s. Si la cara se mueve
 todo el tiempo, no hay corte de pose.
 
+## Bloque 6 — Aprender de los videos terminados del dueño
+
+El dueño tiene en su computadora fiestas de XV ya editadas por él. **Esas son la mejor referencia:** muestran cómo
+corta él.
+
+- "Marca AK" suma "Aprender de mis videos": el dueño elige dos o tres videos terminados. El programa los analiza
+  (PySceneDetect para los cortes, más el análisis por segundo que ya existe) y mide:
+  - cuánto dura cada toma en cada parte de la fiesta;
+  - cada cuánto pone una transición y de qué largo;
+  - cuánto dura la intro;
+  - dónde va el logo.
+- Con eso propone los números de `config.yaml` (duración de pose, de la previa, de los tramos del baile) y los muestra
+  "antes / después" para que el dueño acepte. **No los cambia solo.**
+- Los videos se analizan en copia liviana, de a uno, y no se tocan.
+
+**Prueba del bloque 6**, `pruebas/test_aprende_de_mis_videos.py`: un video armado por la prueba con cortes cada 4 s
+propone una duración de toma de 4 ± 0,5 s.
+
 ## Lo que no se toca
 
 El instalador, la sección de la app, el análisis por segundo, el almacén, el XML de prueba para Filmora y los dos
@@ -122,4 +140,5 @@ prueba: herramientas/ak-editor/pruebas/test_todo_compila.py
 prueba: herramientas/ak-editor/pruebas/test_corta_cuando_se_van.py
 usa: intro_nombre en herramientas/ak-editor/exportador_filmora.py
 usa: transitionitem en herramientas/ak-editor/exportador_filmora.py
+prueba: herramientas/ak-editor/pruebas/test_aprende_de_mis_videos.py
 ```
