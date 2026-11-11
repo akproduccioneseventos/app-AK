@@ -1421,6 +1421,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La seña, la multa, la filmación y Club Uruguay (11 de noviembre de 2026).** La seña es **$5.000 y se cambia en
+  Ajustes**; el **30% es la penalidad por cancelar**, no la seña. **Intermedio no incluye filmación.** El tachado de
+  Club Uruguay es **siempre el doble del precio** (dice 50% OFF con cualquier precio). Va en la orden 277, bloques 8-10.
+- **Los presupuestos que aparecen al poner el celular quedan como están (11 de noviembre de 2026).** Palabras suyas:
+  *"es un marketing de llamada a la acción… los clientes no se conocen… la idea es que el cliente pruebe varios
+  presupuestos"*. Lo marcó una auditoría externa como privacidad: **falso positivo, no se vuelve a plantear.** El reloj
+  del simulador tampoco se toca.
+
 - **Los despertadores automáticos quedaron APAGADOS (27 de octubre de 2026).** Palabras del dueño: *"apagala"*, porque gastaban de su plan cada media hora aunque no hubiera nada. Ahora el dueño avisa "terminó" y recién ahí se revisa. No se vuelven a prender sin que lo pida.
 
 - **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026; reemplazada por la de arriba).**
