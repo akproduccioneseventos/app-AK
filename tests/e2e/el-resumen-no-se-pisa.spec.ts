@@ -93,7 +93,9 @@ test.describe('Orden 277 — Bloque 7: Las acciones del resumen no se pisan', ()
       const btnWhatsapp = page.getByRole('button', { name: /WhatsApp AK/i });
 
       await expect(btnGuardarPdf).toBeVisible();
+      await expect(btnGuardarPdf).toHaveText(/Guardar PDF/i);
       await expect(btnWhatsapp).toBeVisible();
+      await expect(btnWhatsapp).toHaveText(/WhatsApp AK/i);
 
       const boxPdf = await btnGuardarPdf.boundingBox();
       const boxWa = await btnWhatsapp.boundingBox();
@@ -102,7 +104,7 @@ test.describe('Orden 277 — Bloque 7: Las acciones del resumen no se pisan', ()
       expect(boxWa, `WhatsApp AK debe tener boundingBox visible a ancho ${width}`).not.toBeNull();
 
       const seSuperponen = boxesIntersect(boxPdf!, boxWa!);
-      expect(seSuperponen, `Los botones Guardar PDF y WhatsApp AK se cruzan a ancho ${width}`).toBe(false);
+      expect(seSuperponen, `Los botones Guardar PDF y WhatsApp AK se cruzan a ancho ${width}`).toEqual(false);
     }
   });
 });

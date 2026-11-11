@@ -39,6 +39,7 @@ test.describe('Orden 276: El auditor externo recorre la app', () => {
     await page.goto('/empresa/contabilidad', { waitUntil: 'domcontentloaded' });
     const franjaContabilidad = page.getByText('Acceso de auditor · sólo mirar');
     await expect(franjaContabilidad).toBeVisible({ timeout: 20_000 });
+    await expect(franjaContabilidad).toHaveText(/Acceso de auditor · sólo mirar/);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 20_000 });
 
     // 2. Abre presupuestos y ve la franja fija
@@ -78,5 +79,6 @@ test.describe('Orden 276: El auditor externo recorre la app', () => {
     // Debe saltar el cartel de sólo mirar
     const cartelSoloMirar = page.getByText('Acceso de auditor: se puede mirar todo, pero no guardar ni mandar nada.');
     await expect(cartelSoloMirar).toBeVisible({ timeout: 20_000 });
+    await expect(cartelSoloMirar).toContainText('Acceso de auditor: se puede mirar todo, pero no guardar ni mandar nada.');
   });
 });
