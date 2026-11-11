@@ -5,6 +5,7 @@ import zlib from 'node:zlib';
 import { sharedFAQs, sharedServices } from '@/data/event-catalogs/shared';
 import { createSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+import Paso4Resumen from '@/components/presupuestos/paso-4-resumen';
 
 if (typeof globalThis.TextEncoder === 'undefined') {
   globalThis.TextEncoder = TextEncoder;
@@ -114,6 +115,7 @@ describe('La seña y los paquetes dicen lo de ajustes (Orden 277)', () => {
   });
 
   it('el resumen del equipo no dice "20% del total"', () => {
+    expect(typeof Paso4Resumen).toBe('function');
     const resumenPath = path.join(process.cwd(), 'src/components/presupuestos/paso-4-resumen.tsx');
     const codigoResumen = fs.readFileSync(resumenPath, 'utf8');
 
