@@ -1,4 +1,4 @@
-# Orden 276 — Acceso de auditor externo: ve toda la app por 72 horas y no puede cambiar nada (11/11/2026)
+# Orden 276 — Acceso de auditor externo: ve toda la app hasta que el dueño lo cierre, y no puede cambiar nada (11/11/2026)
 
 **Para Gemini.** Arrancá de `claude/app-debug-stabilize-m70e6z` actualizada (`git pull`), rama nueva
 `gemini/orden-276-auditor-externo`. **Una sola entrega, sin fusionar.** Es un cambio de **permisos**: Claude lo revisa
@@ -6,7 +6,10 @@ línea por línea. Repasá `docs/ANTES-DE-ENTREGAR.md` y el candado de la plata 
 
 **Lo que pidió el dueño, con sus palabras:** *"imaginate una oficina y viene un auditor externo: la oficina le tiene que
 dar todo para que audite"*. Ve **toda** la app, todos los módulos, con los datos reales, incluidos el portal del
-cliente y lo que ve el invitado. **Sin poder modificar nada.** Vence solo a las 72 horas.
+cliente y lo que ve el invitado. **Sin poder modificar nada.**
+
+**Cambio del dueño, mismo día:** *"72 horas es muy poco; yo te aviso cuando termine y tú lo cerrás, pero que quede
+creado para futuras auditorías"*. **No vence solo:** dura hasta que se corta. Y queda armado para volver a usarlo.
 
 ## Bloque 1 — El perfil "auditor"
 
@@ -48,18 +51,23 @@ En la pantalla, el error se muestra como cualquier otro: el auditor toca "Guarda
 - El navegador del auditor lleva su sesión de auditor, así que **cualquier guardado del portal o del invitado** (pagos,
   confirmaciones, fotos, pedidos de tragos) choca con el candado del bloque 2. Probalo con una prueba.
 
-## Bloque 4 — Crearlo, que venza solo, y cortarlo antes
+## Bloque 4 — Crearlo, cortarlo y volver a abrirlo para la próxima auditoría
 
-- En `src/app/(app)/admin/usuarios/page.tsx`, sólo para `dueno`: **"Crear acceso de auditor (72 horas)"**.
-  - Crea un usuario en `users` con `perfil: 'auditor'` y `venceEl` dentro de 72 horas, usando `createUser`
-    (`src/app/actions/auth.ts` ~873) o una acción hermana con el mismo control de permiso.
-  - El correo lo pone el dueño. La clave **la genera la app** y se muestra **una sola vez**, con un botón de copiar.
-- **Vence solo:**
-  - `loginUser` (`src/app/actions/auth.ts` ~295) no deja entrar a un auditor con `venceEl` pasado;
-  - la sesión que se le da dura **hasta `venceEl`, no más** (el `maxAgeSeconds` de `session-token.ts` ~78).
-- **"Cortar el acceso ya"**, al lado del usuario: pone `venceEl` en ahora y lo anota en una lista de accesos cortados.
-  Para el perfil `auditor`, y sólo para ese, `verifySession` mira esa lista y lo deja afuera en el próximo clic.
-- Arriba de toda la app, para el auditor, una franja fija: *"Acceso de auditor · sólo mirar · vence el 14/11 a las 18:30"*.
+- En `src/app/(app)/admin/usuarios/page.tsx`, sólo para `dueno`, una tarjeta **"Auditoría externa"**:
+  - **"Abrir acceso de auditor"**: crea (o reactiva, si ya existe) un usuario en `users` con `perfil: 'auditor'`.
+    Usá `createUser` (`src/app/actions/auth.ts` ~873) o una acción hermana con el mismo control de permiso. El correo
+    lo pone el dueño. **La clave la genera la app** y se muestra **una sola vez**, con un botón de copiar. Cada vez que
+    se abre, la clave es nueva.
+  - **"Cerrar el acceso"**: marca `activo: false` y `cerradoEl`, y lo anota en una lista de accesos cortados. Para el
+    perfil `auditor`, y sólo para ese, `verifySession` mira esa lista y lo deja afuera en el próximo clic.
+    `loginUser` (`src/app/actions/auth.ts` ~295) no deja entrar a un auditor con `activo: false`.
+  - **Queda guardado para la próxima vez:** la tarjeta muestra el historial (desde cuándo hasta cuándo estuvo abierto
+    cada acceso, y con qué correo) y el botón "Abrir acceso de auditor" para una auditoría nueva.
+- **No vence por tiempo**, por decisión del dueño. Para no olvidarlo prendido: si pasan **14 días** abierto, el asistente
+  le avisa al dueño "El acceso de auditor sigue abierto desde el …: ¿lo cierro?". **No lo cierra solo.**
+- La sesión del auditor dura lo normal (`maxAgeSeconds`, `session-token.ts` ~78), y al vencer vuelve a ingresar con su
+  clave mientras el acceso esté abierto.
+- Arriba de toda la app, para el auditor, una franja fija: *"Acceso de auditor · sólo mirar"*.
 
 ## Lo que el auditor NO ve, aunque vea todo lo demás
 
@@ -83,10 +91,10 @@ Contáselo al dueño en la entrega con estas palabras. Son las llaves de la ofic
 
   Con sesión de `dueno` y **sin sesión** (tarea automática), las mismas funcionan.
 - `src/__tests__/el-acceso-de-auditor-vence.test.ts`:
-  - pasado `venceEl` no entra;
-  - la sesión dura como mucho hasta `venceEl`;
-  - "Cortar el acceso ya" lo deja afuera;
-  - el auditor no puede crear otro auditor ni cambiar perfiles.
+  - con el acceso cerrado no entra, y una sesión ya abierta queda afuera en el próximo clic;
+  - abrirlo de nuevo da una clave nueva y la vieja no sirve;
+  - el auditor no puede crear otro auditor, abrir ni cerrar accesos, ni cambiar perfiles;
+  - a los 14 días abierto aparece el aviso al dueño, y el acceso sigue abierto.
 - `tests/e2e/el-auditor-recorre-la-app.spec.ts`:
   - con sesión de auditor abre contabilidad, presupuestos y una fiesta;
   - ve la franja;
@@ -101,7 +109,7 @@ usa: exigirQueSePuedaGuardar en src/lib/firebase/storage.ts
 usa: exigirQueSePuedaGuardar en src/lib/whatsapp/meta-sender.ts
 usa: exigirQueSePuedaGuardar en src/lib/ai/consumo-servidor.ts
 usa: auditor en src/lib/auth/perfiles.ts
-usa: venceEl en src/app/actions/auth.ts
+usa: cerradoEl en src/app/actions/auth.ts
 prueba: src/__tests__/el-auditor-mira-y-no-toca.test.ts
 prueba: src/__tests__/el-acceso-de-auditor-vence.test.ts
 prueba: tests/e2e/el-auditor-recorre-la-app.spec.ts
