@@ -448,6 +448,22 @@
     "112": {
       "fecha": "2026-10-31",
       "resultado": "buscado .slice(-N) sobre ids en src/: sólo HIST- (cargas históricas) se guardaba y chocaba, arreglado. SEÑA- se repite a propósito y se busca por fiesta; recibos, pedidos y presupuestos sólo lo muestran; las claves del portal se comparan contra su propia fiesta."
+    },
+    "113": {
+      "fecha": "2026-11-11",
+      "resultado": "Barrido en src/ de wa.me, tel:, mailto:, instagram.com, @akproducciones y teléfonos: distintos del oficial sólo los catálogos (arreglados por Claude), la barra (@akproduccioneseventos) y el muro y la barra tecnológica (@akproducciones). Van en la orden 277, bloque 11. El resto coincide con public-contact.ts."
+    },
+    "114": {
+      "fecha": "2026-11-11",
+      "resultado": "Seña 30% en catalogo/[tipo] y shared.ts, 20% en paso-4-resumen.tsx, $5.000 fijo en simulador-ak; $36.000/$16.900 escritos en el simulador y en simulator-budget-pdf.ts. Van en la orden 277, bloques 8, 10 y 12. Los demás porcentajes (10% de cambio de invitados, ±10% de ajustes) son reglas de la casa sin ajuste propio."
+    },
+    "115": {
+      "fecha": "2026-11-11",
+      "resultado": "El catálogo pierde evento y paquete (orden 277, bloque 1); la presentación LED pierde las entradas elegidas al pasar a crear el presupuesto (orden 277, bloque 13). La vidriera de tecnología ya pasa la estación en su botón principal. Las demás claves de presentacion_* viajan también por la dirección: no es hallazgo."
+    },
+    "116": {
+      "fecha": "2026-11-11",
+      "resultado": "Abiertas sin la variable: /api/cron-despachador (dispara recordatorios) y la firma del estado de Google con constante. Comparaciones con === en 9 lugares. Todo en la orden 278. Cierran bien: insights, meta webhook, looker, clean-db, sesión y estaciones."
     }
   },
   "hallazgos": {
@@ -710,6 +726,10 @@
     "orden-277": {
       "fecha": "2026-11-11",
       "resultado": "Pregunta 4: la web decía 'Consultar por WhatsApp' y mandaba a un número de ejemplo; el catálogo decía llevar la elección al simulador y no la llevaba; el contador de la galería contaba fotos que no se veían. Buscado 59899123456 y 099123456 en src fuera de ejemplos de casillas: sólo los seis catálogos (arreglados por Claude). Buscadas las claves de sessionStorage del catálogo: sólo las lee la pantalla del equipo. Va en la orden 277."
+    },
+    "orden-279": {
+      "fecha": "2026-11-11",
+      "resultado": "Pregunta 78: el cierre del auditor vivía en memoria (en otro servidor o tras un reinicio seguía entrando) y el atajo del portal le daba al dueño la sesión del cliente. Buscadas otras listas de bloqueo en memoria (new Set en src/lib/auth y src/lib/security): sólo esa. Buscados atajos de verifyPortalSession: sólo ese. Va en la orden 279."
     }
   }
 }

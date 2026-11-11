@@ -937,6 +937,8 @@ avisos cortos mientras se trabaja. Antes de mandar, se relee el idioma.
 **Y otra vez el 29 de octubre de 2026**, al publicar la foto del salón: los avisos y el informe final salieron en
 inglés. **Antes de mandar CUALQUIER mensaje al dueño, aunque sea de una línea, se mira que esté en castellano.**
 
+**Y otra vez el 11 de noviembre de 2026**, en los avisos cortos mientras corría la puerta ("Waiting for…", "The commit isn't pushed"). El dueño: *"no me escribas más en inglés"*. **Los avisos de espera también son mensajes al dueño.**
+
 ### 28. Programar entretenimiento porque "es para hoy"
 
 **Pasó el 28 de septiembre de 2026.** El dueño dijo que sí a tres mejoras de las estaciones (tótem,

@@ -249,3 +249,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 81. **¿Mostrás un número de plata?** Sacalo de la misma función que lo muestra en otra pantalla, no lo calcules de nuevo.
 82. **¿Sacaste una llamada que andaba o sumaste una biblioteca?** Sólo si la orden lo pide. Lo que el dueño decidió no se saca de costado.
 83. **¿Armaste un número o una clave con un pedazo de un id?** Si se guarda o se busca por él, que no pueda repetirse entre dos cosas distintas.
+84. **¿Escribiste un teléfono, una cuenta de redes o una dirección?** Sacalo de `public-contact.ts`, nunca a mano.
+85. **¿Escribiste un monto, un porcentaje o un plazo en un texto?** Si hay un ajuste que lo define, mostrá el ajuste.
+86. **¿Guardaste algo para la pantalla siguiente?** Fijate que la pantalla a la que navegás de verdad lo lea.
+87. **¿Leés una clave de una variable de entorno?** Si falta, que cierre; y comparala con `timingSafeEqual`.

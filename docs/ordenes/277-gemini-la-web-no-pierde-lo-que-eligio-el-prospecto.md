@@ -1,7 +1,7 @@
 # Orden 277 — La web no pierde lo que eligió el prospecto (auditoría pública, 11/11/2026)
 
 **Para Gemini, en la computadora del dueño.** Sobre `claude/app-debug-stabilize-m70e6z` actualizada (`git pull`), rama
-nueva `gemini/orden-277-la-web-no-pierde-lo-elegido`. **Una sola entrega con todos los bloques, sin fusionar.** Si un
+nueva `gemini/orden-277-la-web-no-pierde-lo-elegido`. **Una sola entrega con todos los bloques (son 13), sin fusionar.** Si un
 bloque se traba, entregá el resto y avisá cuál faltó. Repasá `docs/ANTES-DE-ENTREGAR.md`.
 
 Sale de una auditoría externa de la web pública. Claude verificó cada punto en el código. **El WhatsApp de ejemplo en
@@ -111,6 +111,42 @@ mientras el precio real sale de `config?.clubUruguayConfig?.precio` ($16.900): e
 dueño (si pone $20.000, tacha $40.000). El precio ya se edita en Ajustes: no hace falta otra casilla. Buscá `36000` y
 `36.000` en todo `src/` (simulador, Sofía, landing de Club Uruguay, PDF) y cambialo en cada lugar donde sea ese tachado.
 
+## Bloque 11 — La barra y el muro muestran la cuenta de Instagram de AK (barrido de Claude, 11/11/2026)
+
+**Hoy** el invitado ve cuentas que no son la de AK (la oficial es `akproduccionesfiestasyeventos`, en
+`AK_SOCIAL_LINKS.instagram` de `src/lib/public-contact.ts` ~22):
+
+- `src/app/evento/barra/[fiestaId]/page.tsx` ~1580 (`href` a `instagram.com/akproduccioneseventos/`), ~1585 (el texto
+  "@akproduccioneseventos") y ~809 (respaldo `'@akproduccioneseventos'`);
+- `src/app/evento/muro-en-vivo/[fiestaId]/page.tsx` ~147, ~163 y ~1744 (respaldo `'@akproducciones'`);
+- `src/app/actions/fiesta/barra-tecnologica.actions.ts` ~67 (`instagramHandle: '@akproducciones'` de fábrica);
+- `src/lib/barra-tecnologica.ts` ~106 (respaldo `'akproducciones'`).
+
+**Qué se hace:** sumá a `public-contact.ts` `export const AK_INSTAGRAM_HANDLE = '@akproduccionesfiestasyeventos'` y usalo
+en todos esos respaldos; el enlace de la barra usa `AK_SOCIAL_LINKS.instagram`. Si la fiesta tiene su propio
+`instagramHandle` cargado, sigue mandando ese: sólo cambian los respaldos.
+
+## Bloque 12 — El presupuesto del equipo y el PDF del simulador dicen la seña y el precio de Ajustes (barrido de Claude)
+
+- `src/components/presupuestos/paso-4-resumen.tsx:25`: `BUDGET_VALIDITY_NOTE_PDF` dice "debe abonar el 20% del total
+  como seña". Pasa a "Para reservar la fecha se abona una seña de {monto}", con `bookingDepositAmount` de
+  `getBudgetDisplaySettings()` (respaldo `DEFAULT_BOOKING_DEPOSIT_AMOUNT`). Y en ~210 el `?? 15` pasa a
+  `?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE`.
+- `src/app/catalogo/[tipo]/page.tsx:498`: "Se requiere el 30 % del total para confirmar la fecha" → el mismo texto del
+  bloque 8, con la seña de Ajustes y el 30% como penalidad por cancelar.
+- `src/lib/budget/simulator-budget-pdf.ts` ~427 y ~433: "Precio Real: $36.000" y "Precio Promo: $16.900" escritos a
+  mano. El precio real es `input.salonDetails.costo * 2` (bloque 10) y la promo es `input.salonDetails.costo`.
+
+## Bloque 13 — La presentación LED no pierde las entradas elegidas (barrido de Claude)
+
+**Hoy:** `src/app/presentacion-led/page.tsx` ~538-580 manda a `/presupuestos/nuevo/crear` el cliente, los servicios y
+los menús por la dirección, pero las **entradas elegidas** (`selectedEntradasIds`) sólo quedan en `sessionStorage`, y
+`src/app/(app)/presupuestos/nuevo/crear/page.tsx` (~265-272) no las lee de ningún lado.
+
+**Qué se hace:** sumá `params.append('entradas', id)` por cada una y leelas en crear (`searchParams.getAll('entradas')`,
+junto a `servicios` ~266), con el mismo control de formato que `menuId`. Cargalas igual que cuando el equipo las elige a
+mano en esa pantalla. No toques el resto de las claves `presentacion_*`.
+
 ## Pruebas
 
 - `tests/e2e/el-catalogo-lleva-lo-elegido-al-simulador.spec.ts`: en `/catalogo/xv-anos` elegir Intermedio, tocar
@@ -130,6 +166,13 @@ dueño (si pone $20.000, tacha $40.000). El precio ya se edita en Ajustes: no ha
   y nombra la penalidad; con `bookingDepositAmount: 7000` la pregunta del catálogo muestra "$ 7.000" (o como lo
   formatee `formatCurrency`); Intermedio no tiene "video" ni "filmación"; con `precio: 20000` el tachado de Club
   Uruguay es 40000. **Cambiar el monto en la prueba tiene que cambiar lo que se ve**: si sale fijo, está mal.
+- `src/__tests__/las-estaciones-muestran-el-instagram-de-ak.test.ts`: sin `instagramHandle` en la fiesta, la barra y el
+  muro muestran `@akproduccionesfiestasyeventos`; con uno cargado, muestran ese; y en `src/app` y `src/lib` no queda
+  `@akproduccioneseventos` ni `'@akproducciones'` como respaldo.
+- En la de la seña, sumá: el PDF del simulador con `costo: 20000` dice 40.000 y 20.000, nunca 36.000; y el resumen del
+  equipo no dice "20% del total".
+- `tests/e2e/la-presentacion-lleva-las-entradas.spec.ts`: elegir dos entradas en `/presentacion-led`, tocar generar, y
+  la dirección de crear trae las dos `entradas=`.
 
 ```comprobar
 usa: paquete= en src/app/catalogo/[tipo]/page.tsx
@@ -151,4 +194,14 @@ usa: bookingDepositAmount en src/app/simulador-ak/page.tsx
 no-usa: formatCurrency(36000) en src/app/simulador-de-presupuesto/page.tsx
 no-usa: const precioReal = 36000 en src/app/simulador-de-presupuesto/page.tsx
 prueba: src/__tests__/la-sena-y-los-paquetes-dicen-lo-de-ajustes.test.ts
+usa: AK_INSTAGRAM_HANDLE en src/app/evento/barra/[fiestaId]/page.tsx
+usa: AK_INSTAGRAM_HANDLE en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+usa: AK_INSTAGRAM_HANDLE en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: AK_INSTAGRAM_HANDLE en src/lib/barra-tecnologica.ts
+no-usa: 20% del total como seña en src/components/presupuestos/paso-4-resumen.tsx
+no-usa: Se requiere el 30 % del total en src/app/catalogo/[tipo]/page.tsx
+no-usa: Precio Real: $36.000 en src/lib/budget/simulator-budget-pdf.ts
+usa: entradas en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+prueba: src/__tests__/las-estaciones-muestran-el-instagram-de-ak.test.ts
+prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
 ```
