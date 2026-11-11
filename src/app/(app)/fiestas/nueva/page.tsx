@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { getConversacionesAsistenteCliente } from '@/app/actions/asistente-virtual';
 
@@ -537,11 +537,13 @@ function PlannerDashboardContent() {
             )}
             {fiestaId && (
               <>
-                <Button asChild variant="outline" className="rounded-2xl px-4 h-12 border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 font-bold text-xs sm:text-sm">
-                  <Link href={`/portal-cliente/${encodeURIComponent(fiestaId)}`} target="_blank">
-                    Ver como el cliente
-                  </Link>
-                </Button>
+                {fiesta?.clientPortalSettings?.accessKey ? (
+                  <Button asChild variant="outline" className="rounded-2xl px-4 h-12 border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 font-bold text-xs sm:text-sm">
+                    <Link href={`/portal/c/${encodeURIComponent(fiesta.clientPortalSettings.accessKey)}`} target="_blank">
+                      Ver como el cliente
+                    </Link>
+                  </Button>
+                ) : null}
                 <Button asChild variant="outline" className="rounded-2xl px-4 h-12 border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 font-bold text-xs sm:text-sm">
                   <Link href={`/invitacion/${encodeURIComponent(fiestaId)}/rsvp`} target="_blank">
                     Ver como un invitado

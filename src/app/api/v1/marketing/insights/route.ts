@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getMetaAdsSummary, generateMetaCommercialAIRecommendations } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('x-api-key');
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const isAuthorized = authHeader === secretKey;
+  const isAuthorized = clavesIguales(authHeader, secretKey);
 
   if (!isAuthorized) {
     return NextResponse.json(

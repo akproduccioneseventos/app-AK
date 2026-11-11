@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { marcarToqueDespertador } from '@/lib/automatico/tareas-automaticas';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 /**
  * LA PUERTA QUE SOLO DESPIERTA, Y CONTESTA EN EL ACTO.
@@ -29,8 +30,8 @@ function clavePermitida(request: Request): boolean {
   if (!clave) return true;
   const enCabecera = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')?.trim();
   const url = new URL(request.url);
-  const enDireccion = url.searchParams.get('key') || url.searchParams.get('secret');
-  return enCabecera === clave || enDireccion === clave;
+  const enDireccion = url.searchParams.get('key') || url.searchParams.get('secret') || url.searchParams.get('clave');
+  return clavesIguales(enCabecera, clave) || clavesIguales(enDireccion, clave);
 }
 
 async function despertar(request: Request) {

@@ -1,4 +1,6 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
+import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Rol } from '@/types/rol';
@@ -67,8 +69,18 @@ function base64UrlDecode(value: string) {
   return Buffer.from(padded, 'base64').toString('utf8');
 }
 
+let localGoogleStateSecret = '';
+
 function getGoogleStateSecret(): string {
-  return process.env.AK_SESSION_SECRET || process.env.SESSION_SECRET || 'ak-google-state-secret-2026';
+  const secret = process.env.AK_SESSION_SECRET || process.env.SESSION_SECRET;
+  if (secret) {
+    return secret;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Diagnóstico de configuración: Falta configurar una clave privada de sesión (AK_SESSION_SECRET) en el servidor de producción.');
+  }
+  localGoogleStateSecret ||= crypto.randomBytes(32).toString('hex');
+  return localGoogleStateSecret;
 }
 
 export function encodeGoogleState(state: GoogleOAuthState) {
@@ -84,7 +96,7 @@ export function decodeGoogleState(rawState: string | null): GoogleOAuthState {
     if (parts.length !== 2) return { kind: 'company' };
     const [payload, sig] = parts;
     const expectedSig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
-    if (sig !== expectedSig) {
+    if (!clavesIguales(sig, expectedSig)) {
       console.warn('[google-workspace] HMAC signature mismatch en state');
       return { kind: 'company' };
     }
@@ -382,6 +394,7 @@ export async function upsertGoogleContact(
   account: GoogleWorkspaceAccount,
   input: GoogleContactInput,
 ): Promise<GoogleContactSyncResult> {
+  await exigirQueSePuedaGuardar();
   if (!hasGoogleContactsScope(account)) {
     throw new Error('Vuelve a conectar Google Workspace para habilitar la sincronizacion de contactos.');
   }
@@ -616,6 +629,7 @@ export async function upsertGoogleCalendarEvent(
   input: GoogleWorkspaceEventInput,
   existingEventId?: string
 ) {
+  await exigirQueSePuedaGuardar();
   const calendarId = encodeURIComponent(account.calendarId || 'primary');
   const sendUpdates = process.env.GOOGLE_WORKSPACE_SEND_UPDATES || 'all';
   const eventBody = toCalendarApiEvent(input);
@@ -646,6 +660,7 @@ export async function sendGoogleGmailMessage(
   html: string,
   attachment?: { filename: string; content: string; contentType?: string }
 ) {
+  await exigirQueSePuedaGuardar();
   let rawMessage: string;
   if (!attachment) {
     rawMessage = [
@@ -887,6 +902,7 @@ export async function borrarEventoDeLaAgenda(
   account: GoogleWorkspaceAccount,
   eventId: string,
 ): Promise<void> {
+  await exigirQueSePuedaGuardar();
   const calendarId = encodeURIComponent(account.calendarId || 'primary');
   const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events/${encodeURIComponent(eventId)}?sendUpdates=none`;
   const respuesta = await fetch(url, {

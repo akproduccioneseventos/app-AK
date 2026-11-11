@@ -42,7 +42,8 @@ import {
   getPublicBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
-import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
+import { getDrinkDescription, getDrinkTags, buildInstagramUrl, AK_INSTAGRAM_HANDLE } from '@/lib/barra-tecnologica';
+import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
@@ -806,7 +807,7 @@ export default function BarraTecnologicaTouchPage() {
         setShowFollowModal(false);
         setUploadSuccessData({
           mediaUrl: result.url,
-          shareText: result.shareText || `${settings?.hashtag || '#AKProducciones'} ${settings?.instagramHandle || '@akproduccioneseventos'}`,
+          shareText: result.shareText || `${settings?.hashtag || '#AKProducciones'} ${settings?.instagramHandle || AK_INSTAGRAM_HANDLE}`,
           isVideo,
           previewUrl: capturedDataUrl,
         });
@@ -1577,12 +1578,12 @@ export default function BarraTecnologicaTouchPage() {
 
               <div className="mt-6 flex w-full flex-col gap-3">
                 <a
-                  href="https://www.instagram.com/akproduccioneseventos/"
+                  href={settings?.instagramHandle ? buildInstagramUrl(settings.instagramHandle) : AK_SOCIAL_LINKS.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 text-base font-black text-white shadow-lg transition-transform active:scale-95 hover:opacity-95"
                 >
-                  <Instagram className="h-5 w-5" /> Abrir Instagram @akproduccioneseventos
+                  <Instagram className="h-5 w-5" /> Abrir Instagram {settings?.instagramHandle || AK_INSTAGRAM_HANDLE}
                 </a>
 
                 <Button

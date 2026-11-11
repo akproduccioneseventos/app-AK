@@ -77,6 +77,10 @@ env:
     secret: session-secret
     availability:
       - RUNTIME
+  - variable: CRON_SECRET
+    secret: cron-secret
+    availability:
+      - RUNTIME
 
   - variable: GOOGLE_API_KEY
     secret: google-api-key

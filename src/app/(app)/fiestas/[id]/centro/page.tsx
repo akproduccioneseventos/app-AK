@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import {
   ArrowLeft,
   Camera,
@@ -171,7 +171,13 @@ export default async function CentroDeFiestaPage(props: PageProps) {
 
   const { verifySession } = await import('@/lib/auth/session-token');
   const session = await verifySession().catch(() => ({ success: false, user: undefined }));
-  const puedeVerComoExterno = session.success && (session.user?.perfil === 'dueno' || session.user?.perfil === 'auditor');
+  const esAuditor = session.success && session.user?.perfil === 'auditor';
+  const esDueno = session.success && session.user?.perfil === 'dueno';
+  const puedeVerComoExterno = esDueno || esAuditor;
+  const accessKey = fiesta.clientPortalSettings?.accessKey;
+  const rutaPortalCliente = accessKey
+    ? `/portal/c/${encodeURIComponent(accessKey)}`
+    : (esAuditor ? `/portal-cliente/${encodeURIComponent(params.id)}` : null);
   const primerInvitado = Array.isArray(fiesta.invitados) && fiesta.invitados.length > 0 ? fiesta.invitados[0] : null;
   const rutaInvitado = primerInvitado?.id
     ? `/invitacion/${encodeURIComponent(params.id)}/invitado/${encodeURIComponent(primerInvitado.id)}`
@@ -190,11 +196,13 @@ export default async function CentroDeFiestaPage(props: PageProps) {
 
           {puedeVerComoExterno && (
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="outline" className="rounded-xl border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 text-amber-200 font-bold">
-                <Link href={`/portal-cliente/${encodeURIComponent(params.id)}`} target="_blank">
-                  Ver como el cliente
-                </Link>
-              </Button>
+              {rutaPortalCliente && (
+                <Button asChild size="sm" variant="outline" className="rounded-xl border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 text-amber-200 font-bold">
+                  <Link href={rutaPortalCliente} target="_blank">
+                    Ver como el cliente
+                  </Link>
+                </Button>
+              )}
               <Button asChild size="sm" variant="outline" className="rounded-xl border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 text-amber-200 font-bold">
                 <Link href={rutaInvitado} target="_blank">
                   Ver como un invitado

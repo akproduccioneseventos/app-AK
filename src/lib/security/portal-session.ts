@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+﻿import { cookies } from 'next/headers';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'ak_portal_session';
@@ -58,10 +58,10 @@ export async function setPortalSessionCookie(fiestaId: string, accessKey: string
 
 export async function verifyPortalSession(fiestaId: string): Promise<boolean> {
   try {
-    // Dueño y Auditor pueden ver el portal del cliente en modo sólo mirar (Orden 276)
+    // Auditor puede ver el portal del cliente en modo sólo mirar (Orden 276 y 279)
     const { verifySession } = await import('@/lib/auth/session-token');
     const appSession = await verifySession().catch(() => ({ success: false, user: undefined }));
-    if (appSession.success && (appSession.user?.perfil === 'dueno' || appSession.user?.perfil === 'auditor')) {
+    if (appSession.success && appSession.user?.perfil === 'auditor') {
       return true;
     }
 

@@ -1,4 +1,4 @@
-/** @jest-environment node */
+﻿/** @jest-environment node */
 
 import { createSignedSessionToken } from '@/lib/auth/session-token';
 import { MENSAJE_ERROR_AUDITOR } from '@/lib/auth/solo-lectura';
@@ -8,8 +8,37 @@ import { dbAdmin } from '@/lib/firebase/server';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { sendGoogleGmailMessage, upsertGoogleCalendarEvent } from '@/lib/google-workspace';
+import type { GoogleWorkspaceAccount, GoogleWorkspaceEventInput } from '@/types/google-workspace';
 
 let currentCookieToken: string | undefined = undefined;
+
+const mockUsers: Record<string, any> = {
+  'usr-auditor-1': { activo: true, cerradoEl: null, perfil: 'auditor' },
+};
+
+jest.mock('@/lib/firebase/server', () => {
+  const { wrapFirestoreWithReadOnlyLock } = jest.requireActual('@/lib/firebase/server');
+  const rawDb = {
+    collection: (col: string) => ({
+      doc: (id: string) => ({
+        get: jest.fn(async () => {
+          if (col === 'users') {
+            const u = mockUsers[id] || { activo: true, cerradoEl: null, perfil: 'auditor' };
+            return { exists: true, data: () => u };
+          }
+          return { exists: false, data: () => undefined };
+        }),
+        set: jest.fn(async () => {}),
+      }),
+    }),
+    runTransaction: jest.fn(async (fn: any) => fn({})),
+  };
+  return {
+    dbAdmin: wrapFirestoreWithReadOnlyLock(rawDb),
+    wrapFirestoreWithReadOnlyLock,
+  };
+});
 
 jest.mock('next/headers', () => ({
   cookies: jest.fn(async () => ({
@@ -94,6 +123,36 @@ describe('Orden 276: El auditor mira y no toca', () => {
     await expect(
       registrarConsumoIA('asistente_consulta', 1),
     ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
+
+    // 8 y 9. Google Workspace (Gmail y Calendar)
+    const fakeAccount: GoogleWorkspaceAccount = {
+      accountKind: 'empresa',
+      accountKey: 'empresa',
+      label: 'AK Producciones',
+      connectedAt: '2026-01-01T00:00:00Z',
+      connectedBy: 'admin',
+      scopes: ['https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/gmail.send'],
+      accessToken: 'fake-token',
+    };
+
+    const fakeEvent: GoogleWorkspaceEventInput = {
+      summary: 'Evento de prueba',
+      start: '2026-12-01T20:00:00Z',
+      end: '2026-12-02T04:00:00Z',
+    };
+
+    const fetchSpy = jest.spyOn(global, 'fetch');
+
+    await expect(
+      sendGoogleGmailMessage(fakeAccount, 'cliente@ejemplo.com', 'Asunto', '<p>Hola</p>'),
+    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
+
+    await expect(
+      upsertGoogleCalendarEvent(fakeAccount, fakeEvent),
+    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
   });
 
   it('con sesión de dueño, las operaciones funcionan y no son frenadas por el candado de auditor', async () => {

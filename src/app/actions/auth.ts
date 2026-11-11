@@ -1,6 +1,7 @@
 'use server';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 // src/app/actions/auth.ts
 // Server actions for the custom authentication system.
@@ -324,7 +325,7 @@ export async function loginUser(
 
   const normalizedEmail = email.trim().toLowerCase();
   const envPassword = process.env.APP_PASSWORD;
-  const isMasterPassword = Boolean(envPassword && password === envPassword);
+  const isMasterPassword = clavesIguales(password, envPassword);
   const allowedAdminEmails = new Set(
     (process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS || 'akproduccionessalto@gmail.com')
       .split(',')

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
 const SESSION_VERSION = 'v1';
@@ -9,17 +9,36 @@ let localDevelopmentSecret: string | undefined;
 
 const listaAccesosAuditorCortados = new Set<string>();
 
+interface AuditorCacheEntry {
+  valido: boolean;
+  expiraEn: number;
+}
+const cacheEstadoAuditor = new Map<string, AuditorCacheEntry>();
+
+export function limpiarCacheAuditor(identificador?: string) {
+  if (identificador) {
+    cacheEstadoAuditor.delete(identificador.toLowerCase().trim());
+  } else {
+    cacheEstadoAuditor.clear();
+  }
+}
+
 export function registrarAuditorCortado(identificador: string) {
   if (identificador) {
-    listaAccesosAuditorCortados.add(identificador.toLowerCase().trim());
+    const key = identificador.toLowerCase().trim();
+    listaAccesosAuditorCortados.add(key);
+    cacheEstadoAuditor.delete(key);
   }
 }
 
 export function limpiarAuditorCortado(identificador?: string) {
   if (identificador) {
-    listaAccesosAuditorCortados.delete(identificador.toLowerCase().trim());
+    const key = identificador.toLowerCase().trim();
+    listaAccesosAuditorCortados.delete(key);
+    cacheEstadoAuditor.delete(key);
   } else {
     listaAccesosAuditorCortados.clear();
+    cacheEstadoAuditor.clear();
   }
 }
 
@@ -182,6 +201,45 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
       const userId = user.userId?.toLowerCase().trim() || '';
       if ((email && listaAccesosAuditorCortados.has(email)) || (userId && listaAccesosAuditorCortados.has(userId))) {
         return { success: false, error: 'El acceso de auditor fue cerrado.' };
+      }
+
+      // Bloque 1 (Orden 279): La base de datos es la autoridad para el acceso del auditor.
+      // Cachear el resultado 60 segundos en memoria por usuario para no saturar lecturas.
+      const cacheKey = (userId || email).toLowerCase().trim();
+      const ahora = Date.now();
+      const cached = cacheKey ? cacheEstadoAuditor.get(cacheKey) : undefined;
+
+      if (cached && cached.expiraEn > ahora) {
+        if (!cached.valido) {
+          return { success: false, error: 'El acceso de auditor fue cerrado.' };
+        }
+      } else {
+        try {
+          const { dbAdmin } = await import('@/lib/firebase/server');
+          if (!dbAdmin) {
+            return { success: false, error: 'Base de datos no disponible para verificar auditor.' };
+          }
+          const idDoc = user.userId || user.email;
+          if (!idDoc) {
+            return { success: false, error: 'Usuario auditor sin identificador válido.' };
+          }
+          const docSnap = await dbAdmin.collection('users').doc(idDoc).get();
+          if (!docSnap.exists) {
+            if (cacheKey) cacheEstadoAuditor.set(cacheKey, { valido: false, expiraEn: ahora + 60_000 });
+            return { success: false, error: 'El acceso de auditor fue cerrado.' };
+          }
+          const data = docSnap.data();
+          const esValido = Boolean(data && data.activo === true && !data.cerradoEl);
+          if (cacheKey) {
+            cacheEstadoAuditor.set(cacheKey, { valido: esValido, expiraEn: ahora + 60_000 });
+          }
+          if (!esValido) {
+            return { success: false, error: 'El acceso de auditor fue cerrado.' };
+          }
+        } catch {
+          // Pregunta 78: lo roto da menos permisos. Si la lectura falla, no deja pasar.
+          return { success: false, error: 'No se pudo verificar el estado del usuario auditor.' };
+        }
       }
     }
     return { success: true, user };

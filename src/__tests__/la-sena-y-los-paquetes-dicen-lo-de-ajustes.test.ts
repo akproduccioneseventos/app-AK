@@ -1,6 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { TextEncoder, TextDecoder } from 'node:util';
+import zlib from 'node:zlib';
 import { sharedFAQs, sharedServices } from '@/data/event-catalogs/shared';
+import { createSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
+import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = TextEncoder;
+  globalThis.TextDecoder = TextDecoder as any;
+}
 
 describe('La seña y los paquetes dicen lo de ajustes (Orden 277)', () => {
   it('la respuesta de la seña no dice "30% del total" y nombra la penalidad', () => {
@@ -52,5 +61,70 @@ describe('La seña y los paquetes dicen lo de ajustes (Orden 277)', () => {
 
     expect(codigoSimulador).not.toContain('formatCurrency(36000)');
     expect(codigoSimulador).not.toContain('const precioReal = 36000');
+  });
+
+  it('el PDF del simulador con costo: 20000 dice 40.000 y 20.000, nunca 36.000', async () => {
+    const pdfPath = path.join(process.cwd(), 'src/lib/budget/simulator-budget-pdf.ts');
+    const codigoPdf = fs.readFileSync(pdfPath, 'utf8');
+
+    expect(codigoPdf).not.toContain('Precio Real: $36.000');
+    expect(codigoPdf).not.toContain('$36.000');
+
+    const pdf = await createSimulatorBudgetPdf({
+      documentId: 'qa-orden-277',
+      publicUrl: 'https://example.invalid/presupuesto/qa-orden-277',
+      clientName: 'Test Cliente',
+      eventType: 'Boda',
+      adults: 80,
+      childrenAndTeens: 0,
+      items: [],
+      salonDetails: {
+        nombre: 'Club Uruguay',
+        costo: 20000,
+      },
+      stats: {
+        subtotalBruto: 100000,
+        ahorroRegalos: 0,
+        descPromo: 0,
+        totalFinal: 100000,
+        precioPorPersona: 1250,
+        discountPercentage: 0,
+        annualProjection: buildAnnualAdjustmentProjection({ baseTotal: 100000 }),
+      },
+    });
+
+    const buf = Buffer.from(pdf.output('arraybuffer'));
+    const str = buf.toString('binary');
+    let allText = str;
+    const regex = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
+    let match;
+    while ((match = regex.exec(str)) !== null) {
+      try {
+        const streamBytes = Buffer.from(match[1], 'binary');
+        const unzipped = zlib.inflateSync(streamBytes).toString('utf8');
+        allText += '\n' + unzipped;
+      } catch {
+        // stream might not be compressed or different format
+      }
+    }
+
+    expect(allText).toContain('40.000');
+    expect(allText).toContain('20.000');
+    expect(allText).not.toContain('36.000');
+  });
+
+  it('el resumen del equipo no dice "20% del total"', () => {
+    const resumenPath = path.join(process.cwd(), 'src/components/presupuestos/paso-4-resumen.tsx');
+    const codigoResumen = fs.readFileSync(resumenPath, 'utf8');
+
+    expect(codigoResumen).not.toContain('20% del total como seña');
+    expect(codigoResumen).not.toContain('20% del total');
+  });
+
+  it('el catálogo no dice "Se requiere el 30 % del total"', () => {
+    const catalogoPath = path.join(process.cwd(), 'src/app/catalogo/[tipo]/page.tsx');
+    const codigoCatalogo = fs.readFileSync(catalogoPath, 'utf8');
+
+    expect(codigoCatalogo).not.toContain('Se requiere el 30 % del total');
   });
 });

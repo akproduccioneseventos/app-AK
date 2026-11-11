@@ -12,6 +12,7 @@ import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 import { esPerfilValido, perfilDesdeRolViejo } from '@/lib/auth/perfiles';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
@@ -422,7 +423,7 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
     // La puerta de emergencia va PRIMERO, a proposito: tiene que abrir aunque la
     // base este caida. Es la unica manera de entrar cuando Firestore no contesta.
     const envPassword = process.env.APP_PASSWORD;
-    if (envPassword && password === envPassword) {
+    if (clavesIguales(password, envPassword)) {
       await clearLoginProtection();
       return { success: true };
     }

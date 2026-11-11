@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ponerAlDiaAlEntrar } from '@/lib/automatico/al-entrar-a-la-app';
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
 import { marcarToqueDespertador } from '@/lib/automatico/tareas-automaticas';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,15 +22,24 @@ const TAREAS_CRON_DESPACHADAS = [
   'posicionamiento-diario',
 ] as const;
 
-function verificarClave(request: Request): boolean {
+function verificarClave(request: Request): { autorizado: boolean; status?: number; error?: string } {
   const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET;
-  if (!cronSecret) return true; // Sin clave configurada, opera con freno de concurrencia
+  if (!cronSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      return { autorizado: false, status: 503, error: 'Servicio no disponible: falta configurar CRON_SECRET' };
+    }
+    return { autorizado: true };
+  }
 
   const authHeader = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')?.trim();
   const url = new URL(request.url);
-  const authQuery = url.searchParams.get('key') || url.searchParams.get('secret');
+  const authQuery = url.searchParams.get('key') || url.searchParams.get('secret') || url.searchParams.get('clave');
 
-  return authHeader === cronSecret || authQuery === cronSecret;
+  if (clavesIguales(authHeader, cronSecret) || clavesIguales(authQuery, cronSecret)) {
+    return { autorizado: true };
+  }
+
+  return { autorizado: false, status: 401, error: 'No autorizado' };
 }
 
 export async function GET(request: Request) {
@@ -41,8 +51,9 @@ export async function POST(request: Request) {
 }
 
 async function handleDespacho(request: Request) {
-  if (!verificarClave(request)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const auth = verificarClave(request);
+  if (!auth.autorizado) {
+    return NextResponse.json({ error: auth.error || 'No autorizado' }, { status: auth.status || 401 });
   }
 
   let origen: OrigenDisparo = 'despertador';

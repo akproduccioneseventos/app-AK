@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import JSZip from 'jszip';
 
@@ -37,11 +37,24 @@ const EXTENSIONES_IGNORADAS = new Set([
 ]);
 
 function debeIgnorar(relPath, esDirectorio) {
-  const partes = relPath.split(/[/\\]/);
+  const normalizado = relPath.replace(/\\/g, '/').toLowerCase();
+  const partes = normalizado.split('/');
   for (const parte of partes) {
     if (IGNORAR_DIRS.has(parte)) {
       return true;
     }
+  }
+
+  if (
+    normalizado.startsWith('.venv/') ||
+    normalizado.includes('/.venv/') ||
+    normalizado.startsWith('venv/') ||
+    normalizado.includes('/venv/') ||
+    normalizado.startsWith('pruebas/') ||
+    normalizado.includes('/pruebas/') ||
+    normalizado.includes('__pycache__')
+  ) {
+    return true;
   }
 
   if (!esDirectorio) {
