@@ -6,6 +6,7 @@
  */
 
 export const AK_WHATSAPP_NUMBER = '59898355530';
+export const AK_INSTAGRAM_HANDLE = '@akproduccionesfiestasyeventos';
 
 /**
  * El mismo numero, como lo lee una persona: "+598 98 355 530".

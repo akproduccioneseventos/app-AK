@@ -49,6 +49,13 @@ const TIPO_FIESTA_POR_SLUG: Record<string, string> = {
 import type { CatalogoSettings } from '@/types/contenido-publico';
 import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+
+function formatCurrency(amount?: number) {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+}
 
 // ─── Session storage keys (must match presupuesto flow) ──────────────────────
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
@@ -465,7 +472,7 @@ function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
   );
 }
 
-function FormasDePagoSlide({ catalog }: { catalog: EventCatalogData }) {
+function FormasDePagoSlide({ catalog, bookingDepositAmount = DEFAULT_BOOKING_DEPOSIT_AMOUNT }: { catalog: EventCatalogData; bookingDepositAmount?: number }) {
   const accent = getAccent(catalog.hero.accentColor);
   return (
     <div className="max-w-3xl mx-auto py-6">
@@ -495,7 +502,7 @@ function FormasDePagoSlide({ catalog }: { catalog: EventCatalogData }) {
       <div className={`p-5 rounded-2xl text-center ${accent.bg} ${accent.border} border`}>
         <p className={`font-bold ${accent.text} mb-1`}>Seña para reservar tu fecha</p>
         <p className="text-slate-600 text-sm">
-          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas según lo acordado.
+          Para reservar la fecha se abona una seña de {formatCurrency(bookingDepositAmount)}. El saldo se paga en cuotas según lo acordado. Si se cancela el evento, la penalidad es del 30% del presupuesto vigente.
         </p>
       </div>
     </div>
@@ -506,10 +513,12 @@ function CierreSlide({
   catalog,
   selectedPackage,
   onCreateBudget,
+  bookingDepositAmount = DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 }: {
   catalog: EventCatalogData;
   selectedPackage: ServiceItem | null;
   onCreateBudget: () => void;
+  bookingDepositAmount?: number;
 }) {
   const accent = getAccent(catalog.hero.accentColor);
   const WHATSAPP_NUMBER = catalog.whatsappNumber ?? AK_WHATSAPP_NUMBER;
@@ -600,7 +609,9 @@ function CierreSlide({
                 {catalog.faqs.slice(0, 2).map((faq) => (
                   <div key={faq.id} className="p-3 bg-white border border-slate-100 rounded-xl">
                     <p className="text-xs font-bold text-slate-700 mb-1">{faq.question}</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{faq.answer}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {faq.answer.replace(/\{SENIA\}/g, formatCurrency(bookingDepositAmount))}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -621,6 +632,18 @@ export default function CatalogoTipoPage() {
   const catalog = tipo ? getCatalogBySlug(tipo) : null;
   const [catalogSettings, setCatalogSettings] = useState<CatalogoSettings | null>(null);
   const [fotosDelTipo, setFotosDelTipo] = useState<CatalogoFoto[]>([]);
+  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
+
+  useEffect(() => {
+    getPublicSimulatorBootstrap()
+      .then((bootstrap) => {
+        if (bootstrap?.budgetSettings?.bookingDepositAmount !== undefined) {
+          setBookingDepositAmount(bootstrap.budgetSettings.bookingDepositAmount);
+        }
+      })
+      // no pasa nada si falla: queda la seña de fábrica (DEFAULT_BOOKING_DEPOSIT_AMOUNT), que es la misma.
+      .catch(() => {});
+  }, []);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -672,8 +695,12 @@ export default function CatalogoTipoPage() {
           text,
         }))
         : catalog.testimonials,
+      faqs: (catalog.faqs || []).map((faq) => ({
+        ...faq,
+        answer: faq.answer.replace(/\{SENIA\}/g, formatCurrency(bookingDepositAmount)),
+      })),
     };
-  }, [catalog, catalogSettings, fotosDelTipo]);
+  }, [catalog, catalogSettings, fotosDelTipo, bookingDepositAmount]);
 
   const selectedPackage = useMemo(
     () => (mergedCatalog ? mergedCatalog.services.find((s) => s.id === selectedPackageId) ?? null : null),
@@ -730,7 +757,15 @@ export default function CatalogoTipoPage() {
       // sessionStorage unavailable (e.g. private browsing quota) — log and navigate anyway
       console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
     }
-    router.push('/simulador-de-presupuesto');
+    const queryParts: string[] = [`tipo=${encodeURIComponent(mergedCatalog.name)}`];
+    if (selectedPackage?.title) {
+      const nombrePaquete = selectedPackage.title.replace(/paquete\s*/i, '').trim();
+      if (nombrePaquete) {
+        queryParts.push(`paquete=${encodeURIComponent(nombrePaquete)}`);
+      }
+    }
+    queryParts.push(`entry=catalogo-${encodeURIComponent(mergedCatalog.slug)}`);
+    router.push(`/simulador-de-presupuesto?${queryParts.join('&')}`);
   }, [mergedCatalog, selectedPackage, router]);
 
   // Not found
@@ -832,13 +867,14 @@ export default function CatalogoTipoPage() {
                  <TestimoniosSlide catalog={mergedCatalog} />
                )}
                {currentSlideId === 'formas-de-pago' && (
-                 <FormasDePagoSlide catalog={mergedCatalog} />
+                 <FormasDePagoSlide catalog={mergedCatalog} bookingDepositAmount={bookingDepositAmount} />
                )}
                {currentSlideId === 'cierre' && (
                  <CierreSlide
                    catalog={mergedCatalog}
                    selectedPackage={selectedPackage}
                    onCreateBudget={handleCreateBudget}
+                   bookingDepositAmount={bookingDepositAmount}
                  />
               )}
             </motion.div>

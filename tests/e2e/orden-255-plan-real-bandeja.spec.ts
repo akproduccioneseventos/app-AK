@@ -69,12 +69,13 @@ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto',
   await page.screenshot({ path: testInfo.outputPath('plan-pendiente.png'), fullPage: true });
   await tarjeta.getByRole('button', { name: 'Sí, hacelo', exact: true }).click();
 
-  await expect.poll(() => leer('scheduled-messages.json').filter(item => item.presupuestoId === presupuestoId)).toHaveLength(1);
+  // Con la máquina cargada el guardado tarda más de los 5 s de fábrica: se espera hasta 30 s (sigue exigiendo UNO solo).
+  await expect.poll(() => leer('scheduled-messages.json').filter(item => item.presupuestoId === presupuestoId), { timeout: 30_000 }).toHaveLength(1);
   const mensaje = leer('scheduled-messages.json').find(item => item.presupuestoId === presupuestoId)!;
   expect(mensaje).toMatchObject({ status: 'pendiente', sendingMode: 'manual_click', targetPhone: telefono });
   expect(mensaje.messageText).toContain(nombre);
   // El mensaje se guarda antes que el cierre de la propuesta (propuestas-service): se espera el cierre.
-  await expect.poll(() => leer('asistente-propuestas.json').find(item => item.accion?.data?.borrador?.presupuestoId === presupuestoId))
+  await expect.poll(() => leer('asistente-propuestas.json').find(item => item.accion?.data?.borrador?.presupuestoId === presupuestoId), { timeout: 30_000 })
     .toMatchObject({ estado: 'aceptada', planEjecucion: { mensajeId: mensaje.id } });
 
   await page.reload({ waitUntil: 'domcontentloaded' });

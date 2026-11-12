@@ -1423,6 +1423,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La presencia digital trabaja sola (12 de noviembre de 2026).** Palabras suyas: *"publica automático, no me da el tiempo… control exhaustivo de toda mi presencia digital"*. Cambia dos decisiones de antes: **los comentarios negativos y las quejas también se ocultan solos** (ocultar es reversible; borrar no se hace nunca solo) y se le avisa en el momento; y **los borradores se publican solos** si en 12 horas no tocó "No publicar" (sólo fotos con permiso de promoción). Orden 282.
+
+- **Resolver todo sin consultarle (12 de noviembre de 2026).** Palabras suyas: *"resolvé todo lo que tengas para resolver… déjate de ponerme cosas, que te quede como regla"*. Lo técnico (claves, esperas, controles que frenan, entregas rotas) se resuelve sin preguntarle ni explicarle. Al dueño sólo le llega: lo que quedó publicado, y lo que **sólo él** puede hacer (con su sesión o su teléfono), en una línea.
+
 - **La seña, la multa, la filmación y Club Uruguay (11 de noviembre de 2026).** La seña es **$5.000 y se cambia en
   Ajustes**; el **30% es la penalidad por cancelar**, no la seña. **Intermedio no incluye filmación.** El tachado de
   Club Uruguay es **siempre el doble del precio** (dice 50% OFF con cualquier precio). Va en la orden 277, bloques 8-10.
@@ -1925,6 +1929,7 @@ con otra cara.
 | El agente de publicidad pausaba campañas y subía el presupuesto solo, diciendo que no tocaba nada | `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts` |
 | Una cuenta vieja de administrador con perfil de secretaria seguía entrando a lo del dueño, incluido el borrado de la base | `src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts` |
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
+| Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
 
 ### Cómo se elige el matafuego
 

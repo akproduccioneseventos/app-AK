@@ -24,6 +24,7 @@ import { ReconnectingIndicator } from '@/components/entretenimiento/Reconnecting
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { AK_INSTAGRAM_HANDLE } from '@/lib/public-contact';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -144,7 +145,7 @@ export default function MuroEnVivoPage() {
     const list = [];
 
     // Instagram
-    const ig = brand?.instagramHandle?.trim() || '@akproducciones';
+    const ig = brand?.instagramHandle?.trim() || AK_INSTAGRAM_HANDLE;
     list.push({
       platform: 'Instagram',
       handle: ig,
@@ -160,7 +161,7 @@ export default function MuroEnVivoPage() {
     });
 
     // TikTok
-    const tt = brand?.tiktokHandle?.trim() || '@akproducciones';
+    const tt = brand?.tiktokHandle?.trim() || '@akproduccioneseve';
     list.push({
       platform: 'TikTok',
       handle: tt,
@@ -1741,7 +1742,7 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
 function QRFloatingCard({ qrUrl, settings }: { qrUrl: string; settings: any }) {
   if (!qrUrl) return null;
   const brand = settings?.brand;
-  const instagram = brand?.instagramHandle?.trim() || '@akproducciones';
+  const instagram = brand?.instagramHandle?.trim() || AK_INSTAGRAM_HANDLE;
 
   return (
     <div className="absolute bottom-5 right-5 z-30 flex items-center gap-3 rounded-md border border-white/20 bg-slate-950/95 p-3 text-white">

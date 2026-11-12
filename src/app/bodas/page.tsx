@@ -24,6 +24,7 @@ export default function BodasLanding() {
       />
       <EventLandingPage
         eventType="Bodas & Casamientos"
+        tipoEventoInicial="Bodas"
         source="landing-bodas"
         heroImage="/media/catalogo-servicios/boda_persuasiva.png"
         heroImageAlt="Boda producida por AK Producciones"

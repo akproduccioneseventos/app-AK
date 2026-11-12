@@ -4,6 +4,7 @@ import * as logger from './logger';
 import { isSafeTopLevelJsonFile } from './backup/backup-registry';
 import { AsyncMutex } from './mutex';
 import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { exigirQueSePuedaGuardar } from './auth/solo-lectura';
 
 const GENERIC_JSON_COLLECTION = 'json_documents';
 
@@ -32,6 +33,7 @@ async function getDbAdmin() {
 }
 
 export async function syncGenericJsonFile(filePath: string, data: any): Promise<void> {
+  await exigirQueSePuedaGuardar();
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) return;
   if (logger.shouldSkipFirestoreDuringBuild()) return;
@@ -64,6 +66,7 @@ export async function mutateGenericJsonArray<T>(
   filePath: string,
   cambiar: (lista: T[]) => T[] | null,
 ): Promise<T[] | null> {
+  await exigirQueSePuedaGuardar();
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
 
@@ -110,6 +113,7 @@ export async function mutateGenericJsonArrayConTransaccion<T>(
     db: FirebaseFirestore.Firestore,
   ) => Promise<T[] | null>,
 ): Promise<T[] | null> {
+  await exigirQueSePuedaGuardar();
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
   const db = await getDbAdmin();
@@ -173,6 +177,7 @@ export async function mutarDocumentoConTransaccion<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
+  await exigirQueSePuedaGuardar();
   const normalizedPath = filePath.replace(/\\/g, '/');
   const partes = normalizedPath.split('/');
   if (partes.length !== 2 || !partes[1].endsWith('.json')) {
@@ -249,6 +254,7 @@ export async function mutarDocumento<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
+  await exigirQueSePuedaGuardar();
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (normalizedPath.includes('/')) {
     return mutarDocumentoConTransaccion<T>(normalizedPath, vacio, cambiar);

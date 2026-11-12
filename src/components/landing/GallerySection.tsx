@@ -415,7 +415,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               onClick={() => setVisibleCount((value) => value + BATCH_STEP)}
               className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-bold text-slate-800 shadow-sm transition-colors hover:border-slate-500 hover:bg-neutral-50"
             >
-              Ver más fotos y videos ({Math.min(visibleCount + BATCH_STEP, filtered.length)} de {filtered.length})
+              Ver más fotos y videos ({displayedImages.length} de {filtered.length})
               <ChevronDown className="h-4 w-4 text-slate-600" />
             </button>
           </div>

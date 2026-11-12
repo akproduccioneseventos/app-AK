@@ -52,7 +52,18 @@ export async function getWhatsAppConfig(internalToken?: symbol): Promise<WhatsAp
     await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   }
   const data = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
-  return { ...defaultConfig, ...data } as WhatsAppConfig;
+  const config = { ...defaultConfig, ...data } as WhatsAppConfig;
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const session = await verifySession().catch(() => ({ success: false, user: undefined }));
+  if (session.success && session.user?.perfil === 'auditor') {
+    return {
+      ...config,
+      apiKey: config.apiKey ? '••••' : config.apiKey,
+      appSecret: config.appSecret ? '••••' : config.appSecret,
+      verifyToken: config.verifyToken ? '••••' : config.verifyToken,
+    };
+  }
+  return config;
 }
 
 export async function getPublicWhatsAppNumber(): Promise<string> {

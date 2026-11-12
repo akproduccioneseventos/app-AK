@@ -1,0 +1,18 @@
+{
+  "id": "vintage",
+  "nombre": "Vintage",
+  "paletaColores": {
+    "primary": "#C2A649",
+    "secondary": "#2B1D0C",
+    "accent": "#F5E6D3"
+  },
+  "tipografia": "Courier Prime",
+  "transiciones": ["fade", "dissolve", "fadeblack"],
+  "transicion_capitulo": "fadeblack",
+  "estilo_titulo": "retro_mecanografia",
+  "superposiciones": {
+    "marco": true,
+    "destellos_luz": false,
+    "textura_pelicula": true
+  }
+}

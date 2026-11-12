@@ -1,0 +1,18 @@
+{
+  "id": "clasica-dorada",
+  "nombre": "Clásica dorada",
+  "paletaColores": {
+    "primary": "#D4AF37",
+    "secondary": "#1A1A1A",
+    "accent": "#FFFFFF"
+  },
+  "tipografia": "Cinzel",
+  "transiciones": ["fade", "dissolve", "circlecrop", "fadeblack"],
+  "transicion_capitulo": "circlecrop",
+  "estilo_titulo": "dorado_elegante",
+  "superposiciones": {
+    "marco": true,
+    "destellos_luz": true,
+    "textura_pelicula": false
+  }
+}

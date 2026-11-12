@@ -40,7 +40,8 @@ export type Perfil =
   | 'personal'
   | 'cliente'
   | 'prospecto'
-  | 'invitado';
+  | 'invitado'
+  | 'auditor';
 
 const TODOS = Object.values(PERMISOS) as Permiso[];
 
@@ -50,6 +51,10 @@ const TODOS = Object.values(PERMISOS) as Permiso[];
 export const PERMISOS_POR_PERFIL: Record<Perfil, readonly Permiso[]> = {
   // El dueño ve todo, incluida la plata y la administración.
   dueno: TODOS,
+
+  // El auditor externo ve toda la app para auditar (el candado de solo lectura
+  // bloquea cualquier guardado o envio).
+  auditor: TODOS,
 
   // Factura, cobra y organiza. No ve sueldos ni ganancias: son del dueño.
   secretaria: [PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS],
@@ -76,6 +81,7 @@ export const NOMBRE_DEL_PERFIL: Record<Perfil, string> = {
   cliente: 'Cliente',
   prospecto: 'Prospecto',
   invitado: 'Invitado',
+  auditor: 'Auditor externo (sólo mirar)',
 };
 
 export const QUE_HACE_CADA_PERFIL: Record<Perfil, string> = {
@@ -86,6 +92,7 @@ export const QUE_HACE_CADA_PERFIL: Record<Perfil, string> = {
   cliente: 'Su portal, con su clave. No entra a la aplicación del equipo.',
   prospecto: 'Todavía no es cliente: vive en el CRM.',
   invitado: 'Su invitación, con su enlace.',
+  auditor: 'Ve toda la app para auditar, sin poder modificar nada.',
 };
 
 /** Los perfiles que se le pueden asignar a alguien del equipo. */

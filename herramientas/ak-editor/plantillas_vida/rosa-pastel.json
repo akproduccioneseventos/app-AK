@@ -1,0 +1,18 @@
+{
+  "id": "rosa-pastel",
+  "nombre": "Rosa pastel",
+  "paletaColores": {
+    "primary": "#F4C2C2",
+    "secondary": "#4A2E35",
+    "accent": "#FFF0F5"
+  },
+  "tipografia": "Playfair Display",
+  "transiciones": ["fade", "dissolve", "wiperight", "smoothleft"],
+  "transicion_capitulo": "dissolve",
+  "estilo_titulo": "suave_romantico",
+  "superposiciones": {
+    "marco": false,
+    "destellos_luz": true,
+    "textura_pelicula": false
+  }
+}

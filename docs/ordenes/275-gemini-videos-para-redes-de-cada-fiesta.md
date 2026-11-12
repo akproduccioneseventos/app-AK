@@ -19,7 +19,7 @@
 
 ## Bloque 1 — En la app: bajar el material para redes de una fiesta
 
-- Ruta nueva `src/app/api/fiestas/[id]/material-redes/route.ts`, con `requirePermiso(PERMISOS.CRM)`, como
+- Ruta nueva `src/app/api/fiestas/[fiestaId]/material-redes/route.ts`, con `requirePermiso(PERMISOS.CRM)`, como
   `enviarABorradorDeContenido` en `src/app/actions/creador-anuncios.ts` (~186).
 - Devuelve un `.zip` con:
   - **sólo** las fotos y videos de `fotosPromocionalesDeFiesta(id)`, en carpetas por estación según el `sourceModule`
@@ -94,8 +94,8 @@ cada video antes de terminarlo.
   aparece y, cortando la subida, la pantalla dice cuántos borradores va a crear.
 
 ```comprobar
-archivo: src/app/api/fiestas/[id]/material-redes/route.ts
-usa: fotosPromocionalesDeFiesta en src/app/api/fiestas/[id]/material-redes/route.ts
+archivo: src/app/api/fiestas/[fiestaId]/material-redes/route.ts
+usa: fotosPromocionalesDeFiesta en src/app/api/fiestas/[fiestaId]/material-redes/route.ts
 usa: mutateGenericJsonArray en src/app/actions/videos-para-redes.ts
 archivo: herramientas/ak-editor/redes.py
 prueba: src/__tests__/el-material-para-redes-respeta-el-permiso.test.ts

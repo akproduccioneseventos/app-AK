@@ -1,0 +1,19 @@
+{
+  "id": "acuarela",
+  "nombre": "Acuarela",
+  "paletaColores": {
+    "primary": "#4A90E2",
+    "secondary": "#F7F9FC",
+    "accent": "#E94E77"
+  },
+  "tipografia": "Satisfy",
+  "transiciones": ["dissolve", "fade", "circlecrop"],
+  "transicion_capitulo": "circlecrop",
+  "estilo_titulo": "pincel_acuarela",
+  "superposiciones": {
+    "manchas_acuarela": true,
+    "marco": false,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

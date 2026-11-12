@@ -70,6 +70,9 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
     'crea la primera cuenta de administrador y la llama el propio ingreso, antes de ' +
     'que exista sesión. No hace nada si ya hay usuarios, y necesita la contraseña ' +
     'inicial del entorno para crearla.',
+  'auth.ts:chequearAvisoAuditor14Dias':
+    'comprueba si pasaron 14 días desde la apertura del acceso del auditor externo ' +
+    'para avisar al dueño; no modifica datos ni expone secretos.',
 
   // Las versiones "publicas" de datos que antes salian enteros. Cada una existe
   // porque una pantalla que se abre sin cuenta necesita mostrar algo, y la version

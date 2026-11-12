@@ -17,6 +17,9 @@ export async function GET() {
     if (!permiso.ok) {
       return new NextResponse(JSON.stringify({ error: permiso.error }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
+    if (permiso.user?.perfil === 'auditor') {
+      return new NextResponse(JSON.stringify({ error: 'Acceso de auditor: no se permite descargar respaldos completos.' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+    }
 
     const zip = new JSZip();
     const source = 'data-service';

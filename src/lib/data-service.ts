@@ -10,6 +10,7 @@ import { isSafeTopLevelJsonFile } from "./backup/backup-registry";
 import * as logger from "./logger";
 import { sacarMarcas } from "./marca-de-lectura";
 import { scheduleAutoBackupAfterWrite } from "./backup/schedule-after-write";
+import { exigirQueSePuedaGuardar } from "./auth/solo-lectura";
 
 export interface WriteDataOptions {
   skipAutoBackup?: boolean;
@@ -220,6 +221,7 @@ export async function writeData<T>(
   sortFn?: (a: any, b: any) => number,
   options?: WriteDataOptions,
 ): Promise<void> {
+  await exigirQueSePuedaGuardar();
   if (filePath.includes("..") || filePath.startsWith("/"))
     throw new Error("Invalid data file path");
 
@@ -307,6 +309,7 @@ export async function createDataItem<T extends object>(
   item: T,
   options?: WriteDataOptions,
 ): Promise<void> {
+  await exigirQueSePuedaGuardar();
   validateCollectionMutationInput(filePath, collectionName, documentId);
   if (shouldUseLocalJsonOnly()) {
     throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
@@ -329,6 +332,7 @@ export async function updateDataItem<T extends object>(
   item: T,
   options?: WriteDataOptions,
 ): Promise<boolean> {
+  await exigirQueSePuedaGuardar();
   validateCollectionMutationInput(filePath, collectionName, documentId);
   if (shouldUseLocalJsonOnly()) {
     throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
@@ -360,6 +364,7 @@ export async function deleteDataItem(
   documentId: string,
   options?: WriteDataOptions,
 ): Promise<boolean> {
+  await exigirQueSePuedaGuardar();
   validateCollectionMutationInput(filePath, collectionName, documentId);
   if (shouldUseLocalJsonOnly()) {
     throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
@@ -401,6 +406,7 @@ export async function mutateDataItem<T extends object>(
   cambiar: (actual: T) => T | null,
   options?: WriteDataOptions,
 ): Promise<T | null> {
+  await exigirQueSePuedaGuardar();
   validateCollectionMutationInput(filePath, collectionName, documentId);
   if (shouldUseLocalJsonOnly()) {
     throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
@@ -480,6 +486,7 @@ export async function updateDataPartial<T extends Record<string, any>>(
   partialData: Partial<T>,
   options?: WriteDataOptions,
 ): Promise<void> {
+  await exigirQueSePuedaGuardar();
   if (filePath.includes("..") || filePath.startsWith("/"))
     throw new Error("Invalid data file path");
 

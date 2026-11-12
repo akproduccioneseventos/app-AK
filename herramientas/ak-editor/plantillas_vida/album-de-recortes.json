@@ -1,0 +1,20 @@
+{
+  "id": "album-de-recortes",
+  "nombre": "Álbum de recortes",
+  "paletaColores": {
+    "primary": "#5C4033",
+    "secondary": "#F4ECD8",
+    "accent": "#E76F51"
+  },
+  "tipografia": "Patrick Hand",
+  "transiciones": ["slideup", "slidedown", "dissolve"],
+  "transicion_capitulo": "slideup",
+  "estilo_titulo": "etiqueta_adhesiva",
+  "superposiciones": {
+    "cinta_adhesiva": true,
+    "etiquetas": true,
+    "marco": true,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

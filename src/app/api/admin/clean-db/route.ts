@@ -3,6 +3,7 @@ import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession } from '@/lib/auth/session-token';
 import { esAdministrador } from '@/lib/auth/perfiles';
 import { cleanMojibakeValue } from '@/lib/text/mojibake';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 const COLLECTIONS_TO_CLEAN = [
   'prospectos',
@@ -15,11 +16,11 @@ const COLLECTIONS_TO_CLEAN = [
   'cupones'
 ];
 
-async function isAuthorized(request: Request, secret: string | null) {
+async function isAuthorized(request: Request) {
   const maintenanceSecret = process.env.CLEAN_DB_SECRET || process.env.ADMIN_MAINTENANCE_SECRET;
-  const bearerSecret = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
+  const bearerSecret = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')?.trim() || null;
 
-  if (maintenanceSecret && (secret === maintenanceSecret || bearerSecret === maintenanceSecret)) {
+  if (maintenanceSecret && clavesIguales(bearerSecret, maintenanceSecret)) {
     return true;
   }
 
@@ -37,11 +38,10 @@ export async function POST(request: Request) {
 
 async function handleCleanDb(request: Request) {
   const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
   const requestedWrite = searchParams.get('dryRun') === '0';
   const dryRun = request.method === 'GET' || !requestedWrite;
 
-  if (!(await isAuthorized(request, secret))) {
+  if (!(await isAuthorized(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -72,7 +72,7 @@ async function handleCleanDb(request: Request) {
       report[colName] = { scanned: 0, modified: [] };
       const colRef = dbAdmin.collection(colName);
       const snapshot = await colRef.get();
-      
+
       report[colName].scanned = snapshot.size;
       totalScanned += snapshot.size;
 

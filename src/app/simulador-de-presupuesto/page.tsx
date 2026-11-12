@@ -292,6 +292,7 @@ function SimuladorContent() {
     const prefillEventType = normalizePrefillEventType(searchParams.get('eventType') ?? searchParams.get('tipo'));
     const prefillSalonChoice: 'club' | '' = searchParams.get('salon')?.toLowerCase() === 'club' ? 'club' : '';
     const prefillExtra = searchParams.get('extra');
+    const prefillPaquete = searchParams.get('paquete');
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
@@ -301,7 +302,7 @@ function SimuladorContent() {
     // Si la URL trae el tipo de fiesta pre-seleccionado o parámetros clave, saltamos la pantalla de bienvenida
     // para que el formulario quede visible de entrada y las pruebas e2e puedan encontrarlo.
     useEffect(() => {
-      if (searchParams.get('tipo') || searchParams.get('eventType') || searchParams.get('mes') || searchParams.get('extra')) {
+      if (searchParams.get('tipo') || searchParams.get('eventType') || searchParams.get('mes') || searchParams.get('extra') || searchParams.get('paquete')) {
         setHasStarted(true);
       }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -596,8 +597,8 @@ function SimuladorContent() {
     const clubUruguayDetails = useMemo(() => {
         const club = config?.clubUruguayConfig;
         if (salonChoice !== 'club') return null;
-        const precioReal = 36000;
         const precioBasePromo = config?.clubUruguayConfig?.precio || 16900;
+        const precioReal = precioBasePromo * 2;
 
         const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
         const diffYears = Math.max(0, eventYear - 2026);
@@ -729,6 +730,21 @@ function SimuladorContent() {
 
         return { nextPackage, nextManualServices, packageChange };
     };
+
+    const paquetePreseleccionadoRef = useRef(false);
+    useEffect(() => {
+        if (paquetePreseleccionadoRef.current || !config?.paquetes?.length) return;
+        const paramPaquete = searchParams.get('paquete');
+        if (!paramPaquete) return;
+        const target = paramPaquete.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        const matchingPackage = config.paquetes.find(p =>
+            p.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim() === target
+        );
+        if (matchingPackage) {
+            paquetePreseleccionadoRef.current = true;
+            selectPackage(matchingPackage.id);
+        }
+    }, [config, searchParams]);
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
         const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
@@ -1663,7 +1679,7 @@ function SimuladorContent() {
                                          </p>
                                      </div>
                                  </div>
-                                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
                                      <Button
                                          type="button"
                                          onClick={handleDownloadBudgetPdf}
@@ -1676,7 +1692,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          onClick={handleShareBudgetWhatsApp}
-                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-2 shadow-lg transition transform hover:scale-105"
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-2 shadow-lg transition"
                                      >
                                          <MessageSquare className="w-4 h-4" />
                                          <span>WhatsApp AK</span>
@@ -2361,7 +2377,7 @@ function SimuladorContent() {
                                         <div>
                                             <p className="text-sm font-black text-slate-900">Quiero Club Uruguay</p>
                                             <p className="mt-1 text-[10px] text-slate-400 font-semibold leading-normal">
-                                                <span className="line-through mr-1">{formatCurrency(36000)}</span>
+                                                <span className="line-through mr-1">{formatCurrency((config?.clubUruguayConfig?.precio || 16900) * 2)}</span>
                                                 <span className="font-bold text-amber-600">{formatCurrency(config?.clubUruguayConfig?.precio || 0)}</span>
                                                 <span className="ml-1">agregados.</span>
                                             </p>

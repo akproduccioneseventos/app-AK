@@ -1,6 +1,7 @@
 'use server';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 // src/app/actions/auth.ts
 // Server actions for the custom authentication system.
@@ -9,7 +10,8 @@ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
-import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
+import { verifySession, writeSessionCookie, registrarAuditorCortado, limpiarAuditorCortado } from '@/lib/auth/session-token';
+import { readData, writeData } from '@/lib/data-service';
 import { esAdministrador, esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
 import { requireAppSession, requireSession, invalidateUserSessionCache } from '@/lib/auth/require-session';
@@ -323,7 +325,7 @@ export async function loginUser(
 
   const normalizedEmail = email.trim().toLowerCase();
   const envPassword = process.env.APP_PASSWORD;
-  const isMasterPassword = Boolean(envPassword && password === envPassword);
+  const isMasterPassword = clavesIguales(password, envPassword);
   const allowedAdminEmails = new Set(
     (process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS || 'akproduccionessalto@gmail.com')
       .split(',')
@@ -484,6 +486,16 @@ export async function loginUser(
 
     const doc = snapshot.docs[0];
     const data = doc.data();
+
+    // El auditor inactivo o cerrado no puede ingresar (Orden 276)
+    if (data.perfil === 'auditor' || data.role === 'auditor') {
+      if (data.activo === false || Boolean(data.cerradoEl)) {
+        return {
+          success: false,
+          error: 'El acceso de auditor está cerrado. El dueño debe volver a abrirlo.',
+        };
+      }
+    }
 
     let isPasswordValid =
       verifyValue(password, data.passwordHash) ||
@@ -663,6 +675,16 @@ export async function resetPasswordWithQuestions(
 
     const doc = snapshot.docs[0];
     const data = doc.data();
+
+    // El auditor inactivo o cerrado no puede ingresar (Orden 276)
+    if (data.perfil === 'auditor' || data.role === 'auditor') {
+      if (data.activo === false || Boolean(data.cerradoEl)) {
+        return {
+          success: false,
+          error: 'El acceso de auditor está cerrado. El dueño debe volver a abrirlo.',
+        };
+      }
+    }
     const sq = data.securityQuestions ?? {};
 
     if (!sq.q1?.answer || !sq.q2?.answer || !sq.q3?.answer) {
@@ -841,6 +863,7 @@ export async function listUsers(): Promise<{
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  if (auth.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede crear usuarios.' };
 
   try {
     const snapshot = await dbAdmin
@@ -883,6 +906,7 @@ export async function createUser(data: {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  if (auth.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede crear usuarios.' };
 
   try {
     const email = data.email.trim().toLowerCase();
@@ -953,6 +977,7 @@ export async function updateUserModules(
   const session = await requireSession();
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
 
   if (perfil !== undefined && perfil !== null && String(perfil) !== '') {
     if (!esPerfilValido(perfil)) {
@@ -1023,6 +1048,7 @@ export async function deleteUser(
   const session = await requireSession();
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
 
   return await conCandadoDeUsuarios(async () => {
     try {
@@ -1075,6 +1101,7 @@ export async function adminResetUserPassword(
   const session = await requireSession();
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
+  if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
 
   try {
     if (newPassword.length < 8) {
@@ -1099,4 +1126,282 @@ export async function adminResetUserPassword(
     console.error('[auth] adminResetUserPassword error:', err);
     return { success: false, error: 'Error al restablecer la contraseña.' };
   }
+}
+
+// ── Acceso de auditor externo (Orden 276) ───────────────────────────────────
+
+export interface HistorialAuditorItem {
+  id?: string;
+  email: string;
+  abiertoEl: string;
+  cerradoEl: string | null;
+  activo: boolean;
+}
+
+export async function abrirAccesoAuditor(input: { email: string } | string): Promise<{
+  success: boolean;
+  email?: string;
+  password?: string;
+  error?: string;
+  abiertoEl?: string;
+}> {
+  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  if (session.user.perfil === 'auditor') {
+    return { success: false, error: 'Un auditor no puede abrir accesos de auditor.' };
+  }
+  if (session.user.perfil !== 'dueno') {
+    return { success: false, error: 'Solo el dueño puede abrir el acceso de auditor.' };
+  }
+
+  const rawEmail = typeof input === 'string' ? input : input?.email;
+  const email = (rawEmail || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) {
+    return { success: false, error: 'Ingresá un correo electrónico válido.' };
+  }
+
+  const password = `Auditor-${crypto.randomBytes(3).toString('hex').toUpperCase()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+  const passwordHash = hashValue(password);
+  const ahora = new Date().toISOString();
+
+  try {
+    const snapshot = await dbAdmin
+      .collection('users')
+      .where('email', '==', email)
+      .limit(1)
+      .get();
+
+    let userId: string;
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      userId = doc.id;
+      const currentVersion = typeof doc.data()?.versionDeSesion === 'number' ? doc.data().versionDeSesion : 1;
+      await doc.ref.update({
+        passwordHash,
+        perfil: 'auditor',
+        role: 'user',
+        activo: true,
+        abiertoEl: ahora,
+        cerradoEl: null,
+        versionDeSesion: currentVersion + 1,
+        mustChangePassword: false,
+        updatedAt: ahora,
+      });
+    } else {
+      const docRef = await dbAdmin.collection('users').add({
+        email,
+        passwordHash,
+        perfil: 'auditor',
+        role: 'user',
+        modules: ['all'],
+        activo: true,
+        abiertoEl: ahora,
+        cerradoEl: null,
+        versionDeSesion: 1,
+        mustChangePassword: false,
+        createdAt: ahora,
+        updatedAt: ahora,
+      });
+      userId = docRef.id;
+    }
+
+    limpiarAuditorCortado(email);
+    limpiarAuditorCortado(userId);
+    invalidateUserSessionCache(userId);
+
+    try {
+      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
+      historial.push({
+        id: crypto.randomUUID(),
+        email,
+        abiertoEl: ahora,
+        cerradoEl: null,
+        activo: true,
+      });
+      await writeData('auditores-historial.json', historial);
+    } catch (histError) {
+      console.warn('[auth] No se pudo guardar en auditores-historial.json:', histError);
+    }
+
+    return {
+      success: true,
+      email,
+      password,
+      abiertoEl: ahora,
+    };
+  } catch (err: any) {
+    console.error('[auth] abrirAccesoAuditor error:', err);
+    return { success: false, error: err?.message || 'Error al abrir el acceso de auditor.' };
+  }
+}
+
+export async function cerrarAccesoAuditor(emailAuditor?: string): Promise<{
+  success: boolean;
+  cerradoEl?: string;
+  error?: string;
+}> {
+  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  if (session.user.perfil === 'auditor') {
+    return { success: false, error: 'Un auditor no puede cerrar accesos de auditor.' };
+  }
+  if (session.user.perfil !== 'dueno') {
+    return { success: false, error: 'Solo el dueño puede cerrar el acceso de auditor.' };
+  }
+
+  const ahora = new Date().toISOString();
+
+  try {
+    let query: any = dbAdmin.collection('users').where('perfil', '==', 'auditor');
+    if (emailAuditor) {
+      query = dbAdmin.collection('users').where('email', '==', emailAuditor.trim().toLowerCase());
+    }
+    const snapshot = await query.get();
+
+    for (const doc of snapshot.docs) {
+      const d = doc.data();
+      const currentVersion = typeof d.versionDeSesion === 'number' ? d.versionDeSesion : 1;
+      await doc.ref.update({
+        activo: false,
+        cerradoEl: ahora,
+        versionDeSesion: currentVersion + 1,
+        updatedAt: ahora,
+      });
+      if (d.email) registrarAuditorCortado(d.email);
+      registrarAuditorCortado(doc.id);
+      invalidateUserSessionCache(doc.id);
+    }
+
+    if (emailAuditor) {
+      registrarAuditorCortado(emailAuditor);
+    }
+
+    try {
+      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
+      for (const item of historial) {
+        if (!emailAuditor || item.email.toLowerCase() === emailAuditor.toLowerCase()) {
+          if (item.activo || !item.cerradoEl) {
+            item.activo = false;
+            item.cerradoEl = ahora;
+          }
+        }
+      }
+      await writeData('auditores-historial.json', historial);
+    } catch (histError) {
+      console.warn('[auth] No se pudo actualizar auditores-historial.json:', histError);
+    }
+
+    return {
+      success: true,
+      cerradoEl: ahora,
+    };
+  } catch (err: any) {
+    console.error('[auth] cerrarAccesoAuditor error:', err);
+    return { success: false, error: err?.message || 'Error al cerrar el acceso de auditor.' };
+  }
+}
+
+export async function obtenerEstadoAuditor(): Promise<{
+  success: boolean;
+  activo: boolean;
+  email?: string;
+  abiertoEl?: string;
+  cerradoEl?: string | null;
+  historial: HistorialAuditorItem[];
+  error?: string;
+}> {
+  if (!dbAdmin) return { success: false, activo: false, historial: [], error: 'Base de datos no disponible.' };
+
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { success: false, activo: false, historial: [], error: 'Sesión no autorizada.' };
+  }
+  if (!puede(session.user, PERMISOS.ADMINISTRACION)) {
+    return { success: false, activo: false, historial: [], error: 'Acceso restringido.' };
+  }
+
+  try {
+    const snapshot = await dbAdmin
+      .collection('users')
+      .where('perfil', '==', 'auditor')
+      .limit(1)
+      .get();
+
+    let activo = false;
+    let email: string | undefined;
+    let abiertoEl: string | undefined;
+    let cerradoEl: string | null = null;
+
+    if (!snapshot.empty) {
+      const d = snapshot.docs[0].data();
+      email = d.email;
+      activo = d.activo === true && !d.cerradoEl;
+      abiertoEl = d.abiertoEl;
+      cerradoEl = d.cerradoEl || null;
+    }
+
+    const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
+
+    return {
+      success: true,
+      activo,
+      email,
+      abiertoEl,
+      cerradoEl,
+      historial,
+    };
+  } catch (err: any) {
+    return { success: false, activo: false, historial: [], error: err?.message };
+  }
+}
+
+export async function chequearAvisoAuditor14Dias(ahora: Date = new Date()): Promise<{
+  debeAvisar: boolean;
+  mensaje?: string;
+  email?: string;
+  abiertoEl?: string;
+  activo?: boolean;
+}> {
+  if (!dbAdmin) return { debeAvisar: false };
+
+  try {
+    const snapshot = await dbAdmin
+      .collection('users')
+      .where('perfil', '==', 'auditor')
+      .get();
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      if (data.activo === true && !data.cerradoEl && data.abiertoEl) {
+        const abiertoMs = new Date(data.abiertoEl).getTime();
+        const dias = Math.floor((ahora.getTime() - abiertoMs) / (1000 * 60 * 60 * 24));
+        if (dias >= 14) {
+          const fechaFormateada = new Date(data.abiertoEl).toLocaleDateString('es-UY', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+          });
+          const mensaje = `El acceso de auditor sigue abierto desde el ${fechaFormateada}: ¿lo cierro?`;
+          return {
+            debeAvisar: true,
+            mensaje,
+            email: data.email,
+            abiertoEl: data.abiertoEl,
+            activo: true, // El acceso sigue abierto, no se cierra solo.
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[auth] chequearAvisoAuditor14Dias error:', err);
+  }
+  return { debeAvisar: false };
 }

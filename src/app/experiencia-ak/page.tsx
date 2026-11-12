@@ -118,7 +118,7 @@ export default function ExperienciaAkPage() {
                     Consultar por mi Fiesta
                   </a>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto rounded-xl border-white/20 text-white hover:bg-white/10 font-bold px-8 h-12">
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto rounded-xl border-white/20 bg-transparent text-white hover:bg-white/10 font-bold px-8 h-12">
                   <Link href="/simulador-de-presupuesto">
                     Calcular Presupuesto Online
                     <ArrowRight className="w-4 h-4 ml-2" />

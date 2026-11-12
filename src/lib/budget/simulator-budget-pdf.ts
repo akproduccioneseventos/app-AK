@@ -417,6 +417,8 @@ export async function createSimulatorBudgetPdf(
 
   if (input.salonDetails) {
     ensureSpace(26);
+    const precioPromo = input.salonDetails.costo;
+    const precioReal = (input.salonDetails as { precioReal?: number }).precioReal ?? precioPromo * 2;
     pdf.setFillColor(254, 243, 199);
     pdf.setDrawColor(245, 158, 11);
     pdf.roundedRect(marginX, y, contentWidth, 24, 1.5, 1.5, "FD");
@@ -424,13 +426,13 @@ export async function createSimulatorBudgetPdf(
     pdf.setFontSize(8.5);
     pdf.setTextColor(146, 64, 14);
     pdf.text(`LOCACIÓN: ${input.salonDetails.nombre.toUpperCase()}`, marginX + 4, y + 5.5);
-    writeRightAligned(pdf, `Precio Real: $36.000 | Promo: ${formatCurrency(input.salonDetails.costo)}`, 191, y + 5.5);
+    writeRightAligned(pdf, `Precio Real: ${formatCurrency(precioReal)} | Promo: ${formatCurrency(precioPromo)}`, 191, y + 5.5);
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(7);
     pdf.setTextColor(180, 83, 9);
     const salonNoteLines = pdf.splitTextToSize(
       input.salonDetails.aclaracion ||
-        `El alquiler del Salón Club Uruguay (Precio Real: $36.000, Precio Promo: $16.900) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
+        `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioPromo)}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
       172
     ) as string[];
     pdf.text(salonNoteLines, marginX + 4, y + 11);

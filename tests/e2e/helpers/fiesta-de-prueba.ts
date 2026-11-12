@@ -61,6 +61,38 @@ export async function ponerSesionDelEquipo(
   ]);
 }
 
+/** Cookie de sesión de auditor externo (Orden 276). */
+export function crearCookieDeAuditor(email = 'auditor@externo.test') {
+  const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify({ email, role: 'admin', userId: 'auditor-e2e', perfil: 'auditor' }))}`;
+  return encodeURIComponent(`${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`);
+}
+
+/**
+ * Deja la sesión de auditor externo en el navegador de la prueba.
+ */
+export async function ponerSesionDeAuditor(
+  context: {
+    addCookies: (c: any[]) => Promise<unknown>;
+    addInitScript: (fn: any) => Promise<unknown>;
+  },
+  baseURL: string | undefined,
+  email = 'auditor@externo.test',
+) {
+  await context.addInitScript(() => {
+    window.localStorage.setItem('ak_session', 'true');
+    window.sessionStorage.setItem('ak_session', 'true');
+  });
+  await context.addCookies([
+    {
+      name: 'ak_session',
+      value: crearCookieDeAuditor(email),
+      url: baseURL,
+      httpOnly: true,
+      sameSite: 'Lax' as const,
+    },
+  ]);
+}
+
 /**
  * Permiso de estación, igual que el que genera el equipo desde el Centro de
  * Fiesta. Las estaciones (buzón, fotocabina, espejo, 360) no se abren con el

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { MetaMensajeDirecto } from '@/lib/mensajes/bandeja-unica';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (mode === 'subscribe' && challenge) {
-    if (token === expectedToken) {
+    if (clavesIguales(token, expectedToken)) {
       return new NextResponse(challenge, { status: 200 });
     }
     return NextResponse.json({ error: 'Token de verificación de Meta inválido.' }, { status: 403 });

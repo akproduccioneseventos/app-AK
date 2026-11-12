@@ -139,6 +139,11 @@ en todos esos respaldos; el enlace de la barra usa `AK_SOCIAL_LINKS.instagram`. 
 
 ## Bloque 13 — La presentación LED no pierde las entradas elegidas (barrido de Claude)
 
+> **DEVUELTO (12/11/2026).** La entrega de la 1385 traía el cambio, pero su prueba de navegador no llegaba nunca al botón
+> "Generar Presupuesto Manual" (falló dos veces). Claude sacó el cambio y la prueba de la publicación. Rehacelo con una
+> prueba que llegue a la lámina de cierre de verdad (mirá cómo se avanza en `src/app/presentacion-led/page.tsx`) y
+> corrida en verde antes de entregar.
+
 **Hoy:** `src/app/presentacion-led/page.tsx` ~538-580 manda a `/presupuestos/nuevo/crear` el cliente, los servicios y
 los menús por la dirección, pero las **entradas elegidas** (`selectedEntradasIds`) sólo quedan en `sessionStorage`, y
 `src/app/(app)/presupuestos/nuevo/crear/page.tsx` (~265-272) no las lee de ningún lado.

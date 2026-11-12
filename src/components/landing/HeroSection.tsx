@@ -23,6 +23,7 @@ interface HeroSectionProps {
   simulatorLabel?: string;
   showEventTypes?: boolean;
   backgroundImageAlt?: string;
+  tipoEventoInicial?: string;
 }
 
 const details = [
@@ -43,12 +44,13 @@ export function HeroSection({
   simulatorHref = "/simulador-de-presupuesto",
   simulatorLabel = "Simular mi presupuesto",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
+  tipoEventoInicial = "15 Años",
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
-  const [tipoEvento, setTipoEvento] = useState("15 Años");
+  const [tipoEvento, setTipoEvento] = useState(tipoEventoInicial);
   const [mesEstimado, setMesEstimado] = useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + 2);

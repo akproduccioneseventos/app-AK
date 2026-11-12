@@ -58,6 +58,13 @@ export async function setPortalSessionCookie(fiestaId: string, accessKey: string
 
 export async function verifyPortalSession(fiestaId: string): Promise<boolean> {
   try {
+    // Auditor puede ver el portal del cliente en modo sólo mirar (Orden 276 y 279)
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const appSession = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (appSession.success && appSession.user?.perfil === 'auditor') {
+      return true;
+    }
+
     const cookieStore = await cookies();
     const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     if (!cookieValue) return false;
