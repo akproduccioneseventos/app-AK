@@ -1,15 +1,15 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
- * Orden 277 â€” Bloque 13:
- * La presentaciÃ³n LED no pierde las entradas elegidas.
+ * Orden 277 - Bloque 13:
+ * La presentación LED no pierde las entradas elegidas.
  * Elegir al menos una entrada en /presentacion-led, avanzar hasta el cierre,
  * tocar "Generar Presupuesto Manual", y comprobar que la URL lleve
  * entradas= y que las entradas queden marcadas/visibles en la pantalla de crear.
  */
 
-test.describe('Orden 277 â€” PresentaciÃ³n LED lleva las entradas seleccionadas', () => {
+test.describe('Orden 277 - Presentación LED lleva las entradas seleccionadas', () => {
   test('elegir entrada en /presentacion-led y generar presupuesto manual lleva la entrada a crear presupuesto', async ({ context, page }, testInfo) => {
     test.setTimeout(240_000);
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
@@ -28,10 +28,10 @@ test.describe('Orden 277 â€” PresentaciÃ³n LED lleva las entradas selecci
       await page.waitForTimeout(500);
     }
 
-    // Navegar hasta la lÃ¡mina de Entradas
+    // Navegar hasta la lámina de Entradas
     const btnSiguiente = page.getByTestId('btn-siguiente-slide');
     for (let i = 0; i < 15; i++) {
-      if (await page.getByText(/ElegÃ­ las Entradas/i).isVisible().catch(() => false)) {
+      if (await page.getByText(/Elegí las Entradas/i).isVisible().catch(() => false)) {
         break;
       }
       if (await btnSiguiente.isVisible().catch(() => false)) {
@@ -42,9 +42,9 @@ test.describe('Orden 277 â€” PresentaciÃ³n LED lleva las entradas selecci
       await page.waitForTimeout(700);
     }
 
-    await expect(page.getByText(/ElegÃ­ las Entradas/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Elegí las Entradas/i)).toBeVisible({ timeout: 15_000 });
 
-    // Seleccionar al menos una entrada (o simular la selecciÃ³n)
+    // Seleccionar al menos una entrada (o simular la selección)
     let entradaId = 'entrada-degustacion-especial';
     const entradaBtn = page.locator('button[data-testid^="toggle-entrada-"]').first();
     if (await entradaBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -53,13 +53,13 @@ test.describe('Orden 277 â€” PresentaciÃ³n LED lleva las entradas selecci
       await entradaBtn.click();
       await page.waitForTimeout(300);
     } else {
-      // Si la carga de platos no poblÃ³ entradas en este entorno, simular selecciÃ³n interactuando
+      // Si la carga de platos no pobló entradas en este entorno, simular selección interactuando
       await page.evaluate((id) => {
         sessionStorage.setItem('presentacion_entradas_seleccionadas', JSON.stringify([id]));
       }, entradaId);
     }
 
-    // Avanzar por la presentaciÃ³n hasta la lÃ¡mina de cierre donde estÃ¡ el botÃ³n "Generar Presupuesto Manual"
+    // Avanzar por la presentación hasta la lámina de cierre donde está el botón "Generar Presupuesto Manual"
     const btnGenerarPresupuesto = page.locator('[data-testid="btn-generar-presupuesto-manual"], button:has-text("Generar Presupuesto Manual")').first();
     for (let i = 0; i < 60; i++) {
       if (await btnGenerarPresupuesto.isVisible().catch(() => false)) {
@@ -77,7 +77,7 @@ test.describe('Orden 277 â€” PresentaciÃ³n LED lleva las entradas selecci
     await btnGenerarPresupuesto.scrollIntoViewIfNeeded();
     await btnGenerarPresupuesto.click();
 
-    // Esperar navegaciÃ³n a /presupuestos/nuevo/crear
+    // Esperar navegación a /presupuestos/nuevo/crear
     await page.waitForURL(/\/presupuestos\/nuevo\/crear/, { timeout: 60_000 });
     const currentUrl = page.url();
 

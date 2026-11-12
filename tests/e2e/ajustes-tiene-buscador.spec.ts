@@ -26,10 +26,11 @@ test.describe('Ajustes tiene buscador (Orden 283)', () => {
     const buscador = page.getByPlaceholder('¿qué querés cambiar?');
     await expect(buscador).toBeVisible();
     await buscador.fill('seña');
+    await expect(buscador).toHaveValue('seña');
 
     // La sección de seña debe quedar visible
     await expect(seccionSena).toBeVisible();
-    await expect(page.getByText('Política de Señas y Reservas')).toBeVisible();
+    await expect(seccionSena).toContainText('Política de Señas y Reservas');
 
     // Todas las demás secciones deben quedar ocultas
     await expect(seccionEmpresa).toBeHidden();
