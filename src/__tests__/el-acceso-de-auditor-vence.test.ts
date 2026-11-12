@@ -12,6 +12,7 @@ import {
   updateUserModules,
   chequearAvisoAuditor14Dias,
   obtenerEstadoAuditor,
+  listUsers,
 } from '@/app/actions/auth';
 
 let currentCookieToken: string | undefined = undefined;
@@ -178,6 +179,17 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     };
     await loginUser('auditor-real@externo.com', 'clave-del-duenio');
     expect(mockUsers['usr-auditor-real'].perfil).toBe('auditor');
+  });
+
+  it('el auditor ve la lista de usuarios sin claves, y no puede crear uno', async () => {
+    mockUsers['usr-x'] = { email: 'x@ak.com', perfil: 'secretaria', role: 'user', passwordHash: 'scrypt:secreto', createdAt: '2026-01-01' };
+    currentCookieToken = await createSignedSessionToken({ userId: 'usr-aud', email: 'aud@ext.com', role: 'user', perfil: 'auditor' });
+    mockUsers['usr-aud'] = { email: 'aud@ext.com', perfil: 'auditor', role: 'user', activo: true, cerradoEl: null };
+    const lista = await listUsers();
+    expect(lista.success).toBe(true);
+    expect(JSON.stringify(lista.users)).not.toContain('scrypt:secreto');
+    const crear = await createUser({ email: 'nuevo@ak.com', password: 'Clave-1234', perfil: 'secretaria' } as any);
+    expect(crear.success).toBe(false);
   });
 
   it('el correo de alguien del equipo no se convierte en auditor', async () => {

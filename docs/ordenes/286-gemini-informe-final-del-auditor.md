@@ -8,6 +8,12 @@ el resto y avisá cuál. Repasá `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 91.
 reintenta antes de 10 minutos después de una falla y el aviso de error dice el motivo (`src/app/actions/backup.ts`,
 `readAllBackupData` y `acquireAutoBackupLease`; `readDataConDetalle` acepta `{ topeMs }` y devuelve `motivo`).
 
+## Barrido en toda la app (Claude, 12/11/2026)
+
+Cada forma del informe se buscó en todo `src/` antes de escribir esta orden; lo que salió está en los bloques 1 a 6 (las
+fechas en 20 lugares, los enlaces sin fiesta en 3, los botones ilegibles y las imágenes sin respaldo en 10 pantallas).
+Preguntas nuevas del método: 119 y 120 (`docs/barridos.json`).
+
 ## Bloque 1 — "Control de backup" dice "Listo" con 333 fallos (P1)
 
 **Hoy:** `/settings/backup-final` (`src/app/(app)/settings/backup-final/page.tsx` ~10) usa `buildBackupReadinessReport()`

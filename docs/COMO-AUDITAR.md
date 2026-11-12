@@ -1592,3 +1592,44 @@ Auditor externo, 12/11/2026. El respaldo automático falló un mes entero y el c
 Se listan las tareas que corren solas (despertador, `after()`, funciones programadas) y se mira si una falla repetida
 termina en un aviso al dueño (`avisarAlDuenio`) o sólo en un registro que nadie abre.
 
+
+### 121. Un texto que sale de la app para pegarse afuera (redes, WhatsApp, un mail), ¿sale terminado?
+
+Auditor externo, 12/11/2026. El generador de marketing armaba textos con `[NOMBRE]`, `[X] años` y un enlace
+`/simulador-de-presupuesto` que fuera de la app no lleva a ningún lado, y el botón "Copiar" los dejaba salir así. Se
+buscan las plantillas de texto que se copian o se preparan para mandar (`navigator.clipboard`, `wa.me`, plantillas con
+`[...]` o `{{...}}`) y se mira que todo marcador quede reemplazado y que cada enlace sea completo (`SITE_URL` + ruta).
+Si queda un marcador sin dato, el texto se marca "incompleto" y no se deja copiar.
+
+### 122. Un estado "subido", "entregado" o "publicado", ¿se marca después de comprobarlo del otro lado?
+
+Auditor externo, 12/11/2026. El AK Editor marcaba las fotos como subidas a Wfolio después de abrir la página y ver el
+login, sin subir nada. Se buscan los lugares que guardan un estado de éxito de algo que pasa en otro servicio (subidas,
+publicaciones, envíos) y se mira que el estado salga de la respuesta o de ver el archivo del otro lado, no de haber
+abierto la conexión.
+
+### 123. Lo que espera una lectura (lista u objeto), ¿es la forma con que se guardó?
+
+Auditor externo, 12/11/2026. El respaldo esperaba una lista en `galeria-publica.json` y `carga-operativa-templates.json`,
+que la app guarda como objeto: la lectura daba "falla" sin motivo y no se guardó ningún respaldo en un mes. Se comparan los
+valores por defecto de `BACKUP_COLLECTIONS` y de cada `readData('x.json', …)` con la forma con que se escribe ese archivo.
+Lo hace solo `el-respaldo-espera-la-forma-que-se-guarda.test.ts`.
+
+### 124. Una pantalla, ¿corre una reparación o una migración cada vez que se abre, antes de mostrar nada?
+
+Auditor externo, 12/11/2026. `/presupuestos/nuevo` esperaba `repairVerifiedBudgetDates()` (lee la lista entera) antes de
+pedir la lista: 22 segundos en el celular. Se buscan `await repair…`, `await migrate…`, `reparar`, `migrar` en las
+pantallas: lo que hace falta una vez corre después de mostrar la pantalla, o una sola vez.
+
+### 125. Una función de IA que no consigue respuesta y contesta un texto fijo, ¿alguien del equipo se entera?
+
+Auditor externo, 12/11/2026. Sofía contestaba "modo asistente básico" y el asistente del portal un texto de respaldo, sin
+dejar rastro: con la IA sin saldo un mes, nadie lo hubiera visto. Se buscan los `catch` y los caminos sin respuesta de cada
+llamada a la IA (`generateWithGeminiFallback`, `ai.generate`, `fetch` a Gemini) y se mira que anoten el fallo donde el
+equipo lo vea.
+
+### 126. Lo que la IA le dice a un cliente sobre qué incluye o cuánto sale algo, ¿sale de los datos o del modelo?
+
+Auditor externo, 12/11/2026. Sofía dijo que los tres paquetes traen discoteca y pantallas LED; el Básico no las trae. Se
+buscan los chats con clientes, prospectos e invitados y se mira que lo que incluye un paquete, un precio o una condición
+lo arme el código con los datos, y que el modelo sólo converse.

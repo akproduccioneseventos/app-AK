@@ -897,7 +897,8 @@ export async function listUsers(): Promise<{
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
-  if (auth.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede crear usuarios.' };
+  // El auditor mira la lista (sin claves ni respuestas de seguridad); crear y cambiar usuarios sigue cerrado más abajo.
+  // Antes devolvía "Un auditor no puede crear usuarios" con sólo abrir la pantalla (auditor externo, 12/11/2026).
 
   try {
     const snapshot = await dbAdmin

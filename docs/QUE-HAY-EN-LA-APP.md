@@ -6,6 +6,8 @@
 
 ## Novedades del 31 de octubre al 12 de noviembre de 2026 (publicado)
 
+- **Respaldos automáticos:** vuelven a guardarse (el respaldo esperaba una lista donde hay un objeto; 12/11).
+
 Lo que entró a la app en estas dos semanas, una línea cada cosa. El detalle y el porqué están en `YA-RESUELTO.md`.
 
 - **Bot de anuncios → simulador** (262): al que escribe desde un anuncio, el bot lo lleva al simulador y a reservar la

@@ -1074,7 +1074,8 @@ como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda inco
 **Y otra vez el 12 de noviembre de 2026, con el informe del auditor externo:** sumé las dos preguntas nuevas pero di
 por "conocidas" las otras cinco formas sin buscarlas. Lo preguntó el dueño; el barrido encontró unas 15 pantallas con
 títulos invisibles. **Vale para cualquier informe, no sólo de Codex: cada forma del informe se busca en toda la app
-antes de escribir la orden.**
+antes de escribir la orden.** **Y ya no depende de acordarse:** una orden que sale de un informe sin su sección "Barrido en toda la
+app" y su línea en `barridos.json` no deja publicar (`cada-informe-trae-su-barrido.test.ts`).
 
 ### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
 
@@ -1219,6 +1220,16 @@ rubro pedía el nombre de la función, no el efecto (error 7 otra vez).
 
 **Qué se hace distinto:** antes de comparar con la competencia, se abre la función y se mira **qué hace**, no cómo se
 llama. La línea del rubro quedó apuntando a la receta nueva (orden 264).
+
+### 50. Arreglar el respaldo por una causa "más probable" sin haberla medido
+
+**Pasó el 12 de noviembre de 2026.** Publiqué un arreglo del respaldo (leer de a 4, más tiempo) diciendo que era "la causa
+más probable" sin haber visto el error de la base. El auditor midió: siguió fallando, y la causa era que el respaldo
+esperaba una lista donde la app guarda un objeto. Es el error 6 otra vez.
+
+**Qué se hace distinto:** si el error no trae su motivo, el primer arreglo es **que lo traiga**, y recién con el motivo a la
+vista se arregla la causa. Y el control nuevo (`el-respaldo-espera-la-forma-que-se-guarda.test.ts`) compara la forma de
+todo lo que se respalda, no sólo de los dos archivos.
 
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
@@ -1368,6 +1379,9 @@ ubicar.
 
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
+
+**Y desde la pregunta 117 cada una trae su escaneo automático** en `scripts/las-formas-que-mienten.mjs`, o nombra la prueba
+que la cubre (`cada-pregunta-nueva-tiene-su-escaneo.test.ts`, 12/11/2026).
 
 **Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
 se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
@@ -1939,6 +1953,9 @@ con otra cara.
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 | Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
 | El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
+| Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
+| El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
+| Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
 
 ### Cómo se elige el matafuego
 
