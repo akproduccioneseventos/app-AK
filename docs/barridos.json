@@ -472,6 +472,14 @@
     "118": {
       "fecha": "2026-11-12",
       "resultado": "Barrido de Claude 12/11: ficha del cliente (3 documentos) y Centro de fiesta (ver como invitado), y además 'Informar Pago' del portal sin clave (src/app/portal/page.tsx ~942/1056): orden 285 bloques 3, 6 y 13. Bien: enlaces a /portal/c con guarda, RSVP con token, /api/contracts/fiestas sin enlaces. Dudoso de forma: /api/employee-contracts sin encodeURIComponent (empleados/[id]/editar ~266); el resto lo termina la orden 285 bloque 12."
+    },
+    "119": {
+      "fecha": "2026-11-12",
+      "resultado": "parcial: /settings/backup-final (buildBackupReadinessReport mira sólo la lista) → orden 286 bloque 1. Falta recorrer el resto de pantallas de estado (sincronizaciones, tareas automáticas, mapa tecnológico, conexiones): va en la orden 286 como revisión del bloque 1."
+    },
+    "120": {
+      "fecha": "2026-11-12",
+      "resultado": "El respaldo automático no avisaba al fallar → orden 286 bloque 2. Las tareas del despertador ya avisan al dueño si una no corre (orden 192/despertador). Falta confirmar el resto de los after(): queda en el mismo bloque."
     }
   },
   "hallazgos": {
@@ -746,6 +754,10 @@
     "orden-285": {
       "fecha": "2026-11-12",
       "resultado": "Barrido de las seis formas del informe del auditor en toda la app (12/11): título invisible por CardTitle con text-foreground en ~15 pantallas (raíz en card.tsx); pestañas grid-cols-3 en centro-de-control y creador-anuncios; cuentas regresivas en 00 después de la fiesta en invitación y portal; 'hoy es el evento' en hora de Greenwich en Planificar; ícono sin respaldo dudoso en SocialMediaCalendar; letras rotas: sin casos en los datos del repositorio. Todo en la orden 285, bloque 13."
+    },
+    "orden-286": {
+      "fecha": "2026-11-12",
+      "resultado": "Barrido de las formas del informe final: fechas AAAA-MM-DD leídas como Greenwich en 8 lugares que ve el cliente y 12 del equipo; enlaces a /fiestas/nueva sin fiestaId (decoración PDF, acceso-personal, compras); botón outline con text-white y ghost sin color sobre fondo oscuro (votaciones); imágenes de datos sin respaldo en 10 pantallas del cliente e invitado. Todo en la orden 286. Respaldo: arreglado por Claude."
     }
   }
 }

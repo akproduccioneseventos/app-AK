@@ -1579,3 +1579,16 @@ Se buscan los `href` armados con `${...}` de un dato guardado y se mira qué pid
 (un nombre suelto, un token, un id con cierta forma). Si el dato puede no tenerla, el botón se deshabilita con un motivo,
 no lleva a un error.
 
+### 119. Una pantalla de estado que dice "listo" o "en verde", ¿mira el resultado real o una lista fija?
+
+Auditor externo, 12/11/2026. "Control de backup" decía "Listo" con 333 respaldos fallidos seguidos: sólo comprobaba que
+los archivos estuvieran en la lista de lo que se respalda, no que la última copia fuera reciente. Se buscan las pantallas
+de estado, salud, "listo", "conectado", semáforos y porcentajes, y se mira de dónde sale el verde: tiene que salir del
+último resultado guardado (fecha, error, contador), no de una configuración.
+
+### 120. Una tarea automática que falla seguido, ¿le avisa a alguien?
+
+Auditor externo, 12/11/2026. El respaldo automático falló un mes entero y el contador subía sin que nadie se enterara.
+Se listan las tareas que corren solas (despertador, `after()`, funciones programadas) y se mira si una falla repetida
+termina en un aviso al dueño (`avisarAlDuenio`) o sólo en un registro que nadie abre.
+

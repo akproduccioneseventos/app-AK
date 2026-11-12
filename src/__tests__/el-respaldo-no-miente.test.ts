@@ -192,6 +192,36 @@ describe('El respaldo no miente', () => {
       expect(SNAPSHOTS_BORRADOS).toHaveLength(0);
     });
 
+    /**
+     * 12/11/2026, auditor externo: 333 respaldos automáticos fallidos seguidos desde el 13/10. Se leían las ~87
+     * colecciones todas a la vez con el tope de una pantalla, y el aviso no decía por qué fallaba.
+     */
+    it('lee de a pocas colecciones, con un tope propio más largo, y el aviso dice el motivo', async () => {
+      verifySession.mockResolvedValue({ success: true, user: { perfil: 'dueno' } });
+      let enCurso = 0;
+      let maximo = 0;
+      const topes: Array<number | undefined> = [];
+      readDataConDetalle.mockImplementation((async (archivo: string, porDefecto: any, opciones?: { topeMs?: number }) => {
+        topes.push(opciones?.topeMs);
+        enCurso += 1;
+        maximo = Math.max(maximo, enCurso);
+        await new Promise((r) => setTimeout(r, 2));
+        enCurso -= 1;
+        if (archivo === 'fiestas.json') return { valor: [], huboFalla: true, motivo: 'La base no contesto a tiempo leyendo fiestas.json.' };
+        return { valor: porDefecto ?? [], huboFalla: false };
+      }) as any);
+
+      const { createRestorePoint } = await import('@/app/actions/backup');
+      const resultado = await createRestorePoint();
+
+      expect(maximo).toBeLessThanOrEqual(4);
+      expect(topes.every((t) => typeof t === 'number' && t >= 30_000)).toBe(true);
+      expect(resultado.success).toBe(false);
+      expect(resultado.error).toMatch(/fiestas/);
+      expect(resultado.error).toMatch(/no contesto a tiempo/);
+      expect(MANIFIESTOS_GUARDADOS).toHaveLength(0);
+    });
+
     it('cuando la base se cae, la lectura avisa que fallo en vez de devolver vacio y callarse', async () => {
       jest.resetModules();
       jest.doMock('@/lib/firebase-sync', () => ({

@@ -154,12 +154,16 @@ function conTopeDeLectura<T>(tarea: Promise<T>, queSeLeia: string, vence: number
 export async function readDataConDetalle<T>(
   filePath: string,
   defaultValue: T,
-): Promise<{ valor: T; huboFalla: boolean }> {
+  opciones: { topeMs?: number } = {},
+): Promise<{ valor: T; huboFalla: boolean; motivo?: string }> {
   if (filePath.includes("..") || filePath.startsWith("/"))
     throw new Error("Invalid data file path");
   const normalizedFilePath = filePath.replace(/\\/g, "/");
   // El plazo se cuenta desde aca y lo comparten todos los intentos.
-  const vence = Date.now() + TOPE_DE_LECTURA_MS;
+  // El respaldo lee colecciones enteras y necesita más tiempo que una pantalla (12/11/2026:
+  // con el tope de pantalla fallaba siempre y hacía un mes que no había copia buena).
+  const vence = Date.now() + (opciones.topeMs ?? TOPE_DE_LECTURA_MS);
+  const tiempoDeConsulta = opciones.topeMs ? Math.max(3500, opciones.topeMs - 1000) : undefined;
 
   if (shouldUseLocalJsonOnly()) {
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
@@ -167,7 +171,7 @@ export async function readDataConDetalle<T>(
   }
 
   try {
-    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true, propagarErrores: true }), normalizedFilePath, vence);
+    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true, propagarErrores: true, tiempoMs: tiempoDeConsulta }), normalizedFilePath, vence);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
         return { valor: defaultValue, huboFalla: true };
@@ -184,6 +188,7 @@ export async function readDataConDetalle<T>(
     // No hay dato en ningun lado y nada fallo: esto todavia no se escribio nunca.
     return { valor: defaultValue, huboFalla: false };
   } catch (e) {
+    const motivo = e instanceof Error ? e.message : String(e);
     if (!logger.isBuildTime() || !logger.isDefaultCredentialError(e)) {
       logger.error(
         `[readData] Error leyendo ${normalizedFilePath} desde Firestore:`,
@@ -195,15 +200,15 @@ export async function readDataConDetalle<T>(
       if (genericData !== null && genericData !== undefined) {
         if (Array.isArray(defaultValue) && !Array.isArray(genericData))
           return { valor: defaultValue, huboFalla: true };
-        return { valor: genericData as T, huboFalla: true };
+        return { valor: genericData as T, huboFalla: true, motivo };
       }
     } catch {
       // Si el segundo intento tambien se cae, sigue siendo una falla de lectura.
     }
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
     // El archivo local puede estar viejo: sirve para mostrar, no para dar por buena una copia.
-    if (fallbackData !== null) return { valor: fallbackData, huboFalla: true };
-    return { valor: defaultValue, huboFalla: true };
+    if (fallbackData !== null) return { valor: fallbackData, huboFalla: true, motivo };
+    return { valor: defaultValue, huboFalla: true, motivo };
   }
 }
 

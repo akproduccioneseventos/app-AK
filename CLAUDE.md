@@ -1938,6 +1938,7 @@ con otra cara.
 | Una cuenta vieja de administrador con perfil de secretaria seguía entrando a lo del dueño, incluido el borrado de la base | `src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts` |
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 | Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
+| El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
 
 ### Cómo se elige el matafuego
 
