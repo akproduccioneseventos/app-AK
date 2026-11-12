@@ -1633,3 +1633,16 @@ equipo lo vea.
 Auditor externo, 12/11/2026. Sofía dijo que los tres paquetes traen discoteca y pantallas LED; el Básico no las trae. Se
 buscan los chats con clientes, prospectos e invitados y se mira que lo que incluye un paquete, un precio o una condición
 lo arme el código con los datos, y que el modelo sólo converse.
+
+### 127. Una acción que dice "borrado" o "quitado", ¿lo borró también en la base, o sólo en la copia local?
+
+Prueba funcional del auditor, 12/11/2026. Borrar la última plantilla devolvía éxito y la base la conservaba (la escritura
+de lista vacía se ignora salvo una lista de archivos), y quitar el menú de una fiesta con `undefined` dejaba el campo viejo
+(se omite al guardar con `merge`). Se buscan las bajas que terminan en una lista vacía y las actualizaciones parciales con
+`undefined`, y se mira la base después, no el objeto devuelto.
+
+### 128. Dos campos que guardan lo mismo, ¿se actualizan juntos?
+
+Prueba funcional del auditor, 12/11/2026. `dietaryRestriction` pasaba a "Ninguna" y `isCeliac` seguía en `true` por un
+`|| inv.isCeliac`: la cocina seguía contando un celíaco. Se buscan los pares que repiten un dato (un booleano y un texto, un
+id y un nombre) y se mira que cada cambio recalcule los dos desde el mismo valor nuevo.

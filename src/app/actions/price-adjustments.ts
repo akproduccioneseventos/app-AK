@@ -1,5 +1,6 @@
 'use server';
 
+import { porcentajeInverso } from '@/lib/precios/porcentaje-inverso';
 import { readData, writeData } from '@/lib/data-service';
 import { adjustAllServicePrices, adjustAllServiceCosts, getServiciosEmpresa } from './servicios-empresa';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
@@ -188,7 +189,7 @@ async function revertPriceAdjustmentInterno(
     }
 
     // Revert by applying the inverse percentage
-    const revertPercentage = -adjustment.percentage / (1 + adjustment.percentage / 100) * 100;
+    const revertPercentage = porcentajeInverso(adjustment.percentage);
 
     // El marcador va antes de tocar un precio; cada parte hecha se marca, y un reintento termina
     // solo lo que falta (antes, revertir "ambos" con un corte en el medio deshacia los precios dos veces).

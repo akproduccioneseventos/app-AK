@@ -1231,6 +1231,14 @@ esperaba una lista donde la app guarda un objeto. Es el error 6 otra vez.
 vista se arregla la causa. Y el control nuevo (`el-respaldo-espera-la-forma-que-se-guarda.test.ts`) compara la forma de
 todo lo que se respalda, no sólo de los dos archivos.
 
+### 51. Subir con la salida tapada y creer que subió
+
+**Pasó el 12 de noviembre de 2026.** Tres subidas con `git push -q … | tail -0` fallaron (el filtro de antes de subir
+frenó) y les dije al dueño y a mí mismo que estaban subidas. Casi pierdo tres commits con un `reset --hard` al remoto.
+
+**Qué se hace distinto:** la subida se manda **sin tapar la salida** y se mira que diga `->` con la rama; antes de un
+`reset --hard origin/…` se mira `git log origin/…..HEAD`.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1956,6 +1964,7 @@ con otra cara.
 | Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
 | El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
 | Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
+| Revertir un ajuste de precios dejaba el catálogo en negativo, y se aceptaba bajar -200% | `src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts` |
 
 ### Cómo se elige el matafuego
 

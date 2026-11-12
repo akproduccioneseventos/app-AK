@@ -35,6 +35,7 @@ describe('Cada pregunta nueva del método tiene su escaneo automático', () => {
       88: "const v = new Date().toISOString().substring(0, 16);",
       121: "'Hola [NOMBRE], tu fiesta'",
       124: "const r = await withTimeout(repairVerifiedBudgetDates(), 30000, 'x');",
+      128: "isCeliac: submission.dietaryRestriction === 'Celiaco' || inv.isCeliac,",
     };
     for (const [n, ejemplo] of Object.entries(casos)) {
       const trozo = script.slice(script.indexOf(`pregunta: ${n},`));
