@@ -140,6 +140,46 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     expect(res.success).toBe(true);
   });
 
+  it('la cuenta del dueño que quedó convertida en auditor vuelve a ser del dueño sólo con la clave del dueño', async () => {
+    mockUsers['auth'] = { password: 'clave-del-duenio' };
+    mockUsers['usr-convertida'] = {
+      email: 'duenio-diario@akproducciones.com',
+      perfil: 'auditor',
+      role: 'user',
+      activo: true,
+      cerradoEl: null,
+      createdAt: '2026-03-01T10:00:00.000Z',
+      abiertoEl: '2026-11-12T12:40:00.000Z',
+      passwordHash: 'scrypt:00:00',
+      versionDeSesion: 3,
+    };
+    // Con una clave que no es la del dueño (la del auditor) no se repara.
+    await loginUser('duenio-diario@akproducciones.com', 'Auditor-AAAAAA-BBBBBB');
+    expect(mockUsers['usr-convertida'].perfil).toBe('auditor');
+
+    const res = await loginUser('duenio-diario@akproducciones.com', 'clave-del-duenio');
+    expect(res.success).toBe(true);
+    expect(mockUsers['usr-convertida'].perfil).toBe('dueno');
+    expect(mockUsers['usr-convertida'].role).toBe('admin');
+    expect(mockUsers['usr-convertida'].versionDeSesion).toBe(4);
+  });
+
+  it('un auditor de verdad (creado al abrir el acceso) no se convierte en dueño', async () => {
+    mockUsers['auth'] = { password: 'clave-del-duenio' };
+    mockUsers['usr-auditor-real'] = {
+      email: 'auditor-real@externo.com',
+      perfil: 'auditor',
+      role: 'user',
+      activo: true,
+      cerradoEl: null,
+      createdAt: '2026-11-12T12:40:00.000Z',
+      abiertoEl: '2026-11-12T12:40:00.000Z',
+      passwordHash: 'scrypt:00:00',
+    };
+    await loginUser('auditor-real@externo.com', 'clave-del-duenio');
+    expect(mockUsers['usr-auditor-real'].perfil).toBe('auditor');
+  });
+
   it('el correo de alguien del equipo no se convierte en auditor', async () => {
     mockUsers['usr-equipo'] = {
       email: 'equipo@akproducciones.com',
