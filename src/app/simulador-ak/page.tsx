@@ -40,7 +40,7 @@ import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { getCateringDishImage, getCateringMenuImage, fotoDelPlatoParaMostrar } from '@/lib/catering/menu-images';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
+import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE, DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -129,6 +129,7 @@ function SimuladorAKContent() {
   const [config, setConfig] = useState<ArmadoRapidoConfig>(SIMULATOR_FALLBACK_CONFIG);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE);
+  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
   const currentYear = new Date().getFullYear();
   const [availableMenus, setAvailableMenus] = useState<FullMenu[]>([]);
   const [empresaPhone, setEmpresaPhone] = useState<string>(WHATSAPP_NUMBER);
@@ -190,6 +191,9 @@ function SimuladorAKContent() {
       .then((budgetSettings) => {
         if (active && budgetSettings?.annualAdjustmentPercentage !== undefined) {
           setAnnualAdjustmentPercentage(budgetSettings.annualAdjustmentPercentage);
+        }
+        if (active && budgetSettings?.bookingDepositAmount !== undefined) {
+          setBookingDepositAmount(budgetSettings.bookingDepositAmount);
         }
       })
       .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
@@ -432,6 +436,7 @@ function SimuladorAKContent() {
 
     let nextStep = currentChatStep;
     let changesToApply: any = {};
+    let shouldReAskPhone = false;
 
     // Guided step-by-step validations
     if (currentChatStep === 'name') {
@@ -441,18 +446,25 @@ function SimuladorAKContent() {
       changesToApply.currentChatStep = 'phone';
     } else if (currentChatStep === 'phone') {
       const cleanedPhone = text.replace(/\s+/g, '');
-      if (!/^\d{9}$/.test(cleanedPhone)) {
-        setIsAiLoading(false);
-        const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).', key: botMsgKey }
-        ]);
-        return;
+      if (/^\d{9}$/.test(cleanedPhone)) {
+        setClienteContacto(cleanedPhone);
+        nextStep = 'date';
+        changesToApply.clienteContacto = cleanedPhone;
+        changesToApply.currentChatStep = 'date';
+      } else {
+        const hasLetters = /[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/.test(text);
+        if (!hasLetters) {
+          setIsAiLoading(false);
+          const botMsgKey = `bot_err_${Date.now()}`;
+          setChatHistory(prev => [...prev,
+            { role: 'assistant', text: 'Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).', key: botMsgKey }
+          ]);
+          return;
+        }
+        shouldReAskPhone = true;
+        nextStep = 'phone';
+        changesToApply.currentChatStep = 'phone';
       }
-      setClienteContacto(cleanedPhone);
-      nextStep = 'date';
-      changesToApply.clienteContacto = cleanedPhone;
-      changesToApply.currentChatStep = 'date';
     } else if (currentChatStep === 'date') {
       let finalDate = eventoFecha;
       if (!finalDate) {
@@ -604,6 +616,18 @@ function SimuladorAKContent() {
       const botMsgKey = `bot_${Date.now()}`;
       setChatHistory(prev => [...prev, { role: 'assistant', text: res.response, key: botMsgKey }]);
 
+      if (shouldReAskPhone) {
+        const phonePromptKey = `bot_phone_prompt_${Date.now() + 1}`;
+        setChatHistory(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: 'Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).',
+            key: phonePromptKey,
+          },
+        ]);
+      }
+
       // Process structural state sync
       if (res.action?.type === 'apply_changes' && res.action.changes) {
         const changes = res.action.changes;
@@ -633,7 +657,7 @@ function SimuladorAKContent() {
         if (changes.selectedServices !== undefined) setSelectedServices(changes.selectedServices);
         if (changes.selectedPrincipal !== undefined) setSelectedPrincipal(changes.selectedPrincipal);
         if (changes.duracionHoras !== undefined) setDuracionHoras(changes.duracionHoras);
-        if (changes.currentChatStep !== undefined) setCurrentChatStep(changes.currentChatStep);
+        if (changes.currentChatStep !== undefined && !shouldReAskPhone) setCurrentChatStep(changes.currentChatStep);
       }
 
       if (res.suggestionPill) {
@@ -1305,7 +1329,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       {/* RESERVATION BANNER */}
                       <div className="w-full space-y-1 rounded-xl border border-border bg-muted/20 p-4 text-xs text-foreground">
                         <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-primary"/> Información de Contratación</h4>
-                        <p className="leading-relaxed text-muted-foreground">Con una seña de $5.000 podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
+                        <p className="leading-relaxed text-muted-foreground">Con una seña de {formatCurrency(bookingDepositAmount)} podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
                         <p className="leading-relaxed text-muted-foreground">El presupuesto es válido por 30 días y el saldo se coordina en la propuesta contractual.</p>
                       </div>
 
@@ -1319,15 +1343,22 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                             <Share2 className="w-4 h-4 shrink-0"/> <span>Coordinar Reunión</span>
                           </a>
                         </Button>
-                        <Button
-                          variant="outline"
-                          disabled={!generatedId || isDownloadingPdf}
-                          onClick={handleDownloadBudgetPdf}
-                          className="min-h-[2.75rem] h-auto py-2.5 border-border text-foreground hover:bg-muted font-bold text-xs w-full rounded-lg bg-card px-3 flex items-center justify-center gap-1.5 text-center leading-tight tracking-normal"
-                        >
-                          {isDownloadingPdf ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Printer className="w-4 h-4 shrink-0"/>}
-                          <span>Descargar PDF</span>
-                        </Button>
+                        <div className="flex flex-col">
+                          <Button
+                            variant="outline"
+                            disabled={!generatedId || isDownloadingPdf}
+                            onClick={handleDownloadBudgetPdf}
+                            className="min-h-[2.75rem] h-auto py-2.5 border-border text-foreground hover:bg-muted font-bold text-xs w-full rounded-lg bg-card px-3 flex items-center justify-center gap-1.5 text-center leading-tight tracking-normal"
+                          >
+                            {isDownloadingPdf ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Printer className="w-4 h-4 shrink-0"/>}
+                            <span>Descargar PDF</span>
+                          </Button>
+                          {!generatedId && (
+                            <p className="text-[11px] text-muted-foreground text-center mt-1">
+                              Se habilita cuando confirmás tu presupuesto
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

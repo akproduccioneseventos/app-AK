@@ -2163,7 +2163,7 @@ function MuroSocialContent() {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Instagram</Label>
-                <Input value={akBrandSettings.instagramHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, instagramHandle: e.target.value }))} placeholder="@akproducciones" />
+                <Input value={akBrandSettings.instagramHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, instagramHandle: e.target.value }))} placeholder="@akproduccionesfiestasyeventos" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Facebook</Label>
@@ -2171,7 +2171,7 @@ function MuroSocialContent() {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">TikTok</Label>
-                <Input value={akBrandSettings.tiktokHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, tiktokHandle: e.target.value }))} placeholder="@akproducciones" />
+                <Input value={akBrandSettings.tiktokHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, tiktokHandle: e.target.value }))} placeholder="@akproduccioneseve" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">WhatsApp</Label>

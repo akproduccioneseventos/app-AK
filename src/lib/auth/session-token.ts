@@ -7,6 +7,45 @@ const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 let localDevelopmentSecret: string | undefined;
 
+const listaAccesosAuditorCortados = new Set<string>();
+
+interface AuditorCacheEntry {
+  valido: boolean;
+  expiraEn: number;
+}
+const cacheEstadoAuditor = new Map<string, AuditorCacheEntry>();
+
+export function limpiarCacheAuditor(identificador?: string) {
+  if (identificador) {
+    cacheEstadoAuditor.delete(identificador.toLowerCase().trim());
+  } else {
+    cacheEstadoAuditor.clear();
+  }
+}
+
+export function registrarAuditorCortado(identificador: string) {
+  if (identificador) {
+    const key = identificador.toLowerCase().trim();
+    listaAccesosAuditorCortados.add(key);
+    cacheEstadoAuditor.delete(key);
+  }
+}
+
+export function limpiarAuditorCortado(identificador?: string) {
+  if (identificador) {
+    const key = identificador.toLowerCase().trim();
+    listaAccesosAuditorCortados.delete(key);
+    cacheEstadoAuditor.delete(key);
+  } else {
+    listaAccesosAuditorCortados.clear();
+    cacheEstadoAuditor.clear();
+  }
+}
+
+export function estaAuditorCortadoEnMemoria(identificador: string): boolean {
+  return listaAccesosAuditorCortados.has(identificador.toLowerCase().trim());
+}
+
 export interface SessionUserData {
   email: string;
   role: string;
@@ -157,9 +196,71 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
     if (!isValid) {
       return { success: false, error: 'Sesión no válida o expirada.' };
     }
+    if (user && (user.perfil === 'auditor' || user.role === 'auditor')) {
+      const email = user.email?.toLowerCase().trim() || '';
+      const userId = user.userId?.toLowerCase().trim() || '';
+      if ((email && listaAccesosAuditorCortados.has(email)) || (userId && listaAccesosAuditorCortados.has(userId))) {
+        return { success: false, error: 'El acceso de auditor fue cerrado.' };
+      }
+
+      // Bloque 1 (Orden 279): La base de datos es la autoridad para el acceso del auditor.
+      // Cachear el resultado 60 segundos en memoria por usuario para no saturar lecturas.
+      const cacheKey = (userId || email).toLowerCase().trim();
+      const ahora = Date.now();
+      const cached = cacheKey ? cacheEstadoAuditor.get(cacheKey) : undefined;
+
+      if (cached && cached.expiraEn > ahora) {
+        if (!cached.valido) {
+          return { success: false, error: 'El acceso de auditor fue cerrado.' };
+        }
+      } else {
+        try {
+          const { dbAdmin } = await import('@/lib/firebase/server');
+          if (!dbAdmin) {
+            return { success: false, error: 'Base de datos no disponible para verificar auditor.' };
+          }
+          if (!user.userId && !email) {
+            return { success: false, error: 'Usuario auditor sin identificador válido.' };
+          }
+          let docSnap: any = null;
+          if (user.userId) {
+            docSnap = await dbAdmin.collection('users').doc(user.userId).get();
+          }
+          if ((!docSnap || !docSnap.exists) && email) {
+            const usersCol = dbAdmin.collection('users');
+            if (typeof usersCol.where === 'function') {
+              const querySnap = await usersCol.where('email', '==', email).limit(1).get();
+              if (!querySnap.empty && querySnap.docs?.length > 0) {
+                docSnap = querySnap.docs[0];
+                if (docSnap && docSnap.exists === undefined) {
+                  docSnap.exists = true;
+                }
+              }
+            }
+          }
+          if (!docSnap || !docSnap.exists) {
+            if (cacheKey) cacheEstadoAuditor.set(cacheKey, { valido: false, expiraEn: ahora + 60_000 });
+            return { success: false, error: 'El acceso de auditor fue cerrado.' };
+          }
+          const data = docSnap.data();
+          const esValido = Boolean(data && data.activo === true && !data.cerradoEl);
+          if (cacheKey) {
+            cacheEstadoAuditor.set(cacheKey, { valido: esValido, expiraEn: ahora + 60_000 });
+          }
+          if (!esValido) {
+            return { success: false, error: 'El acceso de auditor fue cerrado.' };
+          }
+        } catch {
+          // Pregunta 78: lo roto da menos permisos. Si la lectura falla, no deja pasar.
+          return { success: false, error: 'No se pudo verificar el estado del usuario auditor.' };
+        }
+      }
+    }
     return { success: true, user };
-  } catch (error) {
-    console.error('[verifySession] Error verifying session:', error);
+  } catch (error: any) {
+    if (!error?.message?.includes('outside a request scope')) {
+      console.error('[verifySession] Error verifying session:', error);
+    }
     return { success: false, error: 'No se pudo verificar la sesión.' };
   }
 }

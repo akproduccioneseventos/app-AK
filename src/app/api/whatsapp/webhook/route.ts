@@ -14,6 +14,7 @@ import { atenderProspectoAnuncioWhatsApp, enlaceAlSimuladorDelProspecto } from '
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
     const actualVerifyToken = verifyToken || 'ak_whatsapp_verify';
 
-    if (token === actualVerifyToken) {
+    if (clavesIguales(token, actualVerifyToken)) {
       return new NextResponse(challenge, { status: 200 });
     }
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

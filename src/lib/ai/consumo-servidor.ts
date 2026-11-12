@@ -2,6 +2,7 @@ import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
+import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
 import {
   calcularConsumo,
   claveDelMes,
@@ -80,12 +81,13 @@ async function cambiarConsumo<T>(
   });
 }
 
-/** Suma una generación al contador del mes. Nunca lanza. */
+/** Suma una generación al contador del mes. Nunca lanza, salvo para el candado de auditor. */
 export async function registrarConsumoIA(
   funcion: FuncionConCosto,
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<void> {
+  await exigirQueSePuedaGuardar();
   try {
     const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
     if (!incremento) return;
@@ -111,6 +113,7 @@ export async function reservarConsumoIA(
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<ReservaConsumoIA | null> {
+  await exigirQueSePuedaGuardar();
   const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
   if (!incremento) return null;
 

@@ -5,6 +5,7 @@ import admin from 'firebase-admin';
 import { randomUUID } from 'crypto';
 import path from 'path';
 import { hayEmuladorDeArchivos, sinDepositoDisponible } from './modo-local';
+import { exigirQueSePuedaGuardar } from '../auth/solo-lectura';
 
 const STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
@@ -48,6 +49,7 @@ export async function uploadToStorage(
   contentType: string,
   isPublic: boolean = false
 ): Promise<string> {
+  await exigirQueSePuedaGuardar();
   if (sinDepositoDisponible()) {
     const base64 = buffer.toString('base64');
     return `data:${contentType};base64,${base64}`;
@@ -94,6 +96,7 @@ export async function uploadToStorageWithDownloadToken(
   storagePath: string,
   contentType: string,
 ): Promise<string> {
+  await exigirQueSePuedaGuardar();
   if (sinDepositoDisponible()) {
     return `data:${contentType};base64,${buffer.toString('base64')}`;
   }
@@ -120,6 +123,7 @@ export async function uploadToStorageWithDownloadToken(
  * @param urlOrPath Full public/signed URL or the raw storage path (e.g. "contracts/cust_123/file.pdf").
  */
 export async function deleteFromStorage(urlOrPath: string): Promise<void> {
+  await exigirQueSePuedaGuardar();
   if (sinDepositoDisponible()) return;
   const bucket = getBucket();
   if (!bucket) return; // If Storage is not available, skip silently

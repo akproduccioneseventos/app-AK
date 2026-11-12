@@ -24,6 +24,7 @@ export default function QuinceanerasLanding() {
       />
       <EventLandingPage
         eventType="Fiesta de 15 Años"
+        tipoEventoInicial="15 Años"
         source="landing-quince"
         heroImage="/media/catalogo-servicios/quinceanera_hero.png"
         heroImageAlt="Fiesta de 15 años producida por AK Producciones"

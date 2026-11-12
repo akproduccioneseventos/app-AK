@@ -2,6 +2,7 @@
 // Server-side Firebase Admin SDK configuration.
 import admin from 'firebase-admin';
 import type { DecodedIdToken } from 'firebase-admin/auth';
+import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
 
 function isBuildTime() {
   return process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
@@ -93,7 +94,122 @@ try {
   console.error('Full error:', e);
 }
 
-export const dbAdmin = dbInstance;
+function envolverDocRef(docRef: any): any {
+  if (!docRef || typeof docRef !== 'object') return docRef;
+  return new Proxy(docRef, {
+    get(target, prop, receiver) {
+      if (prop === 'set') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return target.set(...args);
+        };
+      }
+      if (prop === 'update') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return target.update(...args);
+        };
+      }
+      if (prop === 'delete') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return target.delete(...args);
+        };
+      }
+      if (prop === 'collection') {
+        return (...args: any[]) => envolverCollectionRef(target.collection(...args));
+      }
+      const val = Reflect.get(target, prop, receiver);
+      if (typeof val === 'function') {
+        return val.bind(target);
+      }
+      return val;
+    },
+  });
+}
+
+function envolverCollectionRef(colRef: any): any {
+  if (!colRef || typeof colRef !== 'object') return colRef;
+  return new Proxy(colRef, {
+    get(target, prop, receiver) {
+      if (prop === 'doc') {
+        return (...args: any[]) => envolverDocRef(target.doc(...args));
+      }
+      if (prop === 'add') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return target.add(...args);
+        };
+      }
+      if (
+        prop === 'where' ||
+        prop === 'orderBy' ||
+        prop === 'limit' ||
+        prop === 'offset' ||
+        prop === 'startAt' ||
+        prop === 'startAfter' ||
+        prop === 'endAt' ||
+        prop === 'endBefore'
+      ) {
+        return (...args: any[]) => {
+          const res = target[prop](...args);
+          return envolverCollectionRef(res);
+        };
+      }
+      const val = Reflect.get(target, prop, receiver);
+      if (typeof val === 'function') {
+        return val.bind(target);
+      }
+      return val;
+    },
+  });
+}
+
+function envolverBatch(batch: any): any {
+  if (!batch || typeof batch !== 'object') return batch;
+  return new Proxy(batch, {
+    get(target, prop, receiver) {
+      if (prop === 'commit') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return target.commit(...args);
+        };
+      }
+      const val = Reflect.get(target, prop, receiver);
+      if (typeof val === 'function') {
+        return val.bind(target);
+      }
+      return val;
+    },
+  });
+}
+
+export function wrapFirestoreWithReadOnlyLock<T extends admin.firestore.Firestore>(db: T): T {
+  if (!db) return db;
+  return new Proxy(db, {
+    get(target, prop, receiver) {
+      if (prop === 'collection') {
+        return (...args: any[]) => envolverCollectionRef((target.collection as any)(...args));
+      }
+      if (prop === 'runTransaction') {
+        return async (...args: any[]) => {
+          await exigirQueSePuedaGuardar();
+          return (target.runTransaction as any)(...args);
+        };
+      }
+      if (prop === 'batch') {
+        return (...args: any[]) => envolverBatch((target.batch as any)(...args));
+      }
+      const val = Reflect.get(target, prop, receiver);
+      if (typeof val === 'function') {
+        return val.bind(target);
+      }
+      return val;
+    },
+  }) as T;
+}
+
+export const dbAdmin: admin.firestore.Firestore | null = dbInstance ? wrapFirestoreWithReadOnlyLock(dbInstance) : null;
 export const authAdmin = authInstance;
 
 export function isFirebaseAvailable(): boolean {

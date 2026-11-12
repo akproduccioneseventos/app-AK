@@ -1,0 +1,19 @@
+{
+  "id": "polaroid",
+  "nombre": "Polaroid",
+  "paletaColores": {
+    "primary": "#222222",
+    "secondary": "#FFFFFF",
+    "accent": "#CCCCCC"
+  },
+  "tipografia": "Permanent Marker",
+  "transiciones": ["fade", "slidedown", "dissolve"],
+  "transicion_capitulo": "slidedown",
+  "estilo_titulo": "marcador_polaroid",
+  "superposiciones": {
+    "marco_polaroid": true,
+    "marco": true,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

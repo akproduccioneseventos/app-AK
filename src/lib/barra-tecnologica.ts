@@ -1,6 +1,9 @@
 import type { Trago, TragoRecetaIngrediente } from '@/types/fiesta';
 import type { BarDrinkOrderStatus } from '@/types/barra-tecnologica';
 import type { BarTechnologySettings } from '@/types/barra-tecnologica';
+import { AK_INSTAGRAM_HANDLE } from '@/lib/public-contact';
+
+export { AK_INSTAGRAM_HANDLE };
 
 type DrinkMarketingFields = Pick<
   Trago,
@@ -103,7 +106,7 @@ export function normalizeSocialHandle(handle?: string): string {
     .replace(/^https?:\/\/(www\.)?instagram\.com\//i, '')
     .split(/[/?#]/)[0]
     .replace(/[^\w.]/g, '');
-  return clean || 'akproducciones';
+  return clean || AK_INSTAGRAM_HANDLE.replace(/^@/, '');
 }
 
 export function buildInstagramUrl(handle?: string): string {

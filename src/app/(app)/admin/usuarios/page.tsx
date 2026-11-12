@@ -7,7 +7,11 @@ import {
   deleteUser,
   updateUserModules,
   adminResetUserPassword,
-  type PublicUserRecord
+  abrirAccesoAuditor,
+  cerrarAccesoAuditor,
+  obtenerEstadoAuditor,
+  type PublicUserRecord,
+  type HistorialAuditorItem,
 } from '@/app/actions/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -62,7 +66,9 @@ import {
   Plus,
   RefreshCw,
   Mail,
-  Lock
+  Lock,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 const SYSTEM_MODULES = [
@@ -143,6 +149,83 @@ export default function AdminUsuariosPage() {
   // Form State - Reset Password
   const [resetPassword, setResetPassword] = useState('');
 
+  // Estado de Auditoría Externa (Orden 276)
+  const [auditorEmailInput, setAuditorEmailInput] = useState('');
+  const [auditorActivo, setAuditorActivo] = useState(false);
+  const [auditorAbiertoEl, setAuditorAbiertoEl] = useState<string | undefined>();
+  const [auditorEmailActual, setAuditorEmailActual] = useState<string | undefined>();
+  const [auditorHistorial, setAuditorHistorial] = useState<HistorialAuditorItem[]>([]);
+  const [claveGenerada, setClaveGenerada] = useState<string | null>(null);
+  const [claveCopiada, setClaveCopiada] = useState(false);
+  const [esDueno, setEsDueno] = useState(false);
+  const [isProcessingAuditor, setIsProcessingAuditor] = useState(false);
+
+  const loadAuditorStatus = useCallback(async () => {
+    try {
+      const res = await obtenerEstadoAuditor();
+      if (res.success) {
+        setEsDueno(true);
+        setAuditorActivo(res.activo);
+        setAuditorAbiertoEl(res.abiertoEl);
+        setAuditorEmailActual(res.email);
+        setAuditorHistorial(res.historial || []);
+      }
+    } catch {
+      // Si no tiene permisos de administración, no muestra la tarjeta
+    }
+  }, []);
+
+  const handleAbrirAuditor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!auditorEmailInput.trim()) {
+      toast({ title: 'Correo requerido', description: 'Ingresá el correo del auditor.', variant: 'destructive' });
+      return;
+    }
+    setIsProcessingAuditor(true);
+    try {
+      const res = await abrirAccesoAuditor({ email: auditorEmailInput });
+      if (res.success && res.password) {
+        setClaveGenerada(res.password);
+        setClaveCopiada(false);
+        setAuditorEmailInput('');
+        toast({ title: 'Acceso abierto', description: 'El acceso de auditor fue habilitado.' });
+        await loadAuditorStatus();
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo abrir el acceso.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsProcessingAuditor(false);
+    }
+  };
+
+  const handleCerrarAuditor = async () => {
+    setIsProcessingAuditor(true);
+    try {
+      const res = await cerrarAccesoAuditor();
+      if (res.success) {
+        setClaveGenerada(null);
+        toast({ title: 'Acceso cerrado', description: 'El acceso de auditor fue cortado de inmediato.' });
+        await loadAuditorStatus();
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo cerrar el acceso.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsProcessingAuditor(false);
+    }
+  };
+
+  const handleCopiarClave = () => {
+    if (!claveGenerada) return;
+    navigator.clipboard.writeText(claveGenerada);
+    setClaveCopiada(true);
+    toast({ title: 'Clave copiada', description: 'La clave se copió al portapapeles.' });
+    setTimeout(() => setClaveCopiada(false), 3000);
+  };
+
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -170,7 +253,8 @@ export default function AdminUsuariosPage() {
 
   useEffect(() => {
     loadUsers();
-  }, [loadUsers]);
+    loadAuditorStatus();
+  }, [loadUsers, loadAuditorStatus]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -490,6 +574,116 @@ export default function AdminUsuariosPage() {
           </Dialog>
         </div>
       </div>
+
+      {/* Tarjeta de Auditoría Externa (Solo Dueño - Orden 276) */}
+      {esDueno && (
+        <Card className="border-amber-200/60 bg-gradient-to-br from-amber-50/50 to-orange-50/30 backdrop-blur-xl shadow-lg shadow-amber-500/5">
+          <CardHeader className="pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-slate-900">
+                  <ShieldAlert className="w-5 h-5 text-amber-600" />
+                  Auditoría externa
+                </CardTitle>
+                <CardDescription>
+                  Permite a un auditor externo recorrer toda la aplicación para revisar datos reales sin poder modificar ni enviar nada.
+                </CardDescription>
+              </div>
+              <Badge variant={auditorActivo ? "default" : "secondary"} className={auditorActivo ? "bg-emerald-600 hover:bg-emerald-700" : ""}>
+                {auditorActivo ? 'Acceso abierto' : 'Acceso cerrado'}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {claveGenerada && (
+              <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                  Clave generada (se muestra solo esta vez)
+                </p>
+                <div className="flex items-center gap-3">
+                  <code className="text-base font-black px-3 py-1.5 rounded-lg bg-white border border-emerald-200 text-emerald-950 font-mono">
+                    {claveGenerada}
+                  </code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopiarClave}
+                    className="gap-1.5 border-emerald-300 hover:bg-emerald-100"
+                  >
+                    {claveCopiada ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                    {claveCopiada ? 'Copiada' : 'Copiar clave'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Copiá esta clave y compartila con el auditor. Por seguridad, no volverá a mostrarse.
+                </p>
+              </div>
+            )}
+
+            {auditorActivo ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-amber-200 bg-white/70">
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-slate-800">
+                    Auditor: <span className="font-mono text-slate-600">{auditorEmailActual || 'auditor@externo.com'}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Abierto el: {auditorAbiertoEl ? new Date(auditorAbiertoEl).toLocaleString('es-UY') : 'Recientemente'}
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={handleCerrarAuditor}
+                  disabled={isProcessingAuditor}
+                  className="font-bold"
+                >
+                  {isProcessingAuditor ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Cerrar el acceso
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleAbrirAuditor} className="flex flex-col sm:flex-row items-end gap-3 p-4 rounded-xl border border-slate-200 bg-white/70">
+                <div className="w-full sm:flex-1 space-y-1">
+                  <Label htmlFor="auditor-email" className="text-xs font-semibold">Correo del auditor</Label>
+                  <Input
+                    id="auditor-email"
+                    type="email"
+                    placeholder="auditor@empresa.com"
+                    value={auditorEmailInput}
+                    onChange={(e) => setAuditorEmailInput(e.target.value)}
+                    required
+                    className="text-sm"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isProcessingAuditor || !auditorEmailInput.trim()}
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold w-full sm:w-auto"
+                >
+                  {isProcessingAuditor ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Abrir acceso de auditor
+                </Button>
+              </form>
+            )}
+
+            {auditorHistorial.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-amber-100">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Historial de auditorías</h4>
+                <div className="max-h-40 overflow-y-auto space-y-1 text-xs">
+                  {auditorHistorial.map((item, idx) => (
+                    <div key={item.id || idx} className="flex items-center justify-between p-2 rounded-lg bg-white/50 border border-slate-100">
+                      <span className="font-mono font-medium text-slate-700">{item.email}</span>
+                      <span className="text-slate-500">
+                        {new Date(item.abiertoEl).toLocaleDateString('es-UY')}
+                        {item.cerradoEl ? ` hasta ${new Date(item.cerradoEl).toLocaleDateString('es-UY')}` : ' (Abierto)'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tabla de Usuarios */}
       <Card className="border-indigo-100/50 bg-white/95 backdrop-blur-xl shadow-lg shadow-indigo-500/5">

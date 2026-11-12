@@ -2,18 +2,21 @@
 """Módulo de reglas de edición para AK Editor Inteligente.
 
 Aplica las reglas configuradas en config.yaml para cada bloque de la fiesta:
-- Previa (rotación de transiciones sin repetir consecutivas)
+- Previa (rotación de transiciones sin repetir consecutivas y regla 'la pose')
 - Entrada (ducking de música con voz de locutor)
 - Vals (música continua sin interrupciones)
-- Baile multicámara (cámara principal + Osmo de rescate ante errores)
+- Baile multicámara (cámara principal + Osmo de rescate ante errores, o corte de 0.2s sin Osmo)
 - Discursos y velas (nunca cortar mientras hablan por micrófono)
 - Marca AK (márgenes y posición del logo)
+- Aprender de mis videos (analiza videos terminados y propone parámetros para config.yaml)
 """
 
 from __future__ import annotations
 
 import os
 from typing import Any, Dict, List, Optional, Tuple
+import cv2
+import numpy as np
 import yaml
 
 
@@ -96,9 +99,7 @@ class ReglasEdicion:
     def elegir_transicion_sin_repetir(self) -> str:
         """Elige una transición de la lista asegurando que NUNCA sea idéntica a la anterior."""
         candidatos = [t for t in TRANSICIONES_PREVIA if t != self._ultima_transicion]
-        # Selección determinista rotativa
         elegida = candidatos[0] if candidatos else TRANSICIONES_PREVIA[0]
-        # Rotar la lista para la próxima
         TRANSICIONES_PREVIA.append(TRANSICIONES_PREVIA.pop(0))
         self._ultima_transicion = elegida
         return elegida
@@ -135,8 +136,6 @@ class ReglasEdicion:
 
             # 2. Manejo cuando no hay análisis
             if not metricas:
-                # Si el archivo está en BD o se pasó almacén y no tiene análisis:
-                # Regla: marcar 'sin analizar' y no inventar cortes
                 if alm is not None or "estado_analisis" in arch:
                     cortes.append({
                         "archivo_id": archivo_id,
@@ -295,7 +294,6 @@ class ReglasEdicion:
         """Asegura que en el bloque de vals la música sea una sola pieza continua."""
         duracion_musica = archivo_musica.get("duracion", 180.0)
 
-        # Pista de audio del vals: un único bloque continuo
         corte_musica = {
             "archivo_id": archivo_musica.get("id"),
             "bloque": "vals",
@@ -310,7 +308,6 @@ class ReglasEdicion:
             "pista_audio": 2,
         }
 
-        # Pistas de video del vals
         cortes_video = []
         tiempo_video_acumulado = 0.0
 
@@ -362,18 +359,14 @@ class ReglasEdicion:
         cortes = []
 
         if momentos_vela:
-            # Procesar momentos de velas
             for momento in momentos_vela:
                 ent = max(0.0, momento - margen_llegada)
                 sal = min(dur_total, momento + duracion_pose)
 
-                # Si no se puede cortar mientras hablan, expandir si se superpone con voz
                 if not cortar_mientras_hablan:
                     for v_ini, v_fin in intervalos_voz:
-                        # Si ent cae adentro del intervalo de voz, mover ent al inicio de la voz
                         if v_ini <= ent <= v_fin:
                             ent = max(0.0, v_ini - 0.2)
-                        # Si sal cae adentro del intervalo de voz, mover sal al fin de la voz
                         if v_ini <= sal <= v_fin:
                             sal = min(dur_total, v_fin + 0.2)
 
@@ -391,10 +384,7 @@ class ReglasEdicion:
                     "pista_audio": 1,
                 })
         else:
-            # Si no hay lista de velas sino un discurso corrido:
-            # Conservar íntegros todos los tramos de voz con un margen de 0.5s
             if not intervalos_voz:
-                # No hay voz: corte completo
                 cortes.append({
                     "archivo_id": archivo_id,
                     "bloque": "discursos_y_velas",
@@ -438,7 +428,9 @@ class ReglasEdicion:
         """Edición multicámara de tanda de baile.
 
         - Máximo 50s sin corte.
-        - Si hay error en la principal (sacudida, desenfoque, negro), entra Osmo en Video 2.
+        - Si hay error en la principal (sacudida, desenfoque, negro):
+          - Con Osmo: entra Osmo en Video 2.
+          - Sin Osmo: se corta el tramo malo con fundido de 0,2s.
         """
         cfg = self.cfg_edicion.get("baile", CONFIG_DEFECTO["edicion"]["baile"])
         max_sin_corte = cfg.get("max_segundos_sin_corte", 50.0)
@@ -448,6 +440,7 @@ class ReglasEdicion:
         cortes = []
 
         alm = almacen or getattr(self, "almacen", None)
+        tiempo_actual = 0.0
 
         if errores_principal is None:
             metricas_prin = []
@@ -483,14 +476,12 @@ class ReglasEdicion:
             errores = errores_principal
 
         while tiempo_actual < dur_total:
-            # Revisar si hay un error próximo
             error_proximo = next((e for e in errores if e[0] >= tiempo_actual and e[0] < tiempo_actual + max_sin_corte), None)
 
             if error_proximo and archivo_osmo:
                 e_ini, e_fin = error_proximo
-                # Tomar toma principal hasta 0.5s antes del error
                 salida_prin = max(tiempo_actual, e_ini - 0.5)
-                if salida_prin > tiempo_actual:
+                if salida_prin - tiempo_actual >= 1.0:
                     cortes.append({
                         "archivo_id": archivo_principal.get("id"),
                         "bloque": "baile",
@@ -505,8 +496,7 @@ class ReglasEdicion:
                         "pista_audio": 1,
                     })
 
-                # Insertar Osmo para cubrir error (pista video 2)
-                ent_osmo = max(0.0, e_ini - 0.5)
+                ent_osmo = max(0.0, e_ini - 0.5) if e_ini > 0.5 else 0.0
                 sal_osmo = min(dur_total, e_fin + 1.0)
                 dur_osmo = sal_osmo - ent_osmo
                 if dur_osmo < 4.0:
@@ -526,40 +516,290 @@ class ReglasEdicion:
                     "pista_audio": 1,
                 })
                 tiempo_actual = sal_osmo
-            else:
-                # Si no hay errores, cortar cada max_sin_corte con un toque de Osmo si existe
-                salida_prin = min(dur_total, tiempo_actual + max_sin_corte)
-                cortes.append({
-                    "archivo_id": archivo_principal.get("id"),
-                    "bloque": "baile",
-                    "entrada": round(tiempo_actual, 2),
-                    "salida": round(salida_prin, 2),
-                    "duracion": round(salida_prin - tiempo_actual, 2),
-                    "tipo": "corte_directo",
-                    "transicion": "corte",
-                    "regla_aplicada": "baile_principal_ritmo",
-                    "camara": "principal",
-                    "pista_video": 1,
-                    "pista_audio": 1,
-                })
-                tiempo_actual = salida_prin
-
-                # Si todavía queda video y tenemos Osmo, meter 5s de Osmo para dinamismo
-                if tiempo_actual < dur_total and archivo_osmo:
-                    sal_osmo = min(dur_total, tiempo_actual + dur_osmo_rescate)
+            elif error_proximo and not archivo_osmo:
+                e_ini, e_fin = error_proximo
+                salida_prin = max(tiempo_actual, e_ini - 0.2)
+                if salida_prin - tiempo_actual >= 1.0:
                     cortes.append({
-                        "archivo_id": archivo_osmo.get("id"),
+                        "archivo_id": archivo_principal.get("id"),
                         "bloque": "baile",
                         "entrada": round(tiempo_actual, 2),
-                        "salida": round(sal_osmo, 2),
-                        "duracion": round(sal_osmo - tiempo_actual, 2),
-                        "tipo": "osmo_dinamismo",
-                        "transicion": "corte",
-                        "regla_aplicada": "baile_dinamismo_osmo",
-                        "camara": "osmo",
-                        "pista_video": 2,
+                        "salida": round(salida_prin, 2),
+                        "duracion": round(salida_prin - tiempo_actual, 2),
+                        "tipo": "corte_directo",
+                        "transicion": "fundido",
+                        "duracion_transicion": 0.2,
+                        "regla_aplicada": "corte_defecto_sin_osmo",
+                        "camara": "principal",
+                        "pista_video": 1,
                         "pista_audio": 1,
                     })
+                tiempo_actual = min(dur_total, e_fin + 0.2)
+            else:
+                salida_prin = min(dur_total, tiempo_actual + max_sin_corte)
+                if salida_prin - tiempo_actual >= 1.0:
+                    cortes.append({
+                        "archivo_id": archivo_principal.get("id"),
+                        "bloque": "baile",
+                        "entrada": round(tiempo_actual, 2),
+                        "salida": round(salida_prin, 2),
+                        "duracion": round(salida_prin - tiempo_actual, 2),
+                        "tipo": "corte_directo",
+                        "transicion": "corte",
+                        "regla_aplicada": "baile_principal_ritmo",
+                        "camara": "principal",
+                        "pista_video": 1,
+                        "pista_audio": 1,
+                    })
+                tiempo_actual = salida_prin
+
+                if tiempo_actual < dur_total and archivo_osmo:
+                    sal_osmo = min(dur_total, tiempo_actual + dur_osmo_rescate)
+                    if sal_osmo - tiempo_actual >= 1.0:
+                        cortes.append({
+                            "archivo_id": archivo_osmo.get("id"),
+                            "bloque": "baile",
+                            "entrada": round(tiempo_actual, 2),
+                            "salida": round(sal_osmo, 2),
+                            "duracion": round(sal_osmo - tiempo_actual, 2),
+                            "tipo": "osmo_dinamismo",
+                            "transicion": "corte",
+                            "regla_aplicada": "baile_dinamismo_osmo",
+                            "camara": "osmo",
+                            "pista_video": 2,
+                            "pista_audio": 1,
+                        })
                     tiempo_actual = sal_osmo
 
         return cortes
+
+    def generar_cortes_pose(
+        self,
+        archivo: Dict[str, Any],
+        metricas: Optional[List[Dict[str, Any]]] = None,
+        almacen: Optional[Any] = None,
+        tipo: str = "pose",
+    ) -> List[Dict[str, Any]]:
+        """Regla 'la pose' para previa, recepción, firmas y fotos con la torta.
+
+        - Busca tramos con caras quietas y cámara quieta.
+        - Se queda con poses de 3 a 6 s, empezando 0,3 s después de quedarse quietos.
+        - Corta entrada y salida (cuando se mueven o se van).
+        - Si la cara se mueve todo el tiempo, no hay corte de pose.
+        - Para firmas en libro: tramo de menos movimiento de 3 a 5 s.
+        """
+        alm = almacen or getattr(self, "almacen", None)
+        archivo_id = archivo.get("id")
+        dur_total = float(archivo.get("duracion", 10.0))
+
+        if metricas is None:
+            if "analisis" in archivo and isinstance(archivo["analisis"], list):
+                metricas = archivo["analisis"]
+            elif alm is not None and archivo_id:
+                metricas = alm.obtener_analisis_segundos(archivo_id)
+            else:
+                metricas = []
+
+        if not metricas:
+            return []
+
+        cortes: List[Dict[str, Any]] = []
+
+        if tipo == "firmas":
+            dur_objetivo = 4.0
+            n_seg = len(metricas)
+            ventana = int(min(dur_objetivo, n_seg))
+            if ventana < 3:
+                return []
+            mejor_inicio = 0
+            menor_movimiento = float("inf")
+            for i in range(n_seg - ventana + 1):
+                tramo = metricas[i : i + ventana]
+                mov = sum(m.get("sacudida", 0.0) for m in tramo)
+                if mov < menor_movimiento:
+                    menor_movimiento = mov
+                    mejor_inicio = i
+            ent = float(mejor_inicio)
+            sal = float(mejor_inicio + ventana)
+            cortes.append({
+                "archivo_id": archivo_id,
+                "bloque": archivo.get("bloque", "previa"),
+                "entrada": round(ent, 2),
+                "salida": round(sal, 2),
+                "duracion": round(sal - ent, 2),
+                "tipo": "pose_firmas",
+                "transicion": "disolvencia",
+                "regla_aplicada": "pose_libro_firmas",
+                "camara": archivo.get("camara", "principal"),
+                "pista_video": 1,
+                "pista_audio": 1,
+            })
+            return cortes
+
+        segundos_quietos = []
+        for m in metricas:
+            s = float(m["segundo"])
+            tiene_cara = bool(m.get("tiene_cara"))
+            cara_quieta = bool(m.get("cara_quieta"))
+            sacudida = float(m.get("sacudida", 0.0))
+            es_negro = bool(m.get("es_negro"))
+
+            if tiene_cara and cara_quieta and sacudida < 2.0 and not es_negro:
+                segundos_quietos.append(s)
+
+        if not segundos_quietos:
+            return []
+
+        intervalos: List[Tuple[float, float]] = []
+        segundos_quietos.sort()
+
+        ini = segundos_quietos[0]
+        prev = ini
+        for s in segundos_quietos[1:]:
+            if s <= prev + 1.2:
+                prev = s
+            else:
+                intervalos.append((ini, prev + 1.0))
+                ini = s
+                prev = s
+        intervalos.append((ini, prev + 1.0))
+
+        for t_ini, t_fin in intervalos:
+            dur_intervalo = t_fin - t_ini
+            if dur_intervalo >= 3.0:
+                ent = round(t_ini + 0.3, 2)
+                dur_pose = min(6.0, max(3.0, dur_intervalo - 0.3))
+                sal = round(min(t_fin, ent + dur_pose), 2)
+
+                if sal > ent:
+                    cortes.append({
+                        "archivo_id": archivo_id,
+                        "bloque": archivo.get("bloque", "previa"),
+                        "entrada": ent,
+                        "salida": sal,
+                        "duracion": round(sal - ent, 2),
+                        "tipo": "pose",
+                        "transicion": self.elegir_transicion_sin_repetir(),
+                        "regla_aplicada": "pose_rostros_quietos",
+                        "camara": archivo.get("camara", "principal"),
+                        "pista_video": 1,
+                        "pista_audio": 1,
+                    })
+
+                    if alm is not None and archivo_id:
+                        if ent > 0.5:
+                            alm.agregar_aviso_revision({
+                                "tipo_aviso": "pose_recorte_entrada",
+                                "archivo_id": archivo_id,
+                                "segundo_inicio": 0.0,
+                                "segundo_fin": ent,
+                                "severidad": "info",
+                                "descripcion": f"Se recortaron {ent:.1f}s iniciales de movimiento al acomodarse",
+                            })
+                        if dur_total - sal > 0.5:
+                            alm.agregar_aviso_revision({
+                                "tipo_aviso": "pose_recorte_salida",
+                                "archivo_id": archivo_id,
+                                "segundo_inicio": sal,
+                                "segundo_fin": dur_total,
+                                "severidad": "info",
+                                "descripcion": f"Se recortaron {dur_total - sal:.1f}s finales al retirarse",
+                            })
+
+        return cortes
+
+
+def aprender_de_mis_videos(
+    rutas_videos: List[str],
+    config_actual: Optional[Dict[str, Any]] = None,
+    almacen: Optional[Any] = None,
+) -> Dict[str, Any]:
+    """Analiza videos terminados del dueño y propone parámetros para config.yaml.
+
+    Detecta cambios de escena/cortes con OpenCV, mide duración de tomas,
+    frecuencia de transiciones y propone valores de edición sin aplicarlos automáticamente.
+    """
+    cfg_base = config_actual or cargar_configuracion()
+    duraciones_tomas: List[float] = []
+
+    for ruta in rutas_videos:
+        if not os.path.exists(ruta):
+            continue
+
+        cap = cv2.VideoCapture(ruta)
+        if not cap.isOpened():
+            continue
+
+        fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        duracion_video = total_frames / fps if total_frames > 0 else 0.0
+
+        salto = max(1, int(round(fps / 5.0)))  # 5 muestras por segundo
+        cortes_detectados = [0.0]
+
+        prev_frame_peque = None
+        frame_idx = 0
+
+        while True:
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                break
+
+            if frame_idx % salto != 0:
+                frame_idx += 1
+                continue
+
+            seg = frame_idx / fps
+            peque = cv2.resize(frame, (80, 45), interpolation=cv2.INTER_AREA)
+
+            if prev_frame_peque is not None:
+                dif = float(np.mean(np.abs(peque.astype(np.float32) - prev_frame_peque.astype(np.float32))))
+                if dif > 30.0:
+                    if seg - cortes_detectados[-1] >= 1.0:
+                        cortes_detectados.append(round(seg, 2))
+
+            prev_frame_peque = peque
+            frame_idx += 1
+
+        cap.release()
+
+        if duracion_video > cortes_detectados[-1] + 1.0:
+            cortes_detectados.append(round(duracion_video, 2))
+
+        for i in range(1, len(cortes_detectados)):
+            dur_toma = cortes_detectados[i] - cortes_detectados[i - 1]
+            if dur_toma >= 0.8:
+                duraciones_tomas.append(dur_toma)
+
+    if duraciones_tomas:
+        media_toma = float(np.mean(duraciones_tomas))
+    else:
+        media_toma = 4.0
+
+    media_toma_redondeada = round(media_toma, 1)
+
+    propuesta = {
+        "duracion_toma_promedio": media_toma_redondeada,
+        "total_tomas_analizadas": len(duraciones_tomas),
+        "propuesta_config": {
+            "edicion": {
+                "previa": {
+                    "duracion_min_segundos_con_personas": round(max(2.0, media_toma_redondeada - 1.0), 1),
+                    "duracion_max_segundos_con_personas": round(media_toma_redondeada + 1.5, 1),
+                },
+                "discursos_y_velas": {
+                    "duracion_pose_segundos": media_toma_redondeada,
+                },
+                "baile": {
+                    "duracion_min_corte_segundos": round(max(2.0, media_toma_redondeada - 1.0), 1),
+                    "duracion_max_corte_segundos": round(media_toma_redondeada + 2.5, 1),
+                },
+            }
+        },
+        "antes": cfg_base,
+    }
+
+    if almacen is not None:
+        almacen.guardar_preferencia("aprendizaje_videos_propuesta", propuesta)
+
+    return propuesta

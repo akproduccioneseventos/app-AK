@@ -1,0 +1,19 @@
+{
+  "id": "libro-de-cuentos",
+  "nombre": "Libro de cuentos",
+  "paletaColores": {
+    "primary": "#8B4513",
+    "secondary": "#FFF8DC",
+    "accent": "#DAA520"
+  },
+  "tipografia": "Caveat",
+  "transiciones": ["pageturn", "wipeleft", "fade"],
+  "transicion_capitulo": "pageturn",
+  "estilo_titulo": "manuscrito_cuento",
+  "superposiciones": {
+    "estilo_libro": true,
+    "marco": true,
+    "destellos_luz": false,
+    "textura_pelicula": false
+  }
+}

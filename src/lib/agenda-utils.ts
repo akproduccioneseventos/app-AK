@@ -1,5 +1,5 @@
 import type { CrmAppointment } from '@/types/crm';
-import { buildGoogleCalendarTemplateUrl } from '@/lib/google-workspace';
+import { buildGoogleCalendarTemplateUrl } from '@/lib/google-workspace-urls';
 
 export function buildWhatsAppReminderUrl(appointment: CrmAppointment): string {
   const phoneClean = appointment.clienteContacto.replace(/\D/g, '');

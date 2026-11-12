@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { clavesIguales } from '@/lib/security/claves-iguales';
 
 /**
  * Quien puede disparar cada tarea programada.
@@ -111,7 +112,7 @@ export async function abrirPuertaDeLaTarea(
   const claveRecibida = claveDelPedido(request);
 
   if (claveEsperada) {
-    if (claveRecibida === claveEsperada) {
+    if (clavesIguales(claveRecibida, claveEsperada)) {
       return { permitido: true, conClave: true };
     }
     return {

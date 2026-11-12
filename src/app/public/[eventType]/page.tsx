@@ -17,6 +17,13 @@ import { InteractiveTechShowcase } from '@/components/public/InteractiveTechShow
 import { PublicFooter } from '@/components/public-footer';
 import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
 import { BreadcrumbJsonLd } from '@/components/seo/BreadcrumbJsonLd';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+
+function formatCurrency(amount?: number) {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+}
 
 interface Props {
   params: Promise<{ eventType: string }>;
@@ -68,6 +75,14 @@ export default async function EventTypePage({ params }: Props) {
     notFound();
   }
 
+  const budgetSettings = await getBudgetDisplaySettings().catch(() => null);
+  const deposit = budgetSettings?.bookingDepositAmount ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT;
+  const depositLabel = formatCurrency(deposit);
+  const faqs = (catalog.faqs || []).map((faq) => ({
+    ...faq,
+    answer: faq.answer.replace(/\{SENIA\}/g, depositLabel),
+  }));
+
   return (
     <div className="min-h-screen font-body">
       {/* Schemas estructurados para Google */}
@@ -77,7 +92,7 @@ export default async function EventTypePage({ params }: Props) {
           { name: catalog.name, url: `/public/${eventType}` },
         ]}
       />
-      {catalog.faqs && catalog.faqs.length > 0 && <FAQJsonLd items={catalog.faqs} />}
+      {faqs && faqs.length > 0 && <FAQJsonLd items={faqs} />}
 
       {/* Sticky navbar */}
       <PublicNavbar
@@ -140,7 +155,7 @@ export default async function EventTypePage({ params }: Props) {
       <EventProcess steps={catalog.process} />
 
       {/* FAQ */}
-      <FAQSection faqs={catalog.faqs} />
+      <FAQSection faqs={faqs} />
 
       {/* Payment methods */}
       <PaymentMethods paymentMethods={catalog.paymentMethods} />

@@ -23,6 +23,7 @@ import { leerCartaTragosMaster } from '@/lib/carta-tragos/leer-carta-master';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { AK_INSTAGRAM_HANDLE } from '@/lib/barra-tecnologica';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import type { ResultadoRevisionImagen } from '@/lib/social-fiesta/content-review';
@@ -64,7 +65,7 @@ const DEFAULT_BAR_SETTINGS: BarTechnologySettings = {
   guestPrompt: 'Toca un trago, confirma tu pedido y despues sacate una foto para el muro social.',
   barmanTitle: 'Pedidos de barra en vivo',
   hashtag: '#AKProducciones',
-  instagramHandle: '@akproducciones',
+  instagramHandle: AK_INSTAGRAM_HANDLE,
   brandText: 'Compartí tu foto y etiquetá a AK Producciones',
   accentColor: '#dc2626',
   requireGuestName: false,

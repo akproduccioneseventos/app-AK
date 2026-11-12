@@ -65,7 +65,8 @@ describe('La descarga del Video de Vida avisa lo que falta', () => {
     const r = await pedir();
     expect(r.status).toBe(200);
     const zip = await abrir(r);
-    expect(Object.keys(zip.files).sort()).toEqual(['a.jpg', 'b.jpg']);
+    expect(Object.keys(zip.files).filter((k) => k !== 'estilo.json').sort()).toEqual(['a.jpg', 'b.jpg']);
+    expect(zip.files['estilo.json']).toBeDefined();
     expect(r.headers.get('X-Fotos-Fallidas')).toBe('0');
   });
 
@@ -97,7 +98,8 @@ describe('La descarga del Video de Vida avisa lo que falta', () => {
   it('dos fotos con el mismo nombre: quedan las dos', async () => {
     fotos = [`${BASE}a.jpg?v=1`, `${BASE}a.jpg?v=2`];
     const zip = await abrir(await pedir());
-    expect(Object.keys(zip.files).sort()).toEqual(['a-2.jpg', 'a.jpg']);
+    expect(Object.keys(zip.files).filter((k) => k !== 'estilo.json').sort()).toEqual(['a-2.jpg', 'a.jpg']);
+    expect(zip.files['estilo.json']).toBeDefined();
   });
 
   it('una ruta local afuera de la app no se lee', async () => {

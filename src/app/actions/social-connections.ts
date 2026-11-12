@@ -11,7 +11,20 @@ const CONNECTIONS_FILE = 'social-connections.json';
  *  sólo necesitan saber qué está conectado usan `getSocialConnectionsPublicas`. */
 export async function getSocialConnections(): Promise<SocialConnection[]> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  return readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const session = await verifySession().catch(() => ({ success: false, user: undefined }));
+  const conexiones = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+  if (session.success && session.user?.perfil === 'auditor') {
+    return conexiones.map((c) => ({
+      ...c,
+      apiKey: c.apiKey ? '••••' : c.apiKey,
+      accessToken: c.accessToken ? '••••' : c.accessToken,
+      pageAccessToken: c.pageAccessToken ? '••••' : c.pageAccessToken,
+      refreshToken: c.refreshToken ? '••••' : c.refreshToken,
+      appSecret: (c as any).appSecret ? '••••' : (c as any).appSecret,
+    }));
+  }
+  return conexiones;
 }
 
 /** Sin comprobar sesion: solo para uso interno de este archivo y de las publicas. */
