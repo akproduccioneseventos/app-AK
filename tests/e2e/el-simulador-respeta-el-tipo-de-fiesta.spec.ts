@@ -1,20 +1,37 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/**
+ * Llega al selector de tipo de fiesta sea cual sea la pantalla de entrada. En el celular, con ?tipo=,
+ * la portada aparece un instante y la app la saltea: mirar la portada una vez y hacer clic dejaba la
+ * prueba esperando un botón que ya no estaba (90 s y rojo, 12/11/2026). Lo que se comprueba sigue
+ * siendo el resultado: qué tipo queda elegido.
+ */
+async function llegarAlSelectorDeTipo(page: Page) {
+  const selector = page.locator('button[role="combobox"]').first();
+  await expect(async () => {
+    if (await selector.isVisible()) return;
+    const botones = [
+      page.getByTestId('simulator-cover-start'),
+      page.getByRole('button', { name: /Armar mi presupuesto|Continuar/i }).first(),
+    ];
+    for (const boton of botones) {
+      if ((await boton.isVisible()) && (await boton.isEnabled())) {
+        await boton.click({ timeout: 2000 }).catch(() => {});
+        break;
+      }
+    }
+    await expect(selector).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 60_000 });
+  return selector;
+}
 
 test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta y no muestra $0 al arrancar', () => {
   test('abre con ?tipo=boda y queda seleccionada Boda', async ({ page }, testInfo) => {
 
     await page.goto('/simulador-de-presupuesto?tipo=boda', { waitUntil: 'domcontentloaded' });
 
-    const coverStart = page.getByTestId('simulator-cover-start');
-    // isVisible no espera: con la máquina cargada la portada aparecía después y "Continuar" no existía nunca.
-    if (await coverStart.waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false)) {
-      await coverStart.click();
-    }
-    await page.getByRole('button', { name: /Continuar/i }).click();
-
     // El selector de tipo de evento en el paso 2 debe mostrar "Boda"
-    const selectorTipo = page.locator('button[role="combobox"]').first();
-    await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
+    const selectorTipo = await llegarAlSelectorDeTipo(page);
     await expect(selectorTipo).toContainText('Boda');
   });
 
@@ -22,15 +39,7 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
 
     await page.goto('/simulador-de-presupuesto?tipo=XV%20a%C3%B1os', { waitUntil: 'domcontentloaded' });
 
-    const coverStart = page.getByTestId('simulator-cover-start');
-    // isVisible no espera: con la máquina cargada la portada aparecía después y "Continuar" no existía nunca.
-    if (await coverStart.waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false)) {
-      await coverStart.click();
-    }
-    await page.getByRole('button', { name: /Continuar/i }).click();
-
-    const selectorTipo = page.locator('button[role="combobox"]').first();
-    await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
+    const selectorTipo = await llegarAlSelectorDeTipo(page);
     await expect(selectorTipo).toContainText('15 años');
   });
 
@@ -42,8 +51,7 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
     await page.getByTestId('simulator-cover-start').click();
     await page.getByRole('button', { name: /Continuar/i }).click();
 
-    const selectorTipo = page.locator('button[role="combobox"]').first();
-    await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
+    const selectorTipo = await llegarAlSelectorDeTipo(page);
     await expect(selectorTipo).toContainText('Cumpleaños');
   });
 
