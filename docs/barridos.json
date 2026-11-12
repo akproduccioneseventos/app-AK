@@ -758,6 +758,10 @@
     "orden-286": {
       "fecha": "2026-11-12",
       "resultado": "Barrido de las formas del informe final: fechas AAAA-MM-DD leídas como Greenwich en 8 lugares que ve el cliente y 12 del equipo; enlaces a /fiestas/nueva sin fiestaId (decoración PDF, acceso-personal, compras); botón outline con text-white y ghost sin color sobre fondo oscuro (votaciones); imágenes de datos sin respaldo en 10 pantallas del cliente e invitado. Todo en la orden 286. Respaldo: arreglado por Claude."
+    },
+    "orden-287": {
+      "fecha": "2026-11-12",
+      "resultado": "Devolución de la entrega 282/283. Buscado en la principal: ninguna variable de entorno de prueba apaga el candado del auditor ni otro control (git grep process.env.AK_*QA/*TEST fuera de pruebas: cero); globals.css no esconde el desborde. Los dos casos están sólo en la rama de Gemini y vuelven en la orden 287."
     }
   }
 }
