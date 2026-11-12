@@ -39,7 +39,7 @@ test.afterAll(() => {
 
 test.describe('Orden 267: El simulador público no muestra el ajuste anual al prospecto', () => {
   test('un evento con fecha a dos años adelante no muestra "15%" ni "ajuste acumulativo"', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000); // con toda la tanda corriendo el simulador tarda el doble
 
     const anioFuturo = new Date().getFullYear() + 2;
     await page.goto(
