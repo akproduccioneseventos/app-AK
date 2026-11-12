@@ -1592,3 +1592,18 @@ Auditor externo, 12/11/2026. El respaldo automático falló un mes entero y el c
 Se listan las tareas que corren solas (despertador, `after()`, funciones programadas) y se mira si una falla repetida
 termina en un aviso al dueño (`avisarAlDuenio`) o sólo en un registro que nadie abre.
 
+
+### 121. Un texto que sale de la app para pegarse afuera (redes, WhatsApp, un mail), ¿sale terminado?
+
+Auditor externo, 12/11/2026. El generador de marketing armaba textos con `[NOMBRE]`, `[X] años` y un enlace
+`/simulador-de-presupuesto` que fuera de la app no lleva a ningún lado, y el botón "Copiar" los dejaba salir así. Se
+buscan las plantillas de texto que se copian o se preparan para mandar (`navigator.clipboard`, `wa.me`, plantillas con
+`[...]` o `{{...}}`) y se mira que todo marcador quede reemplazado y que cada enlace sea completo (`SITE_URL` + ruta).
+Si queda un marcador sin dato, el texto se marca "incompleto" y no se deja copiar.
+
+### 122. Un estado "subido", "entregado" o "publicado", ¿se marca después de comprobarlo del otro lado?
+
+Auditor externo, 12/11/2026. El AK Editor marcaba las fotos como subidas a Wfolio después de abrir la página y ver el
+login, sin subir nada. Se buscan los lugares que guardan un estado de éxito de algo que pasa en otro servicio (subidas,
+publicaciones, envíos) y se mira que el estado salga de la respuesta o de ver el archivo del otro lado, no de haber
+abierto la conexión.

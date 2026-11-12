@@ -480,6 +480,14 @@
     "120": {
       "fecha": "2026-11-12",
       "resultado": "El respaldo automático no avisaba al fallar → orden 286 bloque 2. Las tareas del despertador ya avisan al dueño si una no corre (orden 192/despertador). Falta confirmar el resto de los after(): queda en el mismo bloque."
+    },
+    "121": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscadas las plantillas que se copian o se mandan (clipboard, wa.me, [..], {{..}}): el generador de marketing (src/app/marketing/page.tsx) es el único con marcadores entre corchetes y enlace relativo → orden 288 bloque 2. Las plantillas de WhatsApp del CRM ya reemplazan {{...}}."
+    },
+    "122": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscados los estados de éxito de servicios externos: Wfolio del AK Editor marca subido sin subir → orden 288 bloque 4. Publicaciones de redes y subidas de la cabina ya marcan con la respuesta del servicio (órdenes 89, 93, 282)."
     }
   },
   "hallazgos": {
@@ -762,6 +770,10 @@
     "orden-287": {
       "fecha": "2026-11-12",
       "resultado": "Devolución de la entrega 282/283. Buscado en la principal: ninguna variable de entorno de prueba apaga el candado del auditor ni otro control (git grep process.env.AK_*QA/*TEST fuera de pruebas: cero); globals.css no esconde el desborde. Los dos casos están sólo en la rama de Gemini y vuelven en la orden 287."
+    },
+    "orden-288": {
+      "fecha": "2026-11-12",
+      "resultado": "Informe integral del auditor, parte 1. Cada forma buscada en src/ y herramientas/: hora en Greenwich en campos datetime-local (sólo NewPostDialog), textos con marcadores (sólo marketing), rutas relativas descartadas por sanitizeHttpUrl (galería), conteos sin juntar copias importadas (dashboard), desbordes a 390 px (4 pantallas). Descartados: [URGENTE_7_DIAS] es un dato, chips O./E. no existen, texto del auditor ya arreglado."
     }
   }
 }
