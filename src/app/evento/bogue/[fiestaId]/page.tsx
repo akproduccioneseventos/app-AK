@@ -47,6 +47,8 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
+import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 
 const BOGUE_FRAMES = [
@@ -106,6 +108,13 @@ export default function VoguePage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [progressMsg, setProgressMsg] = useState('');
+  const [estiloAK, setEstiloAK] = useState<any>(null);
+
+  useEffect(() => {
+    void obtenerEstiloFotosAK().then((estilo) => {
+      if (estilo) setEstiloAK(estilo);
+    });
+  }, []);
 
   // Capturas
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
@@ -503,7 +512,11 @@ export default function VoguePage() {
         } else {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
-        if (fiesta?.station.enableBeautyFilter) {
+        const estiloActivo = fiesta?.station.enableEstiloAK !== false && estiloAK !== null;
+        if (estiloActivo && estiloAK) {
+          const caras = detectarCarasEnFuente(video, Date.now());
+          aplicarEstiloAK(ctx, canvas.width, canvas.height, estiloAK, caras);
+        } else if (fiesta?.station.enableBeautyFilter) {
           aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
         }
       }

@@ -62,6 +62,8 @@ import { LienzoDibujoCompartido, type LienzoDibujoHandles } from '@/components/e
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
+import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import {
   obtenerModosCapturaHabilitados,
   obtenerDimensionesPorOrientacion,
@@ -215,6 +217,13 @@ export default function FotocabinaPage() {
 
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
+  const [estiloAK, setEstiloAK] = useState<any>(null);
+
+  useEffect(() => {
+    void obtenerEstiloFotosAK().then((estilo) => {
+      if (estilo) setEstiloAK(estilo);
+    });
+  }, []);
 
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
@@ -689,8 +698,12 @@ export default function FotocabinaPage() {
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // Aplicar filtros configurados de la estación
-    if (fiesta?.station.enableBeautyFilter) {
+    // Aplicar filtros configurados de la estación (Estilo AK / Filtro de belleza)
+    const estiloActivo = fiesta?.station.enableEstiloAK !== false && estiloAK !== null;
+    if (estiloActivo && estiloAK) {
+      const caras = carasDetectadasRef.current || (video ? detectarCarasEnFuente(video, Date.now()) : []);
+      aplicarEstiloAK(ctx, canvas.width, canvas.height, estiloAK, caras);
+    } else if (fiesta?.station.enableBeautyFilter) {
       aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
     }
     if (fiesta?.station.enableChromaKey) {

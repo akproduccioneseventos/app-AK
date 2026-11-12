@@ -23,6 +23,8 @@ from exportador_filmora import exportar_timeline_filmora, generar_xml_prueba
 from exportador_video import estimar_tiempo_render_formateado, exportar_video_ffmpeg
 from reglas import ReglasEdicion, aprender_de_mis_videos, cargar_configuracion
 import video_de_vida
+import glob
+from fotos import aprender_mi_estilo, procesar_seleccion_fotos
 
 PUERTO = 8765
 
@@ -37,6 +39,18 @@ ESTADO_GLOBAL = {
     "mensaje_progreso": "Listo para comenzar",
     "almacen": None,
     "analizador": None,
+}
+
+# Estado global para el módulo de Fotos (Orden 280)
+ESTADO_FOTOS = {
+    "carpeta": "",
+    "en_progreso": False,
+    "total": 0,
+    "elegidas": 0,
+    "rechazadas": 0,
+    "detalles": [],
+    "mensaje": "Listo para elegir fotos",
+    "estilo_aprendido": None,
 }
 
 
@@ -393,6 +407,10 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             self._responder_json(200, cfg)
             return
 
+        if ruta == "/api/fotos/estado":
+            self._responder_json(200, ESTADO_FOTOS)
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
     def do_POST(self) -> None:
@@ -515,6 +533,64 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             self._responder_json(200, {"ok": True, "tiempo_estimado": tiempo_est, "destino": destino})
             return
 
+        if ruta == "/api/fotos/procesar":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+
+            ESTADO_FOTOS["carpeta"] = carpeta
+            ESTADO_FOTOS["en_progreso"] = True
+            ESTADO_FOTOS["mensaje"] = f"Buscando fotos en {carpeta}..."
+
+            def tarea_fotos():
+                try:
+                    extensiones = ("*.nef", "*.NEF", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.png", "*.PNG", "*.cr2", "*.CR2", "*.arw", "*.ARW", "*.dng", "*.DNG")
+                    rutas = []
+                    for ext in extensiones:
+                        rutas.extend(glob.glob(os.path.join(carpeta, ext)))
+                    rutas = sorted(list(set(rutas)))
+
+                    if not rutas:
+                        ESTADO_FOTOS["mensaje"] = "No se encontraron fotos en la carpeta."
+                        ESTADO_FOTOS["total"] = 0
+                        ESTADO_FOTOS["elegidas"] = 0
+                        ESTADO_FOTOS["rechazadas"] = 0
+                        ESTADO_FOTOS["detalles"] = []
+                        return
+
+                    ESTADO_FOTOS["total"] = len(rutas)
+
+                    def prog_cb(act, tot, msg):
+                        ESTADO_FOTOS["mensaje"] = f"Procesando {act}/{tot}: {msg}"
+
+                    res = procesar_seleccion_fotos(rutas, progreso_callback=prog_cb)
+                    ESTADO_FOTOS["elegidas"] = res["elegidas"]
+                    ESTADO_FOTOS["rechazadas"] = res["rechazadas"]
+                    ESTADO_FOTOS["detalles"] = res["detalles"]
+                    ESTADO_FOTOS["mensaje"] = f"Selección completa: {res['elegidas']} elegidas, {res['rechazadas']} rechazadas."
+                except Exception as e:
+                    ESTADO_FOTOS["mensaje"] = f"Error al procesar fotos: {str(e)}"
+                finally:
+                    ESTADO_FOTOS["en_progreso"] = False
+
+            threading.Thread(target=tarea_fotos, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Procesamiento de fotos iniciado"})
+            return
+
+        if ruta == "/api/fotos/aprender-estilo":
+            lrcat = body.get("lrcat", "").strip() or None
+            fotos_editadas = body.get("fotos_editadas", "").strip() or None
+            salida = body.get("salida", "").strip() or None
+
+            try:
+                res = aprender_mi_estilo(ruta_lrcat=lrcat, ruta_fotos_editadas=fotos_editadas, carpeta_salida=salida)
+                ESTADO_FOTOS["estilo_aprendido"] = res
+                self._responder_json(200, {"ok": True, "resultado": res})
+            except Exception as e:
+                self._responder_json(500, {"error": str(e)})
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
 
@@ -582,6 +658,7 @@ HTML_INTERFAZ = """<!DOCTYPE html>
     <button class="nav-tab" onclick="cambiarPestana('material')">Material</button>
     <button class="nav-tab" onclick="cambiarPestana('analisis')">Análisis</button>
     <button class="nav-tab" onclick="cambiarPestana('revision')">Revisión</button>
+    <button class="nav-tab" onclick="cambiarPestana('fotos')">Fotos</button>
     <button class="nav-tab" onclick="cambiarPestana('exportar')">Exportar a Filmora</button>
   </nav>
 
@@ -663,6 +740,97 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       </div>
     </div>
 
+    <!-- PESTAÑA: FOTOS -->
+    <div id="tab-fotos" class="tab-content">
+      <div class="card">
+        <h2>Elegir y enderezar fotos (Orden 280)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Descarta automáticamente fotos borrosas, repetidas, oscuras o con ojos cerrados. Endereza y recorta en 3:2 respetando caras.
+          <strong>Tus archivos originales (NEF/JPG) no se tocan ni se borran nunca.</strong>
+        </p>
+
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.825rem; color: #1e40af;">
+          <strong>Aviso para Lightroom Classic:</strong> Si las fotos ya estaban importadas en Lightroom, elegí todas &rarr; <em>Metadatos &rarr; Leer metadatos de los archivos</em>. Lo ideal es correr este proceso antes de importar.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta donde están las fotos (NEF crudos o JPG)</label>
+          <input type="text" id="input-fotos-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Crudos">
+        </div>
+
+        <button class="btn btn-primary" onclick="procesarFotos()">Elegir fotos y enderezar</button>
+
+        <div id="progreso-fotos-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
+          Listo para comenzar
+        </div>
+
+        <!-- Resumen de resultados -->
+        <div id="resumen-fotos" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div style="background: #f1f5f9; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
+            <div style="font-size: 0.75rem; color: #64748b;">Total Analizadas</div>
+            <div id="stat-fotos-total" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">0</div>
+          </div>
+          <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
+            <div style="font-size: 0.75rem; color: #047857;">Elegidas (Rating 5)</div>
+            <div id="stat-fotos-elegidas" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</div>
+          </div>
+          <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
+            <div style="font-size: 0.75rem; color: #b91c1c;">Rechazadas (Rating 0)</div>
+            <div id="stat-fotos-rechazadas" style="font-size: 1.5rem; font-weight: 700; color: #dc2626;">0</div>
+          </div>
+        </div>
+
+        <!-- Guía de 3 pasos para retoque en Lightroom -->
+        <div style="margin-top: 1.5rem; background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 1rem;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: #292524;">Retoque de piel y pelo en Lightroom Classic (Guía en 3 pasos)</h3>
+          <ol style="font-size: 0.85rem; color: #57534e; padding-left: 1.25rem; line-height: 1.6;">
+            <li>En la biblioteca de Lightroom, filtrá por la palabra clave <strong>"con personas"</strong>.</li>
+            <li>Seleccioná todas las fotos filtradas (<code>Ctrl + A</code>).</li>
+            <li>Aplicá tu preset de retoque (que tiene la máscara de Personas de Lightroom Classic) para dejar piel, ojos y dientes impecables.</li>
+          </ol>
+        </div>
+
+        <!-- Tabla de fotos analizadas -->
+        <div id="tabla-fotos-container" style="margin-top: 1.5rem;">
+          <table id="tabla-fotos">
+            <thead>
+              <tr>
+                <th>Archivo</th>
+                <th>Estado</th>
+                <th>Motivo / Razón</th>
+                <th>Personas</th>
+                <th>Enderezado</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-fotos">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Cargá una carpeta para procesar fotos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card: Aprender mi estilo -->
+      <div class="card">
+        <h2>Aprender mi estilo (Bloque 3)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Analiza tus fotos editadas previas o tu catálogo .lrcat de Lightroom Classic para generar tus presets .xmp personalizados (AK Salón noche, AK Exterior día, AK Torta y velas) y el archivo estilo-ak.json.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Ruta al catálogo de Lightroom (.lrcat)</label>
+          <input type="text" id="input-estilo-lrcat" class="form-input" placeholder="C:\\Fotos\\Lightroom\\Catalogo_AK.lrcat">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta con fotos ya editadas (JPG opcional)</label>
+          <input type="text" id="input-estilo-jpgs" class="form-input" placeholder="C:\\Fotos\\Editadas_Exportadas">
+        </div>
+
+        <button class="btn btn-outline" onclick="aprenderEstiloFotos()">Aprender mi estilo y armar presets</button>
+        <div id="resultado-aprender-estilo" style="margin-top: 1rem; font-size: 0.85rem; color: #047857;"></div>
+      </div>
+    </div>
+
     <!-- PESTAÑA: EXPORTAR -->
     <div id="tab-exportar" class="tab-content">
       <div class="card">
@@ -696,6 +864,7 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       document.getElementById('tab-' + id).classList.add('active');
       if (id === 'material') cargarMaterial();
       if (id === 'revision') cargarRevision();
+      if (id === 'fotos') cargarFotos();
     }
 
     async function crearNuevoEvento() {
@@ -804,6 +973,80 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       const res = await fetch('/api/exportar/video', { method: 'POST' });
       const data = await res.json();
       document.getElementById('resultado-video').innerText = 'Renderizado iniciado en segundo plano. Tiempo estimado: ' + data.tiempo_estimado + '. Destino: ' + data.destino;
+    }
+
+    async function procesarFotos() {
+      const carpeta = document.getElementById('input-fotos-carpeta').value.trim();
+      if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos');
+      document.getElementById('progreso-fotos-texto').innerText = 'Iniciando procesamiento de fotos...';
+      const res = await fetch('/api/fotos/procesar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carpeta })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar fotos');
+      actualizarProgresoFotos();
+    }
+
+    async function actualizarProgresoFotos() {
+      const res = await fetch('/api/fotos/estado');
+      const data = await res.json();
+      document.getElementById('progreso-fotos-texto').innerText = data.mensaje;
+      document.getElementById('stat-fotos-total').innerText = data.total;
+      document.getElementById('stat-fotos-elegidas').innerText = data.elegidas;
+      document.getElementById('stat-fotos-rechazadas').innerText = data.rechazadas;
+
+      if (data.detalles && data.detalles.length > 0) {
+        const tbody = document.getElementById('tbody-fotos');
+        tbody.innerHTML = data.detalles.map(f => `
+          <tr>
+            <td><strong>${f.nombre}</strong></td>
+            <td>
+              <span class="badge" style="background:${f.estado === 'elegida' ? '#dcfce7' : '#fee2e2'}; color:${f.estado === 'elegida' ? '#15803d' : '#b91c1c'};">
+                ${f.estado === 'elegida' ? '★ Elegida (5)' : 'Rechazada'}
+              </span>
+            </td>
+            <td>${f.motivo_rechazo || 'Excelente nitidez y exposición'}</td>
+            <td>${f.tiene_personas ? 'Con personas' : 'Sin personas'}</td>
+            <td>${f.crop_angle ? f.crop_angle + '°' : 'No requirió'}</td>
+          </tr>
+        `).join('');
+      }
+
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoFotos, 1000);
+      }
+    }
+
+    async function cargarFotos() {
+      actualizarProgresoFotos();
+    }
+
+    async function aprenderEstiloFotos() {
+      const lrcat = document.getElementById('input-estilo-lrcat').value.trim();
+      const fotos_editadas = document.getElementById('input-estilo-jpgs').value.trim();
+      if (!lrcat && !fotos_editadas) {
+        return alert('Por favor ingresá la ruta al catálogo .lrcat o la carpeta de JPGs editados');
+      }
+      document.getElementById('resultado-aprender-estilo').innerText = 'Analizando ajustes y aprendiendo estilo...';
+      const res = await fetch('/api/fotos/aprender-estilo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lrcat, fotos_editadas })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('resultado-aprender-estilo').innerText = 'Error: ' + (data.error || 'desconocido');
+        return;
+      }
+      const p = data.resultado.presets || {};
+      const nombres = Object.keys(p);
+      if (nombres.length === 0) {
+        document.getElementById('resultado-aprender-estilo').innerText = 'El catálogo está vacío o no contiene fotos editadas. No se generaron presets.';
+      } else {
+        document.getElementById('resultado-aprender-estilo').innerText = '¡Estilo aprendido! Presets generados: ' + nombres.join(', ') + ' y archivo estilo-ak.json.';
+      }
     }
   </script>
 </body>

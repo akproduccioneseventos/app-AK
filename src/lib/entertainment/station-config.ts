@@ -55,6 +55,7 @@ export interface EntertainmentStationRuntimeConfig {
    */
   allowedTemplateIds: string[];
   enableBeautyFilter?: boolean;
+  enableEstiloAK?: boolean;
   enableChromaKey?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
   fondoDePantalla?: string;
@@ -215,6 +216,7 @@ export function getEntertainmentStationConfig(
     recorteSinTela: stored.recorteSinTela === true,
     fondoMuro: typeof stored.fondoMuro === 'string' && stored.fondoMuro ? stored.fondoMuro : 'predeterminado',
     enableBeautyFilter: stored.enableBeautyFilter === true,
+    enableEstiloAK: stored.enableEstiloAK !== false,
     enableChromaKey: stored.enableChromaKey === true,
     orientation: (['vertical', 'horizontal', 'cuadrada'].includes(stored.orientation)
       ? stored.orientation

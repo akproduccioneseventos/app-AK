@@ -247,6 +247,7 @@
         "src/app/api/social-media-assets",
         "src/app/(app)/empresa/galeria",
         "src/app/(app)/settings/biblioteca-visual-ak",
+        "src/app/(app)/settings/estilo-fotos",
         "src/lib/presencia-digital/publicador.ts",
         "src/app/api/meta"
       ],
