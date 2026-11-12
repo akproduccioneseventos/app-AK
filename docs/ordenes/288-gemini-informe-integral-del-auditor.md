@@ -8,8 +8,8 @@ Lo de la parte 2 del informe (la auditoría base de 16 hallazgos) ya está en la
 
 ## Lo que NO se toca
 
-- Las frases comerciales del generador de marketing ("en 1 minuto", "Salón propio", "quedan pocas fechas"): son decisión
-  del dueño y se le consultan aparte. **No las cambies.**
+- "Quedan pocas fechas" / "Las fechas se llenan rápido" y "en 1 minuto": **quedan como están** (decisión del dueño,
+  12/11/2026).
 - El 15%, la seña, la multa del 30%, el reloj, la firma como constancia y el envío humano de mensajes.
 
 ## Barrido en toda la app (Claude, 12/11/2026)
@@ -105,6 +105,18 @@ El auditor midió a 390 px: `settings/whatsapp` (594), `empresa/landing-editor` 
 `grid-cols-3`), `settings/templates` ~72 (`CardHeader flex-row` sin `min-w-0`), `settings/whatsapp` ~441 (`grid-cols-2`
 sin variante). Medilo en el navegador y arreglalo en cada pantalla (no con `overflow-x: hidden` general, ver orden 287).
 
+## Bloque 9 — AK no tiene salón propio: se ofrece el Club Uruguay (decisión del dueño, 12/11/2026)
+
+Palabras del dueño: *"Salón propio no es; hay que ofrecer el Club Uruguay pero sin decir que es propio"*.
+- `src/app/marketing/page.tsx` ~109 y ~145: "✅ Salón propio" → "✅ Salón Club Uruguay disponible".
+- Lo que escribe la IA: `src/ai/flows/multiagent-flow.ts` ~232 y ~250 y `src/ai/flows/marketing-agent-flow.ts` ~19 dan
+  "salón propio" como fortaleza. Cambialo por "salón disponible (Club Uruguay)" y sumá la regla "nunca decir que AK tiene
+  salón propio".
+- **No tocar** `src/app/simulador-ak/page.tsx` ~372/720 ni `src/app/actions/simulador-v2.ts` ~167: ahí "Salón propio"
+  quiere decir que **el cliente** tiene su salón, es otra cosa.
+- Buscá "salón propio" / "salon propio" (sin distinguir mayúsculas) en `src/` y en `src/data/`; todo lo que hable de AK
+  pasa a lo mismo.
+
 ## Pruebas
 
 - `src/__tests__/la-hora-de-la-publicacion-es-la-de-uruguay.test.ts`: con `TZ=America/Montevideo` y "ahora" 12:38,
@@ -121,6 +133,9 @@ sin variante). Medilo en el navegador y arreglalo en cada pantalla (no con `over
   `scrollWidth <= clientWidth`.
 
 ```comprobar
+no-usa: Salón propio en src/app/marketing/page.tsx
+no-usa: salón propio en src/ai/flows/marketing-agent-flow.ts
+no-usa: salón propio en src/ai/flows/multiagent-flow.ts
 no-usa: toISOString().substring(0, 16) en src/components/social-media/NewPostDialog.tsx
 usa: SITE_URL en src/app/marketing/page.tsx
 no-usa: [NOMBRE] en src/app/marketing/page.tsx
