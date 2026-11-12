@@ -855,6 +855,9 @@ mandaba", y ya existía (lo que tenía era otro defecto: pedía de más).
 (sin distinguir mayúsculas, con sinónimos) y se mira quién lo llama. El inventario sirve para
 orientarse, no para afirmar. Y cuando se encuentra una línea vieja, se corrige en el acto.
 
+**Y otra vez el 12 de noviembre de 2026:** `QUE-HAY-EN-LA-APP.md` quedó sin tocar del 30/10 al 12/11, con doce entregas
+publicadas en el medio; lo notó el dueño. **Al publicar cada entrega se suma su línea en "Novedades", en la misma propuesta.**
+
 ### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
 
 **Y otra vez el 8 de octubre de 2026** (`pgrep -f "firebase.entorno.json"`, código 144). No se perdió nada, pero es la cuarta vez: **`pkill -f`/`pgrep -f` no se usan nunca**, ni para emuladores.
