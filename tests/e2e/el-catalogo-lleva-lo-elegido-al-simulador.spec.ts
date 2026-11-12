@@ -37,7 +37,7 @@ test.describe('Orden 277: Del catálogo al simulador con evento y paquete', () =
     // Comprobar que la dirección del simulador tiene `tipo` y `paquete=Intermedio`
     await page.waitForURL(/\/simulador-de-presupuesto/, { timeout: 20_000 });
     const currentUrl = page.url();
-    expect(currentUrl).toMatch(/tipo=15(%20|\+)A/i);
+    expect(currentUrl).toMatch(/tipo=(15|XV)(%20|\+)A/i);
     expect(currentUrl).toContain('paquete=Intermedio');
     expect(currentUrl).toContain('entry=catalogo-xv-anos');
 

@@ -574,8 +574,6 @@ export default function PresentacionLedPage() {
     if (clientData.invitadosAdultos) params.set('adultos', clientData.invitadosAdultos);
     if (clientData.invitadosAdolescentes) params.set('ninos', clientData.invitadosAdolescentes);
     safeIds.forEach((id) => params.append('servicios', id));
-    const safeEntradasIds = selectedEntradasIds.filter((id) => /^[\w-]+$/.test(id));
-    safeEntradasIds.forEach((id) => params.append('entradas', id));
     if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) params.set('menuId', selectedMenuId);
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
     const query = params.toString();

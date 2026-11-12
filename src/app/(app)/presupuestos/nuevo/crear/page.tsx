@@ -51,7 +51,7 @@ const initialFormData: PresupuestoFormData = {
   estado: 'Borrador',
   nombrePromocion: 'Descuento Promocional',
   descuentoTipo: 'porcentaje',
-  descuentoValor: '10',
+  descuentoValor: '10', 
   vigenciaPromocion: 'Válido por 30 días',
 };
 
@@ -98,7 +98,7 @@ function CrearPresupuestoContent() {
     const [paquetesBase, setPaquetesBase] = useState<PaqueteArmadoRapido[]>([]);
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [paso, setPaso] = useState(1);
-
+    
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
@@ -107,7 +107,7 @@ function CrearPresupuestoContent() {
     const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(
         defaultBudgetDisplaySettings.annualAdjustmentPercentage ?? 15,
     );
-
+    
     const leadIdFromParams = searchParams.get('leadId');
     // La fiesta para la que se arma el presupuesto (viene de la ficha de la fiesta).
     const [fiestaDelPresupuesto, setFiestaDelPresupuesto] = useState<{ id: string; nombre: string; presupuestoId?: string } | null>(null);
@@ -210,8 +210,8 @@ function CrearPresupuestoContent() {
                 setEditingPresupuestoId(editId);
 
                 const [config, menuData, services, occupiedDatesStrings, budgetSettings] = await Promise.all([
-                    getArmadoRapidoConfig(),
-                    getMenus(),
+                    getArmadoRapidoConfig(), 
+                    getMenus(), 
                     getServiciosEmpresa(),
                     // Si falla la lectura NO se toma como "ninguna fecha ocupada": se avisa en pantalla.
                     getOcupiedDates().catch((occupiedError) => {
@@ -265,7 +265,6 @@ function CrearPresupuestoContent() {
                     const leadName = searchParams.get('leadName');
                     const serviciosParams = searchParams.getAll('servicios');
                     const serviciosParam = searchParams.get('servicios');
-                    const entradasParams = searchParams.getAll('entradas');
                     const menuIdParam = searchParams.get('menuId');
                     const teenMenuIdParam = searchParams.get('teenMenuId');
                     const adultosParam = safePositiveNumberParam(searchParams.get('adultos'));
@@ -274,7 +273,7 @@ function CrearPresupuestoContent() {
                     const tipoParam = searchParams.get('tipoFiesta');
                     const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
                     const salonParam = searchParams.get('salon');
-                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || entradasParams.length > 0 || menuIdParam || teenMenuIdParam);
+                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam);
 
                     if (hasPlannerParams) {
                         const baseForm: PresupuestoFormData = {
@@ -330,12 +329,6 @@ function CrearPresupuestoContent() {
                             } catch {
                                 // ignore malformed query param
                             }
-                        }
-
-                        if (entradasParams.length > 0) {
-                            entradasParams
-                                .filter((id): id is string => typeof id === 'string' && /^[\w-]+$/.test(id))
-                                .forEach(addSelection);
                         }
 
                         if (menuIdParam) {
@@ -396,9 +389,9 @@ function CrearPresupuestoContent() {
         }
         if (paso < 3) setPaso(p => p + 1);
     };
-
+    
     const handlePrev = () => { if (paso > 1) setPaso(p => p - 1); };
-
+    
     const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
     const totalCalculado = useMemo(() => {
@@ -444,7 +437,7 @@ function CrearPresupuestoContent() {
                 unidad: serv.unidad,
                 precioUnitario: serv.precioUnitarioOriginal,
                 precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
-                costoTotalItem: 0,
+                costoTotalItem: 0, 
                 esRegalo: serv.esRegalo,
                 categoriaServicio: serv.categoriaServicio,
                 subcategoria: serv.subcategoria,
@@ -456,7 +449,7 @@ function CrearPresupuestoContent() {
               };
             }),
             selectedMenuId: formData.selectedMenuId || undefined,
-            costoTotalEstimado: 0,
+            costoTotalEstimado: 0, 
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
             descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
@@ -471,7 +464,7 @@ function CrearPresupuestoContent() {
             ajusteAnualPorcentaje: shouldApplyAnnualAdjustment ? annualAdjustmentPercentage : undefined,
             timestamp: formData.timestamp || new Date().toISOString(),
         };
-
+        
         savingRef.current = true;
         setIsSaving(true);
         try {
@@ -537,7 +530,7 @@ function CrearPresupuestoContent() {
           setIsSaving(false);
         }
     };
-
+    
     return (
         <div data-testid="presupuesto-wizard" className="space-y-6">
              <div className="flex items-center justify-between">

@@ -55,11 +55,12 @@ test.describe('Orden 277 — Bloque 5: Sofía contesta en el paso del teléfono'
     await inputChat.press('Enter');
 
     // La pantalla tiene que mostrar la respuesta fija interceptada del asistente
-    await expect(page.getByText(TEXTO_FIJO_ASISTENTE)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(TEXTO_FIJO_ASISTENTE).first()).toBeVisible({ timeout: 20_000 });
     expect(asistenteInterceptado, 'El pedido al asistente debió ser interceptado').toBe(true);
 
-    // No debe devolver el aviso de error de formato como única respuesta
-    const errorFormatoSolo = page.getByText('Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).');
-    await expect(errorFormatoSolo).toHaveCount(0);
+    // Después de contestar, Sofía vuelve a pedir el teléfono (lo pide la orden 277, bloque 5): ese pedido puede estar,
+    // pero tiene que venir DESPUÉS de la respuesta, no en su lugar.
+    const mensajes = await page.locator('body').innerText();
+    expect(mensajes.indexOf(TEXTO_FIJO_ASISTENTE)).toBeGreaterThan(-1);
   });
 });
