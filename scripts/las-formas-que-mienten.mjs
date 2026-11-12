@@ -101,6 +101,8 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   120: 'Tareas que fallan seguido sin avisar: prueba el-respaldo-que-falla-avisa (orden 286) y tareas-no-marcan-exito-al-fallar.',
   122: 'Estados "subido" sin comprobar del otro lado: prueba test_wfolio_no_dice_subido_sin_ver (orden 288).',
   123: 'Forma esperada contra forma guardada: src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts.',
+  125: 'IA que cae al respaldo sin avisar: prueba la-ia-que-cae-al-respaldo-avisa (orden 291), con la anotación de raíz en genkit.',
+  126: 'Lo que incluye un paquete sale de los datos: prueba sofia-no-inventa-los-paquetes (orden 291).',
 };
 
 

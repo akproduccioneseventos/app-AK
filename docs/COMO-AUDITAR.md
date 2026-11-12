@@ -1620,3 +1620,16 @@ Lo hace solo `el-respaldo-espera-la-forma-que-se-guarda.test.ts`.
 Auditor externo, 12/11/2026. `/presupuestos/nuevo` esperaba `repairVerifiedBudgetDates()` (lee la lista entera) antes de
 pedir la lista: 22 segundos en el celular. Se buscan `await repair…`, `await migrate…`, `reparar`, `migrar` en las
 pantallas: lo que hace falta una vez corre después de mostrar la pantalla, o una sola vez.
+
+### 125. Una función de IA que no consigue respuesta y contesta un texto fijo, ¿alguien del equipo se entera?
+
+Auditor externo, 12/11/2026. Sofía contestaba "modo asistente básico" y el asistente del portal un texto de respaldo, sin
+dejar rastro: con la IA sin saldo un mes, nadie lo hubiera visto. Se buscan los `catch` y los caminos sin respuesta de cada
+llamada a la IA (`generateWithGeminiFallback`, `ai.generate`, `fetch` a Gemini) y se mira que anoten el fallo donde el
+equipo lo vea.
+
+### 126. Lo que la IA le dice a un cliente sobre qué incluye o cuánto sale algo, ¿sale de los datos o del modelo?
+
+Auditor externo, 12/11/2026. Sofía dijo que los tres paquetes traen discoteca y pantallas LED; el Básico no las trae. Se
+buscan los chats con clientes, prospectos e invitados y se mira que lo que incluye un paquete, un precio o una condición
+lo arme el código con los datos, y que el modelo sólo converse.
