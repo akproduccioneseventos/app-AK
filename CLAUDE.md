@@ -1071,6 +1071,11 @@ graves que nadie había pedido (un prospecto firmado que se podía borrar si fal
 ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
 como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
 
+**Y otra vez el 12 de noviembre de 2026, con el informe del auditor externo:** sumé las dos preguntas nuevas pero di
+por "conocidas" las otras cinco formas sin buscarlas. Lo preguntó el dueño; el barrido encontró unas 15 pantallas con
+títulos invisibles. **Vale para cualquier informe, no sólo de Codex: cada forma del informe se busca en toda la app
+antes de escribir la orden.**
+
 ### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
 
 **Pasó el 19 de octubre de 2026.** Escribí las órdenes 188 a 191 en la rama de trabajo, sin

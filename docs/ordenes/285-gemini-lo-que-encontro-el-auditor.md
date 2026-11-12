@@ -138,6 +138,32 @@ deshabilita con el motivo, no lleva a un error. Lo que toque plata, cobros o per
 `docs/evidencias/285-enlaces-con-datos-guardados.md` (una línea por caso: archivo, línea, qué pide el destino) y Claude
 decide. Esa lista va igual en la entrega, con lo arreglado y lo que no.
 
+## Bloque 13 — Lo que salió al buscar las mismas formas en toda la app (barrido de Claude, 12/11/2026)
+
+- **Títulos invisibles en unas 15 pantallas, con una sola causa:** `CardTitle` (`src/components/ui/card.tsx` ~45) fuerza
+  `text-foreground` (casi negro), así que dentro de una tarjeta oscura con `text-white` el título no hereda el blanco.
+  **Arreglo de raíz:** sacar `text-foreground` de `CardTitle` (la tarjeta ya trae `text-card-foreground`, línea ~12, y el
+  título lo hereda). Con eso quedan bien, entre otras: portal del cliente `src/app/portal-cliente/[id]/mensajes/page.tsx`
+  ~117, `src/app/portal-cliente/[id]/videos-invitados/page.tsx` ~289/398/460, el error de
+  `src/app/portal/[fiestaId]/decoracion/page.tsx` ~147, y del equipo `empresa/menus` ~337,
+  `empresa/contabilidad/flujo-caja` ~120, `settings/budget-display` ~542, `fiestas/nueva/gestion-costos-rentabilidad`
+  ~222/229, `fiestas/nueva/resumen-planificacion` ~323/484, `fiestas/nueva/zona-digital` ~242,
+  `fiestas/[id]/cierre-mundial` ~277 y los dos de En vivo del bloque 9. Recorré con el navegador las tarjetas claras de
+  las pantallas más usadas para confirmar que siguen oscuras (deberían: heredan `text-card-foreground`).
+- **Más pestañas que se pisan:** `src/app/(app)/centro-de-control/page.tsx` ~398 y
+  `src/app/(app)/empresa/creador-anuncios/page.tsx` ~233 (`grid-cols-3` sin variante): lo mismo que el bloque 8.
+- **"Informar Pago" del portal lleva a un 404 sin clave del portal:** `src/app/portal/page.tsx` ~942 y ~1056 arman
+  `/portal/c/${settings.accessKey || fiesta.id}`; con el id de la fiesta la página no la encuentra. Sin `accessKey`, el
+  botón no se muestra.
+- **Cuentas regresivas que quedan en 00:00:00 después de la fiesta, bajo "Faltan…":** la invitación
+  (`src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx` ~102-140 y ~1165) y `EventCountdown` de
+  `src/app/portal/page.tsx` ~183-215. Pasada la fecha (día de Uruguay), en lugar del contador: "¡Ya la festejaste!" (la
+  misma función del bloque 7). El día de la fiesta: "¡Es hoy!".
+- **"¡HOY ES EL EVENTO!" desde la noche anterior** en Planificar (`src/app/(app)/fiestas/nueva/page.tsx` ~837-840): la
+  cuenta usa `new Date(fechaEvento)` en hora de Greenwich. Compará días con `hoyEnUruguay()`.
+- **El calendario de redes se puede caer con una red desconocida:** `src/components/social-media/SocialMediaCalendar.tsx`
+  ~76-88 (`platformIcons[post.platform]` y `platformStyles[post.platform].match`): respaldo de ícono y de estilo.
+
 ## Pruebas
 
 - `src/__tests__/el-calendario-lleva-la-hora-de-uruguay.test.ts`: con `TZ` de Greenwich,
@@ -153,6 +179,10 @@ decide. Esa lista va igual en la entrega, con lo arreglado y lo que no.
 - `src/__tests__/el-portal-no-anuncia-el-gran-dia-despues.test.ts`: con hoy = 12/11/2026 y fiesta el 15/10/2026, el
   texto es "¡Ya la festejaste!"; con la fiesta hoy, "¡Llegó el gran día!". Sacá la decisión a una función en
   `src/lib/portal/cuenta-regresiva.ts` para poder probarla.
+- `src/__tests__/el-titulo-hereda-el-color-de-su-tarjeta.test.tsx`: `<Card className="bg-slate-900 text-white"><CardTitle>X</CardTitle></Card>`
+  no le pone al título ninguna clase `text-foreground`.
+- `src/__tests__/el-portal-no-anuncia-el-gran-dia-despues.test.ts` (sumá): la cuenta de la invitación y la del portal, con la
+  fiesta pasada, dicen "¡Ya la festejaste!".
 - `tests/e2e/en-vivo-se-lee-en-el-celular.spec.ts`: a 390 px, en `/fiestas/nueva/en-vivo?fiestaId=<fiesta de prueba>`
   (helper `tests/e2e/helpers/fiesta-de-prueba.ts`), ninguna pestaña se superpone con la de al lado (sus cajas no se
   cruzan) y el título "Recepción" tiene un color distinto del fondo de su tarjeta.
@@ -179,4 +209,9 @@ prueba: src/__tests__/el-portal-no-anuncia-el-gran-dia-despues.test.ts
 prueba: tests/e2e/en-vivo-se-lee-en-el-celular.spec.ts
 prueba: tests/e2e/el-error-de-la-invitacion-se-lee.spec.ts
 archivo: docs/evidencias/285-enlaces-con-datos-guardados.md
+no-usa: tracking-normal text-foreground en src/components/ui/card.tsx
+usa: grid-cols-2 sm:grid-cols-3 en src/app/(app)/centro-de-control/page.tsx
+usa: hoyEnUruguay en src/app/(app)/fiestas/nueva/page.tsx
+usa: hoyEnUruguay en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+prueba: src/__tests__/el-titulo-hereda-el-color-de-su-tarjeta.test.tsx
 ```
