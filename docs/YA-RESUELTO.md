@@ -5,6 +5,9 @@
 - `abrirAccesoAuditor` y `cerrarAccesoAuditor` comparaban `perfil !== 'dueno'` a mano; la cuenta del dueño es de antes de
   los perfiles (rol `admin`, sin perfil guardado) y quedaba afuera. Ahora usan `perfilDe`, como el resto de la app. Lo frena
   `el-acceso-de-auditor-vence.test.ts` (comprobado en rojo con la comparación vieja).
+- **Y la tarjeta seguía sin aparecer:** se escondía sola ante cualquier falla al leer el estado, sin decir nada.
+  `obtenerEstadoAuditor` ahora usa el mismo control que abrir y cerrar (`perfilDe === 'dueno'`), devuelve `esDueno`, el
+  historial que no se puede leer ya no tumba todo, y la pantalla muestra la tarjeta con el motivo si algo falla.
 
 ## 12/11/2026 - Órdenes 280 y 281: fotos con el estilo AK y subida a Wfolio
 

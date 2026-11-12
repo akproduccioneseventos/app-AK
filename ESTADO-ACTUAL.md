@@ -1,25 +1,25 @@
-# Estado actual — 11 de noviembre de 2026
+# Estado actual — 12 de noviembre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la 1383.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la 1389.
 
 ## Publicado
-- **1383:** órdenes 270 a 272. Tragos por temporada, aviso de presupuesto abierto, recontacto sin promesa falsa,
-  "tu fiesta en números" en el portal, reglas de la IA con turno, y el AK Editor (programa local + sección "Edición de
-  videos"). Claude arregló en la revisión: el guardado general que caía a disco sin credenciales, el buzón abierto sin
-  sesión, el portal que no compilaba y el atajo para pruebas del editor.
-- **1380:** Codex 777 (históricos, respaldo público, Club Uruguay a $16.900).
+- **1389:** órdenes 280 y 281 (estilo AK de fotos, editor liviano) y el arreglo para que el dueño con cuenta vieja
+  pueda abrir y cerrar el acceso del auditor (Usuarios → "Auditoría externa").
+- **1388:** órdenes 273 a 279 revisadas (auditor de sólo lectura, claves comparadas de forma segura, la web no pierde
+  lo que eligió el prospecto).
+- **1386:** Next.js 15.5.29 y preguntas 113-116 del método. **1384:** WhatsApp de los catálogos, editor, blog.
 
-## Para Gemini
-- **Orden 273:** el Video de Vida armado solo, como modo del AK Editor.
-- **Orden 269 sigue abierta:** la decoración puede pagarle dos veces a la IA (la prueba con emulador da 2 llamadas).
-  Se corre con el emulador en el puerto 8085 (ver la orden).
-- El agregado de Gemini en la rama 270 (`c93f2d0d6`, manifiestos en `public/`) NO se tomó: repetía lo ya hecho y
-  volvía a meter un manifiesto que choca con `src/app/manifest.ts`.
+## Para Gemini (todas en la principal, arranca de `main`)
+- **Orden 282:** la presencia digital trabaja sola (contestar, ocultar negativos, publicar a las 12 h).
+  El bloque 1 necesita que el dueño inicie sesión en Facebook/Instagram desde su PC.
+- **Orden 283:** la app interna simple y de celular (un solo inicio, menú corto + "Más", ajustes con buscador).
+- **Orden 278, bloque 1:** crear la clave del despertador en Firebase (App Hosting `cron-secret` y la de funciones
+  `CRON_SECRET`) desde la PC del dueño; recién ahí se vuelve a exigir en `cron-despachador`.
+- **Orden 277, bloque 13:** la presentación lleva las entradas, con su prueba de navegador que ande.
+- **Orden 269:** la decoración puede pagarle dos veces a la IA.
 
 ## Decisiones pendientes del dueño
-- 15% de contratos nuevos: fijo o acumulativo. Panel del cliente: ajuste de entrada o año a año.
-- Play Store: falta la huella SHA-256.
-- Mejoras propuestas sin decidir: estilo unificado, WhatsApp del invitado en la fotocabina, GIF en la fotocabina, aviso antes de que venza la promo.
+- 15% de contratos nuevos: fijo o acumulativo. Play Store: falta la huella SHA-256.
 
 ## Errores de plata y permisos abiertos
-- Ninguno conocido.
+- Ninguno conocido. (El despertador sin clave sigue con el freno de concurrencia hasta el bloque 1 de la 278.)
