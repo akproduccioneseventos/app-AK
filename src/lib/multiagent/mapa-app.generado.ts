@@ -470,6 +470,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/settings/contratos/clausulas",
     "/settings/cupones",
     "/settings/datos",
+    "/settings/estilo-fotos",
     "/settings/feature-flags",
     "/settings/feedback",
     "/settings/google-workspace",

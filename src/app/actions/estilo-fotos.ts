@@ -149,7 +149,13 @@ export async function obtenerEstadoEstiloFotosAK(): Promise<{
   configurado: boolean;
   actualizadoEn?: string;
   estilo: EstiloFotosAKNumerico | null;
+  error?: string;
 }> {
+  const auth = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!auth.ok) {
+    return { configurado: false, estilo: null, error: auth.error };
+  }
+
   try {
     const raw = await readGenericJsonFile(ESTILO_FOTOS_AK_FILE);
     if (!raw) return { configurado: false, estilo: null };
