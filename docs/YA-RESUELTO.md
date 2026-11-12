@@ -8,6 +8,12 @@
 - **Y la tarjeta seguía sin aparecer:** se escondía sola ante cualquier falla al leer el estado, sin decir nada.
   `obtenerEstadoAuditor` ahora usa el mismo control que abrir y cerrar (`perfilDe === 'dueno'`), devuelve `esDueno`, el
   historial que no se puede leer ya no tumba todo, y la pantalla muestra la tarjeta con el motivo si algo falla.
+- **Abrir el acceso con el correo de alguien del equipo convertía esa cuenta en auditor** (le cambiaba la clave y le
+  sacaba los permisos). Ahora `abrirAccesoAuditor` sólo reabre una cuenta que ya era de auditor; con otro correo del
+  equipo dice que use uno distinto. Lo frena `el-acceso-de-auditor-vence.test.ts` (comprobado en rojo sin el control).
+- **La cuenta que ya quedó convertida se recupera sola:** al entrar con la clave del dueño (la guardada o la maestra), una
+  cuenta de auditor creada antes de abrirse el acceso vuelve a ser del dueño y la sesión del auditor deja de valer. Con la
+  clave que generó la tarjeta no se repara, y un auditor de verdad nunca pasa a dueño (`esCuentaDelEquipoConvertidaEnAuditor`).
 
 ## 12/11/2026 - Órdenes 280 y 281: fotos con el estilo AK y subida a Wfolio
 

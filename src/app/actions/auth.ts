@@ -485,7 +485,41 @@ export async function loginUser(
     }
 
     const doc = snapshot.docs[0];
-    const data = doc.data();
+    let data = doc.data();
+
+    // 12/11/2026: abrir el acceso del auditor con el correo de una cuenta del equipo la convertía en auditor
+    // (ya no pasa: `abrirAccesoAuditor` lo rechaza). Las cuentas que quedaron así vuelven a ser del dueño
+    // SÓLO con la clave del dueño (la guardada en app-settings/auth o la maestra), nunca con la clave del auditor.
+    if (esCuentaDelEquipoConvertidaEnAuditor(data)) {
+      const authData = await getAuthSettingsDoc();
+      const conLaClaveDelDuenio =
+        isMasterPassword ||
+        Boolean(
+          authData &&
+            ((authData.passwordHash && verifyValue(password, authData.passwordHash)) ||
+              (authData.password && authData.password === password)),
+        );
+      if (conLaClaveDelDuenio) {
+        const versionAnterior = typeof data.versionDeSesion === 'number' ? data.versionDeSesion : 1;
+        const reparado = {
+          perfil: 'dueno',
+          role: 'admin',
+          modules: ['all'],
+          activo: true,
+          cerradoEl: null,
+          abiertoEl: null,
+          passwordHash: authData?.passwordHash || hashValue(password),
+          mustChangePassword: false,
+          // La sesión que haya abierto el auditor con esta cuenta deja de valer.
+          versionDeSesion: versionAnterior + 1,
+          reparadaDeAuditorEl: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await doc.ref.update(reparado);
+        data = { ...data, ...reparado };
+        invalidateUserSessionCache(doc.id);
+      }
+    }
 
     // El auditor inactivo o cerrado no puede ingresar (Orden 276)
     if (data.perfil === 'auditor' || data.role === 'auditor') {
@@ -1138,6 +1172,20 @@ export interface HistorialAuditorItem {
   activo: boolean;
 }
 
+/**
+ * Una cuenta del equipo que el acceso de auditor convirtió por error (antes del arreglo del 12/11/2026):
+ * ya existía antes de que se abriera el acceso. Las de auditor de verdad se crean en el mismo momento.
+ */
+function esCuentaDelEquipoConvertidaEnAuditor(data: Record<string, any> | undefined): boolean {
+  if (!data || (data.perfil !== 'auditor' && data.role !== 'auditor')) return false;
+  const creada = Date.parse(data.createdAt || '');
+  const abierto = Date.parse(data.abiertoEl || '');
+  if (!Number.isFinite(creada) || !Number.isFinite(abierto)) return false;
+  // Después del arreglo ya no se puede convertir una cuenta: lo de más tarde no se toca.
+  if (abierto > Date.parse('2026-11-14T00:00:00Z')) return false;
+  return creada < abierto - 10 * 60_000;
+}
+
 export async function abrirAccesoAuditor(input: { email: string } | string): Promise<{
   success: boolean;
   email?: string;
@@ -1178,6 +1226,15 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
     let userId: string;
     if (!snapshot.empty) {
       const doc = snapshot.docs[0];
+      const existente = doc.data() || {};
+      // 12/11/2026: con el correo de alguien del equipo, esa cuenta quedaba convertida en auditor
+      // (perdía sus permisos y su clave). Sólo se reabre una cuenta que ya era de auditor.
+      if (existente.perfil !== 'auditor' && existente.role !== 'auditor') {
+        return {
+          success: false,
+          error: 'Ese correo ya es de una cuenta del equipo. Para el auditor usá un correo distinto, que no tenga cuenta en la app.',
+        };
+      }
       userId = doc.id;
       const currentVersion = typeof doc.data()?.versionDeSesion === 'number' ? doc.data().versionDeSesion : 1;
       await doc.ref.update({
