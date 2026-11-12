@@ -148,7 +148,7 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
     });
 
     // Buscar y tocar botón de auto-asignación con IA
-    const btnAutoAcomodar = page.getByRole('button', { name: /Auto-Acomodar|IA/i });
+    const btnAutoAcomodar = page.getByRole('button', { name: /Auto-Acomodar/i });
     if (await btnAutoAcomodar.isVisible()) {
       await btnAutoAcomodar.click();
 
