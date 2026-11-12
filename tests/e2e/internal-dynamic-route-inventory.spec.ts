@@ -199,7 +199,8 @@ test('every dynamic internal route responds with representative local data', asy
   // 34 = las 33 de antes mas el Tablero de la noche
   // (`/fiestas/[id]/entretenimiento/control`), desde donde el operador ve todas
   // las estaciones juntas y cuantas capturas lleva cada una.
-  expect(routes).toHaveLength(34);
+  // 35 desde el 12/11/2026: la ficha de la fiesta `/fiestas/[id]` (entrega 1385, botones "Ver como el cliente").
+  expect(routes).toHaveLength(35);
 
   await context.addCookies([
     {
