@@ -120,7 +120,7 @@ que pisa el fondo: un `layout` o un estilo general del tramo `invitacion`). Abri
 **Qué se hace:** que el fondo oscuro se vea de verdad (o, si el fondo tiene que ser claro, título y enlace oscuros), y que
 "Ir al inicio" sea un botón visible de 44 px.
 
-## Bloque 11 — "XV aÃ±os" y "PLANIFICACIÃ³N" en el ciclo comercial (P3)
+## Bloque 11 — Letras raras en lugar de tildes y eñes en el ciclo comercial (P3)
 
 **Hoy:** el texto viene roto desde los datos importados; la pantalla (`src/app/(app)/contabilidad/crm/ciclo-comercial/page.tsx`
 ~103-106) lo muestra tal cual. Ya existe `cleanMojibakeString` en `src/lib/text/mojibake.ts:86`.
