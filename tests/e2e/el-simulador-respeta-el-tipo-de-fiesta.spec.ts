@@ -6,7 +6,8 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
     await page.goto('/simulador-de-presupuesto?tipo=boda', { waitUntil: 'domcontentloaded' });
 
     const coverStart = page.getByTestId('simulator-cover-start');
-    if (await coverStart.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // isVisible no espera: con la máquina cargada la portada aparecía después y "Continuar" no existía nunca.
+    if (await coverStart.waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false)) {
       await coverStart.click();
     }
     await page.getByRole('button', { name: /Continuar/i }).click();
@@ -22,7 +23,8 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
     await page.goto('/simulador-de-presupuesto?tipo=XV%20a%C3%B1os', { waitUntil: 'domcontentloaded' });
 
     const coverStart = page.getByTestId('simulator-cover-start');
-    if (await coverStart.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // isVisible no espera: con la máquina cargada la portada aparecía después y "Continuar" no existía nunca.
+    if (await coverStart.waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false)) {
       await coverStart.click();
     }
     await page.getByRole('button', { name: /Continuar/i }).click();
