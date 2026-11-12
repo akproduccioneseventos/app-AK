@@ -12,11 +12,13 @@ async function llegarAlSelectorDeTipo(page: Page) {
     if (await selector.isVisible()) return;
     const botones = [
       page.getByTestId('simulator-cover-start'),
-      page.getByRole('button', { name: /Armar mi presupuesto|Continuar/i }).first(),
+      page.getByTestId('simulator-first-step-cta'),
+      page.getByRole('button', { name: /Continuar/i }).first(),
     ];
     for (const boton of botones) {
       if ((await boton.isVisible()) && (await boton.isEnabled())) {
-        await boton.click({ timeout: 2000 }).catch(() => {});
+        // force: el botón se agranda al pasar el mouse y Playwright esperaba que se quedara quieto.
+        await boton.click({ timeout: 3000, force: true }).catch(() => {});
         break;
       }
     }
