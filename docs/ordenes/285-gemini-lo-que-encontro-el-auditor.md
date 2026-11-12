@@ -138,7 +138,7 @@ deshabilita con el motivo, no lleva a un error. Lo que toque plata, cobros o per
 `docs/evidencias/285-enlaces-con-datos-guardados.md` (una línea por caso: archivo, línea, qué pide el destino) y Claude
 decide. Esa lista va igual en la entrega, con lo arreglado y lo que no.
 
-## Bloque 13 — Lo que salió al buscar las mismas formas en toda la app (barrido de Claude, 12/11/2026)
+## Bloque 13 — Barrido en toda la app: lo que salió al buscar las mismas formas (Claude, 12/11/2026)
 
 - **Títulos invisibles en unas 15 pantallas, con una sola causa:** `CardTitle` (`src/components/ui/card.tsx` ~45) fuerza
   `text-foreground` (casi negro), así que dentro de una tarjeta oscura con `text-white` el título no hereda el blanco.
