@@ -4,8 +4,7 @@
 **Una sola propuesta, sin fusionar.** Repasá `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 95.
 
 **Lo que ya hizo Claude y no se toca:** el respaldo automático no se guardaba nunca porque esperaba una lista en
-`galeria-publica.json` y `carga-operativa-templates.json`, que son objetos (`src/lib/backup/backup-registry.ts`); la
-lectura ahora dice el motivo cuando la forma no coincide (`src/lib/data-service.ts`). Control:
+`galeria-publica.json` y `carga-operativa-templates.json`, que son objetos (`src/lib/backup/backup-registry.ts`). Control:
 `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts`.
 
 **Fuera de esta orden** (sólo el dueño, desde su cuenta): el saldo de Gemini, y prender las tareas programadas de Firebase
@@ -52,6 +51,15 @@ del medio están vacías.
 - `src/app/post-fiesta/[fiestaId]/page.tsx` ~97: "Facilidad de acceso a wfolio y Google Drive…" → "Te pasamos el enlace a
   tu carpeta para bajar todo en alta calidad." (sin Google Drive: no está integrado).
 
+## Bloque 4 — El simulador en el celular tarda en responder a los toques (P2)
+
+En la verificación completa (con la máquina cargada), `/simulador-de-presupuesto?tipo=boda` en el celular muestra el paso
+1 y **ningún botón responde durante más de 60 segundos** ("Armar mi presupuesto", "Continuar"); sola, la prueba pasa. Medí
+cuánto tarda la página en quedar lista para tocar (`src/app/simulador-de-presupuesto/page.tsx`, más de 2.000 líneas en un
+solo componente) y bajalo: partir la página en pasos que se cargan cuando se llega a ellos (`next/dynamic`). Y arreglá la
+prueba `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts`: la portada con `isVisible({ timeout })` no espera (ese
+`timeout` no hace nada) y con `?tipo=` el celular arranca en el paso 1, donde el botón es `simulator-first-step-cta`.
+
 ## Pruebas
 
 - `tests/e2e/presupuestos-abre-rapido.spec.ts`: a 390 px, la lista de presupuestos aparece **antes** de que termine la
@@ -63,6 +71,7 @@ del medio están vacías.
   es de Wfolio; con `?wfolioUrl=` el campo aparece lleno.
 
 ```comprobar
+usa: simulator-first-step-cta en tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
 no-usa: await withTimeout(repairVerifiedBudgetDates() en src/app/(app)/presupuestos/nuevo/page.tsx
 usa: buildWfolioDelivery en src/app/(app)/fiestas/[id]/centro/page.tsx
 no-usa: wfolio y Google Drive en src/app/post-fiesta/[fiestaId]/page.tsx

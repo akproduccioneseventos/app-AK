@@ -18,8 +18,7 @@ prueba: src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts
 - **El arreglo de la mañana no la curó** (el contador siguió de 338 a 340). La causa la reprodujo el auditor: la lista de lo
   que se respalda decía que `galeria-publica.json` y `carga-operativa-templates.json` eran listas, y en la base son
   objetos. La lectura marcaba "falla" sin motivo y el respaldo entero se cancelaba.
-- **Qué se hizo:** las dos entradas de `src/lib/backup/backup-registry.ts` esperan objeto, y `readDataConDetalle` dice el
-  motivo cuando la forma no coincide. Lo frena `el-respaldo-espera-la-forma-que-se-guarda.test.ts`, que compara la forma
+- **Qué se hizo:** las dos entradas de `src/lib/backup/backup-registry.ts` esperan objeto. Lo frena `el-respaldo-espera-la-forma-que-se-guarda.test.ts`, que compara la forma
   de cada archivo del respaldo con la forma con que lo usa la app (comprobado en rojo con la entrada vieja).
 
 ```comprobar

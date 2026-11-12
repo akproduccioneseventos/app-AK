@@ -174,13 +174,13 @@ export async function readDataConDetalle<T>(
     const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true, propagarErrores: true, tiempoMs: tiempoDeConsulta }), normalizedFilePath, vence);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
-        return { valor: defaultValue, huboFalla: true, motivo: 'se esperaba una lista y en la base hay un objeto' };
+        return { valor: defaultValue, huboFalla: true };
       return { valor: data as T, huboFalla: false };
     }
     const genericData = await conTopeDeLectura(readGenericJsonFile(normalizedFilePath), normalizedFilePath, vence);
     if (genericData !== null && genericData !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(genericData))
-        return { valor: defaultValue, huboFalla: true, motivo: 'se esperaba una lista y en la base hay un objeto' };
+        return { valor: defaultValue, huboFalla: true };
       return { valor: genericData as T, huboFalla: false };
     }
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
@@ -199,7 +199,7 @@ export async function readDataConDetalle<T>(
       const genericData = await conTopeDeLectura(readGenericJsonFile(normalizedFilePath), normalizedFilePath, vence);
       if (genericData !== null && genericData !== undefined) {
         if (Array.isArray(defaultValue) && !Array.isArray(genericData))
-          return { valor: defaultValue, huboFalla: true, motivo: 'se esperaba una lista y en la base hay un objeto' };
+          return { valor: defaultValue, huboFalla: true };
         return { valor: genericData as T, huboFalla: true, motivo };
       }
     } catch {
