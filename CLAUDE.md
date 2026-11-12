@@ -1423,6 +1423,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La presencia digital trabaja sola (12 de noviembre de 2026).** Palabras suyas: *"publica automático, no me da el tiempo… control exhaustivo de toda mi presencia digital"*. Cambia dos decisiones de antes: **los comentarios negativos y las quejas también se ocultan solos** (ocultar es reversible; borrar no se hace nunca solo) y se le avisa en el momento; y **los borradores se publican solos** si en 12 horas no tocó "No publicar" (sólo fotos con permiso de promoción). Orden 282.
+
 - **Resolver todo sin consultarle (12 de noviembre de 2026).** Palabras suyas: *"resolvé todo lo que tengas para resolver… déjate de ponerme cosas, que te quede como regla"*. Lo técnico (claves, esperas, controles que frenan, entregas rotas) se resuelve sin preguntarle ni explicarle. Al dueño sólo le llega: lo que quedó publicado, y lo que **sólo él** puede hacer (con su sesión o su teléfono), en una línea.
 
 - **La seña, la multa, la filmación y Club Uruguay (11 de noviembre de 2026).** La seña es **$5.000 y se cambia en
