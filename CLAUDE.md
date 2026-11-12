@@ -1964,6 +1964,7 @@ con otra cara.
 | Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
 | El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
 | Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
+| Revertir un ajuste de precios dejaba el catálogo en negativo, y se aceptaba bajar -200% | `src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -88,6 +88,13 @@ const FORMAS = [
     buscar: /await\s+(?:withTimeout\(\s*)?(?:repair|migrate|reparar|migrar)\w*\(/g,
     comoSeArregla: 'Mostrar primero y correr la corrección después, sin esperarla, o una sola vez.',
   },
+  {
+    pregunta: 128,
+    nombre: 'El booleano que no puede volver a falso',
+    porque: 'isCeliac se calculaba "=== Celiaco || inv.isCeliac": pasar a "Ninguna" dejaba al invitado celíaco para la cocina (auditor, 12/11/2026).',
+    buscar: /===\s*'[^']+'\s*\|\|\s*\w+\.is[A-Z]\w*/g,
+    comoSeArregla: 'Calcular el campo sólo del valor nuevo; si el valor nuevo no vino, conservar los dos campos juntos.',
+  },
 ];
 
 /**
@@ -103,6 +110,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   123: 'Forma esperada contra forma guardada: src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts.',
   125: 'IA que cae al respaldo sin avisar: prueba la-ia-que-cae-al-respaldo-avisa (orden 291), con la anotación de raíz en genkit.',
   126: 'Lo que incluye un paquete sale de los datos: prueba sofia-no-inventa-los-paquetes (orden 291).',
+  127: 'Bajas que no llegan a la base: raíz en firebase-sync, pruebas borrar-el-ultimo-queda-borrado y sacar-un-dato-lo-saca-de-la-base (orden 292).',
 };
 
 

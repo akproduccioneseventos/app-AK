@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - Revertir un ajuste de precios dejaba el catálogo en negativo (prueba funcional del auditor)
+
+- **Qué pasaba:** la cuenta del porcentaje inverso multiplicaba de más por 100: revertir un +10% aplicaba -909% y un
+  precio de 100 terminaba en -890. Y `adjustAllServicePrices` / `adjustAllServiceCosts` aceptaban -200%.
+- **Qué se hizo:** `porcentajeInverso` y `porcentajeDeAjusteValido` en `src/lib/precios/porcentaje-inverso.ts`, usados por
+  la reversión y por las dos acciones (no se acepta bajar 100% o más). Lo frena
+  `revertir-un-ajuste-vuelve-al-precio.test.ts`, comprobado en rojo con la cuenta vieja.
+
+```comprobar
+usa: porcentajeInverso en src/app/actions/price-adjustments.ts
+usa: porcentajeDeAjusteValido en src/app/actions/servicios-empresa.ts
+prueba: src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts
+```
+
 ## 12/11/2026 - Cada pregunta nueva del método se escanea sola
 
 - **Pedido del dueño:** *"todos los errores tienen que crear preguntas nuevas y automáticas, y escaneos automáticos"*. Las
