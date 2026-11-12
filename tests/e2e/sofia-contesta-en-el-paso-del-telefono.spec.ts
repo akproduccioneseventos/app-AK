@@ -43,11 +43,15 @@ test.describe('Orden 277 — Bloque 5: Sofía contesta en el paso del teléfono'
     await expect(inputChat).toBeVisible({ timeout: 15_000 });
 
     // Paso 1: Ingresar nombre para pasar al paso del teléfono
-    await inputChat.fill('Martín');
-    await inputChat.press('Enter');
-
-    // Esperar que se registre el nombre y el input quede listo para el teléfono
-    await expect(page.getByText('Martín')).toBeVisible({ timeout: 10_000 });
+    // En el celular, el primer Enter puede llegar antes de que la pantalla termine de cargar: se reintenta hasta que
+    // el nombre aparezca en el chat (si no se envía nunca, la prueba igual falla).
+    await expect(async () => {
+      if (!(await page.getByText('Martín').first().isVisible().catch(() => false))) {
+        await inputChat.fill('Martín');
+        await inputChat.press('Enter');
+      }
+      await expect(page.getByText('Martín').first()).toBeVisible({ timeout: 3_000 });
+    }).toPass({ timeout: 20_000 });
     await expect(inputChat).toBeEnabled({ timeout: 10_000 });
 
     // Paso 2: En lugar de un teléfono, hacer una pregunta con letras
