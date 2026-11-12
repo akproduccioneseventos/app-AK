@@ -72,17 +72,16 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Eventos');
     expect(text).toContain('Panel Contable');
-    expect(text).toContain('Facturas');
-    expect(text).not.toContain('Empleados');
-    expect(text).not.toContain('Ajustes Generales');
-    expect(text).not.toContain('Métricas del Negocio');
+    expect(text).toContain('Clientes');
+    expect(text).toContain('Pagos Rápidos');
+    expect(text).toContain('Más');
 
     cerrar();
   });
 
-  it('operador: ve Eventos Activos y Calendario, pero nada de plata', async () => {
+  it('operador: ve Eventos y Calendario, pero nada de plata', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.operador,
     });
@@ -93,20 +92,18 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Eventos');
     expect(text).toContain('Calendario');
     expect(text).toContain('Muro Social');
 
     expect(text).not.toContain('Panel Contable');
-    expect(text).not.toContain('Facturas');
     expect(text).not.toContain('Prospectos');
-    expect(text).not.toContain('Presupuestos');
     expect(text).not.toContain('Pagos Rápidos');
 
     cerrar();
   });
 
-  it('dueño: ve todos los módulos habilitados', async () => {
+  it('dueño: ve todos los módulos habilitados del menú corto (Orden 283)', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.dueno,
     });
@@ -117,12 +114,16 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
+    expect(text).toContain('Inicio');
+    expect(text).toContain('Eventos');
+    expect(text).toContain('Calendario');
+    expect(text).toContain('Muro Social');
+    expect(text).toContain('Prospectos');
+    expect(text).toContain('Presupuestos');
+    expect(text).toContain('Clientes');
+    expect(text).toContain('Pagos Rápidos');
     expect(text).toContain('Panel Contable');
-    expect(text).toContain('Facturas');
-    expect(text).toContain('Ajustes Generales');
-    expect(text).toContain('Marketing y Redes');
-    expect(text).toContain('Empleados');
+    expect(text).toContain('Más');
 
     cerrar();
   });

@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+﻿import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.PLAYWRIGHT_PORT || 3100);
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.replace(/\/$/, '');
@@ -67,7 +67,7 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
+        command: `npx next dev -H 127.0.0.1 -p ${port}`,
         url: `${baseURL}/api/health`,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,

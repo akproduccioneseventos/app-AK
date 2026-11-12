@@ -10,7 +10,7 @@
  */
 
 import type { PlatformName } from '@/types/presencia-digital';
-import type { SocialPost } from '@/types/social-media';
+import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
@@ -28,6 +28,9 @@ import { publishToUnifiedGateway } from '@/lib/social-media/unified-gateway-publ
 import { mejorHorario, type ResultadoMejorHorario } from '@/lib/presencia-digital/mejor-horario';
 import { getUruguayParts } from '@/lib/utils';
 import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { fotosPromocionalesDeFiesta } from '@/lib/asistente/comercial-borrador';
 
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
@@ -542,10 +545,220 @@ export interface CronPublicarResult {
  * 3. Máximo 3 intentos por posteo; si falla 3 veces queda marcado como 'Falló'.
  * 4. Las redes manuales (TikTok, Threads, X, WhatsApp) se marcan como 'Listo para copiar'.
  */
+const AJUSTES_PRESENCIA_FILE = 'presencia-digital-ajustes.json';
+
+export interface AjustesPublicarSolo {
+  activo: boolean;
+  publicarSolo?: boolean;
+  actualizadoAt?: string;
+}
+
+export async function getAjustesPublicarSolo(): Promise<AjustesPublicarSolo> {
+  const guardados = await readData<AjustesPublicarSolo>(AJUSTES_PRESENCIA_FILE, { activo: true });
+  const activo = guardados?.activo !== undefined
+    ? Boolean(guardados.activo)
+    : (guardados?.publicarSolo !== undefined ? Boolean(guardados.publicarSolo) : true);
+  return {
+    ...guardados,
+    activo,
+    publicarSolo: activo,
+  };
+}
+
+export async function setAjustesPublicarSolo(activo: boolean): Promise<AjustesPublicarSolo> {
+  const actuales = await getAjustesPublicarSolo();
+  const nuevos: AjustesPublicarSolo = {
+    ...actuales,
+    activo,
+    publicarSolo: activo,
+    actualizadoAt: new Date().toISOString(),
+  };
+  await writeData(AJUSTES_PRESENCIA_FILE, nuevos);
+  return nuevos;
+}
+
+export async function validarPermisoPromocionalPosteo(post: SocialPost): Promise<boolean> {
+  if (!post.mediaUrl && !post.eventId) return true;
+
+  if (post.eventId) {
+    if (typeof fotosPromocionalesDeFiesta !== 'function') {
+      return false;
+    }
+    const fotos = await fotosPromocionalesDeFiesta(post.eventId).catch(() => []);
+    if (!fotos || fotos.length === 0) {
+      return false;
+    }
+    if (post.mediaUrl) {
+      const encontrada = fotos.some((f) => f.url === post.mediaUrl || f.id === post.mediaUrl);
+      if (!encontrada) return false;
+    }
+    return true;
+  }
+
+  return true;
+}
+
+export async function enviarPreviewBorradorAlDuenio(post: SocialPost): Promise<boolean> {
+  try {
+    const settings = await readData<any>('asistente-settings.json', {}).catch(() => ({}));
+    const numeroDuenio = (settings?.numeroDuenio || '').replace(/\D/g, '') || AK_WHATSAPP_NUMBER;
+    const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
+    const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+
+    if (!apiToken || !phoneNumberId) return false;
+
+    const textoPost = post.text ? post.text.slice(0, 300) : 'Sin texto';
+    const mediaInfo = post.mediaUrl ? `\n📸 *Foto:* ${post.mediaUrl}` : '';
+    const mensaje = `📱 *Nuevo borrador para redes (${post.platform})*\n\n` +
+      `"${textoPost}"${mediaInfo}\n\n` +
+      `⏳ *Publicar solo:* se programará automáticamente en 12 horas salvo que lo descartes o marques "No publicar" en la app.`;
+
+    const res = await sendMetaWhatsAppMessage({
+      to: numeroDuenio,
+      text: mensaje,
+      apiToken,
+      phoneNumberId,
+    });
+    return res.success;
+  } catch {
+    return false;
+  }
+}
+
+function getUruguayDateString(date: Date): string {
+  const parts = getUruguayParts(date);
+  const m = String(parts.month).padStart(2, '0');
+  const d = String(parts.day).padStart(2, '0');
+  return `${parts.year}-${m}-${d}`;
+}
+
+export function calcularFechaProximaPublicacionSinSaturar(
+  posts: SocialPost[],
+  platform: SocialPlatform,
+  ahora: Date = new Date(),
+): string {
+  const mejorH = mejorHorario(posts, platform);
+  const fechaPropuesta = calcularProximaFechaMejorHorario(mejorH, ahora);
+
+  // Ritmo: máximo 1 publicación por día por red.
+  const postsDeRed = posts.filter((p) =>
+    p.platform === platform &&
+    (p.status === 'Programado' || p.status === 'Publicado') &&
+    p.publishDate
+  );
+
+  const diasOcupados = new Set(
+    postsDeRed.map((p) => getUruguayDateString(new Date(p.publishDate)))
+  );
+
+  let targetDate = new Date(fechaPropuesta);
+  while (diasOcupados.has(getUruguayDateString(targetDate))) {
+    targetDate = new Date(targetDate.getTime() + 24 * 60 * 60 * 1000);
+  }
+
+  return targetDate.toISOString();
+}
+
+export interface ProcesarBorradoresResult {
+  activo: boolean;
+  promocionados: string[];
+  esperando: string[];
+  descartados: string[];
+  rechazadosPorPermiso: string[];
+}
+
+/**
+ * Procesa borradores bajo la regla "Publicar solo" (Orden 282, Bloque 4):
+ * - Interruptor "Publicar solo" activo por defecto.
+ * - Espera 12 horas desde la creación del borrador (enviando preview al dueño por WhatsApp).
+ * - Si no fue marcado como 'No publicar' (descartado/cancelado) en 12h, pasa a 'Programado' en el mejor horario.
+ * - Valida permiso promocional en fotos (fotosPromocionalesDeFiesta).
+ * - Ritmo: máximo 1 publicación por día por red.
+ */
+export async function procesarBorradoresPublicarSolo(
+  ahora: Date = new Date(),
+): Promise<ProcesarBorradoresResult> {
+  const ajustes = await getAjustesPublicarSolo();
+  const resultado: ProcesarBorradoresResult = {
+    activo: ajustes.activo,
+    promocionados: [],
+    esperando: [],
+    descartados: [],
+    rechazadosPorPermiso: [],
+  };
+
+  if (!ajustes.activo) {
+    return resultado;
+  }
+
+  const posts = await readData<SocialPost[]>(POSTS_FILE, []);
+  const ahoraTime = ahora.getTime();
+  const doceHorasMs = 12 * 60 * 60 * 1000;
+  let huboCambios = false;
+
+  for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    const statusNorm = String(post.status || '').toLowerCase().trim();
+
+    // Si fue marcado como "No publicar" (descartado o cancelado)
+    const esNoPublicar =
+      ['descartado', 'cancelado', 'no publicar'].includes(statusNorm) ||
+      (post as any).noPublicar === true ||
+      (post as any).descartado === true;
+
+    if (esNoPublicar) {
+      resultado.descartados.push(post.id);
+      continue;
+    }
+
+    if (statusNorm !== 'borrador') {
+      continue;
+    }
+
+    const createdTime = new Date(post.createdAt).getTime();
+    const edadMs = Number.isNaN(createdTime) ? doceHorasMs : (ahoraTime - createdTime);
+
+    // Si tiene menos de 12 horas, sigue en borrador
+    if (edadMs < doceHorasMs) {
+      resultado.esperando.push(post.id);
+
+      if (!(post as any).previewEnviadaAlDuenioAt) {
+        await enviarPreviewBorradorAlDuenio(post).catch(() => false);
+        (post as any).previewEnviadaAlDuenioAt = ahora.toISOString();
+        huboCambios = true;
+      }
+      continue;
+    }
+
+    // Tiene 12 horas o más: validar permisos de fotos
+    const tienePermiso = await validarPermisoPromocionalPosteo(post);
+    if (!tienePermiso) {
+      resultado.rechazadosPorPermiso.push(post.id);
+      continue;
+    }
+
+    // Pasa a estado Programado en el mejor horario respetando ritmo máximo 1 por día
+    const fechaProgramada = calcularFechaProximaPublicacionSinSaturar(posts, post.platform, ahora);
+    post.status = 'Programado';
+    post.publishDate = fechaProgramada;
+    post.updatedAt = ahora.toISOString();
+    resultado.promocionados.push(post.id);
+    huboCambios = true;
+  }
+
+  if (huboCambios) {
+    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
+  }
+
+  return resultado;
+}
+
 export async function procesarPosteosProgramados(
   maxPorCorrida = MAX_POR_CORRIDA_DEFAULT,
   ahora = new Date()
 ): Promise<CronPublicarResult> {
+  // Procesar borradores elegibles para "Publicar solo"
+  await procesarBorradoresPublicarSolo(ahora).catch(() => null);
   const posts = await readData<SocialPost[]>(POSTS_FILE, []);
   const ahoraTime = ahora.getTime();
 

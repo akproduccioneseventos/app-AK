@@ -16,44 +16,17 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
-  Settings,
   Users,
   KanbanSquare,
   FileText,
   CalendarDays,
-  Wand2,
   PartyPopper,
   Wallet,
   Bell,
-  MessageCircle,
-  ChefHat,
-  Package,
-  Briefcase,
-  BarChart3,
-  DoorOpen,
-  Send,
-  ShieldCheck,
-  Building2,
-  Camera,
-  AlertTriangle,
-  ClipboardList,
-  CheckSquare,
-  Zap,
-  Link as LinkIcon,
-  ShoppingCart,
-  Wheat,
-  Scale,
-  HardHat,
   SunMedium,
-  Users2,
-  TrendingUp,
-  Target,
-  Tv,
-  Tag,
-  Bot,
-  Cpu,
-  Video,
+  BarChart3,
+  Camera,
+  LayoutGrid,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -106,80 +79,101 @@ export function puedeVerEntradaMenu(
 }
 
 /**
- * Las tres puertas de la app (Mi Día, Fiestas, La Empresa) + Configuración en el pie.
- * No se pierde ninguna entrada: cada destino conserva su ruta exacta.
+ * Las cinco puertas simples de la app (Inicio, Fiestas, Vender, Plata, Más) (Orden 283).
+ * Lo demás pasa a /mas y a Ajustes; las direcciones se conservan intactas.
  */
 export const navGroups: NavGroup[] = [
   {
-    label: "Mi Día",
+    label: "Inicio",
     emoji: "☀️",
     items: [
-      { title: "Centro de Control", href: "/centro-de-control", icon: Bot, highlight: true, permiso: PERMISOS.ADMINISTRACION, active: (pathname) => isPathActive(pathname, "/centro-de-control") },
-      { title: "Mi Día", href: "/mi-dia", icon: SunMedium, highlight: true, active: (pathname) => isPathActive(pathname, "/mi-dia") || isPathActive(pathname, "/repaso-diario") },
+      {
+        title: "Inicio",
+        href: "/mi-dia",
+        icon: SunMedium,
+        highlight: true,
+        active: (pathname) => isPathActive(pathname, "/mi-dia") || pathname === "/centro-de-control" || pathname === "/admin",
+      },
     ],
   },
   {
     label: "Fiestas",
     emoji: "🎉",
     items: [
-      { title: "Eventos Activos", href: "/eventos", icon: PartyPopper, active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas") },
-      { title: "Calendario", href: "/calendario", icon: CalendarDays },
-      { title: "Muro Social", href: "/empresa/red-social-eventos", icon: Camera },
-      { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
-      { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
-      { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
-      { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
-      { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2, permiso: PERMISOS.ORGANIZACION },
-      { title: "Edición de Videos", href: "/edicion-videos", icon: Video, permiso: PERMISOS.ADMINISTRACION },
+      {
+        title: "Eventos",
+        href: "/eventos",
+        icon: PartyPopper,
+        active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas"),
+      },
+      {
+        title: "Calendario",
+        href: "/calendario",
+        icon: CalendarDays,
+      },
+      {
+        title: "Muro Social",
+        href: "/empresa/red-social-eventos",
+        icon: Camera,
+      },
     ],
   },
   {
-    label: "La Empresa",
-    emoji: "🏢",
+    label: "Vender",
+    emoji: "💼",
     items: [
-      { title: "Gestión de Empresa", href: "/empresa", icon: Building2, highlight: true, active: (pathname) => pathname === "/empresa" },
-
-      // 1. Vender
-      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, subgroup: "Vender", permiso: PERMISOS.CRM, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
-      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, permiso: PERMISOS.CRM, active: (pathname) => isPathActive(pathname, "/presupuestos") },
-      { title: "Clientes", href: "/customers", icon: Users, subgroup: "Vender", permiso: PERMISOS.CRM },
-      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2, subgroup: "Vender" },
-
-      // 2. Plata
-      { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, subgroup: "Plata", highlight: true, permiso: PERMISOS.CONTABILIDAD },
-      { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
-      { title: "Facturas", href: "/invoices", icon: FileText, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
-      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
-      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp, subgroup: "Plata", permiso: PERMISOS.GANANCIAS },
-
-      // 3. Recursos
-      { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
-      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
-      { title: "Salones", href: "/empresa/salones", icon: DoorOpen, subgroup: "Recursos" },
-      { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package, subgroup: "Recursos" },
-      { title: "Proveedores", href: "/proveedores", icon: Building2, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
-      { title: "Empleados", href: "/empleados", icon: Briefcase, subgroup: "Recursos", permiso: PERMISOS.ADMINISTRACION },
-
-      // 4. Marketing
-      { title: "Marketing y Redes", href: "/marketing", icon: Target, subgroup: "Marketing", highlight: true, permiso: PERMISOS.CRM },
-      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, subgroup: "Marketing", permiso: PERMISOS.CRM },
-      { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv, subgroup: "Marketing" },
+      {
+        title: "Prospectos",
+        href: "/contabilidad/crm",
+        icon: KanbanSquare,
+        permiso: PERMISOS.CRM,
+        active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads"),
+      },
+      {
+        title: "Presupuestos",
+        href: "/presupuestos/nuevo",
+        icon: FileText,
+        highlight: true,
+        permiso: PERMISOS.CRM,
+        active: (pathname) => isPathActive(pathname, "/presupuestos"),
+      },
+      {
+        title: "Clientes",
+        href: "/customers",
+        icon: Users,
+        permiso: PERMISOS.CRM,
+      },
     ],
   },
   {
-    label: "Configuración",
-    emoji: "⚙️",
+    label: "Plata",
+    emoji: "💵",
     items: [
-      { title: "Ajustes Generales", href: "/settings", icon: Settings, permiso: PERMISOS.ADMINISTRACION, active: (pathname) => pathname === "/settings" },
-      { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon, permiso: PERMISOS.ADMINISTRACION },
-      { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
-      { title: "Promociones", href: "/settings/promos", icon: Tag, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu, permiso: PERMISOS.ADMINISTRACION },
-      { title: "Laboratorio Experimental", href: "/settings/feature-flags", icon: Wand2, permiso: PERMISOS.ADMINISTRACION },
+      {
+        title: "Pagos Rápidos",
+        href: "/pagos-rapidos",
+        icon: Wallet,
+        highlight: true,
+        permiso: PERMISOS.CONTABILIDAD,
+      },
+      {
+        title: "Panel Contable",
+        href: "/empresa/contabilidad",
+        icon: BarChart3,
+        permiso: PERMISOS.CONTABILIDAD,
+      },
+    ],
+  },
+  {
+    label: "Más",
+    emoji: "✨",
+    items: [
+      {
+        title: "Más",
+        href: "/mas",
+        icon: LayoutGrid,
+        active: (pathname) => isPathActive(pathname, "/mas"),
+      },
     ],
   },
 ];
@@ -189,12 +183,6 @@ export function obtenerGruposMenuPorPerfil(
 ): NavGroup[] {
   if (!user) return [];
   return navGroups
-    .filter((group) => {
-      if (group.label === "Configuración" && !puede(user, PERMISOS.ADMINISTRACION)) {
-        return false;
-      }
-      return true;
-    })
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => puedeVerEntradaMenu(item, user)),
@@ -254,7 +242,6 @@ export function MainNav() {
     };
   }, [refreshAlertCount]);
 
-  const isExactly = (path: string) => pathname === path;
   const isActive = (item: NavItem) => item.active ? item.active(pathname) : isPathActive(pathname, item.href);
 
   const visibleGroups = useMemo(() => {
@@ -274,7 +261,7 @@ export function MainNav() {
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">
       <SidebarHeader className="p-6">
-        <Link href="/admin">
+        <Link href="/mi-dia">
           <div className="flex items-center justify-center gap-2 cursor-pointer py-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100/60 hover:border-indigo-200/80 transition-all duration-300 shadow-sm shadow-indigo-100/50">
             <AppLogo />
           </div>
@@ -282,26 +269,6 @@ export function MainNav() {
       </SidebarHeader>
 
       <SidebarContent className="px-5 gap-6 scrollbar-hide">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={isExactly("/admin")}
-              tooltip="Centro de Control"
-              className={cn(
-                "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
-                isExactly("/admin") ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-600 hover:bg-slate-100/80"
-              )}
-            >
-              {/* El panel del equipo, no la web pública (pedido del dueño, 9/10/2026). */}
-              <Link href="/admin">
-                <LayoutDashboard className="w-4 h-4 text-indigo-500" />
-                <span className="ml-2">Centro de Control</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-
         {visibleGroups.map((group) => {
           let lastSubgroup = "";
           return (

@@ -278,18 +278,13 @@ export async function processDecorationDraft(): Promise<{ processed: boolean; er
 
       recortesFoto++;
       try {
-        let generatedBase64: string | null = null;
-        try {
-          generatedBase64 = await generateGeminiImage({
-            prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
-            images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
-          });
-        } finally {
-          // El pedido a la IA se paga salga bien o mal: se cuenta siempre, una vez.
-          await registrarConsumoIA('recorte-decoracion');
-        }
+        const generatedBase64 = await generateGeminiImage({
+          prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
+          images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
+        });
 
         if (!generatedBase64) continue;
+        await registrarConsumoIA('recorte-decoracion');
 
         const buffer = Buffer.from(generatedBase64, 'base64');
         if (buffer.length > 4 * 1024 * 1024) continue;

@@ -94,6 +94,9 @@ function EntradaCard({
         <div className="flex items-start gap-3 mb-2">
           {/* Select toggle */}
           <button
+            type="button"
+            data-testid={`toggle-entrada-${entrada.id}`}
+            aria-label={`Seleccionar ${entrada.name}`}
             onClick={onToggle}
             className={cn(
               'shrink-0 h-8 w-8 rounded-full border-2 flex items-center justify-center mt-0.5 transition-all',
@@ -103,7 +106,7 @@ function EntradaCard({
             {isSelected && <Check className="h-4 w-4 text-white" />}
           </button>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-white font-bold text-base leading-tight">{entrada.name}</p>

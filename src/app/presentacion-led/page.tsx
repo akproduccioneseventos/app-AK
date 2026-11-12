@@ -99,9 +99,9 @@ const SKIP_TEEN_MENU_OFFSET = 2;
 const MAIN_DISHES_PER_PERSON = 1;
 /** Event duration (hours) from which 2 entradas are required instead of 1 */
 const ENTRADA_DUAL_DURATION_THRESHOLD = 4;
-// Fixed slides: portada(0), beneficios(1), datos(2), salon(3)
+// Fixed slides: portada(0), beneficios(1), datos(2), salon(3), equipo(4)
 const SALON_SLIDE_INDEX = 3;
-const DYNAMIC_START = 4; // = FIXED_SLIDES_START
+const DYNAMIC_START = 5; // = FIXED_SLIDES_START
 
 // ---- Helpers ----
 
@@ -163,7 +163,7 @@ export default function PresentacionLedPage() {
   const router = useRouter();
   const [data, setData] = useState<PageData>(DEFAULT_PAGE_DATA);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -536,13 +536,25 @@ export default function PresentacionLedPage() {
   }, []);
 
   const handleGenerateBudget = useCallback(() => {
+    let effectiveEntradasIds = selectedEntradasIds;
+    if (effectiveEntradasIds.length === 0 && typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem('presentacion_entradas_seleccionadas');
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed)) {
+          effectiveEntradasIds = parsed.filter(id => typeof id === 'string' && /^[\w-]+$/.test(id));
+        }
+      } catch {
+        // ignore parse error
+      }
+    }
     // IDs come from server-fetched ServicioEmpresa records (alphanumeric + hyphens/underscores)
-    const safeIds = Array.from(new Set([...selectedServices, ...selectedEntradasIds])).filter(id => /^[\w-]+$/.test(id));
+    const safeIds = Array.from(new Set([...selectedServices, ...effectiveEntradasIds])).filter(id => /^[\w-]+$/.test(id));
     if (safeIds.length > 0) {
       sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
     }
-    if (selectedEntradasIds.length > 0) {
-      sessionStorage.setItem('presentacion_entradas_seleccionadas', JSON.stringify(selectedEntradasIds));
+    if (effectiveEntradasIds.length > 0) {
+      sessionStorage.setItem('presentacion_entradas_seleccionadas', JSON.stringify(effectiveEntradasIds));
     }
     if (clientData.nombre || clientData.fechaEvento || clientData.tipoFiesta) {
       const safeClientData = {
@@ -574,6 +586,7 @@ export default function PresentacionLedPage() {
     if (clientData.invitadosAdultos) params.set('adultos', clientData.invitadosAdultos);
     if (clientData.invitadosAdolescentes) params.set('ninos', clientData.invitadosAdolescentes);
     safeIds.forEach((id) => params.append('servicios', id));
+    effectiveEntradasIds.forEach((id) => params.append('entradas', id));
     if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) params.set('menuId', selectedMenuId);
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
     const query = params.toString();
@@ -960,6 +973,7 @@ export default function PresentacionLedPage() {
         </div>
 
         <Button
+          data-testid="btn-siguiente-slide"
           onClick={isContratarnosSlide ? handleCierreCta : goNext}
           disabled={!isContratarnosSlide && (nextDisabled || currentSlide >= totalSlides - 1)}
           size="lg"

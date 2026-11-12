@@ -24,6 +24,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/s
 import { MainNav } from './main-nav';
 import { LazyMultiAgentWidget } from '@/components/multiagent/lazy-multiagent-widget';
 import { ModuleNavigationDock } from '@/components/module-navigation-dock';
+import { MobileBottomNav } from './mobile-bottom-nav';
 import { MarketingAutomationTrigger } from '@/components/marketing/marketing-automation-trigger';
 import { inicializarAjustesRemotos } from '@/lib/firebase/ajustes-remotos';
 import { getPerformanceInstance } from '@/lib/firebase/performance';
@@ -359,7 +360,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MarketingAutomationTrigger />
       <MainNav />
       <SidebarInset>
-        <div className="flex min-h-screen w-full flex-col">
+        <div className="flex min-h-screen w-full max-w-full flex-col overflow-x-hidden">
           <header data-app-shell-header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <SidebarTrigger className="md:hidden text-slate-500 hover:text-primary transition-colors" />
@@ -448,12 +449,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="ak-panel-main flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+          <main className="ak-panel-main flex-1 w-full max-w-full overflow-x-hidden bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
           </main>
         </div>
       </SidebarInset>
-      <ModuleNavigationDock />
+      <MobileBottomNav />
       <LazyMultiAgentWidget />
     </SidebarProvider>
   );

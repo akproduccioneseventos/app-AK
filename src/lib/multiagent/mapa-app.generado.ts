@@ -15,15 +15,11 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
-    "etiqueta": "Centro de Control",
-    "ruta": "/centro-de-control"
-  },
-  {
-    "etiqueta": "Mi Día",
+    "etiqueta": "Inicio",
     "ruta": "/mi-dia"
   },
   {
-    "etiqueta": "Eventos Activos",
+    "etiqueta": "Eventos",
     "ruta": "/eventos"
   },
   {
@@ -33,34 +29,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
     "etiqueta": "Muro Social",
     "ruta": "/empresa/red-social-eventos"
-  },
-  {
-    "etiqueta": "Incidentes",
-    "ruta": "/incidentes"
-  },
-  {
-    "etiqueta": "Guias de Armado",
-    "ruta": "/playbooks"
-  },
-  {
-    "etiqueta": "Alergias y Dietas",
-    "ruta": "/fiestas/nueva/alergias"
-  },
-  {
-    "etiqueta": "Portal de Proveedores",
-    "ruta": "/fiestas/nueva/proveedores-portal"
-  },
-  {
-    "etiqueta": "Personal en dos fiestas",
-    "ruta": "/recursos-multi-evento"
-  },
-  {
-    "etiqueta": "Edición de Videos",
-    "ruta": "/edicion-videos"
-  },
-  {
-    "etiqueta": "Gestión de Empresa",
-    "ruta": "/empresa"
   },
   {
     "etiqueta": "Prospectos",
@@ -75,10 +43,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/customers"
   },
   {
-    "etiqueta": "Simulador IA",
-    "ruta": "/simulador-ak"
-  },
-  {
     "etiqueta": "Pagos Rápidos",
     "ruta": "/pagos-rapidos"
   },
@@ -87,96 +51,8 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/empresa/contabilidad"
   },
   {
-    "etiqueta": "Facturas",
-    "ruta": "/invoices"
-  },
-  {
-    "etiqueta": "Cambios a Aprobar",
-    "ruta": "/aprobaciones"
-  },
-  {
-    "etiqueta": "Métricas del Negocio",
-    "ruta": "/empresa/dashboard"
-  },
-  {
-    "etiqueta": "Comida / Menús",
-    "ruta": "/empresa/menus"
-  },
-  {
-    "etiqueta": "Lista de Compras",
-    "ruta": "/compras"
-  },
-  {
-    "etiqueta": "Salones",
-    "ruta": "/empresa/salones"
-  },
-  {
-    "etiqueta": "Catálogo de Servicios",
-    "ruta": "/empresa/servicios"
-  },
-  {
-    "etiqueta": "Proveedores",
-    "ruta": "/proveedores"
-  },
-  {
-    "etiqueta": "Empleados",
-    "ruta": "/empleados"
-  },
-  {
-    "etiqueta": "Marketing y Redes",
-    "ruta": "/marketing"
-  },
-  {
-    "etiqueta": "WhatsApp del Día",
-    "ruta": "/contabilidad/crm/outbox"
-  },
-  {
-    "etiqueta": "Presentación LED",
-    "ruta": "/empresa/presentacion-led/configuracion"
-  },
-  {
-    "etiqueta": "Ajustes Generales",
-    "ruta": "/settings"
-  },
-  {
-    "etiqueta": "Tareas Automáticas",
-    "ruta": "/settings/tareas-automaticas"
-  },
-  {
-    "etiqueta": "Conexiones",
-    "ruta": "/settings/sincronizaciones"
-  },
-  {
-    "etiqueta": "WhatsApp",
-    "ruta": "/settings/whatsapp"
-  },
-  {
-    "etiqueta": "Cláusulas de Contrato",
-    "ruta": "/settings/contratos/clausulas"
-  },
-  {
-    "etiqueta": "Seguridad",
-    "ruta": "/settings/account"
-  },
-  {
-    "etiqueta": "Promociones",
-    "ruta": "/settings/promos"
-  },
-  {
-    "etiqueta": "Asistente IA",
-    "ruta": "/settings/ai-assistant"
-  },
-  {
-    "etiqueta": "Mapa Tecnológico",
-    "ruta": "/settings/mapa-tecnologico-ak"
-  },
-  {
-    "etiqueta": "Laboratorio Experimental",
-    "ruta": "/settings/feature-flags"
-  },
-  {
-    "etiqueta": "Nuevo Lead",
-    "ruta": "/admin"
+    "etiqueta": "Más",
+    "ruta": "/mas"
   },
   {
     "etiqueta": "Alertas",
@@ -405,6 +281,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/marketing/checklist",
     "/marketing/demo-tecnologia",
     "/marketing/plantillas",
+    "/mas",
     "/mi-dia",
     "/multiagente",
     "/multiagente/acciones",
