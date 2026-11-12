@@ -261,6 +261,12 @@ const SECTIONS: SettingSection[] = [
         icon: Image,
       },
       {
+        title: 'Estilo de fotos AK',
+        description: 'Calibración de color, luz y suavizado automático para las fotos de invitados.',
+        href: '/settings/estilo-fotos',
+        icon: Palette,
+      },
+      {
         title: 'Videos de Ayuda por Pantalla',
         description: 'Explicaciones en video de YouTube para el invitado, el cliente y simulador.',
         href: '/settings/videos-de-ayuda',

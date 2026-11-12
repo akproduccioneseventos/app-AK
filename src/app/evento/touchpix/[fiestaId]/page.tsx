@@ -49,6 +49,8 @@ import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator'
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
+import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 import {
   obtenerModosCapturaHabilitados,
@@ -203,6 +205,13 @@ export default function TouchpixPage() {
     currentPhotoSessionIdRef.current = photoSessionId;
   }, [photoSessionId]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [estiloAK, setEstiloAK] = useState<any>(null);
+
+  useEffect(() => {
+    void obtenerEstiloFotosAK().then((estilo) => {
+      if (estilo) setEstiloAK(estilo);
+    });
+  }, []);
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -478,7 +487,19 @@ export default function TouchpixPage() {
       ctx.drawImage(img, 0, 0);
       ctx.filter = 'none';
 
-      if (selectedTheme === 'belleza' || fiesta?.station.enableBeautyFilter) {
+      const estiloActivo = fiesta?.station.enableEstiloAK !== false && estiloAK !== null;
+      if (estiloActivo && estiloAK) {
+        void cargarDetectorDeCaras();
+        const carasDetectadas = detectarCarasEnFuente(img, Date.now());
+        aplicarEstiloAK(ctx, offscreen.width, offscreen.height, estiloAK, carasDetectadas);
+        if (fiesta?.station?.filtrosActivos?.[0]) {
+          dibujarFiltroDeCara(ctx, offscreen, fiesta?.station?.filtrosActivos?.[0], carasDetectadas, {
+            nombreAgasajado: fiesta?.nombreAgasajado,
+            tipoCelebracion: fiesta?.tipoCelebracion,
+            primaryColor: fiesta?.primaryColor,
+          });
+        }
+      } else if (selectedTheme === 'belleza' || fiesta?.station.enableBeautyFilter) {
         aplicarFiltroBelleza(ctx, offscreen.width, offscreen.height);
         void cargarDetectorDeCaras();
         const carasDetectadas = detectarCarasEnFuente(img, Date.now());
