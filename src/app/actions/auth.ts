@@ -1317,15 +1317,19 @@ export async function obtenerEstadoAuditor(): Promise<{
   cerradoEl?: string | null;
   historial: HistorialAuditorItem[];
   error?: string;
+  /** El que pregunta es el dueño: la tarjeta se muestra aunque el estado no se haya podido leer. */
+  esDueno?: boolean;
 }> {
-  if (!dbAdmin) return { success: false, activo: false, historial: [], error: 'Base de datos no disponible.' };
-
   const session = await verifySession();
   if (!session.success || !session.user) {
     return { success: false, activo: false, historial: [], error: 'Sesión no autorizada.' };
   }
-  if (!puede(session.user, PERMISOS.ADMINISTRACION)) {
+  // Mismo control que abrir y cerrar el acceso: sólo el dueño, también con cuenta vieja (rol admin sin perfil).
+  if (perfilDe(session.user) !== 'dueno') {
     return { success: false, activo: false, historial: [], error: 'Acceso restringido.' };
+  }
+  if (!dbAdmin) {
+    return { success: false, esDueno: true, activo: false, historial: [], error: 'Base de datos no disponible.' };
   }
 
   try {
@@ -1348,10 +1352,17 @@ export async function obtenerEstadoAuditor(): Promise<{
       cerradoEl = d.cerradoEl || null;
     }
 
-    const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
+    // El historial es un extra: si no se puede leer, la tarjeta igual deja abrir y cerrar el acceso.
+    let historial: HistorialAuditorItem[] = [];
+    try {
+      historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
+    } catch {
+      historial = [];
+    }
 
     return {
       success: true,
+      esDueno: true,
       activo,
       email,
       abiertoEl,
@@ -1359,7 +1370,7 @@ export async function obtenerEstadoAuditor(): Promise<{
       historial,
     };
   } catch (err: any) {
-    return { success: false, activo: false, historial: [], error: err?.message };
+    return { success: false, esDueno: true, activo: false, historial: [], error: err?.message || 'No se pudo leer el estado.' };
   }
 }
 

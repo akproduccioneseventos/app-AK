@@ -11,6 +11,7 @@ import {
   createUser,
   updateUserModules,
   chequearAvisoAuditor14Dias,
+  obtenerEstadoAuditor,
 } from '@/app/actions/auth';
 
 let currentCookieToken: string | undefined = undefined;
@@ -137,6 +138,30 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     const res = await abrirAccesoAuditor({ email: 'auditor-viejo@externo.com' });
     expect(res.error).toBeUndefined();
     expect(res.success).toBe(true);
+  });
+
+  it('la tarjeta del auditor aparece para el dueño con cuenta vieja, y no para la secretaria', async () => {
+    // 12/11/2026: el dueño no veía la tarjeta en Usuarios. Ahora el estado se pide con el mismo
+    // control que abrir y cerrar, y ante una falla la tarjeta se muestra con el motivo.
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno-viejo',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+    } as any);
+    const delDueno = await obtenerEstadoAuditor();
+    expect(delDueno.error).toBeUndefined();
+    expect(delDueno.success).toBe(true);
+    expect(delDueno.esDueno).toBe(true);
+
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-secretaria',
+      email: 'secretaria@akproducciones.com',
+      role: 'user',
+      perfil: 'secretaria',
+    });
+    const deLaSecretaria = await obtenerEstadoAuditor();
+    expect(deLaSecretaria.success).toBe(false);
+    expect(deLaSecretaria.esDueno).toBeFalsy();
   });
 
   it('con el acceso cerrado no entra, y una sesión ya abierta queda afuera en el próximo clic', async () => {
