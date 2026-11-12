@@ -1562,3 +1562,20 @@ pasar a cualquiera y disparaba recordatorios a invitados; y la firma del ingreso
 en el código. Se busca `if (!secret) return true`, `|| 'texto-fijo'` sobre variables de claves, y comparaciones de
 claves con `===` (van con `timingSafeEqual`). Sin la variable, en producción tiene que cerrar (401/503), nunca abrir.
 Es permiso: lo verifica Claude.
+
+### 117. Una fecha con hora que sale a otro servicio (Google Calendar, un .ics, un mensaje), ¿lleva la hora de Uruguay o la del servidor?
+
+Auditor externo, 12/11/2026. El enlace del portal y de la invitación a Google Calendar armaba la hora con
+`new Date(año, mes, día, h, m)` en el servidor (que corre en Greenwich) y la mandaba con `toISOString()`: una fiesta de
+las 21:00 aparecía a las 18:00. Se busca `calendar.google.com`, `action=TEMPLATE`, `DTSTART`, y cualquier `toISOString()`
+aplicado a un `Date` armado con partes locales. La hora de pared va sin `Z` y con `ctz=America/Montevideo` (o un instante
+calculado en hora de Uruguay).
+
+### 118. Un botón que arma un enlace con un dato guardado, ¿el dato tiene siempre la forma que el enlace espera?
+
+Auditor externo, 12/11/2026. "Ver Contrato" pegaba una ruta de computadora (`C:/Users/...`) a `/api/contracts/` y daba
+404; "Ver como un invitado" armaba la invitación sin el `token` que esa página exige y siempre decía "Enlace inválido".
+Se buscan los `href` armados con `${...}` de un dato guardado y se mira qué pide la pantalla o ruta de destino
+(un nombre suelto, un token, un id con cierta forma). Si el dato puede no tenerla, el botón se deshabilita con un motivo,
+no lleva a un error.
+

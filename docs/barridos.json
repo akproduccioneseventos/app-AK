@@ -464,6 +464,14 @@
     "116": {
       "fecha": "2026-11-11",
       "resultado": "Abiertas sin la variable: /api/cron-despachador (dispara recordatorios) y la firma del estado de Google con constante. Comparaciones con === en 9 lugares. Todo en la orden 278. Cierran bien: insights, meta webhook, looker, clean-db, sesión y estaciones."
+    },
+    "117": {
+      "fecha": "2026-11-12",
+      "resultado": "Enlaces a Google Calendar y .ics en src/: calendar-links.ts (portal del cliente e invitación) manda la hora del servidor con Z: corrido tres horas, orden 285 bloque 1. google-workspace-urls.ts, simulator-agenda.ts y google-calendar-sync.ts reciben un instante real: bien. AddToCalendarButton manda hora flotante del dispositivo (sin Z ni TZID): en Uruguay da bien, no es hallazgo."
+    },
+    "118": {
+      "fecha": "2026-11-12",
+      "resultado": "parcial: ficha del cliente (contrato, presupuesto firmado y contrato del salón) y Centro de fiesta (ver como invitado), en la orden 285 bloques 3 y 6. Falta barrer el resto de los href armados con datos guardados: va en el mismo bloque de la orden 285 como revisión."
     }
   },
   "hallazgos": {
@@ -734,6 +742,10 @@
     "orden-282": {
       "fecha": "2026-11-12",
       "resultado": "Pregunta 1 (¿dejó rastro?): la sincronización y respuesta de comentarios estaba programada y nunca corrió porque Facebook e Instagram no estaban conectados. Buscado qué otras tareas automáticas dependen de una conexión que la puerta marca 'sin conectar': métricas de redes, publicar programados y comentarios (todas de Meta); Google Business y TikTok sin tareas propias. Va en la orden 282, bloques 1 y 5 (el tablero avisa si una red no está conectada)."
+    },
+    "orden-285": {
+      "fecha": "2026-11-12",
+      "resultado": "Preguntas 117 y 118 nuevas, barridas arriba. Lo demás del informe del auditor (playlist, editor de plantilla, banner del portal, pestañas y colores de En vivo, mojibake) era de formas ya conocidas (preguntas de 'un dato que no llega' y de celular) y va en la orden 285."
     }
   }
 }
