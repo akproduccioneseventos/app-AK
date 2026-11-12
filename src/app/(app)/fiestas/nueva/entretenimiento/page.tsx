@@ -187,6 +187,7 @@ interface EntertainmentStation {
   disenoImpresion?: 'una' | 'dos' | 'tira';
   velocidadRecuerdo?: 'normal' | 'lenta' | 'boomerang';
   enableBeautyFilter?: boolean;
+  enableEstiloAK?: boolean;
   enableChromaKey?: boolean;
   recorteSinTela?: boolean;
   vueltas360?: number;
@@ -1741,19 +1742,31 @@ function EntretenimientoContent() {
                           </label>
                         )}
                         {(activeStationId === 'fotocabina' ||
+                          activeStationId === 'bogue' ||
                           activeStationId === 'espejoMagicoFoto' ||
                           activeStationId === 'espejoMagicoFirma' ||
                           activeStationId === 'espejoMagicoIA' ||
                           (activeStationId as string) === 'touchpix') && (
-                          <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-                            <span className="text-xs font-bold text-zinc-300">Filtro de belleza</span>
-                            <Switch
-                              checked={activeStation.enableBeautyFilter ?? false}
-                              onCheckedChange={(enableBeautyFilter) =>
-                                updateStation(activeStationId, { enableBeautyFilter })
-                              }
-                            />
-                          </label>
+                          <>
+                            <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                              <span className="text-xs font-bold text-zinc-300">Estilo de fotos AK</span>
+                              <Switch
+                                checked={activeStation.enableEstiloAK ?? true}
+                                onCheckedChange={(enableEstiloAK) =>
+                                  updateStation(activeStationId, { enableEstiloAK })
+                                }
+                              />
+                            </label>
+                            <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                              <span className="text-xs font-bold text-zinc-300">Filtro de belleza</span>
+                              <Switch
+                                checked={activeStation.enableBeautyFilter ?? false}
+                                onCheckedChange={(enableBeautyFilter) =>
+                                  updateStation(activeStationId, { enableBeautyFilter })
+                                }
+                              />
+                            </label>
+                          </>
                         )}
                         {activeStationId === 'fotocabina' && (
                           <>

@@ -5,6 +5,8 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
+import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
+import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -171,6 +173,13 @@ export default function EspejoMagicoPage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [estiloAK, setEstiloAK] = useState<any>(null);
+
+  useEffect(() => {
+    void obtenerEstiloFotosAK().then((estilo) => {
+      if (estilo) setEstiloAK(estilo);
+    });
+  }, []);
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -836,6 +845,12 @@ export default function EspejoMagicoPage() {
     });
 
     drawWatermark(ctx, canvas.width, canvas.height);
+
+    const estiloActivo = fiesta?.station.enableEstiloAK !== false && estiloAK !== null;
+    if (estiloActivo && estiloAK) {
+      const caras = detectarCarasEnFuente(canvas, Date.now());
+      aplicarEstiloAK(ctx, canvas.width, canvas.height, estiloAK, caras);
+    }
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
     setOriginalPhotoUrl(dataUrl);

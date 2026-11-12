@@ -127,6 +127,18 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     for (const k of Object.keys(mockUsers)) delete mockUsers[k];
   });
 
+  it('el dueño con una cuenta vieja (rol admin sin perfil guardado) también puede abrir el acceso', async () => {
+    // 12/11/2026: la cuenta del dueño es de antes de los perfiles; con "perfil !== dueno" quedaba afuera.
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno-viejo',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+    } as any);
+    const res = await abrirAccesoAuditor({ email: 'auditor-viejo@externo.com' });
+    expect(res.error).toBeUndefined();
+    expect(res.success).toBe(true);
+  });
+
   it('con el acceso cerrado no entra, y una sesión ya abierta queda afuera en el próximo clic', async () => {
     // 1. Dueño abre acceso
     currentCookieToken = await createSignedSessionToken({

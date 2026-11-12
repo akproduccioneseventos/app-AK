@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - El dueño con cuenta vieja no podía abrir el acceso del auditor
+
+- `abrirAccesoAuditor` y `cerrarAccesoAuditor` comparaban `perfil !== 'dueno'` a mano; la cuenta del dueño es de antes de
+  los perfiles (rol `admin`, sin perfil guardado) y quedaba afuera. Ahora usan `perfilDe`, como el resto de la app. Lo frena
+  `el-acceso-de-auditor-vence.test.ts` (comprobado en rojo con la comparación vieja).
+
+## 12/11/2026 - Órdenes 280 y 281: fotos con el estilo AK y subida a Wfolio
+
+- El AK Editor suma el modo Fotos (elige, endereza, aprende el estilo del catálogo de Lightroom y arma los presets) y la
+  subida a Wfolio por carpetas. **Wfolio no tiene ni complemento para Lightroom ni API pública**
+  (`herramientas/ak-editor/WFOLIO.md`): se sube con la sesión del dueño guardada en su computadora.
+- Las estaciones (fotocabina, Vogue, Touchpix, espejo) y las fotos que suben los invitados al muro salen con el estilo AK
+  (`aplicarEstiloAK`); la Plataforma 360 no. El estilo lo guarda sólo administración; las estaciones leen sólo números
+  (`obtenerEstiloFotosAK`, pública a propósito, anotada en `auditoria-puertas-abiertas`).
+
 ## 12/11/2026 - Revisión de la 1385 (órdenes 273 a 279)
 
 - **Entra:** Video de Vida, fiesta entera del editor, videos para redes, acceso de auditor (con el cierre leído de la

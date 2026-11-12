@@ -58,6 +58,8 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
  * nadie logueado**. Marcar todo el archivo taparía las otras.
  */
 const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
+  'estilo-fotos.ts:obtenerEstiloFotosAK':
+    'las estaciones de entretenimiento (fotocabina, vogue, espejo, touchpix) leen los valores numéricos del estilo de fotos AK sin requerir sesión de backoffice.',
   'crowd-sync.ts:getCrowdSyncStateAction':
     'el celular del invitado consulta el estado del show de luces interactivo en vivo durante la fiesta.',
   'games.actions.ts:getMiProgresoDeJuegos':

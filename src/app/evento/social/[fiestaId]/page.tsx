@@ -86,6 +86,8 @@ import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { optimizeImageForUpload } from '@/lib/media/image-optimizer';
+import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
+import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
@@ -320,6 +322,13 @@ export default function SocialEventPage() {
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [estiloAK, setEstiloAK] = useState<any>(null);
+
+  useEffect(() => {
+    void obtenerEstiloFotosAK().then((estilo) => {
+      if (estilo) setEstiloAK(estilo);
+    });
+  }, []);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [votedSongs, setVotedSongs] = useState<Set<string>>(new Set());
   const [songDraft, setSongDraft] = useState('');
@@ -599,9 +608,48 @@ export default function SocialEventPage() {
     let finalFile = file;
     let finalThumbnail: File | null = null;
     if (image) {
-      finalFile = await optimizeImageForUpload(file);
+      const opt = await optimizeImageForUpload(file);
+      if (estiloAK) {
+        finalFile = await new Promise<File>((resolve) => {
+          const img = new Image();
+          const url = URL.createObjectURL(opt);
+          img.onload = () => {
+            URL.revokeObjectURL(url);
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                resolve(opt);
+                return;
+              }
+              ctx.drawImage(img, 0, 0);
+              // Aplicar exclusivamente color y luz (sin retoque de piel) a las fotos de invitados
+              aplicarEstiloAK(ctx, canvas.width, canvas.height, estiloAK, undefined, { soloColor: true });
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  resolve(opt);
+                  return;
+                }
+                resolve(new File([blob], opt.name, { type: opt.type || 'image/jpeg', lastModified: Date.now() }));
+              }, opt.type || 'image/jpeg', 0.92);
+            } catch {
+              resolve(opt);
+            }
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve(opt);
+          };
+          img.src = url;
+        });
+      } else {
+        finalFile = opt;
+      }
+
       try {
-        finalThumbnail = await optimizeImageForUpload(file, {
+        finalThumbnail = await optimizeImageForUpload(finalFile, {
           maxWidth: 400,
           maxHeight: 400,
           quality: 0.8,
