@@ -12,7 +12,7 @@ import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie, registrarAuditorCortado, limpiarAuditorCortado } from '@/lib/auth/session-token';
 import { readData, writeData } from '@/lib/data-service';
-import { esAdministrador, esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
+import { esAdministrador, esPerfilValido, perfilDe, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
 import { requireAppSession, requireSession, invalidateUserSessionCache } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
@@ -1154,7 +1154,7 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
   if (session.user.perfil === 'auditor') {
     return { success: false, error: 'Un auditor no puede abrir accesos de auditor.' };
   }
-  if (session.user.perfil !== 'dueno') {
+  if (perfilDe(session.user) !== 'dueno') {
     return { success: false, error: 'Solo el dueño puede abrir el acceso de auditor.' };
   }
 
@@ -1253,7 +1253,7 @@ export async function cerrarAccesoAuditor(emailAuditor?: string): Promise<{
   if (session.user.perfil === 'auditor') {
     return { success: false, error: 'Un auditor no puede cerrar accesos de auditor.' };
   }
-  if (session.user.perfil !== 'dueno') {
+  if (perfilDe(session.user) !== 'dueno') {
     return { success: false, error: 'Solo el dueño puede cerrar el acceso de auditor.' };
   }
 

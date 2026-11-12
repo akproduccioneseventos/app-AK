@@ -1,5 +1,11 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - El dueño con cuenta vieja no podía abrir el acceso del auditor
+
+- `abrirAccesoAuditor` y `cerrarAccesoAuditor` comparaban `perfil !== 'dueno'` a mano; la cuenta del dueño es de antes de
+  los perfiles (rol `admin`, sin perfil guardado) y quedaba afuera. Ahora usan `perfilDe`, como el resto de la app. Lo frena
+  `el-acceso-de-auditor-vence.test.ts` (comprobado en rojo con la comparación vieja).
+
 ## 12/11/2026 - Órdenes 280 y 281: fotos con el estilo AK y subida a Wfolio
 
 - El AK Editor suma el modo Fotos (elige, endereza, aprende el estilo del catálogo de Lightroom y arma los presets) y la
