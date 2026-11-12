@@ -353,3 +353,52 @@ export function MainNav() {
     </Sidebar>
   );
 }
+
+/**
+ * Catálogo completo de pantallas del staff (leído por scripts/generar-mapa-app.mjs para la asistente de IA).
+ */
+export const TODAS_LAS_OPCIONES_STAFF_MAPA = [
+  { title: "Centro de Control", href: "/centro-de-control" },
+  { title: "Mi Día", href: "/mi-dia" },
+  { title: "Eventos Activos", href: "/eventos" },
+  { title: "Calendario", href: "/calendario" },
+  { title: "Muro Social", href: "/empresa/red-social-eventos" },
+  { title: "Incidentes", href: "/incidentes" },
+  { title: "Guias de Armado", href: "/playbooks" },
+  { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias" },
+  { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal" },
+  { title: "Personal en dos fiestas", href: "/recursos-multi-evento" },
+  { title: "Edición de Videos", href: "/edicion-videos" },
+  { title: "Gestión de Empresa", href: "/empresa" },
+  { title: "Prospectos", href: "/contabilidad/crm" },
+  { title: "Presupuestos", href: "/presupuestos/nuevo" },
+  { title: "Clientes", href: "/customers" },
+  { title: "Simulador IA", href: "/simulador-ak" },
+  { title: "Pagos Rápidos", href: "/pagos-rapidos" },
+  { title: "Panel Contable", href: "/empresa/contabilidad" },
+  { title: "Facturas", href: "/invoices" },
+  { title: "Cambios a Aprobar", href: "/aprobaciones" },
+  { title: "Métricas del Negocio", href: "/empresa/dashboard" },
+  { title: "Comida / Menús", href: "/empresa/menus" },
+  { title: "Lista de Compras", href: "/compras" },
+  { title: "Salones", href: "/empresa/salones" },
+  { title: "Catálogo de Servicios", href: "/empresa/servicios" },
+  { title: "Proveedores", href: "/proveedores" },
+  { title: "Empleados", href: "/empleados" },
+  { title: "Marketing y Redes", href: "/marketing" },
+  { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox" },
+  { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion" },
+  { title: "Ajustes Generales", href: "/settings" },
+  { title: "Tareas Automáticas", href: "/settings/tareas-automaticas" },
+  { title: "Conexiones", href: "/settings/sincronizaciones" },
+  { title: "WhatsApp", href: "/settings/whatsapp" },
+  { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas" },
+  { title: "Seguridad", href: "/settings/account" },
+  { title: "Promociones", href: "/settings/promos" },
+  { title: "Asistente IA", href: "/settings/ai-assistant" },
+  { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak" },
+  { title: "Laboratorio Experimental", href: "/settings/feature-flags" },
+  { title: "Nuevo Lead", href: "/admin" },
+  { title: "Alertas", href: "/alertas" },
+  { title: "Más Herramientas", href: "/mas" },
+];

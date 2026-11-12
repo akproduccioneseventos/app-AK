@@ -227,7 +227,7 @@ export default async function MiDiaPage() {
           <div className="min-w-0">
             <h2 className="font-black text-slate-900 text-base sm:text-lg">Hablar con AK</h2>
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Consultá tus fiestas, dale órdenes por voz o texto y revisá lo pendiente en el Centro de Control.
+              Consultá tus fiestas, dale indicaciones por voz o texto y coordiná tus eventos con el Asistente AK.
             </p>
           </div>
         </div>

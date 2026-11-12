@@ -180,7 +180,7 @@ export async function responderComentarioSiAplica(
   let respuestaTexto: string | null = null;
   if (comentario.esPregunta) {
     respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
-  } else if (comentario.sentiment === 'positivo' || comentario.sentiment === 'neutro' || !comentario.sentiment) {
+  } else if (comentario.sentiment === 'positivo' || comentario.sentiment === 'neutro') {
     respuestaTexto = await armarAgradecimientoComentario(comentario.text, comentario.authorName);
   }
 
@@ -662,6 +662,7 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
   for (const c of existingMap.values()) {
     if (c.respuestaAutomatica) continue;
     if (c.isDeleted || c.isAutoHidden) continue;
+    if (!c.classifiedAt || !c.sentiment) continue;
     if (c.isInsultOrSpam || c.isLegitimateComplaint || c.sentiment === 'negativo') continue;
     const creadoMs = new Date(c.createdAt).getTime();
     if (Number.isNaN(creadoMs)) continue;
