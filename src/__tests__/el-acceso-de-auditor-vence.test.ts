@@ -140,6 +140,27 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     expect(res.success).toBe(true);
   });
 
+  it('el correo de alguien del equipo no se convierte en auditor', async () => {
+    mockUsers['usr-equipo'] = {
+      email: 'equipo@akproducciones.com',
+      perfil: 'secretaria',
+      role: 'user',
+      passwordHash: 'clave-vieja',
+      activo: true,
+    };
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+      perfil: 'dueno',
+    });
+    const res = await abrirAccesoAuditor({ email: 'equipo@akproducciones.com' });
+    expect(res.success).toBe(false);
+    expect(res.password).toBeUndefined();
+    expect(mockUsers['usr-equipo'].perfil).toBe('secretaria');
+    expect(mockUsers['usr-equipo'].passwordHash).toBe('clave-vieja');
+  });
+
   it('la tarjeta del auditor aparece para el dueño con cuenta vieja, y no para la secretaria', async () => {
     // 12/11/2026: el dueño no veía la tarjeta en Usuarios. Ahora el estado se pide con el mismo
     // control que abrir y cerrar, y ante una falla la tarjeta se muestra con el motivo.

@@ -1178,6 +1178,15 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
     let userId: string;
     if (!snapshot.empty) {
       const doc = snapshot.docs[0];
+      const existente = doc.data() || {};
+      // 12/11/2026: con el correo de alguien del equipo, esa cuenta quedaba convertida en auditor
+      // (perdía sus permisos y su clave). Sólo se reabre una cuenta que ya era de auditor.
+      if (existente.perfil !== 'auditor' && existente.role !== 'auditor') {
+        return {
+          success: false,
+          error: 'Ese correo ya es de una cuenta del equipo. Para el auditor usá un correo distinto, que no tenga cuenta en la app.',
+        };
+      }
       userId = doc.id;
       const currentVersion = typeof doc.data()?.versionDeSesion === 'number' ? doc.data().versionDeSesion : 1;
       await doc.ref.update({
