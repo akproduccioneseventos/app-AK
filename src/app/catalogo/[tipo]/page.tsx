@@ -641,6 +641,7 @@ export default function CatalogoTipoPage() {
           setBookingDepositAmount(bootstrap.budgetSettings.bookingDepositAmount);
         }
       })
+      // no pasa nada si falla: queda la seña de fábrica (DEFAULT_BOOKING_DEPOSIT_AMOUNT), que es la misma.
       .catch(() => {});
   }, []);
 

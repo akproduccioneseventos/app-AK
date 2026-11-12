@@ -176,10 +176,14 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     return texto;
   };
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
-      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(generarTextoWhatsApp());
+    } catch {
+      toast({ title: "Error al Copiar", variant: "destructive" });
+      return;
+    }
+    toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." });
   };
 
   const handleShareWhatsApp = () => {

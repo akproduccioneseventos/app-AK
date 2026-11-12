@@ -218,9 +218,14 @@ export default function AdminUsuariosPage() {
     }
   };
 
-  const handleCopiarClave = () => {
+  const handleCopiarClave = async () => {
     if (!claveGenerada) return;
-    navigator.clipboard.writeText(claveGenerada);
+    try {
+      await navigator.clipboard.writeText(claveGenerada);
+    } catch {
+      toast({ title: 'No se pudo copiar', description: 'Copiá la clave a mano: está escrita en pantalla.', variant: 'destructive' });
+      return;
+    }
     setClaveCopiada(true);
     toast({ title: 'Clave copiada', description: 'La clave se copió al portapapeles.' });
     setTimeout(() => setClaveCopiada(false), 3000);
