@@ -11,6 +11,7 @@
 
 import {
   procesarBorradoresPublicarSolo,
+  validarPermisoPromocionalPosteo,
   setAjustesPublicarSolo,
   getAjustesPublicarSolo,
   calcularFechaProximaPublicacionSinSaturar,
@@ -167,6 +168,65 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
 
     const posts = store['social-posts.json'] as SocialPost[];
     expect(posts[0].status).toBe('Borrador');
+  });
+
+  it('una foto suelta sin fiesta ni permiso promocional devuelve false y NO se publica sola', async () => {
+    const postFotoSueltaSinPermiso: SocialPost = {
+      id: 'post_suelto_sin_permiso',
+      platform: 'Instagram',
+      status: 'Borrador',
+      text: 'Foto suelta sin fiesta ni permiso en galería propia',
+      mediaUrl: 'https://example.com/foto-suelta-no-autorizada.jpg',
+      createdAt: hace13Horas,
+      updatedAt: hace13Horas,
+      publishDate: '',
+    };
+
+    // La función debe devolver false directamente
+    const tienePermiso = await validarPermisoPromocionalPosteo(postFotoSueltaSinPermiso);
+    expect(tienePermiso).toBe(false);
+
+    // Al procesar borradores no se promociona y queda en esperando/rechazados
+    store['social-posts.json'] = [postFotoSueltaSinPermiso];
+    const resultado = await procesarBorradoresPublicarSolo(ahora);
+
+    expect(resultado.rechazadosPorPermiso).toContain('post_suelto_sin_permiso');
+    expect(resultado.promocionados).not.toContain('post_suelto_sin_permiso');
+
+    const posts = store['social-posts.json'] as SocialPost[];
+    expect(posts[0].status).toBe('Borrador');
+  });
+
+  it('una foto suelta sin fiesta pero marcada para promoción en galería propia sí devuelve true y se promociona', async () => {
+    store['galeria-publica.json'] = {
+      fotos: [
+        {
+          id: 'foto_galeria_promo',
+          url: 'https://example.com/foto-galeria-promo.jpg',
+          esPromocional: true,
+        },
+      ],
+    };
+
+    const postFotoSueltaConPermiso: SocialPost = {
+      id: 'post_suelto_con_permiso',
+      platform: 'Instagram',
+      status: 'Borrador',
+      text: 'Foto de galería propia marcada para promoción',
+      mediaUrl: 'https://example.com/foto-galeria-promo.jpg',
+      createdAt: hace13Horas,
+      updatedAt: hace13Horas,
+      publishDate: '',
+    };
+
+    const tienePermiso = await validarPermisoPromocionalPosteo(postFotoSueltaConPermiso);
+    expect(tienePermiso).toBe(true);
+
+    store['social-posts.json'] = [postFotoSueltaConPermiso];
+    const resultado = await procesarBorradoresPublicarSolo(ahora);
+
+    expect(resultado.promocionados).toContain('post_suelto_con_permiso');
+    expect(resultado.rechazadosPorPermiso).not.toContain('post_suelto_con_permiso');
   });
 
   it('con "Publicar solo" apagado, ningún borrador pasa a Programado', async () => {

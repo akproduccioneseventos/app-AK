@@ -46,7 +46,7 @@ import {
   Layers,
   Activity
 } from 'lucide-react';
-import NextImage from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -822,7 +822,7 @@ export default function ClientMuroSocialPage() {
                       {isVideo ? (
                         <video src={post.imageUrl} className="h-full w-full object-cover" muted controls playsInline />
                       ) : (
-                        <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
+                        <ImagenConRespaldo src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
                       )}
 
                       {/* Author Tag Overlay */}

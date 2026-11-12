@@ -12,6 +12,7 @@ const chromiumLaunchOverride = chromiumExecutablePath
   : {};
 
 const testEnvironment = {
+  NODE_OPTIONS: '--max-old-space-size=4096',
   GOOGLE_API_KEY: 'dummy',
   GEMINI_API_KEY: 'dummy',
   AK_USE_LOCAL_JSON_ONLY: 'true',

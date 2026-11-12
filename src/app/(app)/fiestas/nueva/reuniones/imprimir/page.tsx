@@ -11,20 +11,9 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { useSearchParams } from 'next/navigation';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return 'Fecha no definida';
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  } catch (e) {
-    return 'Fecha inválida';
-  }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 const companyName = 'AK Producciones';
 

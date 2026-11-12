@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -27,12 +27,16 @@ import {
   BarChart3,
   Camera,
   LayoutGrid,
+  Target,
+  Building2,
+  Settings,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
 import { getMisPermisos } from "@/app/actions/sesion";
-import { PERMISOS, puede, perfilDe, esPerfilValido, type Permiso } from "@/lib/auth/perfiles";
+import { puede, perfilDe, esPerfilValido, type Permiso } from "@/lib/auth/perfiles";
+import { CASAS } from "@/lib/navegacion/mapa";
 
 export type NavItem = {
   title: string;
@@ -51,6 +55,17 @@ export type NavGroup = {
 };
 
 const isPathActive = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
+
+const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  SunMedium,
+  PartyPopper,
+  KanbanSquare,
+  Wallet,
+  Target,
+  Building2,
+  Settings,
+  LayoutGrid,
+};
 
 /**
  * Determina si un usuario con su perfil/permisos puede ver una entrada del menú lateral.
@@ -79,100 +94,32 @@ export function puedeVerEntradaMenu(
 }
 
 /**
- * Las cinco puertas simples de la app (Inicio, Fiestas, Vender, Plata, Más) (Orden 283).
- * Lo demás pasa a /mas y a Ajustes; las direcciones se conservan intactas.
+ * Las 7 casas de la app más la puerta Más (Orden 284).
+ * Lee directamente de CASAS en src/lib/navegacion/mapa.ts.
  */
 export const navGroups: NavGroup[] = [
   {
-    label: "Inicio",
-    emoji: "☀️",
+    label: "Casas",
+    emoji: "🏛️",
     items: [
-      {
-        title: "Inicio",
-        href: "/mi-dia",
-        icon: SunMedium,
-        highlight: true,
-        active: (pathname) => isPathActive(pathname, "/mi-dia") || pathname === "/centro-de-control" || pathname === "/admin",
-      },
-    ],
-  },
-  {
-    label: "Fiestas",
-    emoji: "🎉",
-    items: [
-      {
-        title: "Eventos",
-        href: "/eventos",
-        icon: PartyPopper,
-        active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas"),
-      },
-      {
-        title: "Calendario",
-        href: "/calendario",
-        icon: CalendarDays,
-      },
-      {
-        title: "Muro Social",
-        href: "/empresa/red-social-eventos",
-        icon: Camera,
-      },
-    ],
-  },
-  {
-    label: "Vender",
-    emoji: "💼",
-    items: [
-      {
-        title: "Prospectos",
-        href: "/contabilidad/crm",
-        icon: KanbanSquare,
-        permiso: PERMISOS.CRM,
-        active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads"),
-      },
-      {
-        title: "Presupuestos",
-        href: "/presupuestos/nuevo",
-        icon: FileText,
-        highlight: true,
-        permiso: PERMISOS.CRM,
-        active: (pathname) => isPathActive(pathname, "/presupuestos"),
-      },
-      {
-        title: "Clientes",
-        href: "/customers",
-        icon: Users,
-        permiso: PERMISOS.CRM,
-      },
-    ],
-  },
-  {
-    label: "Plata",
-    emoji: "💵",
-    items: [
-      {
-        title: "Pagos Rápidos",
-        href: "/pagos-rapidos",
-        icon: Wallet,
-        highlight: true,
-        permiso: PERMISOS.CONTABILIDAD,
-      },
-      {
-        title: "Panel Contable",
-        href: "/empresa/contabilidad",
-        icon: BarChart3,
-        permiso: PERMISOS.CONTABILIDAD,
-      },
-    ],
-  },
-  {
-    label: "Más",
-    emoji: "✨",
-    items: [
+      ...CASAS.map((casa) => {
+        const Icon = ICON_MAP[casa.icono] || SunMedium;
+        return {
+          title: casa.titulo,
+          href: casa.inicio,
+          icon: Icon,
+          permiso: casa.permiso as Permiso | Permiso[] | undefined,
+          active: (pathname: string) =>
+            pathname === casa.inicio ||
+            isPathActive(pathname, casa.inicio) ||
+            casa.pestanas.some((p) => pathname === p.ruta || isPathActive(pathname, p.ruta)),
+        };
+      }),
       {
         title: "Más",
         href: "/mas",
         icon: LayoutGrid,
-        active: (pathname) => isPathActive(pathname, "/mas"),
+        active: (pathname: string) => isPathActive(pathname, "/mas"),
       },
     ],
   },
@@ -218,7 +165,6 @@ export function MainNav() {
         setTotalUnreadCount(unread.length);
         setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
       })
-      // no pasa nada si falla: es sólo el numerito de avisos del menú; queda en cero.
       .catch(() => {});
   }, []);
 
@@ -242,7 +188,7 @@ export function MainNav() {
     };
   }, [refreshAlertCount]);
 
-  const isActive = (item: NavItem) => item.active ? item.active(pathname) : isPathActive(pathname, item.href);
+  const isActive = (item: NavItem) => (item.active ? item.active(pathname) : isPathActive(pathname, item.href));
 
   const visibleGroups = useMemo(() => {
     return navGroups
@@ -356,9 +302,9 @@ export function MainNav() {
 
 /**
  * Catálogo completo de pantallas del staff (leído por scripts/generar-mapa-app.mjs para la asistente de IA).
+ * No contiene pantallas duplicadas ni obsoletas (Orden 284 Bloque 4).
  */
 export const TODAS_LAS_OPCIONES_STAFF_MAPA = [
-  { title: "Centro de Control", href: "/centro-de-control" },
   { title: "Mi Día", href: "/mi-dia" },
   { title: "Eventos Activos", href: "/eventos" },
   { title: "Calendario", href: "/calendario" },
@@ -398,7 +344,6 @@ export const TODAS_LAS_OPCIONES_STAFF_MAPA = [
   { title: "Asistente IA", href: "/settings/ai-assistant" },
   { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak" },
   { title: "Laboratorio Experimental", href: "/settings/feature-flags" },
-  { title: "Nuevo Lead", href: "/admin" },
   { title: "Alertas", href: "/alertas" },
   { title: "Más Herramientas", href: "/mas" },
 ];

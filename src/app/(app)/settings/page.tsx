@@ -1,9 +1,16 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import {
+  setAjustesPublicarSoloAction,
+  setAjustesPublicarSolo,
+  getAjustesPublicarSoloAction,
+} from '@/app/actions/presencia-digital';
 import {
   Bell,
   Bot,
@@ -20,6 +27,7 @@ import {
   HardDriveDownload,
   Image,
   Link as LinkIcon,
+  Loader2,
   Megaphone,
   MessageCircle,
   Package,
@@ -159,7 +167,7 @@ const SECTIONS: SettingSection[] = [
       },
       {
         title: 'Cuentas Sociales',
-        description: 'Gestionar perfiles de Instagram, TikTok y Facebook de la productora.',
+        description: 'Gestionar perfiles de Instagram, TikTok y Facebook de la productora. Publicar solo.',
         href: '/settings/social-connections',
         icon: Share2,
       },
@@ -344,8 +352,53 @@ function normalizar(texto: string): string {
 }
 
 export default function SettingsPage() {
+  const { toast } = useToast();
   const [query, setQuery] = useState('');
   const [avanzadoAbierto, setAvanzadoAbierto] = useState(false);
+  const [publicarSolo, setPublicarSolo] = useState(true);
+  const [cargandoPublicarSolo, setCargandoPublicarSolo] = useState(false);
+
+  useEffect(() => {
+    let montado = true;
+    getAjustesPublicarSoloAction()
+      .then((res) => {
+        if (montado && res.success && res.data) {
+          setPublicarSolo(res.data.activo !== false);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      montado = false;
+    };
+  }, []);
+
+  const handleTogglePublicarSolo = async (activo: boolean) => {
+    setCargandoPublicarSolo(true);
+    try {
+      const res = await setAjustesPublicarSolo(activo);
+      if (res.success) {
+        setPublicarSolo(activo);
+        toast({
+          title: 'Ajustes guardados',
+          description: activo ? 'Publicar solo activado.' : 'Publicar solo desactivado.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'No se pudo guardar',
+          description: res.error || 'No tenés permisos para cambiar esta configuración.',
+        });
+      }
+    } catch (e: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: e?.message || 'Error al cambiar ajuste.',
+      });
+    } finally {
+      setCargandoPublicarSolo(false);
+    }
+  };
 
   const { seccionesRegulares, seccionAvanzada } = useMemo(() => {
     const raw = query.trim();
@@ -448,6 +501,31 @@ export default function SettingsPage() {
                   </Link>
                 ))}
               </div>
+
+              {section.id === 'whatsapp-y-conexiones' && (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border border-green-200 bg-green-50/60 shadow-sm mt-3">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <Share2 className="w-4 h-4 text-green-700" />
+                      <span className="font-bold text-sm text-slate-900">Publicar solo</span>
+                    </div>
+                    <p className="text-xs text-slate-600 max-w-xl">
+                      Publica automáticamente en redes los borradores aprobados con más de 12 horas y permisos en regla.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 self-end sm:self-auto">
+                    {cargandoPublicarSolo && <Loader2 className="w-4 h-4 animate-spin text-green-600" />}
+                    <Switch
+                      id="switch-publicar-solo"
+                      data-testid="switch-publicar-solo"
+                      checked={publicarSolo}
+                      disabled={cargandoPublicarSolo}
+                      onCheckedChange={handleTogglePublicarSolo}
+                      aria-label="Publicar solo"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
 

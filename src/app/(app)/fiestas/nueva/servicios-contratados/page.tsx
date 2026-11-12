@@ -20,13 +20,9 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { Badge } from '@/components/ui/badge';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return "Fecha inválida"; }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 interface SubServicioItem {
   id: string;

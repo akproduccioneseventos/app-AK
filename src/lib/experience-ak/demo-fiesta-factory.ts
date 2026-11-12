@@ -88,6 +88,7 @@ function futureDate(monthsAhead: number): string {
 function makeGuests(total: number): Invitado[] {
   return Array.from({ length: total }, (_, index) => ({
     id: `demo_guest_${index + 1}`,
+    guestAccessToken: `demo_token_${index + 1}`,
     nombre: `Invitado demo ${index + 1}`,
     categoria: index % 5 === 0 ? 'Nino/Adolescente' as any : 'Adulto',
     contacto: `09${String(8000000 + index).slice(0, 7)}`,
@@ -347,8 +348,8 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
     },
     screenPlaylist: {
       items: [
-        { id: 'playlist_demo_1', title: 'Portada fiesta demo', type: 'mural' as any, durationSeconds: 18, enabled: true },
-        { id: 'playlist_demo_2', title: 'Muro social demo', type: 'redes' as any, durationSeconds: 20, enabled: true },
+        { id: 'playlist_demo_1', title: 'Portada fiesta demo', type: 'muro-fotos' as any, durationSeconds: 18, enabled: true },
+        { id: 'playlist_demo_2', title: 'Muro social demo', type: 'redes-sociales' as any, durationSeconds: 20, enabled: true },
       ] as any,
       loop: true,
       orientation: 'landscape',

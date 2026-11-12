@@ -4,6 +4,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -280,7 +281,7 @@ export default function ClientDecoracionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fotosAi.map((foto, idx) => (
                 <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-white/15 shadow-2xl bg-slate-900">
-                  <Image src={foto} alt={`Visualización de decoración ${idx + 1}`} fill unoptimized className="object-cover" />
+                  <ImagenConRespaldo src={foto} alt={`Visualización de decoración ${idx + 1}`} fill unoptimized className="object-cover" />
                 </div>
               ))}
             </div>
@@ -350,7 +351,7 @@ export default function ClientDecoracionPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {moodboard.slice(0, 8).map((item) => (
                 <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-slate-900 group">
-                  <Image src={item.url} alt={item.description || 'Inspiración'} fill className="object-cover transition-transform group-hover:scale-105" />
+                  <ImagenConRespaldo src={item.url} alt={item.description || 'Inspiración'} fill className="object-cover transition-transform group-hover:scale-105" />
                   {item.likedByClient && (
                     <div className="absolute top-2 right-2 p-1.5 rounded-full bg-pink-600 text-white shadow">
                       <Heart className="w-3.5 h-3.5 fill-current" />
@@ -377,7 +378,7 @@ export default function ClientDecoracionPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             {ideasPhotos.map((url, idx) => (
               <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-white/20 bg-slate-900 group">
-                <Image src={url} alt={`Idea ${idx + 1}`} fill className="object-cover" />
+                <ImagenConRespaldo src={url} alt={`Idea ${idx + 1}`} fill className="object-cover" />
                 <button
                   type="button"
                   onClick={() => {

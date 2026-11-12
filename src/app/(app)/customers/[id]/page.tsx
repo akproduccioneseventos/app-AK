@@ -16,9 +16,11 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import { getCustomerById } from '@/app/actions/customers';
-import { createFiestaVacia, getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { createFiestaVacia, getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas } from '@/app/actions/fiesta-actual';
+import { getPresupuestoById, getPresupuestos } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
+import { enlaceDeDocumentoDelCliente } from '@/lib/clientes/enlace-documento';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
@@ -60,6 +62,7 @@ export default function CustomerDetailsPage() {
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [eventPaymentHistory, setEventPaymentHistory] = useState<EventPaymentDetails[]>([]);
+  const [presupuestosSinFiesta, setPresupuestosSinFiesta] = useState<Presupuesto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,14 +109,41 @@ export default function CustomerDetailsPage() {
       }
       setCustomer(fetchedCustomer);
 
-      const [historial, actual] = await Promise.all([
+      const [historial, todasLasFiestas, todosLosPresupuestos] = await Promise.all([
         getHistorialFiestas(),
-        getFiestaActual()
+        getFiestas(true),
+        getPresupuestos(true).catch(() => []),
       ]);
 
-      const todasLasFiestasDelCliente = [actual, ...(Array.isArray(historial) ? historial : [])].filter(
-        (f): f is FiestaEnPlanificacion => f !== null && f.configuracion.clienteId === customerId
+      const presupuestosDelCliente = (todosLosPresupuestos || []).filter((p) =>
+        (p as any).customerId === customerId ||
+        (p as any).clienteId === customerId ||
+        p.leadId === customerId ||
+        (fetchedCustomer.presupuestoId && p.id === fetchedCustomer.presupuestoId)
       );
+      const presupuestoIdsDelCliente = new Set(presupuestosDelCliente.map((p) => p.id));
+
+      const todas = [
+        ...(Array.isArray(todasLasFiestas) ? todasLasFiestas : []),
+        ...(Array.isArray(historial) ? historial : []),
+      ];
+
+      const fiestaMap = new Map<string, FiestaEnPlanificacion>();
+      for (const f of todas) {
+        if (!f || !f.id) continue;
+        const pertenecePorCliente = f.configuracion?.clienteId === customerId;
+        const pertenecePorPresupuesto = Boolean(f.presupuestoId && presupuestoIdsDelCliente.has(f.presupuestoId));
+        if (pertenecePorCliente || pertenecePorPresupuesto) {
+          fiestaMap.set(f.id, f);
+        }
+      }
+      const todasLasFiestasDelCliente = Array.from(fiestaMap.values());
+
+      const fiestasPresupuestoIds = new Set(
+        todasLasFiestasDelCliente.map((f) => f.presupuestoId).filter(Boolean)
+      );
+      const sinFiesta = presupuestosDelCliente.filter((p) => !fiestasPresupuestoIds.has(p.id));
+      setPresupuestosSinFiesta(sinFiesta);
 
       const paymentHistory: EventPaymentDetails[] = [];
       for (const fiesta of todasLasFiestasDelCliente) {
@@ -200,7 +230,7 @@ export default function CustomerDetailsPage() {
 
   // ── Derived state for status badge and next step ──────────────────────────
   const latestEvent = eventPaymentHistory[0] ?? null;
-  const hasEvents = eventPaymentHistory.length > 0;
+  const hasEvents = eventPaymentHistory.length > 0 || presupuestosSinFiesta.length > 0;
   const hasPendingBalance = eventPaymentHistory.some(e => e.saldoFiesta > 0);
 
   let statusBadge: React.ReactNode;
@@ -304,27 +334,68 @@ export default function CustomerDetailsPage() {
             <div>
                  <h4 className="text-sm font-semibold mb-2">Documentos y Acciones</h4>
                  <div className="flex flex-wrap gap-2">
-                    {customer.contractFileName ? (
-                        <a href={customer.contractFileName.startsWith('https://') ? customer.contractFileName : `/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                    {(() => {
+                      const contractUrl = enlaceDeDocumentoDelCliente(customer.contractFileName, 'contracts');
+                      if (contractUrl) {
+                        return (
+                          <a href={contractUrl} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato</Button>
-                        </a>
-                    ) : (
+                          </a>
+                        );
+                      }
+                      if (customer.contractFileName) {
+                        return (
+                          <Button variant="outline" disabled title="El archivo quedó en una computadora: volvé a subirlo">
+                            <FileText className="w-4 h-4 mr-2"/> El archivo quedó en una computadora: volvé a subirlo
+                          </Button>
+                        );
+                      }
+                      return (
                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato no subido</Button>
-                    )}
-                     {customer.budgetFileName ? (
-                        <a href={customer.budgetFileName.startsWith('https://') ? customer.budgetFileName : `/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
+                      );
+                    })()}
+
+                    {(() => {
+                      const budgetUrl = enlaceDeDocumentoDelCliente(customer.budgetFileName, 'budgets');
+                      if (budgetUrl) {
+                        return (
+                          <a href={budgetUrl} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Presupuesto Firmado</Button>
-                        </a>
-                    ) : (
-                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Presupuesto no subido</Button>
-                    )}
-                    {customer.salonContractFileName ? (
-                        <a href={customer.salonContractFileName.startsWith('https://') ? customer.salonContractFileName : `/api/salon-contracts/${customer.salonContractFileName}`} target="_blank" rel="noopener noreferrer">
+                          </a>
+                        );
+                      }
+                      if (customer.budgetFileName) {
+                        return (
+                          <Button variant="outline" disabled title="El archivo quedó en una computadora: volvé a subirlo">
+                            <FileText className="w-4 h-4 mr-2"/> El archivo quedó en una computadora: volvé a subirlo
+                          </Button>
+                        );
+                      }
+                      return (
+                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Presupuesto no subido</Button>
+                      );
+                    })()}
+
+                    {(() => {
+                      const salonUrl = enlaceDeDocumentoDelCliente(customer.salonContractFileName, 'salon-contracts');
+                      if (salonUrl) {
+                        return (
+                          <a href={salonUrl} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato Salón</Button>
-                        </a>
-                    ) : (
-                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato Salón no subido</Button>
-                    )}
+                          </a>
+                        );
+                      }
+                      if (customer.salonContractFileName) {
+                        return (
+                          <Button variant="outline" disabled title="El archivo quedó en una computadora: volvé a subirlo">
+                            <FileText className="w-4 h-4 mr-2"/> El archivo quedó en una computadora: volvé a subirlo
+                          </Button>
+                        );
+                      }
+                      return (
+                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato Salón no subido</Button>
+                      );
+                    })()}
                     <Button asChild variant="secondary"><Link href="/settings/feedback"><Star className="w-4 h-4 mr-2"/>Ver Feedback</Link></Button>
                  </div>
             </div>
@@ -408,16 +479,58 @@ export default function CustomerDetailsPage() {
               ))}
             </div>
         ) : (
-          <Card className="p-6 text-center bg-muted/30">
-            <Info className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3"/>
-            <p className="text-muted-foreground">Este cliente no tiene eventos registrados en el sistema.</p>
-             <Button className="mt-4" onClick={handleCreateEvent} disabled={isCreatingEvent}>
-                {isCreatingEvent ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {isCreatingEvent ? 'Creando evento...' : 'Crear Nuevo Evento'}
-             </Button>
-          </Card>
+          presupuestosSinFiesta.length === 0 && (
+            <Card className="p-6 text-center bg-muted/30">
+              <Info className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3"/>
+              <p className="text-muted-foreground">Este cliente no tiene eventos ni presupuestos registrados en el sistema.</p>
+               <Button className="mt-4" onClick={handleCreateEvent} disabled={isCreatingEvent}>
+                  {isCreatingEvent ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {isCreatingEvent ? 'Creando evento...' : 'Crear Nuevo Evento'}
+               </Button>
+            </Card>
+          )
         )}
       </section>
+
+      {presupuestosSinFiesta.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-2xl font-semibold font-headline mb-4 text-primary">Presupuestos</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {presupuestosSinFiesta.map((presupuesto) => (
+              <Card key={presupuesto.id} className="shadow-sm border">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-base font-bold">
+                        {presupuesto.eventoTipo || 'Presupuesto'} #{presupuesto.numero || presupuesto.id}
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        {formatDate(presupuesto.eventoFecha)} · {presupuesto.salonFiestas || 'Salón a definir'}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="outline" className="text-xs font-semibold">
+                      {presupuesto.estado}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-2 flex justify-between items-center text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Importe: </span>
+                    <span className="font-bold text-sm">
+                      {formatCurrency(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)}
+                    </span>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="text-xs">
+                    <Link href={`/presupuestos/${presupuesto.id}/ver`}>
+                      <Eye className="w-3.5 h-3.5 mr-1" /> Ver Presupuesto
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

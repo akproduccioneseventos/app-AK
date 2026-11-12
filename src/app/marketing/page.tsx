@@ -46,6 +46,7 @@ import {
   MonitorPlay,
   Presentation,
   RadioTower,
+  ExternalLink,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type {
@@ -185,6 +186,33 @@ const TAREAS_DEFAULT = [
   { tarea: 'Post en feed', canal: 'Instagram' },
   { tarea: 'Reel / TikTok', canal: 'TikTok' },
   { tarea: 'Seguimiento WhatsApp', canal: 'WhatsApp' },
+];
+
+const CANVA_CATALOGS = [
+  {
+    emoji: '🍽️',
+    title: 'Catálogo Catering',
+    description: 'Menús, platos y opciones gastronómicas para todo tipo de eventos.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  },
+  {
+    emoji: '💍',
+    title: 'Catálogo Bodas',
+    description: 'Servicio completo para bodas: decoración, catering, fotografía y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas',
+  },
+  {
+    emoji: '👑',
+    title: 'Catálogo XV Años',
+    description: 'Todo lo que necesitás para una fiesta de 15 años inolvidable.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
+  },
+  {
+    emoji: '🎉',
+    title: 'Catálogo Fiestas',
+    description: 'Servicio completo para fiestas en general: cumpleaños, celebraciones y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+  },
 ];
 
 const MARKETING_HUB_ITEMS = [
@@ -744,6 +772,36 @@ export default function MarketingPage() {
                 </Link>
               );
             })}
+          </div>
+        </section>
+
+        {/* Catálogos para mandar (Canva) - Orden 284 Bloque 3 */}
+        <section className="mt-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <span>🎨</span>
+              <span>Catálogos para mandar</span>
+            </h2>
+            <span className="text-xs font-semibold text-slate-500">Listos en Canva para enviar a clientes</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {CANVA_CATALOGS.map((cat) => (
+              <Card key={cat.title} className="rounded-2xl border-slate-200 bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <CardHeader className="p-4 pb-2 space-y-1">
+                  <div className="text-xl">{cat.emoji}</div>
+                  <CardTitle className="text-sm font-black text-slate-900">{cat.title}</CardTitle>
+                  <CardDescription className="text-xs text-slate-500 line-clamp-2">{cat.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-1">
+                  <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs font-bold text-primary hover:bg-primary/5 rounded-xl h-8">
+                    <a href={cat.href} target="_blank" rel="noopener noreferrer">
+                      <span>Abrir Canva</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </section>
 

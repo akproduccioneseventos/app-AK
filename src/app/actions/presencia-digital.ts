@@ -449,3 +449,42 @@ export async function setAjustesRespuestasAction(ajustes: { comentarios?: boolea
   const { setAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await setAjustesRespuestasComentarios(ajustes);
 }
+
+export async function getAjustesPublicarSoloAction(): Promise<{
+  success: boolean;
+  data?: import('@/lib/presencia-digital/publicador').AjustesPublicarSolo;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    const { getAjustesPublicarSolo } = await import('@/lib/presencia-digital/publicador');
+    const data = await getAjustesPublicarSolo();
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al obtener ajustes de publicar solo.' };
+  }
+}
+
+export async function setAjustesPublicarSoloAction(activo: boolean): Promise<{
+  success: boolean;
+  data?: import('@/lib/presencia-digital/publicador').AjustesPublicarSolo;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    if (permiso.user.perfil === 'auditor' || permiso.user.role === 'auditor') {
+      return { success: false, error: 'Acceso de auditor: se puede mirar todo, pero no guardar ni mandar nada.' };
+    }
+    const { exigirQueSePuedaGuardar } = await import('@/lib/auth/solo-lectura');
+    await exigirQueSePuedaGuardar();
+    const { setAjustesPublicarSolo } = await import('@/lib/presencia-digital/publicador');
+    const data = await setAjustesPublicarSolo(activo);
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al actualizar ajustes de publicar solo.' };
+  }
+}
+
+export const setAjustesPublicarSolo = setAjustesPublicarSoloAction;

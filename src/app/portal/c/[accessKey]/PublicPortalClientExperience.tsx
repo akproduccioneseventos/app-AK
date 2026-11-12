@@ -57,7 +57,8 @@ import {
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
-import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
+import { textoDeCuentaRegresiva, textoDeEstadoDeFiestaParaPortal } from '@/lib/portal/cuenta-regresiva';
+import { hoyEnUruguay } from '@/lib/utils';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
 // Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
@@ -104,10 +105,20 @@ function normalizeText(value: unknown): string {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
+function parseFechaSegura(date?: string): Date | null {
+  if (!date) return null;
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+  }
+  const d = new Date(date);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 function formatDate(date?: string): string {
   if (!date) return 'Fecha a confirmar';
-  const value = new Date(date.includes('T') ? date : `${date}T00:00:00`);
-  if (Number.isNaN(value.getTime())) return 'Fecha a confirmar';
+  const value = parseFechaSegura(date);
+  if (!value) return 'Fecha a confirmar';
 
   return value.toLocaleDateString('es-UY', {
     weekday: 'long',
@@ -119,8 +130,8 @@ function formatDate(date?: string): string {
 
 function formatShortDate(date?: string): string {
   if (!date) return 'A confirmar';
-  const value = new Date(date.includes('T') ? date : `${date}T00:00:00`);
-  if (Number.isNaN(value.getTime())) return 'A confirmar';
+  const value = parseFechaSegura(date);
+  if (!value) return 'A confirmar';
 
   return value.toLocaleDateString('es-UY', {
     day: 'numeric',
@@ -131,8 +142,8 @@ function formatShortDate(date?: string): string {
 
 function daysUntilEvent(date?: string): number | null {
   if (!date) return null;
-  const value = new Date(date.includes('T') ? date : `${date}T00:00:00`);
-  if (Number.isNaN(value.getTime())) return null;
+  const value = parseFechaSegura(date);
+  if (!value) return null;
   return Math.ceil((value.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 
@@ -329,8 +340,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   useEffect(() => {
     if (!config.fechaEvento) return;
-    const targetDate = new Date(config.fechaEvento);
-    if (Number.isNaN(targetDate.getTime())) return;
+    const targetDate = parseFechaSegura(config.fechaEvento);
+    if (!targetDate || Number.isNaN(targetDate.getTime())) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const updateCountdown = () => {
@@ -543,8 +554,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     const eventDateStr = config.fechaEvento;
     let targetDate: Date;
     if (eventDateStr) {
-      const eventDate = new Date(eventDateStr);
-      targetDate = new Date(eventDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const eventDate = parseFechaSegura(eventDateStr);
+      targetDate = eventDate
+        ? new Date(eventDate.getTime() - 30 * 24 * 60 * 60 * 1000)
+        : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
       if (targetDate.getTime() < Date.now()) {
         targetDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
       }
@@ -1107,9 +1120,17 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 >
                   {timeLeft ? (
                     timeLeft.isOver ? (
-                      <p className="flex items-center justify-center gap-2 text-xl font-black text-white sm:text-2xl">
-                        <PartyPopper className="h-6 w-6" /> ¡Llegó el gran día!
-                      </p>
+                      (() => {
+                        const hoy = hoyEnUruguay();
+                        const fechaStr = (config.fechaEvento || '').slice(0, 10);
+                        const esHoy = fechaStr === hoy;
+                        return (
+                          <p className="flex items-center justify-center gap-2 text-xl font-black text-white sm:text-2xl">
+                            {esHoy && <PartyPopper className="h-6 w-6" />}
+                            {esHoy ? '¡Llegó el gran día!' : textoDeEstadoDeFiestaParaPortal(config.fechaEvento, hoy)}
+                          </p>
+                        );
+                      })()
                     ) : (
                       <>
                         <p className="text-3xl font-black leading-none sm:text-4xl">{timeLeft.days}</p>
@@ -1122,7 +1143,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       </>
                     )
                   ) : (
-                    <p className="text-xl font-black leading-tight sm:text-2xl">{textoDeCuentaRegresiva(days)}</p>
+                    <p className="text-xl font-black leading-tight sm:text-2xl">{textoDeEstadoDeFiestaParaPortal(config.fechaEvento, hoyEnUruguay())}</p>
                   )}
                 </div>
               </div>

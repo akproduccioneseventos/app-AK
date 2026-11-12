@@ -242,11 +242,11 @@ function LiveEventDashboardContent() {
                 </AnimatePresence>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="operaciones" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
-                        <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Panel de Comando</TabsTrigger>
-                        <TabsTrigger value="modos" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Modos</TabsTrigger>
-                        <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Logística Inversa</TabsTrigger>
-                        <TabsTrigger value="invitados" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Check-in Invitados</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-slate-900 h-auto p-1 rounded-2xl border border-white/5 mb-8 gap-1">
+                        <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Panel de Comando</TabsTrigger>
+                        <TabsTrigger value="modos" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Modos</TabsTrigger>
+                        <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Logística Inversa</TabsTrigger>
+                        <TabsTrigger value="invitados" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Check-in Invitados</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="operaciones" className="space-y-8">
@@ -254,8 +254,8 @@ function LiveEventDashboardContent() {
                             <div className="lg:col-span-8 space-y-8">
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
                                     <CardHeader className="bg-white/5 border-b border-white/5 p-6 flex flex-row items-center justify-between">
-                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><Truck className="w-5 h-5 text-primary"/> Recepción Crítica</CardTitle>
-                                        <Button variant="ghost" size="sm" onClick={() => confirmProtagonistArrival(fiestaId!)} className="text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 rounded-full h-7 px-4">Aviso Manual Llegada</Button>
+                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3 text-slate-100"><Truck className="w-5 h-5 text-primary"/> Recepción Crítica</CardTitle>
+                                        <Button variant="ghost" size="sm" onClick={() => confirmProtagonistArrival(fiestaId!)} className="text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 rounded-full h-auto min-h-[28px] py-1 px-4 whitespace-normal text-center leading-tight">Aviso Manual Llegada</Button>
                                     </CardHeader>
                                     <CardContent className="p-6">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -270,7 +270,7 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><Users className="w-5 h-5 text-primary"/> Checklist de Personal</CardTitle></CardHeader>
+                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3 text-slate-100"><Users className="w-5 h-5 text-primary"/> Checklist de Personal</CardTitle></CardHeader>
                                     <CardContent className="p-0">
                                         <Table>
                                             <TableHeader className="bg-white/5"><TableRow className="border-white/5"><TableHead className="text-[10px] uppercase font-black text-slate-500 pl-8">Empleado</TableHead><TableHead className="text-center text-[10px] uppercase font-black text-slate-500">Estado</TableHead></TableRow></TableHeader>
@@ -293,7 +293,7 @@ function LiveEventDashboardContent() {
 
                             <div className="lg:col-span-4 space-y-8">
                                 <Card className="bg-primary shadow-3xl shadow-primary/20 border-none rounded-[2.5rem] overflow-hidden text-white">
-                                    <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest">Recepción</CardTitle></CardHeader>
+                                    <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-100">Recepción</CardTitle></CardHeader>
                                     <CardContent className="space-y-6">
                                         <div className="flex justify-between items-end"><div className="text-5xl font-black">{asistentesPresentes}</div><div className="text-xl font-bold opacity-60">de {totalConfirmados}</div></div>
                                         <Progress value={(asistentesPresentes/Math.max(1, totalConfirmados))*100} className="h-3 bg-black/20" />
@@ -301,7 +301,7 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><PartyPopper className="w-5 h-5 text-primary"/> Hitos del Itinerario</CardTitle></CardHeader>
+                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3 text-slate-100"><PartyPopper className="w-5 h-5 text-primary"/> Hitos del Itinerario</CardTitle></CardHeader>
                                     <CardContent className="p-6">
                                         <div className="space-y-4">
                                             {fiesta.programa?.map(item => (

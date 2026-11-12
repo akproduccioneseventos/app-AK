@@ -209,9 +209,7 @@ export function wrapFirestoreWithReadOnlyLock<T extends admin.firestore.Firestor
   }) as T;
 }
 
-export const dbAdmin: admin.firestore.Firestore | null = dbInstance
-  ? (process.env.AK_DECORATION_SDK_QA === 'true' ? dbInstance : wrapFirestoreWithReadOnlyLock(dbInstance))
-  : null;
+export const dbAdmin: admin.firestore.Firestore | null = dbInstance ? wrapFirestoreWithReadOnlyLock(dbInstance) : null;
 export const authAdmin = authInstance;
 
 export function isFirebaseAvailable(): boolean {

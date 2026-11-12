@@ -70,7 +70,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils';
+import { cn, hoyEnUruguay } from '@/lib/utils';
+import { textoDeCuentaRegresivaFecha } from '@/lib/portal/cuenta-regresiva';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -152,8 +153,15 @@ function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
 }
 
-function parseEventDate(dateString: string) {
-  return new Date(dateString.includes('T') ? dateString : `${dateString}T00:00:00Z`);
+export function parseEventDate(dateString: string) {
+  if (dateString.includes('T')) {
+    return new Date(dateString);
+  }
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+  }
+  return new Date(dateString);
 }
 
 function safeExternalUrl(url?: string) {
@@ -169,8 +177,13 @@ function safeExternalUrl(url?: string) {
   }
 }
 
-function formatDate(dateString?: string) {
+export function formatDate(dateString?: string) {
   if (!dateString) return 'Fecha a confirmar';
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    return d.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  }
   const date = parseEventDate(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
@@ -183,7 +196,13 @@ function formatCurrency(amount: number) {
 function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
+  const hoy = hoyEnUruguay();
+  const fechaStr = (fechaEvento || '').slice(0, 10);
+  const yaPaso = fechaStr < hoy;
+  const esHoy = fechaStr === hoy;
+
   useEffect(() => {
+    if (yaPaso || esHoy) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const update = () => {
@@ -202,7 +221,23 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
 
     update();
     return () => clearTimeout(timeoutId);
-  }, [fechaEvento]);
+  }, [fechaEvento, yaPaso, esHoy]);
+
+  if (yaPaso) {
+    return (
+      <div className="rounded-xl border border-primary-foreground/20 bg-background/20 p-4 text-center text-xl font-black backdrop-blur-sm">
+        ¡Ya la festejaste!
+      </div>
+    );
+  }
+
+  if (esHoy) {
+    return (
+      <div className="rounded-xl border border-primary-foreground/20 bg-background/20 p-4 text-center text-xl font-black backdrop-blur-sm">
+        ¡Es hoy!
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
@@ -937,9 +972,9 @@ function ClientPortalContent() {
                   </div>
                 )}
 
-                {settings.informarPago.visible && (
+                {settings.informarPago.visible && settings.accessKey && (
                   <Button asChild>
-                    <Link href={`/portal/c/${settings.accessKey || fiesta.id}`}>
+                    <Link href={`/portal/c/${settings.accessKey}`}>
                       <CreditCard className="w-4 h-4 mr-2" /> Informar Pago
                     </Link>
                   </Button>
@@ -1053,7 +1088,7 @@ function ClientPortalContent() {
                     {modulesPaso.map((module) => {
                       const Icon = module.icon;
                       const href = module.id === 'informarPago'
-                        ? `/portal/c/${settings.accessKey || fiesta.id}`
+                        ? (settings.accessKey ? `/portal/c/${settings.accessKey}` : null)
                         : module.href?.(fiesta.id);
                       return href ? (
                         <Link key={module.id} href={href} className="ak-public-action p-4">

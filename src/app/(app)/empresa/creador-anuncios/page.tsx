@@ -230,14 +230,14 @@ export default function CreadorAnunciosPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="creador" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-lg bg-slate-100 p-1 rounded-xl">
-          <TabsTrigger value="creador" className="font-bold gap-2 text-xs sm:text-sm">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 max-w-lg bg-slate-100 p-1 rounded-xl h-auto gap-1">
+          <TabsTrigger value="creador" className="font-bold gap-2 text-xs sm:text-sm min-h-[44px] py-2 whitespace-normal leading-tight text-center">
             <Wand2 className="w-4 h-4" /> Creador 1-Clic
           </TabsTrigger>
-          <TabsTrigger value="auditor" className="font-bold gap-2 text-xs sm:text-sm">
+          <TabsTrigger value="auditor" className="font-bold gap-2 text-xs sm:text-sm min-h-[44px] py-2 whitespace-normal leading-tight text-center">
             <SearchCheck className="w-4 h-4" /> Auditor de claridad
           </TabsTrigger>
-          <TabsTrigger value="guardados" className="font-bold gap-2 text-xs sm:text-sm">
+          <TabsTrigger value="guardados" className="font-bold gap-2 text-xs sm:text-sm min-h-[44px] py-2 whitespace-normal leading-tight text-center">
             <Layers className="w-4 h-4" /> Guardados ({guardados.length})
           </TabsTrigger>
         </TabsList>

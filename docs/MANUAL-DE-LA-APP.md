@@ -8,7 +8,7 @@ para no volver a construir algo que ya está ni prometer algo que la app no hace
 Van juntos a propósito. Dos manuales separados se despegan en un mes, y el que
 queda viejo hace más daño que no tener ninguno.
 
-**Tamaño de la app hoy: 382 pantallas y 53 opciones de menú.** Esos dos números
+**Tamaño de la app hoy: 382 pantallas y 42 opciones de menú.** Esos dos números
 no se escriben a mano: los cuenta el control automático, y si no coinciden con
 la app de verdad, se pone en rojo.
 
@@ -35,31 +35,26 @@ ruta que nombra este manual siga estando.
 
 # CAPA 1 — El mapa en criollo (lo que lee la asistente)
 
-## Las cinco áreas del panel
+## Las siete casas del panel (Orden 284)
 
-### 💼 CRM y ventas — de desconocido a cliente
+### ☀️ 1. Inicio — tu día en un toque
 
 | Para qué | Dónde |
 |---|---|
-| Ver y mover los prospectos por etapa | `/contabilidad/crm` |
-| Armar un presupuesto | `/presupuestos/nuevo` |
-| Ficha de clientes ya cerrados | `/customers` |
-| Simulador con inteligencia artificial | `/simulador-ak` |
-| Los WhatsApp preparados del día, listos para tocar y mandar | `/contabilidad/crm/outbox` |
-| El repaso de la mañana: qué hay que hacer hoy | `/repaso-diario` |
-| Agenda de reuniones con prospectos | `/contabilidad/crm/agenda` |
-| Rendimiento de los anuncios pagos | `/contabilidad/crm/marketing-ads` |
+| Tu día de trabajo: tareas, turnos y repaso | `/mi-dia` |
+| Avisos y alertas urgentes del negocio | `/alertas` |
+| Cambios presupuestarios y pedidos a aprobar | `/aprobaciones` |
+| Asistente de inteligencia artificial (Sofía) | `/asistente` |
 
-**Etapas del prospecto:** Nuevo → Contactado → Entrevista agendada → Presupuesto
-enviado → En negociación → Ganado o Perdido. Un prospecto sin etapa o sin próxima
-acción es un prospecto perdido.
-
-### 🎉 Fiestas — armar y correr el evento
+### 🎉 2. Fiestas — armar y correr el evento
 
 | Para qué | Dónde |
 |---|---|
 | Las fiestas activas | `/eventos` |
 | Calendario general | `/calendario` |
+| Incidentes en eventos | `/incidentes` |
+| Guías de armado paso a paso | `/playbooks` |
+| Personal que está en dos fiestas el mismo día | `/recursos-multi-evento` |
 | Configuración general de una fiesta | `/fiestas/nueva/configuracion` |
 | Invitados y confirmaciones | `/fiestas/nueva/invitados` |
 | Comida del evento | `/fiestas/nueva/catering` |
@@ -75,60 +70,82 @@ acción es un prospecto perdido.
 | Centro de operaciones, la noche de la fiesta | `/fiestas/nueva/en-vivo` |
 | Configurar el portal del cliente | `/fiestas/nueva/portal-cliente` |
 | Portal para los proveedores | `/fiestas/nueva/proveedores-portal` |
-| Personal que está en dos fiestas el mismo día | `/recursos-multi-evento` |
-| Incidentes | `/incidentes` |
-| Guías de armado paso a paso | `/playbooks` |
 | Muro social de todos los eventos | `/empresa/red-social-eventos` |
 
-### 💰 Plata — presupuestos, cobros y cuentas
+### 💼 3. Vender — prospectos, presupuestos y clientes
 
 | Para qué | Dónde |
 |---|---|
-| Cobrar rápido una seña o un saldo | `/pagos-rapidos` |
-| Panel contable | `/empresa/contabilidad` |
-| Reporte de ganancias y pérdidas | `/empresa/contabilidad/reportes` |
+| Pipeline comercial y seguimiento de prospectos | `/contabilidad/crm` |
+| Armar un nuevo presupuesto | `/presupuestos/nuevo` |
+| Directorio completo de clientes | `/customers` |
+| Agenda de reuniones comerciales | `/contabilidad/crm/agenda` |
+| WhatsApp preparados del día para enviar con un toque | `/contabilidad/crm/outbox` |
+| Simulador inteligente de presupuesto con IA | `/simulador-ak` |
+
+**Etapas del prospecto:** Nuevo → Contactado → Entrevista agendada → Presupuesto
+enviado → En negociación → Ganado o Perdido. Un prospecto sin etapa o sin próxima
+acción es un prospecto perdido.
+
+### 💰 4. Plata — cobros, facturación y finanzas
+
+| Para qué | Dónde |
+|---|---|
+| Cobrar rápido señas o cuotas con recibo | `/pagos-rapidos` |
+| Panel contable general | `/empresa/contabilidad` |
+| Facturas y comprobantes emitidos | `/invoices` |
+| Control y registro de gastos | `/empresa/contabilidad/gastos` |
 | Flujo de caja proyectado | `/empresa/contabilidad/flujo-caja` |
-| Gastos generales | `/empresa/contabilidad/gastos` |
-| Facturas | `/invoices` |
-| Cambios que hay que aprobar | `/aprobaciones` |
-| Métricas del negocio | `/empresa/dashboard` |
+| Reporte de ganancias y balance del negocio | `/empresa/contabilidad/reportes` |
+| Comparativa de ganancias por fiesta | `/comparativa-ganancias` |
+| Métricas globales y evolución comercial | `/empresa/dashboard` |
 
 **Cómo se arma la plata de una fiesta, en orden:** el presupuesto suma los
 servicios elegidos → se aplica el descuento → se aplica el ajuste anual del 15%
 si la fiesta es para el año que viene → sale la seña (lo acordado, o $5.000 si no
 se acordó nada) → el saldo es el total menos lo que ya se cobró.
 
-### 📦 Insumos y empresa — lo que hace falta para la fiesta
+### 🚀 5. Marketing — difusión, redes y presencia digital
 
 | Para qué | Dónde |
 |---|---|
-| Menús y platos | `/empresa/menus` |
-| Lista de compras | `/compras` |
-| Insumos e ingredientes | `/empresa/insumos` |
-| Salones | `/empresa/salones` |
-| Catálogo de servicios | `/empresa/servicios` |
-| Proveedores | `/proveedores` |
-| Empleados | `/empleados` |
-| Fotos de la presentación en la pantalla LED | `/empresa/presentacion-led/configuracion` |
-| Planificador de contenido de redes | `/empresa/redes-sociales` |
-| Centro de presencia digital | `/empresa/presencia-digital` |
-| Galería pública | `/empresa/galeria` |
-| Editor de la página de venta | `/empresa/landing-editor` |
+| Resumen de campañas y wizard de contenidos | `/marketing` |
+| Bandeja de comentarios y mensajes de redes | `/empresa/presencia-digital` |
+| Publicaciones y planificador de redes sociales | `/empresa/redes-sociales` |
+| Reseñas y calificaciones de Google Maps | `/empresa/resenas-google` |
+| Anuncios pagos en Meta Ads | `/contabilidad/crm/marketing-ads` |
+| Galería pública y catálogo web | `/empresa/galeria` |
+| Editor de landing page y portada pública | `/empresa/landing-editor` |
+| Muro general de fotos de la comunidad | `/empresa/red-social-eventos` |
 
-### ⚙️ Configuración
+### 📦 6. Recursos — insumos, personal y salones
 
 | Para qué | Dónde |
 |---|---|
-| Ajustes generales | `/settings` |
-| Ver si las tareas automáticas corrieron | `/settings/tareas-automaticas` |
-| Conexiones con otros servicios | `/settings/sincronizaciones` |
-| WhatsApp | `/settings/whatsapp` |
-| Cláusulas del contrato | `/settings/contratos/clausulas` |
-| Seguridad y cuentas | `/settings/account` |
-| Promociones | `/settings/promos` |
-| La asistente de la app | `/settings/ai-assistant` |
-| Mapa tecnológico | `/settings/mapa-tecnologico-ak` |
-| Alertas | `/alertas` |
+| Catálogo maestro de platos y recetas | `/empresa/menus` |
+| Carta de coctelería y tragos | `/empresa/menus/tragos` |
+| Lista de compras y stock necesario | `/compras` |
+| Control de insumos y depósito central | `/empresa/insumos` |
+| Salones y locaciones habilitadas | `/empresa/salones` |
+| Catálogo de servicios comercializables | `/empresa/servicios` |
+| Directorio de proveedores tercerizados | `/proveedores` |
+| Gestión de empleados y nómina | `/empleados` |
+| Activos fijos, mobiliario y equipamiento | `/empresa/activos-fijos` |
+
+### ⚙️ 7. Ajustes — configuración y accesos
+
+| Para qué | Dónde |
+|---|---|
+| Ajustes generales del sistema | `/settings` |
+| Usuarios, roles y permisos de acceso | `/admin/usuarios` |
+| Tareas automáticas en segundo plano | `/settings/tareas-automaticas` |
+| Conexiones con servicios externos | `/settings/sincronizaciones` |
+| Configuración de WhatsApp comercial | `/settings/whatsapp` |
+| Cláusulas contractuales | `/settings/contratos/clausulas` |
+| Seguridad y cuentas del equipo | `/settings/account` |
+| Promociones y políticas de seña | `/settings/promos` |
+| Ajustes del asistente de IA | `/settings/ai-assistant` |
+| Mapa tecnológico AK | `/settings/mapa-tecnologico-ak` |
 
 ## Lo que ve el cliente
 

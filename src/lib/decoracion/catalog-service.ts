@@ -176,194 +176,232 @@ export async function listDecorationDrafts(): Promise<DraftList> {
   return { drafts: visible.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), pending: visible.filter(d => d.status === 'queued').length, automatic: true };
 }
 
+/**
+ * Deduplicación en memoria de la promesa en curso por ID de ítem/catálogo (Orden 269 y Orden 287 Bloque 4).
+ * Si dos llamadas ocurren al mismo tiempo para el mismo catálogo o ítem, esperan a la misma promesa
+ * y no duplican llamadas a la IA.
+ */
+const analisisEnCurso = new Map<string, Promise<{ processed: boolean; error?: string }>>();
+
 /** One bounded job across all server instances; transaction callbacks have no provider effects. */
-export async function processDecorationDraft(): Promise<{ processed: boolean; error?: string }> {
-  const { activeIds } = await syncDecorationCatalog();
-  const initialRows = await drafts();
-  const candidate = initialRows.find(d => d.status === 'queued' && activeIds.includes(d.id));
-  if (!candidate) return { processed: false };
-  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
-    return { processed: false, error: 'La IA de decoracion no esta configurada. Las fotos y los 86 elementos siguen disponibles.' };
+export async function processDecorationDraft(targetId?: string): Promise<{ processed: boolean; error?: string }> {
+  const clave = targetId || '__catalogo__';
+  const enCurso = analisisEnCurso.get(clave);
+  if (enCurso) {
+    return await enCurso;
   }
-  if (!(await hayPresupuestoParaIA())) return { processed: false, error: 'Se alcanzo el tope de IA. Las fotos quedan pendientes.' };
-  const token = randomUUID(); const now = Date.now(); const day = new Date(now).toISOString().slice(0, 10);
-  const lock = await mutarDocumentoConTransaccion<AnalysisLock>(LOCK, EMPTY_LOCK, current => {
-    if (current.until > now) return null;
-    const attempts = current.day === day ? current.attempts : 0;
-    if (attempts >= 20) return null;
-    return { token, until: now + 10 * 60_000, day, attempts: attempts + 1 };
-  });
-  if (!lock || lock.token !== token) return { processed: false, error: 'Hay otro analisis en curso o se alcanzo el limite diario (20). Las fotos quedan pendientes.' };
-  let started = false;
-  let claimedId: string | null = null;
+
+  let candidateId: string | null = null;
+  let promesaEjecucion!: Promise<{ processed: boolean; error?: string }>;
+  promesaEjecucion = (async (): Promise<{ processed: boolean; error?: string }> => {
+    const { activeIds } = await syncDecorationCatalog();
+    const initialRows = await drafts();
+    const candidate = initialRows.find(d => (targetId ? d.id === targetId : d.status === 'queued') && activeIds.includes(d.id));
+    if (!candidate) return { processed: false };
+
+    candidateId = candidate.id;
+    if (analisisEnCurso.has(candidate.id) && analisisEnCurso.get(candidate.id) !== promesaEjecucion) {
+      return await analisisEnCurso.get(candidate.id)!;
+    }
+    analisisEnCurso.set(candidate.id, promesaEjecucion);
+
+    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+      return { processed: false, error: 'La IA de decoracion no esta configurada. Las fotos y los 86 elementos siguen disponibles.' };
+    }
+    if (!(await hayPresupuestoParaIA())) return { processed: false, error: 'Se alcanzo el tope de IA. Las fotos quedan pendientes.' };
+    const token = randomUUID(); const now = Date.now(); const day = new Date(now).toISOString().slice(0, 10);
+    const lock = await mutarDocumentoConTransaccion<AnalysisLock>(LOCK, EMPTY_LOCK, current => {
+      if (current.until > now) return null;
+      const attempts = current.day === day ? current.attempts : 0;
+      if (attempts >= 20) return null;
+      return { token, until: now + 10 * 60_000, day, attempts: attempts + 1 };
+    });
+    if (!lock || lock.token !== token) return { processed: false, error: 'Hay otro analisis en curso o se alcanzo el limite diario (20). Las fotos quedan pendientes.' };
+    let started = false;
+    let claimedId: string | null = null;
+    try {
+      const currentRows = await drafts();
+      const next = currentRows.find(d => (targetId ? d.id === targetId : d.status === 'queued') && activeIds.includes(d.id));
+      if (!next) return { processed: false };
+      claimedId = next.id;
+      const claimed = await change(next.id, current => current.status === 'queued'
+        ? { ...current, status: 'analyzing', analysisToken: token, updatedAt: new Date().toISOString() } : null);
+      if (!claimed) return { processed: false };
+      started = true;
+      const photo = await loadDecorationPhoto(claimed.source.url);
+      const contentHash = hashDecoration(photo);
+
+      const freshRows = await drafts();
+      const previouslyDismissed = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && (d.sacada || d.status === 'dismissed'));
+      if (previouslyDismissed || claimed.sacada) {
+        await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
+          ? { ...current, contentHash, status: 'dismissed', sacada: true, revision: current.revision + 1, updatedAt: new Date().toISOString(),
+              error: 'Misma foto que otra propuesta descartada; no se genero otra plantilla.' } : null);
+        return { processed: true };
+      }
+
+      const reused = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && ['review', 'approved'].includes(d.status));
+      let analysis: { elementos: ElementoDecorativo[]; unknowns: string[] };
+      if (reused) {
+        analysis = { elementos: reused.elementos, unknowns: reused.unknowns };
+      } else {
+        const { analyzeDecorationCatalog } = await import('@/ai/flows/analyze-decoration-catalog');
+        try { analysis = decorationAnalysisToElements(await analyzeDecorationCatalog(photo)); }
+        finally { await registrarConsumoIA('catalogo-decoracion'); }
+      }
+
+      if (reused) {
+        await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
+          ? { ...current, ...analysis, contentHash, status: 'dismissed', sacada: true,
+            revision: current.revision + 1, updatedAt: new Date().toISOString(),
+            error: 'Misma foto que otra propuesta; no se genero otra plantilla.' } : null);
+        return { processed: true };
+      }
+
+      const customAssets = await getCustomDecorationElements();
+      let elementos = [...analysis.elementos];
+      let remainingUnknowns = [...analysis.unknowns];
+      let recortesFoto = 0;
+
+      for (const unknownName of analysis.unknowns) {
+        const category = inferDecorationCategory(unknownName);
+
+        const existing = findExistingElement(unknownName, category, customAssets);
+        if (existing) {
+          elementos.push({
+            id: `propuesta_${elementos.length}_${existing.id}`,
+            tipo: existing.tipo,
+            x: 450,
+            y: 275,
+            width: existing.width,
+            height: existing.height,
+            escala: 1,
+            colores: ['#ffffff'],
+            rotacion: 0,
+            zIndex: elementos.length + 1,
+            isCustom: true,
+            imageDataUri: existing.imageDataUri,
+          });
+          remainingUnknowns = remainingUnknowns.filter(u => u !== unknownName);
+          continue;
+        }
+
+        if (!(await hayPresupuestoParaIA())) {
+          break;
+        }
+
+        if (recortesFoto >= 5) {
+          break;
+        }
+
+        const cupoOk = await consumirCupoRecorte();
+        if (!cupoOk) {
+          break;
+        }
+
+        recortesFoto++;
+        try {
+          let generatedBase64: string | null = null;
+          try {
+            generatedBase64 = await generateGeminiImage({
+              prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
+              images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
+            });
+          } finally {
+            await registrarConsumoIA('recorte-decoracion');
+          }
+
+          if (!generatedBase64) continue;
+
+          const buffer = Buffer.from(generatedBase64, 'base64');
+          if (buffer.length > 4 * 1024 * 1024) continue;
+
+          const img = sharp(buffer);
+          const meta = await img.metadata();
+          if (meta.format !== 'png' || !meta.hasAlpha) continue;
+
+          const stats = await img.stats();
+          if (!stats.channels[3] || stats.channels[3].min >= 255) continue;
+
+          // Se guarda adentro del registro: un documento de la base admite 1 MiB. Se achica a 512 px y
+          // se comprime; si igual queda grande, no se guarda.
+          const chico = await sharp(buffer).resize({ width: 512, height: 512, fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
+          if (chico.length > 600 * 1024) continue;
+
+          const pw = meta.width || 160;
+          const ph = meta.height || 160;
+          const maxDim = Math.max(pw, ph);
+          const width = Math.round(160 * pw / maxDim);
+          const height = Math.round(160 * ph / maxDim);
+          const dataUri = `data:image/png;base64,${chico.toString('base64')}`;
+
+          const newId = `deco_ai_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
+          const saved = await saveCustomDecorationElement({
+            id: newId,
+            tipo: newId,
+            label: unknownName,
+            categoria: category,
+            emoji: '',
+            maxColores: 1,
+            isCustom: true,
+            imageDataUri: dataUri,
+            width,
+            height,
+            nuevoIA: true,
+          });
+          customAssets.push(saved);
+
+          elementos.push({
+            id: `propuesta_${elementos.length}_${saved.id}`,
+            tipo: saved.tipo,
+            x: 450,
+            y: 275,
+            width: saved.width,
+            height: saved.height,
+            escala: 1,
+            colores: ['#ffffff'],
+            rotacion: 0,
+            zIndex: elementos.length + 1,
+            isCustom: true,
+            imageDataUri: saved.imageDataUri,
+          });
+          remainingUnknowns = remainingUnknowns.filter(u => u !== unknownName);
+        } catch {
+          // En caso de falla, permanece en unknowns
+        }
+      }
+
+      if (elementos.length >= 2) {
+        const templateName = defaultTemplateName(claimed.source.title);
+        const clean = validateApprovedDecorationElements(elementos, customAssets);
+        await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
+          ? applyApproval({ ...current, unknowns: remainingUnknowns, contentHash }, templateName, clean, true)
+          : null);
+      } else {
+        await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
+          ? { ...current, elementos, unknowns: remainingUnknowns, contentHash, status: 'review', revision: current.revision + 1, updatedAt: new Date().toISOString() }
+          : null);
+      }
+
+      return { processed: true };
+    } catch {
+      if (started && claimedId) await change(claimedId, current => current.status === 'analyzing' && current.analysisToken === token
+        ? { ...current, status: 'error', revision: current.revision + 1, updatedAt: new Date().toISOString(),
+          error: 'No se pudo analizar esta foto. No se publico ninguna plantilla. Revisar el archivo o reintentar.' } : null);
+      return { processed: false, error: 'No se pudo completar el analisis. La foto queda para revision.' };
+    } finally {
+      await mutarDocumentoConTransaccion<AnalysisLock>(LOCK, EMPTY_LOCK, current => current.token === token ? { ...current, until: 0 } : null);
+    }
+  })();
+
+  analisisEnCurso.set(clave, promesaEjecucion);
   try {
-    const currentRows = await drafts();
-    const next = currentRows.find(d => d.status === 'queued' && activeIds.includes(d.id));
-    if (!next) return { processed: false };
-    claimedId = next.id;
-    const claimed = await change(next.id, current => current.status === 'queued'
-      ? { ...current, status: 'analyzing', analysisToken: token, updatedAt: new Date().toISOString() } : null);
-    if (!claimed) return { processed: false };
-    started = true;
-    const photo = await loadDecorationPhoto(claimed.source.url);
-    const contentHash = hashDecoration(photo);
-
-    const freshRows = await drafts();
-    const previouslyDismissed = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && (d.sacada || d.status === 'dismissed'));
-    if (previouslyDismissed || claimed.sacada) {
-      await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
-        ? { ...current, contentHash, status: 'dismissed', sacada: true, revision: current.revision + 1, updatedAt: new Date().toISOString(),
-            error: 'Misma foto que otra propuesta descartada; no se genero otra plantilla.' } : null);
-      return { processed: true };
-    }
-
-    const reused = freshRows.find(d => d.id !== next.id && d.contentHash === contentHash && ['review', 'approved'].includes(d.status));
-    let analysis: { elementos: ElementoDecorativo[]; unknowns: string[] };
-    if (reused) {
-      analysis = { elementos: reused.elementos, unknowns: reused.unknowns };
-    } else {
-      const { analyzeDecorationCatalog } = await import('@/ai/flows/analyze-decoration-catalog');
-      try { analysis = decorationAnalysisToElements(await analyzeDecorationCatalog(photo)); }
-      finally { await registrarConsumoIA('catalogo-decoracion'); }
-    }
-
-    if (reused) {
-      await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
-        ? { ...current, ...analysis, contentHash, status: 'dismissed', sacada: true,
-          revision: current.revision + 1, updatedAt: new Date().toISOString(),
-          error: 'Misma foto que otra propuesta; no se genero otra plantilla.' } : null);
-      return { processed: true };
-    }
-
-    const customAssets = await getCustomDecorationElements();
-    let elementos = [...analysis.elementos];
-    let remainingUnknowns = [...analysis.unknowns];
-    let recortesFoto = 0;
-
-    for (const unknownName of analysis.unknowns) {
-      const category = inferDecorationCategory(unknownName);
-
-      const existing = findExistingElement(unknownName, category, customAssets);
-      if (existing) {
-        elementos.push({
-          id: `propuesta_${elementos.length}_${existing.id}`,
-          tipo: existing.tipo,
-          x: 450,
-          y: 275,
-          width: existing.width,
-          height: existing.height,
-          escala: 1,
-          colores: ['#ffffff'],
-          rotacion: 0,
-          zIndex: elementos.length + 1,
-          isCustom: true,
-          imageDataUri: existing.imageDataUri,
-        });
-        remainingUnknowns = remainingUnknowns.filter(u => u !== unknownName);
-        continue;
-      }
-
-      if (!(await hayPresupuestoParaIA())) {
-        break;
-      }
-
-      if (recortesFoto >= 5) {
-        break;
-      }
-
-      const cupoOk = await consumirCupoRecorte();
-      if (!cupoOk) {
-        break;
-      }
-
-      recortesFoto++;
-      try {
-        const generatedBase64 = await generateGeminiImage({
-          prompt: `Aísla y recorta el objeto "${unknownName}" sobre fondo transparente en formato PNG.`,
-          images: [{ base64: photo.toString('base64'), contentType: 'image/jpeg' }],
-        });
-
-        if (!generatedBase64) continue;
-        await registrarConsumoIA('recorte-decoracion');
-
-        const buffer = Buffer.from(generatedBase64, 'base64');
-        if (buffer.length > 4 * 1024 * 1024) continue;
-
-        const img = sharp(buffer);
-        const meta = await img.metadata();
-        if (meta.format !== 'png' || !meta.hasAlpha) continue;
-
-        const stats = await img.stats();
-        if (!stats.channels[3] || stats.channels[3].min >= 255) continue;
-
-        // Se guarda adentro del registro: un documento de la base admite 1 MiB. Se achica a 512 px y
-        // se comprime; si igual queda grande, no se guarda.
-        const chico = await sharp(buffer).resize({ width: 512, height: 512, fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer();
-        if (chico.length > 600 * 1024) continue;
-
-        const pw = meta.width || 160;
-        const ph = meta.height || 160;
-        const maxDim = Math.max(pw, ph);
-        const width = Math.round(160 * pw / maxDim);
-        const height = Math.round(160 * ph / maxDim);
-        const dataUri = `data:image/png;base64,${chico.toString('base64')}`;
-
-        const newId = `deco_ai_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
-        const saved = await saveCustomDecorationElement({
-          id: newId,
-          tipo: newId,
-          label: unknownName,
-          categoria: category,
-          emoji: '',
-          maxColores: 1,
-          isCustom: true,
-          imageDataUri: dataUri,
-          width,
-          height,
-          nuevoIA: true,
-        });
-        customAssets.push(saved);
-
-        elementos.push({
-          id: `propuesta_${elementos.length}_${saved.id}`,
-          tipo: saved.tipo,
-          x: 450,
-          y: 275,
-          width: saved.width,
-          height: saved.height,
-          escala: 1,
-          colores: ['#ffffff'],
-          rotacion: 0,
-          zIndex: elementos.length + 1,
-          isCustom: true,
-          imageDataUri: saved.imageDataUri,
-        });
-        remainingUnknowns = remainingUnknowns.filter(u => u !== unknownName);
-      } catch {
-        // En caso de falla, permanece en unknowns
-      }
-    }
-
-    if (elementos.length >= 2) {
-      const templateName = defaultTemplateName(claimed.source.title);
-      const clean = validateApprovedDecorationElements(elementos, customAssets);
-      await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
-        ? applyApproval({ ...current, unknowns: remainingUnknowns, contentHash }, templateName, clean, true)
-        : null);
-    } else {
-      await change(next.id, current => current.status === 'analyzing' && current.analysisToken === token
-        ? { ...current, elementos, unknowns: remainingUnknowns, contentHash, status: 'review', revision: current.revision + 1, updatedAt: new Date().toISOString() }
-        : null);
-    }
-
-    return { processed: true };
-  } catch {
-    if (started && claimedId) await change(claimedId, current => current.status === 'analyzing' && current.analysisToken === token
-      ? { ...current, status: 'error', revision: current.revision + 1, updatedAt: new Date().toISOString(),
-        error: 'No se pudo analizar esta foto. No se publico ninguna plantilla. Revisar el archivo o reintentar.' } : null);
-    return { processed: false, error: 'No se pudo completar el analisis. La foto queda para revision.' };
+    return await promesaEjecucion;
   } finally {
-    await mutarDocumentoConTransaccion<AnalysisLock>(LOCK, EMPTY_LOCK, current => current.token === token ? { ...current, until: 0 } : null);
+    analisisEnCurso.delete(clave);
+    if (candidateId) {
+      analisisEnCurso.delete(candidateId);
+    }
   }
 }
 

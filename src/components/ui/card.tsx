@@ -42,7 +42,7 @@ const CardTitle = React.forwardRef<
     // un titulo de verdad, el control la daba por vacia.
     data-slot="card-title"
     className={cn(
-      "text-xl font-black leading-tight tracking-normal text-foreground",
+      "text-xl font-black leading-tight tracking-normal",
       className
     )}
     {...props}

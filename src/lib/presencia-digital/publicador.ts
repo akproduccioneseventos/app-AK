@@ -578,8 +578,10 @@ export async function setAjustesPublicarSolo(activo: boolean): Promise<AjustesPu
 }
 
 export async function validarPermisoPromocionalPosteo(post: SocialPost): Promise<boolean> {
-  if (!post.mediaUrl && !post.eventId) return true;
+  // Si no tiene foto -> devuelve true (puede publicarse)
+  if (!post.mediaUrl) return true;
 
+  // Si tiene foto y fiesta -> sólo si está en fotosPromocionalesDeFiesta
   if (post.eventId) {
     if (typeof fotosPromocionalesDeFiesta !== 'function') {
       return false;
@@ -588,14 +590,36 @@ export async function validarPermisoPromocionalPosteo(post: SocialPost): Promise
     if (!fotos || fotos.length === 0) {
       return false;
     }
-    if (post.mediaUrl) {
-      const encontrada = fotos.some((f) => f.url === post.mediaUrl || f.id === post.mediaUrl);
-      if (!encontrada) return false;
-    }
-    return true;
+    const encontrada = fotos.some((f) => f.url === post.mediaUrl || f.id === post.mediaUrl);
+    return encontrada;
   }
 
-  return true;
+  // Si tiene foto y NO tiene fiesta -> sólo si la foto está en la galería propia de AK marcada para promoción
+  try {
+    const [galeriaData, catalogoData] = await Promise.all([
+      readData<any>('galeria-publica.json', { fotos: [] }).catch(() => ({ fotos: [] })),
+      readData<any>('catalogo-fotos.json', []).catch(() => []),
+    ]);
+    const items: any[] = [
+      ...(Array.isArray(galeriaData) ? galeriaData : (galeriaData?.fotos || [])),
+      ...(Array.isArray(catalogoData) ? catalogoData : (catalogoData?.fotos || [])),
+    ];
+    const item = items.find((i: any) => i && (i.url === post.mediaUrl || i.id === post.mediaUrl));
+    if (
+      item &&
+      (Boolean(item.esPromocional) ||
+        Boolean(item.esPublica) ||
+        item.categoria === 'promocion' ||
+        item.categoria?.toLowerCase?.() === 'promocion')
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+
+  // En cualquier otro caso devuelve false
+  return false;
 }
 
 export async function enviarPreviewBorradorAlDuenio(post: SocialPost): Promise<boolean> {

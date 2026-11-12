@@ -73,9 +73,10 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                         {date.getDate()}
                         <div className="absolute bottom-0.5 flex justify-center items-center gap-0.5">
                             {postsForDay.slice(0, 3).map(post => {
-                                const Icon = platformIcons[post.platform];
-                                const colorMatch = platformStyles[post.platform].match(/text-([a-z]+)-(\d+)/);
-                                const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'black';
+                                const Icon = (platformIcons as Record<string, LucideIcon | undefined>)[post.platform] ?? Globe;
+                                const styleStr = (platformStyles as Record<string, string | undefined>)[post.platform] ?? '';
+                                const colorMatch = styleStr.match(/text-([a-z]+)-(\d+)/);
+                                const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'slate-700';
                                 return <Icon key={post.id} className="w-2 h-2" style={{color: `var(--tw-color-${color})`}}/>;
                             })}
                         </div>
@@ -85,9 +86,10 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                     <div className="font-bold text-sm mb-2">{date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                     <ul className="space-y-1.5">
                         {postsForDay.map(post => {
-                             const Icon = platformIcons[post.platform];
-                             const colorMatch = platformStyles[post.platform].match(/text-([a-z]+)-(\d+)/);
-                             const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'black';
+                             const Icon = (platformIcons as Record<string, LucideIcon | undefined>)[post.platform] ?? Globe;
+                             const styleStr = (platformStyles as Record<string, string | undefined>)[post.platform] ?? '';
+                             const colorMatch = styleStr.match(/text-([a-z]+)-(\d+)/);
+                             const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'slate-700';
                              return (
                                  <li key={post.id} className="text-xs flex flex-col gap-0.5">
                                      <div className="flex items-start gap-1.5">

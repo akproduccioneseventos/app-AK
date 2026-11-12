@@ -19,6 +19,11 @@ test.describe('La app anda en el celular a 390px (Orden 283)', () => {
     viewport: { width: 390, height: 844 },
   });
 
+  test.beforeAll(async ({ request }) => {
+    // Pre-calienta la compilación en frío de la app para que el primer test no sufra el timeout de chunk de Webpack
+    await request.get('/mi-dia', { timeout: 120_000 }).catch(() => {});
+  });
+
   for (const { nombre, ruta } of PANTALLAS_PRINCIPALES) {
     test(`pantalla ${nombre} (${ruta}) no desborda, tiene barra con 5 iconos y un solo boton flotante`, async ({
       page,
@@ -31,7 +36,7 @@ test.describe('La app anda en el celular a 390px (Orden 283)', () => {
 
       // 1. Barra fija abajo con sus 5 iconos
       const barra = page.getByTestId('barra-inferior-celular');
-      await expect(barra).toBeVisible({ timeout: 60_000 });
+      await expect(barra).toBeVisible({ timeout: 120_000 });
       const accesos = barra.locator('a');
       await expect(accesos).toHaveCount(5);
 

@@ -28,8 +28,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
 import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
+import { BotonVerComoInvitado } from '@/components/centro/BotonVerComoInvitado';
 import { DownloadPartyBookButton } from '@/components/fiesta/DownloadPartyBookButton';
 import { ComprobacionEquipo } from './comprobacion-equipo';
+import { enlaceDeInvitadoDeMuestra } from '@/app/actions/fiesta/vista-de-muestra.actions';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -58,6 +60,7 @@ function construirBloques(fiestaId: string, fiesta?: any): Bloque[] {
       bajada: 'Esto queda en tu celular durante toda la noche.',
       herramientas: [
         { titulo: 'Accesos', detalle: 'Escanear el QR de los invitados', ruta: e('accesos'), icono: QrCode, aparato: 'Tu celular' },
+        { titulo: 'Recepción en la puerta', detalle: 'Recepción y bienvenida de invitados en puerta', ruta: `/recepcion/${encodeURIComponent(fiestaId)}`, icono: UserCheck, aparato: 'Tu celular' },
         { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck, aparato: 'Tu celular' },
         { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
         { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search, aparato: 'Tu celular' },
@@ -178,10 +181,6 @@ export default async function CentroDeFiestaPage(props: PageProps) {
   const rutaPortalCliente = accessKey
     ? `/portal/c/${encodeURIComponent(accessKey)}`
     : (esAuditor ? `/portal-cliente/${encodeURIComponent(params.id)}` : null);
-  const primerInvitado = Array.isArray(fiesta.invitados) && fiesta.invitados.length > 0 ? fiesta.invitados[0] : null;
-  const rutaInvitado = primerInvitado?.id
-    ? `/invitacion/${encodeURIComponent(params.id)}/invitado/${encodeURIComponent(primerInvitado.id)}`
-    : `/invitacion/${encodeURIComponent(params.id)}/rsvp`;
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8">
@@ -203,11 +202,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
                   </Link>
                 </Button>
               )}
-              <Button asChild size="sm" variant="outline" className="rounded-xl border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 text-amber-200 font-bold">
-                <Link href={rutaInvitado} target="_blank">
-                  Ver como un invitado
-                </Link>
-              </Button>
+              <BotonVerComoInvitado fiestaId={params.id} />
             </div>
           )}
         </div>

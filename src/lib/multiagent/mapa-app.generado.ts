@@ -15,48 +15,8 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
-    "etiqueta": "Inicio",
-    "ruta": "/mi-dia"
-  },
-  {
-    "etiqueta": "Eventos",
-    "ruta": "/eventos"
-  },
-  {
-    "etiqueta": "Calendario",
-    "ruta": "/calendario"
-  },
-  {
-    "etiqueta": "Muro Social",
-    "ruta": "/empresa/red-social-eventos"
-  },
-  {
-    "etiqueta": "Prospectos",
-    "ruta": "/contabilidad/crm"
-  },
-  {
-    "etiqueta": "Presupuestos",
-    "ruta": "/presupuestos/nuevo"
-  },
-  {
-    "etiqueta": "Clientes",
-    "ruta": "/customers"
-  },
-  {
-    "etiqueta": "Pagos Rápidos",
-    "ruta": "/pagos-rapidos"
-  },
-  {
-    "etiqueta": "Panel Contable",
-    "ruta": "/empresa/contabilidad"
-  },
-  {
     "etiqueta": "Más",
     "ruta": "/mas"
-  },
-  {
-    "etiqueta": "Centro de Control",
-    "ruta": "/centro-de-control"
   },
   {
     "etiqueta": "Mi Día",
@@ -213,10 +173,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
     "etiqueta": "Laboratorio Experimental",
     "ruta": "/settings/feature-flags"
-  },
-  {
-    "etiqueta": "Nuevo Lead",
-    "ruta": "/admin"
   },
   {
     "etiqueta": "Alertas",
