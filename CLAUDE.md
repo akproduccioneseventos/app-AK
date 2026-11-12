@@ -1423,6 +1423,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Resolver todo sin consultarle (12 de noviembre de 2026).** Palabras suyas: *"resolvé todo lo que tengas para resolver… déjate de ponerme cosas, que te quede como regla"*. Lo técnico (claves, esperas, controles que frenan, entregas rotas) se resuelve sin preguntarle ni explicarle. Al dueño sólo le llega: lo que quedó publicado, y lo que **sólo él** puede hacer (con su sesión o su teléfono), en una línea.
+
 - **La seña, la multa, la filmación y Club Uruguay (11 de noviembre de 2026).** La seña es **$5.000 y se cambia en
   Ajustes**; el **30% es la penalidad por cancelar**, no la seña. **Intermedio no incluye filmación.** El tachado de
   Club Uruguay es **siempre el doble del precio** (dice 50% OFF con cualquier precio). Va en la orden 277, bloques 8-10.
