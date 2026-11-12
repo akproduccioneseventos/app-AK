@@ -4,6 +4,9 @@
 **después de la 282**. **Una sola entrega, sin fusionar.** Repasá `docs/ANTES-DE-ENTREGAR.md` y la habilidad
 `celular-primero` (`.claude/skills/celular-primero`).
 
+**Ojo:** el menú del bloque 2 lo reemplaza la **orden 284** (siete casas leídas de un solo mapa). Las dos van en la misma
+entrega.
+
 ## Qué dijo el dueño
 
 *"La veo muy recargada y no se adapta mucho al celular; hay dos paneles generales, después la configuración que tiene
@@ -60,6 +63,62 @@ tecnológico) va al final, plegado, bajo "Avanzado".
   pagos rápidos, panel contable, ajustes): **sin desplazamiento de costado a 390 px**, tablas que pasan a tarjetas en el
   celular, botones de al menos 44 px de alto y textos que no se cortan.
 
+## Ampliación del 12/11/2026 — lo que midió Claude después (el dueño: *"parece ordenado pero está desordenado"*)
+
+### Bloque 5 — Hay TRES inicios, no dos: al entrar se abre `/admin`
+
+- Después de ingresar, la app abre **`/admin`** ("Menú Principal", `src/app/(app)/admin/page.tsx`, con "Herramientas
+  rápidas", "Prioridades" y "Directorio de Módulos"): lo decide `sanitizeAppRedirect` en `src/lib/auth/redirect.ts:2`.
+  Además están `/mi-dia` y `/centro-de-control`. **Tres paneles generales.**
+- **Qué se hace:** el inicio del bloque 1 es el único. `sanitizeAppRedirect` sin destino devuelve **`/mi-dia`**.
+  `/admin` y `/centro-de-control` muestran **lo mismo** que el inicio (re-exportan la pantalla, como hace
+  `src/app/(app)/fiestas/[id]/page.tsx` con `centro`). De `/admin` se llevan al inicio sólo dos cosas: las
+  "Prioridades" (arriba, con lo de hoy) y 4 atajos grandes: Nuevo presupuesto (`/presupuestos/nuevo/crear`), Registrar
+  pago (`/pagos-rapidos`), WhatsApp del día (`/contabilidad/crm/outbox`) y Nueva fiesta. El "Directorio de Módulos" y los
+  gráficos de evolución **no** van al inicio: van a "Más" (bloque 2) y a "Métricas" (`/empresa/dashboard`).
+- El título de la barra de arriba (`src/components/app-shell.tsx:36`, hoy "Menú Principal") dice "Inicio".
+
+### Bloque 6 — Una fiesta tiene DOS pantallas que no se conocen
+
+- **"Planificar"** (`/fiestas/nueva?fiestaId=…`, `src/app/(app)/fiestas/nueva/page.tsx`) tiene las 5 pestañas de
+  `PESTANAS_FIESTA` (`src/lib/fiesta/fiesta-modules.ts:14`) con **51 tarjetas** en total. **"Centro de fiesta"**
+  (`/fiestas/[id]/centro`) es la noche, con 17 a 25 botones sueltos. **Centro no tiene ningún enlace a Planificar**
+  (sólo "Volver a eventos", línea ~191), y la lista de eventos (`src/app/(app)/eventos/page.tsx:723`) lleva sólo a
+  Planificar.
+- **Qué se hace:** un componente nuevo `src/components/fiesta/barra-de-la-fiesta.tsx` (`BarraDeLaFiesta`, recibe
+  `fiestaId`, `nombre` y `pestanaActiva`) que se pone **arriba en las dos pantallas**: el nombre de la fiesta y las 5
+  pestañas de `PESTANAS_FIESTA`. Las cuatro primeras van a `/fiestas/nueva?fiestaId=<id>&pestana=<id-de-pestaña>` (la
+  pantalla ya lee `pestana` en la línea ~350); **"La noche" va a `/fiestas/<id>/centro`**. En el celular, las pestañas se
+  desplazan de costado **dentro de la barra** (no la página) y la activa queda a la vista.
+- En `nueva/page.tsx`, dentro de cada pestaña, las tarjetas pasan a **renglones compactos** en el celular (ícono, título
+  y la descripción en una línea, 44 px de alto como mínimo). El orden y lo que hace cada tarjeta no cambian.
+- En `centro/page.tsx`, los tres bloques de herramientas ("Lo que manejás vos", "En las pantallas del salón",
+  "Estaciones para los invitados", líneas ~57-95) quedan **plegados** debajo de lo de la noche (gente, equipo,
+  pendientes), con su título y la cantidad ("Estaciones para los invitados · 4"). Se abre con un toque.
+
+### Bloque 7 — Ajustes: son 45 pantallas, no 10
+
+- `src/app/(app)/settings/` tiene **45 pantallas**; el menú muestra 10 y el resto sólo se alcanza desde el
+  centro de ajustes (`settings/page.tsx`, tarjetas en las líneas 66-315), donde **"Cuentas Sociales" está dos veces**
+  (líneas 192 y 225). Hay dos pantallas de asistente (`settings/ai-assistant` y `settings/asistente`) y cuatro de WhatsApp
+  (`settings/whatsapp`, `settings/whatsapp-business`, `settings/whatsapp-business/conversations`,
+  `settings/whatsapp-templates`).
+- **Qué se hace, sobre el bloque 3:** las secciones del buscador cubren las 45, cada una con su enlace. Asistente IA es
+  **una sección** con las dos pantallas adentro (enlaces "Cómo contesta" → `ai-assistant` y "Voz y avisos" →
+  `asistente`). WhatsApp es **una sección** con sus cuatro enlaces. Se saca la tarjeta repetida de la línea 225. A
+  "Avanzado" (plegado) van: `lanzamiento-cto`, `cierre-global-producto`, `cierre-operativo-final`, `backup-final`,
+  `mapa-tecnologico-ak`, `feature-flags`, `biblioteca-visual-ak`, `asistentes-contextuales` y `datos`.
+- El buscador busca por el título **y** por palabras de lo que hay adentro (una lista de palabras por sección escrita a
+  mano en la misma pantalla: "seña" encuentra Seña y promociones, que vive en `budget-display`; "número" encuentra
+  WhatsApp).
+
+### Bloque 8 — Lo que NO se toca
+
+- Ninguna dirección se borra (las cuatro que redirigen a `centro` —`centro-de-mando`, `centro-experiencia`,
+  `comando-total`, `show-control`— quedan como están: hay QR y enlaces guardados).
+- Nada de lo que hace cada pantalla cambia: sólo dónde está y cómo se llega. Ni un texto que ve el cliente o el invitado.
+- Lo que sale en el portal del cliente, la web pública y las estaciones no se toca en esta orden.
+
 ## Pruebas
 
 - `src/__tests__/el-menu-es-corto.test.ts`: con perfil dueño el menú lateral tiene como mucho 13 entradas; todas las
@@ -68,6 +127,13 @@ tecnológico) va al final, plegado, bajo "Avanzado".
   que la pantalla (`scrollWidth <= clientWidth`), la barra de abajo se ve con sus 5 íconos, y hay un solo botón flotante.
 - `tests/e2e/ajustes-tiene-buscador.spec.ts`: escribir "seña" en el buscador de Ajustes deja visible la sección de la seña
   y esconde las otras.
+- `src/__tests__/un-solo-inicio.test.ts`: `sanitizeAppRedirect(null)` devuelve `/mi-dia`; `src/app/(app)/admin/page.tsx`
+  y `src/app/(app)/centro-de-control/page.tsx` re-exportan la pantalla del inicio.
+- `tests/e2e/la-fiesta-tiene-una-sola-barra.spec.ts`: en `/fiestas/<id>/centro` se ven las 5 pestañas y tocar
+  "Contrato y pagos" abre `/fiestas/nueva?fiestaId=<id>&pestana=contrato-y-pagos`; desde ahí tocar "La noche" vuelve a
+  `centro`. Usá la fiesta de prueba de `tests/e2e/helpers/fiesta-de-prueba.ts`.
+- En `ajustes-tiene-buscador.spec.ts`, sumá: "número" deja visible la sección WhatsApp, y la palabra "Cuentas Sociales"
+  aparece una sola vez.
 - Regenerá el mapa (`npm run mapa:generar`): la prueba `mapa-de-la-app-al-dia` lo exige.
 
 ```comprobar
@@ -75,4 +141,10 @@ archivo: src/app/(app)/mas/page.tsx
 prueba: src/__tests__/el-menu-es-corto.test.ts
 prueba: tests/e2e/la-app-anda-en-el-celular.spec.ts
 prueba: tests/e2e/ajustes-tiene-buscador.spec.ts
+usa: /mi-dia en src/lib/auth/redirect.ts
+archivo: src/components/fiesta/barra-de-la-fiesta.tsx
+usa: BarraDeLaFiesta en src/app/(app)/fiestas/[id]/centro/page.tsx
+usa: BarraDeLaFiesta en src/app/(app)/fiestas/nueva/page.tsx
+prueba: src/__tests__/un-solo-inicio.test.ts
+prueba: tests/e2e/la-fiesta-tiene-una-sola-barra.spec.ts
 ```

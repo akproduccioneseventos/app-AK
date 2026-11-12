@@ -855,6 +855,9 @@ mandaba", y ya existía (lo que tenía era otro defecto: pedía de más).
 (sin distinguir mayúsculas, con sinónimos) y se mira quién lo llama. El inventario sirve para
 orientarse, no para afirmar. Y cuando se encuentra una línea vieja, se corrige en el acto.
 
+**Y otra vez el 12 de noviembre de 2026:** `QUE-HAY-EN-LA-APP.md` quedó sin tocar del 30/10 al 12/11, con doce entregas
+publicadas en el medio; lo notó el dueño. **Al publicar cada entrega se suma su línea en "Novedades", en la misma propuesta.**
+
 ### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
 
 **Y otra vez el 8 de octubre de 2026** (`pgrep -f "firebase.entorno.json"`, código 144). No se perdió nada, pero es la cuarta vez: **`pkill -f`/`pgrep -f` no se usan nunca**, ni para emuladores.
@@ -1067,6 +1070,11 @@ graves que nadie había pedido (un prospecto firmado que se podía borrar si fal
 **Qué se hace distinto:** al juntar cualquier PR de Codex, **en la misma tanda** se lanzan los
 ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
 como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
+
+**Y otra vez el 12 de noviembre de 2026, con el informe del auditor externo:** sumé las dos preguntas nuevas pero di
+por "conocidas" las otras cinco formas sin buscarlas. Lo preguntó el dueño; el barrido encontró unas 15 pantallas con
+títulos invisibles. **Vale para cualquier informe, no sólo de Codex: cada forma del informe se busca en toda la app
+antes de escribir la orden.**
 
 ### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
 
@@ -1930,6 +1938,7 @@ con otra cara.
 | Una cuenta vieja de administrador con perfil de secretaria seguía entrando a lo del dueño, incluido el borrado de la base | `src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts` |
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 | Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
+| El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
 
 ### Cómo se elige el matafuego
 

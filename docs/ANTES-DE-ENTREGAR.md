@@ -253,3 +253,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 85. **¿Escribiste un monto, un porcentaje o un plazo en un texto?** Si hay un ajuste que lo define, mostrá el ajuste.
 86. **¿Guardaste algo para la pantalla siguiente?** Fijate que la pantalla a la que navegás de verdad lo lea.
 87. **¿Leés una clave de una variable de entorno?** Si falta, que cierre; y comparala con `timingSafeEqual`.
+88. **¿Mandás una fecha con hora a otro servicio?** Que vaya la hora de Uruguay: sin `Z` y con `ctz=America/Montevideo`.
+89. **¿Un botón arma un enlace con un dato guardado?** Fijate qué pide la pantalla de destino; si el dato puede no servir, deshabilitá el botón con el motivo.
+90. **¿Tu pantalla dice "listo" o "en verde"?** Que lo saque del último resultado real (fecha, error), no de una lista.
+91. **¿Agregaste algo que corre solo?** Si falla tres veces seguidas, que le avise al dueño.
