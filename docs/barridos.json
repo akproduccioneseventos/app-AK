@@ -464,6 +464,22 @@
     "116": {
       "fecha": "2026-11-11",
       "resultado": "Abiertas sin la variable: /api/cron-despachador (dispara recordatorios) y la firma del estado de Google con constante. Comparaciones con === en 9 lugares. Todo en la orden 278. Cierran bien: insights, meta webhook, looker, clean-db, sesión y estaciones."
+    },
+    "117": {
+      "fecha": "2026-11-12",
+      "resultado": "Enlaces a Google Calendar y .ics en src/: calendar-links.ts (portal del cliente e invitación) manda la hora del servidor con Z: corrido tres horas, orden 285 bloque 1. google-workspace-urls.ts, simulator-agenda.ts y google-calendar-sync.ts reciben un instante real: bien. AddToCalendarButton manda hora flotante del dispositivo (sin Z ni TZID): en Uruguay da bien, no es hallazgo."
+    },
+    "118": {
+      "fecha": "2026-11-12",
+      "resultado": "Barrido de Claude 12/11: ficha del cliente (3 documentos) y Centro de fiesta (ver como invitado), y además 'Informar Pago' del portal sin clave (src/app/portal/page.tsx ~942/1056): orden 285 bloques 3, 6 y 13. Bien: enlaces a /portal/c con guarda, RSVP con token, /api/contracts/fiestas sin enlaces. Dudoso de forma: /api/employee-contracts sin encodeURIComponent (empleados/[id]/editar ~266); el resto lo termina la orden 285 bloque 12."
+    },
+    "119": {
+      "fecha": "2026-11-12",
+      "resultado": "parcial: /settings/backup-final (buildBackupReadinessReport mira sólo la lista) → orden 286 bloque 1. Falta recorrer el resto de pantallas de estado (sincronizaciones, tareas automáticas, mapa tecnológico, conexiones): va en la orden 286 como revisión del bloque 1."
+    },
+    "120": {
+      "fecha": "2026-11-12",
+      "resultado": "El respaldo automático no avisaba al fallar → orden 286 bloque 2. Las tareas del despertador ya avisan al dueño si una no corre (orden 192/despertador). Falta confirmar el resto de los after(): queda en el mismo bloque."
     }
   },
   "hallazgos": {
@@ -734,6 +750,14 @@
     "orden-282": {
       "fecha": "2026-11-12",
       "resultado": "Pregunta 1 (¿dejó rastro?): la sincronización y respuesta de comentarios estaba programada y nunca corrió porque Facebook e Instagram no estaban conectados. Buscado qué otras tareas automáticas dependen de una conexión que la puerta marca 'sin conectar': métricas de redes, publicar programados y comentarios (todas de Meta); Google Business y TikTok sin tareas propias. Va en la orden 282, bloques 1 y 5 (el tablero avisa si una red no está conectada)."
+    },
+    "orden-285": {
+      "fecha": "2026-11-12",
+      "resultado": "Barrido de las seis formas del informe del auditor en toda la app (12/11): título invisible por CardTitle con text-foreground en ~15 pantallas (raíz en card.tsx); pestañas grid-cols-3 en centro-de-control y creador-anuncios; cuentas regresivas en 00 después de la fiesta en invitación y portal; 'hoy es el evento' en hora de Greenwich en Planificar; ícono sin respaldo dudoso en SocialMediaCalendar; letras rotas: sin casos en los datos del repositorio. Todo en la orden 285, bloque 13."
+    },
+    "orden-286": {
+      "fecha": "2026-11-12",
+      "resultado": "Barrido de las formas del informe final: fechas AAAA-MM-DD leídas como Greenwich en 8 lugares que ve el cliente y 12 del equipo; enlaces a /fiestas/nueva sin fiestaId (decoración PDF, acceso-personal, compras); botón outline con text-white y ghost sin color sobre fondo oscuro (votaciones); imágenes de datos sin respaldo en 10 pantallas del cliente e invitado. Todo en la orden 286. Respaldo: arreglado por Claude."
     }
   }
 }

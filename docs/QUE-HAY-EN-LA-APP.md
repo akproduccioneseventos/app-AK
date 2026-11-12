@@ -4,6 +4,37 @@
 > sin mandar agentes a buscar de nuevo. Y **se actualiza en la misma propuesta que
 > toca el código**: un inventario desactualizado es peor que no tenerlo.
 
+## Novedades del 31 de octubre al 12 de noviembre de 2026 (publicado)
+
+Lo que entró a la app en estas dos semanas, una línea cada cosa. El detalle y el porqué están en `YA-RESUELTO.md`.
+
+- **Bot de anuncios → simulador** (262): al que escribe desde un anuncio, el bot lo lleva al simulador y a reservar la
+  entrevista.
+- **La app instalada pregunta "¿Quién sos?"** (263) y recuerda la respuesta; acceso directo "Hablar con AK".
+- **Plataforma 360** (264, 266, 268): arma el video sola con cambios de velocidad. **Entretenimientos al nivel del rubro y la
+  pantalla gigante manejada desde el celular** (265).
+- **El ajuste anual no se le muestra al prospecto** (267): sólo aparece con el presupuesto aceptado o facturado.
+- **Tragos por temporada, ventas que avisan solas y "tu fiesta en números" en el portal** (270).
+- **AK Editor** (271 a 275), programa para la computadora del dueño: prepara la edición de la fiesta entera mirando los
+  videos de verdad, arma el **Video de Vida** solo y los **videos para redes** de cada fiesta. Sección "Edición de videos".
+- **Acceso de auditor externo** (276, 279): ve toda la app y no puede guardar, mandar ni cobrar nada; lo abre y lo
+  cierra sólo el dueño (Usuarios → "Auditoría externa"). Guía para el auditor: `docs/GUIA-DEL-AUDITOR.md`.
+- **La web no pierde lo que eligió el prospecto** (277): catálogo → simulador con lo elegido, seña de $5.000 editable en
+  Ajustes, Intermedio sin filmación, Club Uruguay con el tachado al doble.
+- **Claves de las tareas automáticas comparadas de forma segura** (278). *Falta crear la clave en Firebase (bloque 1).*
+- **Fotos con el estilo AK** (280): el AK Editor elige, endereza y edita las fotos con el estilo aprendido del dueño, y
+  las estaciones (fotocabina, Vogue, tótem, espejo) y el muro salen con ese estilo. La 360 no.
+- **Álbum a Wfolio** (281): se sube solo, en carpetas por parte de la fiesta, con la sesión del dueño en su computadora.
+- **Catálogos con el WhatsApp de AK** (antes mandaban a un número de ejemplo), y el **blog** muestra todas las notas.
+
+### Pedido a Gemini, todavía no hecho
+
+- **282:** la presencia digital trabaja sola (contestar comentarios, ocultar los negativos, publicar sola a las 12 h).
+  Falta que el dueño conecte Facebook e Instagram.
+- **283 y 284:** la app reorganizada en siete casas (Inicio, Fiestas, Vender, Plata, Marketing, Recursos, Ajustes), un
+  solo inicio, ajustes con buscador y hecha para el celular.
+- **269:** la decoración puede pagarle dos veces a la IA en un caso raro.
+
 ## Inventario completo por módulo (19 de agosto de 2026)
 
 ### Asistente: ordenes 255 y 256, PR 1375 (30/10/2026, sin publicar)

@@ -16,6 +16,7 @@ const MAX_SNAPSHOTS = 15;
 const FIRESTORE_BATCH_SIZE = 400;
 const AUTO_BACKUP_INTERVAL_MS = 30 * 60 * 1000;
 const AUTO_BACKUP_LEASE_MS = 5 * 60 * 1000;
+const AUTO_BACKUP_RETRY_MS = 10 * 60 * 1000;
 
 interface LegacySnapshotEntry {
   name: string;
@@ -153,30 +154,52 @@ async function pruneV2Snapshots(db: Firestore): Promise<void> {
  *
  * Por eso esto devuelve las dos cosas: lo que se leyo **y lo que no**.
  */
-async function readAllBackupData(): Promise<{ leidas: Array<{ file: string; value: any }>; noSePudieronLeer: string[] }> {
+/**
+ * 12/11/2026 (auditor externo): el respaldo automático falló 333 veces seguidas, desde el 13/10, siempre con "no se
+ * pudo leer" las colecciones grandes. Leía las ~87 colecciones a la vez con el tope de una pantalla (3,5 s por consulta,
+ * 8 s en total). Ahora lee de a pocas, con un tope propio, y anota el motivo de cada una que falla.
+ */
+const LECTURAS_A_LA_VEZ = 4;
+const TOPE_DE_LECTURA_DEL_RESPALDO_MS = 45_000;
+
+async function readAllBackupData(): Promise<{
+  leidas: Array<{ file: string; value: any }>;
+  noSePudieronLeer: string[];
+  motivos: Record<string, string>;
+}> {
   // OJO: `readData` casi nunca tira el error: cuando la base no contesta devuelve la lista
   // vacia. Si se confia en eso, el respaldo guarda cero fiestas como si no hubiera ninguna,
   // queda marcado completo y la rotacion borra la copia buena. Por eso se pregunta ademas si
   // la lectura salio bien. Lo encontro Codex el 17 de septiembre de 2026.
-  const results = await Promise.all(BACKUP_COLLECTIONS.map(async (collection) => {
-    try {
-      const { valor, huboFalla } = await readDataConDetalle(collection.file, collection.defaultValue);
-      if (huboFalla) {
-        console.warn(`[Backup] Lectura con fallas en ${collection.file}: no se guarda el snapshot`);
-        return { ok: false as const, file: collection.file };
+  type Resultado = { ok: true; file: string; value: any } | { ok: false; file: string; motivo: string };
+  const results: Resultado[] = [];
+  for (let i = 0; i < BACKUP_COLLECTIONS.length; i += LECTURAS_A_LA_VEZ) {
+    const tanda = BACKUP_COLLECTIONS.slice(i, i + LECTURAS_A_LA_VEZ);
+    const leidasDeLaTanda = await Promise.all(tanda.map(async (collection): Promise<Resultado> => {
+      try {
+        const { valor, huboFalla, motivo } = await readDataConDetalle(collection.file, collection.defaultValue, {
+          topeMs: TOPE_DE_LECTURA_DEL_RESPALDO_MS,
+        });
+        if (huboFalla) {
+          console.warn(`[Backup] Lectura con fallas en ${collection.file}: no se guarda el snapshot`, motivo);
+          return { ok: false, file: collection.file, motivo: motivo || 'la lectura vino incompleta' };
+        }
+        return { ok: true, file: collection.file, value: valor };
+      } catch (error) {
+        console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
+        return { ok: false, file: collection.file, motivo: error instanceof Error ? error.message : String(error) };
       }
-      return { ok: true as const, file: collection.file, value: valor };
-    } catch (error) {
-      console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
-      return { ok: false as const, file: collection.file };
-    }
-  }));
+    }));
+    results.push(...leidasDeLaTanda);
+  }
 
+  const fallidas = results.filter((result): result is Extract<Resultado, { ok: false }> => !result.ok);
   return {
     leidas: results
-      .filter((result): result is Extract<(typeof results)[number], { ok: true }> => result.ok)
+      .filter((result): result is Extract<Resultado, { ok: true }> => result.ok)
       .map(({ file, value }) => ({ file, value })),
-    noSePudieronLeer: results.filter((result) => !result.ok).map((result) => result.file),
+    noSePudieronLeer: fallidas.map((result) => result.file),
+    motivos: Object.fromEntries(fallidas.map((result) => [result.file, result.motivo])),
   };
 }
 
@@ -221,11 +244,18 @@ async function acquireAutoBackupLease(db: Firestore): Promise<boolean> {
 
   return db.runTransaction(async (transaction) => {
     const document = await transaction.get(stateRef);
-    const state = document.data() as { lastCompletedAtMs?: number; leaseUntilMs?: number } | undefined;
+    const state = document.data() as { lastCompletedAtMs?: number; leaseUntilMs?: number; lastAttemptAt?: string } | undefined;
     const lastCompletedAtMs = Number(state?.lastCompletedAtMs || 0);
     const leaseUntilMs = Number(state?.leaseUntilMs || 0);
+    // Un intento fallido también espera antes del próximo: antes se reintentaba con cada guardado
+    // (333 intentos en un mes) y las lecturas del respaldo cargaban la base que ya no contestaba.
+    const lastAttemptAtMs = Date.parse(state?.lastAttemptAt || '') || 0;
 
-    if (now - lastCompletedAtMs < AUTO_BACKUP_INTERVAL_MS || leaseUntilMs > now) {
+    if (
+      now - lastCompletedAtMs < AUTO_BACKUP_INTERVAL_MS ||
+      now - lastAttemptAtMs < AUTO_BACKUP_RETRY_MS ||
+      leaseUntilMs > now
+    ) {
       return false;
     }
 
@@ -370,9 +400,11 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
       // No se guarda nada: un respaldo al que le falta una parte, marcado como completo,
       // es peor que no tenerlo. Y sin guardarlo, la rotacion no toca la ultima copia buena.
       const faltantes = lectura.noSePudieronLeer.map((archivo) => archivo.replace('.json', '')).join(', ');
+      // El motivo va en el aviso: sin él, un mes de fallas no decía por qué.
+      const motivosDistintos = Array.from(new Set(Object.values(lectura.motivos))).slice(0, 3).join(' / ');
       return {
         success: false,
-        error: `No se pudo leer todo lo que hay que guardar (falto: ${faltantes}), asi que no se guardo el respaldo. La copia anterior sigue intacta. Proba de nuevo en un momento.`,
+        error: `No se pudo leer todo lo que hay que guardar (falto: ${faltantes}), asi que no se guardo el respaldo. La copia anterior sigue intacta. Motivo: ${motivosDistintos || 'sin detalle'}.`,
       };
     }
     const backupData = lectura.leidas;

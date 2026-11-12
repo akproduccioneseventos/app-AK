@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - El respaldo automático fallaba desde el 13/10 (informe final del auditor)
+
+- **Qué pasaba:** 333 fallos seguidos, siempre "no se pudo leer" las colecciones grandes. El respaldo leía las ~87
+  colecciones **todas a la vez** con el tope de tiempo de una pantalla (3,5 s por consulta, 8 s en total), y reintentaba
+  con cada guardado. Es la causa más probable; el texto exacto de la base no se vio, por eso ahora el aviso trae el motivo.
+- **Qué se hizo:** `readAllBackupData` lee de a 4 con un tope propio de 45 s (`readDataConDetalle(..., { topeMs })`), el
+  error del respaldo dice el motivo de cada falla, y después de un intento fallido espera 10 minutos antes del próximo
+  (`AUTO_BACKUP_RETRY_MS`). Lo frena `el-respaldo-no-miente.test.ts` (comprobado en rojo leyendo todas a la vez).
+- Pendiente para Gemini (orden 286): que "Control de backup" no diga "Listo" sin mirar la última copia, y que al dueño le
+  llegue un aviso al tercer fallo.
+
 ## 12/11/2026 - El dueño con cuenta vieja no podía abrir el acceso del auditor
 
 - `abrirAccesoAuditor` y `cerrarAccesoAuditor` comparaban `perfil !== 'dueno'` a mano; la cuenta del dueño es de antes de

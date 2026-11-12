@@ -178,7 +178,7 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
   throw lastError;
 }
 
-async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
+async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs: number = 3500): Promise<T> {
   let timeoutId: any;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
@@ -424,7 +424,7 @@ export async function syncToFirestore(
  * Read data from Firestore for a given file path.
  * Returns null if no data is found or Firebase is unavailable.
  */
-export async function readFromFirestore(filePath: string, opciones: { conMarcas?: boolean; propagarErrores?: boolean } = {}): Promise<any> {
+export async function readFromFirestore(filePath: string, opciones: { conMarcas?: boolean; propagarErrores?: boolean; tiempoMs?: number } = {}): Promise<any> {
   if (logger.shouldSkipFirestoreDuringBuild()) return null;
 
   let db: Firestore;
@@ -447,7 +447,7 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
     // Config file → read from 'configuracion' collection
     const configDocId = CONFIG_FILES[normalizedPath];
     if (configDocId) {
-      const doc = await queryWithTimeout(db.collection('configuracion').doc(configDocId).get());
+      const doc = await queryWithTimeout(db.collection('configuracion').doc(configDocId).get(), opciones.tiempoMs);
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
@@ -459,7 +459,7 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
     // Array collection → read all docs and return as array
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
-      const snapshot = await queryWithTimeout(db.collection(collectionName).get());
+      const snapshot = await queryWithTimeout(db.collection(collectionName).get(), opciones.tiempoMs);
       // Una baja individual puede dejar proveedores vacio; no revivir la copia JSON vieja.
       // Esto no habilita el borrado masivo mediante syncToFirestore([]).
       if (snapshot.empty) return ['proveedores.json', 'invitacion-digital-templates.json'].includes(normalizedPath) || ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
@@ -487,7 +487,7 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
       const [dir, filename] = pathParts;
       if (!filename.endsWith('.json')) return null;
       const docId = filename.replace('.json', '');
-      const doc = await queryWithTimeout(db.collection(dir).doc(docId).get());
+      const doc = await queryWithTimeout(db.collection(dir).doc(docId).get(), opciones.tiempoMs);
       if (doc.exists) {
         const data = doc.data();
         if (data) {
