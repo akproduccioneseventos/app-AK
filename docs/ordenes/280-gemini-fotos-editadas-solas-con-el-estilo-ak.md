@@ -139,7 +139,7 @@ Touchpix, con el interruptor `enableBeautyFilter` de la estación
   fuera de la cara no cambia).
 - `src/__tests__/el-estilo-ak-lo-guarda-solo-el-duenio.test.ts`: el personal no puede guardar el estilo; la acción pública
   devuelve sólo números (sin campos extra).
-- `tests/e2e/la-fotocabina-saca-con-el-estilo-ak.spec.ts`: con el interruptor prendido y un estilo cargado, la foto que se
+- **(Sacada el 12/11/2026: el estilo vive en la base y el entorno de pruebas de navegador no tiene base, así que la foto salía igual con o sin estilo. Va con el emulador, como la orden 269; la función la cubre `el-estilo-ak-cambia-la-foto`.)** `tests/e2e/la-fotocabina-saca-con-el-estilo-ak.spec.ts`: con el interruptor prendido y un estilo cargado, la foto que se
   manda a subir (cortá la subida con `page.route`) es distinta de la misma foto sin el interruptor.
 
 ```comprobar
@@ -162,5 +162,4 @@ prueba: herramientas/ak-editor/pruebas/test_fotos_endereza_sin_cortar_caras.py
 prueba: herramientas/ak-editor/pruebas/test_aprende_el_estilo.py
 prueba: src/__tests__/el-estilo-ak-cambia-la-foto.test.ts
 prueba: src/__tests__/el-estilo-ak-lo-guarda-solo-el-duenio.test.ts
-prueba: tests/e2e/la-fotocabina-saca-con-el-estilo-ak.spec.ts
 ```
