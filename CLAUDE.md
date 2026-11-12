@@ -1074,7 +1074,8 @@ como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda inco
 **Y otra vez el 12 de noviembre de 2026, con el informe del auditor externo:** sumé las dos preguntas nuevas pero di
 por "conocidas" las otras cinco formas sin buscarlas. Lo preguntó el dueño; el barrido encontró unas 15 pantallas con
 títulos invisibles. **Vale para cualquier informe, no sólo de Codex: cada forma del informe se busca en toda la app
-antes de escribir la orden.**
+antes de escribir la orden.** **Y ya no depende de acordarse:** una orden que sale de un informe sin su sección "Barrido en toda la
+app" y su línea en `barridos.json` no deja publicar (`cada-informe-trae-su-barrido.test.ts`).
 
 ### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
 
@@ -1939,6 +1940,7 @@ con otra cara.
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 | Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
 | El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
+| Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
 
 ### Cómo se elige el matafuego
 
