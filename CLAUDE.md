@@ -1380,6 +1380,9 @@ ubicar.
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
 
+**Y desde la pregunta 117 cada una trae su escaneo automático** en `scripts/las-formas-que-mienten.mjs`, o nombra la prueba
+que la cubre (`cada-pregunta-nueva-tiene-su-escaneo.test.ts`, 12/11/2026).
+
 **Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
 se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
 (`cada-pregunta-se-barrio-en-toda-la-app.test.ts`), y lo mismo una pregunta de un hallazgo de Codex que
@@ -1952,6 +1955,7 @@ con otra cara.
 | El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
 | Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
 | El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
+| Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
 
 ### Cómo se elige el matafuego
 

@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - Cada pregunta nueva del método se escanea sola
+
+- **Pedido del dueño:** *"todos los errores tienen que crear preguntas nuevas y automáticas, y escaneos automáticos"*. Las
+  preguntas 88, 121 y 124 se buscan solas en cada publicación (`scripts/las-formas-que-mienten.mjs`, frena lo que cambió);
+  las que no se pueden buscar con una expresión nombran la prueba que las cubre (`PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR`).
+  Desde la 117, una pregunta sin una de las dos cosas no deja publicar (`cada-pregunta-nueva-tiene-su-escaneo.test.ts`,
+  comprobado en rojo con una pregunta de prueba).
+
+```comprobar
+usa: PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR en scripts/las-formas-que-mienten.mjs
+prueba: src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts
+```
+
 ## 12/11/2026 - La causa verdadera del respaldo que no se guardaba (informe parte 3 del auditor)
 
 - **El arreglo de la mañana no la curó** (el contador siguió de 338 a 340). La causa la reprodujo el auditor: la lista de lo
