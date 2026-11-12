@@ -11,6 +11,7 @@ import {
   createUser,
   updateUserModules,
   chequearAvisoAuditor14Dias,
+  obtenerEstadoAuditor,
 } from '@/app/actions/auth';
 
 let currentCookieToken: string | undefined = undefined;
@@ -137,6 +138,91 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
     const res = await abrirAccesoAuditor({ email: 'auditor-viejo@externo.com' });
     expect(res.error).toBeUndefined();
     expect(res.success).toBe(true);
+  });
+
+  it('la cuenta del dueño que quedó convertida en auditor vuelve a ser del dueño sólo con la clave del dueño', async () => {
+    mockUsers['auth'] = { password: 'clave-del-duenio' };
+    mockUsers['usr-convertida'] = {
+      email: 'duenio-diario@akproducciones.com',
+      perfil: 'auditor',
+      role: 'user',
+      activo: true,
+      cerradoEl: null,
+      createdAt: '2026-03-01T10:00:00.000Z',
+      abiertoEl: '2026-11-12T12:40:00.000Z',
+      passwordHash: 'scrypt:00:00',
+      versionDeSesion: 3,
+    };
+    // Con una clave que no es la del dueño (la del auditor) no se repara.
+    await loginUser('duenio-diario@akproducciones.com', 'Auditor-AAAAAA-BBBBBB');
+    expect(mockUsers['usr-convertida'].perfil).toBe('auditor');
+
+    const res = await loginUser('duenio-diario@akproducciones.com', 'clave-del-duenio');
+    expect(res.success).toBe(true);
+    expect(mockUsers['usr-convertida'].perfil).toBe('dueno');
+    expect(mockUsers['usr-convertida'].role).toBe('admin');
+    expect(mockUsers['usr-convertida'].versionDeSesion).toBe(4);
+  });
+
+  it('un auditor de verdad (creado al abrir el acceso) no se convierte en dueño', async () => {
+    mockUsers['auth'] = { password: 'clave-del-duenio' };
+    mockUsers['usr-auditor-real'] = {
+      email: 'auditor-real@externo.com',
+      perfil: 'auditor',
+      role: 'user',
+      activo: true,
+      cerradoEl: null,
+      createdAt: '2026-11-12T12:40:00.000Z',
+      abiertoEl: '2026-11-12T12:40:00.000Z',
+      passwordHash: 'scrypt:00:00',
+    };
+    await loginUser('auditor-real@externo.com', 'clave-del-duenio');
+    expect(mockUsers['usr-auditor-real'].perfil).toBe('auditor');
+  });
+
+  it('el correo de alguien del equipo no se convierte en auditor', async () => {
+    mockUsers['usr-equipo'] = {
+      email: 'equipo@akproducciones.com',
+      perfil: 'secretaria',
+      role: 'user',
+      passwordHash: 'clave-vieja',
+      activo: true,
+    };
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+      perfil: 'dueno',
+    });
+    const res = await abrirAccesoAuditor({ email: 'equipo@akproducciones.com' });
+    expect(res.success).toBe(false);
+    expect(res.password).toBeUndefined();
+    expect(mockUsers['usr-equipo'].perfil).toBe('secretaria');
+    expect(mockUsers['usr-equipo'].passwordHash).toBe('clave-vieja');
+  });
+
+  it('la tarjeta del auditor aparece para el dueño con cuenta vieja, y no para la secretaria', async () => {
+    // 12/11/2026: el dueño no veía la tarjeta en Usuarios. Ahora el estado se pide con el mismo
+    // control que abrir y cerrar, y ante una falla la tarjeta se muestra con el motivo.
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno-viejo',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+    } as any);
+    const delDueno = await obtenerEstadoAuditor();
+    expect(delDueno.error).toBeUndefined();
+    expect(delDueno.success).toBe(true);
+    expect(delDueno.esDueno).toBe(true);
+
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-secretaria',
+      email: 'secretaria@akproducciones.com',
+      role: 'user',
+      perfil: 'secretaria',
+    });
+    const deLaSecretaria = await obtenerEstadoAuditor();
+    expect(deLaSecretaria.success).toBe(false);
+    expect(deLaSecretaria.esDueno).toBeFalsy();
   });
 
   it('con el acceso cerrado no entra, y una sesión ya abierta queda afuera en el próximo clic', async () => {

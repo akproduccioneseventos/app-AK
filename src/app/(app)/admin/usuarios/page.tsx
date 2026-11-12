@@ -158,20 +158,26 @@ export default function AdminUsuariosPage() {
   const [claveGenerada, setClaveGenerada] = useState<string | null>(null);
   const [claveCopiada, setClaveCopiada] = useState(false);
   const [esDueno, setEsDueno] = useState(false);
+  const [auditorEstadoError, setAuditorEstadoError] = useState<string | null>(null);
   const [isProcessingAuditor, setIsProcessingAuditor] = useState(false);
 
   const loadAuditorStatus = useCallback(async () => {
     try {
       const res = await obtenerEstadoAuditor();
+      // La tarjeta es del dueño: se muestra aunque el estado no se haya podido leer,
+      // con el motivo a la vista, en vez de desaparecer sin decir nada.
+      if (res.success || res.esDueno) setEsDueno(true);
       if (res.success) {
-        setEsDueno(true);
+        setAuditorEstadoError(null);
         setAuditorActivo(res.activo);
         setAuditorAbiertoEl(res.abiertoEl);
         setAuditorEmailActual(res.email);
         setAuditorHistorial(res.historial || []);
+      } else if (res.esDueno) {
+        setAuditorEstadoError(res.error || 'No se pudo leer el estado del acceso.');
       }
     } catch {
-      // Si no tiene permisos de administración, no muestra la tarjeta
+      setAuditorEstadoError('No se pudo conectar con el servidor para leer el estado del acceso.');
     }
   }, []);
 
@@ -600,6 +606,11 @@ export default function AdminUsuariosPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {auditorEstadoError && (
+              <p role="alert" className="text-sm rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-800">
+                No se pudo leer si el acceso está abierto: {auditorEstadoError} Igual podés abrirlo o cerrarlo.
+              </p>
+            )}
             {claveGenerada && (
               <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
