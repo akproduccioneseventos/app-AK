@@ -30,14 +30,16 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'whatsapp-config.json', defaultValue: {} },
   { file: 'whatsapp-conversations.json', defaultValue: [] },
   { file: 'feature-flags.json', defaultValue: [] },
-  { file: 'galeria-publica.json', defaultValue: [] },
+  // Se guarda como objeto { fotos, videos } (src/app/actions/galeria.ts). Con [] el respaldo fallaba 340 veces (auditor, 12/11/2026).
+  { file: 'galeria-publica.json', defaultValue: {} },
   { file: 'fiesta-crowd-sync.json', defaultValue: {} },
   { file: 'menus.json', defaultValue: [] },
   { file: 'menus-catering.json', defaultValue: [] },
   { file: 'reposteria-template.json', defaultValue: {} },
   { file: 'bebidas-template.json', defaultValue: {} },
   { file: 'carga-operativa-master-template.json', defaultValue: {} },
-  { file: 'carga-operativa-templates.json', defaultValue: [] },
+  // En la base es un objeto (configuracion/carga-operativa-templates). Con [] el respaldo no se guardaba nunca.
+  { file: 'carga-operativa-templates.json', defaultValue: {} },
   { file: 'meeting-checklist-template.json', defaultValue: {} },
   { file: 'insumos.json', defaultValue: [] },
   { file: 'ajustes-costos-insumos.json', defaultValue: [] },

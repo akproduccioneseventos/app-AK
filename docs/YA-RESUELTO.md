@@ -1,10 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - La causa verdadera del respaldo que no se guardaba (informe parte 3 del auditor)
+
+- **El arreglo de la mañana no la curó** (el contador siguió de 338 a 340). La causa la reprodujo el auditor: la lista de lo
+  que se respalda decía que `galeria-publica.json` y `carga-operativa-templates.json` eran listas, y en la base son
+  objetos. La lectura marcaba "falla" sin motivo y el respaldo entero se cancelaba.
+- **Qué se hizo:** las dos entradas de `src/lib/backup/backup-registry.ts` esperan objeto, y `readDataConDetalle` dice el
+  motivo cuando la forma no coincide. Lo frena `el-respaldo-espera-la-forma-que-se-guarda.test.ts`, que compara la forma
+  de cada archivo del respaldo con la forma con que lo usa la app (comprobado en rojo con la entrada vieja).
+
+```comprobar
+usa: { file: 'galeria-publica.json', defaultValue: {} } en src/lib/backup/backup-registry.ts
+prueba: src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts
+```
+
 ## 12/11/2026 - El respaldo automático fallaba desde el 13/10 (informe final del auditor)
 
 - **Qué pasaba:** 333 fallos seguidos, siempre "no se pudo leer" las colecciones grandes. El respaldo leía las ~87
   colecciones **todas a la vez** con el tope de tiempo de una pantalla (3,5 s por consulta, 8 s en total), y reintentaba
-  con cada guardado. Es la causa más probable; el texto exacto de la base no se vio, por eso ahora el aviso trae el motivo.
+  con cada guardado. No era la causa (ver la entrada de arriba): sirvió para que el aviso traiga el motivo.
 - **Qué se hizo:** `readAllBackupData` lee de a 4 con un tope propio de 45 s (`readDataConDetalle(..., { topeMs })`), el
   error del respaldo dice el motivo de cada falla, y después de un intento fallido espera 10 minutos antes del próximo
   (`AUTO_BACKUP_RETRY_MS`). Lo frena `el-respaldo-no-miente.test.ts` (comprobado en rojo leyendo todas a la vez).
