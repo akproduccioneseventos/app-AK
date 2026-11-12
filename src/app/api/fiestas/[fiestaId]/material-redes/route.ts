@@ -55,14 +55,14 @@ function nombreDe(url: string, id: string, mediaType?: string): string {
   }
 }
 
-export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, props: { params: Promise<{ fiestaId: string }> }) {
   const auth = await requirePermiso(PERMISOS.CRM);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: 403 });
   }
 
   const params = await props.params;
-  const { id } = params;
+  const { fiestaId: id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'El ID de la fiesta es obligatorio.' }, { status: 400 });

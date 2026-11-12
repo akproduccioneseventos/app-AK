@@ -8,6 +8,8 @@
 - **No entra todavía, a propósito:** el bloque 1 de la orden 278. Pedía la clave `cron-secret` en `apphosting.yaml` y
   cerraba el despachador sin ella. Si la clave no existe en Firebase, la web no se puede publicar y las tareas
   automáticas se paran; nadie confirmó que exista. Queda anotado como pendiente en la orden.
+- La ruta nueva del material para redes estaba en `api/fiestas/[id]/` al lado de `api/fiestas/[fiestaId]/`: compilaba, pero
+  al arrancar la app entera contestaba error. Se movió a `[fiestaId]`; lo frena `las-rutas-no-mezclan-nombres.test.ts`.
 - Se le sacó a `portal-session.ts` una marca invisible al principio del archivo que agregó la entrega.
 
 ## 11/11/2026 - Next.js actualizado a 15.5.29, y la revisión de seguridad externa
@@ -41,6 +43,7 @@ usa: "next": "15.5.29" en package.json
 ```comprobar
 usa: AK_WHATSAPP_NUMBER en src/data/event-catalogs/bodas.ts
 prueba: src/__tests__/los-catalogos-mandan-al-whatsapp-de-ak.test.ts
+prueba: src/__tests__/las-rutas-no-mezclan-nombres.test.ts
 ```
 
 ## 11/11/2026 - El blog muestra todas las notas, ordenadas por fecha

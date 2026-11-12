@@ -70,10 +70,10 @@ jest.mock('next/server', () => ({
   },
 }));
 
-import { GET } from '@/app/api/fiestas/[id]/material-redes/route';
+import { GET } from '@/app/api/fiestas/[fiestaId]/material-redes/route';
 
 const pedirMaterial = (id: string) =>
-  GET({} as any, { params: Promise.resolve({ id }) }) as Promise<any>;
+  GET({} as any, { params: Promise.resolve({ fiestaId: id }) }) as Promise<any>;
 
 describe('Orden 275 - El material para redes respeta el permiso de promoción', () => {
   beforeEach(() => {
