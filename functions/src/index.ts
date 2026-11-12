@@ -59,7 +59,6 @@ export const despertadorTareasAutomaticas = functions
   .runWith({
     timeoutSeconds: 120,
     memory: '256MB',
-    secrets: ['CRON_SECRET'],
   })
   .pubsub.schedule('every 15 minutes')
   .timeZone('America/Montevideo')

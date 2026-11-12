@@ -1,4 +1,4 @@
-﻿import { cookies } from 'next/headers';
+import { cookies } from 'next/headers';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'ak_portal_session';

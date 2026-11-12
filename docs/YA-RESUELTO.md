@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - Revisión de la 1385 (órdenes 273 a 279)
+
+- **Entra:** Video de Vida, fiesta entera del editor, videos para redes, acceso de auditor (con el cierre leído de la
+  base, el portal sólo para el auditor y Gmail/Calendario bloqueados), la web que no pierde lo elegido, comparación
+  segura de claves y el zip del editor de 95 MB a menos de 1 MB.
+- **No entra todavía, a propósito:** el bloque 1 de la orden 278. Pedía la clave `cron-secret` en `apphosting.yaml` y
+  cerraba el despachador sin ella. Si la clave no existe en Firebase, la web no se puede publicar y las tareas
+  automáticas se paran; nadie confirmó que exista. Queda anotado como pendiente en la orden.
+- Se le sacó a `portal-session.ts` una marca invisible al principio del archivo que agregó la entrega.
+
 ## 11/11/2026 - Next.js actualizado a 15.5.29, y la revisión de seguridad externa
 
 - **Next.js 15.5.27 estaba dentro de dos avisos de seguridad publicados**: uno deja tumbar el servidor con pedidos

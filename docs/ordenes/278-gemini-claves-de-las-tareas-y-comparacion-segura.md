@@ -9,6 +9,11 @@ No toques tampoco la cabecera de seguridad (CSP en modo informe: es a propósito
 
 ## Bloque 1 — Que las tareas automáticas pidan clave (y que el despertador la mande)
 
+> **PENDIENTE (12/11/2026).** En la 1385 venía programado, pero nadie confirmó que los dos secretos existan en Firebase.
+> Claude lo sacó de la publicación para no frenar la web ni las tareas: falta la línea de `apphosting.yaml`, el
+> `secrets: ['CRON_SECRET']` del despertador, el 503 del despachador y la prueba `el-despertador-lleva-la-clave`.
+> **Se rehace sólo después de crear los dos secretos**, en el orden de abajo.
+
 **Hoy:** `src/lib/automatico/puerta-de-las-tareas.ts` (~108-133) deja correr sin clave las tareas de
 `TAREAS_QUE_NO_HACEN_DANO` (~62) cuando no hay `CRON_SECRET`. `apphosting.yaml` **no define `CRON_SECRET`**, así que en
 la app publicada cualquiera que sepa la dirección puede disparar `generate-blog-post` o `asistente-proactivo`, que

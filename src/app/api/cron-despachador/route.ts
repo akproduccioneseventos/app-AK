@@ -25,9 +25,8 @@ const TAREAS_CRON_DESPACHADAS = [
 function verificarClave(request: Request): { autorizado: boolean; status?: number; error?: string } {
   const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET;
   if (!cronSecret) {
-    if (process.env.NODE_ENV === 'production') {
-      return { autorizado: false, status: 503, error: 'Servicio no disponible: falta configurar CRON_SECRET' };
-    }
+    // Orden 278, bloque 1, pendiente: hasta que la clave exista en Firebase (y el despertador la mande),
+    // esto no puede cerrar en producción o se paran todas las tareas automáticas. Sigue con el freno de concurrencia.
     return { autorizado: true };
   }
 
