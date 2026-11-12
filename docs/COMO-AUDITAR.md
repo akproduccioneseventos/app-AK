@@ -1607,3 +1607,16 @@ Auditor externo, 12/11/2026. El AK Editor marcaba las fotos como subidas a Wfoli
 login, sin subir nada. Se buscan los lugares que guardan un estado de éxito de algo que pasa en otro servicio (subidas,
 publicaciones, envíos) y se mira que el estado salga de la respuesta o de ver el archivo del otro lado, no de haber
 abierto la conexión.
+
+### 123. Lo que espera una lectura (lista u objeto), ¿es la forma con que se guardó?
+
+Auditor externo, 12/11/2026. El respaldo esperaba una lista en `galeria-publica.json` y `carga-operativa-templates.json`,
+que la app guarda como objeto: la lectura daba "falla" sin motivo y no se guardó ningún respaldo en un mes. Se comparan los
+valores por defecto de `BACKUP_COLLECTIONS` y de cada `readData('x.json', …)` con la forma con que se escribe ese archivo.
+Lo hace solo `el-respaldo-espera-la-forma-que-se-guarda.test.ts`.
+
+### 124. Una pantalla, ¿corre una reparación o una migración cada vez que se abre, antes de mostrar nada?
+
+Auditor externo, 12/11/2026. `/presupuestos/nuevo` esperaba `repairVerifiedBudgetDates()` (lee la lista entera) antes de
+pedir la lista: 22 segundos en el celular. Se buscan `await repair…`, `await migrate…`, `reparar`, `migrar` en las
+pantallas: lo que hace falta una vez corre después de mostrar la pantalla, o una sola vez.

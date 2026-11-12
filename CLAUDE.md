@@ -1221,6 +1221,16 @@ rubro pedía el nombre de la función, no el efecto (error 7 otra vez).
 **Qué se hace distinto:** antes de comparar con la competencia, se abre la función y se mira **qué hace**, no cómo se
 llama. La línea del rubro quedó apuntando a la receta nueva (orden 264).
 
+### 50. Arreglar el respaldo por una causa "más probable" sin haberla medido
+
+**Pasó el 12 de noviembre de 2026.** Publiqué un arreglo del respaldo (leer de a 4, más tiempo) diciendo que era "la causa
+más probable" sin haber visto el error de la base. El auditor midió: siguió fallando, y la causa era que el respaldo
+esperaba una lista donde la app guarda un objeto. Es el error 6 otra vez.
+
+**Qué se hace distinto:** si el error no trae su motivo, el primer arreglo es **que lo traiga**, y recién con el motivo a la
+vista se arregla la causa. Y el control nuevo (`el-respaldo-espera-la-forma-que-se-guarda.test.ts`) compara la forma de
+todo lo que se respalda, no sólo de los dos archivos.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1941,6 +1951,7 @@ con otra cara.
 | Una ruta nueva `[id]` al lado de `[fiestaId]` compilaba y dejaba toda la app contestando error | `src/__tests__/las-rutas-no-mezclan-nombres.test.ts` |
 | El respaldo automático leía todo a la vez con el tope de una pantalla y falló un mes sin que nadie se enterara | `src/__tests__/el-respaldo-no-miente.test.ts` (lee de a 4 y dice el motivo) |
 | Un informe de afuera se pasaba a orden sin buscar sus formas en toda la app (lo tuvo que pedir el dueño tres veces) | `src/__tests__/cada-informe-trae-su-barrido.test.ts` |
+| El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -259,3 +259,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 91. **¿Agregaste algo que corre solo?** Si falla tres veces seguidas, que le avise al dueño.
 92. **¿Armás un texto que se copia o se manda afuera?** Que no quede ningún `[...]` ni `{{...}}` y que los enlaces sean completos.
 93. **¿Marcás algo como "subido" o "publicado" en otro servicio?** Sólo después de ver la respuesta o el archivo del otro lado.
+94. **¿Leés un archivo con un valor por defecto?** Que sea de la misma forma (lista u objeto) con que se guarda.
+95. **¿Tu pantalla corre una corrección al abrir?** Que muestre primero y corrija después, sin esperarla.

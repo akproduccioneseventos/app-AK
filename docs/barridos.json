@@ -488,6 +488,14 @@
     "122": {
       "fecha": "2026-11-12",
       "resultado": "Buscados los estados de éxito de servicios externos: Wfolio del AK Editor marca subido sin subir → orden 288 bloque 4. Publicaciones de redes y subidas de la cabina ya marcan con la respuesta del servicio (órdenes 89, 93, 282)."
+    },
+    "123": {
+      "fecha": "2026-11-12",
+      "resultado": "Comparadas las 80 entradas de BACKUP_COLLECTIONS y todas las lecturas con nombre fijo de src/: sólo galeria-publica y carga-operativa-templates estaban mal; arregladas por Claude. Queda como control automático (el-respaldo-espera-la-forma-que-se-guarda.test.ts)."
+    },
+    "124": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscado await repair/migrate/reparar/migrar en src/app y src/components: sólo /presupuestos/nuevo → orden 290 bloque 1."
     }
   },
   "hallazgos": {
@@ -774,6 +782,10 @@
     "orden-288": {
       "fecha": "2026-11-12",
       "resultado": "Informe integral del auditor, parte 1. Cada forma buscada en src/ y herramientas/: hora en Greenwich en campos datetime-local (sólo NewPostDialog), textos con marcadores (sólo marketing), rutas relativas descartadas por sanitizeHttpUrl (galería), conteos sin juntar copias importadas (dashboard), desbordes a 390 px (4 pantallas). Descartados: [URGENTE_7_DIAS] es un dato, chips O./E. no existen, texto del auditor ya arreglado."
+    },
+    "orden-290": {
+      "fecha": "2026-11-12",
+      "resultado": "Informe parte 3 del auditor. Respaldo por forma esperada (arreglado por Claude, barrido completo con control). Reparación al abrir: sólo presupuestos. Wfolio: módulo sin importar y promesa en post-fiesta → bloque 3. Placeholder repetido: sólo la invitación pública."
     }
   }
 }
