@@ -4,6 +4,9 @@
 **después de la 282**. **Una sola entrega, sin fusionar.** Repasá `docs/ANTES-DE-ENTREGAR.md` y la habilidad
 `celular-primero` (`.claude/skills/celular-primero`).
 
+**Ojo:** el menú del bloque 2 lo reemplaza la **orden 284** (siete casas leídas de un solo mapa). Las dos van en la misma
+entrega.
+
 ## Qué dijo el dueño
 
 *"La veo muy recargada y no se adapta mucho al celular; hay dos paneles generales, después la configuración que tiene
