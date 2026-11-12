@@ -19,6 +19,6 @@ describe('detalle con lectura Firestore real y respaldo local viejo', () => {
   it('una copia generica existente tampoco oculta el rechazo de la coleccion principal', async () => {
     readError = new Error('offline');
     (readGenericJsonFile as jest.Mock).mockResolvedValue([{ id: 'copia' }]);
-    expect(await readDataConDetalle('proveedores.json', [])).toEqual({ valor: [{ id: 'copia' }], huboFalla: true });
+    expect(await readDataConDetalle('proveedores.json', [])).toEqual({ valor: [{ id: 'copia' }], huboFalla: true, motivo: 'offline' });
   });
 });
