@@ -92,7 +92,14 @@ export function BarraDeLaCasa({ casaId, className }: BarraDeLaCasaProps) {
   // Calculamos la pestaña activa con prioridad por especificidad si hubiera solapamiento
   const pestanaActivaIndex = useMemo(() => {
     if (!casa) return -1;
-    return casa.pestanas.findIndex((p) => esPestanaActiva(p, pathname));
+    // Gana la más específica: en /empresa/contabilidad/gastos también coincide /empresa/contabilidad, y la
+    // primera de la lista se quedaba con la marca (lo frenó la prueba cada-casa-tiene-su-barra, 13/11/2026).
+    let mejor = -1;
+    casa.pestanas.forEach((p, idx) => {
+      if (!esPestanaActiva(p, pathname)) return;
+      if (mejor === -1 || p.ruta.length > casa.pestanas[mejor].ruta.length) mejor = idx;
+    });
+    return mejor;
   }, [casa, pathname]);
 
   if (!casa) return null;
