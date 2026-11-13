@@ -435,6 +435,7 @@ function RegalosSlide({ catalog }: { catalog: EventCatalogData }) {
 }
 
 function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
+  if (!catalog.testimonials || catalog.testimonials.length === 0) return null;
   const accent = getAccent(catalog.hero.accentColor);
   const SOURCE_ICON: Record<string, string> = {
     instagram: '📸',
@@ -707,11 +708,21 @@ export default function CatalogoTipoPage() {
     [mergedCatalog, selectedPackageId],
   );
 
+  const activeSlides = useMemo(
+    () =>
+      SLIDE_ORDER.filter(
+        (id) =>
+          id !== 'testimonios' ||
+          Boolean(mergedCatalog?.testimonials && mergedCatalog.testimonials.length > 0)
+      ),
+    [mergedCatalog?.testimonials]
+  );
+
   const goToSlide = useCallback((next: number) => {
-    const clamped = Math.max(0, Math.min(next, SLIDE_ORDER.length - 1));
+    const clamped = Math.max(0, Math.min(next, activeSlides.length - 1));
     setDirection(next > currentSlide ? 1 : -1);
     setCurrentSlide(clamped);
-  }, [currentSlide]);
+  }, [currentSlide, activeSlides.length]);
 
   const goNext = useCallback(() => goToSlide(currentSlide + 1), [goToSlide, currentSlide]);
   const goPrev = useCallback(() => goToSlide(currentSlide - 1), [goToSlide, currentSlide]);
@@ -772,10 +783,10 @@ export default function CatalogoTipoPage() {
   if (!mergedCatalog) return notFound();
 
   const accent = getAccent(mergedCatalog.hero.accentColor);
-  const currentSlideId = SLIDE_ORDER[currentSlide];
-  const isLastSlide = currentSlide === SLIDE_ORDER.length - 1;
+  const currentSlideId = activeSlides[currentSlide] ?? activeSlides[0];
+  const isLastSlide = currentSlide === activeSlides.length - 1;
   const isFirstSlide = currentSlide === 0;
-  const progress = ((currentSlide) / (SLIDE_ORDER.length - 1)) * 100;
+  const progress = activeSlides.length > 1 ? ((currentSlide) / (activeSlides.length - 1)) * 100 : 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/20 flex flex-col">
@@ -804,13 +815,13 @@ export default function CatalogoTipoPage() {
             </div>
 
             <div className="flex-shrink-0 text-xs text-slate-400 font-mono">
-              {currentSlide + 1}/{SLIDE_ORDER.length}
+              {currentSlide + 1}/{activeSlides.length}
             </div>
           </div>
 
           {/* Slide index tabs (desktop) */}
           <div className="hidden lg:flex items-center gap-1 mt-3 flex-wrap">
-            {SLIDE_ORDER.map((id, idx) => (
+            {activeSlides.map((id, idx) => (
               <button
                 key={id}
                 onClick={() => goToSlide(idx)}
@@ -898,7 +909,7 @@ export default function CatalogoTipoPage() {
 
           {/* Dot indicators */}
           <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catálogo">
-            {SLIDE_ORDER.map((_, idx) => (
+            {activeSlides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}

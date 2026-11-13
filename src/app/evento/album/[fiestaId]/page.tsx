@@ -157,6 +157,18 @@ export default function PublicAlbumPage() {
     loadPosts();
   }, [loadPosts]);
 
+  // Orden 298: El video resumen del cliente se genera solo la primera vez que abre su álbum, sin botón.
+  const [autoAperturaVideoIntentada, setAutoAperturaVideoIntentada] = useState(false);
+  useEffect(() => {
+    if (isLoading || autoAperturaVideoIntentada || !fiestaId || fotosParaVideo.length < 3) return;
+    const claveStorage = `ak_video_resumen_visto_${fiestaId}`;
+    if (typeof window !== 'undefined' && !sessionStorage.getItem(claveStorage)) {
+      sessionStorage.setItem(claveStorage, '1');
+      setAutoAperturaVideoIntentada(true);
+      setVideoModalAbierto(true);
+    }
+  }, [isLoading, autoAperturaVideoIntentada, fiestaId, fotosParaVideo.length]);
+
   // Armar álbum digital con selección inteligente
   const albumDigital: AlbumDigitalCompleto = useMemo(() => {
     return armarAlbumInteligente({
@@ -834,6 +846,7 @@ export default function PublicAlbumPage() {
         fecha={fechaFiesta || 'Nuestra Fiesta'}
         fotos={fotosParaVideo}
         fiestaId={fiestaId}
+        musicaUrl={cancionFiesta || '/audio/musica-resumen-ak.wav'}
       />
     </div>
   );

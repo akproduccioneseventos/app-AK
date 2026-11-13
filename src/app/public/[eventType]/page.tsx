@@ -137,7 +137,11 @@ export default async function EventTypePage({ params }: Props) {
 
       {/* CTA Banner (mid-page) */}
       <CallToActionBanner
-        headline={`¿Te imaginás tu ${catalog.name.toLowerCase()} perfecta?`}
+        headline={
+          catalog.eventType === 'xv-anos'
+            ? '¿Te imaginás tus XV perfectos?'
+            : `¿Te imaginás tu ${catalog.name.toLowerCase()} perfecta?`
+        }
         subheadline="Hablemos sin compromiso. Te preparamos una propuesta a medida."
         ctaLabel={catalog.hero.ctaLabel}
         whatsappNumber={catalog.whatsappNumber}
@@ -149,7 +153,9 @@ export default async function EventTypePage({ params }: Props) {
       <PromotionsOrGifts promotion={catalog.promotion} />
 
       {/* Testimonials */}
-      <TestimonialsCarousel testimonials={catalog.testimonials} />
+      {catalog.testimonials && catalog.testimonials.length > 0 && (
+        <TestimonialsCarousel testimonials={catalog.testimonials} />
+      )}
 
       {/* Our process */}
       <EventProcess steps={catalog.process} />

@@ -220,7 +220,7 @@ export default async function BlogPostPage({ params }: Props) {
                     Probá el simulador de presupuestos
                   </h2>
                   <p className="text-xs leading-5 text-slate-600 font-medium">
-                    Calculá una base exacta jugando con los servicios y la comida, y ajustala después profesionalmente con nosotros.
+                    Calculá una base estimada jugando con los servicios y la comida, y ajustala después profesionalmente con nosotros.
                   </p>
                   <div className="flex items-center gap-1.5 pt-2 text-xs font-black uppercase tracking-wider text-red-700">
                     Comenzar simulación

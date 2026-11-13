@@ -222,7 +222,7 @@ export default async function ClubUruguayPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <Check className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
-                    <span><strong>Contraste con tecnología moderna:</strong> Pistas de luces LED, sonido robótico y estaciones interactivas integradas sin desentonar con la estructura.</span>
+                    <span><strong>Contraste con tecnología moderna:</strong> Pistas de luces LED, sonido profesional e iluminación robótica y estaciones interactivas integradas sin desentonar con la estructura.</span>
                   </li>
                 </ul>
               </div>
@@ -377,7 +377,7 @@ export default async function ClubUruguayPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <Camera className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
-                    <span><strong>Fotografía & Filmación profesional:</strong> Registro en vivo de toda la fiesta.</span>
+                    <span><strong>Fotografía y filmación:</strong> Registro en vivo de toda la fiesta.</span>
                   </li>
                 </ul>
 

@@ -77,7 +77,7 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
         <ServicesSection services={config.services} whatsappNumber={whatsappNumber} />
       )}
       {'gallery' in config && config.gallery && <GallerySection images={(config as any).gallery} />}
-      {'testimonials' in config && config.testimonials && <TestimonialsSection testimonials={(config as any).testimonials} />}
+      {'testimonials' in config && config.testimonials && Array.isArray((config as any).testimonials) && (config as any).testimonials.length > 0 && <TestimonialsSection testimonials={(config as any).testimonials} />}
       <CTASection
         whatsappNumber={whatsappNumber}
         headline={config.cta.headline}

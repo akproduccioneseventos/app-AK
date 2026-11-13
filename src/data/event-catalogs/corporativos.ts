@@ -63,25 +63,7 @@ const corporativosData: EventCatalogData = {
       price: 'Consultar',
     },
   ],
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Empresa Tech S.A.',
-      source: 'google',
-      text: 'Organizamos nuestra cena anual de fin de año con AK y fue un éxito rotundo. Muy profesionales, puntuales y con excelente atención al detalle.',
-      date: 'Diciembre 2023',
-    },
-    {
-      id: 't2',
-      authorName: 'Recursos Humanos - Grupo Norte',
-      source: 'whatsapp',
-      text: 'El team building que organizaron superó todas las expectativas. El equipo quedó encantado y nuestro CEO no paraba de elogiarlos.',
-      date: 'Octubre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🏆 Beneficios especiales para empresas',
