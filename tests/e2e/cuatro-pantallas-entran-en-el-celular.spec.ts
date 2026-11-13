@@ -30,6 +30,7 @@ const CUATRO_PANTALLAS = [
   '/empresa/landing-editor',
   '/empresa/contabilidad/gastos',
   '/settings/templates',
+  '/empresa/creador-anuncios',
 ];
 
 test.describe('Cuatro pantallas entran en el celular a 390px (Orden 288, Bloque 8)', () => {

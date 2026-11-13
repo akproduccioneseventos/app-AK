@@ -52,6 +52,7 @@ test.describe('Orden 290: Central de presupuestos abre rápido en mobile', () =>
     // El tab de "Todos (" debe mostrarse ya con la lista cargada
     const tabTodos = page.getByRole('tab', { name: /Todos \(\d+\)/i });
     await expect(tabTodos).toBeVisible({ timeout: 15_000 });
+    await expect(tabTodos).toContainText('Todos (');
 
     // Liberamos la corrección de fechas retenida para terminar limpiamente
     if (liberarReparacion) {

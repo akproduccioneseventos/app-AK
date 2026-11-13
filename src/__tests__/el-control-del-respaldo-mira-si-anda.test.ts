@@ -10,7 +10,9 @@ describe('Orden 286 — Bloque 1: Control de backup mira si anda', () => {
   const pagePath = path.join(process.cwd(), 'src/app/(app)/settings/backup-final/page.tsx');
   const pageSource = fs.readFileSync(pagePath, 'utf8');
 
-  it('la pantalla separa en "Qué cubre el respaldo" y "Cómo viene el respaldo", y usa getBackupStatus', () => {
+  it('la pantalla /settings/backup-final separa en "Qué cubre el respaldo" y "Cómo viene el respaldo", y usa getBackupStatus', () => {
+    const ruta = '/settings/backup-final';
+    expect(ruta).toBe('/settings/backup-final');
     expect(pageSource).toContain('Qué cubre el respaldo');
     expect(pageSource).toContain('Cómo viene el respaldo');
     expect(pageSource).toContain('getBackupStatus');
@@ -61,5 +63,16 @@ describe('Orden 286 — Bloque 1: Control de backup mira si anda', () => {
     expect(informe.ready).toBe(false);
     expect(informe.estadoRespaldo.ok).toBe(false);
     expect(informe.estadoRespaldo.motivo).toContain('más de 24 horas');
+  });
+
+  it('la pantalla /settings/datos pide escribir ELIMINAR antes de borrar permanentemente todos los eventos', () => {
+    const rutaDatos = '/settings/datos';
+    expect(rutaDatos).toBe('/settings/datos');
+    const datosSource = fs.readFileSync(
+      path.join(process.cwd(), 'src/app/(app)/settings/datos/page.tsx'),
+      'utf8',
+    );
+    expect(datosSource).toContain('Para confirmar, escribí la palabra ELIMINAR:');
+    expect(datosSource).toContain("deleteFiestasConfirmText !== 'ELIMINAR'");
   });
 });

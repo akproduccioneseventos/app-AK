@@ -42,5 +42,6 @@ test.describe('Planificar tiene un solo orden (Orden 284 Bloque 5)', () => {
     // 4. Aparece "No contratado en esta fiesta"
     const noContratado = page.getByText(/No contratado en esta fiesta/i);
     await expect(noContratado.first()).toBeVisible();
+    await expect(noContratado.first()).toContainText('No contratado en esta fiesta');
   });
 });

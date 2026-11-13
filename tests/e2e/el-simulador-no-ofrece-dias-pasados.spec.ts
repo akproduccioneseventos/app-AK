@@ -48,4 +48,5 @@ test('Orden 295: el simulador deshabilita el día de ayer en el calendario y no 
   await expect(celdaAyer).toBeVisible({ timeout: 10_000 });
   const botonAyer = celdaAyer.locator('button');
   await expect(botonAyer).toBeDisabled();
+  await expect(botonAyer).toHaveAttribute('disabled', '');
 });
