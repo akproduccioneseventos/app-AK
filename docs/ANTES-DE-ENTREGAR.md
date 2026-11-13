@@ -272,3 +272,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 104. **¿Después de tener la respuesta anotás algo (gasto, historial, contador)?** Que esa anotación no pueda tirar error y tumbar la respuesta.
 105. **¿Tu cambio genera un archivo al compilar?** Que llegue también al paquete que se publica (`.next/standalone`), no sólo a `public/`.
 106. **¿Escribiste un texto que ve el cliente?** Que no cuente cómo se hizo ni quién lo decidió: nada de "del dueño", "módulo maestro", "por confirmar" ni "sin inventar".
+107. **¿Mostrás una opinión, una cifra o un "antes y después"?** Que salga de algo real; si es de ejemplo, que diga "Ilustración".

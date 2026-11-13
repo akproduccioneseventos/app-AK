@@ -1694,3 +1694,8 @@ inventadas", "no habilitación legal certificada", "Por confirmar:" y, debajo de
 maestro de salones". Son frases escritas para nosotros. Se buscan en las páginas públicas palabras de trabajo
 ("módulo", "maestro", "del dueño", "por confirmar", "inventad", "certificad", "verificad") dentro de textos visibles.
 
+### 136. Una opinión, una cifra o una demostración que ve el cliente, ¿sale de algo real?
+
+Revisión de escritura de la web, 13/11/2026. Las páginas de servicios mostraban testimonios escritos en el código ("Familia
+Rodríguez", "Empresa Tech S.A."), y la demostración de la IA era la misma foto con un filtro. Se buscan nombres de autor
+escritos a mano en `src/data/` y `src/components/`, y "Antes/Después" que usen el mismo archivo.
