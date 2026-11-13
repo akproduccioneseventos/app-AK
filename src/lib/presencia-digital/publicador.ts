@@ -726,9 +726,7 @@ export async function procesarBorradoresPublicarSolo(
 
     // Si fue marcado como "No publicar" (descartado o cancelado)
     const esNoPublicar =
-      ['descartado', 'cancelado', 'no publicar'].includes(statusNorm) ||
-      (post as any).noPublicar === true ||
-      (post as any).descartado === true;
+      ['descartado', 'cancelado', 'no publicar'].includes(statusNorm);
 
     if (esNoPublicar) {
       resultado.descartados.push(post.id);

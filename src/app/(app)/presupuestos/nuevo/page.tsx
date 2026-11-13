@@ -106,6 +106,7 @@ function PresupuestoDashboardContent() {
                 } else if (res.success && res.changedCount > 0) {
                     fetchPresupuestos();
                 }
+            // no pasa nada si falla: la corrección de fechas corre en segundo plano y la lista ya se mostró.
             })
             .catch(() => {
                 // Silencioso en segundo plano

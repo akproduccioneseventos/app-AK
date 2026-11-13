@@ -271,6 +271,7 @@ export async function chatWithBudgetCopilot(
   // FALLBACK: Rule-based static response if API Key is not configured
   if (!apiKey) {
     logger.warn('[copilot] API Key missing. Falling back to rule-based engine.');
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
     await anotarFalloIA('simulador-copilot', 'API Key missing').catch(() => {});
     return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
   }
@@ -383,6 +384,7 @@ export async function chatWithBudgetCopilot(
 
   } catch (error: any) {
     logger.error('[copilot] Error in chatWithBudgetCopilot:', error);
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
     await anotarFalloIA('simulador-copilot', error?.message || String(error)).catch(() => {});
     const fallback = getStaticFallbackResponse(normalizedInput, config);
     if (/paquete|incluye|trae|diferencia/i.test(normalizedInput.message)) {

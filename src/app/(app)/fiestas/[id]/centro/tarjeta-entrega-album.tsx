@@ -112,8 +112,17 @@ export function TarjetaEntregaAlbum({
     delivery: savedDelivery || currentDelivery,
   });
 
-  const handleCopyMessage = () => {
-    navigator.clipboard.writeText(mensajePreparado);
+  const handleCopyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(mensajePreparado);
+    } catch {
+      toast({
+        title: 'No se pudo copiar',
+        description: 'El teléfono no dejó copiar. Seleccioná el mensaje de abajo y copialo a mano.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
     toast({

@@ -136,10 +136,11 @@ export async function uploadBuzonMessage(
   }
 
   let bytes: Uint8Array;
-  if (file && typeof (file as any).arrayBuffer === 'function') {
-    bytes = new Uint8Array(await file.arrayBuffer());
-  } else if (file && typeof (file as any).text === 'function') {
-    const txt = await (file as any).text();
+  const blob = file as Blob | null | undefined;
+  if (blob && typeof blob.arrayBuffer === 'function') {
+    bytes = new Uint8Array(await blob.arrayBuffer());
+  } else if (blob && typeof blob.text === 'function') {
+    const txt = await blob.text();
     bytes = new Uint8Array(Buffer.from(txt, 'binary'));
   } else if (Buffer.isBuffer(file)) {
     bytes = new Uint8Array(file);

@@ -180,6 +180,7 @@ export async function generateWithGeminiFallback(request: GeminiGenerateRequest)
   }
 
   const motivo = lastError instanceof Error ? lastError.message : String(lastError || 'Sin respuesta del modelo');
+  // no pasa nada si falla: anotar el fallo es accesorio; el error real se tira igual abajo (pregunta 133).
   await anotarFalloIA('gemini-fallback', motivo).catch(() => {});
   throw lastError;
 }
@@ -205,6 +206,7 @@ export async function ejecutarPromptConFallback<I, R>(
     }
   }
   const motivo = lastError instanceof Error ? lastError.message : String(lastError || 'Sin respuesta del modelo');
+  // no pasa nada si falla: anotar el fallo es accesorio; el error real se tira igual abajo (pregunta 133).
   await anotarFalloIA('gemini-fallback', motivo).catch(() => {});
   throw lastError;
 }

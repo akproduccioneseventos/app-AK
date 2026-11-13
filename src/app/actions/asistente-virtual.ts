@@ -167,6 +167,7 @@ ${newMessage}`,
     };
   } catch (error: any) {
     console.error('[chatWithVirtualAssistant] Error:', error);
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
     await anotarFalloIA('asistente-virtual', error?.message || String(error)).catch(() => {});
     return {
       success: false,
@@ -360,6 +361,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
     };
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
     await anotarFalloIA('asistente-cliente', error?.message || String(error)).catch(() => {});
     return {
       success: false,
@@ -449,6 +451,7 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
     };
   } catch (error: any) {
     console.error('[chatConAsistenteInvitado] Error:', error);
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
     await anotarFalloIA('asistente-invitado', error?.message || String(error)).catch(() => {});
     return {
       success: false,

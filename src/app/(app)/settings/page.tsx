@@ -364,13 +364,17 @@ export default function SettingsPage() {
       .then((res) => {
         if (montado && res.success && res.data) {
           setPublicarSolo(res.data.activo !== false);
+        } else if (montado) {
+          toast({ title: 'No se pudo leer si se publica solo', description: 'Recargá la pantalla para ver el estado real.', variant: 'destructive' });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (montado) toast({ title: 'No se pudo leer si se publica solo', description: 'Recargá la pantalla para ver el estado real.', variant: 'destructive' });
+      });
     return () => {
       montado = false;
     };
-  }, []);
+  }, [toast]);
 
   const handleTogglePublicarSolo = async (activo: boolean) => {
     setCargandoPublicarSolo(true);

@@ -116,8 +116,6 @@ export default function CustomerDetailsPage() {
       ]);
 
       const presupuestosDelCliente = (todosLosPresupuestos || []).filter((p) =>
-        (p as any).customerId === customerId ||
-        (p as any).clienteId === customerId ||
         p.leadId === customerId ||
         (fetchedCustomer.presupuestoId && p.id === fetchedCustomer.presupuestoId)
       );
