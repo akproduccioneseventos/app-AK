@@ -144,11 +144,12 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, presupuestos, descartes] = await Promise.all([
+  const [fiestasTodas, presupuestos, descartes] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
   ]);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
 
@@ -306,11 +307,12 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, presupuestos, scheduledMessages] = await Promise.all([
+  const [fiestasTodas, presupuestos, scheduledMessages] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
 
   const presupuestosMap = new Map(presupuestos.map((p) => [p.id, p]));
   const pendientes = scheduledMessages || [];
@@ -375,11 +377,12 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, posts, scheduledMessages] = await Promise.all([
+  const [fiestasTodas, posts, scheduledMessages] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<any[]>('social-posts.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
 
   const ahoraMs = ahora.getTime();
   const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
@@ -516,7 +519,7 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, inventario] = await Promise.all([
+  const [fiestasTodas, inventario] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<ServicioEmpresa[]>('insumos.json', []),
   ]);
@@ -527,7 +530,8 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
   }).format(ahora);
   const bucketHora = `${hoyEnUruguay(ahora)}-${horaLocal}`;
   const ahoraMs = ahora.getTime();
-  const fiestasActivas = fiestas.filter((fiesta) => {
+  const fiestasActivas = fiestasTodas.filter((fiesta) => {
+    if (fiesta.esMuestra) return false;
     if (typeof fiesta.id !== 'string' || !fiesta.id.trim()) return false;
     const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
     if (['suspendida', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo ak'].includes(estado)) return false;
@@ -634,12 +638,13 @@ export function calcularTragosDisponibles(
 }
 
 export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroEjecucionAgente> {
-  const [fiestas, presupuestos, roles, invoices] = await Promise.all([
+  const [fiestasTodas, presupuestos, roles, invoices] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<Array<{ id: string; nombre: string }>>('roles.json', []),
     readData<Invoice[]>('invoices.json', []),
   ]);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
   const presupuestosPorId = new Map(presupuestos.map((presupuesto) => [presupuesto.id, presupuesto]));
   const facturasPorId = new Map(invoices.filter(isFirmSalesInvoice).map((invoice) => [invoice.id, invoice]));
   const faltantesMozos = anticiparFaltantesDeMozos(fiestas, roles, ahora);

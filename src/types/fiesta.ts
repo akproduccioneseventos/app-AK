@@ -1583,6 +1583,7 @@ export interface CompraSugeridaFiesta {
 
 export interface FiestaEnPlanificacion {
   id: string;
+  esMuestra?: boolean;
   mensajesCliente?: MensajePortalCliente[];
   invitacionSlug?: string;
   configuracion: ConfigEventoDataStorage;
