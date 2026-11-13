@@ -37,7 +37,9 @@ export default function PonerAlDiaPage() {
         return;
       }
       setDatos(r.datos);
-      setCobrar(new Set(r.datos.cobros.map((c) => c.presupuestoId)));
+      // Los cobros NO vienen marcados (13/11/2026): un toque registraba como cobradas todas las fiestas pasadas,
+      // con la fecha de la fiesta y sin comprobante. Marcar un cobro lo decide una persona, uno por uno.
+      setCobrar(new Set());
       setCancelar(new Set());
       setCopias(new Set(r.datos.copias.map((c) => c.fiestaId)));
       setPruebas(new Set(r.datos.pruebas.map((p) => p.presupuestoId)));
@@ -108,7 +110,7 @@ export default function PonerAlDiaPage() {
       <div>
         <h1 className="text-2xl font-black">Poner al día</h1>
         <p className="text-sm text-slate-500">
-          Lo que quedó atrasado en la app. Viene marcado lo que la app ya sabe; revisalo, marcá las cancelaciones y tocá
+          Lo que quedó atrasado en la app. Viene marcado lo que la app ya sabe, salvo los cobros: marcá sólo los que ya cobraste de verdad, las cancelaciones, y tocá
           &quot;Aplicar&quot;. Nada cambia hasta que lo tocás.
         </p>
       </div>

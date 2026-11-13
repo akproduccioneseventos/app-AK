@@ -75,6 +75,13 @@ Se sacaron de la entrega porque fallaban en la verificación; rehacelas **corrid
   presupuesto manual" no llegó a la pantalla de crear presupuesto en 4 minutos. Mirá si la pantalla lleva la entrada; si
   anda, la prueba espera algo que no pasa.
 
+## Bloque 9 — URGENTE: la ficha de la fiesta se rompió en tu entrega 1393
+
+`tests/e2e/la-app-ordenada.spec.ts` (que andaba en `main`) falla siempre con tu entrega: la ficha de la fiesta no
+muestra las 5 pestañas ni recuerda `?pestana=noche`, y "QR / Check-in" no aparece en "La noche" (se pasa de los 90 s).
+Mirá qué cambiaste en la ficha (`src/app/(app)/fiestas/[id]/`) y en la navegación (`src/lib/navegacion/mapa.ts`,
+`src/components/navegacion/`). Arreglá la pantalla, **no la prueba**.
+
 ## Pruebas
 
 - `src/__tests__/el-video-resumen-lleva-musica.test.ts`: con `musicaUrl`, el grabador recibe una pista de audio.

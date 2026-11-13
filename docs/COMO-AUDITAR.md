@@ -1699,4 +1699,3 @@ maestro de salones". Son frases escritas para nosotros. Se buscan en las página
 Revisión de escritura de la web, 13/11/2026. Las páginas de servicios mostraban testimonios escritos en el código ("Familia
 Rodríguez", "Empresa Tech S.A."), y la demostración de la IA era la misma foto con un filtro. Se buscan nombres de autor
 escritos a mano en `src/data/` y `src/components/`, y "Antes/Después" que usen el mismo archivo.
-
