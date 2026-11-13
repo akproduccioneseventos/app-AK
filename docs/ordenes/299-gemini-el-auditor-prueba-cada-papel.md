@@ -10,6 +10,12 @@ Repasá `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 107. **Toca permisos: el can
   (`src/app/actions/fiesta/fiesta.actions.ts` ~1415) guarda, y el candado (`exigirQueSePuedaGuardar`) lo frena.
 - **Prospecto:** el simulador público llega al final y el guardado se rechaza con la sesión de auditor.
 
+## Barrido en toda la app (Claude, 13/11/2026)
+
+- Papeles que el auditor no puede probar: cliente (el portal necesita una fiesta con acceso prendido y él no puede crearla),
+  prospecto (el simulador se frena al guardar). Invitado ya anda con `enlaceDeInvitadoDeMuestra`. El portal del
+  proveedor y del personal quedan para después: el auditor no los pidió.
+
 ## Lo que NO se toca
 
 - El candado: el auditor **sigue sin poder guardar nada** en datos del negocio (`src/lib/auth/solo-lectura.ts`).
