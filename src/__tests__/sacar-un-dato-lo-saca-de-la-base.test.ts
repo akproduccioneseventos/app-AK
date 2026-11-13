@@ -182,4 +182,25 @@ describe('Bloque 2 — Sacar un dato lo saca también de la base', () => {
     expect(enBase).toBeDefined();
     expect('presupuestoId' in enBase!).toBe(false);
   });
+
+  it('mutateDataItem borra en la base un campo que el cambio sacó del registro', async () => {
+    col('prospectos').set('lead_02', {
+      id: 'lead_02',
+      name: 'Ana',
+      sentAt: '2026-11-01',
+      sentBy: 'equipo',
+    });
+
+    await mutateDataItem('crm-leads.json', 'prospectos', 'lead_02', (actual: any) => {
+      const next = { ...actual };
+      delete next.sentAt;
+      delete next.sentBy;
+      return next;
+    });
+
+    const enBase = col('prospectos').get('lead_02');
+    expect(enBase?.name).toBe('Ana');
+    expect('sentAt' in enBase!).toBe(false);
+    expect('sentBy' in enBase!).toBe(false);
+  });
 });

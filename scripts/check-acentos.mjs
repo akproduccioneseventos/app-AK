@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 
-const PATRON_MOJIBAKE = /Ã[¡©\u00ad³º±\t ]|Â[¿¡«»°]|â€[™œ<\s]/;
+const PATRON_MOJIBAKE = /Ã[¡©\u00ad³º±\t ]|Â[¿¡«»°]|â€[™œ<\s]|â”[€‚Œ]/;
 
 const ARCHIVOS_PERMITIDOS = new Set([
   'src/__tests__/acentos-rotos.test.ts',

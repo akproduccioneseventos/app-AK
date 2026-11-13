@@ -22,6 +22,21 @@ prueba: src/__tests__/el-cliente-no-ve-notas-internas.test.tsx
 prueba: src/__tests__/la-apertura-del-club-muestra-el-lugar.test.ts
 ```
 
+## 13/11/2026 - Revisión de la entrega de Gemini (órdenes 284 a 296)
+
+- **Qué estaba mal:** para que "sacar un dato" llegara a la base, la entrega pasó el guardado de a un registro a
+  `merge: true`. Con eso, un campo que el cambio **sacaba** del registro (`delete x.campo`, `...rest`) seguía vivo en la
+  base: un mensaje vuelto a "pendiente" quedaba con su fecha de enviado, y un análisis reintentado conservaba su error.
+  Además, un comentario de `presupuestos.ts` llegó con caracteres rotos que el control de acentos no veía.
+- **Qué se hizo:** `mutateDataItem` (`src/lib/data-service.ts`) borra en la base todo campo que estaba y ya no viene.
+  Prueba nueva en `sacar-un-dato-lo-saca-de-la-base.test.ts`, en rojo sin el arreglo. El control de acentos ahora detecta
+  esos caracteres rotos (las rayas de los comentarios mal guardadas).
+
+```comprobar
+usa: if (!(k in payload)) payload[k] = FieldValue.delete() en src/lib/data-service.ts
+usa: â”[€‚Œ] en scripts/check-acentos.mjs
+```
+
 ## 13/11/2026 - El modo sin conexión no llegaba a la versión publicada
 
 - **Qué pasaba:** en el dominio, `/sw.js` daba 404 y el navegador no podía registrar el modo sin conexión (adenda 2 del

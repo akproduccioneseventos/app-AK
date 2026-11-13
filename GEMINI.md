@@ -2,17 +2,13 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 13/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 13/11/2026 (tarde).** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Rama:** seguí en `gemini/ordenes-282-283-entrega-completa`. Antes de tocar nada, traé lo último de
-  `origin/main` (`git fetch origin main` y fusionalo en tu rama).
-- **Qué hacer:** las órdenes **284 a 296** de `docs/ordenes/`, en **una sola propuesta**, sin fusionar.
-  En la 291, el bloque 3 ya lo hizo Claude: no lo toques.
-- **Antes de decir "terminé":** repasá `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 106, sobre lo que tocaste.
-- **Si un bloque se traba:** entregá el resto igual, en la misma propuesta, y escribí cuál faltó y por qué.
-- **Cuando termines:** abrí la propuesta contra `main` con el título "Gemini: órdenes 284 a 296". Claude la
-  revisa y la fusiona.
-
+- **Hoy no hay órdenes nuevas.** Tu entrega de las órdenes 284 a 296 quedó revisada y publicada. La rama
+  `gemini/ordenes-282-283-entrega-completa` ya está adentro de `main`: **no sigas en ella**.
+- **Cuando aparezca una orden nueva acá**, arrancá una rama nueva desde `origin/main` actualizado.
+- Lo que Claude corrigió de tu entrega, para no repetirlo: el guardado de a un registro tiene que **borrar en la base**
+  los campos que el cambio saca del registro, no sólo los que pone en `undefined`. Está en `docs/YA-RESUELTO.md` (13/11).
 
 Para programar y asistir en este proyecto de forma óptima:
 0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está

@@ -437,6 +437,12 @@ export async function mutateDataItem<T extends object>(
         payload[k] = FieldValue.delete();
       }
     }
+    // Con `merge: true`, un campo que el cambio SACÓ del registro (`delete x.campo` o `...rest`) quedaba vivo en la
+    // base: un mensaje vuelto a "pendiente" seguía con su fecha de enviado (revisión de la entrega 1393, 13/11/2026).
+    // Lo que estaba antes y ya no viene, se borra.
+    for (const k of Object.keys(actual as Record<string, unknown>)) {
+      if (!(k in payload)) payload[k] = FieldValue.delete();
+    }
     transaction.set(ref, { ...cleanCollectionItem(payload as unknown as T), _syncedAt: new Date().toISOString() }, { merge: true });
     resultado = nuevo;
   });

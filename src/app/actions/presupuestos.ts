@@ -1348,7 +1348,7 @@ export async function approvePresupuesto(
   });
 }
 
-// â”€â”€ Payment confirmation/rejection actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Payment confirmation/rejection actions ──────────────────────────
 
 export async function addPagoClienteFromPortal(
   presupuestoId: string,
