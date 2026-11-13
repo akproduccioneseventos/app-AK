@@ -1687,3 +1687,10 @@ paquete que atiende en Firebase (`.next/standalone`) salía sin él. Las pruebas
 directo, y nunca lo vieron. Se compara la lista de `public/` con la de `.next/standalone/public` después de compilar: tienen
 que ser iguales.
 
+### 135. Un texto que ve el cliente, ¿suena a nota interna del equipo?
+
+Revisión comercial del Club Uruguay, 13/11/2026. La página mostraba "Condición comercial del dueño", "Sin cuentas regresivas
+inventadas", "no habilitación legal certificada", "Por confirmar:" y, debajo de cada foto, "Foto cargada desde el módulo
+maestro de salones". Son frases escritas para nosotros. Se buscan en las páginas públicas palabras de trabajo
+("módulo", "maestro", "del dueño", "por confirmar", "inventad", "certificad", "verificad") dentro de textos visibles.
+
