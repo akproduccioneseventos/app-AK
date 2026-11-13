@@ -1,5 +1,6 @@
 import { spawn, execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { copiarModoSinConexion } from './copiar-pwa-al-standalone.mjs';
 
 const require = createRequire(import.meta.url);
 const nextBin = require.resolve('next/dist/bin/next');
@@ -68,6 +69,17 @@ child.on('exit', (code, signal) => {
     return;
   }
 
+  if (code === 0) {
+    try {
+      const { copiados, salteado } = copiarModoSinConexion(process.cwd(), {
+        pwaApagado: process.env.AK_DISABLE_PWA_BUILD === 'true',
+      });
+      if (!salteado) console.log(`[build-next-with-memory] Modo sin conexión copiado al paquete: ${copiados.join(', ')}`);
+    } catch (error) {
+      console.error(`[build-next-with-memory] ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+  }
   process.exit(code ?? 1);
 });
 

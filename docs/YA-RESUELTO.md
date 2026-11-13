@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - El modo sin conexión no llegaba a la versión publicada
+
+- **Qué pasaba:** en el dominio, `/sw.js` daba 404 y el navegador no podía registrar el modo sin conexión (adenda 2 del
+  auditor). La compilación sí generaba `sw.js` y `workbox-*.js` en `public/`, pero el paquete que se publica
+  (`.next/standalone/public`) salía sin ellos. Medido acá: faltaban esos dos y nada más.
+- **Qué se hizo:** al terminar de compilar, `scripts/copiar-pwa-al-standalone.mjs` los copia al paquete y frena la
+  compilación si no están. Comprobado levantando el paquete publicado: `/sw.js` y `workbox` contestan 200. Pregunta 134.
+- **Lo que el auditor no probó todavía** (la cola de envíos sin señal de punta a punta) sigue para cuando repita la prueba.
+
+```comprobar
+usa: copiarModoSinConexion en scripts/build-next-with-memory.mjs
+prueba: src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts
+```
+
 ## 13/11/2026 - El asistente del equipo daba error con la sesión del auditor
 
 - **Qué pasaba:** el Encargado General contestaba error en las tres preguntas del ensayo. La IA ya había respondido, pero

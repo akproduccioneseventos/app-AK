@@ -532,6 +532,10 @@
     "133": {
       "fecha": "2026-11-13",
       "resultado": "Anotaciones después de la respuesta: registrarConsumoIA era la que podía tirar error (candado del auditor) y la usan rutas sin try (multiagente y otras). Arreglada de raíz por Claude: ya no lanza nunca; reservarConsumoIA con auditor no escribe. En el multiagente, el historial (appendMultiAgentChatTurn) y las acciones ya iban en try."
+    },
+    "134": {
+      "fecha": "2026-11-13",
+      "resultado": "Comparado public/ con .next/standalone/public después de compilar: sólo faltaban sw.js y workbox-*.js (los genera next-pwa durante la compilación). firebase-messaging-sw.js se genera antes y sí llegaba. Arreglado por Claude: la compilación los copia y frena si faltan."
     }
   },
   "hallazgos": {

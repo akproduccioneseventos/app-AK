@@ -1083,8 +1083,9 @@ app" y su línea en `barridos.json` no deja publicar (`cada-informe-trae-su-barr
 fusionar, y Gemini arranca de la versión principal: no las vio. Entregó la 1336 sobre la entrega
 ya devuelta, con el mismo agujero de plata y con lo que el dueño había descartado.
 
-**Qué se hace distinto:** cada vez que queda una orden nueva para Gemini, el aviso al dueño lleva
-**el mensaje listo para pegarle a Gemini**, con la rama de donde arrancar y los números de orden.
+**Qué se hace distinto (cambiado el 13/11/2026, ver error 52):** cada vez que queda una orden nueva para Gemini,
+se actualiza la sección **"TU TRABAJO DE HOY"** arriba de todo en `GEMINI.md` (rama, órdenes, qué no tocar) y se
+fusiona a la principal. **Al dueño no se le pasa ningún mensaje para pegar.**
 
 ### 40. Arreglar en un archivo, controlar un archivo, y barrer con ayudantes que dicen "sin hallazgos"
 
@@ -1238,6 +1239,16 @@ frenó) y les dije al dueño y a mí mismo que estaban subidas. Casi pierdo tres
 
 **Qué se hace distinto:** la subida se manda **sin tapar la salida** y se mira que diga `->` con la rama; antes de un
 `reset --hard origin/…` se mira `git log origin/…..HEAD`.
+
+### 52. Pedirle al dueño que le pegue mensajes a Gemini
+
+**Pasó el 13 de noviembre de 2026.** Cerré el informe final con "para que Gemini arranque, pegale esto". El dueño:
+*"no me vuelvas a pedir que le pegue nada a Gemini; tenés que ponerlo donde tienen en común… ya me estoy cansando"*.
+
+**Qué era lo cierto:** Gemini lee solo `GEMINI.md` al arrancar. El dueño no tiene que hacer de mensajero.
+
+**Qué se hace distinto:** las instrucciones para Gemini van en la sección "TU TRABAJO DE HOY" de `GEMINI.md`, se
+fusionan a la principal en la misma tanda, y al dueño no se le pide nada.
 
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
@@ -1980,6 +1991,7 @@ con otra cara.
 | Once acciones decían "listo" sin guardar, y las pruebas daban verde con una base de mentira mejor que la real | `src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts` con `docs/ida-y-vuelta-pendientes.json` |
 | "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
 | El asistente del equipo daba error al auditor porque anotar el gasto tumbaba la respuesta | `src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts` |
+| El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -115,6 +115,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   132: 'Fechas pasadas desde afuera: prueba de public-simulator-persistence (servidor) y el-simulador-no-ofrece-dias-pasados (orden 295).',
   129: 'Pruebas contra la base de verdad: lo exige src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts con docs/ida-y-vuelta-pendientes.json.',
   133: 'Lo accesorio no tumba la respuesta: src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts (registrarConsumoIA no lanza nunca).',
+  134: 'Lo generado al compilar llega al paquete publicado: scripts/copiar-pwa-al-standalone.mjs frena la compilación, con src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts.',
   127: 'Bajas que no llegan a la base: raíz en firebase-sync, pruebas borrar-el-ultimo-queda-borrado y sacar-un-dato-lo-saca-de-la-base (orden 292).',
 };
 
