@@ -69,3 +69,8 @@ def test_video_de_vida_con_musica():
         except FileNotFoundError:
             # Si ffprobe no está en PATH en este entorno, basta con que el video exista
             pass
+
+
+if __name__ == "__main__":
+    test_video_de_vida_con_musica()
+    print("Prueba superada: video de vida con musica y afade generado correctamente.")
