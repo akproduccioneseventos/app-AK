@@ -1476,6 +1476,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Promesas, logos y contrato (13 de noviembre de 2026).** Se sacan "garantía de satisfacción", "flexibilidad absoluta" y
+  promesas parecidas (orden 300, bloque 6). **Los logos de empresas de la presentación son clientes reales: quedan.** La
+  plantilla del contrato con el domicilio y la cédula del dueño **queda como está**. No se vuelve a plantear.
+
 - **La presencia digital trabaja sola (12 de noviembre de 2026).** Palabras suyas: *"publica automático, no me da el tiempo… control exhaustivo de toda mi presencia digital"*. Cambia dos decisiones de antes: **los comentarios negativos y las quejas también se ocultan solos** (ocultar es reversible; borrar no se hace nunca solo) y se le avisa en el momento; y **los borradores se publican solos** si en 12 horas no tocó "No publicar" (sólo fotos con permiso de promoción). Orden 282.
 
 - **Resolver todo sin consultarle (12 de noviembre de 2026).** Palabras suyas: *"resolvé todo lo que tengas para resolver… déjate de ponerme cosas, que te quede como regla"*. Lo técnico (claves, esperas, controles que frenan, entregas rotas) se resuelve sin preguntarle ni explicarle. Al dueño sólo le llega: lo que quedó publicado, y lo que **sólo él** puede hacer (con su sesión o su teléfono), en una línea.

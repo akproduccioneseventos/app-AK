@@ -874,6 +874,10 @@
     "orden-300": {
       "fecha": "2026-11-13",
       "resultado": "Revisión de escritura de toda la app: nombres de fiestas con caracteres rotos guardados, \"Otro de\", lenguaje interno en post-fiesta y LED, RUT de ejemplo y marcadores del contrato, lenguaje de desarrollo y errores. Promesas y logos de respaldo quedan para el dueño."
+    },
+    "orden-301": {
+      "fecha": "2026-11-13",
+      "resultado": "Auditoría de contabilidad: \"Poner al día\" traía los cobros marcados (arreglado por Claude); etiquetas del panel y del flujo de caja que dicen otra cosa, cobro con fecha de la fiesta, CRM que no avanza, ajuste anual sin línea, contrato con huecos y fiesta DEMO en los totales → orden 301."
     }
   }
 }
