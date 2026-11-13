@@ -1,6 +1,6 @@
 'use server';
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, geminiModel, geminiProModel, getEffectiveGeminiModelForAgent, ejecutarPromptConFallback } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
@@ -195,7 +195,7 @@ Utilizá las siguientes FAQs para responder cualquier duda del usuario:
 // Define prompt with Genkit
 const copilotPrompt = ai.definePrompt({
   name: 'copilotPrompt',
-  model: geminiModel,
+  model: geminiProModel,
   input: { schema: GenkitCopilotInputSchema },
   output: { schema: CopilotOutputSchema },
   system: SYSTEM_PROMPT,
@@ -317,7 +317,8 @@ export async function chatWithBudgetCopilot(
     }
 
     // 2. Call Gemini
-    const { output } = await copilotPrompt({
+    const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    const { output } = await ejecutarPromptConFallback(copilotPrompt, {
       message: normalizedInput.message,
       history: normalizedInput.history,
       currentState: normalizedInput.currentState,
@@ -325,7 +326,7 @@ export async function chatWithBudgetCopilot(
       currentStateJson,
       copilotSystemPrompt: copilotConfig.promptPersonalidad,
       faqsJson: JSON.stringify(copilotConfig.faqs)
-    } as any);
+    } as any, effectiveModel);
 
     await registrarConsumoIA('copiloto-presupuesto');
 

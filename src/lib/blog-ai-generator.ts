@@ -2,7 +2,7 @@ import 'server-only';
 import { hoyEnUruguay } from '@/lib/utils';
 
 import { z } from 'zod';
-import { generateWithGeminiFallback, geminiProModel } from '@/ai/genkit';
+import { generateWithGeminiFallback, geminiProModel, getEffectiveGeminiModelForAgent } from '@/ai/genkit';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { fotoDeLaNota } from '@/lib/blog/foto-de-la-nota';
@@ -127,8 +127,9 @@ export async function generateBlogPostAndSocialDraft(options?: { offset?: number
   let notasInvestigacion = '';
   let fuentesInvestigacion: string[] = [];
   try {
+    const modelInvestigacion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
     const researchResult = await generateWithGeminiFallback({
-      model: geminiProModel,
+      model: modelInvestigacion,
       prompt: `Investigá qué recomiendan páginas de organización de eventos sobre: "${selectedTopic}". Mencioná recomendaciones prácticas y las fuentes consultadas.`,
       config: {
         googleSearchRetrieval: {},
@@ -165,8 +166,9 @@ ${DATOS_DE_AK_PARA_EL_BLOG}
 
 Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no lo afirmes.`;
 
+  const modelGeneracion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
   const result = await generateWithGeminiFallback({
-    model: geminiProModel,
+    model: modelGeneracion,
     prompt,
     output: {
       schema: blogPostSchema,

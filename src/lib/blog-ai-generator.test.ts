@@ -4,6 +4,7 @@ jest.mock('@/ai/genkit', () => ({
   ai: { generate: jest.fn() },
   generateWithGeminiFallback: jest.fn(),
   geminiProModel: 'googleai/test-model',
+  getEffectiveGeminiModelForAgent: jest.fn().mockResolvedValue('googleai/test-model'),
 }));
 jest.mock('@/lib/data-service', () => ({ readData: jest.fn(), writeData: jest.fn() }));
 jest.mock('@/lib/ai/gemini-image', () => ({ generateGeminiImage: jest.fn() }));

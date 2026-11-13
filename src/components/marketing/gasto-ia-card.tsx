@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { getGastoDeIA, setTopeDeIA } from '@/app/actions/ai-consumo';
+import { getGastoDeIA, setTopeDeIA, setTopeDiarioDeIA } from '@/app/actions/ai-consumo';
 import type { ResumenDeGasto } from '@/lib/ai/consumo';
 
 /**
@@ -35,6 +35,8 @@ export function GastoIaCard() {
   const [resumen, setResumen] = useState<ResumenDeGasto | null>(null);
   const [topeInput, setTopeInput] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [topeDiarioInput, setTopeDiarioInput] = useState('');
+  const [guardandoDiario, setGuardandoDiario] = useState(false);
 
   useEffect(() => {
     let vigente = true;
@@ -43,6 +45,7 @@ export function GastoIaCard() {
         if (!vigente) return;
         setResumen(valor);
         setTopeInput(valor.topeUYU > 0 ? String(valor.topeUYU) : '');
+        setTopeDiarioInput(String(valor.topeDiarioProfundo ?? 40));
       })
       .catch(() => undefined);
     return () => {
@@ -92,6 +95,45 @@ export function GastoIaCard() {
     }
   };
 
+  const guardarTopeDiario = async () => {
+    const limpio = topeDiarioInput.trim();
+    const valor = limpio === '' ? 40 : Number(limpio);
+    if (!Number.isFinite(valor) || valor < 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Ese número no sirve',
+        description: 'Poné cuántas respuestas inteligentes por día como máximo.',
+      });
+      return;
+    }
+
+    setGuardandoDiario(true);
+    try {
+      const resultado = await setTopeDiarioDeIA(valor);
+      if (!resultado.success || !resultado.resumen) {
+        toast({
+          variant: 'destructive',
+          title: 'No se pudo guardar',
+          description: resultado.error || 'Probá de nuevo en un momento.',
+        });
+        return;
+      }
+      setResumen(resultado.resumen);
+      toast({
+        title: 'Tope diario guardado',
+        description: `Se permiten hasta ${valor} respuestas inteligentes por día.`,
+      });
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'No se pudo guardar',
+        description: 'Revisá la conexión y probá de nuevo.',
+      });
+    } finally {
+      setGuardandoDiario(false);
+    }
+  };
+
   if (!resumen) {
     return (
       <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-600">
@@ -118,6 +160,9 @@ export function GastoIaCard() {
         </span>
         <span className="rounded-full bg-white px-3 py-1 shadow-sm">
           ${resumen.gastadoUYU} estimados
+        </span>
+        <span className="rounded-full bg-white px-3 py-1 shadow-sm">
+          Respuestas inteligentes hoy: {resumen.respuestasProfundasHoy ?? 0} de {resumen.topeDiarioProfundo ?? 40}
         </span>
       </div>
 
@@ -151,6 +196,30 @@ export function GastoIaCard() {
           variant="outline"
         >
           {guardando ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar tope'}
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-black/5">
+        <div className="space-y-1">
+          <Label htmlFor="tope-diario-ia" className="text-xs font-semibold">
+            Tope diario respuestas inteligentes
+          </Label>
+          <Input
+            id="tope-diario-ia"
+            inputMode="numeric"
+            placeholder="40"
+            value={topeDiarioInput}
+            onChange={(e) => setTopeDiarioInput(e.target.value)}
+            className="h-9 w-40 bg-white"
+          />
+        </div>
+        <Button
+          onClick={guardarTopeDiario}
+          disabled={guardandoDiario}
+          className="h-9 rounded-xl font-bold"
+          variant="outline"
+        >
+          {guardandoDiario ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar tope diario'}
         </Button>
       </div>
 

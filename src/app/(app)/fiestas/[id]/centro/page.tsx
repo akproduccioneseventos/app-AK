@@ -32,6 +32,8 @@ import { BotonVerComoInvitado } from '@/components/centro/BotonVerComoInvitado';
 import { DownloadPartyBookButton } from '@/components/fiesta/DownloadPartyBookButton';
 import { ComprobacionEquipo } from './comprobacion-equipo';
 import { enlaceDeInvitadoDeMuestra } from '@/app/actions/fiesta/vista-de-muestra.actions';
+import { buildWfolioDelivery, getAlbumDeliveryStatus } from '@/lib/social-fiesta/wfolio-album-delivery';
+import { TarjetaEntregaAlbum } from './tarjeta-entrega-album';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -45,7 +47,10 @@ import { enlaceDeInvitadoDeMuestra } from '@/app/actions/fiesta/vista-de-muestra
  * grandes, textos cortos y botones que se tocan con el pulgar.
  */
 
-type PageProps = { params: Promise<{ id: string }> };
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ wfolioUrl?: string }>;
+};
 
 /** `aparato`: dónde se abre. En la fiesta lo primero que se pregunta es "¿esto
  *  va en la pantalla grande o en mi celular?". */
@@ -112,6 +117,7 @@ function contarPersonas(invitados: ConteoInvitado[], filtro: (i: ConteoInvitado)
 
 export default async function CentroDeFiestaPage(props: PageProps) {
   const params = await props.params;
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) {
@@ -273,6 +279,27 @@ export default async function CentroDeFiestaPage(props: PageProps) {
             <DownloadPartyBookButton fiestaId={params.id} />
           </div>
         </section>
+
+        {/* Entrega del álbum por Wfolio: link validado, estado y mensaje preparado para el cliente */}
+        {(() => {
+          const initialWfolioUrl = (searchParams?.wfolioUrl || fiesta.galeriaUrl || fiesta.wfolioDelivery?.wfolioUrl || '').trim();
+          const deliveryInicial = buildWfolioDelivery({
+            fiestaId: params.id,
+            eventName: nombre,
+            clientName: fiesta.configuracion?.clienteNombre,
+            wfolioUrl: initialWfolioUrl,
+          });
+          return (
+            <TarjetaEntregaAlbum
+              fiestaId={params.id}
+              eventName={nombre}
+              clientName={fiesta.configuracion?.clienteNombre}
+              clientPhone={fiesta.configuracion?.telefonoAsistencia}
+              initialWfolioUrl={initialWfolioUrl}
+              initialDelivery={deliveryInicial}
+            />
+          );
+        })()}
 
         {pendientes.length > 0 && (
           <section className="rounded-[1.5rem] border border-amber-400/25 bg-amber-400/10 p-5">

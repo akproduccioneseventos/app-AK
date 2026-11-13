@@ -1151,27 +1151,14 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   type SectionEntry = { id: InvitacionSectionId; order: number; el: React.ReactNode };
   const sectionEntries: SectionEntry[] = [];
 
-  const PLACEHOLDER_EL = (id: string) => (
-    <Section key={`${id}-placeholder`} className="text-center max-w-lg mx-auto" typography={config.typography}>
-      <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
-        AK esta preparando esta seccion para que se vea perfecta cuando el organizador la active.
-      </p>
-    </Section>
-  );
-
   const addSectionEntry = (
     id: InvitacionSectionId,
     condition: boolean,
     el: React.ReactNode,
-    showPlaceholder = false
+    _showPlaceholder = false
   ) => {
     if (!isSectionVisible(id, config.sectionsConfig)) return;
-    if (!condition) {
-      if (showPlaceholder) {
-        sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el: PLACEHOLDER_EL(id) });
-      }
-      return;
-    }
+    if (!condition) return;
     sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el });
   };
 
@@ -1481,6 +1468,22 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   sectionEntries.sort((a, b) => a.order - b.order);
+
+  // Al invitado no se le muestran secciones vacías. Si todas las secciones del medio están vacías,
+  // el aviso se muestra una sola vez y con tildes correctas.
+  if (sectionEntries.length === 0) {
+    sectionEntries.push({
+      id: 'bienvenida',
+      order: 0,
+      el: (
+        <Section key="seccion-en-preparacion" className="text-center max-w-lg mx-auto" typography={config.typography}>
+          <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
+            AK está preparando esta sección para que se vea perfecta cuando el organizador la active.
+          </p>
+        </Section>
+      ),
+    });
+  }
   // ─────────────────────────────────────────────────────────────────────────
 
   return (

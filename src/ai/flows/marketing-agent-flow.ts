@@ -1,6 +1,11 @@
 import 'server-only';
 
-import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import {
+  generateWithGeminiFallback,
+  getEffectiveGeminiModelForAgent,
+  getGeminiGenerationConfigForAgent,
+  getGeminiModelForAgent,
+} from '@/ai/genkit';
 import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';
 
 const MARKETING_SYSTEM_PROMPT = `Sos el Agente de Marketing de AK Producciones Eventos (Salto, Uruguay).
@@ -88,11 +93,12 @@ export async function chatWithMarketingAgent(
     promptParts.push({ media: { url: input.attachmentDataUri } });
   }
 
+  const model = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
   const { text } = await generateWithGeminiFallback({
-    model: getGeminiModelForAgent('marketing'),
+    model,
     system: MARKETING_SYSTEM_PROMPT,
     prompt: promptParts,
-    config: getGeminiGenerationConfigForAgent('marketing'),
+    config: getGeminiGenerationConfigForAgent('marketing', { deep: true }),
   });
 
   return {

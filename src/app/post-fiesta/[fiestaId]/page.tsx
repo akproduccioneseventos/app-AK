@@ -77,7 +77,7 @@ export default async function PostFiestaPage(props: PageProps) {
           <div className="flex flex-wrap gap-3 pt-2">
             <Button asChild className="rounded-xl bg-indigo-600 font-bold hover:bg-indigo-700 h-11 text-white shadow-lg shadow-indigo-500/10">
               <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> Ir a Google Drive / Wfolio
+                <ExternalLink className="mr-2 h-4 w-4" /> Ir al álbum digital
               </a>
             </Button>
             <Button asChild variant="outline" className="rounded-xl border-white/20 bg-white/5 font-bold text-white hover:bg-white hover:text-slate-900 h-11 backdrop-blur-md">
@@ -94,7 +94,7 @@ export default async function PostFiestaPage(props: PageProps) {
         {[
           { icon: Heart, title: 'Momentos en Pantalla', text: 'Todas las fotos, videos y recuerdos que subieron tus invitados recopilados.' },
           { icon: MessageCircle, title: 'Buzón de Audios', text: 'Escuchá y descargá las dedicatorias y mensajes de voz privados de tus invitados.' },
-          { icon: Share2, title: 'Compartir Carpeta', text: 'Facilidad de acceso a wfolio y Google Drive para descargas masivas de alta calidad.' },
+          { icon: Share2, title: 'Compartir Carpeta', text: 'Te pasamos el enlace a tu carpeta para bajar todo en alta calidad.' },
         ].map((item) => (
           <Card key={item.title} className="rounded-3xl border-slate-100 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
@@ -232,7 +232,7 @@ export default async function PostFiestaPage(props: PageProps) {
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start mt-4">
               <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                Tus archivos multimedia y carpetas de descarga están vinculadas directamente a Google Drive o wfolio, asegurando que puedas guardar tu material completo y en alta resolución sin sobrecargas de datos en la plataforma.
+                Tus archivos multimedia y carpetas de descarga están vinculadas directamente a tu álbum digital de Wfolio, asegurando que puedas guardar tu material completo y en alta resolución sin sobrecargas de datos en la plataforma.
               </p>
             </div>
 

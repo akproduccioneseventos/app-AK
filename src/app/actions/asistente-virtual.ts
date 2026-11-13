@@ -3,7 +3,12 @@
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actions/armado-rapido';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { generateWithGeminiFallback, geminiCommercialModel } from '@/ai/genkit';
+import {
+  generateWithGeminiFallback,
+  geminiCommercialModel,
+  geminiProModel,
+  getEffectiveGeminiModelForAgent,
+} from '@/ai/genkit';
 import type { MessageData } from 'genkit';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 
@@ -13,6 +18,7 @@ export interface AssistantResponse {
   error?: string;
   budgetGenerated?: boolean;
   budgetUrl?: string;
+  nivel?: 'rapido' | 'profundo';
 }
 
 /**
@@ -90,8 +96,11 @@ REGLAS ESTRICTAS:
 Si el usuario dice algo que no entendés, preguntá amablemente.`;
 
     // 5. Llamada a Genkit con historial
+    const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
+
     const response = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
+      model: effectiveModel,
       system: systemPrompt,
       messages: [
         ...history,
@@ -105,8 +114,9 @@ Si el usuario dice algo que no entendés, preguntá amablemente.`;
     // 6. Verificar si la IA decidió generar el presupuesto
     if (replyText === '[GENERAR_PRESUPUESTO]') {
       // Extraer datos estructurados con JSON
+      const extractionModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
       const extractionResponse = await generateWithGeminiFallback({
-        model: geminiCommercialModel,
+        model: extractionModel,
         prompt: `Extraé los siguientes datos del historial de chat. Formato JSON estricto con las claves: "nombre" (string), "telefono" (string), "evento" (string), "invitados" (number), "fecha" (string), "permisoContacto" (boolean). Si no hay algún dato, poné null.
 "permisoContacto" es true SOLO si la persona dijo con sus propias palabras que sí acepta que la contacten. Ante la menor duda, false.
 Historial:
@@ -137,6 +147,7 @@ ${newMessage}`,
           return {
             success: true,
             text: 'Listo, ya tengo tus datos. En un rato te pasamos el presupuesto armado a medida. Si querés adelantarlo, podés usar el simulador o escribirnos por WhatsApp.',
+            nivel,
           };
         }
       }
@@ -144,13 +155,15 @@ ${newMessage}`,
       // Si no se pudo guardar el dato, igual no se deja al cliente sin respuesta.
       return {
         success: true,
-        text: 'Anoté lo que me contaste. Para no hacerte esperar, escribinos por WhatsApp y te armamos el presupuesto en el momento.'
+        text: 'Anoté lo que me contaste. Para no hacerte esperar, escribinos por WhatsApp y te armamos el presupuesto en el momento.',
+        nivel,
       };
     }
 
     return {
       success: true,
       text: replyText,
+      nivel,
     };
   } catch (error: any) {
     console.error('[chatWithVirtualAssistant] Error:', error);
@@ -266,8 +279,11 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
 4. NO podés modificar datos ni agendar pagos.
 5. Respuestas amables, claras y cortas con emojis.`;
 
+    const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
+
     const response = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
+      model: effectiveModel,
       system: systemPrompt,
       messages: [
         ...history,
@@ -295,6 +311,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
         esImportante: senal.esImportante,
         tipoSenal: senal.tipoSenal || null,
         motivo: senal.motivo || null,
+        nivel,
       };
 
       const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
@@ -338,6 +355,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
     return {
       success: true,
       text: respuestaTexto,
+      nivel,
     };
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);
@@ -408,8 +426,11 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
    - Para confirmar asistencia: "Podés confirmar o actualizar tu asistencia en la sección de RSVP del portal."
 4. Respuestas directas, cortas y festivas.`;
 
+    const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
+
     const response = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
+      model: effectiveModel,
       system: systemPrompt,
       messages: [
         ...history,
@@ -422,6 +443,7 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
     return {
       success: true,
       text: response.text?.trim() || '¡Que disfrutes mucho de la fiesta!',
+      nivel,
     };
   } catch (error: any) {
     console.error('[chatConAsistenteInvitado] Error:', error);

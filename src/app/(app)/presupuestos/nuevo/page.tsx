@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2, CalendarDays, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getPresupuestos, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
+import { getPresupuestos, getPresupuestosConTotal, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -65,42 +65,14 @@ function PresupuestoDashboardContent() {
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
         try {
-            const repairResult = await withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas');
-            if (!repairResult.success) {
-                toast({
-                    title: 'No se pudieron corregir las fechas importadas',
-                    description: repairResult.error,
-                    variant: 'destructive',
-                });
-            }
+            const result = await withTimeout(
+                getPresupuestosConTotal(showArchived),
+                12000,
+                'La lista de presupuestos'
+            );
 
-            const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
-            const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
-            const [visibleResult, countResult] = await Promise.allSettled([visibleRequest, countRequest]);
-
-            if (visibleResult.status === 'fulfilled') {
-                const guardados = Array.isArray(visibleResult.value) ? visibleResult.value : [];
-                setPresupuestos(guardados);
-            } else {
-                setPresupuestos([]);
-                toast({
-                    title: 'No se pudo cargar la lista',
-                    description: 'La base demoro o rechazo la consulta. La pantalla queda disponible para volver a intentar.',
-                    variant: 'destructive',
-                });
-            }
-
-            if (countResult.status === 'fulfilled') {
-                setTotalPresupuestosCount(Array.isArray(countResult.value) ? countResult.value.length : 0);
-            } else if (visibleResult.status === 'fulfilled') {
-                setTotalPresupuestosCount(Array.isArray(visibleResult.value) ? visibleResult.value.length : 0);
-                toast({
-                    title: 'Conteo parcial',
-                    description: 'Se cargo la lista, pero no se pudo confirmar el total de archivados.',
-                });
-            } else {
-                setTotalPresupuestosCount(0);
-            }
+            setPresupuestos(Array.isArray(result.presupuestos) ? result.presupuestos : []);
+            setTotalPresupuestosCount(typeof result.totalCount === 'number' ? result.totalCount : 0);
         } catch (error) {
             setPresupuestos([]);
             setTotalPresupuestosCount(0);
@@ -116,6 +88,30 @@ function PresupuestoDashboardContent() {
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
 
+    // La reparaciÃ³n de fechas corre en segundo plano sin bloquear la apertura inicial.
+    // SÃ³lo si se detectÃ³ algÃºn cambio, se refresca la lista.
+    const repairDatesRanRef = useRef(false);
+    useEffect(() => {
+        if (repairDatesRanRef.current) return;
+        repairDatesRanRef.current = true;
+
+        repairVerifiedBudgetDates()
+            .then((res) => {
+                if (!res.success && res.error) {
+                    toast({
+                        title: 'No se pudieron corregir las fechas importadas',
+                        description: res.error,
+                        variant: 'destructive',
+                    });
+                } else if (res.success && res.changedCount > 0) {
+                    fetchPresupuestos();
+                }
+            })
+            .catch(() => {
+                // Silencioso en segundo plano
+            });
+    }, [fetchPresupuestos, toast]);
+
     const handleBudgetMutation = useCallback(async (id: string, action: 'archive' | 'delete') => {
         setPresupuestos(prev => prev.filter(p => p.id !== id || (showArchived && action === 'archive')));
         router.refresh();
@@ -127,7 +123,7 @@ function PresupuestoDashboardContent() {
         try {
             const result = await resetAllPresupuestos();
             if (result.success) {
-                toast({ title: '🗑️ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
+                toast({ title: 'ðŸ—‘ï¸ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
                 setPresupuestos([]);
                 setTotalPresupuestosCount(0);
                 router.refresh();
@@ -173,7 +169,7 @@ function PresupuestoDashboardContent() {
         <div className="space-y-6">
              {fiestaIdParam && (
                 <div data-testid="aviso-presupuesto-para-fiesta" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
-                  <span className="font-semibold">Estás armando un presupuesto para una fiesta ya cargada.</span>
+                  <span className="font-semibold">EstÃ¡s armando un presupuesto para una fiesta ya cargada.</span>
                   <Button asChild size="sm"><Link href={crearHref}>Crear el presupuesto de esa fiesta</Link></Button>
                 </div>
              )}
@@ -185,7 +181,7 @@ function PresupuestoDashboardContent() {
                   {/* El configurador existia y no lo enlazaba ninguna pantalla:
                       el vendedor no tenia como llegar. Va aca, que es donde
                       arma el presupuesto antes de la reunion. */}
-                  <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reunión</Link></Button>
+                  <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reuniÃ³n</Link></Button>
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
                   <Button asChild><Link href={crearHref} data-testid="btn-nuevo-presupuesto"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
@@ -193,20 +189,20 @@ function PresupuestoDashboardContent() {
                       <AlertDialogTrigger asChild>
                       <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>
                         {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                        🗑️ Borrar todos
+                        ðŸ—‘ï¸ Borrar todos
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
+                        <AlertDialogTitle>âš ï¸ Â¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                          Esta acciÃ³n eliminarÃ¡ <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrÃ¡n recuperar</strong>. Esta operaciÃ³n borra directamente de Firestore y no puede deshacerse.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                         <AlertDialogAction onClick={handleResetAllPresupuestos} className="bg-destructive hover:bg-destructive/90">
-                          Sí, borrar todos permanentemente
+                          SÃ­, borrar todos permanentemente
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -253,7 +249,7 @@ function PresupuestoDashboardContent() {
                   </Button>
                   <div className="relative w-full md:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                    <Input placeholder="Buscar cliente o Nº..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+                    <Input placeholder="Buscar cliente o NÂº..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
                   </div>
                 </div>
               </CardHeader>
@@ -287,7 +283,7 @@ function PresupuestoDashboardContent() {
                                     <CalendarDays className="h-4 w-4 text-primary" />
                                     Eventos contratados
                                   </h3>
-                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha de la fiesta más próxima.</p>
+                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha de la fiesta mÃ¡s prÃ³xima.</p>
                                 </div>
                                 <span className="text-sm font-semibold tabular-nums">{organizedBudgets.contracted.length}</span>
                               </div>

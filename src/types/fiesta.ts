@@ -1,4 +1,4 @@
-
+﻿
 import type { TipoEvento } from './presupuesto';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
@@ -24,13 +24,13 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño' | 'Adolescente' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'NiÃ±o' | 'Adolescente' | 'NiÃ±o/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
-/** Alias for PerfilInvitado � used in segmentation views and reports */
+/** Alias for PerfilInvitado ï¿½ used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
 export interface GuestExperienceStats {
@@ -48,7 +48,7 @@ export interface Invitado {
   contacto?: string;
   rsvp: RsvpStatus;
   partySize?: number;
-  /** Cuántos del grupo son niños o adolescentes. Ver `src/types/invitado.ts`. */
+  /** CuÃ¡ntos del grupo son niÃ±os o adolescentes. Ver `src/types/invitado.ts`. */
   kidsCount?: number;
   tableNumber?: string;
   notes?: string;
@@ -72,11 +72,11 @@ export interface Invitado {
   guestAccessToken?: string;
   /** Tracking stats for guest experience CTAs */
   guestExperienceStats?: GuestExperienceStats;
-  /** Momento en que el invitado abrió su invitación personal por primera vez */
+  /** Momento en que el invitado abriÃ³ su invitaciÃ³n personal por primera vez */
   invitacionAbiertaAt?: string;
   abrioInvitacion?: boolean;
   fechaPrimeraApertura?: string;
-  /** Registro de fechas en que se enviaron recordatorios de invitación no abierta */
+  /** Registro de fechas en que se enviaron recordatorios de invitaciÃ³n no abierta */
   recordatoriosApertura?: string[];
 }
 
@@ -146,7 +146,7 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- CONFIGURACI�N ---
+// --- CONFIGURACIï¿½N ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
@@ -301,7 +301,7 @@ export interface DecoItem {
   imageUrl?: string;
 }
 
-/** Una zona de diseño con su propio lienzo visual */
+/** Una zona de diseÃ±o con su propio lienzo visual */
 export interface ZonaDiseno {
   id: string;
   nombre: string;
@@ -368,7 +368,7 @@ export interface DecoracionData {
   itemsDecoracion?: DecoItem[];
   moodboardImages?: string[];
   zonas?: DecoZona[];
-  /** Zonas de diseño con su propio lienzo visual */
+  /** Zonas de diseÃ±o con su propio lienzo visual */
   zonasDiseno?: ZonaDiseno[];
   presupuestoDecoracion?: number;
   checklistDecoracion?: DecoChecklistItem[];
@@ -405,7 +405,7 @@ export interface ProgramaEventoItem {
   visibleParaCliente?: boolean;
   icono?: string;
   completado?: boolean;
-  rolAsignado?: 'DJ' | 'Mozo' | 'Fotógrafo' | 'Animador' | 'Coordinador' | 'Catering' | 'Todos' | string;
+  rolAsignado?: 'DJ' | 'Mozo' | 'FotÃ³grafo' | 'Animador' | 'Coordinador' | 'Catering' | 'Todos' | string;
   responsableNombre?: string;
 }
 
@@ -437,7 +437,7 @@ export interface SeccionInvitacion {
   data: any;
 }
 
-// --- INVITACI�N DIGITAL CONFIG (Simplified central configuration) ---
+// --- INVITACIï¿½N DIGITAL CONFIG (Simplified central configuration) ---
 
 export interface InvitacionDigitalDressCode {
   tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
@@ -547,8 +547,8 @@ export interface InvitacionDigitalConfig {
    *
    * Van vacios a proposito: **la seccion no se muestra si no hay nada cargado**.
    * Hasta el 19 de agosto de 2026 estas dos secciones salian en TODAS las
-   * invitaciones con contenido escrito a mano �una vida inventada ("El
-   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentino�,
+   * invitaciones con contenido escrito a mano ï¿½una vida inventada ("El
+   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentinoï¿½,
    * que el anfitrion no podia cambiar porque no habia donde cargarlo.
    */
   hitos?: HitoInvitacion[];
@@ -613,7 +613,7 @@ export interface InvitacionDigitalConfig {
 
 export interface InvitacionDigitalData {
   name?: string;
-  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
+  category?: 'Boda' | 'XV AÃ±os' | 'CumpleaÃ±os' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo';
   musicaFondoUrl?: string;
   realidadAumentada?: { visible?: boolean; imagenUrl?: string; videoUrl?: string; mindTargetUrl?: string };
@@ -845,7 +845,7 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
-  /** Música o canción del evento para el álbum digital */
+  /** MÃºsica o canciÃ³n del evento para el Ã¡lbum digital */
   cancionUrl?: string;
   musicaFondoUrl?: string;
   privateDedicationsMode?: boolean;
@@ -881,7 +881,7 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Timestamp when a sorteo spin was started � triggers wheel animation on the big screen */
+  /** Timestamp when a sorteo spin was started ï¿½ triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
   /** When true, the raffle wheel is displayed statically on the big screen before spinning */
   sorteoOnScreen?: boolean;
@@ -914,13 +914,13 @@ export interface SocialGallerySettings {
   fondoMuro?: string;
   /** Imagen de fondo personalizada para el muro social (tapa al fondo con oscurecido) */
   fondoMuroImagenUrl?: string;
-  /** Tamaño y cantidad de fotos mostradas en el diseño de mosaico */
+  /** TamaÃ±o y cantidad de fotos mostradas en el diseÃ±o de mosaico */
   tamanoFotosMosaico?: 'chica' | 'mediana' | 'grande';
-  /** Duración en segundos de cada foto en el modo slideshow (3 a 30 seg, default 6) */
+  /** DuraciÃ³n en segundos de cada foto en el modo slideshow (3 a 30 seg, default 6) */
   segundosPorFoto?: number;
-  /** Límite de impresiones por invitado en la estación de impresión (0 = ilimitado, default 2) */
+  /** LÃ­mite de impresiones por invitado en la estaciÃ³n de impresiÃ³n (0 = ilimitado, default 2) */
   maxImpresionesPorPersona?: number;
-  /** Si se incluye franja inferior con marco, fecha, logo y nombre en la impresión */
+  /** Si se incluye franja inferior con marco, fecha, logo y nombre en la impresiÃ³n */
   marcoEnImpresion?: boolean;
 }
 
@@ -1057,11 +1057,11 @@ export interface Trago {
   ingredientes?: string[];
   recetaIngredientes?: TragoRecetaIngrediente[];
   recetaIngredientesSinAlcohol?: RecetaIngrediente[];
-  /** Solo para mayores de 18 (versión con alcohol reducido). */
+  /** Solo para mayores de 18 (versiÃ³n con alcohol reducido). */
   soloMayores?: boolean;
   /** Receta sin alcohol, en texto (no descuenta stock). */
   recetaSinAlcohol?: string[];
-  /** Nombre de la versión sin alcohol, si tiene uno distinto. */
+  /** Nombre de la versiÃ³n sin alcohol, si tiene uno distinto. */
   nombreSinAlcohol?: string;
   stockDisponible?: number;
   activo?: boolean;
@@ -1215,7 +1215,7 @@ export interface CostoItem {
   category: string;
   montoEstimado: number;
   notas?: string;
-  /** Renglón cerrado: ya no se espera pagar más que lo pagado (orden 251). */
+  /** RenglÃ³n cerrado: ya no se espera pagar mÃ¡s que lo pagado (orden 251). */
   cerrado?: boolean;
 }
 
@@ -1291,9 +1291,9 @@ export interface ModulosContratados {
   buzon?: boolean;
 }
 
-/** Un renglón tal como salió en el pedido al proveedor (28/09/2026). */
+/** Un renglÃ³n tal como saliÃ³ en el pedido al proveedor (28/09/2026). */
 export interface RenglonPedidoEnviado {
-    /** El id del insumo si lo hay; si no, el nombre. Sirve para anotar lo que llegó. */
+    /** El id del insumo si lo hay; si no, el nombre. Sirve para anotar lo que llegÃ³. */
     clave: string;
     nombre: string;
     unit: string;
@@ -1308,10 +1308,10 @@ export interface CompraProveedorEstado {
     pagado: boolean;
     montoPagado?: number;
     /**
-     * Seguimiento del pedido (28/09/2026): qué se pidió, cuándo, y cuánto llegó de
-     * cada renglón. Con eso la app dice sola si llegó completo o qué faltó. No toca
-     * el stock del depósito: la comida que se usa en cada fiesta no se descuenta de
-     * ahí, así que sumarle lo que llega lo inflaría y la fiesta siguiente pediría de
+     * Seguimiento del pedido (28/09/2026): quÃ© se pidiÃ³, cuÃ¡ndo, y cuÃ¡nto llegÃ³ de
+     * cada renglÃ³n. Con eso la app dice sola si llegÃ³ completo o quÃ© faltÃ³. No toca
+     * el stock del depÃ³sito: la comida que se usa en cada fiesta no se descuenta de
+     * ahÃ­, asÃ­ que sumarle lo que llega lo inflarÃ­a y la fiesta siguiente pedirÃ­a de
      * menos.
      */
     pedidoEnviadoAt?: string;
@@ -1323,7 +1323,7 @@ export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial'
 
 export interface CuotaPlanPago {
   id: string;
-  descripcion: string; // e.g. "Seña", "Cuota 1", "Saldo Final"
+  descripcion: string; // e.g. "SeÃ±a", "Cuota 1", "Saldo Final"
   monto: number;
   fechaVencimiento: string; // ISO date
   estado: PlanPagoEstadoCuota;
@@ -1667,9 +1667,10 @@ export interface FiestaEnPlanificacion {
   npsScore?: number;              // 0-10 post-event NPS score
   galeriaEntregada?: boolean;     // Whether photo gallery was delivered to client
   galeriaUrl?: string;            // URL to delivered gallery
+  wfolioDelivery?: import('@/lib/social-fiesta/wfolio-album-delivery').WfolioAlbumDelivery;
   postEventoCompletado?: boolean; // Post-event process completed flag
-  googleReviewRequested?: boolean;   // Si ya se envió la solicitud de reseña/opinión por WhatsApp
-  googleReviewRequestedAt?: string; // Fecha en que se solicitó la reseña
+  googleReviewRequested?: boolean;   // Si ya se enviÃ³ la solicitud de reseÃ±a/opiniÃ³n por WhatsApp
+  googleReviewRequestedAt?: string; // Fecha en que se solicitÃ³ la reseÃ±a
   screenPlaylist?: ScreenPlaylist;
   mediaLibrary?: MediaLibraryItem[];
   socialScreenConfig?: SocialScreenConfig;
@@ -1714,13 +1715,13 @@ export interface ContratoFirmaInfo {
 
 /**
  * Constancia de la firma que el cliente hace en su portal. NO es el contrato firmado: la
- * reserva sale sólo del contrato en papel (decisión del dueño, 25 de septiembre de 2026).
+ * reserva sale sÃ³lo del contrato en papel (decisiÃ³n del dueÃ±o, 25 de septiembre de 2026).
  */
 export interface FirmaDigitalConstancia {
     signedAt: string;
     signedBy: string;
     ip?: string;
-    /** Huella del texto exacto que se firmó (sha256). */
+    /** Huella del texto exacto que se firmÃ³ (sha256). */
     textoHuella: string;
     planPagosAceptado: boolean;
 }
@@ -1741,7 +1742,7 @@ export interface PlanPagos {
   activo: boolean;
   pagoMinimoTrimestral: number; // default 5000
   porcentajeMinimoAntesFecha: number; // default 30
-  mesesLimiteAntesFecha: number; // calculado automáticamente
+  mesesLimiteAntesFecha: number; // calculado automÃ¡ticamente
   fechaLimite30Porciento: string; // ISO date calculada
   montoObjetivo30Porciento: number; // totalContrato * 0.30
   cuotas: CuotaPlanPagoContrato[];
@@ -1823,8 +1824,8 @@ export interface EventoEnVivoData {
   captaciones?: CaptacionInvitadoEnVivo[];
 }
 
-// --- FOTOGRAFÍA Y FILMACI�N ---
-export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
+// --- FOTOGRAFÃA Y FILMACIï¿½N ---
+export type EntregaMaterialEstado = 'Pendiente' | 'En ediciÃ³n' | 'En revisiÃ³n' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {
   id: string;
@@ -1865,7 +1866,7 @@ export type DocumentoTipo =
   | 'presupuesto_firmado'
   | 'contrato_cambio_fecha'
   | 'cambio-fecha'
-  | 'seña_pago'
+  | 'seÃ±a_pago'
   | 'recibo_pago'
   | 'contrato_catering'
   | 'cancelacion'
@@ -1906,7 +1907,7 @@ export interface ClientPaymentNotification {
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   timestamp: string;
   approvedAt?: string;
-  /** Cuándo quedó acreditado en el presupuesto. Con esto puesto, ningún intento fallido lo vuelve a pendiente. */
+  /** CuÃ¡ndo quedÃ³ acreditado en el presupuesto. Con esto puesto, ningÃºn intento fallido lo vuelve a pendiente. */
   cobroConfirmadoAt?: string;
   notas?: string;
 }
@@ -1942,13 +1943,13 @@ export interface ClientServiceChangeRequest {
  *
  * El contrato deja bajar hasta 10% y subir hasta 30%. El pedido se guarda y lo
  * aprueba AK: no se aplica solo, porque subir invitados mueve el precio y hay
- * que confirmar disponibilidad con el salón.
+ * que confirmar disponibilidad con el salÃ³n.
  */
 export interface ClientGuestCountChangeRequest {
   id: string;
   createdAt: string;
   status: 'pendiente' | 'aprobada' | 'rechazada';
-  /** Cuántos había contratados cuando el cliente pidió el cambio. */
+  /** CuÃ¡ntos habÃ­a contratados cuando el cliente pidiÃ³ el cambio. */
   contratadosAlPedir: number;
   /** El desglose que pide el cliente. La suma es el total nuevo. */
   adultos: number;

@@ -1,22 +1,22 @@
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
-import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, reservarRespuestaProfunda } from '@/lib/ai/consumo-servidor';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
 /**
- * Modelos oficiales de Google Gemini Flash gratuitos.
+ * Modelos oficiales de Google Gemini.
  *
- * 1. gemini-flash-latest: Atajo oficial de Google que apunta siempre a la última
- *    versión estable de Gemini Flash.
- * 2. gemini-3.8-flash: Modelo gratis más reciente y avanzado.
+ * Para tareas simples y operativas se usa la versión rápida y económica (Gemini Flash).
+ * Para tareas complejas y estratégicas se usa la versión inteligente y profunda (Gemini Pro),
+ * con respaldo automático en Flash en caso de fallas o agotamiento de saldo/cuota.
  */
 export const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
 export const DEFAULT_GEMINI_MODEL = 'googleai/gemini-flash-latest';
-export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-flash-latest';
-/** Primer respaldo si el atajo "latest" no responde: modelo gratis 3.6 flash. */
-export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-3.6-flash';
+export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-pro-latest';
+/** Primer respaldo si el atajo "latest" no responde: modelo rápido estable. */
+export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-flash-latest';
 
 const DEFAULT_GEMINI_FALLBACK_MODELS = [
   DEFAULT_GEMINI_LATEST_MODEL,
@@ -51,7 +51,7 @@ export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_
 export const geminiCommercialModel = resolveGeminiModel(process.env.GEMINI_MODEL_COMMERCIAL, geminiFastModel, 'commercial');
 
 export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): string {
-  if (options?.deep || agentType === 'fiestas_general' || agentType === 'contable') {
+  if (options?.deep || agentType === 'contable') {
     return geminiProModel;
   }
   if (agentType === 'marketing') return geminiMarketingModel;
@@ -60,19 +60,28 @@ export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep
 }
 
 /**
- * Resuelve el modelo efectivo cuidando el presupuesto mensual de IA.
- * Si el modelo pro fue solicitado pero el presupuesto está alcanzado o frenado,
- * cae automáticamente al modelo rápido para no fallar ni generar sobrecostos.
+ * Resuelve el modelo efectivo cuidando el presupuesto mensual y el tope diario del cerebro.
+ * Si el modelo pro fue solicitado pero el presupuesto mensual está alcanzado o se llegó
+ * al tope diario de respuestas profundas, cae automáticamente al modelo rápido.
+ * Si la reserva tira error, atrapa la excepción y devuelve el rápido (nunca se queda sin contestar).
  */
 export async function getEffectiveGeminiModelForAgent(
   agentType?: AkAgentType,
-  options?: { deep?: boolean }
+  options?: { deep?: boolean; ahora?: Date | string } | Date | string,
+  ahoraDirect?: Date | string,
 ): Promise<string> {
-  const preferred = getGeminiModelForAgent(agentType, options);
+  const opts = (options && typeof options === 'object' && !(options instanceof Date)) ? options : undefined;
+  const ahora = (options instanceof Date || typeof options === 'string') ? options : (opts?.ahora ?? ahoraDirect);
+  const preferred = getGeminiModelForAgent(agentType, opts);
   if (preferred === geminiProModel) {
     try {
-      const tienePresupuesto = await hayPresupuestoParaIA();
+      const fecha = ahora ? (typeof ahora === 'string' ? new Date(ahora) : ahora) : undefined;
+      const tienePresupuesto = await hayPresupuestoParaIA(fecha);
       if (!tienePresupuesto) {
+        return geminiFastModel;
+      }
+      const reservado = await reservarRespuestaProfunda(ahora);
+      if (!reservado) {
         return geminiFastModel;
       }
     } catch {
@@ -115,9 +124,16 @@ function configuredFallbackModels(): string[] {
 }
 
 export function getGeminiFallbackCandidates(preferredModel: string): string[] {
-  // Si lo que falló es un modelo "pro", el primer respaldo es el pro estable, no uno chico.
-  const respaldoPro = /gemini-[a-z0-9.]*-?pro/i.test(preferredModel) ? [DEFAULT_GEMINI_PRO_FALLBACK_MODEL] : [];
-  return Array.from(new Set([preferredModel, ...respaldoPro, ...configuredFallbackModels()]));
+  const isPro = /gemini-[a-z0-9.]*-?pro/i.test(preferredModel) || preferredModel === geminiProModel || preferredModel === DEFAULT_GEMINI_PRO_MODEL;
+  if (isPro) {
+    const prefix = preferredModel.startsWith('googleai/') ? 'googleai/' : '';
+    return [
+      preferredModel,
+      `${prefix}gemini-flash-latest`,
+      `${prefix}gemini-3.8-flash`,
+    ];
+  }
+  return Array.from(new Set([preferredModel, ...configuredFallbackModels()]));
 }
 
 export function isRecoverableGeminiModelError(error: unknown): boolean {
@@ -126,8 +142,8 @@ export function isRecoverableGeminiModelError(error: unknown): boolean {
   const message = String(candidate?.message || error || '').toLowerCase();
 
   return (
-    [404, 408, 429, 500, 502, 503, 504].includes(status) ||
-    /(model.+(?:not found|unavailable)|resource_exhausted|overloaded|capacity|deadline exceeded|temporarily unavailable)/i.test(message)
+    [402, 404, 408, 429, 500, 502, 503, 504].includes(status) ||
+    /(model.+(?:not found|unavailable)|resource_exhausted|overloaded|capacity|deadline exceeded|temporarily unavailable|payment required|out of credit|saldo|quota)/i.test(message)
   );
 }
 

@@ -1,7 +1,12 @@
 import 'server-only';
 
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
-import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import {
+  generateWithGeminiFallback,
+  getEffectiveGeminiModelForAgent,
+  getGeminiGenerationConfigForAgent,
+  getGeminiModelForAgent,
+} from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentLearning, AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -560,7 +565,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     // ── Selección de modelo según intención ─────────────────────────────────
     const deepMode       = requiresProModel(agentType, input.message);
-    const model          = getGeminiModelForAgent(agentType, { deep: deepMode });
+    const model          = await getEffectiveGeminiModelForAgent(agentType, { deep: deepMode });
     const generationConfig = getGeminiGenerationConfigForAgent(agentType, { deep: deepMode });
 
     // Historial ampliado: últimos 20 turnos para mejor contexto conversacional
