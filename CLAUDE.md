@@ -1979,6 +1979,7 @@ con otra cara.
 | Revertir un ajuste de precios dejaba el catálogo en negativo, y se aceptaba bajar -200% | `src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts` |
 | Once acciones decían "listo" sin guardar, y las pruebas daban verde con una base de mentira mejor que la real | `src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts` con `docs/ida-y-vuelta-pendientes.json` |
 | "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
+| El asistente del equipo daba error al auditor porque anotar el gasto tumbaba la respuesta | `src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts` |
 
 ### Cómo se elige el matafuego
 
