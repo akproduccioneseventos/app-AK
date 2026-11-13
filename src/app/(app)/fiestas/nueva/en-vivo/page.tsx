@@ -242,11 +242,11 @@ function LiveEventDashboardContent() {
                 </AnimatePresence>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="operaciones" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-slate-900 h-auto p-1 rounded-2xl border border-white/5 mb-8 gap-1">
-                        <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Panel de Comando</TabsTrigger>
-                        <TabsTrigger value="modos" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Modos</TabsTrigger>
-                        <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Logística Inversa</TabsTrigger>
-                        <TabsTrigger value="invitados" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[44px] py-2">Check-in Invitados</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-slate-900 h-auto p-1.5 rounded-2xl border border-white/5 mb-8 gap-2 overflow-visible">
+                        <TabsTrigger value="operaciones" className="w-full rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[48px] py-2 px-1 text-center">Panel de Comando</TabsTrigger>
+                        <TabsTrigger value="modos" className="w-full rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[48px] py-2 px-1 text-center">Modos</TabsTrigger>
+                        <TabsTrigger value="retorno" className="w-full rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[48px] py-2 px-1 text-center">Logística Inversa</TabsTrigger>
+                        <TabsTrigger value="invitados" className="w-full rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white whitespace-normal leading-tight min-h-[48px] py-2 px-1 text-center">Check-in Invitados</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="operaciones" className="space-y-8">

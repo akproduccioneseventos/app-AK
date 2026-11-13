@@ -315,6 +315,12 @@ def analizar_archivo_video(ruta_archivo: str) -> List[Dict[str, Any]]:
         # blackdetect: detección de fotogramas negros por umbral de brillo
         es_negro = brillo_medio < 12.0
 
+        # Nota de calidad por segundo (Orden 298 - Bloque 5)
+        # Mayor nitidez (desenfoque / 100), bonus si hay cara o cara quieta, penalidad por sacudida y negro
+        nota_segundo = (desenfoque_medio / 100.0) + (10.0 if cara_quieta else (4.0 if tiene_cara else 0.0)) - (sacudida_media * 1.5)
+        if es_negro:
+            nota_segundo -= 50.0
+
         metricas_segundos.append({
             "segundo": float(sec),
             "es_negro": es_negro,
@@ -324,9 +330,40 @@ def analizar_archivo_video(ruta_archivo: str) -> List[Dict[str, Any]]:
             "tiene_cara": tiene_cara,
             "cara_quieta": cara_quieta,
             "nivel_brillo": round(brillo_medio, 2),
+            "nota": round(nota_segundo, 2),
         })
 
     return metricas_segundos
+
+
+def calcular_nota_tramo(metricas_tramo: List[Dict[str, Any]], bloque: str = "general") -> float:
+    """Calcula la nota de calidad integral de un tramo de video."""
+    if not metricas_tramo:
+        return -100.0
+    notas = [m.get("nota", 0.0) for m in metricas_tramo]
+    sacudidas = [m.get("sacudida", 0.0) for m in metricas_tramo]
+    desenfoques = [m.get("desenfoque", 0.0) for m in metricas_tramo]
+    caras = sum(1 for m in metricas_tramo if m.get("tiene_cara"))
+    caras_quietas = sum(1 for m in metricas_tramo if m.get("cara_quieta"))
+    negros = sum(1 for m in metricas_tramo if m.get("es_negro"))
+
+    if negros > 0:
+        return -50.0
+
+    promedio_nota = float(np.mean(notas))
+    promedio_sacudida = float(np.mean(sacudidas))
+    promedio_desenfoque = float(np.mean(desenfoques))
+
+    nota_final = promedio_nota
+
+    if bloque in ("previa", "recepcion", "torta"):
+        nota_final += (caras_quietas * 3.0) - (promedio_sacudida * 2.0)
+    elif bloque == "baile":
+        # En baile se tolera dinamismo pero se prioriza nitidez y presencia humana
+        nota_final += (caras * 1.5) + (promedio_desenfoque / 80.0) - (promedio_sacudida * 0.5)
+
+    return round(nota_final, 2)
+
 
 
 class Analizador:

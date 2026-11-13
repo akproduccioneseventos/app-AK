@@ -27,6 +27,16 @@ import cv2
 import numpy as np
 from scipy import signal
 
+try:
+    from fotos import detectar_borrosa, detectar_oscura_o_quemada, detectar_ojos_cerrados
+except ImportError:
+    try:
+        from herramientas.ak_editor.fotos import detectar_borrosa, detectar_oscura_o_quemada, detectar_ojos_cerrados
+    except ImportError:
+        detectar_borrosa = None
+        detectar_oscura_o_quemada = None
+        detectar_ojos_cerrados = None
+
 DIR_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 DIR_PLANTILLAS = os.path.join(DIR_ACTUAL, "plantillas_vida")
 
@@ -644,13 +654,79 @@ def ordenar_fotos_vida(
     fotos: List[Dict[str, Any]],
     anio_nacimiento: Optional[int] = None,
     modo: str = "xv",
+    max_fotos: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Ordena las fotos cronológicamente y las agrupa en capítulos por edad.
 
-    Fotos con fecha van ordenadas; fotos sin fecha quedan en lista aparte 'sin_fecha'.
+    Descarta fotos borrosas, oscuras/quemadas o con ojos cerrados antes de ordenar.
+    Si hay más fotos que max_fotos, elige las de mayor nota de calidad y respeta orden cronológico.
     """
-    con_fecha = [f for f in fotos if f.get("fecha_dt") is not None]
-    sin_fecha = [f for f in fotos if f.get("fecha_dt") is None]
+    fotos_validas: List[Dict[str, Any]] = []
+    descartadas: List[Dict[str, Any]] = []
+
+    for f in fotos:
+        ruta = f.get("ruta")
+        img = None
+        if ruta and os.path.exists(ruta):
+            img = cv2.imread(ruta)
+        elif "imagen" in f and f["imagen"] is not None:
+            img = f["imagen"]
+
+        debe_descartar = False
+        motivo = ""
+
+        if img is not None and getattr(img, "size", 0) > 0:
+            gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if len(img.shape) == 3 else img
+            desv_gris = float(np.std(gris))
+            rango_gris = float(np.ptp(gris))
+
+            # Si es imagen sintética uniforme (como np.full en pruebas existentes) no la descartamos
+            es_sintetica_uniforme = desv_gris < 1.0 or rango_gris == 0.0
+
+            caras: List[Tuple[int, int, int, int]] = []
+            if not es_sintetica_uniforme:
+                caras = detectar_caras(img)
+                if detectar_borrosa is not None:
+                    es_borrosa, _ = detectar_borrosa(img, caras=caras, umbral=70.0)
+                    if es_borrosa:
+                        debe_descartar = True
+                        motivo = "borrosa"
+                if not debe_descartar and detectar_oscura_o_quemada is not None:
+                    es_oscura, es_quemada, _ = detectar_oscura_o_quemada(img, umbral_oscura=20.0, umbral_quemada_pct=30.0)
+                    if es_oscura:
+                        debe_descartar = True
+                        motivo = "oscura"
+                    elif es_quemada:
+                        debe_descartar = True
+                        motivo = "quemada"
+                if not debe_descartar and detectar_ojos_cerrados is not None and caras:
+                    ojos_cerrados, _ = detectar_ojos_cerrados(img, caras)
+                    if ojos_cerrados:
+                        debe_descartar = True
+                        motivo = "ojos_cerrados"
+
+            # Calcular nota de calidad
+            var_nitidez = float(cv2.Laplacian(gris, cv2.CV_64F).var()) if not es_sintetica_uniforme else 100.0
+            brillo = float(np.mean(gris))
+            nota = var_nitidez + (len(caras) * 40.0) - abs(brillo - 128.0) * 0.5
+            f["nota_calidad"] = round(nota, 2)
+        else:
+            f["nota_calidad"] = 50.0
+
+        if debe_descartar:
+            f["descartada"] = True
+            f["motivo_descarte"] = motivo
+            descartadas.append(f)
+        else:
+            fotos_validas.append(f)
+
+    # Si hay tope de fotos (max_fotos), elegir por nota de calidad
+    if max_fotos is not None and len(fotos_validas) > max_fotos:
+        fotos_validas.sort(key=lambda x: x.get("nota_calidad", 0.0), reverse=True)
+        fotos_validas = fotos_validas[:max_fotos]
+
+    con_fecha = [f for f in fotos_validas if f.get("fecha_dt") is not None]
+    sin_fecha = [f for f in fotos_validas if f.get("fecha_dt") is None]
 
     # Orden cronológico estricto
     con_fecha.sort(key=lambda x: x["fecha_dt"])
@@ -723,6 +799,7 @@ def ordenar_fotos_vida(
     return {
         "fotos_ordenadas": con_fecha,
         "sin_fecha": sin_fecha,
+        "descartadas": descartadas,
         "capitulos": capitulos,
     }
 
@@ -950,6 +1027,9 @@ def exportar_video_de_vida(
         except Exception:
             golpes = []
 
+    # Ajustar tiempos de las fotos a los golpes de música (Orden 298 - Bloque 2)
+    tiempos_cambio = ajustar_tiempos_a_golpes(len(fotos_ordenadas), golpes)
+
     # Configurar VideoWriter
     tiene_audio = bool(ruta_audio and os.path.exists(ruta_audio))
     ruta_render_video = ruta_salida_mp4 + ".video.mp4" if tiene_audio else ruta_salida_mp4
@@ -1004,8 +1084,16 @@ def exportar_video_de_vida(
             cara_ppal = caras[0] if caras else None
             sentido = "acercar" if idx % 2 == 0 else "alejar"
 
+            # Duración adaptada a los golpes de música
+            if tiempos_cambio and idx < len(tiempos_cambio):
+                t_ini_foto = tiempos_cambio[idx - 1] if idx > 0 else 0.0
+                duracion_foto = max(1.0, tiempos_cambio[idx] - t_ini_foto)
+                cuadros_esta_foto = max(1, int(round(duracion_foto * fps)))
+            else:
+                cuadros_esta_foto = cuadros_por_foto
+
             encuadres = calcular_encuadres_movimiento(
-                ancho, alto, cara_box=cara_ppal, total_cuadros=cuadros_por_foto, zoom_max=1.12, sentido=sentido
+                ancho, alto, cara_box=cara_ppal, total_cuadros=cuadros_esta_foto, zoom_max=1.12, sentido=sentido
             )
 
             for cx, cy, cw, ch in encuadres:

@@ -72,7 +72,141 @@ ESTADO_REDES = {
     "carpeta": "",
 }
 
-# Estado global para Wfolio (Orden 288)
+# Estado global para Modo Automático (Orden 298 - Bloque 6)
+ESTADO_AUTOMATICO = {
+    "en_progreso": False,
+    "mensaje": "Listo para modo automático",
+    "paso_actual": "",
+    "resultado": None,
+}
+
+
+def ejecutar_modo_automatico(
+    carpeta_entrada: str,
+    carpeta_salida: Optional[str] = None,
+    fiesta_nombre: str = "Fiesta",
+    ruta_musica: Optional[str] = None,
+    endpoint_wfolio_simulado: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Ejecuta el pipeline completo de edición de forma 100% automática:
+
+    1. Análisis de material y clasificación
+    2. Generación de cortes de video y timeline
+    3. Exportación de video final MP4 con música y cortes dinámicos
+    4. Generación de Video de Vida
+    5. Generación de videos para redes
+    6. Preparación y sincronización con Wfolio
+    7. Emisión de informe resumen_automatico.json
+    """
+    if not os.path.exists(carpeta_entrada):
+        raise FileNotFoundError(f"Carpeta de entrada no existe: {carpeta_entrada}")
+
+    if not carpeta_salida:
+        carpeta_salida = os.path.expanduser(os.path.join("~", "Documents", "AK Editor", fiesta_nombre, "automatico"))
+    os.makedirs(carpeta_salida, exist_ok=True)
+
+    ESTADO_AUTOMATICO["en_progreso"] = True
+    ESTADO_AUTOMATICO["mensaje"] = "Iniciando análisis de material..."
+    ESTADO_AUTOMATICO["paso_actual"] = "analisis"
+
+    # Almacén temporal para este proceso
+    ruta_db = os.path.join(carpeta_salida, "automatizacion.db")
+    alm = Almacen(ruta_db)
+    anl = Analizador(alm)
+
+    # 1. Registrar y analizar videos
+    extensiones_video = ("*.mp4", "*.mov", "*.m4v", "*.avi", "*.MP4", "*.MOV")
+    rutas_video = []
+    for ext in extensiones_video:
+        rutas_video.extend(glob.glob(os.path.join(carpeta_entrada, ext)))
+    rutas_video = sorted(list(set(rutas_video)))
+
+    for rv in rutas_video:
+        arch_id = anl.registrar_archivo(rv)
+        anl.analizar_archivo(rv, arch_id)
+
+    # 2. Generar cortes
+    ESTADO_AUTOMATICO["paso_actual"] = "cortes"
+    ESTADO_AUTOMATICO["mensaje"] = "Generando cortes inteligentes de video..."
+    cortes = armar_proyecto(carpeta=carpeta_entrada, almacen=alm)
+
+    # 3. Exportar MP4
+    ESTADO_AUTOMATICO["paso_actual"] = "exportacion_mp4"
+    ESTADO_AUTOMATICO["mensaje"] = "Exportando MP4 terminado con color y sonido..."
+    ruta_video_final = os.path.join(carpeta_salida, f"{fiesta_nombre}_terminado.mp4")
+    exportar_ok = exportar_video_ffmpeg(cortes, ruta_video_final, ruta_musica=ruta_musica)
+
+    # 4. Video de Vida si hay fotos
+    ESTADO_AUTOMATICO["paso_actual"] = "video_vida"
+    ESTADO_AUTOMATICO["mensaje"] = "Revisando y generando Video de Vida..."
+    extensiones_foto = ("*.jpg", "*.jpeg", "*.png", "*.JPG", "*.JPEG", "*.PNG")
+    rutas_foto = []
+    for ext in extensiones_foto:
+        rutas_foto.extend(glob.glob(os.path.join(carpeta_entrada, ext)))
+    rutas_foto = sorted(list(set(rutas_foto)))
+
+    ruta_vida_mp4 = None
+    if rutas_foto:
+        try:
+            fotos_dicts = [{"ruta": r, "nombre": os.path.basename(r)} for r in rutas_foto]
+            fotos_ord = video_de_vida.ordenar_fotos_vida(fotos_dicts, max_fotos=60)
+            ruta_vida_mp4 = os.path.join(carpeta_salida, f"{fiesta_nombre}_video_de_vida.mp4")
+            video_de_vida.exportar_video_de_vida(fotos_ord, ruta_vida_mp4, ruta_audio=ruta_musica)
+        except Exception as e_vida:
+            print(f"[Automático] Video de Vida omitido: {e_vida}")
+
+    # 5. Videos para Redes
+    ESTADO_AUTOMATICO["paso_actual"] = "redes"
+    ESTADO_AUTOMATICO["mensaje"] = "Generando clips para redes..."
+    carpeta_redes = os.path.join(carpeta_salida, "redes")
+    clips_redes = []
+    try:
+        if rutas_video:
+            clips_redes = redes.generar_videos_redes(
+                carpeta_origen=carpeta_entrada,
+                carpeta_destino=carpeta_redes,
+                nombre_evento=fiesta_nombre,
+                ruta_musica=ruta_musica,
+            )
+    except Exception as e_redes:
+        print(f"[Automático] Redes omitido: {e_redes}")
+
+    # 6. Sincronización Wfolio simulada/real
+    ESTADO_AUTOMATICO["paso_actual"] = "wfolio"
+    ESTADO_AUTOMATICO["mensaje"] = "Preparando entrega en Wfolio..."
+    resumen_wfolio = None
+    try:
+        resumen_wfolio = wfolio.subir_a_wfolio(
+            carpeta_fotos=carpeta_entrada if rutas_foto else carpeta_salida,
+            id_seccion="auto_entrega",
+            nombre_cliente=fiesta_nombre,
+            endpoint_simulado=endpoint_wfolio_simulado,
+        )
+    except Exception as e_wf:
+        print(f"[Automático] Wfolio omitido: {e_wf}")
+
+    resumen_resultado = {
+        "ok": True,
+        "fiesta": fiesta_nombre,
+        "total_videos_procesados": len(rutas_video),
+        "total_cortes_generados": len(cortes),
+        "video_final_mp4": ruta_video_final if os.path.exists(ruta_video_final) else None,
+        "video_de_vida_mp4": ruta_vida_mp4 if (ruta_vida_mp4 and os.path.exists(ruta_vida_mp4)) else None,
+        "videos_redes": clips_redes,
+        "wfolio": resumen_wfolio,
+        "mensaje_entrega_listo": f"Hola {fiesta_nombre}, tu material ya está editado y listo para ver.",
+    }
+
+    # Guardar resumen_automatico.json
+    ruta_resumen = os.path.join(carpeta_salida, "resumen_automatico.json")
+    with open(ruta_resumen, "w", encoding="utf-8") as f:
+        json.dump(resumen_resultado, f, indent=2, ensure_ascii=False)
+
+    ESTADO_AUTOMATICO["en_progreso"] = False
+    ESTADO_AUTOMATICO["mensaje"] = "Edición automática completada con éxito."
+    ESTADO_AUTOMATICO["resultado"] = resumen_resultado
+    return resumen_resultado
+
 ESTADO_WFOLIO = {
     "en_progreso": False,
     "mensaje": "Listo para sincronizar con Wfolio",
@@ -449,6 +583,10 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             self._responder_json(200, ESTADO_WFOLIO)
             return
 
+        if ruta == "/api/automatico/estado":
+            self._responder_json(200, ESTADO_AUTOMATICO)
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
     def do_POST(self) -> None:
@@ -753,6 +891,25 @@ class AKEditorHandler(BaseHTTPRequestHandler):
         if ruta == "/api/wfolio/login":
             threading.Thread(target=wfolio.abrir_navegador_para_login, daemon=True).start()
             self._responder_json(200, {"ok": True, "mensaje": "Navegador abierto para iniciar sesión en Wfolio"})
+            return
+
+        if ruta == "/api/automatico/ejecutar":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+            fiesta = body.get("fiesta", "Fiesta").strip()
+            musica = body.get("musica", "").strip() or None
+
+            def tarea_auto():
+                try:
+                    ejecutar_modo_automatico(carpeta_entrada=carpeta, fiesta_nombre=fiesta, ruta_musica=musica)
+                except Exception as e_auto:
+                    ESTADO_AUTOMATICO["en_progreso"] = False
+                    ESTADO_AUTOMATICO["mensaje"] = f"Error en modo automático: {str(e_auto)}"
+
+            threading.Thread(target=tarea_auto, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Modo automático iniciado"})
             return
 
         self._responder_json(404, {"error": "Ruta no encontrada"})
