@@ -110,6 +110,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   123: 'Forma esperada contra forma guardada: src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts.',
   125: 'IA que cae al respaldo sin avisar: prueba la-ia-que-cae-al-respaldo-avisa (orden 291), con la anotación de raíz en genkit.',
   126: 'Lo que incluye un paquete sale de los datos: prueba sofia-no-inventa-los-paquetes (orden 291).',
+  129: 'Pruebas contra la base de verdad: lo exige src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts con docs/ida-y-vuelta-pendientes.json.',
   127: 'Bajas que no llegan a la base: raíz en firebase-sync, pruebas borrar-el-ultimo-queda-borrado y sacar-un-dato-lo-saca-de-la-base (orden 292).',
 };
 

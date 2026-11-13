@@ -1646,3 +1646,11 @@ de lista vacía se ignora salvo una lista de archivos), y quitar el menú de una
 Prueba funcional del auditor, 12/11/2026. `dietaryRestriction` pasaba a "Ninguna" y `isCeliac` seguía en `true` por un
 `|| inv.isCeliac`: la cocina seguía contando un celíaco. Se buscan los pares que repiten un dato (un booleano y un texto, un
 id y un nombre) y se mira que cada cambio recalcule los dos desde el mismo valor nuevo.
+
+### 129. La prueba de una acción que guarda, ¿pasa por la base de verdad y vuelve a leer, o usa una base de mentira que se porta mejor?
+
+Prueba funcional del auditor, 12/11/2026, y pedido del dueño del 13/11: once acciones decían "listo" sin haber guardado.
+Las pruebas daban verde porque la base de mentira guarda listas vacías y campos sin valor (la real los ignora) o
+reemplazaban la pieza donde estaba la falla (la reversión de precios). Toda acción que guarda plata o comida, o que borra,
+tiene su prueba en `tests/firebase/` contra el emulador, que vuelve a leer y hace la ida y vuelta. Lo exige
+`lo-que-guarda-se-prueba-contra-la-base.test.ts`; lo que falta está en `docs/ida-y-vuelta-pendientes.json` y sólo se achica.

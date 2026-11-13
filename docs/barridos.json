@@ -512,6 +512,10 @@
     "128": {
       "fecha": "2026-11-12",
       "resultado": "Buscado el patrón \"|| valorViejo\" en pares de campos: isCeliac en invitados.actions.ts (dos lugares) → orden 292 bloque 5. Los demás pares (clienteId/clienteNombre) se recalculan juntos."
+    },
+    "129": {
+      "fecha": "2026-11-13",
+      "resultado": "Recorridas por el control todas las acciones de src/app/actions: 108 guardan plata, comida o borran sin prueba contra la base → docs/ida-y-vuelta-pendientes.json y orden 293 (primero las once del auditor, después la plata)."
     }
   },
   "hallazgos": {
@@ -810,6 +814,10 @@
     "orden-292": {
       "fecha": "2026-11-12",
       "resultado": "Prueba funcional aislada del auditor: precio revertido negativo y -200% (arreglado por Claude), bajas que no llegan a la base y campos undefined (raíz en firebase-sync), CRM con etapas propias, reinicio de presupuestos con prospecto colgado, celiaquía residual, buzón con archivos falsos, kiosco que pide sesión, Video de Vida sin música."
+    },
+    "orden-293": {
+      "fecha": "2026-11-13",
+      "resultado": "Método nuevo pedido por el dueño: pruebas de ida y vuelta contra el emulador. Barrido automático en lo-que-guarda-se-prueba-contra-la-base.test.ts: 108 pendientes."
     }
   }
 }

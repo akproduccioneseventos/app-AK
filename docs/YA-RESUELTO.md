@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - Lo que guarda plata, comida o borra se prueba contra la base de verdad
+
+- **Por qué:** la prueba funcional del auditor encontró once acciones que decían "listo" sin haber guardado; las pruebas de
+  Jest daban verde con una base de mentira que se porta mejor que la real. Pedido del dueño: un método para que no pase.
+- **Cómo quedó:** `lo-que-guarda-se-prueba-contra-la-base.test.ts` recorre todas las acciones del servidor; las que guardan
+  plata o comida, o borran, tienen que tener su prueba en `tests/firebase/` (emulador, vuelve a leer, ida y vuelta). Las 108
+  que hoy no la tienen están en `docs/ida-y-vuelta-pendientes.json`, que sólo se achica. Comprobado en rojo sacando una de la
+  lista. Las pruebas las escribe Gemini (orden 293).
+
+```comprobar
+prueba: src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts
+archivo: docs/ida-y-vuelta-pendientes.json
+```
+
 ## 12/11/2026 - Revertir un ajuste de precios dejaba el catálogo en negativo (prueba funcional del auditor)
 
 - **Qué pasaba:** la cuenta del porcentaje inverso multiplicaba de más por 100: revertir un +10% aplicaba -909% y un
