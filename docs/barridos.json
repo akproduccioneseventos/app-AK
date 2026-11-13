@@ -524,6 +524,10 @@
     "131": {
       "fecha": "2026-11-13",
       "resultado": "De los archivos con registrarConsumoIA, sólo multiagent/message/route.ts y extract-receipt-data.ts no miran el tope antes → orden 294 bloque 1."
+    },
+    "132": {
+      "fecha": "2026-11-13",
+      "resultado": "Acciones públicas con fecha: el guardado del presupuesto público (arreglado por Claude en public-simulator-persistence.ts, cubre también al asistente comercial), el progreso del prospecto y el calendario de los simuladores → orden 295 bloque 1."
     }
   },
   "hallazgos": {
@@ -830,6 +834,10 @@
     "orden-294": {
       "fecha": "2026-11-13",
       "resultado": "Ronda de interfaz en vivo del auditor: /entrar a una página inexistente (y el portal del cliente por teléfono, encontrado por el control nuevo), y el asistente del equipo sin freno de gasto antes de llamar a la IA."
+    },
+    "orden-295": {
+      "fecha": "2026-11-13",
+      "resultado": "Informe de resultados y pendientes del auditor: L (fecha pasada en el simulador, servidor arreglado por Claude; calendario y prospecto en la orden), K ya publicado, A-J en órdenes 292-294, y la salud de Google Workspace con dos nombres para dos cosas."
     }
   }
 }
