@@ -75,6 +75,13 @@ const FORMAS = [
     comoSeArregla: 'Armar AAAA-MM-DDTHH:mm con la hora de Uruguay (src/lib/fechas/).',
   },
   {
+    pregunta: 135,
+    nombre: 'Una nota interna a la vista del cliente',
+    porque: 'La página del Club Uruguay mostraba "Condición comercial del dueño" y "Foto cargada desde el módulo maestro de salones" (revisión comercial, 13/11/2026).',
+    buscar: /m[oó]dulo maestro de salones|Condici[oó]n comercial del due[nñ]o|cuentas regresivas inventadas|no habilitaci[oó]n legal certificada/g,
+    comoSeArregla: 'Escribir lo que le sirve al cliente; lo que es para el equipo va en un comentario o en el panel.',
+  },
+  {
     pregunta: 121,
     nombre: 'El texto para mandar afuera con marcadores sin completar',
     porque: 'El generador de marketing dejaba salir "[NOMBRE]" y "[X] años" en textos para redes (auditor, 12/11/2026).',
