@@ -870,6 +870,10 @@
     "orden-299": {
       "fecha": "2026-11-13",
       "resultado": "El auditor no podía probar como cliente (portal sin fiesta habilitada y sin poder crear una) ni como prospecto (el simulador se frenaba al guardar). Invitado ya anda. Fiesta de muestra creada por el sistema, excluida de plata y ventas."
+    },
+    "orden-300": {
+      "fecha": "2026-11-13",
+      "resultado": "Revisión de escritura de toda la app: nombres de fiestas con caracteres rotos guardados, \"Otro de\", lenguaje interno en post-fiesta y LED, RUT de ejemplo y marcadores del contrato, lenguaje de desarrollo y errores. Promesas y logos de respaldo quedan para el dueño."
     }
   }
 }

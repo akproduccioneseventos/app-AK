@@ -8,9 +8,9 @@
   Seguí en tu rama `gemini/ordenes-282-283-entrega-completa`, fusioná `origin/claude/app-debug-stabilize-m70e6z`
   (trae los arreglos de Claude sobre tu entrega) y `origin/main`.
 - **Qué hacer, en esa misma propuesta (la 1393):** arreglar la ficha, y las órdenes **297** (textos de la web), **298**
-  (la edición sola, con los bloques 7 a 9 de pruebas devueltas) y **299** (el auditor prueba cada papel).
+  (la edición sola, con los bloques 7 a 9 de pruebas devueltas) **299** (el auditor prueba cada papel) y **300** (textos de la app por dentro).
 - **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 107.
-- **Cuando termines:** subí a tu rama; la propuesta 1393 ya está abierta. Cambiale el título a "Gemini: órdenes 284 a 299".
+- **Cuando termines:** subí a tu rama; la propuesta 1393 ya está abierta. Cambiale el título a "Gemini: órdenes 284 a 300".
 - **Cuando aparezca una orden nueva acá**, arrancá una rama nueva desde `origin/main` actualizado.
 - Lo que Claude corrigió de tu entrega, para no repetirlo: el guardado de a un registro tiene que **borrar en la base**
   los campos que el cambio saca del registro, no sólo los que pone en `undefined`. Está en `docs/YA-RESUELTO.md` (13/11).
