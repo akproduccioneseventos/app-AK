@@ -34,12 +34,7 @@ import {
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 import { scheduleCrmMeetingInternal } from '@/lib/crm/crm-meeting';
-import { AsyncMutex } from '@/lib/mutex';
-
-const crmMutex = new AsyncMutex();
-export async function conTurnoCrm<T>(tarea: () => Promise<T>): Promise<T> {
-  return crmMutex.runExclusive(tarea);
-}
+import { crmMutex } from '@/lib/crm/turno-crm';
 const LEADS_FILE = 'crm-leads.json';
 const CRM_LEADS_COLLECTION = 'prospectos';
 const STAGES_FILE = 'crm-stages.json';

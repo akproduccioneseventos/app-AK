@@ -9,7 +9,8 @@ import { readDataConDetalle, readData, writeData, mutateDataItem } from '@/lib/d
 // esperando un turno que nunca llega y la pantalla queda colgada para siempre.
 // Habia un import de `saveInvoice` sin usar, listo para caer en la trampa.
 import type { Invoice, InvoiceItem } from '@/types/invoice';
-import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead, conTurnoCrm } from './crm';
+import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
+import { conTurnoCrm } from '@/lib/crm/turno-crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
