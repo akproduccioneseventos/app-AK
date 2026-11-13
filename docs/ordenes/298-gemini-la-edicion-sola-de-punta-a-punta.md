@@ -66,6 +66,15 @@ movimiento —, armá una nota por tramo y que `reglas.py` elija los tramos de n
 reteniendo sólo `repairVerifiedBudgetDates` (manda `[]`), **corrida sola en verde** con `npm run test:e2e --` antes de
 entregar, y comprobá que el texto buscado aparece una sola vez (también está en el título de `app-shell.tsx` ~39).
 
+## Bloque 8 — Devueltas de la entrega 1393: dos pruebas que no pasaban
+
+Se sacaron de la entrega porque fallaban en la verificación; rehacelas **corridas solas en verde** antes de entregar:
+- `tests/e2e/en-vivo-se-lee-en-el-celular.spec.ts` (orden 285, bloques 8 y 9): a 390 px, en `/fiestas/nueva/en-vivo`,
+  **las pestañas se superponen** de verdad (la prueba lo detectó). Arreglá la pantalla, no la prueba.
+- `tests/e2e/la-presentacion-lleva-las-entradas.spec.ts`: elegir una entrada en `/presentacion-led` y "generar
+  presupuesto manual" no llegó a la pantalla de crear presupuesto en 4 minutos. Mirá si la pantalla lleva la entrada; si
+  anda, la prueba espera algo que no pasa.
+
 ## Pruebas
 
 - `src/__tests__/el-video-resumen-lleva-musica.test.ts`: con `musicaUrl`, el grabador recibe una pista de audio.
@@ -89,4 +98,6 @@ prueba: herramientas/ak-editor/pruebas/test_vida_elige_las_mejores.py
 prueba: herramientas/ak-editor/pruebas/test_cortes_editados.py
 prueba: herramientas/ak-editor/pruebas/test_modo_automatico.py
 prueba: tests/e2e/presupuestos-abre-rapido.spec.ts
+prueba: tests/e2e/en-vivo-se-lee-en-el-celular.spec.ts
+prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
 ```
