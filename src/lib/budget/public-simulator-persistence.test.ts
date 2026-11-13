@@ -85,6 +85,18 @@ afterAll(() => {
 });
 
 describe('public simulator persistence positive-total guard', () => {
+  it('no presupuesta una fiesta en el pasado ni crea el prospecto (auditor, 12/11/2026)', async () => {
+    priced(84838);
+    await expect(persistPublicSimulatorBudget({ ...submission, eventoFecha: '2020-10-26' }, {
+      source: 'simulator_assistant',
+      eventoTipo: 'Cumpleaños',
+      estadoInicial: 'Borrador',
+      requirePositiveTotal: true,
+    })).rejects.toThrow('ya pasó');
+    expect(upsertLead).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+  });
+
   it('rejects zero authoritative pricing before CRM upsert or any budget write', async () => {
     priced(0);
     await expect(persistPublicSimulatorBudget(submission, {

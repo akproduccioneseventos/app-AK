@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { hoyEnUruguay } from '@/lib/utils';
 import { createHash } from 'crypto';
 import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget } from '@/types/armado-rapido';
@@ -81,6 +82,10 @@ function sanitizeDate(value?: string): string {
   if (!value) throw new Error('La fecha del evento es obligatoria.');
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) throw new Error('La fecha del evento no es valida.');
+  // Una fiesta en el pasado no se presupuesta (auditor, 12/11/2026: el simulador guardaba el 26/10 como prospecto y
+  // presupuesto). El día se lee del texto si viene "AAAA-MM-DD"; si no, en hora de Uruguay.
+  const dia = /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : hoyEnUruguay(date);
+  if (dia < hoyEnUruguay()) throw new Error('La fecha del evento ya pasó. Elegí una fecha desde hoy en adelante.');
   return date.toISOString();
 }
 
