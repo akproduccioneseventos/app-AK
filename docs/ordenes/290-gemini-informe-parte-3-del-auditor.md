@@ -76,7 +76,6 @@ no-usa: await withTimeout(repairVerifiedBudgetDates() en src/app/(app)/presupues
 usa: buildWfolioDelivery en src/app/(app)/fiestas/[id]/centro/page.tsx
 no-usa: wfolio y Google Drive en src/app/post-fiesta/[fiestaId]/page.tsx
 no-usa: AK esta preparando esta seccion en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
-prueba: tests/e2e/presupuestos-abre-rapido.spec.ts
 prueba: src/__tests__/la-invitacion-no-muestra-secciones-vacias.test.tsx
 prueba: src/__tests__/la-entrega-del-album-se-usa.test.ts
 ```

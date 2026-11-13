@@ -540,6 +540,10 @@
     "135": {
       "fecha": "2026-11-13",
       "resultado": "Notas internas en textos visibles: Club Uruguay (etiqueta del 50%, frase del simulador, habilitación, \"Por confirmar\") y la descripción \"módulo maestro\" en Club Uruguay y la portada → orden 296. El resto de las páginas públicas, sin casos."
+    },
+    "136": {
+      "fecha": "2026-11-13",
+      "resultado": "Testimonios escritos a mano en src/data/event-catalogs (6 archivos) → orden 297. Las opiniones reales están en src/data/testimonials.json."
     }
   },
   "hallazgos": {
@@ -854,6 +858,14 @@
     "orden-296": {
       "fecha": "2026-11-13",
       "resultado": "Revisión comercial del Club Uruguay: notas internas (bloque 1), aniversario en pasado (bloque 2) y la pestaña con AK Producciones dos veces en 10 páginas (bloque 3). Lo demás de la revisión son propuestas para el dueño."
+    },
+    "orden-297": {
+      "fecha": "2026-11-13",
+      "resultado": "Revisión de escritura de la web: testimonios inventados en 6 catálogos, \"Elite\", notas internas (CRM, campaña, oficina), errores y tuteo, demo de IA con la misma foto filtrada. Cifras, condiciones de pago, paquetes y páginas duplicadas quedan para el dueño."
+    },
+    "orden-298": {
+      "fecha": "2026-11-13",
+      "resultado": "Edición sola: el video resumen prometía cortes al ritmo y salía mudo; ajustar_tiempos_a_golpes escrita sin uso; cortes del AK Editor sin cámara lenta, boomerang, color ni música. Inventario completo de video y fotos verificado."
     }
   }
 }

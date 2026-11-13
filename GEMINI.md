@@ -4,8 +4,11 @@
 
 **Actualizado el 13/11/2026 (tarde).** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Hoy no hay órdenes nuevas.** Tu entrega de las órdenes 284 a 296 quedó revisada y publicada. La rama
-  `gemini/ordenes-282-283-entrega-completa` ya está adentro de `main`: **no sigas en ella**.
+- **Qué hacer:** las órdenes **297** (textos de la web) y **298** (la edición sola de punta a punta) de `docs/ordenes/`, en **una sola propuesta**
+  desde una **rama nueva** sobre `origin/main` actualizado. Tu entrega 284 a 296 ya está adentro de `main`: no sigas en
+  `gemini/ordenes-282-283-entrega-completa`.
+- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 107.
+- **Cuando termines:** abrí la propuesta contra `main` con el título "Gemini: órdenes 297 y 298".
 - **Cuando aparezca una orden nueva acá**, arrancá una rama nueva desde `origin/main` actualizado.
 - Lo que Claude corrigió de tu entrega, para no repetirlo: el guardado de a un registro tiene que **borrar en la base**
   los campos que el cambio saca del registro, no sólo los que pone en `undefined`. Está en `docs/YA-RESUELTO.md` (13/11).
