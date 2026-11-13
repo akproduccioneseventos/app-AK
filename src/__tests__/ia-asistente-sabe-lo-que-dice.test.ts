@@ -40,6 +40,7 @@ jest.mock('@/ai/genkit', () => ({
     return iaResponde(args);
   }),
   getGeminiModelForAgent: () => 'googleai/modelo-de-prueba',
+  getEffectiveGeminiModelForAgent: jest.fn(async () => 'googleai/modelo-de-prueba'),
   getGeminiGenerationConfigForAgent: () => ({ maxOutputTokens: 4096 }),
 }));
 jest.mock('@/ai/flows/marketing-agent-flow', () => ({ chatWithMarketingAgent: jest.fn() }));

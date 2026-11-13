@@ -109,8 +109,13 @@ function extractVideoSource(url: string): VideoSource | null {
 }
 
 function sanitizeHttpUrl(url: string): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return trimmed;
+  }
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(trimmed);
     if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
       return parsed.href;
     }
@@ -876,9 +881,9 @@ export default function GaleriaAdminPage() {
                         </AccordionItem>
                       );
                     })}
-                    <AccordionItem value="sin-clasificar">
+                    <AccordionItem value="general">
                       <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
-                        <span>Sin clasificar <span className="text-slate-400">({fotosSinTipoFiesta.length} fotos)</span></span>
+                        <span>General <span className="text-slate-400">({fotosSinTipoFiesta.length} fotos)</span></span>
                       </AccordionTrigger>
                       <AccordionContent>
                         {fotosSinTipoFiesta.length > 0 ? (

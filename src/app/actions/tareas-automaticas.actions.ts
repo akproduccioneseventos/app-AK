@@ -7,12 +7,13 @@ import {
   estadoDelDespertador,
   type EstadoDeTarea,
   type EstadoDespertador,
+  marcarCorrida,
+  marcarFallo,
 } from '@/lib/automatico/tareas-automaticas';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
-import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { todasSalieron } from '@/lib/automatico/al-entrar-a-la-app';
 
 export async function getEstadoTareasAutomaticas(): Promise<EstadoDeTarea[]> {
@@ -143,6 +144,8 @@ export async function ejecutarTareaManual(id: string): Promise<{ success: boolea
 
     return { success: false, error: 'Tarea no reconocida.' };
   } catch (err: any) {
-    return { success: false, error: err.message || 'Error al ejecutar la tarea.' };
+    const errorMsg = err.message || 'Error al ejecutar la tarea.';
+    await marcarFallo(id, errorMsg);
+    return { success: false, error: errorMsg };
   }
 }

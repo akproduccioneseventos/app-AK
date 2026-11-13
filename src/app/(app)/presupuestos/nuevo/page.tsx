@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2, CalendarDays, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getPresupuestos, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
+import { getPresupuestos, getPresupuestosConTotal, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -65,42 +65,14 @@ function PresupuestoDashboardContent() {
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
         try {
-            const repairResult = await withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas');
-            if (!repairResult.success) {
-                toast({
-                    title: 'No se pudieron corregir las fechas importadas',
-                    description: repairResult.error,
-                    variant: 'destructive',
-                });
-            }
+            const result = await withTimeout(
+                getPresupuestosConTotal(showArchived),
+                12000,
+                'La lista de presupuestos'
+            );
 
-            const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
-            const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
-            const [visibleResult, countResult] = await Promise.allSettled([visibleRequest, countRequest]);
-
-            if (visibleResult.status === 'fulfilled') {
-                const guardados = Array.isArray(visibleResult.value) ? visibleResult.value : [];
-                setPresupuestos(guardados);
-            } else {
-                setPresupuestos([]);
-                toast({
-                    title: 'No se pudo cargar la lista',
-                    description: 'La base demoro o rechazo la consulta. La pantalla queda disponible para volver a intentar.',
-                    variant: 'destructive',
-                });
-            }
-
-            if (countResult.status === 'fulfilled') {
-                setTotalPresupuestosCount(Array.isArray(countResult.value) ? countResult.value.length : 0);
-            } else if (visibleResult.status === 'fulfilled') {
-                setTotalPresupuestosCount(Array.isArray(visibleResult.value) ? visibleResult.value.length : 0);
-                toast({
-                    title: 'Conteo parcial',
-                    description: 'Se cargo la lista, pero no se pudo confirmar el total de archivados.',
-                });
-            } else {
-                setTotalPresupuestosCount(0);
-            }
+            setPresupuestos(Array.isArray(result.presupuestos) ? result.presupuestos : []);
+            setTotalPresupuestosCount(typeof result.totalCount === 'number' ? result.totalCount : 0);
         } catch (error) {
             setPresupuestos([]);
             setTotalPresupuestosCount(0);
@@ -115,6 +87,31 @@ function PresupuestoDashboardContent() {
     }, [toast, showArchived]);
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
+
+    // La reparación de fechas corre en segundo plano sin bloquear la apertura inicial.
+    // Sólo si se detectó algún cambio, se refresca la lista.
+    const repairDatesRanRef = useRef(false);
+    useEffect(() => {
+        if (repairDatesRanRef.current) return;
+        repairDatesRanRef.current = true;
+
+        repairVerifiedBudgetDates()
+            .then((res) => {
+                if (!res.success && res.error) {
+                    toast({
+                        title: 'No se pudieron corregir las fechas importadas',
+                        description: res.error,
+                        variant: 'destructive',
+                    });
+                } else if (res.success && res.changedCount > 0) {
+                    fetchPresupuestos();
+                }
+            // no pasa nada si falla: la corrección de fechas corre en segundo plano y la lista ya se mostró.
+            })
+            .catch(() => {
+                // Silencioso en segundo plano
+            });
+    }, [fetchPresupuestos, toast]);
 
     const handleBudgetMutation = useCallback(async (id: string, action: 'archive' | 'delete') => {
         setPresupuestos(prev => prev.filter(p => p.id !== id || (showArchived && action === 'archive')));

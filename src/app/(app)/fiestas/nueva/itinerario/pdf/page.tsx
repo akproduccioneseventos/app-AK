@@ -12,17 +12,9 @@ import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { useSearchParams } from 'next/navigation';
 import { defaultPrograma } from '@/lib/fiesta-defaults';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) {
-    return "Fecha inválida";
-  }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 const companyName = "AK Producciones";
 

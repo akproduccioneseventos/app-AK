@@ -135,12 +135,12 @@ export default function WhatsAppSettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <MessageCircle className="w-8 h-8 text-green-500" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Integración WhatsApp</h1>
+          <MessageCircle className="w-8 h-8 text-green-500 shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Integración WhatsApp</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm" disabled={isSaving}><Link href="/settings/whatsapp-templates">
               Plantillas de mensajes
             </Link></Button>
@@ -186,7 +186,7 @@ export default function WhatsAppSettingsPage() {
             </CardTitle>
             <CardDescription>Estado operativo actual de tu módulo de WhatsApp.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="rounded-md border p-3 bg-white">
               <p className="text-xs text-muted-foreground">Estado</p>
               <p className="text-sm font-semibold">{settings.enabled ? 'Activo' : 'Inactivo'}</p>
@@ -410,14 +410,14 @@ export default function WhatsAppSettingsPage() {
             ) : (
               automationRules.map(rule => (
                 <div key={rule.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
                     <Input
                       value={rule.name}
                       onChange={e => updateRule(rule.id, 'name', e.target.value)}
-                      className="h-8 text-sm font-medium max-w-xs"
+                      className="h-8 text-sm font-medium w-full sm:max-w-xs"
                       disabled={isSaving}
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Switch
                         checked={rule.enabled}
                         onCheckedChange={val => updateRule(rule.id, 'enabled', val)}
@@ -438,7 +438,7 @@ export default function WhatsAppSettingsPage() {
                       </Button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                     <div className="space-y-1">
                       <Label className="text-xs">Disparador</Label>
                       <Select

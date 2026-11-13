@@ -25,11 +25,15 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function CashFlowProjectionChart({ data }: Props) {
+  const rangoTexto = data.length > 0 ? `Próximos 6 meses (de ${data[0]?.month} a ${data[data.length - 1]?.month})` : '';
+
   return (
     <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
       <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight text-slate-800">Proyección de Flujo de Caja</CardTitle>
-        <CardDescription className="text-slate-400 font-medium">Comparativa mensual de ingresos por cobrar vs. egresos operativos.</CardDescription>
+        <CardDescription className="text-slate-400 font-medium">
+          {rangoTexto ? `${rangoTexto} — Comparativa mensual de ingresos por cobrar vs. egresos operativos.` : 'Comparativa mensual de ingresos por cobrar vs. egresos operativos.'}
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <ChartContainer config={chartConfig} className="h-[350px] w-full">

@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const REFRESH_INTERVAL_MS = 3000;
 
@@ -222,7 +223,7 @@ export default function PrintStationPage() {
                     </div>
                     {eventDate && (
                       <div className="text-[10px] text-slate-500">
-                        {typeof eventDate === 'string' ? eventDate : new Date(eventDate).toLocaleDateString()}
+                        {formatearFechaEvento(String(eventDate))}
                       </div>
                     )}
                   </div>

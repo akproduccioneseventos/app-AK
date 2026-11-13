@@ -10,6 +10,7 @@ import { readDataConDetalle, readData, writeData, mutateDataItem } from '@/lib/d
 // Habia un import de `saveInvoice` sin usar, listo para caer en la trampa.
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
+import { conTurnoCrm } from '@/lib/crm/turno-crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
@@ -108,6 +109,11 @@ async function verifySessionConPermiso(...permisos: Array<(typeof PERMISOS)[keyo
   return sesion;
 }
 
+export type PresupuestosConTotal = {
+  presupuestos: Presupuesto[];
+  totalCount: number;
+};
+
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
 export async function getPresupuestos(includeArchived = false): Promise<Presupuesto[]> {
   const auth = await verifySession();
@@ -119,6 +125,22 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
   if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. Probá de nuevo en un momento.');
   const visibles = includeArchived ? all : all.filter(p => !p.archived);
   return nivel === 'completo' ? visibles : visibles.map(sinCobros);
+}
+
+/** Devuelve los presupuestos visibles junto con el conteo total para no llamar dos veces desde la pantalla. */
+export async function getPresupuestosConTotal(includeArchived = false): Promise<PresupuestosConTotal> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+  const nivel = nivelDePresupuestos(auth.user);
+  if (!nivel) throw new Error('Tu perfil no tiene acceso a los presupuestos.');
+  const { valor: all, huboFalla } = await readDataConDetalle<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. Probá de nuevo en un momento.');
+  const visibles = includeArchived ? all : all.filter(p => !p.archived);
+  const data = nivel === 'completo' ? visibles : visibles.map(sinCobros);
+  return {
+    presupuestos: data,
+    totalCount: all.length,
+  };
 }
 
 export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; changedCount: number; error?: string }> {
@@ -774,8 +796,8 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
         const allLeads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
         const idx = allLeads.findIndex(l => l.id === target.leadId);
         if (idx !== -1) {
-          const { presupuestoId: _pid, presupuestoEstado: _pe, ...rest } = allLeads[idx];
-          allLeads[idx] = rest;
+          // En `undefined` y no sacados: la base guarda las listas con merge y un campo que no viene sigue vivo.
+          allLeads[idx] = { ...allLeads[idx], presupuestoId: undefined, presupuestoEstado: undefined };
           await writeData('crm-leads.json', allLeads);
         }
       } catch (e) {
@@ -1516,29 +1538,50 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
         // ignore local fallback write errors in restricted environments
       }
 
-      // Clean stale CRM references to deleted presupuestos.
-      if (deletedIds.size > 0) {
-        type CrmLeadRaw = { presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+      // Clean stale CRM references to deleted presupuestos within CRM turn.
+      await conTurnoCrm(async () => {
+        type CrmLeadRaw = {
+          presupuestoId?: string;
+          presupuestoEstado?: string;
+          budgetSource?: unknown;
+          lastBudgetAt?: unknown;
+          presupuestoVecesVisto?: unknown;
+          presupuestoVistoAt?: unknown;
+          [key: string]: unknown;
+        };
         const leads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+        let huboCambios = false;
         const cleanedLeads = leads.map((lead) => {
-          if (lead.presupuestoId && deletedIds.has(lead.presupuestoId)) {
-            const { presupuestoId: _pid, presupuestoEstado: _pestado, ...rest } = lead;
-            return rest;
+          if (lead.presupuestoId && (deletedIds.size === 0 || deletedIds.has(lead.presupuestoId))) {
+            huboCambios = true;
+            // En `undefined` (no sacados del objeto): la base guarda las listas con merge y un
+            // campo que no viene se queda vivo; en `undefined` se borra de verdad.
+            return {
+              ...lead,
+              presupuestoId: undefined,
+              presupuestoEstado: undefined,
+              budgetSource: undefined,
+              lastBudgetAt: undefined,
+              presupuestoVecesVisto: undefined,
+              presupuestoVistoAt: undefined,
+            };
           }
           return lead;
         });
-        await writeData('crm-leads.json', cleanedLeads);
+        if (huboCambios) {
+          await writeData('crm-leads.json', cleanedLeads);
+        }
+      });
 
-        // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
-        const allFiestas = await getAllFiestas();
-        const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
-        for (const fiesta of fiestasToUnlink) {
-          // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
-          // sigue apuntando a un presupuesto que ya no esta.
-          const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
-          if (!desenganchado.success) {
-            console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
-          }
+      // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
+      const allFiestas = await getAllFiestas();
+      const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && (deletedIds.size === 0 || deletedIds.has(fiesta.presupuestoId)));
+      for (const fiesta of fiestasToUnlink) {
+        // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
+        // sigue apuntando a un presupuesto que ya no esta.
+        const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
+        if (!desenganchado.success) {
+          console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
         }
       }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -174,7 +175,7 @@ export default function EventoHubPage() {
     <main id="hub-inicio" className="ak-public-page min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-0" style={pageStyle}>
       <section className="ak-public-hero relative flex min-h-[58svh] items-end overflow-hidden bg-slate-950 text-white">
         {canUseNextImage(coverImage) ? (
-          <Image src={coverImage} alt={eventName} fill priority sizes="100vw" className="object-cover" />
+          <ImagenConRespaldo src={coverImage} alt={eventName} fill priority sizes="100vw" className="object-cover" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- Event media may use an external host.
           <img src={coverImage} alt={eventName} className="absolute inset-0 h-full w-full object-cover" />

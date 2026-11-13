@@ -1248,7 +1248,8 @@ frenó) y les dije al dueño y a mí mismo que estaban subidas. Casi pierdo tres
 **Qué era lo cierto:** Gemini lee solo `GEMINI.md` al arrancar. El dueño no tiene que hacer de mensajero.
 
 **Qué se hace distinto:** las instrucciones para Gemini van en la sección "TU TRABAJO DE HOY" de `GEMINI.md`, se
-fusionan a la principal en la misma tanda, y al dueño no se le pide nada.
+fusionan a la principal en la misma tanda, y al dueño no se le pide nada. **Y lo confirmó el mismo día:** *"todo y siempre
+escribile a Gemini directamente"* — también las mejoras que él aprueba: van derecho a una orden y a `GEMINI.md`.
 
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 

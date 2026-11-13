@@ -56,12 +56,12 @@ async function montar() {
   };
 }
 
-describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)', () => {
+describe('El menú muestra sólo lo que se puede usar según perfil (Orden 284)', () => {
   beforeEach(() => {
     getMisPermisosMock.mockReset();
   });
 
-  it('secretaria: ve Plata y Clientes, pero no ve Empleados ni Ajustes Generales', async () => {
+  it('secretaria: ve Fiestas, Vender, Plata, Recursos y Más, pero no ve Ajustes', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.secretaria,
     });
@@ -72,17 +72,18 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
-    expect(text).toContain('Panel Contable');
-    expect(text).toContain('Facturas');
-    expect(text).not.toContain('Empleados');
-    expect(text).not.toContain('Ajustes Generales');
-    expect(text).not.toContain('Métricas del Negocio');
+    expect(text).toContain('Fiestas');
+    expect(text).toContain('Vender');
+    expect(text).toContain('Plata');
+    expect(text).toContain('Recursos');
+    expect(text).toContain('Más');
+
+    expect(text).not.toContain('Ajustes');
 
     cerrar();
   });
 
-  it('operador: ve Eventos Activos y Calendario, pero nada de plata', async () => {
+  it('operador: ve Inicio, Fiestas y Más, pero nada de Plata ni Vender', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.operador,
     });
@@ -93,20 +94,19 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
-    expect(text).toContain('Calendario');
-    expect(text).toContain('Muro Social');
+    expect(text).toContain('Inicio');
+    expect(text).toContain('Fiestas');
+    expect(text).toContain('Más');
 
-    expect(text).not.toContain('Panel Contable');
-    expect(text).not.toContain('Facturas');
-    expect(text).not.toContain('Prospectos');
-    expect(text).not.toContain('Presupuestos');
-    expect(text).not.toContain('Pagos Rápidos');
+    expect(text).not.toContain('Plata');
+    expect(text).not.toContain('Vender');
+    expect(text).not.toContain('Recursos');
+    expect(text).not.toContain('Ajustes');
 
     cerrar();
   });
 
-  it('dueño: ve todos los módulos habilitados', async () => {
+  it('dueño: ve las 7 casas habilitadas del menú (Orden 284)', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.dueno,
     });
@@ -117,12 +117,14 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 180)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Eventos Activos');
-    expect(text).toContain('Panel Contable');
-    expect(text).toContain('Facturas');
-    expect(text).toContain('Ajustes Generales');
-    expect(text).toContain('Marketing y Redes');
-    expect(text).toContain('Empleados');
+    expect(text).toContain('Inicio');
+    expect(text).toContain('Fiestas');
+    expect(text).toContain('Vender');
+    expect(text).toContain('Plata');
+    expect(text).toContain('Marketing');
+    expect(text).toContain('Recursos');
+    expect(text).toContain('Ajustes');
+    expect(text).toContain('Más');
 
     cerrar();
   });

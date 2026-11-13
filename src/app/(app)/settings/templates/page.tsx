@@ -48,19 +48,19 @@ const settingsCards = [
 export default function TemplatesPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Palette className="w-8 h-8 text-primary"/>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
+          <Palette className="w-8 h-8 text-primary shrink-0 mt-1 sm:mt-0"/>
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">
               Gestión de Plantillas
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Ahorra tiempo personalizando y reutilizando plantillas para tus documentos y procesos.
             </p>
           </div>
         </div>
-         <Button asChild variant="outline"><Link href="/settings">
+         <Button asChild variant="outline" className="w-full sm:w-auto shrink-0"><Link href="/settings">
             <ArrowLeft className="w-4 h-4 mr-2"/>
             Volver a Configuración
           </Link></Button>
@@ -69,12 +69,12 @@ export default function TemplatesPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
+            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3 min-w-0">
+              <div className="p-3 bg-primary/10 rounded-lg shrink-0">
                   <item.icon className="w-7 h-7 text-primary" />
               </div>
-              <div>
-                  <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
+              <div className="min-w-0 flex-1">
+                  <CardTitle className="font-headline text-lg mb-1 break-words">{item.title}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow">

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { checkFirestoreConnection } from '@/lib/firebase/firestore';
+import { readData } from '@/lib/data-service';
 
 const startTime = Date.now();
 
@@ -11,9 +12,18 @@ export async function GET() {
     firebaseOk = false;
   }
 
+  const puedeLeerWorkspace = firebaseOk || process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+  const googleWs = puedeLeerWorkspace
+    ? await readData<any>('google-workspace.json', {}).catch(() => ({}))
+    : {};
   const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   const geminiOk = typeof geminiKey === 'string' && geminiKey.length > 0 && geminiKey !== 'dummy';
-  const googleWorkspaceOk = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  const googleWorkspaceCredencialesDeLaApp = Boolean(
+    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+  );
+  const googleWorkspaceCuentaConectada = Boolean(
+    googleWs?.isConnected || process.env.GOOGLE_WORKSPACE_PRIVATE_KEY,
+  );
   const mailOk = Boolean(
     (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) ||
     (process.env.GMAIL_CLIENT_ID && process.env.GMAIL_CLIENT_SECRET) ||
@@ -36,7 +46,8 @@ export async function GET() {
     services: {
       firebase: firebaseOk,
       gemini: geminiOk,
-      googleWorkspace: googleWorkspaceOk,
+      googleWorkspaceCredencialesDeLaApp,
+      googleWorkspaceCuentaConectada,
       mail: mailOk,
       instagram: instagramOk,
       mercadoPago: mercadoPagoOk,

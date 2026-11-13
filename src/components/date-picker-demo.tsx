@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn, hoyEnUruguay, parseUruguayDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -19,14 +19,28 @@ interface DatePickerDemoProps {
   onDateChange: (date?: Date) => void;
   className?: string;
   disabled?: Date[] | boolean;
+  desdeHoy?: boolean;
 }
 
-export function DatePickerDemo({ selectedDate, onDateChange, className, disabled }: DatePickerDemoProps) {
+export function DatePickerDemo({ selectedDate, onDateChange, className, disabled, desdeHoy }: DatePickerDemoProps) {
   const [date, setDate] = React.useState<Date | undefined>(selectedDate);
 
   React.useEffect(() => {
     setDate(selectedDate);
   }, [selectedDate]);
+
+  const hoyUruguay = React.useMemo(() => {
+    const d = parseUruguayDate(hoyEnUruguay());
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const calendarDisabled = React.useMemo(() => {
+    if (disabled === true) return true;
+    if (!desdeHoy) return disabled;
+    if (Array.isArray(disabled)) return [{ before: hoyUruguay }, ...disabled];
+    return { before: hoyUruguay };
+  }, [disabled, desdeHoy, hoyUruguay]);
 
   const handleSelect = (newDate?: Date) => {
     setDate(newDate);
@@ -56,7 +70,7 @@ export function DatePickerDemo({ selectedDate, onDateChange, className, disabled
           onSelect={handleSelect}
           initialFocus
           locale={es}
-          disabled={disabled}
+          disabled={calendarDisabled}
         />
       </PopoverContent>
     </Popover>

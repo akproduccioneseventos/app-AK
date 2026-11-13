@@ -25,7 +25,10 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
       return { message: 'Fecha del evento no definida.' };
     }
 
-    const dateObj = new Date(targetDate);
+    const match = targetDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const dateObj = match
+      ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0)
+      : new Date(targetDate);
     if (isNaN(dateObj.getTime())) { // Check if date is valid
       return { message: 'Fecha del evento inválida.' };
     }

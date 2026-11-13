@@ -379,7 +379,8 @@
         "src/app/(app)/settings/cierre-operativo-final",
         "src/app/(app)/settings/lanzamiento-cto",
         "src/app/(app)/settings/mapa-tecnologico-ak",
-        "src/app/(app)/settings/page.tsx"
+        "src/app/(app)/settings/page.tsx",
+        "src/app/(app)/mas"
       ],
       "estado": "con-hallazgos",
       "nota": "Auditoría 81: tareas sin sesión (cuotas, invitados, reuniones), invitaciones y avisos repetidos por reintento; arreglados el 9/10. Falta que Codex la vuelva a mirar.",

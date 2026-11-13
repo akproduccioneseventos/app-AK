@@ -1,6 +1,6 @@
 'use server';
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, geminiModel, geminiProModel, getEffectiveGeminiModelForAgent, ejecutarPromptConFallback } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
@@ -14,6 +14,8 @@ import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { detalleDePaquetes } from '@/lib/simulador/detalle-de-paquetes';
+import { anotarFalloIA } from '@/lib/ai/consumo-servidor';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
@@ -195,7 +197,7 @@ Utilizá las siguientes FAQs para responder cualquier duda del usuario:
 // Define prompt with Genkit
 const copilotPrompt = ai.definePrompt({
   name: 'copilotPrompt',
-  model: geminiModel,
+  model: geminiProModel,
   input: { schema: GenkitCopilotInputSchema },
   output: { schema: CopilotOutputSchema },
   system: SYSTEM_PROMPT,
@@ -269,6 +271,8 @@ export async function chatWithBudgetCopilot(
   // FALLBACK: Rule-based static response if API Key is not configured
   if (!apiKey) {
     logger.warn('[copilot] API Key missing. Falling back to rule-based engine.');
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
+    await anotarFalloIA('simulador-copilot', 'API Key missing').catch(() => {});
     return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
   }
 
@@ -316,21 +320,32 @@ export async function chatWithBudgetCopilot(
       return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
     }
 
+    const preguntaPorPaquetes = /paquete|incluye|trae|diferencia/i.test(normalizedInput.message);
+    const detalleTexto = detalleDePaquetes(paquetesCatalog);
+    const promptPersonalidad = preguntaPorPaquetes
+      ? `${copilotConfig.promptPersonalidad}\n\nIMPORTANTE: No enumeres qué incluye cada paquete: el detalle va aparte.`
+      : copilotConfig.promptPersonalidad;
+
     // 2. Call Gemini
-    const { output } = await copilotPrompt({
+    const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    const { output } = await ejecutarPromptConFallback(copilotPrompt, {
       message: normalizedInput.message,
       history: normalizedInput.history,
       currentState: normalizedInput.currentState,
       businessContext,
       currentStateJson,
-      copilotSystemPrompt: copilotConfig.promptPersonalidad,
+      copilotSystemPrompt: promptPersonalidad,
       faqsJson: JSON.stringify(copilotConfig.faqs)
-    } as any);
+    } as any, effectiveModel);
 
     await registrarConsumoIA('copiloto-presupuesto');
 
     if (!output) {
       throw new Error('Gemini no retornó una respuesta válida.');
+    }
+
+    if (preguntaPorPaquetes && detalleTexto && !output.response.includes(detalleTexto)) {
+      output.response = `${output.response.trim()}\n\n${detalleTexto}`;
     }
 
     // 3. Process check_availability custom tool logic on server side
@@ -369,7 +384,26 @@ export async function chatWithBudgetCopilot(
 
   } catch (error: any) {
     logger.error('[copilot] Error in chatWithBudgetCopilot:', error);
-    return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
+    // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
+    await anotarFalloIA('simulador-copilot', error?.message || String(error)).catch(() => {});
+    const fallback = getStaticFallbackResponse(normalizedInput, config);
+    if (/paquete|incluye|trae|diferencia/i.test(normalizedInput.message)) {
+      const serviceById = new Map((services || []).map((service) => [service.id, service]));
+      const paquetesCatalogFallback = (config?.paquetes || []).map((pkg) => ({
+        id: pkg.id,
+        nombre: pkg.nombre,
+        serviciosIncluidos: pkg.serviciosIncluidos.map((inc) => ({
+          id: inc.id,
+          nombre: serviceById.get(inc.id)?.nombre || 'Servicio',
+          esRegalo: Boolean(inc.esRegalo),
+        })),
+      }));
+      const detalle = detalleDePaquetes(paquetesCatalogFallback);
+      if (detalle && !fallback.response.includes(detalle)) {
+        fallback.response = `${fallback.response.trim()}\n\n${detalle}`;
+      }
+    }
+    return sanitizeCopilotOutput(fallback, config, services, menus);
   }
 }
 

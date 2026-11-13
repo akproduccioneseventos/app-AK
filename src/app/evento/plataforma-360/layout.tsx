@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Plataforma 360° | AK Producciones',
+  title: 'Plataforma 360°',
   description: 'Sube tu video 360° al muro del evento.',
 };
 

@@ -355,15 +355,15 @@ async function AsyncSalonSection() {
   const masterClubPhotos: SalonPhoto[] = (clubSalon?.fotos || []).map((src, index) => ({
     src,
     alt: `Club Uruguay, vista ${index + 1}`,
-    title: index === 0 ? "Club Uruguay" : `Vista ${index + 1}`,
-    description: "Foto cargada desde el módulo maestro de salones.",
+    title: index === 0 ? "El lugar" : `Vista ${index + 1}`,
+    description: undefined,
   }));
   const curated = getDynamicSalonPhotos();
-  const heroPhoto = getClubUruguayHeroPhoto(curated);
+  const heroPhoto = getClubUruguayHeroPhoto(curated, clubSalon?.fotos?.[0]);
   const clubPhotos = dedupeSalonPhotos([
     heroPhoto,
+    ...masterClubPhotos.filter((p) => p.src !== heroPhoto.src),
     ...curated.filter((p) => p.src !== heroPhoto.src),
-    ...masterClubPhotos,
   ]);
   return <SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />;
 }

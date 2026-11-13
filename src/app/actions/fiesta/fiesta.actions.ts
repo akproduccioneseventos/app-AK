@@ -42,6 +42,7 @@ import {
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
 import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
+import { isValidWfolioUrl, buildWfolioDelivery, type WfolioAlbumDelivery } from '@/lib/social-fiesta/wfolio-album-delivery';
 import { leerFiestasCrudas, leerHistorialCrudo } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
@@ -1737,3 +1738,43 @@ export async function actualizarFiesta(
   }
   return { success: true, updatedFiesta: recortarFiestaParaAfuera(r.updatedFiesta ?? guardada, usuario) };
 }
+
+/**
+ * Guarda la entrega del álbum de fotos digital por Wfolio.
+ * Requiere sesión de la app y valida que el link sea un dominio oficial de Wfolio.
+ */
+export async function guardarAlbumWfolioAction(
+  fiestaId: string,
+  wfolioUrl: string
+): Promise<{ success: boolean; delivery?: WfolioAlbumDelivery; error?: string }> {
+  await requireAppSession();
+  const urlLimpia = (wfolioUrl || '').trim();
+  if (!isValidWfolioUrl(urlLimpia)) {
+    return { success: false, error: 'El enlace debe pertenecer a wfolio.com o wfolio.pro.' };
+  }
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+
+  const eventName = f.configuracion?.nombreEvento || 'Fiesta';
+  const clientName = f.configuracion?.clienteNombre;
+  const delivery = buildWfolioDelivery({
+    fiestaId,
+    eventName,
+    clientName,
+    wfolioUrl: urlLimpia,
+  });
+
+  const res = await saveFiesta({
+    ...f,
+    galeriaUrl: urlLimpia,
+    galeriaEntregada: true,
+    wfolioDelivery: delivery,
+  } as any);
+
+  if (!res.success) {
+    return { success: false, error: res.error || 'No se pudo guardar la entrega del álbum.' };
+  }
+
+  return { success: true, delivery };
+}
+

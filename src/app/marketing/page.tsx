@@ -46,7 +46,10 @@ import {
   MonitorPlay,
   Presentation,
   RadioTower,
+  ExternalLink,
+  AlertTriangle,
 } from 'lucide-react';
+import { SITE_URL } from '@/lib/seo/paginas-publicas';
 import { useToast } from '@/hooks/use-toast';
 import type {
   MarketingTemplate,
@@ -68,11 +71,16 @@ import {
   importMarketingData,
 } from '@/app/actions/marketing';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+import {
+  renderVariables,
+  detectarFaltante,
+  ESTILOS_POR_OBJETIVO,
+  BASE_TEMPLATES,
+  getBaseTemplate,
+  type TemplateKey,
+} from '@/lib/marketing/plantillas-base';
 
-function renderVariables(text: string, vars: Record<string, string>): string {
-  return text.replace(/\{\{([A-Z_]+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
-}
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getSemanaActual(): string {
   const d = new Date();
@@ -85,98 +93,6 @@ function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-// ─── Base Templates (built-in, premium + cercano, XV años) ───────────────────
-
-type TemplateKey = `${TipoEvento}-${ObjetivoMarketing}-${EstiloMarketing}`;
-
-const BASE_TEMPLATES: Partial<Record<TemplateKey, ContenidoCanales>> = {
-  'XV-captacion-elegante': {
-    ig_corto:
-      'Tu fiesta de XV merece ser perfecta. En AK Producciones organizamos todo: salón, música, decoración y más. Vos venís como invitada. 💫\nPedí tu simulador de presupuesto 👇\n{{LINK_SIMULADOR}}\n#XVAños #FiestasXV #AKProducciones',
-    ig_largo:
-      '✨ XV años únicos, sin estrés.\n\nSabemos que organizar una fiesta puede ser agotador. Por eso en AK Producciones nos encargamos de absolutamente todo: salón, gastronomía, decoración, música, iluminación y mucho más.\n\nVos llegás como invitada y nosotros hacemos el resto.\n\n🌟 Todo en un solo lugar\n🌟 Atención personalizada\n🌟 Más de [X] años de experiencia\n\n📲 Consultá fechas disponibles y pedí tu presupuesto en segundos:\n{{LINK_SIMULADOR}}\n\n#XVAños #FiestasDeXV #QuinceAños #AKProducciones #SalonDeEventos #OrganizaciónDeEventos',
-    historias:
-      '¿Soñás con tus XV perfectos? 💜 // Nosotros organizamos TODO: salón + música + deco + gastronomía 🎉 // Pedí tu presupuesto AHORA ➡️ {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "¿Todavía no reservaste tus XV? Mirá esto 👀"\nESCENA 1: Mostrar el salón ambientado (decoración, mesas, pista de baile)\nESCENA 2: "En AK Producciones organizamos ABSOLUTAMENTE TODO. Vos llegás como invitada."\nESCENA 3: Equipo trabajando, detalles de decoración, gastronomía\nCTA: "Simulá tu presupuesto en 1 minuto. Link en bio 🔗 {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola! Gracias por escribirnos 😊\n¿La fiesta es para qué fecha aproximada y cuántos invitados esperan?\n\nCon eso te armo las opciones del paquete completo y te paso el simulador para que veas un presupuesto en segundos.\n\n📲 También podés verlo directamente acá: {{LINK_SIMULADOR}}',
-  },
-  'XV-captacion-neon': {
-    ig_corto:
-      '¡XV con toda la vibra! 🌈 Salón + DJ + neon + organización completa. Vos elegís el estilo, nosotros hacemos la magia. Pedí tu simulador 👉 {{LINK_SIMULADOR}}\n#XVNeon #FiestasXV #AKProducciones',
-    ig_largo:
-      '🌈 XV años con toda la vibra NEON.\n\nIluminación neón, DJ profesional, decoración impactante… y vos sin preocuparte por nada.\n\nEn AK Producciones organizamos tu fiesta de pies a cabeza:\n✅ Salón propio\n✅ Decoración neón personalizada\n✅ Gastronomía completa\n✅ Animación y música\n\nSimulá tu presupuesto ahora:\n{{LINK_SIMULADOR}}\n\n#XVNeon #QuinceAñosNeon #FiestasXV #AKProducciones #FiestaNeón',
-    historias:
-      '¡XV con toda la vibra! 🌈 // Neon + DJ + salón completo = la fiesta que soñaste // Simulá tu presupuesto 👉 {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "XV años + luces neón = esto 🤩"\nESCENA 1: Reveal del salón con iluminación neón encendida\nESCENA 2: "Paquete completo: deco, música, gastronomía. Todo en un solo lugar."\nESCENA 3: Festejante y amigas bailando, detalles del salón\nCTA: "Pedí tu presupuesto gratis. Link en bio ➡️ {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola! Qué bueno que nos escribís 😊 Para los XV con estilo neón tenemos paquetes increíbles.\n¿Para qué fecha y cuántos invitados? Así te mando opciones y el link del simulador:\n{{LINK_SIMULADOR}}',
-  },
-  'XV-captacion-princesa': {
-    ig_corto:
-      'Porque toda chica merece sentirse princesa en sus XV 👑 Organización completa, decoración de ensueño y recuerdos para toda la vida. Simulá tu presupuesto: {{LINK_SIMULADOR}}\n#XVPrincesa #FiestasXV #AKProducciones',
-    ig_largo:
-      '👑 El sueño de toda quinceañera hecho realidad.\n\nDecoración clásica y elegante, vestido de ensueño, vals perfectamente coordinado… y vos sin preocuparte por nada.\n\nEn AK Producciones nos encargamos de que cada detalle sea perfecto:\n✨ Salón decorado según tu visión\n✨ Gastronomía de calidad\n✨ Coordinación total del evento\n✨ Recuerdos para toda la vida\n\nSimulá tu presupuesto sin compromiso:\n{{LINK_SIMULADOR}}\n\n#XVPrincesa #QuinceAñosPrincesa #FiestasXV #AKProducciones',
-    historias:
-      '¿Soñás con tus XV de princesa? 👑 // Salón + decoración + organización completa // Tu presupuesto en 1 minuto: {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "XV de princesa sin el estrés de organizar todo 👑"\nESCENA 1: Decoración clásica, mesas con flores, luces cálidas\nESCENA 2: "Nosotros organizamos absolutamente todo. Vos llegás y disfrutás."\nESCENA 3: Quinceañera radiante, familia feliz\nCTA: "Consultá fechas y presupuesto. Link en bio 💫 {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola! 😊 Para una fiesta de XV estilo princesa tenemos el paquete ideal.\n¿Cuál es la fecha aproximada y cuántos invitados esperan? Con eso te preparo opciones y el simulador de presupuesto:\n{{LINK_SIMULADOR}}',
-  },
-  'XV-mostrar-elegante': {
-    ig_corto:
-      'Así lucen los XV que organizamos 🤍 Cada detalle pensado para que sea inolvidable. ¿La próxima es la tuya? Simulá tu presupuesto: {{LINK_SIMULADOR}}\n#XVAños #AKProducciones',
-    ig_largo:
-      '🤍 Detrás de cada fiesta perfecta, hay un equipo que trabajó sin parar.\n\nEsto fue lo que creamos para [NOMBRE DE LA QUINCEAÑERA / "nuestra última festejante"]: salón decorado, gastronomía impecable, música que hizo bailar a todos hasta las 6am.\n\nNo les faltó ni un detalle. Y lo mejor: la mamá llegó a la fiesta sin estrés, porque nosotros nos encargamos de todo.\n\n¿Querés algo así para tu hija? Empezá por el simulador de presupuesto:\n{{LINK_SIMULADOR}}\n\n#XVAños #FiestasXV #AKProducciones #EventosPremium',
-    historias:
-      'Así quedaron sus XV ✨ // Salón + decoración + organización completa // ¿La próxima es la tuya? 👉 {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "Mirá cómo transformamos el salón para esta fiesta de XV 🤩"\nESCENA 1: Time-lapse o before/after del salón decorado\nESCENA 2: Highlights del evento: entrada, vals, brindis\nESCENA 3: Quinceañera feliz, familia emocionada\nCTA: "¿Querés algo así? Simulá tu presupuesto ahora. Link en bio ➡️ {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola! 😊 Acabo de ver una foto/video de sus trabajos y me encantó. ¿Pueden hacerme algo similar para los XV de mi hija?\n\n¿Tienen disponibilidad para [FECHA]? ¿Cómo funciona el presupuesto?',
-  },
-  'XV-cerrar-elegante': {
-    ig_corto:
-      '⏳ Quedan pocas fechas disponibles para este año. No dejes pasar los XV de tu hija. Simulá el presupuesto ahora y asegurá la fecha: {{LINK_SIMULADOR}}\n#XVAños #FechasDisponibles #AKProducciones',
-    ig_largo:
-      '⏳ Las fechas se llenan rápido.\n\nSi estás pensando en los XV de tu hija para este año, este es el momento de asegurar la fecha antes de que se ocupe.\n\nEn AK Producciones organizamos todo:\n✅ Salón propio\n✅ Coordinación total\n✅ Paquetes personalizables\n\nSimulá el presupuesto en menos de un minuto y guardá tu fecha:\n{{LINK_SIMULADOR}}\n\n💬 O escribinos directamente por WhatsApp.\n\n#XVAños #FiestasXV #AseguráTuFecha #AKProducciones',
-    historias:
-      '⚠️ Quedan pocas fechas para XV este año // ¿Cuándo es la fiesta de tu hija? // Asegurá la fecha ahora: {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "¿Todavía no reservaste la fecha para los XV? Ojo con esto 👀"\nESCENA 1: Calendario con fechas marcadas como ocupadas\nESCENA 2: "Las fechas de diciembre y enero ya casi no tienen lugar. Te recomendamos reservar con anticipación."\nESCENA 3: Equipo preparando un evento, salón impecable\nCTA: "Simulá el presupuesto y reservá ahora. Link en bio ➡️ {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola [NOMBRE]! 😊 ¿Siguen evaluando opciones para los XV? Te cuento que para [MES/AÑO] quedan pocas fechas disponibles.\n\nSi querés asegurar la fecha, podemos coordinar una visita al salón o mandarte el simulador de presupuesto para que veas opciones:\n{{LINK_SIMULADOR}}\n\n¿Qué fecha tenían pensada?',
-  },
-  'XV-reactivar-elegante': {
-    ig_corto:
-      '¿Seguís buscando el lugar ideal para los XV? 💜 En AK Producciones organizamos todo. Quizás podemos ayudarte. Simulá el presupuesto sin compromiso: {{LINK_SIMULADOR}}\n#XVAños #AKProducciones',
-    ig_largo:
-      '¿Todavía no encontraste el lugar ideal para los XV de tu hija? 💜\n\nSabemos que elegir puede ser difícil. Por eso en AK Producciones te ofrecemos transparencia total desde el primer momento: simulá el presupuesto, conocé el salón y decidís sin presión.\n\nTodo en un solo lugar, con organización completa.\n\nSimulá tu presupuesto ahora:\n{{LINK_SIMULADOR}}\n\n#XVAños #FiestasXV #OrganizaciónDeEventos #AKProducciones',
-    historias:
-      '¿Seguís buscando el lugar para los XV? 💜 // Sin estrés: nosotros organizamos todo // Mirá opciones sin compromiso: {{LINK_SIMULADOR}}',
-    tiktok:
-      'HOOK: "¿Cansada de buscar lugar para los XV sin encontrar nada que convenza? 😅"\nESCENA 1: "En AK Producciones organizamos absolutamente todo. Salón, música, comida, deco."\nESCENA 2: Tour por el salón, detalles de decoraciones anteriores\nESCENA 3: Familia contenta, quinceañera radiante\nCTA: "Simulá el presupuesto sin compromiso. Link en bio ➡️ {{LINK_SIMULADOR}}"',
-    whatsapp:
-      '¡Hola [NOMBRE]! 😊 Hace un tiempo hablamos sobre los XV de tu hija. ¿Cómo van con la organización? Si todavía no definieron lugar, seguimos con disponibilidad.\n\nTe mando el simulador para que veas opciones y precios actualizados:\n{{LINK_SIMULADOR}}\n\n¿Seguimos en contacto?',
-  },
-};
-
-function getBaseTemplate(
-  tipo: TipoEvento,
-  objetivo: ObjetivoMarketing,
-  estilo: EstiloMarketing
-): ContenidoCanales {
-  const key: TemplateKey = `${tipo}-${objetivo}-${estilo}`;
-  return (
-    BASE_TEMPLATES[key] ||
-    BASE_TEMPLATES[`${tipo}-${objetivo}-elegante`] ||
-    BASE_TEMPLATES[`XV-captacion-elegante`]!
-  );
-}
-
 // ─── Days for checklist ───────────────────────────────────────────────────────
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -187,20 +103,40 @@ const TAREAS_DEFAULT = [
   { tarea: 'Seguimiento WhatsApp', canal: 'WhatsApp' },
 ];
 
+const CANVA_CATALOGS = [
+  {
+    emoji: '🍽️',
+    title: 'Catálogo Catering',
+    description: 'Menús, platos y opciones gastronómicas para todo tipo de eventos.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  },
+  {
+    emoji: '💍',
+    title: 'Catálogo Bodas',
+    description: 'Servicio completo para bodas: decoración, catering, fotografía y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas',
+  },
+  {
+    emoji: '👑',
+    title: 'Catálogo XV Años',
+    description: 'Todo lo que necesitás para una fiesta de 15 años inolvidable.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
+  },
+  {
+    emoji: '🎉',
+    title: 'Catálogo Fiestas',
+    description: 'Servicio completo para fiestas en general: cumpleaños, celebraciones y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+  },
+];
+
 const MARKETING_HUB_ITEMS = [
   {
-    title: 'Redes sociales',
-    description: 'Planifica publicaciones, calendario, piezas y contenido real para Instagram, Facebook, TikTok y WhatsApp.',
+    title: 'Redes sociales y contenido con IA',
+    description: 'Planificá publicaciones, calendario y piezas para Instagram, TikTok, Facebook y WhatsApp asistido por IA.',
     href: '/empresa/redes-sociales',
     icon: Megaphone,
     tone: 'bg-pink-50 text-pink-700 border-pink-100',
-  },
-  {
-    title: 'IA de marketing',
-    description: 'Genera copies, ideas de campana, respuestas de venta y mensajes para seguimiento comercial.',
-    href: '/empresa/redes-sociales/ia-marketing',
-    icon: Sparkles,
-    tone: 'bg-violet-50 text-violet-700 border-violet-100',
   },
   {
     title: 'Plantilla LED',
@@ -268,8 +204,16 @@ function CopyShareButtons({
   text: string;
 }) {
   const { toast } = useToast();
+  const faltante = detectarFaltante(text);
 
   const handleCopy = async () => {
+    if (faltante) {
+      toast({
+        title: `Borrador incompleto: falta ${faltante}`,
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       await navigator.clipboard.writeText(text);
       toast({ title: `${label} copiado ✓` });
@@ -279,6 +223,13 @@ function CopyShareButtons({
   };
 
   const handleShare = async () => {
+    if (faltante) {
+      toast({
+        title: `Borrador incompleto: falta ${faltante}`,
+        variant: 'destructive',
+      });
+      return;
+    }
     if (navigator.share) {
       try {
         await navigator.share({ text });
@@ -291,24 +242,34 @@ function CopyShareButtons({
   };
 
   return (
-    <div className="flex gap-2">
-      <Button
-        size="lg"
-        variant="outline"
-        className="flex-1 h-12 rounded-xl font-bold text-sm gap-2"
-        onClick={handleCopy}
-      >
-        <Copy className="w-4 h-4" />
-        Copiar
-      </Button>
-      <Button
-        size="lg"
-        className="flex-1 h-12 rounded-xl font-bold text-sm gap-2"
-        onClick={handleShare}
-      >
-        <Share2 className="w-4 h-4" />
-        Compartir
-      </Button>
+    <div className="space-y-2">
+      {faltante && (
+        <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>Borrador incompleto: falta {faltante}</span>
+        </div>
+      )}
+      <div className="flex gap-2">
+        <Button
+          size="lg"
+          variant="outline"
+          className="flex-1 h-12 rounded-xl font-bold text-sm gap-2"
+          onClick={handleCopy}
+          disabled={Boolean(faltante)}
+        >
+          <Copy className="w-4 h-4" />
+          Copiar
+        </Button>
+        <Button
+          size="lg"
+          className="flex-1 h-12 rounded-xl font-bold text-sm gap-2"
+          onClick={handleShare}
+          disabled={Boolean(faltante)}
+        >
+          <Share2 className="w-4 h-4" />
+          Compartir
+        </Button>
+      </div>
     </div>
   );
 }
@@ -327,6 +288,14 @@ export default function MarketingPage() {
   const [tipo] = useState<TipoEvento>('XV');
   const [objetivo, setObjetivo] = useState<ObjetivoMarketing>('captacion');
   const [estilo, setEstilo] = useState<EstiloMarketing>('elegante');
+  const estilosDisponibles = ESTILOS_POR_OBJETIVO[objetivo] || [{ id: 'elegante', label: 'Elegante' }];
+
+  useEffect(() => {
+    if (!estilosDisponibles.some(e => e.id === estilo)) {
+      setEstilo(estilosDisponibles[0]?.id || 'elegante');
+    }
+  }, [objetivo, estilosDisponibles, estilo]);
+
   const [varNombre, setVarNombre] = useState('');
   const [varFecha, setVarFecha] = useState('');
   const [varInvitados, setVarInvitados] = useState('');
@@ -407,7 +376,9 @@ export default function MarketingPage() {
   // ── Generator logic ────────────────────────────────────────────────────────
 
   const generateContent = useCallback(() => {
-    const base = getBaseTemplate(tipo, objetivo, estilo);
+    const disponibles = ESTILOS_POR_OBJETIVO[objetivo] || [{ id: 'elegante', label: 'Elegante' }];
+    const estiloEfectivo = disponibles.some(e => e.id === estilo) ? estilo : (disponibles[0]?.id || 'elegante');
+    const base = getBaseTemplate(tipo, objetivo, estiloEfectivo);
     const vars: Record<string, string> = {
       NOMBRE: varNombre || '{{NOMBRE}}',
       FECHA: varFecha || '{{FECHA}}',
@@ -415,7 +386,7 @@ export default function MarketingPage() {
       PRECIO_LISTA: varPrecioLista || '{{PRECIO_LISTA}}',
       PRECIO_HOY: varPrecioHoy || '{{PRECIO_HOY}}',
       AHORRO: varAhorro || '{{AHORRO}}',
-      LINK_SIMULADOR: '/simulador-de-presupuesto',
+      LINK_SIMULADOR: `${SITE_URL}/simulador-de-presupuesto`,
     };
     setContenido({
       ig_corto: renderVariables(base.ig_corto, vars),
@@ -747,6 +718,36 @@ export default function MarketingPage() {
           </div>
         </section>
 
+        {/* Catálogos para mandar (Canva) - Orden 284 Bloque 3 */}
+        <section className="mt-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <span>🎨</span>
+              <span>Catálogos para mandar</span>
+            </h2>
+            <span className="text-xs font-semibold text-slate-500">Listos en Canva para enviar a clientes</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {CANVA_CATALOGS.map((cat) => (
+              <Card key={cat.title} className="rounded-2xl border-slate-200 bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <CardHeader className="p-4 pb-2 space-y-1">
+                  <div className="text-xl">{cat.emoji}</div>
+                  <CardTitle className="text-sm font-black text-slate-900">{cat.title}</CardTitle>
+                  <CardDescription className="text-xs text-slate-500 line-clamp-2">{cat.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-1">
+                  <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs font-bold text-primary hover:bg-primary/5 rounded-xl h-8">
+                    <a href={cat.href} target="_blank" rel="noopener noreferrer">
+                      <span>Abrir Canva</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
         <Tabs value={tab} onValueChange={v => setTab(v as TabMarketing)} className="mt-4">
           <TabsList className="grid grid-cols-3 w-full h-12 rounded-xl bg-slate-100 p-1">
             <TabsTrigger value="generador" className="rounded-lg text-[11px] font-bold">
@@ -848,11 +849,9 @@ export default function MarketingPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="elegante">Elegante</SelectItem>
-                        <SelectItem value="neon">Neón</SelectItem>
-                        <SelectItem value="princesa">Princesa</SelectItem>
-                        <SelectItem value="urbano">Urbano</SelectItem>
-                        <SelectItem value="boho">Boho</SelectItem>
+                        {estilosDisponibles.map(e => (
+                          <SelectItem key={e.id} value={e.id}>{e.label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

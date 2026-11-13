@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import JSZip from 'jszip';
 
@@ -40,7 +40,7 @@ function debeIgnorar(relPath, esDirectorio) {
   const normalizado = relPath.replace(/\\/g, '/').toLowerCase();
   const partes = normalizado.split('/');
   for (const parte of partes) {
-    if (IGNORAR_DIRS.has(parte)) {
+    if (IGNORAR_DIRS.has(parte) || parte.startsWith('.git')) {
       return true;
     }
   }
@@ -52,7 +52,8 @@ function debeIgnorar(relPath, esDirectorio) {
     normalizado.includes('/venv/') ||
     normalizado.startsWith('pruebas/') ||
     normalizado.includes('/pruebas/') ||
-    normalizado.includes('__pycache__')
+    normalizado.includes('__pycache__') ||
+    normalizado.includes('.git')
   ) {
     return true;
   }
@@ -126,9 +127,38 @@ async function empaquetar() {
   const kb = (stats.size / 1024).toFixed(1);
 
   console.log(`[Empaquetador] Paquete generado exitosamente: ${DESTINO_ZIP} (${kb} KB)`);
+
+  // Comparación al final para verificar que cada archivo esté en el ZIP con el mismo contenido
+  console.log(`[Empaquetador] Verificando contenido del paquete contra el disco...`);
+  const zipCargado = await JSZip.loadAsync(fs.readFileSync(DESTINO_ZIP));
+
+  let verificados = 0;
+  for (const { fullPath, relPath } of archivos) {
+    const normalizado = relPath.replace(/\\/g, '/');
+    const entradaZip = zipCargado.file(normalizado);
+
+    if (!entradaZip) {
+      throw new Error(`[Empaquetador] Error: Falta el archivo requerido en el ZIP: ${normalizado}`);
+    }
+
+    const contenidoZip = await entradaZip.async('nodebuffer');
+    const contenidoDisco = fs.readFileSync(fullPath);
+
+    if (!contenidoDisco.equals(contenidoZip)) {
+      throw new Error(
+        `[Empaquetador] Error: Contenido inconsistente para ${normalizado} (disco: ${contenidoDisco.length} bytes, zip: ${contenidoZip.length} bytes)`
+      );
+    }
+    verificados++;
+  }
+
+  console.log(
+    `[Empaquetador] Verificación exitosa: ${verificados}/${archivos.length} archivos verificados e idénticos en ${DESTINO_ZIP}.`
+  );
 }
 
 empaquetar().catch((err) => {
   console.error('[Empaquetador] Error al empaquetar:', err);
   process.exit(1);
 });
+

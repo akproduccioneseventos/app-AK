@@ -492,6 +492,7 @@ export default function FotosVideoPortalPage() {
           fecha={fiesta.configuracion?.fechaEvento || ''}
           fotos={fotosParaVideo}
           fiestaId={fiestaId}
+          musicaUrl={fiesta?.cancionUrl || (fiesta as any)?.socialGallerySettings?.cancionUrl || '/audio/musica-resumen-ak.wav'}
         />
       </main>
     </div>

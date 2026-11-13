@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { getConversacionesAsistenteCliente } from '@/app/actions/asistente-virtual';
+import { hoyEnUruguay } from '@/lib/utils';
 
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
@@ -44,15 +45,20 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) { return "Fecha inválida"; }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
+
+function formatearFechaCortaEvento(dateString?: string): string {
+  if (!dateString) return '—';
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    return d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+  }
+  const d = new Date(dateString);
+  return Number.isNaN(d.getTime()) ? dateString : d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+}
 
 type ModuleBadge = 'Cliente' | 'Invitado' | 'Operativo' | 'Pantalla' | 'Interno' | 'Impresión' | 'VIP';
 
@@ -173,41 +179,21 @@ const badgeColors: Record<ModuleBadge, string> = {
   VIP:        'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
 };
 
-const MOMENTOS_FIESTA = [
-  { id: 'vender', pestana: obtenerPestanaDeModulo('vender'), title: '1. Vender',
-    description: 'Presupuesto, contrato, cuotas, cobros y documentación.',
-    icon: DollarSign,
-    color: 'text-emerald-700 bg-emerald-100',
-    moduleIds: ['planPagos', 'documentos', 'costos', 'configuracion', 'resumenPlanificacion'],
-  },
-  { id: 'armar', pestana: obtenerPestanaDeModulo('armar'), title: '2. Armar',
-    description: 'Invitados, gastronomía, lista de compras, salón, cronograma y personal.',
-    icon: Users,
-    color: 'text-blue-700 bg-blue-100',
-    moduleIds: ['invitados', 'catering', 'listaCompras', 'decoracion', 'itinerario', 'personal', 'musica', 'proveedoresPortal', 'carteleria', 'alergias'],
-  },
-  { id: 'noche', pestana: obtenerPestanaDeModulo('noche'), title: '3. La Noche',
-    description: 'Barra, fotocabina, 360, muro social, check-in QR, pantalla y buzón.',
-    icon: Sparkles,
-    color: 'text-purple-700 bg-purple-100',
-    moduleIds: ['enVivo', 'centroFiesta', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'checkin', 'buzon', 'pantallasTotem', 'playlistPantalla'],
-  },
-  { id: 'despues', pestana: obtenerPestanaDeModulo('despues'), title: '4. Después',
-    description: 'Álbum post-fiesta, encuesta de satisfacción y cierre de rentabilidad.',
-    icon: Star,
-    color: 'text-amber-700 bg-amber-100',
-    moduleIds: ['postEvento', 'feedback'],
-  },
+const MODULOS_DURANTE = [
+  'enVivo',
+  'centroFiesta',
+  'muroSocial',
+  'zonaDigital',
+  'pantallasTotem',
+  'playlistPantalla',
+  'entretenimiento',
+  'redSocial',
+  'checkin',
+  'readiness',
+  'fiestaLista',
 ];
 
-type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
-
-const quickModes: { id: QuickMode; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'centroFiesta', 'itinerario', 'checkin', 'cargaOperativa', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
-  { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'plannerCostoFiesta', 'carteleria'] },
-  { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
-];
+const MODULOS_DESPUES = ['fotografia', 'buzon', 'postEvento', 'feedback'];
 
 function getModuleProgress(moduleId: string, fiesta: FiestaEnPlanificacion | null): { percentage: number; text: string } {
   if (!fiesta) return { percentage: 0, text: 'Pendiente' };
@@ -344,9 +330,6 @@ function PlannerDashboardContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeMode, setActiveMode] = useState<QuickMode>(null);
-  const [showAllModules, setShowAllModules] = useState(false);
-  const [showInternalModules, setShowInternalModules] = useState(false);
   const pestanaPedida = searchParams.get('pestana');
   const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(
     PESTANAS_FIESTA.some(p => p.id === pestanaPedida) ? (pestanaPedida as PestanaFiesta) : 'contrato-y-pagos'
@@ -469,37 +452,22 @@ function PlannerDashboardContent() {
     ALWAYS_VISIBLE_PLANNER_MODULE_IDS.some(id => id === moduleId) || !!modulosContratados[moduleId as keyof ModulosContratados];
 
   const filteredModules = useMemo(() => {
-    if (activeMode) {
-      const modeIds = quickModes.find(m => m.id === activeMode)?.moduleIds ?? [];
-      return modules.filter(m => modeIds.includes(m.id));
-    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return modules.filter(m =>
         m.title.toLowerCase().includes(q) ||
         m.description.toLowerCase().includes(q) ||
-        m.category.toLowerCase().includes(q) ||
         (m.badge && m.badge.toLowerCase().includes(q))
       );
     }
-    if (!showAllModules) {
-      return modules.filter(m => ESSENTIAL_MODULE_IDS.includes(m.id));
-    }
-    if (!showInternalModules) {
-      return modules.filter(m => m.badge !== 'Interno');
-    }
     return modules;
-  }, [searchQuery, activeMode, showAllModules, showInternalModules]);
+  }, [searchQuery]);
 
   const progress = useMemo(() => fiesta ? calcFiestaProgress(fiesta) : null, [fiesta]);
   const prepScore = useMemo(() => fiesta ? calculateFiestaPreparationScore(fiesta) : null, [fiesta]);
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
-
-  const visibleCategories = (activeMode || searchQuery.trim() || !showAllModules)
-    ? Array.from(new Set(filteredModules.map(m => m.category)))
-    : moduleCategories;
 
   return (
     <div className="space-y-6 sm:space-y-10 pb-24 px-1 sm:px-0">
@@ -678,7 +646,7 @@ function PlannerDashboardContent() {
         <div className="sm:hidden">
             <KpiCard title="Ingreso" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado)).split(',')[0]} icon={DollarSign} />
         </div>
-        <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
+        <KpiCard title="Fecha" value={formatearFechaCortaEvento(fiesta.configuracion.fechaEvento)} icon={Calendar} />
       </div>
 
       {/* Bloque 14: Lo que preguntó el cliente */}
@@ -831,16 +799,17 @@ function PlannerDashboardContent() {
       {/* Pre-event alerts banner */}
       {(() => {
         if (!fiesta.configuracion.fechaEvento) return null;
-        const now = new Date();
-        const eventDate = new Date(fiesta.configuracion.fechaEvento);
-        const diffMs = eventDate.getTime() - now.getTime();
-        const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const hoy = hoyEnUruguay();
+        const fechaStr = fiesta.configuracion.fechaEvento.slice(0, 10);
+        const diffMs = new Date(`${fechaStr}T12:00:00Z`).getTime() - new Date(`${hoy}T12:00:00Z`).getTime();
+        const daysLeft = Math.round(diffMs / (1000 * 60 * 60 * 24));
         if (daysLeft < 0 || daysLeft > 7) return null;
 
         const alertConfig =
-          daysLeft <= 1 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-900', icon: 'text-amber-600', label: daysLeft <= 0 ? '¡HOY ES EL EVENTO! 🎉' : '¡MAÑANA ES EL EVENTO! 🚨' } :
-          daysLeft <= 2 ? { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-800', icon: 'text-orange-500', label: `Faltan ${daysLeft} días para el evento 🔔` } :
-          daysLeft <= 3 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', icon: 'text-amber-500', label: `Faltan ${daysLeft} días para el evento ⏰` } :
+          daysLeft === 0 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-900', icon: 'text-amber-600', label: '¡HOY ES EL EVENTO! 🎉' } :
+          daysLeft === 1 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-900', icon: 'text-amber-600', label: '¡MAÑANA ES EL EVENTO! 🚨' } :
+          daysLeft === 2 ? { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-800', icon: 'text-orange-500', label: `Faltan ${daysLeft} días para el evento 🔔` } :
+          daysLeft === 3 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', icon: 'text-amber-500', label: `Faltan ${daysLeft} días para el evento ⏰` } :
           { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-800', icon: 'text-blue-500', label: `Faltan ${daysLeft} días para el evento 📅` };
 
         const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
@@ -987,7 +956,7 @@ function PlannerDashboardContent() {
             aria-label="Buscar módulos del evento"
             placeholder="Buscá un módulo… (ej: cartelería, invitados, muro)"
             value={searchQuery}
-            onChange={e => { setSearchQuery(e.target.value); setActiveMode(null); }}
+            onChange={e => setSearchQuery(e.target.value)}
             className="pl-11 pr-10 h-12 rounded-2xl border-slate-200 bg-white premium-shadow text-sm font-bold placeholder:text-slate-400 placeholder:font-normal focus-visible:ring-primary"
           />
           {searchQuery && (
@@ -996,79 +965,10 @@ function PlannerDashboardContent() {
             </button>
           )}
         </div>
-
-        {/* Quick mode filters */}
-        <div className="flex flex-wrap gap-2">
-          {quickModes.map(mode => (
-            <button
-              key={mode.id}
-              onClick={() => { setActiveMode(activeMode === mode.id ? null : mode.id); setSearchQuery(''); }}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border",
-                activeMode === mode.id
-                  ? cn(mode.color, "border-transparent shadow-lg scale-105")
-                  : "bg-white text-slate-600 border-slate-200 hover:border-primary hover:text-primary"
-              )}
-            >
-              <mode.icon className="w-3.5 h-3.5" />
-              {mode.label}
-            </button>
-          ))}
-          {(activeMode || searchQuery) && (
-            <button
-              onClick={() => { setActiveMode(null); setSearchQuery(''); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-100 text-slate-500 hover:bg-slate-200 border border-transparent transition-all"
-            >
-              <X className="w-3.5 h-3.5" /> Limpiar
-            </button>
-          )}
-        </div>
-
-        {/* Control de visualización: Módulos Principales vs Ver Todo */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <div>
-            <h3 className="text-sm sm:text-base font-black text-slate-800 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              {!showAllModules ? "Herramientas Principales del Evento" : "Todas las Herramientas y Categorías"}
-            </h3>
-            <p className="text-xs text-muted-foreground font-medium">
-              {!showAllModules
-                ? "Mostrando los 10 accesos clave para la gestión diaria de la fiesta."
-                : `Mostrando ${filteredModules.length} módulos disponibles para la fiesta.`}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-            {showAllModules && (
-              <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
-                <Switch
-                  id="show-internal-switch"
-                  checked={showInternalModules}
-                  onCheckedChange={setShowInternalModules}
-                  className="scale-75"
-                />
-                <Label htmlFor="show-internal-switch" className="text-xs font-bold text-slate-600 cursor-pointer">
-                  Herramientas Internas
-                </Label>
-              </div>
-            )}
-
-            <Button
-              type="button"
-              variant={showAllModules ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowAllModules(!showAllModules)}
-              className="rounded-xl font-bold text-xs gap-1.5"
-            >
-              {showAllModules ? "Mostrar sólo principales" : "Ver todas las herramientas"}
-              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showAllModules && "rotate-180")} />
-            </Button>
-          </div>
-        </div>
       </motion.div>
 
-      {/* Module grid grouped by 5 Pestañas (Orden 182) */}
-      <div className="space-y-10 sm:space-y-16">
+      {/* Module grid grouped by 5 Pestañas (Orden 284 Bloque 5) */}
+      <div className="space-y-8 sm:space-y-12">
         <Tabs value={pestanaActiva} onValueChange={handleCambiarPestana} className="w-full">
           <TabsList className="w-full flex flex-wrap h-auto gap-2 p-1.5 bg-slate-100 rounded-2xl mb-8">
             {PESTANAS_FIESTA.map((p) => (
@@ -1084,124 +984,176 @@ function PlannerDashboardContent() {
 
           {PESTANAS_FIESTA.map((p) => {
             const pestanaModules = filteredModules.filter((m) => m.pestana === p.id);
-            const pestanaCategories = moduleCategories.filter((cat) =>
-              pestanaModules.some((m) => m.category === cat)
-            );
+            const contratados = pestanaModules.filter((m) => isModuleActive(m.id));
+            const noContratados = pestanaModules.filter((m) => !isModuleActive(m.id));
 
-            return (
-              <TabsContent key={p.id} value={p.id} className="space-y-10 sm:space-y-14 mt-0">
-                {pestanaCategories.map((category) => {
-                  const meta = categoryMeta[category];
-                  const CategoryIcon = meta?.icon ?? Settings2;
-                  const catModules = pestanaModules.filter((m) => m.category === category);
-                  if (catModules.length === 0) return null;
-
-                  return (
-                    <div key={category} className="space-y-5">
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <div className={cn("p-2.5 rounded-xl shrink-0", meta?.color ?? 'text-slate-600 bg-slate-100')}>
-                          <CategoryIcon className="w-5 h-5" />
+            const renderCard = (module: typeof modules[0]) => {
+              const active = isModuleActive(module.id);
+              const moduleHref =
+                module.id === 'centroFiesta'
+                  ? `/fiestas/${fiesta.id}/centro`
+                  : module.href.startsWith('/')
+                  ? `${module.href}?fiestaId=${fiesta.id}`
+                  : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+              const modProgress = getModuleProgress(module.id, fiesta);
+              return (
+                <div key={module.id}>
+                  <Link
+                    href={moduleHref}
+                    onClick={async (event) => {
+                      if (!active) {
+                        event.preventDefault();
+                        const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
+                        if (saved) router.push(moduleHref);
+                      }
+                    }}
+                  >
+                    <Card
+                      className={cn(
+                        "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md hover:shadow-xl",
+                        active ? "hover:shadow-primary/10" : "hover:shadow-slate-400/10"
+                      )}
+                    >
+                      <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
+                        <div
+                          className={cn(
+                            "p-3 rounded-2xl group-hover:scale-105 transition-all duration-300 shadow-inner shrink-0",
+                            active ? module.color : "bg-slate-100 text-slate-400"
+                          )}
+                        >
+                          <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">{category}</h3>
-                          {meta?.description && <p className="text-[10px] text-slate-400 font-bold hidden sm:block">{meta.description}</p>}
+                          <CardTitle
+                            className={cn(
+                              "text-sm sm:text-base font-black leading-tight transition-colors",
+                              active ? "text-slate-800" : "text-slate-500"
+                            )}
+                          >
+                            {module.title}
+                          </CardTitle>
+                          {module.badge && (
+                            <span
+                              className={cn(
+                                "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+                                active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                              )}
+                            >
+                              {module.badge}
+                            </span>
+                          )}
                         </div>
-                        <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
-                      </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
+                        <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">
+                          {module.description}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
+                        <div className="space-y-1.5 w-full">
+                          <div className="flex justify-between items-center text-[10px] font-bold">
+                            {active ? (
+                              <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
+                                <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                Activo
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
+                                <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                Inactivo
+                              </span>
+                            )}
+                            <span className="text-slate-500 font-semibold">{modProgress.text}</span>
+                          </div>
+                          {active && (
+                            <Progress
+                              value={modProgress.percentage}
+                              className="h-1.5 bg-slate-100 rounded-full"
+                              indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
+                            />
+                          )}
+                        </div>
+                        <div className="flex justify-end pt-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                              active
+                                ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                            )}
+                          >
+                            {active ? "Abrir" : "Activar y Abrir"}{" "}
+                            <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                </div>
+              );
+            };
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                        {catModules.map((module) => {
-                          const active = isModuleActive(module.id);
-                          const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
-                          const modProgress = getModuleProgress(module.id, fiesta);
-                          return (
-                            <div key={module.id}>
-                              <Link
-                                href={moduleHref}
-                                onClick={async event => {
-                                  if (!active) {
-                                    event.preventDefault();
-                                    const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
-                                    if (saved) router.push(moduleHref);
-                                  }
-                                }}
-                              >
-                                <Card className={cn(
-                                  "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md hover:shadow-xl",
-                                  active ? "hover:shadow-primary/10" : "hover:shadow-slate-400/10"
-                                )}>
-                                  <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                                    <div className={cn(
-                                      "p-3 rounded-2xl group-hover:scale-105 transition-all duration-300 shadow-inner shrink-0",
-                                      active ? module.color : "bg-slate-100 text-slate-400"
-                                    )}>
-                                      <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                      <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
-                                        {module.title}
-                                      </CardTitle>
-                                      {module.badge && (
-                                        <span className={cn(
-                                          "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
-                                          active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
-                                        )}>
-                                          {module.badge}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
-                                    <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
-                                  </CardContent>
-                                  <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
-                                    <div className="space-y-1.5 w-full">
-                                      <div className="flex justify-between items-center text-[10px] font-bold">
-                                        {active ? (
-                                          <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
-                                            <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                            Activo
-                                          </span>
-                                        ) : (
-                                          <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
-                                            <span className="h-2 w-2 rounded-full bg-slate-300"></span>
-                                            Inactivo
-                                          </span>
-                                        )}
-                                        <span className="text-slate-500 font-semibold">{modProgress.text}</span>
-                                      </div>
-                                      {active && (
-                                        <Progress
-                                          value={modProgress.percentage}
-                                          className="h-1.5 bg-slate-100 rounded-full"
-                                          indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
-                                        />
-                                      )}
-                                    </div>
-                                    <div className="flex justify-end pt-1">
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className={cn(
-                                          "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                          active
-                                            ? "text-primary group-hover:bg-primary group-hover:text-white"
-                                            : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
-                                        )}
-                                      >
-                                        {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
-                                      </Button>
-                                    </div>
-                                  </CardFooter>
-                                </Card>
-                              </Link>
-                            </div>
-                          );
-                        })}
-                      </div>
+            return (
+              <TabsContent key={p.id} value={p.id} className="space-y-8 mt-0 focus-visible:outline-none">
+                {p.id === 'noche' ? (
+                  <div className="space-y-8">
+                    {(() => {
+                      const durante = contratados.filter((m) => MODULOS_DURANTE.includes(m.id));
+                      if (durante.length === 0) return null;
+                      return (
+                        <div className="space-y-4">
+                          <h3 className="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-primary" />
+                            Durante
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                            {durante.map(renderCard)}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {(() => {
+                      const despues = contratados.filter((m) => MODULOS_DESPUES.includes(m.id));
+                      if (despues.length === 0) return null;
+                      return (
+                        <div className="space-y-4">
+                          <h3 className="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-amber-500" />
+                            Después
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                            {despues.map(renderCard)}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  contratados.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                      {contratados.map(renderCard)}
                     </div>
-                  );
-                })}
+                  )
+                )}
+
+                {/* No contratado en esta fiesta desplegable (Orden 284 Bloque 5) */}
+                {noContratados.length > 0 && (
+                  <Accordion type="single" collapsible className="w-full pt-4">
+                    <AccordionItem value="no-contratados" className="border border-slate-200/80 rounded-2xl bg-white/70 shadow-sm overflow-hidden">
+                      <AccordionTrigger className="px-5 py-4 hover:bg-slate-50 text-slate-700 font-black text-xs uppercase tracking-wider">
+                        <span>No contratado en esta fiesta ({noContratados.length})</span>
+                      </AccordionTrigger>
+                      <AccordionContent className="p-5 pt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                          {noContratados.map(renderCard)}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
               </TabsContent>
             );
           })}

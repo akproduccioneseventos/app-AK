@@ -30,7 +30,7 @@ export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
-/** Alias for PerfilInvitado � used in segmentation views and reports */
+/** Alias for PerfilInvitado ï¿½ used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
 export interface GuestExperienceStats {
@@ -146,7 +146,7 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- CONFIGURACI�N ---
+// --- CONFIGURACIï¿½N ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
@@ -437,7 +437,7 @@ export interface SeccionInvitacion {
   data: any;
 }
 
-// --- INVITACI�N DIGITAL CONFIG (Simplified central configuration) ---
+// --- INVITACIï¿½N DIGITAL CONFIG (Simplified central configuration) ---
 
 export interface InvitacionDigitalDressCode {
   tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
@@ -547,8 +547,8 @@ export interface InvitacionDigitalConfig {
    *
    * Van vacios a proposito: **la seccion no se muestra si no hay nada cargado**.
    * Hasta el 19 de agosto de 2026 estas dos secciones salian en TODAS las
-   * invitaciones con contenido escrito a mano �una vida inventada ("El
-   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentino�,
+   * invitaciones con contenido escrito a mano ï¿½una vida inventada ("El
+   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentinoï¿½,
    * que el anfitrion no podia cambiar porque no habia donde cargarlo.
    */
   hitos?: HitoInvitacion[];
@@ -881,7 +881,7 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Timestamp when a sorteo spin was started � triggers wheel animation on the big screen */
+  /** Timestamp when a sorteo spin was started ï¿½ triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
   /** When true, the raffle wheel is displayed statically on the big screen before spinning */
   sorteoOnScreen?: boolean;
@@ -1667,6 +1667,7 @@ export interface FiestaEnPlanificacion {
   npsScore?: number;              // 0-10 post-event NPS score
   galeriaEntregada?: boolean;     // Whether photo gallery was delivered to client
   galeriaUrl?: string;            // URL to delivered gallery
+  wfolioDelivery?: import('@/lib/social-fiesta/wfolio-album-delivery').WfolioAlbumDelivery;
   postEventoCompletado?: boolean; // Post-event process completed flag
   googleReviewRequested?: boolean;   // Si ya se envió la solicitud de reseña/opinión por WhatsApp
   googleReviewRequestedAt?: string; // Fecha en que se solicitó la reseña
@@ -1823,7 +1824,7 @@ export interface EventoEnVivoData {
   captaciones?: CaptacionInvitadoEnVivo[];
 }
 
-// --- FOTOGRAFÍA Y FILMACI�N ---
+// --- FOTOGRAFÍA Y FILMACIÓN ---
 export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {

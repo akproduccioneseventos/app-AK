@@ -34,32 +34,7 @@ const cumpleanosData: EventCatalogData = {
         }
       : s
   ),
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Familia Pérez',
-      source: 'instagram',
-      text: '¡El cumple de Valentina fue una maravilla! Globos, decoración, torta y todo a juego. El equipo de AK es increíble. 🎂🎈',
-      date: 'Agosto 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'José M.',
-      source: 'whatsapp',
-      text: 'Organizamos el cumple de 40 de mi esposa y quedó espectacular. Todos los invitados me preguntaron quién fue el organizador. ¡Mil gracias!',
-      date: 'Abril 2024',
-    },
-    {
-      id: 't3',
-      authorName: 'Andrea L.',
-      source: 'google',
-      text: 'Tercer año seguido contratando a AK para el cumpleaños de mis hijos. Cada año lo superan. Confiabilidad y creatividad de primera.',
-      date: 'Julio 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Regalos incluidos en tus paquetes de cumpleaños',

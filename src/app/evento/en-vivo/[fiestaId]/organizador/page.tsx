@@ -163,6 +163,7 @@ export default function OrganizadorPage() {
             <Button
               variant="ghost"
               size="sm"
+              aria-label="Actualizar"
               className="text-slate-400 hover:text-white"
               onClick={fetchData}
             >
@@ -172,6 +173,7 @@ export default function OrganizadorPage() {
               href={`/evento/en-vivo/${fiestaId}/invitados`}
               target="_blank"
               rel="noreferrer"
+              aria-label="Vista invitados"
               className="flex items-center gap-1 text-xs bg-purple-700 hover:bg-purple-600 px-3 py-1.5 rounded-md transition-colors"
             >
               <Users className="w-3 h-3" />
@@ -181,6 +183,7 @@ export default function OrganizadorPage() {
               href={`/evento/en-vivo/${fiestaId}/pantalla`}
               target="_blank"
               rel="noreferrer"
+              aria-label="Pantalla"
               className="flex items-center gap-1 text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1.5 rounded-md transition-colors"
             >
               <Monitor className="w-3 h-3" />
@@ -281,6 +284,7 @@ export default function OrganizadorPage() {
                       <Button
                         size="sm"
                         variant="ghost"
+                        aria-label="Eliminar canción"
                         className="shrink-0 h-8 text-red-400 hover:text-red-300 hover:bg-red-900/30"
                         onClick={() => handleDelete('cancion', s.id)}
                       >
@@ -324,6 +328,7 @@ export default function OrganizadorPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            aria-label={m.destacado ? 'Quitar destacado' : 'Destacar mensaje'}
                             className={`h-8 w-8 p-0 ${m.destacado ? 'text-yellow-400 hover:text-yellow-300' : 'text-slate-400 hover:text-yellow-400'}`}
                             onClick={() => handleToggleDestacado(m.id)}
                             title={m.destacado ? 'Quitar destacado' : 'Destacar'}
@@ -333,6 +338,7 @@ export default function OrganizadorPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            aria-label="Eliminar mensaje"
                             className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30"
                             onClick={() => handleDelete('mensaje', m.id)}
                           >
@@ -370,7 +376,7 @@ export default function OrganizadorPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-xs px-2 text-slate-100 hover:text-white hover:bg-slate-700"
                                 onClick={() => handleToggleVotacion(v.id)}
                               >
                                 {v.activa ? 'Desactivar' : 'Activar'}
@@ -378,6 +384,7 @@ export default function OrganizadorPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                aria-label="Eliminar votación"
                                 className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/30"
                                 onClick={() => handleDelete('votacion', v.id)}
                               >
@@ -444,6 +451,7 @@ export default function OrganizadorPage() {
                             type="button"
                             size="sm"
                             variant="ghost"
+                            aria-label="Quitar opción"
                             className="shrink-0 text-red-400 hover:text-red-300"
                             onClick={() => removeOpcion(i)}
                           >

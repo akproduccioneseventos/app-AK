@@ -193,11 +193,12 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { readData: readDataBlog } = await import('@/lib/data-service');
           const posts = await readDataBlog<any[]>('blog-posts.json', []);
+          let ultimaFechaMs = 0;
           if (posts && posts.length > 0) {
             const fechas = posts
               .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))
               .filter((t: number) => !Number.isNaN(t) && t > 0);
-            const ultimaFechaMs = fechas.length > 0 ? Math.max(...fechas) : 0;
+            ultimaFechaMs = fechas.length > 0 ? Math.max(...fechas) : 0;
             if (ultimaFechaMs > 0) {
               const diffMs = ahora.getTime() - ultimaFechaMs;
               if (diffMs > 4 * 24 * 60 * 60 * 1000) {
@@ -215,11 +216,30 @@ export async function ponerAlDiaAlEntrar(
               }
             }
           }
+
+          const cantPostsAntes = posts?.length ?? 0;
+          const tocabaPublicar = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
+
           const { runMarketingAutomation } = await import('@/lib/marketing-automation');
           const res = await runMarketingAutomation({ includeRecontacto: false });
           if ((res as any)?.seoError || (res as any)?.seoSucceeded === false) {
-            throw new Error((res as any)?.seoError || 'No se pudo publicar la nota del blog.');
+            throw new Error((res as any)?.seoError || (res as any)?.motivo || (res as any)?.error || 'No se pudo publicar la nota del blog.');
           }
+
+          if (tocabaPublicar) {
+            const postsDespues = await readDataBlog<any[]>('blog-posts.json', []);
+            const fechasDespues = (postsDespues || [])
+              .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))
+              .filter((t: number) => !Number.isNaN(t) && t > 0);
+            const nuevaMaxFecha = fechasDespues.length > 0 ? Math.max(...fechasDespues) : 0;
+            const seAgregoNota = (postsDespues?.length ?? 0) > cantPostsAntes || nuevaMaxFecha > ultimaFechaMs;
+
+            if (!seAgregoNota) {
+              const motivo = (res as any)?.seoError || (res as any)?.motivo || (res as any)?.error || 'no se publicó ninguna nota';
+              throw new Error(motivo);
+            }
+          }
+
           return res;
         },
       },

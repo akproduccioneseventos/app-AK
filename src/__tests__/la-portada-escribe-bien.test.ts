@@ -21,7 +21,8 @@ describe('Orden 176 - Bloque 5: La portada escribe bien', () => {
     // 2. public-footer.tsx
     const footer = fs.readFileSync(path.join(root, 'src/components/public-footer.tsx'), 'utf8');
     expect(footer).not.toContain('Oficina & Atencion');
-    expect(footer).toContain('Oficina & Atención');
+    expect(footer).not.toContain('Oficina & Atención');
+    expect(footer).toContain('Atención');
 
     // 3. galeria-publica.json (sólo títulos)
     const galeriaRaw = fs.readFileSync(path.join(root, 'src/data/galeria-publica.json'), 'utf8');

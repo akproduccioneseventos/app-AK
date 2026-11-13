@@ -323,7 +323,7 @@ export function EventLandingPage({
             >
               <CalendarDays className="h-7 w-7 text-red-700" aria-hidden="true" />
               <h2 className="mt-5 text-3xl font-black text-zinc-950 sm:text-4xl">Empecemos a planificar</h2>
-              <p className="mt-4 text-base leading-relaxed text-zinc-600">Contanos la fecha aproximada y las personas invitadas. Nuestro equipo recibe tu consulta en el CRM para continuar por el canal que prefieras.</p>
+              <p className="mt-4 text-base leading-relaxed text-zinc-600">Contanos la fecha aproximada y las personas invitadas. Recibimos tu consulta y te respondemos por WhatsApp.</p>
               <div className="mt-6 space-y-3 rounded-lg border border-zinc-200 bg-white p-4 text-xs font-medium text-zinc-700 shadow-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />

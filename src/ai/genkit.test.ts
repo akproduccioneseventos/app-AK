@@ -29,20 +29,21 @@ describe("Gemini model policy", () => {
     expect(getGeminiFallbackCandidates(geminiProModel)).not.toContain("googleai/gemini-2.0-flash");
   });
 
-  it("ningún modelo por defecto ni de respaldo contiene 'pro' ni 'argon'", () => {
-    const todosLosModelos = [
-      DEFAULT_GEMINI_MODEL,
-      DEFAULT_GEMINI_LATEST_MODEL,
-      DEFAULT_GEMINI_PRO_MODEL,
-      DEFAULT_GEMINI_PRO_FALLBACK_MODEL,
-      ...getGeminiFallbackCandidates(DEFAULT_GEMINI_MODEL),
-      ...getGeminiFallbackCandidates(DEFAULT_GEMINI_PRO_MODEL),
-      ...getGeminiFallbackCandidates(geminiFastModel),
-      ...getGeminiFallbackCandidates(geminiProModel),
-    ];
-    for (const m of todosLosModelos) {
+  it("la lista de respaldo del profundo empieza por gemini-pro-latest y termina en un flash", () => {
+    const fallbackPro = getGeminiFallbackCandidates(geminiProModel);
+    expect(fallbackPro[0]).toBe("googleai/gemini-pro-latest");
+    expect(fallbackPro[fallbackPro.length - 1]).toMatch(/flash/);
+    expect(fallbackPro).toEqual([
+      "googleai/gemini-pro-latest",
+      "googleai/gemini-flash-latest",
+      "googleai/gemini-3.8-flash",
+    ]);
+  });
+
+  it("el modelo rápido por defecto no contiene 'pro'", () => {
+    expect(geminiFastModel.toLowerCase()).not.toContain("pro");
+    for (const m of getGeminiFallbackCandidates(geminiFastModel)) {
       expect(m.toLowerCase()).not.toContain("pro");
-      expect(m.toLowerCase()).not.toContain("argon");
     }
   });
 
@@ -60,8 +61,10 @@ describe("Gemini model policy", () => {
     expect(Object.keys(getGeminiGenerationConfigForAgent())).toEqual(["maxOutputTokens"]);
   });
 
-  it("retries only model availability and transient failures", () => {
+  it("retries only model availability and transient failures (incluye 402 sin saldo y 429)", () => {
+    expect(isRecoverableGeminiModelError({ status: 402, message: "payment required" })).toBe(true);
     expect(isRecoverableGeminiModelError({ status: 404, message: "model not found" })).toBe(true);
+    expect(isRecoverableGeminiModelError({ status: 429, message: "resource_exhausted" })).toBe(true);
     expect(isRecoverableGeminiModelError({ status: 503, message: "overloaded" })).toBe(true);
     expect(isRecoverableGeminiModelError({ status: 401, message: "invalid api key" })).toBe(false);
     expect(isRecoverableGeminiModelError({ status: 400, message: "invalid request" })).toBe(false);

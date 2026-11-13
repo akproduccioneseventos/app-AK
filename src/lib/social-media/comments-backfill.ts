@@ -10,7 +10,18 @@ import type {
 import { readData, writeData } from '@/lib/data-service';
 import { mutarComentarios, aplicarParches, parcheEntre } from '@/lib/social-media/guardar-comentarios';
 import { generateWithGeminiFallback } from '@/ai/genkit';
-import { clasificarComentario } from './clasificador-comentarios';
+import {
+  clasificarComentario,
+  armarAgradecimientoComentario,
+  sanitizarTextoRespuesta,
+  alertarDuenioPorComentarioNegativo,
+} from './clasificador-comentarios';
+
+export {
+  armarAgradecimientoComentario,
+  sanitizarTextoRespuesta,
+  alertarDuenioPorComentarioNegativo,
+};
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 const COMMENTS_FILE = 'social-comments.json';
@@ -26,8 +37,10 @@ export interface AjustesRespuestasComentarios {
 }
 
 export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
-  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
-  const comentarios = guardados?.comentarios !== undefined ? guardados.comentarios : (guardados?.activo === true);
+  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: true, comentarios: true, mensajesDirectos: true });
+  const comentarios = guardados?.comentarios !== undefined
+    ? guardados.comentarios
+    : (guardados?.activo !== undefined ? guardados.activo : true);
   const mensajesDirectos = guardados?.mensajesDirectos !== undefined ? guardados.mensajesDirectos : true;
   return {
     ...guardados,
@@ -86,7 +99,10 @@ Generá una respuesta corta (máximo 2 oraciones), amable y cercana en español 
 REGLAS ESTRICTAS:
 1. NO des ningún precio ni menciones números de dinero bajo ningún concepto.
 2. NO confirmes disponibilidad de fechas.
-3. Invitá siempre a escribir por WhatsApp para coordinar y asesorarlo en detalle.`;
+3. Invitá siempre a escribir por WhatsApp para coordinar y asesorarlo en detalle.
+4. NUNCA uses la palabra "garantía" ni "garantizar".
+5. NUNCA menciones atención o servicio "24/7" ni "24 horas".
+6. NO nombres personal ni menciones agasajados o clientes específicos.`;
 
     // Con respaldos de modelo (antes: fetch directo a gemini-1.5-flash, ya retirado). Si la IA falla
     // se mantiene el mismo texto neutro de siempre: nunca se publica algo inventado.
@@ -97,7 +113,7 @@ REGLAS ESTRICTAS:
     }
 
     await registrarConsumoIA('clasificacion-comentarios');
-    return limpiarNumerosDePrecio(textoIA);
+    return sanitizarTextoRespuesta(textoIA);
   } catch {
     return '¡Hola! Para consultar disponibilidad y coordinar, escribinos por WhatsApp.';
   }
@@ -128,13 +144,19 @@ export async function postReplyToMetaComment(
   }
 }
 
-export async function responderPreguntaComentarioSiAplica(
+/**
+ * Responde automáticamente a un comentario si aplica:
+ * - Preguntas reciben respuesta comercial sin precios invitando a WhatsApp.
+ * - Comentarios positivos o neutros reciben agradecimiento cordial con la voz de AK.
+ * - Quejas, negativos, insultos o spam NUNCA se contestan solos.
+ */
+export async function responderComentarioSiAplica(
   comentario: SocialComment,
   connections?: SocialConnection[],
 ): Promise<boolean> {
   if (comentario.respuestaAutomatica) return false;
   if (comentario.isInsultOrSpam || comentario.isAutoHidden) return false;
-  if (!comentario.esPregunta) return false;
+  if (comentario.isLegitimateComplaint || comentario.sentiment === 'negativo') return false;
 
   const ajustes = await getAjustesRespuestasComentarios();
   if (!ajustes.activo) return false;
@@ -155,8 +177,15 @@ export async function responderPreguntaComentarioSiAplica(
 
   if (!token) return false;
 
-  const respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
+  let respuestaTexto: string | null = null;
+  if (comentario.esPregunta) {
+    respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
+  } else if (comentario.sentiment === 'positivo' || comentario.sentiment === 'neutro') {
+    respuestaTexto = await armarAgradecimientoComentario(comentario.text, comentario.authorName);
+  }
+
   if (!respuestaTexto) return false;
+  respuestaTexto = sanitizarTextoRespuesta(respuestaTexto);
 
   const publicadoOk = await postReplyToMetaComment(
     comentario.networkCommentId,
@@ -174,6 +203,58 @@ export async function responderPreguntaComentarioSiAplica(
   }
 
   return false;
+}
+
+export async function responderPreguntaComentarioSiAplica(
+  comentario: SocialComment,
+  connections?: SocialConnection[],
+): Promise<boolean> {
+  if (!comentario.esPregunta) return false;
+  return responderComentarioSiAplica(comentario, connections);
+}
+
+/**
+ * Pasada diaria / barrido: todo comentario sin responder de más de 24h
+ * que no sea queja/spam/negativo recibe respuesta automática.
+ */
+export async function ejecutarPasadaDiariaComentarios(
+  ahora: Date = new Date(),
+  connections?: SocialConnection[],
+): Promise<{ respondidos: number; omitidos: number }> {
+  const comments = await readData<SocialComment[]>(COMMENTS_FILE, []);
+  const conns = connections || (await readData<SocialConnection[]>(CONNECTIONS_FILE, []));
+  const ahoraMs = ahora.getTime();
+  const unDiaMs = 24 * 60 * 60 * 1000;
+
+  let respondidos = 0;
+  let omitidos = 0;
+
+  const sinResponder = comments.filter((c) => {
+    if (c.respuestaAutomatica) return false;
+    if (c.isDeleted || c.isAutoHidden) return false;
+    if (c.isInsultOrSpam || c.isLegitimateComplaint || c.sentiment === 'negativo') return false;
+    const creadoMs = new Date(c.createdAt).getTime();
+    if (Number.isNaN(creadoMs)) return false;
+    return ahoraMs - creadoMs >= unDiaMs;
+  });
+
+  for (const c of sinResponder) {
+    const ok = await responderComentarioSiAplica(c, conns);
+    if (ok) {
+      respondidos++;
+    } else {
+      omitidos++;
+    }
+  }
+
+  if (respondidos > 0) {
+    await mutarComentarios((lista) => {
+      const mapa = new Map(sinResponder.filter((c) => c.respuestaAutomatica).map((c) => [c.id, c]));
+      return lista.map((item) => mapa.get(item.id) || item);
+    });
+  }
+
+  return { respondidos, omitidos };
 }
 
 const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
@@ -534,24 +615,59 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
     inc.esPregunta = clasif.esPregunta;
     inc.classifiedAt = new Date().toISOString();
 
-    // Si es pregunta y no es insulto ni queja auto-ocultada, responder automáticamente si está activo
-    if (inc.esPregunta && !inc.isInsultOrSpam && !inc.respuestaAutomatica) {
-      await responderPreguntaComentarioSiAplica(inc, connections);
-    }
+    const esNegativoOQueja = Boolean(
+      clasif.isLegitimateComplaint ||
+      clasif.sentiment === 'negativo'
+    );
 
-    // Si es insulto o spam flagrante, ocultamiento automático reversible
+    // Si es insulto, spam, queja o negativo, ocultamiento automático reversible en Meta (nunca borrar)
     if (clasif.autoHideRecommended) {
       inc.isAutoHidden = true;
-      inc.autoHiddenReason = clasif.sentimentReason || 'Ocultado automáticamente por insulto o spam';
+      inc.autoHiddenReason = clasif.sentimentReason || (esNegativoOQueja ? 'Ocultado preventivamente por queja o comentario negativo' : 'Ocultado automáticamente por moderación');
       inc.autoHiddenAt = new Date().toISOString();
       totalAutoHidden++;
 
-      // Ejecutar ocultamiento en Meta si es de Facebook / Instagram
+      // Ejecutar ocultamiento en Meta si es de Facebook / Instagram con hideCommentOnMeta. NUNCA borrar solo.
       if (inc.network === 'Facebook' && fbConn.pageAccessToken) {
         await hideCommentOnMeta(inc.networkCommentId, fbConn.pageAccessToken);
       } else if (inc.network === 'Instagram' && igConn.pageAccessToken) {
         await hideCommentOnMeta(inc.networkCommentId, igConn.pageAccessToken);
       }
+    }
+
+    // Alerta al dueño por WhatsApp en el momento ante queja o comentario negativo
+    if (esNegativoOQueja) {
+      await alertarDuenioPorComentarioNegativo({
+        text: inc.text,
+        authorName: inc.authorName,
+        permalink: inc.permalink,
+        postUrl: inc.postUrl,
+        sentimentReason: clasif.sentimentReason,
+        network: inc.network,
+      }).catch((err) => console.warn('[syncComments] Error alertando al dueño:', err));
+    }
+
+    // Respuesta automática:
+    // A una queja o comentario negativo NO se le contesta automáticamente sola.
+    // Tampoco a insultos, spam o comentarios auto-ocultados.
+    // Comentarios positivos, neutros o preguntas reciben respuesta con la voz de AK.
+    if (!esNegativoOQueja && !inc.isInsultOrSpam && !inc.isAutoHidden && !inc.respuestaAutomatica) {
+      await responderComentarioSiAplica(inc, connections);
+    }
+  }
+
+  // Pasada diaria / barrido: todo comentario sin responder de más de 24h que no sea queja/spam/negativo recibe respuesta
+  const ahoraMs = Date.now();
+  const unDiaMs = 24 * 60 * 60 * 1000;
+  for (const c of existingMap.values()) {
+    if (c.respuestaAutomatica) continue;
+    if (c.isDeleted || c.isAutoHidden) continue;
+    if (!c.classifiedAt || !c.sentiment) continue;
+    if (c.isInsultOrSpam || c.isLegitimateComplaint || c.sentiment === 'negativo') continue;
+    const creadoMs = new Date(c.createdAt).getTime();
+    if (Number.isNaN(creadoMs)) continue;
+    if (ahoraMs - creadoMs >= unDiaMs) {
+      await responderComentarioSiAplica(c, connections);
     }
   }
 

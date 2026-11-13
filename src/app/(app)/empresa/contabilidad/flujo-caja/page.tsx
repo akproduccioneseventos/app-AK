@@ -54,6 +54,13 @@ export default function FlujoCajaProyectadoPage() {
       return { totalIncome, totalExpenses, netBalance, coverageRatio };
   }, [data]);
 
+  const rangoMesesTexto = useMemo(() => {
+    if (data.length === 0) return '';
+    const primerMes = data[0]?.month || '';
+    const ultimoMes = data[data.length - 1]?.month || '';
+    return `Próximos 6 meses (de ${primerMes} a ${ultimoMes})`;
+  }, [data]);
+
   if (isLoading) {
     return <div className="flex flex-col items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-bold text-slate-500 uppercase tracking-widest">Ejecutando CFO Virtual...</p></div>;
   }
@@ -97,7 +104,9 @@ export default function FlujoCajaProyectadoPage() {
           </div>
           <div>
             <h1 className="text-3xl font-black tracking-tighter text-slate-900 font-headline uppercase">Flujo de Caja Proyectado</h1>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Módulo 5: CFO Virtual y Predicción Financiera</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+              Módulo 5: CFO Virtual y Predicción Financiera {rangoMesesTexto ? `· ${rangoMesesTexto}` : ''}
+            </p>
           </div>
         </div>
         <Button asChild variant="outline" className="rounded-xl border-slate-200 shadow-sm"><Link href="/empresa/contabilidad"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel</Link></Button>

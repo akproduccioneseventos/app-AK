@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { verifySession } from '@/lib/auth/session-token';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
-import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
 
 export const runtime = 'nodejs';
@@ -83,6 +83,15 @@ export async function POST(request: NextRequest) {
     && AGENT_TYPES.includes(body.agentType as AkAgentType)
     ? body.agentType as AkAgentType
     : undefined;
+
+  if (!(await hayPresupuestoParaIA())) {
+    return NextResponse.json({
+      success: false,
+      response: 'Se llegó al tope de gasto de inteligencia artificial de este mes',
+      message: 'Se llegó al tope de gasto de inteligencia artificial de este mes',
+      error: 'Se llegó al tope de gasto de inteligencia artificial de este mes',
+    });
+  }
 
   const { sendPersistentMultiAgentMessage } = await import('@/app/actions/multiagent');
   const result = await sendPersistentMultiAgentMessage({

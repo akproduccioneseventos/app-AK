@@ -1,6 +1,11 @@
 import 'server-only';
 
-import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import {
+  generateWithGeminiFallback,
+  getEffectiveGeminiModelForAgent,
+  getGeminiGenerationConfigForAgent,
+  getGeminiModelForAgent,
+} from '@/ai/genkit';
 import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';
 
 const MARKETING_SYSTEM_PROMPT = `Sos el Agente de Marketing de AK Producciones Eventos (Salto, Uruguay).
@@ -16,7 +21,8 @@ Sos un especialista en marketing digital para eventos sociales: XV años, casami
 ## ESTILO DE MARCA AK
 - Tono: cercano, profesional, uruguayo ("vos", expresiones naturales: dale, bárbaro, ta, etc.)
 - Propuesta de valor central: organización completa, "vos llegás como invitado/a y nosotros hacemos el resto"
-- Fortalezas: salón propio, equipo completo, personalización, transparencia de precios
+- Fortalezas: salón disponible (Club Uruguay), equipo completo, personalización, transparencia de precios
+- Regla clave: nunca decir que el salón pertenece a AK ni que es propio de la empresa (se ofrece el Club Uruguay como salón disponible)
 - Llamado a la acción preferido: simulador de presupuesto ({{LINK_SIMULADOR}}) o contacto directo
 
 ## GUÍA POR PLATAFORMA
@@ -87,11 +93,12 @@ export async function chatWithMarketingAgent(
     promptParts.push({ media: { url: input.attachmentDataUri } });
   }
 
+  const model = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
   const { text } = await generateWithGeminiFallback({
-    model: getGeminiModelForAgent('marketing'),
+    model,
     system: MARKETING_SYSTEM_PROMPT,
     prompt: promptParts,
-    config: getGeminiGenerationConfigForAgent('marketing'),
+    config: getGeminiGenerationConfigForAgent('marketing', { deep: true }),
   });
 
   return {

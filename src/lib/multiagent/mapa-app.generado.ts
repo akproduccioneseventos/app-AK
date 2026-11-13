@@ -15,8 +15,8 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
-    "etiqueta": "Centro de Control",
-    "ruta": "/centro-de-control"
+    "etiqueta": "Más",
+    "ruta": "/mas"
   },
   {
     "etiqueta": "Mi Día",
@@ -175,12 +175,12 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/settings/feature-flags"
   },
   {
-    "etiqueta": "Nuevo Lead",
-    "ruta": "/admin"
-  },
-  {
     "etiqueta": "Alertas",
     "ruta": "/alertas"
+  },
+  {
+    "etiqueta": "Más Herramientas",
+    "ruta": "/mas"
   }
 ];
 
@@ -405,6 +405,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/marketing/checklist",
     "/marketing/demo-tecnologia",
     "/marketing/plantillas",
+    "/mas",
     "/mi-dia",
     "/multiagente",
     "/multiagente/acciones",

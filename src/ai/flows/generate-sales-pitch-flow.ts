@@ -1,4 +1,4 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { generateWithGeminiFallback, getEffectiveGeminiModelForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { z } from 'zod';
 
 export const GenerateSalesPitchSchema = z.object({
@@ -31,7 +31,7 @@ Reglas:
 - Cierra con un llamado a la acción claro para coordinar una reunión o llamada.
 - NO devuelvas JSON, devuelve directamente el texto del mensaje listo para copiar y pegar en WhatsApp.`;
 
-    const model = getGeminiModelForAgent('comercial');
+    const model = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
     const result = await generateWithGeminiFallback({
       model,
       prompt,

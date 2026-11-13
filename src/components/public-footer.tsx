@@ -242,7 +242,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
           <div className="space-y-4">
             <h4 className="text-xs font-black uppercase tracking-[0.25em] text-red-400 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-red-400" aria-hidden="true" />
-              Oficina & Atención
+              Atención
             </h4>
             <div className="space-y-3 text-xs font-medium text-zinc-300 rounded-2xl border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm">
               <p className="flex items-start gap-2.5">

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCronograma, InvitacionSectionId, InvitacionSectionConfig, InvitacionTypographyConfig } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
@@ -10,7 +11,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2, Instagram, Facebook, Volume2, VolumeX, Music, X, ChevronLeft, ChevronRight, Sparkles, HelpCircle, Hotel, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn, hoyEnUruguay } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
@@ -102,10 +103,13 @@ export function getSectionOrder(
 function Countdown({ fechaEvento }: { fechaEvento: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
+  const hoy = hoyEnUruguay();
+  const fechaStr = (fechaEvento || '').slice(0, 10);
+  const yaPaso = fechaStr < hoy;
+  const esHoy = fechaStr === hoy;
+
   useEffect(() => {
-    // La fecha viene sin hora. Leida de la forma directa apunta a las nueve de la
-    // noche del dia anterior, asi que la cuenta regresiva llegaba a cero antes de
-    // tiempo. `parseEventDate` la ubica en el dia correcto.
+    if (yaPaso || esHoy) return;
     const target = parseEventDate(fechaEvento)?.getTime() ?? new Date(fechaEvento).getTime();
     let timeoutId: ReturnType<typeof setTimeout>;
 
@@ -125,7 +129,23 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 
     update();
     return () => clearTimeout(timeoutId);
-  }, [fechaEvento]);
+  }, [fechaEvento, yaPaso, esHoy]);
+
+  if (yaPaso) {
+    return (
+      <div className="text-center py-2 text-2xl sm:text-3xl font-black" style={{ color: 'var(--inv-primary)' }}>
+        ¡Ya la festejaste!
+      </div>
+    );
+  }
+
+  if (esHoy) {
+    return (
+      <div className="text-center py-2 text-2xl sm:text-3xl font-black" style={{ color: 'var(--inv-primary)' }}>
+        ¡Es hoy!
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center gap-3 sm:gap-6">
@@ -155,14 +175,26 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   const [requiereAccesibilidad, setRequiereAccesibilidad] = useState(false);
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmCooldown, setConfirmCooldown] = useState(false);
   const [error, setError] = useState('');
 
   const [step, setStep] = useState<number>(1);
   const isNoAsiste = asistencia === 'Rechazado';
   const totalSteps = isNoAsiste ? 2 : 3;
 
+  useEffect(() => {
+    if (step === totalSteps) {
+      setConfirmCooldown(true);
+      const timer = setTimeout(() => {
+        setConfirmCooldown(false);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [step, totalSteps]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting || confirmCooldown) return;
     if (!nombre.trim()) return;
     setIsSubmitting(true);
     setError('');
@@ -517,7 +549,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
           ) : (
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || confirmCooldown}
               className={cn('flex-1 rounded-xl h-11 font-bold text-white shadow-md transition-all active:scale-95', getButtonTextClass(typography))}
               style={{ backgroundColor: 'var(--inv-primary)' }}
             >
@@ -862,7 +894,7 @@ function StoryTimeline({ hitos, colorPrincipal, colorSecundario }: { hitos: Hito
                   {hito.fotoUrl && (
                     <div className="relative mt-4 rounded-xl overflow-hidden aspect-video shadow-inner">
                       {canUseNextImage(hito.fotoUrl) ? (
-                        <Image src={hito.fotoUrl} alt={hito.titulo} fill sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+                        <ImagenConRespaldo src={hito.fotoUrl} alt={hito.titulo} fill sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element -- Invitation media may use an external host outside Next's allowlist.
                         <img src={hito.fotoUrl} alt={hito.titulo} className="w-full h-full object-cover" loading="lazy" />
@@ -1119,27 +1151,14 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   type SectionEntry = { id: InvitacionSectionId; order: number; el: React.ReactNode };
   const sectionEntries: SectionEntry[] = [];
 
-  const PLACEHOLDER_EL = (id: string) => (
-    <Section key={`${id}-placeholder`} className="text-center max-w-lg mx-auto" typography={config.typography}>
-      <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
-        AK esta preparando esta seccion para que se vea perfecta cuando el organizador la active.
-      </p>
-    </Section>
-  );
-
   const addSectionEntry = (
     id: InvitacionSectionId,
     condition: boolean,
     el: React.ReactNode,
-    showPlaceholder = false
+    _showPlaceholder = false
   ) => {
     if (!isSectionVisible(id, config.sectionsConfig)) return;
-    if (!condition) {
-      if (showPlaceholder) {
-        sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el: PLACEHOLDER_EL(id) });
-      }
-      return;
-    }
+    if (!condition) return;
     sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el });
   };
 
@@ -1161,9 +1180,16 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   addSectionEntry('contador', config.contadorActivo && !!config.fechaEvento, (
     <Section key="contador" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
-      <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-        Faltan...
-      </h2>
+      {(() => {
+        const hoy = hoyEnUruguay();
+        const fechaStr = (config.fechaEvento || '').slice(0, 10);
+        if (fechaStr < hoy) return null;
+        return (
+          <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+            {fechaStr === hoy ? '¡Es hoy!' : 'Faltan...'}
+          </h2>
+        );
+      })()}
       <Countdown fechaEvento={config.fechaEvento} />
     </Section>
   ));
@@ -1257,7 +1283,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             className="aspect-square rounded-xl overflow-hidden shadow-md cursor-pointer relative group"
           >
             {canUseNextImage(url) ? (
-              <Image src={url} alt={`Foto ${i + 1}`} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+              <ImagenConRespaldo src={url} alt={`Foto ${i + 1}`} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element -- Invitation media may use an external host outside Next's allowlist.
               <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
@@ -1442,6 +1468,22 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   sectionEntries.sort((a, b) => a.order - b.order);
+
+  // Al invitado no se le muestran secciones vacías. Si todas las secciones del medio están vacías,
+  // el aviso se muestra una sola vez y con tildes correctas.
+  if (sectionEntries.length === 0) {
+    sectionEntries.push({
+      id: 'bienvenida',
+      order: 0,
+      el: (
+        <Section key="seccion-en-preparacion" className="text-center max-w-lg mx-auto" typography={config.typography}>
+          <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
+            AK está preparando esta sección para que se vea perfecta cuando el organizador la active.
+          </p>
+        </Section>
+      ),
+    });
+  }
   // ─────────────────────────────────────────────────────────────────────────
 
   return (

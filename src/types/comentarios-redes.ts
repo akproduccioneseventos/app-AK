@@ -24,11 +24,11 @@ export interface SocialComment {
   esPregunta?: boolean;
   classifiedAt?: string;
 
-  // Respuesta automática a preguntas
+  // Respuesta automática a preguntas y comentarios
   respuestaAutomatica?: {
     texto: string;
     at: string;
-  };
+  } | boolean;
 
   // Moderación y Estado
   isAutoHidden?: boolean;

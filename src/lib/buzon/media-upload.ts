@@ -25,19 +25,19 @@ export function detectBuzonMedia(
   const isJpeg = startsWith(bytes, [0xff, 0xd8, 0xff]);
   const isPng = startsWith(bytes, [0x89, 0x50, 0x4e, 0x47]);
   const isWebp = asciiAt(bytes, 0, 4) === 'RIFF' && asciiAt(bytes, 8, 4) === 'WEBP';
+  const isIsoMedia = asciiAt(bytes, 4, 4) === 'ftyp';
 
   if (declaredMediaType === 'photo') {
     if (isJpeg) return { mediaType: 'photo', extension: '.jpg', contentType: 'image/jpeg' };
     if (isPng) return { mediaType: 'photo', extension: '.png', contentType: 'image/png' };
     if (isWebp) return { mediaType: 'photo', extension: '.webp', contentType: 'image/webp' };
-    if (mimeType.startsWith('image/')) return { mediaType: 'photo', extension: '.jpg', contentType: mimeType };
+    if (isIsoMedia) return { mediaType: 'photo', extension: '.heic', contentType: 'image/heic' };
     return null;
   }
 
   if (!mimeType.startsWith(`${declaredMediaType}/`)) return null;
 
   const isWebm = startsWith(bytes, [0x1a, 0x45, 0xdf, 0xa3]);
-  const isIsoMedia = asciiAt(bytes, 4, 4) === 'ftyp';
   const isOgg = asciiAt(bytes, 0, 4) === 'OggS';
   const isWave = asciiAt(bytes, 0, 4) === 'RIFF' && asciiAt(bytes, 8, 4) === 'WAVE';
   const isMp3 = asciiAt(bytes, 0, 3) === 'ID3'

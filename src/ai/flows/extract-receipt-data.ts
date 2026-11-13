@@ -1,7 +1,7 @@
 import 'server-only';
 import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
-import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 export const ExtractReceiptInputSchema = z.object({
   receiptDataUri: z.string().describe('El ticket, factura o recibo como data URI (imagen base64 o url).'),
@@ -37,6 +37,9 @@ Imagen del comprobante: {{media url=receiptDataUri}}`,
 });
 
 export async function extractReceiptData(input: ExtractReceiptDataInput): Promise<ExtractReceiptDataOutput> {
+  if (!(await hayPresupuestoParaIA())) {
+    throw new Error('Se llegó al tope de gasto de inteligencia artificial de este mes');
+  }
   try {
     const { output } = await ejecutarPromptConFallback(extractReceiptPrompt, input);
     if (!output) throw new Error('No se obtuvo respuesta estructurada.');
@@ -50,6 +53,9 @@ export async function extractReceiptData(input: ExtractReceiptDataInput): Promis
       notes: output.notes || 'Datos extraídos con Gemini.',
     };
   } catch (error) {
+    if (error instanceof Error && error.message === 'Se llegó al tope de gasto de inteligencia artificial de este mes') {
+      throw error;
+    }
     console.warn('[extractReceiptData] Error con Gemini, retornando valores base:', error);
     return {
       vendor: '',
