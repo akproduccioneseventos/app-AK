@@ -42,9 +42,11 @@ test.describe('Orden 298: Presupuestos abre rápido sin esperar la corrección d
 
     await page.goto('/presupuestos/nuevo', { waitUntil: 'domcontentloaded' });
 
-    // La sección de ordenados aparece rápido
+    // La sección de ordenados aparece rápido y comprobamos el resultado
     const seccionOrdenados = page.getByText('Presupuestos ordenados');
     await expect(seccionOrdenados.first()).toBeVisible({ timeout: 20_000 });
+    await expect(seccionOrdenados).toHaveCount(1);
+    await expect(seccionOrdenados.first()).toContainText('Presupuestos ordenados');
 
     // Liberamos la corrección de fechas
     if (liberarReparacion) {
