@@ -536,6 +536,10 @@
     "134": {
       "fecha": "2026-11-13",
       "resultado": "Comparado public/ con .next/standalone/public después de compilar: sólo faltaban sw.js y workbox-*.js (los genera next-pwa durante la compilación). firebase-messaging-sw.js se genera antes y sí llegaba. Arreglado por Claude: la compilación los copia y frena si faltan."
+    },
+    "135": {
+      "fecha": "2026-11-13",
+      "resultado": "Notas internas en textos visibles: Club Uruguay (etiqueta del 50%, frase del simulador, habilitación, \"Por confirmar\") y la descripción \"módulo maestro\" en Club Uruguay y la portada → orden 296. El resto de las páginas públicas, sin casos."
     }
   },
   "hallazgos": {
@@ -846,6 +850,10 @@
     "orden-295": {
       "fecha": "2026-11-13",
       "resultado": "Informe de resultados y pendientes del auditor: L (fecha pasada en el simulador, servidor arreglado por Claude; calendario y prospecto en la orden), K ya publicado, A-J en órdenes 292-294, y la salud de Google Workspace con dos nombres para dos cosas."
+    },
+    "orden-296": {
+      "fecha": "2026-11-13",
+      "resultado": "Revisión comercial del Club Uruguay: notas internas (bloque 1), aniversario en pasado (bloque 2) y la pestaña con AK Producciones dos veces en 10 páginas (bloque 3). Lo demás de la revisión son propuestas para el dueño."
     }
   }
 }
