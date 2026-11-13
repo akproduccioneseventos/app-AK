@@ -66,6 +66,12 @@ escondidas"; meses en minúscula; tildes en `/admin`; fechas con `formatearFecha
 Producciones" → **"Lugar a coordinar"** (o videollamada, según lo que ya ofrezca la agenda); la pregunta de XV en
 `/evento/social` sólo si la fiesta es de XV; el botón de enviar de `/simulador-ak` entero a 390 px.
 
+## Bloque 6 — Sin promesas absolutas (decisión del dueño, 13/11/2026: "sí")
+
+Sacá "garantía de satisfacción", "flexibilidad absoluta" y toda promesa del mismo tipo de los textos que arma el simulador
+(Ajustes → Configuración del simulador) y de Contenido público. **Los logos de empresas de la presentación LED quedan: son
+clientes reales** (lo confirmó el dueño). **La plantilla de contrato con su domicilio y cédula queda como está.**
+
 ## Pruebas
 
 - `src/__tests__/los-nombres-rotos-se-reparan.test.ts`: un nombre con la ñ rota queda con la ñ bien (armá el texto roto en la prueba con `Buffer.from("XV años de Ana","utf8").toString("latin1")`), "Otro de Juan" → "Evento de
