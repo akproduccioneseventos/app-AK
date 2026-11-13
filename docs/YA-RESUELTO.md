@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - "Poner al día" ya no trae los cobros marcados
+
+- **Qué pasaba:** la pantalla abría con las 7 fiestas pasadas marcadas como cobradas; un toque en "Aplicar" registraba
+  $1.855.627 como cobros confirmados, con la fecha de la fiesta y sin comprobante (auditoría de contabilidad).
+- **Qué se hizo:** los cobros arrancan sin marcar; las copias y las pruebas siguen marcadas. La fecha real y el medio del
+  cobro van en la orden 301, bloque 2.
+
+```comprobar
+prueba: src/__tests__/poner-al-dia-no-marca-cobros-solo.test.ts
+```
+
 ## 13/11/2026 - El modo sin conexión no llegaba a la versión publicada
 
 - **Qué pasaba:** en el dominio, `/sw.js` daba 404 y el navegador no podía registrar el modo sin conexión (adenda 2 del
