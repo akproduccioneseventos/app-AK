@@ -55,7 +55,7 @@ export default function CatalogoPage() {
                           {catalog.name}
                         </CardTitle>
                         <CardDescription className="text-xs text-slate-400 mt-0.5">
-                          {catalog.services.length} paquetes · {catalog.process.length} pasos
+                          {catalog.services.length} paquetes
                         </CardDescription>
                       </div>
                     </div>

@@ -1,4 +1,5 @@
 'use client';
+import { cn } from '@/lib/utils';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useRef, useState, type ComponentType, type ReactNode, type SVGProps } from 'react';
@@ -1259,8 +1260,17 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
           {/* Tarjeta Menú */}
           <div
-            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
-            onClick={() => goToPortalSection('organizacion')}
+            className={cn(
+              "ak-public-card p-5 relative overflow-hidden transition-all bg-white border border-slate-200",
+              access.phase === 'financiera'
+                ? "cursor-default opacity-85"
+                : "group cursor-pointer hover:shadow-lg"
+            )}
+            onClick={() => {
+              if (access.phase !== 'financiera') {
+                goToPortalSection('organizacion');
+              }
+            }}
           >
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
             <div className="flex items-center gap-4 mb-5">
@@ -1274,12 +1284,20 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </div>
             <div className="flex justify-between items-end">
               <div className="space-y-1">
-                <p className="text-sm text-slate-500 font-medium">Plato principal</p>
-                <p className="text-lg font-bold text-slate-800 line-clamp-1">{fiesta?.menuSeleccionPortal?.principal || 'A definir'}</p>
+                {access.phase === 'financiera' ? (
+                  <p className="text-sm font-semibold text-slate-500">Disponible cuando arranque la organización</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-slate-500 font-medium">Plato principal</p>
+                    <p className="text-lg font-bold text-slate-800 line-clamp-1">{fiesta?.menuSeleccionPortal?.principal || 'A definir'}</p>
+                  </>
+                )}
               </div>
-              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-500" />
-              </div>
+              {access.phase !== 'financiera' && (
+                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-500" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1406,7 +1424,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       </Button>
                     ) : <PortalEmptyState title="El mural social todavía no está activo" description="AK lo habilitará cuando el servicio esté listo para tu evento." />}
                   </div>
-                </div>
+                </div>
+
 
                 {/* Tarjeta Tus fotos y videos */}
                 <div className="rounded-lg border p-4 bg-white shadow-sm space-y-3">

@@ -1580,7 +1580,7 @@ function AudioRhythmSlide({
           <QRCodeSVG value={config.qrUrl} size={124} includeMargin />
           <div className="max-w-[190px] text-left">
             <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: config.accentColor }}>Participa</p>
-            <p className="mt-1 text-sm font-bold text-slate-600">Subi tu foto y mirate en la pantalla.</p>
+            <p className="mt-1 text-sm font-bold text-slate-600">Subí tu foto y mirate en la pantalla.</p>
           </div>
         </div>
       )}

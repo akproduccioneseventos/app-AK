@@ -31,6 +31,7 @@ export default function AdminDatosPage() {
   const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
   const [isArchivingFiestas, setIsArchivingFiestas] = useState(false);
   const [isDeletingFiestas, setIsDeletingFiestas] = useState(false);
+  const [deleteFiestasConfirmText, setDeleteFiestasConfirmText] = useState('');
   const [isResettingAll, setIsResettingAll] = useState(false);
   const [isCleaningDb, setIsCleaningDb] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
@@ -86,6 +87,7 @@ export default function AdminDatosPage() {
 
   const handleDeleteAllFiestas = useCallback(async () => {
     setIsDeletingFiestas(true);
+    setDeleteFiestasConfirmText('');
     try {
       const result = await deleteAllFiestas();
       if (result.success) {
@@ -271,7 +273,7 @@ export default function AdminDatosPage() {
             </AlertDialogContent>
           </AlertDialog>
 
-          <AlertDialog>
+          <AlertDialog onOpenChange={(open) => { if (!open) setDeleteFiestasConfirmText(''); }}>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingFiestas}>
                 {isDeletingFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
@@ -281,13 +283,30 @@ export default function AdminDatosPage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos de Firestore. Los datos <strong>NO se podrán recuperar</strong>. Esta operación no puede deshacerse.
+                <AlertDialogDescription asChild>
+                  <div className="space-y-3">
+                    <p>
+                      Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos de Firestore. Los datos <strong>NO se podrán recuperar</strong>. Esta operación no puede deshacerse.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                      <Input
+                        value={deleteFiestasConfirmText}
+                        onChange={(e) => setDeleteFiestasConfirmText(e.target.value)}
+                        placeholder="ELIMINAR"
+                        className="border-destructive/40 focus-visible:ring-destructive"
+                      />
+                    </div>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAllFiestas} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogCancel onClick={() => setDeleteFiestasConfirmText('')}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAllFiestas}
+                  disabled={deleteFiestasConfirmText !== 'ELIMINAR'}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
                   Sí, eliminar todo permanentemente
                 </AlertDialogAction>
               </AlertDialogFooter>

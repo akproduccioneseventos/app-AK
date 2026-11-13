@@ -175,14 +175,26 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   const [requiereAccesibilidad, setRequiereAccesibilidad] = useState(false);
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmCooldown, setConfirmCooldown] = useState(false);
   const [error, setError] = useState('');
 
   const [step, setStep] = useState<number>(1);
   const isNoAsiste = asistencia === 'Rechazado';
   const totalSteps = isNoAsiste ? 2 : 3;
 
+  useEffect(() => {
+    if (step === totalSteps) {
+      setConfirmCooldown(true);
+      const timer = setTimeout(() => {
+        setConfirmCooldown(false);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [step, totalSteps]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting || confirmCooldown) return;
     if (!nombre.trim()) return;
     setIsSubmitting(true);
     setError('');
@@ -537,7 +549,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
           ) : (
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || confirmCooldown}
               className={cn('flex-1 rounded-xl h-11 font-bold text-white shadow-md transition-all active:scale-95', getButtonTextClass(typography))}
               style={{ backgroundColor: 'var(--inv-primary)' }}
             >

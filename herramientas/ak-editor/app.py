@@ -23,6 +23,8 @@ from exportador_filmora import exportar_timeline_filmora, generar_xml_prueba
 from exportador_video import estimar_tiempo_render_formateado, exportar_video_ffmpeg
 from reglas import ReglasEdicion, aprender_de_mis_videos, cargar_configuracion
 import video_de_vida
+import redes
+import wfolio
 import glob
 from fotos import aprender_mi_estilo, procesar_seleccion_fotos
 
@@ -51,6 +53,30 @@ ESTADO_FOTOS = {
     "detalles": [],
     "mensaje": "Listo para elegir fotos",
     "estilo_aprendido": None,
+}
+
+# Estado global para Video de Vida (Orden 288)
+ESTADO_VIDA = {
+    "en_progreso": False,
+    "mensaje": "Listo para generar Video de Vida",
+    "total": 0,
+    "actual": 0,
+    "ruta_salida": "",
+}
+
+# Estado global para Redes (Orden 288)
+ESTADO_REDES = {
+    "en_progreso": False,
+    "mensaje": "Listo para generar videos para redes",
+    "videos": [],
+    "carpeta": "",
+}
+
+# Estado global para Wfolio (Orden 288)
+ESTADO_WFOLIO = {
+    "en_progreso": False,
+    "mensaje": "Listo para sincronizar con Wfolio",
+    "resumen": None,
 }
 
 
@@ -411,6 +437,18 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             self._responder_json(200, ESTADO_FOTOS)
             return
 
+        if ruta == "/api/vida/estado":
+            self._responder_json(200, ESTADO_VIDA)
+            return
+
+        if ruta == "/api/redes/estado":
+            self._responder_json(200, ESTADO_REDES)
+            return
+
+        if ruta == "/api/wfolio/estado":
+            self._responder_json(200, ESTADO_WFOLIO)
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
     def do_POST(self) -> None:
@@ -591,6 +629,132 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                 self._responder_json(500, {"error": str(e)})
             return
 
+        if ruta == "/api/vida/generar":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+
+            modo = body.get("modo", "xv").strip()
+            plantilla = body.get("plantilla", "clasica-dorada").strip()
+            audio = body.get("audio", "").strip() or None
+
+            def tarea_vida():
+                ESTADO_VIDA["en_progreso"] = True
+                ESTADO_VIDA["mensaje"] = "Leyendo y clasificando fotos para Video de Vida..."
+                try:
+                    cargadas = video_de_vida.cargar_fotos(carpeta, modo=modo)
+                    fotos = cargadas.get("fotos", [])
+                    if not fotos:
+                        ESTADO_VIDA["mensaje"] = "No se encontraron fotos en la carpeta seleccionada."
+                        return
+
+                    ESTADO_VIDA["total"] = len(fotos)
+                    ESTADO_VIDA["mensaje"] = f"Ordenando {len(fotos)} fotos cronológicamente..."
+                    ordenadas = video_de_vida.ordenar_fotos_vida(fotos)
+
+                    destino_dir = os.path.expanduser(
+                        os.path.join("~", "Documents", "AK Editor", ESTADO_GLOBAL["evento_actual"])
+                    )
+                    os.makedirs(destino_dir, exist_ok=True)
+                    salida_mp4 = os.path.join(destino_dir, "video_de_vida.mp4")
+
+                    def cb_prog(act, tot, msg):
+                        ESTADO_VIDA["actual"] = act
+                        ESTADO_VIDA["total"] = tot
+                        ESTADO_VIDA["mensaje"] = f"Video de Vida ({act}/{tot}): {msg}"
+
+                    res_mp4 = video_de_vida.exportar_video_de_vida(
+                        ordenadas,
+                        salida_mp4,
+                        ruta_audio=audio,
+                        plantilla_id=plantilla,
+                        progreso_callback=cb_prog,
+                    )
+                    ESTADO_VIDA["ruta_salida"] = res_mp4
+                    ESTADO_VIDA["mensaje"] = f"¡Video de Vida generado con éxito! Destino: {res_mp4}"
+                except Exception as e:
+                    ESTADO_VIDA["mensaje"] = f"Error al generar Video de Vida: {str(e)}"
+                finally:
+                    ESTADO_VIDA["en_progreso"] = False
+
+            threading.Thread(target=tarea_vida, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Generación de Video de Vida iniciada"})
+            return
+
+        if ruta == "/api/redes/generar":
+            origen = body.get("origen", "").strip()
+            if not origen or not os.path.exists(origen):
+                self._responder_json(400, {"error": "Carpeta de origen inválida o no encontrada"})
+                return
+
+            destino = body.get("destino", "").strip()
+            if not destino:
+                destino = os.path.expanduser(
+                    os.path.join("~", "Documents", "AK Editor", ESTADO_GLOBAL["evento_actual"], "redes")
+                )
+
+            musica = body.get("musica", "").strip() or None
+
+            def tarea_redes():
+                ESTADO_REDES["en_progreso"] = True
+                ESTADO_REDES["carpeta"] = destino
+                ESTADO_REDES["mensaje"] = "Generando videos en los 3 formatos para redes..."
+                try:
+                    def cb_prog(act, tot, msg):
+                        ESTADO_REDES["mensaje"] = f"Redes ({act}/{tot}): {msg}"
+
+                    res = redes.generar_videos_redes(
+                        origen=origen,
+                        carpeta_destino=destino,
+                        ruta_musica=musica,
+                        progreso_callback=cb_prog,
+                    )
+                    ESTADO_REDES["videos"] = res.get("videos", [])
+                    ESTADO_REDES["mensaje"] = (
+                        f"¡Videos de redes listos! Se generaron {len(res.get('videos', []))} videos en {destino}."
+                    )
+                except Exception as e:
+                    ESTADO_REDES["mensaje"] = f"Error al generar videos para redes: {str(e)}"
+                finally:
+                    ESTADO_REDES["en_progreso"] = False
+
+            threading.Thread(target=tarea_redes, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Generación de videos para redes iniciada"})
+            return
+
+        if ruta == "/api/wfolio/subir":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+
+            fiesta = body.get("fiesta", ESTADO_GLOBAL["evento_actual"]).strip()
+
+            def tarea_wfolio():
+                ESTADO_WFOLIO["en_progreso"] = True
+                ESTADO_WFOLIO["mensaje"] = f"Iniciando subida y comprobación en Wfolio para {fiesta}..."
+                try:
+                    resumen = wfolio.subir_a_wfolio(
+                        ruta_carpetas=carpeta,
+                        fiesta_nombre=fiesta,
+                    )
+                    ESTADO_WFOLIO["resumen"] = resumen
+                    ESTADO_WFOLIO["mensaje"] = resumen.get("mensaje", "Sincronización finalizada")
+                except Exception as e:
+                    ESTADO_WFOLIO["mensaje"] = f"Error al sincronizar con Wfolio: {str(e)}"
+                finally:
+                    ESTADO_WFOLIO["en_progreso"] = False
+
+            threading.Thread(target=tarea_wfolio, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Subida a Wfolio iniciada"})
+            return
+
+        if ruta == "/api/wfolio/login":
+            threading.Thread(target=wfolio.abrir_navegador_para_login, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Navegador abierto para iniciar sesión en Wfolio"})
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
 
@@ -659,6 +823,9 @@ HTML_INTERFAZ = """<!DOCTYPE html>
     <button class="nav-tab" onclick="cambiarPestana('analisis')">Análisis</button>
     <button class="nav-tab" onclick="cambiarPestana('revision')">Revisión</button>
     <button class="nav-tab" onclick="cambiarPestana('fotos')">Fotos</button>
+    <button class="nav-tab" onclick="cambiarPestana('vida')">Video de Vida</button>
+    <button class="nav-tab" onclick="cambiarPestana('redes')">Redes</button>
+    <button class="nav-tab" onclick="cambiarPestana('wfolio')">Wfolio</button>
     <button class="nav-tab" onclick="cambiarPestana('exportar')">Exportar a Filmora</button>
   </nav>
 
@@ -831,6 +998,157 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       </div>
     </div>
 
+    <!-- PESTAÑA: VIDEO DE VIDA -->
+    <div id="tab-vida" class="tab-content">
+      <div class="card">
+        <h2>Video de Vida Inteligente (Orden 273 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Crea el video cronológico de la homenajeada (300+ fotos sin límite). Encuadre inteligente que <strong>nunca corta caras</strong>, fondo desenfocado 16:9 sin franjas negras, sincronización a los golpes de la música y modo Boda con pantalla partida paralela.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta donde están las fotos</label>
+          <input type="text" id="input-vida-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Vida">
+        </div>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="form-label">Modo de Evento</label>
+            <select id="select-vida-modo" class="form-input">
+              <option value="xv">15 Años (Línea cronológica)</option>
+              <option value="boda">Boda (Pantalla partida / Paralelo novio y novia)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="form-label">Plantilla Visual</label>
+            <select id="select-vida-plantilla" class="form-input">
+              <option value="clasica-dorada">Clásica Dorada (Elegante)</option>
+              <option value="moderna-minimalista">Moderna Minimalista</option>
+              <option value="romantica-floral">Romántica Floral</option>
+              <option value="neon-fiesta">Neón Fiesta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Archivo de música / audio (opcional, para ritmo automático)</label>
+          <input type="text" id="input-vida-audio" class="form-input" placeholder="C:\\Musica\\tema_vida.mp3">
+        </div>
+
+        <button class="btn btn-primary" onclick="generarVideoVida()">Generar Video de Vida en MP4</button>
+
+        <div class="progress-bar-container" style="margin-top: 1rem;">
+          <div id="progreso-vida-fill" class="progress-bar-fill"></div>
+        </div>
+        <div id="progreso-vida-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155;">
+          Listo para comenzar
+        </div>
+        <div id="resultado-vida" style="margin-top: 0.75rem; font-size: 0.85rem; color: #047857; font-weight: 600;"></div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: REDES -->
+    <div id="tab-redes" class="tab-content">
+      <div class="card">
+        <h2>Videos para Redes Sociales (Orden 275 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Genera automáticamente los 3 formatos exactos para cada estación y para la noche completa:
+          <strong>Reel 9:16 (1080×1920)</strong>, <strong>Cuadrado 1:1 (1080×1080)</strong> y <strong>Vertical 4:5 (1080×1350)</strong> con placa de cierre de AK Producciones.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta con fotos o estaciones de la fiesta</label>
+          <input type="text" id="input-redes-origen" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Estaciones">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta de destino (opcional)</label>
+          <input type="text" id="input-redes-destino" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Videos_Redes">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pista de música (opcional)</label>
+          <input type="text" id="input-redes-musica" class="form-input" placeholder="C:\\Musica\\cancion_redes.mp3">
+        </div>
+
+        <button class="btn btn-primary" onclick="generarVideosRedes()">Generar Videos en los 3 Formatos</button>
+
+        <div id="progreso-redes-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
+          Listo para comenzar
+        </div>
+
+        <div id="lista-redes-container" style="margin-top: 1rem;">
+          <table id="tabla-redes">
+            <thead>
+              <tr>
+                <th>Estación</th>
+                <th>Formato</th>
+                <th>Archivo</th>
+                <th>Duración</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-redes">
+              <tr><td colspan="4" style="text-align:center; color:#94a3b8;">No hay videos generados aún</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: WFOLIO -->
+    <div id="tab-wfolio" class="tab-content">
+      <div class="card">
+        <h2>Sincronización con Wfolio Disk (Orden 281 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Sube tus fotos organizadas en carpetas al disco privado de Wfolio.
+          <strong>Verificación estricta:</strong> sólo se marca 'subido' tras comprobar la presencia del archivo remoto (nombre y tamaño). Si no se puede comprobar, queda 'pendiente' con el motivo para reanudar donde quedó.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Nombre del Evento / Álbum en Wfolio</label>
+          <input type="text" id="input-wfolio-fiesta" class="form-input" placeholder="XV_Sofia">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta con fotos organizadas por entrega</label>
+          <input type="text" id="input-wfolio-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Entrega">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="subirWfolio()">Subir a Wfolio (con verificación)</button>
+          <button class="btn btn-outline" onclick="loginWfolio()">Iniciar sesión en Wfolio</button>
+        </div>
+
+        <div id="progreso-wfolio-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
+          Listo para sincronizar
+        </div>
+
+        <div id="resumen-wfolio" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div style="background: #f1f5f9; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #64748b;">Total Fotos</div>
+            <div id="stat-wfolio-total" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">0</div>
+          </div>
+          <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #047857;">Comprobadas / Subidas</div>
+            <div id="stat-wfolio-subidas" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</div>
+          </div>
+          <div style="background: #fffbeb; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #b45309;">Pendientes</div>
+            <div id="stat-wfolio-pendientes" style="font-size: 1.5rem; font-weight: 700; color: #d97706;">0</div>
+          </div>
+          <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #b91c1c;">Fallidas</div>
+            <div id="stat-wfolio-fallidas" style="font-size: 1.5rem; font-weight: 700; color: #dc2626;">0</div>
+          </div>
+        </div>
+
+        <div id="enlace-wfolio-box" style="margin-top: 1rem; display: none; padding: 0.75rem 1rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 0.85rem;">
+          <strong>Enlace privado del álbum:</strong> <a id="enlace-wfolio-link" href="#" target="_blank" style="color: var(--color-primario); font-weight: 600; text-decoration: underline;"></a>
+        </div>
+      </div>
+    </div>
+
     <!-- PESTAÑA: EXPORTAR -->
     <div id="tab-exportar" class="tab-content">
       <div class="card">
@@ -865,6 +1183,9 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       if (id === 'material') cargarMaterial();
       if (id === 'revision') cargarRevision();
       if (id === 'fotos') cargarFotos();
+      if (id === 'vida') cargarVida();
+      if (id === 'redes') cargarRedes();
+      if (id === 'wfolio') cargarWfolio();
     }
 
     async function crearNuevoEvento() {
@@ -1048,6 +1369,144 @@ HTML_INTERFAZ = """<!DOCTYPE html>
         document.getElementById('resultado-aprender-estilo').innerText = '¡Estilo aprendido! Presets generados: ' + nombres.join(', ') + ' y archivo estilo-ak.json.';
       }
     }
+
+    // Video de Vida
+    async function generarVideoVida() {
+      const carpeta = document.getElementById('input-vida-carpeta').value.trim();
+      if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos para el Video de Vida');
+      const modo = document.getElementById('select-vida-modo').value;
+      const plantilla = document.getElementById('select-vida-plantilla').value;
+      const audio = document.getElementById('input-vida-audio').value.trim();
+
+      document.getElementById('progreso-vida-texto').innerText = 'Iniciando generación de Video de Vida...';
+      document.getElementById('resultado-vida').innerText = '';
+
+      const res = await fetch('/api/vida/generar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carpeta, modo, plantilla, audio })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar Video de Vida');
+      actualizarProgresoVida();
+    }
+
+    async function actualizarProgresoVida() {
+      const res = await fetch('/api/vida/estado');
+      const data = await res.json();
+      const pct = data.total > 0 ? Math.round((data.actual / data.total) * 100) : 0;
+      document.getElementById('progreso-vida-fill').style.width = pct + '%';
+      document.getElementById('progreso-vida-texto').innerText = data.mensaje;
+      if (data.ruta_salida) {
+        document.getElementById('resultado-vida').innerText = 'Video listo: ' + data.ruta_salida;
+      }
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoVida, 1000);
+      }
+    }
+
+    async function cargarVida() {
+      actualizarProgresoVida();
+    }
+
+    // Redes Sociales
+    async function generarVideosRedes() {
+      const origen = document.getElementById('input-redes-origen').value.trim();
+      if (!origen) return alert('Por favor ingresá la carpeta de origen con las fotos/estaciones');
+      const destino = document.getElementById('input-redes-destino').value.trim();
+      const musica = document.getElementById('input-redes-musica').value.trim();
+
+      document.getElementById('progreso-redes-texto').innerText = 'Iniciando generación de videos para redes...';
+
+      const res = await fetch('/api/redes/generar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origen, destino, musica })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar videos de redes');
+      actualizarProgresoRedes();
+    }
+
+    async function actualizarProgresoRedes() {
+      const res = await fetch('/api/redes/estado');
+      const data = await res.json();
+      document.getElementById('progreso-redes-texto').innerText = data.mensaje;
+
+      if (data.videos && data.videos.length > 0) {
+        const tbody = document.getElementById('tbody-redes');
+        tbody.innerHTML = data.videos.map(v => `
+          <tr>
+            <td><strong>${v.estacion}</strong></td>
+            <td><span class="badge" style="background:#e0f2fe; color:#0369a1;">${v.formato}</span></td>
+            <td>${v.archivo}</td>
+            <td>${v.duracion}s</td>
+          </tr>
+        `).join('');
+      }
+
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoRedes, 1000);
+      }
+    }
+
+    async function cargarRedes() {
+      actualizarProgresoRedes();
+    }
+
+    // Wfolio Disk
+    async function subirWfolio() {
+      const carpeta = document.getElementById('input-wfolio-carpeta').value.trim();
+      const fiesta = document.getElementById('input-wfolio-fiesta').value.trim();
+      if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos a subir');
+
+      document.getElementById('progreso-wfolio-texto').innerText = 'Iniciando subida y verificación en Wfolio...';
+
+      const res = await fetch('/api/wfolio/subir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carpeta, fiesta })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar subida a Wfolio');
+      actualizarProgresoWfolio();
+    }
+
+    async function loginWfolio() {
+      const res = await fetch('/api/wfolio/login', { method: 'POST' });
+      const data = await res.json();
+      alert(data.mensaje || 'Navegador iniciado para iniciar sesión');
+    }
+
+    async function actualizarProgresoWfolio() {
+      const res = await fetch('/api/wfolio/estado');
+      const data = await res.json();
+      document.getElementById('progreso-wfolio-texto').innerText = data.mensaje;
+
+      if (data.resumen) {
+        const r = data.resumen;
+        document.getElementById('stat-wfolio-total').innerText = r.total_fotos || 0;
+        document.getElementById('stat-wfolio-subidas').innerText = r.total_subidas || 0;
+        document.getElementById('stat-wfolio-pendientes').innerText = r.total_pendientes || 0;
+        document.getElementById('stat-wfolio-fallidas').innerText = r.total_fallidas || 0;
+
+        if (r.enlace_privado) {
+          const box = document.getElementById('enlace-wfolio-box');
+          const link = document.getElementById('enlace-wfolio-link');
+          box.style.display = 'block';
+          link.href = r.enlace_privado;
+          link.innerText = r.enlace_privado;
+        }
+      }
+
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoWfolio, 1000);
+      }
+    }
+
+    async function cargarWfolio() {
+      actualizarProgresoWfolio();
+    }
   </script>
 </body>
 </html>
@@ -1067,3 +1526,4 @@ def iniciar_servidor(puerto: int = PUERTO) -> None:
 if __name__ == "__main__":
     puerto_elegido = int(sys.argv[1]) if len(sys.argv) > 1 else PUERTO
     iniciar_servidor(puerto_elegido)
+

@@ -22,6 +22,21 @@ import { readData, writeData } from '@/lib/data-service';
  */
 
 const ARCHIVO = 'tareas-automaticas.json';
+const ESTADO_AL_ENTRAR_FILE = 'tareas-al-entrar-estado.json';
+
+const CRON_ID_A_NOMBRE_ENTRAR: Record<string, string> = {
+  'metricas-de-redes': 'metricas',
+  'publicar-programados': 'posteos',
+  'generate-blog-post': 'blog',
+  'recordatorios-de-pago': 'recordatorios',
+  'posicionamiento-diario': 'posicionamiento',
+  'fiesta-proxima-revision': 'fiestas_vigilante',
+  'prospectos-seguimiento': 'prospectos_seguimiento',
+  'avisos-al-cliente': 'avisos_cliente',
+  'recordar-invitacion-no-abierta': 'recordar_invitacion',
+  'recordatorio-a-los-invitados': 'recordatorio_invitados',
+  'asistente-proactivo': 'asistente_proactivo',
+};
 
 export interface TareaAutomatica {
   /** El nombre de la carpeta en `src/app/api/cron/`. */
@@ -125,13 +140,46 @@ export async function marcarCorrida(
       origen,
     };
     await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+
+    // Limpia el fallo si existía
+    try {
+      const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
+      const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
+      if (estadoAlEntrar?.ultimoFallo && (estadoAlEntrar.ultimoFallo[nombreEntrar] || estadoAlEntrar.ultimoFallo[id])) {
+        delete estadoAlEntrar.ultimoFallo[nombreEntrar];
+        delete estadoAlEntrar.ultimoFallo[id];
+        await writeData(ESTADO_AL_ENTRAR_FILE, estadoAlEntrar, undefined, { skipAutoBackup: true });
+      }
+    } catch {
+      // Ignorar error al limpiar fallo
+    }
   } catch {
     // Que falle la marca no puede tumbar la tarea que si corrio.
   }
 }
 
+/** Deja constancia del último fallo de una tarea con su motivo. */
+export async function marcarFallo(
+  id: string,
+  error: string,
+  ahora: Date = new Date(),
+): Promise<void> {
+  try {
+    const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
+    const ultimoFallo = { ...(estadoAlEntrar?.ultimoFallo || {}) };
+    const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
+    ultimoFallo[nombreEntrar] = { fecha: ahora.toISOString(), error };
+    await writeData(ESTADO_AL_ENTRAR_FILE, { ...estadoAlEntrar, ultimoFallo }, undefined, { skipAutoBackup: true });
+  } catch {
+    // Que falle registrar el error no debe propagar excepción
+  }
+}
+
 export interface EstadoDeTarea extends TareaAutomatica {
   ultimaCorrida: string | null;
+  ultimoIntento: string | null;
+  ultimoFallo?: { fecha: string; error: string } | null;
+  faltaConexion?: string | null;
   disparadoPor?: OrigenDisparo | null;
   /** `nunca` es la que importa: quiere decir que esta escrita y no se ejecuta. */
   estado: 'nunca' | 'atrasada' | 'al-dia';
@@ -139,27 +187,76 @@ export interface EstadoDeTarea extends TareaAutomatica {
 }
 
 export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<EstadoDeTarea[]> {
-  const marcas = await readData<Marcas>(ARCHIVO, {}).catch(() => ({} as Marcas));
+  const [marcas, estadoAlEntrar, sociales, settings, waConfig] = await Promise.all([
+    readData<Marcas>(ARCHIVO, {}).catch(() => ({} as Marcas)),
+    readData<{
+      ultimaCorrida?: Record<string, string>;
+      ultimoFallo?: Record<string, { fecha: string; error: string }>;
+    }>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({} as {
+      ultimaCorrida?: Record<string, string>;
+      ultimoFallo?: Record<string, { fecha: string; error: string }>;
+    })),
+    readData<any[]>('social-connections.json', []).catch(() => []),
+    readData<any>('settings.json', {}).catch(() => ({})),
+    readData<any>('whatsapp-business.json', {}).catch(() => ({})),
+  ]);
+
+  // Verificar conexión de WhatsApp según conexiones-estado (~186)
+  const waConn = Array.isArray(sociales) ? sociales.find(c => c?.platform?.toLowerCase() === 'whatsapp' && c?.isConnected) : undefined;
+  const waConectada = Boolean(waConn?.phoneNumber || waConfig?.isConnected || settings?.whatsappNumber);
 
   return TAREAS_AUTOMATICAS.map((tarea) => {
     const registro = marcas[tarea.id];
-    if (!registro) {
-      return {
-        ...tarea,
-        ultimaCorrida: null,
-        disparadoPor: null,
-        estado: 'nunca' as const,
-        horasDesdeLaUltima: null,
-      };
+    const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[tarea.id];
+
+    // Última corrida buena
+    let marca = typeof registro === 'string' ? registro : (registro && 'fecha' in registro ? registro.fecha : null);
+    if (!marca && nombreEntrar && estadoAlEntrar?.ultimaCorrida?.[nombreEntrar]) {
+      marca = estadoAlEntrar.ultimaCorrida[nombreEntrar];
     }
 
-    const marca = typeof registro === 'string' ? registro : registro.fecha;
-    const disparadoPor = typeof registro === 'object' && registro.origen ? registro.origen : 'despertador';
+    const disparadoPor = typeof registro === 'object' && registro && 'origen' in registro && registro.origen ? registro.origen : 'despertador';
+
+    // Último fallo
+    const falloEntrar = nombreEntrar ? estadoAlEntrar?.ultimoFallo?.[nombreEntrar] : undefined;
+    const falloDirecto = estadoAlEntrar?.ultimoFallo?.[tarea.id];
+    const ultimoFallo = falloEntrar || falloDirecto || null;
+
+    // Último intento
+    let ultimoIntento: string | null = null;
+    if (marca && ultimoFallo?.fecha) {
+      ultimoIntento = new Date(ultimoFallo.fecha).getTime() > new Date(marca).getTime()
+        ? ultimoFallo.fecha
+        : marca;
+    } else if (marca) {
+      ultimoIntento = marca;
+    } else if (ultimoFallo?.fecha) {
+      ultimoIntento = ultimoFallo.fecha;
+    }
+
+    // Verificar conexiones faltantes
+    let faltaConexion: string | null = null;
+    const tareasWhatsApp = [
+      'recordatorios-de-pago',
+      'avisos-al-cliente',
+      'recordatorio-a-los-invitados',
+      'recordar-invitacion-no-abierta',
+      'asistente-proactivo',
+    ];
+
+    if (tareasWhatsApp.includes(tarea.id)) {
+      if (!waConectada) {
+        faltaConexion = 'WhatsApp';
+      }
+    }
 
     if (!marca) {
       return {
         ...tarea,
         ultimaCorrida: null,
+        ultimoIntento,
+        ultimoFallo,
+        faltaConexion,
         disparadoPor: null,
         estado: 'nunca' as const,
         horasDesdeLaUltima: null,
@@ -174,6 +271,9 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
     return {
       ...tarea,
       ultimaCorrida: marca,
+      ultimoIntento,
+      ultimoFallo,
+      faltaConexion,
       disparadoPor,
       estado,
       horasDesdeLaUltima: Math.round(horas),

@@ -75,7 +75,7 @@ export const sharedFAQs: FAQItem[] = [
     id: 'seña',
     question: '¿Se requiere una seña para reservar la fecha?',
     answer:
-      'Sí. Para confirmar la fecha se requiere una seña de {SENIA}. En caso de cancelación rige una penalidad del 30% sobre el valor señado. El saldo restante se abona en cuotas según lo convenido.',
+      'Sí. Para confirmar la fecha se requiere una seña de {SENIA}. En caso de cancelación rige una penalidad del 30% del presupuesto vigente. El saldo restante se abona en cuotas según lo convenido.',
   },
   {
     id: 'lluvia',

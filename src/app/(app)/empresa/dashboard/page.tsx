@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BarChart3, CalendarDays, Users, AlertCircle, Loader2, CalendarCheck, RefreshCw } from 'lucide-react';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { dedupeImportedEventCopies } from '@/lib/events/event-ordering';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export default function DashboardPage() {
@@ -22,7 +23,7 @@ export default function DashboardPage() {
       setLoadError(null);
       try {
         const data = await getFiestas(false); // only active
-        setFiestas(data || []);
+        setFiestas(dedupeImportedEventCopies(data || []));
       } catch (err) {
         console.error(err);
         setLoadError('No se pudieron cargar los datos ejecutivos. Revisa la conexión e intenta nuevamente.');
@@ -58,14 +59,15 @@ export default function DashboardPage() {
   }
 
   // Calculate metrics
-  const activeEventsCount = fiestas.length;
+  const deduplicatedFiestas = dedupeImportedEventCopies(fiestas);
+  const activeEventsCount = deduplicatedFiestas.length;
 
-  const totalGuests = fiestas.reduce((acc, f) => acc + (f.invitados?.length || 0), 0);
-  const scheduledEventsCount = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento)).length;
+  const totalGuests = deduplicatedFiestas.reduce((acc, f) => acc + (f.invitados?.length || 0), 0);
+  const scheduledEventsCount = deduplicatedFiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento)).length;
 
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
-  fiestas.forEach(f => {
+  deduplicatedFiestas.forEach(f => {
     totalPendingTasks += (f.estadosCompra || []).filter(prov => !prov.pagado).length;
   });
 

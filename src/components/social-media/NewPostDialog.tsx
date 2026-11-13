@@ -29,6 +29,7 @@ import { Switch } from '@/components/ui/switch';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
+import { aFechaHoraLocal, aIsoUruguay } from '@/lib/fechas/fecha-local';
 
 interface NewPostDialogProps {
     onPostCreated: () => void;
@@ -72,7 +73,7 @@ export function NewPostDialog({
     const [selectedPlatforms, setSelectedPlatforms] = useState<SocialPlatform[]>(['Instagram', 'Facebook']);
     const [isGeneralCampaign, setIsGeneralCampaign] = useState(true);
     const [eventId, setEventId] = useState<string>('');
-    const [publishDate, setPublishDate] = useState(new Date().toISOString().substring(0, 16));
+    const [publishDate, setPublishDate] = useState(() => aFechaHoraLocal());
     const [text, setText] = useState('');
     const [link, setLink] = useState('');
     const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -95,7 +96,7 @@ export function NewPostDialog({
         setSelectedPlatforms([activePost?.platform || 'Instagram']);
         setIsGeneralCampaign(activePost?.isGeneralCampaign ?? true);
         setEventId(activePost?.eventId || '');
-        setPublishDate(isDuplicating ? new Date().toISOString().substring(0, 16) : (activePost?.publishDate ? new Date(activePost.publishDate).toISOString().substring(0, 16) : new Date().toISOString().substring(0, 16)));
+        setPublishDate(isDuplicating || !activePost?.publishDate ? aFechaHoraLocal() : aFechaHoraLocal(activePost.publishDate));
         setText(activePost?.text || '');
         setLink(activePost?.link || '');
         setMediaFile(null);
@@ -161,7 +162,7 @@ export function NewPostDialog({
                     formData.append('eventId', eventId);
                     formData.append('eventName', allEvents.find(e => e.id === eventId)?.configuracion.nombreEvento || 'Evento');
                 }
-                formData.append('publishDate', new Date(publishDate).toISOString());
+                formData.append('publishDate', aIsoUruguay(publishDate));
                 formData.append('text', text);
                 if (link) formData.append('link', link);
                 if (mediaFile) {

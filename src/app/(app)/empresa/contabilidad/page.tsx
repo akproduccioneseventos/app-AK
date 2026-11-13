@@ -133,7 +133,7 @@ export default function ContabilidadHubPage() {
       </CardDescription>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados."/>
         <KpiCard title="Valor en Propuestas" value={formatCurrency(crmKpiData?.pipelineValue)} icon={Users} isLoading={isLoading} description="Suma de presupuestos activos."/>
         <KpiCard title="Tasa de Conversión CRM" value={`${(crmKpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
         <KpiCard title="Saldo Pendiente Total" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto total por cobrar."/>

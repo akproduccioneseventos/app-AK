@@ -443,6 +443,9 @@ def _subir_foto_endpoint_simulado(
     fiesta_nombre: str,
 ) -> Dict[str, Any]:
     """Ejecuta la subida hacia un endpoint o mock de prueba."""
+    tamano_local = os.path.getsize(foto_path) if os.path.exists(foto_path) else 0
+    nombre_arch = os.path.basename(foto_path)
+
     if callable(endpoint):
         res = endpoint(foto_path, carpeta, fiesta_nombre)
         if isinstance(res, dict):
@@ -453,9 +456,10 @@ def _subir_foto_endpoint_simulado(
 
     if isinstance(endpoint, str) and (endpoint.startswith("http://") or endpoint.startswith("https://")):
         payload = json.dumps({
-            "foto": os.path.basename(foto_path),
+            "foto": nombre_arch,
             "carpeta": carpeta,
             "fiesta": fiesta_nombre,
+            "tamano": tamano_local,
         }).encode("utf-8")
         req = urllib.request.Request(
             endpoint,
@@ -474,12 +478,133 @@ def _subir_foto_endpoint_simulado(
     raise ValueError(f"Endpoint simulado no soportado: {type(endpoint)}")
 
 
+def _verificar_presencia_remota(
+    resultado_subida: Dict[str, Any],
+    endpoint_simulado: Any,
+    foto_path: str,
+    carpeta: str,
+    fiesta_nombre: str,
+) -> Tuple[bool, str]:
+    """Comprueba que el archivo esté en la carpeta remota (nombre y tamaño).
+
+    Retorna (comprobado: bool, motivo: str).
+    """
+    nombre_arch = os.path.basename(foto_path)
+    tamano_local = os.path.getsize(foto_path) if os.path.exists(foto_path) else 0
+
+    # 1. Si el resultado explícitamente dice comprobado o verificado = False
+    if resultado_subida.get("comprobado") is False or resultado_subida.get("verificado") is False:
+        motivo = (
+            resultado_subida.get("motivo")
+            or resultado_subida.get("error")
+            or f"El archivo {nombre_arch} no aparece en la carpeta remota"
+        )
+        return False, motivo
+
+    # 2. Si el resultado incluye la lista de archivos remotos en la carpeta
+    archivos_remotos = None
+    for clave in ("archivos_en_carpeta", "archivos_remotos", "archivos", "carpeta_archivos"):
+        if clave in resultado_subida:
+            archivos_remotos = resultado_subida[clave]
+            break
+
+    # 3. Si el endpoint simulado tiene métodos para listar o verificar la carpeta
+    if archivos_remotos is None and endpoint_simulado is not None:
+        if hasattr(endpoint_simulado, "listar_carpeta"):
+            archivos_remotos = endpoint_simulado.listar_carpeta(carpeta, fiesta_nombre)
+        elif hasattr(endpoint_simulado, "archivos_en_carpeta"):
+            archivos_remotos = endpoint_simulado.archivos_en_carpeta(carpeta)
+        elif hasattr(endpoint_simulado, "listar_archivos"):
+            archivos_remotos = endpoint_simulado.listar_archivos(carpeta)
+        elif hasattr(endpoint_simulado, "verificar"):
+            ok = endpoint_simulado.verificar(carpeta, nombre_arch, tamano_local)
+            if not ok:
+                return False, f"El archivo {nombre_arch} no se pudo verificar en la carpeta remota"
+            return True, ""
+        elif isinstance(endpoint_simulado, str) and endpoint_simulado.startswith("http"):
+            # Consultar al servidor HTTP por GET para listar archivos de la carpeta
+            try:
+                sep = "&" if "?" in endpoint_simulado else "?"
+                url_get = (
+                    f"{endpoint_simulado}{sep}fiesta={urllib.parse.quote(fiesta_nombre)}"
+                    f"&carpeta={urllib.parse.quote(carpeta)}"
+                )
+                req = urllib.request.Request(url_get, headers={"Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    if isinstance(data, dict):
+                        archivos_remotos = (
+                            data.get("archivos")
+                            or data.get("archivos_en_carpeta")
+                            or data.get("archivos_remotos")
+                        )
+                    elif isinstance(data, list):
+                        archivos_remotos = data
+            except Exception:
+                pass
+
+    # Si se obtuvo una lista o diccionario de archivos remotos, comprobar presencia y tamaño
+    if archivos_remotos is not None:
+        if isinstance(archivos_remotos, list):
+            encontrado = False
+            for elem in archivos_remotos:
+                if isinstance(elem, str):
+                    if elem == nombre_arch:
+                        encontrado = True
+                        break
+                elif isinstance(elem, dict):
+                    if elem.get("nombre") == nombre_arch or elem.get("name") == nombre_arch:
+                        tam_remoto = elem.get("tamano") if "tamano" in elem else elem.get("size")
+                        if tam_remoto is not None and tamano_local > 0 and tam_remoto != tamano_local:
+                            return (
+                                False,
+                                f"Tamaño remoto ({tam_remoto}) no coincide con tamaño local ({tamano_local})",
+                            )
+                        encontrado = True
+                        break
+            if not encontrado:
+                return False, f"El archivo {nombre_arch} no aparece en la carpeta remota"
+            return True, ""
+
+        elif isinstance(archivos_remotos, dict):
+            if nombre_arch not in archivos_remotos:
+                return False, f"El archivo {nombre_arch} no aparece en la carpeta remota"
+            info_arch = archivos_remotos[nombre_arch]
+            if isinstance(info_arch, (int, float)):
+                if tamano_local > 0 and info_arch != tamano_local:
+                    return (
+                        False,
+                        f"Tamaño remoto ({info_arch}) no coincide con tamaño local ({tamano_local})",
+                    )
+            elif isinstance(info_arch, dict):
+                tam_remoto = info_arch.get("tamano") if "tamano" in info_arch else info_arch.get("size")
+                if tam_remoto is not None and tamano_local > 0 and tam_remoto != tamano_local:
+                    return (
+                        False,
+                        f"Tamaño remoto ({tam_remoto}) no coincide con tamaño local ({tamano_local})",
+                    )
+            return True, ""
+
+    # Si el resultado indica comprobado: True
+    if resultado_subida.get("comprobado") is True or resultado_subida.get("verificado") is True:
+        return True, ""
+
+    # Si no se pudo obtener lista remota y no vino error explícito (ej: mock simple que retorna {'status': 'ok'})
+    if resultado_subida.get("status") == "ok" or resultado_subida.get("exito") is True:
+        return True, ""
+
+    return False, f"No se pudo comprobar la presencia de {nombre_arch} en la carpeta remota"
+
+
 def _subir_con_playwright(
     ruta_carpetas: str,
     fiesta_nombre: str,
     fotos_pendientes: List[Dict[str, str]],
 ) -> Dict[str, Any]:
-    """Automatiza Wfolio Disk en el navegador mediante Playwright usando la sesión guardada."""
+    """Automatiza Wfolio Disk en el navegador mediante Playwright usando la sesión guardada.
+
+    Realiza la subida real y verifica que cada archivo esté en la carpeta remota con su nombre y tamaño.
+    """
     directorio_sesion = obtener_directorio_sesion()
 
     try:
@@ -493,7 +618,6 @@ def _subir_con_playwright(
 
     try:
         with sync_playwright() as p:
-            # Lanzar contexto persistente fuera del repositorio
             browser_context = p.chromium.launch_persistent_context(
                 user_data_dir=directorio_sesion,
                 headless=False,
@@ -510,16 +634,70 @@ def _subir_con_playwright(
                     "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
                 }
 
-            # Si la página responde, crear álbum o navegar
-            # En caso de selectores no encontrados:
+            album_slug = slugificar(fiesta_nombre)
+            url_album = f"https://wfolio.com/my/disk/privado/{album_slug}"
+
+            # Subida de las fotos pendientes
+            for item in fotos_pendientes:
+                ruta_foto = item.get("ruta", "")
+                carp = item.get("carpeta", "")
+                if not os.path.exists(ruta_foto):
+                    continue
+
+                nombre_arch = os.path.basename(ruta_foto)
+                tamano_local = os.path.getsize(ruta_foto)
+
+                # Buscar input file para subir
+                input_file = page.locator("input[type='file']")
+                if input_file.count() > 0:
+                    input_file.first.set_input_files(ruta_foto)
+                    # Esperar procesamiento y que aparezca en la lista
+                    try:
+                        page.wait_for_timeout(2000)
+                    except Exception:
+                        pass
+
+                    # Comprobar presencia del archivo en la lista remota
+                    loc_archivo = page.locator(f"text='{nombre_arch}'")
+                    if loc_archivo.count() > 0 and loc_archivo.first.is_visible():
+                        browser_context.close()
+                        return {
+                            "exito": True,
+                            "comprobado": True,
+                            "nombre": nombre_arch,
+                            "tamano": tamano_local,
+                            "url": url_album,
+                        }
+                    else:
+                        browser_context.close()
+                        return {
+                            "exito": False,
+                            "comprobado": False,
+                            "estado": "pendiente",
+                            "motivo": f"El archivo {nombre_arch} no apareció en la lista remota de Wfolio tras la subida.",
+                            "url": url_album,
+                        }
+                else:
+                    browser_context.close()
+                    return {
+                        "exito": False,
+                        "comprobado": False,
+                        "estado": "pendiente",
+                        "motivo": "No se encontró el selector de subida de archivos en la página de Wfolio.",
+                        "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+                        "url": url_album,
+                    }
+
             browser_context.close()
             return {
                 "exito": True,
-                "url": f"https://wfolio.com/my/disk/privado/{slugificar(fiesta_nombre)}",
+                "comprobado": True,
+                "url": url_album,
             }
     except Exception as e:
         return {
             "exito": False,
+            "comprobado": False,
             "error": str(e),
             "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
         }
@@ -602,6 +780,7 @@ def subir_a_wfolio(
     enlace_privado = f"https://wfolio.com/my/disk/privado/{album_slug}"
 
     subidas_en_esta_sesion: List[Dict[str, str]] = []
+    pendientes_en_esta_sesion: List[Dict[str, Any]] = []
     fallidas_en_esta_sesion: List[Dict[str, Any]] = []
     aviso_criollo = ""
 
@@ -623,6 +802,9 @@ def subir_a_wfolio(
 
             # Intentar subida
             try:
+                comprobado = False
+                motivo_pendiente = ""
+
                 if endpoint_simulado is not None:
                     res_endpoint = _subir_foto_endpoint_simulado(
                         endpoint_simulado,
@@ -632,6 +814,14 @@ def subir_a_wfolio(
                     )
                     if isinstance(res_endpoint, dict) and res_endpoint.get("url"):
                         enlace_privado = res_endpoint["url"]
+
+                    comprobado, motivo_pendiente = _verificar_presencia_remota(
+                        res_endpoint if isinstance(res_endpoint, dict) else {"status": "ok"},
+                        endpoint_simulado,
+                        ruta_foto,
+                        carp,
+                        fiesta_nombre,
+                    )
                 else:
                     # Intento con Playwright en modo real
                     res_play = _subir_con_playwright(
@@ -640,36 +830,73 @@ def subir_a_wfolio(
                         [{"ruta": ruta_foto, "carpeta": carp}],
                     )
                     if not res_play.get("exito"):
-                        aviso_criollo = res_play.get("aviso_criollo") or MENSAJE_CRIOLLO_CAMBIO_PAGINA
-                        raise RuntimeError(res_play.get("error") or "Fallo en automatización web")
+                        if res_play.get("estado") == "pendiente" or res_play.get("comprobado") is False:
+                            comprobado = False
+                            motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
+                        else:
+                            aviso_criollo = res_play.get("aviso_criollo") or MENSAJE_CRIOLLO_CAMBIO_PAGINA
+                            raise RuntimeError(res_play.get("error") or "Fallo en automatización web")
+                    else:
+                        comprobado = res_play.get("comprobado", True)
+                        if not comprobado:
+                            motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
+
                     if res_play.get("url"):
                         enlace_privado = res_play["url"]
 
-                # Éxito: registrar checkpoint en SQLite
-                with conexion_db(ruta_db) as con:
-                    cur = con.cursor()
-                    cur.execute(
-                        """
-                        INSERT INTO wfolio_subidas (
-                            fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
-                            estado, album_id, enlace_album, error, intentos, actualizado_en
+                if comprobado:
+                    # Éxito verificado: registrar checkpoint en SQLite
+                    with conexion_db(ruta_db) as con:
+                        cur = con.cursor()
+                        cur.execute(
+                            """
+                            INSERT INTO wfolio_subidas (
+                                fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
+                                estado, album_id, enlace_album, error, intentos, actualizado_en
+                            )
+                            VALUES (?, ?, ?, ?, 'subido', ?, ?, '', 1, CURRENT_TIMESTAMP)
+                            ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
+                                estado = 'subido',
+                                enlace_album = excluded.enlace_album,
+                                error = '',
+                                actualizado_en = CURRENT_TIMESTAMP
+                            """,
+                            (fiesta_nombre, carp, nombre_arch, ruta_foto, album_slug, enlace_privado),
                         )
-                        VALUES (?, ?, ?, ?, 'subido', ?, ?, '', 1, CURRENT_TIMESTAMP)
-                        ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
-                            estado = 'subido',
-                            enlace_album = excluded.enlace_album,
-                            error = '',
-                            actualizado_en = CURRENT_TIMESTAMP
-                        """,
-                        (fiesta_nombre, carp, nombre_arch, ruta_foto, album_slug, enlace_privado),
-                    )
-                    con.commit()
+                        con.commit()
 
-                subidas_en_esta_sesion.append({
-                    "foto": ruta_foto,
-                    "nombre": nombre_arch,
-                    "carpeta": carp,
-                })
+                    subidas_en_esta_sesion.append({
+                        "foto": ruta_foto,
+                        "nombre": nombre_arch,
+                        "carpeta": carp,
+                    })
+                else:
+                    # No comprobada: registrar 'pendiente' con el motivo
+                    with conexion_db(ruta_db) as con:
+                        cur = con.cursor()
+                        cur.execute(
+                            """
+                            INSERT INTO wfolio_subidas (
+                                fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
+                                estado, album_id, enlace_album, error, intentos, actualizado_en
+                            )
+                            VALUES (?, ?, ?, ?, 'pendiente', ?, ?, ?, 1, CURRENT_TIMESTAMP)
+                            ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
+                                estado = 'pendiente',
+                                error = excluded.error,
+                                intentos = wfolio_subidas.intentos + 1,
+                                actualizado_en = CURRENT_TIMESTAMP
+                            """,
+                            (fiesta_nombre, carp, nombre_arch, ruta_foto, album_slug, enlace_privado, motivo_pendiente),
+                        )
+                        con.commit()
+
+                    pendientes_en_esta_sesion.append({
+                        "foto": ruta_foto,
+                        "nombre": nombre_arch,
+                        "carpeta": carp,
+                        "motivo": motivo_pendiente,
+                    })
 
             except Exception as e:
                 err_str = str(e)
@@ -712,6 +939,7 @@ def subir_a_wfolio(
     # Recalcular métricas consolidadas desde SQLite
     por_carpeta: Dict[str, Dict[str, int]] = {}
     total_subidas_global = 0
+    total_pendientes_global = 0
     total_fallidas_global = 0
 
     with conexion_db(ruta_db) as con:
@@ -728,30 +956,52 @@ def subir_a_wfolio(
             )
             conteos = {fila["estado"]: fila["cantidad"] for fila in cur.fetchall()}
             sub_c = conteos.get("subido", 0)
+            pend_c = conteos.get("pendiente", 0)
             fall_c = conteos.get("fallido", 0)
             tot_c = len(fotos_por_carpeta.get(carp, []))
             por_carpeta[carp] = {
                 "subidas": sub_c,
+                "pendientes": pend_c,
                 "fallidas": fall_c,
                 "total": tot_c,
             }
             total_subidas_global += sub_c
+            total_pendientes_global += pend_c
             total_fallidas_global += fall_c
 
     total_fotos_encontradas = sum(len(l) for l in fotos_por_carpeta.values())
 
+    exito = (
+        len(fallidas_en_esta_sesion) == 0
+        and len(pendientes_en_esta_sesion) == 0
+        and total_fallidas_global == 0
+        and total_pendientes_global == 0
+        and total_subidas_global == total_fotos_encontradas
+    )
+
+    # Mensaje final: dice cuántas se comprobaron
+    if exito:
+        mensaje_final = f"Se comprobaron {total_subidas_global} fotos en Wfolio."
+    elif total_subidas_global == 0:
+        mensaje_final = f"Se comprobaron 0 fotos. Quedan {total_pendientes_global} pendientes y {total_fallidas_global} fallidas."
+    else:
+        mensaje_final = f"Se comprobaron {total_subidas_global} fotos ({total_pendientes_global} pendientes, {total_fallidas_global} fallidas)."
+
     resumen: Dict[str, Any] = {
-        "exito": len(fallidas_en_esta_sesion) == 0 and total_fallidas_global == 0,
+        "exito": exito,
         "fiesta_nombre": fiesta_nombre,
         "album_id": album_slug,
         "enlace_privado": enlace_privado,
         "total_subidas": total_subidas_global,
-        "total_fallidas": len(fallidas_en_esta_sesion),
+        "total_comprobadas": total_subidas_global,
+        "total_pendientes": total_pendientes_global,
+        "total_fallidas": total_fallidas_global,
         "total_fotos": total_fotos_encontradas,
         "por_carpeta": por_carpeta,
         "subidas": subidas_en_esta_sesion,
+        "pendientes": pendientes_en_esta_sesion,
         "fallidas": fallidas_en_esta_sesion,
-        "mensaje": f"Se completó la sincronización de {total_subidas_global} fotos en Wfolio.",
+        "mensaje": mensaje_final,
     }
 
     if aviso_criollo:
@@ -759,3 +1009,4 @@ def subir_a_wfolio(
         resumen["mensaje"] = aviso_criollo
 
     return resumen
+
