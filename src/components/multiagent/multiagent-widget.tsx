@@ -52,7 +52,11 @@ async function sendPersistentMultiAgentMessage(input: {
   });
   const result = await response.json().catch(() => null);
   if (!response.ok || !result) {
-    throw new Error(result?.error || 'No se pudo contactar al Multiagente AK.');
+    const errorMsg = result?.error || (response.status === 504 || response.status === 408 ? 'TIMEOUT' : 'No se pudo contactar al Multiagente AK.');
+    const err = new Error(errorMsg);
+    (err as any).accionesEjecutadas = result?.accionesEjecutadas;
+    (err as any).isTimeout = response.status === 504 || response.status === 408 || errorMsg === 'TIMEOUT' || /timeout|tiempo|demasiado/i.test(errorMsg);
+    throw err;
   }
   return result as AkPersistentMultiAgentOutput;
 }
@@ -720,8 +724,16 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
           pathname: pathname || undefined,
         },
       ]);
-    } catch {
-      const errorResponse = 'No llego la confirmacion. El pedido puede haberse guardado. Si era un presupuesto, reenvia el mismo mensaje para comprobarlo; para otras acciones, revisa su estado antes de repetir.';
+    } catch (err: any) {
+      const isTimeout = err?.isTimeout || err?.name === 'AbortError' || /timeout|tiempo|demasiado/i.test(err?.message || '');
+      const acciones = err?.accionesEjecutadas;
+      const habiaAccionEnCurso = Array.isArray(acciones) && acciones.length > 0;
+
+      let errorResponse = 'No llego la confirmacion. El pedido puede haberse guardado. Si era un presupuesto, reenvia el mismo mensaje para comprobarlo; para otras acciones, revisa su estado antes de repetir.';
+      if (isTimeout && !habiaAccionEnCurso) {
+        errorResponse = 'Tardó demasiado: no se hizo ninguna acción';
+      }
+
       setInput(text);
       speakText(errorResponse, () => {
         if (isHandsFreeRef.current) {

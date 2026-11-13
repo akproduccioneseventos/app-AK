@@ -7,7 +7,7 @@ import 'server-only';
 
 import * as logger from './logger';
 import { COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION, conLosCobrosDeLaBase, facturaConLosPagosDeLaBase } from './budget/los-cobros-no-se-pisan';
-import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { FieldValue, type Firestore, type QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { ChoqueAlGuardar, decidirGuardado, marcarLectura, sacarMarcas } from './marca-de-lectura';
 
 // Mapping of JSON file names to Firestore collection names
@@ -124,19 +124,37 @@ const ALLOW_EMPTY_ARRAY_RESET_FILES = new Set([
   'catalogo-fotos.json',
   'salones.json',
   'ajustes-costos-insumos.json',
+  'task-templates.json',
+  'deco-canvas-templates.json',
+  'marketing-templates.json',
+  'itinerary-templates.json',
+  'salon-layout-templates.json',
+  'contract-templates.json',
+  'promos.json',
+  'coupons.json',
+  'cupones.json',
+  'testimonials.json',
+  'alertas-leidas.json',
+  'alertas-descartadas.json',
+  'prioridades-descartadas.json',
 ]);
 
-function sanitizeForFirestore(value: unknown): unknown {
-  if (value === undefined) return OMIT_FIRESTORE_VALUE;
+export function sanitizeForFirestore(
+  value: unknown,
+  options: { deleteUndefined?: boolean } = {},
+): unknown {
+  if (value === undefined) {
+    return options.deleteUndefined ? FieldValue.delete() : OMIT_FIRESTORE_VALUE;
+  }
   if (value && typeof value === 'object' && !Array.isArray(value) && '_leido' in (value as object)) {
     // La marca de lectura (marca-de-lectura.ts) nunca se guarda.
     const { _leido, ...resto } = value as Record<string, unknown>;
     void _leido;
-    return sanitizeForFirestore(resto);
+    return sanitizeForFirestore(resto, options);
   }
   if (Array.isArray(value)) {
     return value
-      .map((item) => sanitizeForFirestore(item))
+      .map((item) => sanitizeForFirestore(item, options))
       .filter((item) => item !== OMIT_FIRESTORE_VALUE);
   }
   if (value && typeof value === 'object') {
@@ -146,7 +164,12 @@ function sanitizeForFirestore(value: unknown): unknown {
       return value;
     }
     const entries = Object.entries(value as Record<string, unknown>)
-      .map(([key, nested]) => [key, sanitizeForFirestore(nested)] as const)
+      .map(([key, nested]) => {
+        if (nested === undefined && options.deleteUndefined) {
+          return [key, FieldValue.delete()] as const;
+        }
+        return [key, sanitizeForFirestore(nested, options)] as const;
+      })
       .filter(([, nested]) => nested !== OMIT_FIRESTORE_VALUE);
     return Object.fromEntries(entries);
   }
@@ -218,7 +241,7 @@ export async function syncToFirestore(
   filePath: string,
   data: any,
   // Solo la restauracion de un respaldo manda sobre los cobros y borra por omision.
-  opciones: { esRestauracion?: boolean } = {},
+  opciones: { esRestauracion?: boolean; esParcial?: boolean } = {},
 ): Promise<void> {
   if (logger.shouldSkipFirestoreDuringBuild()) return;
 
@@ -280,6 +303,7 @@ export async function syncToFirestore(
               logger.info(`[Firebase Sync] "${collectionName}" limpiado en transacción por escritura intencional de array vacío.`);
             } else {
               logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada en transacción.`);
+              throw new Error('No se guardó: la lista quedaría vacía y este archivo no permite vaciarse');
             }
             return;
           }
@@ -315,6 +339,9 @@ export async function syncToFirestore(
         return;
       } catch (err) {
         if (err instanceof ChoqueAlGuardar) throw err;
+        if (err instanceof Error && err.message === 'No se guardó: la lista quedaría vacía y este archivo no permite vaciarse') {
+          throw err;
+        }
         logger.warn(`🔄 [Firebase Sync] Fallback a lotes para "${collectionName}" debido a error en transacción: ${err}`);
       }
 
@@ -336,7 +363,7 @@ export async function syncToFirestore(
           return;
         }
         logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
-        return;
+        throw new Error('No se guardó: la lista quedaría vacía y este archivo no permite vaciarse');
       }
       let aEscribirEnLotes: any[] = data;
       let toDelete = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion
@@ -398,7 +425,7 @@ export async function syncToFirestore(
           _syncedAt: new Date().toISOString(),
         }), `doc-array: ${dir}/${docId}`);
       } else {
-        const cleanData = sanitizeForFirestore(data) as Record<string, unknown>;
+        const cleanData = sanitizeForFirestore(data, { deleteUndefined: true }) as Record<string, unknown>;
         await withRetry(() => db.collection(dir).doc(docId).set({
           ...cleanData,
           _syncedAt: new Date().toISOString(),

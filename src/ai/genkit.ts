@@ -1,7 +1,7 @@
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
-import { hayPresupuestoParaIA, reservarRespuestaProfunda } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, reservarRespuestaProfunda, anotarFalloIA } from '@/lib/ai/consumo-servidor';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
@@ -179,6 +179,8 @@ export async function generateWithGeminiFallback(request: GeminiGenerateRequest)
     }
   }
 
+  const motivo = lastError instanceof Error ? lastError.message : String(lastError || 'Sin respuesta del modelo');
+  await anotarFalloIA('gemini-fallback', motivo).catch(() => {});
   throw lastError;
 }
 
@@ -202,5 +204,7 @@ export async function ejecutarPromptConFallback<I, R>(
       console.warn(`[Genkit] El modelo "${model}" no respondió. Probando fallback compatible.`);
     }
   }
+  const motivo = lastError instanceof Error ? lastError.message : String(lastError || 'Sin respuesta del modelo');
+  await anotarFalloIA('gemini-fallback', motivo).catch(() => {});
   throw lastError;
 }

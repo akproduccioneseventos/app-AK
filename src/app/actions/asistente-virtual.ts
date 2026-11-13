@@ -2,7 +2,7 @@
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actions/armado-rapido';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, registrarConsumoIA, anotarFalloIA } from '@/lib/ai/consumo-servidor';
 import {
   generateWithGeminiFallback,
   geminiCommercialModel,
@@ -167,6 +167,7 @@ ${newMessage}`,
     };
   } catch (error: any) {
     console.error('[chatWithVirtualAssistant] Error:', error);
+    await anotarFalloIA('asistente-virtual', error?.message || String(error)).catch(() => {});
     return {
       success: false,
       error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
@@ -359,6 +360,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
     };
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);
+    await anotarFalloIA('asistente-cliente', error?.message || String(error)).catch(() => {});
     return {
       success: false,
       error: 'No se pudo conectar con el asistente en este momento.',
@@ -447,6 +449,7 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
     };
   } catch (error: any) {
     console.error('[chatConAsistenteInvitado] Error:', error);
+    await anotarFalloIA('asistente-invitado', error?.message || String(error)).catch(() => {});
     return {
       success: false,
       error: 'No pudimos responderte en este momento. ¡Que tengas una gran fiesta!',

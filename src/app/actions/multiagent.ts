@@ -64,13 +64,17 @@ export async function sendMultiAgentMessage(
       imageDataUri: options?.imageDataUri,
     });
   } catch (error: any) {
+    const isTimeout = /timeout|tiempo|demasiado/i.test(error?.message || '');
     return {
       success: false,
-      response: 'No pude responder con el Multiagente AK. Revisá si la API de Gemini está configurada y probá de nuevo.',
+      response: isTimeout
+        ? 'Tardó demasiado: no se hizo ninguna acción'
+        : 'No pude responder con el Multiagente AK. Revisá si la API de Gemini está configurada y probá de nuevo.',
       agentType: options?.agentType ?? 'central',
       agentName: 'Multiagente AK',
       action: { type: 'none' },
       error: error?.message || 'Error desconocido',
+      accionesEjecutadas: [],
     };
   }
 }

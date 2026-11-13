@@ -245,18 +245,11 @@ const CANVA_CATALOGS = [
 
 const MARKETING_HUB_ITEMS = [
   {
-    title: 'Redes sociales',
-    description: 'Planifica publicaciones, calendario, piezas y contenido real para Instagram, Facebook, TikTok y WhatsApp.',
+    title: 'Redes sociales y contenido con IA',
+    description: 'Planificá publicaciones, calendario y piezas para Instagram, TikTok, Facebook y WhatsApp asistido por IA.',
     href: '/empresa/redes-sociales',
     icon: Megaphone,
     tone: 'bg-pink-50 text-pink-700 border-pink-100',
-  },
-  {
-    title: 'IA de marketing',
-    description: 'Genera copies, ideas de campana, respuestas de venta y mensajes para seguimiento comercial.',
-    href: '/empresa/redes-sociales/ia-marketing',
-    icon: Sparkles,
-    tone: 'bg-violet-50 text-violet-700 border-violet-100',
   },
   {
     title: 'Plantilla LED',

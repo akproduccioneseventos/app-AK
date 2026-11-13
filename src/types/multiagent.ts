@@ -85,6 +85,8 @@ export interface AkMultiAgentOutput {
   error?: string;
   /** true cuando la IA no respondió y el texto es un resumen automático de los datos. */
   modoRespaldo?: boolean;
+  /** Acciones reales que el agente ejecutó en la app antes de responder o cortar. */
+  accionesEjecutadas?: string[];
 }
 
 export interface AkPersistentMultiAgentOutput extends AkMultiAgentOutput {

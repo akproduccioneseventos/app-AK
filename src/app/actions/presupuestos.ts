@@ -9,7 +9,7 @@ import { readDataConDetalle, readData, writeData, mutateDataItem } from '@/lib/d
 // esperando un turno que nunca llega y la pantalla queda colgada para siempre.
 // Habia un import de `saveInvoice` sin usar, listo para caer en la trampa.
 import type { Invoice, InvoiceItem } from '@/types/invoice';
-import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
+import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead, conTurnoCrm } from './crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
@@ -1537,29 +1537,49 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
         // ignore local fallback write errors in restricted environments
       }
 
-      // Clean stale CRM references to deleted presupuestos.
-      if (deletedIds.size > 0) {
-        type CrmLeadRaw = { presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+      // Clean stale CRM references to deleted presupuestos within CRM turn.
+      await conTurnoCrm(async () => {
+        type CrmLeadRaw = {
+          presupuestoId?: string;
+          presupuestoEstado?: string;
+          budgetSource?: unknown;
+          lastBudgetAt?: unknown;
+          presupuestoVecesVisto?: unknown;
+          presupuestoVistoAt?: unknown;
+          [key: string]: unknown;
+        };
         const leads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+        let huboCambios = false;
         const cleanedLeads = leads.map((lead) => {
-          if (lead.presupuestoId && deletedIds.has(lead.presupuestoId)) {
-            const { presupuestoId: _pid, presupuestoEstado: _pestado, ...rest } = lead;
+          if (lead.presupuestoId && (deletedIds.size === 0 || deletedIds.has(lead.presupuestoId))) {
+            huboCambios = true;
+            const {
+              presupuestoId: _pid,
+              presupuestoEstado: _pestado,
+              budgetSource: _bs,
+              lastBudgetAt: _lba,
+              presupuestoVecesVisto: _pvv,
+              presupuestoVistoAt: _pva,
+              ...rest
+            } = lead;
             return rest;
           }
           return lead;
         });
-        await writeData('crm-leads.json', cleanedLeads);
+        if (huboCambios) {
+          await writeData('crm-leads.json', cleanedLeads);
+        }
+      });
 
-        // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
-        const allFiestas = await getAllFiestas();
-        const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
-        for (const fiesta of fiestasToUnlink) {
-          // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
-          // sigue apuntando a un presupuesto que ya no esta.
-          const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
-          if (!desenganchado.success) {
-            console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
-          }
+      // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
+      const allFiestas = await getAllFiestas();
+      const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && (deletedIds.size === 0 || deletedIds.has(fiesta.presupuestoId)));
+      for (const fiesta of fiestasToUnlink) {
+        // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
+        // sigue apuntando a un presupuesto que ya no esta.
+        const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
+        if (!desenganchado.success) {
+          console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
         }
       }
 

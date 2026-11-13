@@ -278,7 +278,7 @@ function validateCollectionMutationInput(filePath: string, collectionName: strin
 
 function cleanCollectionItem<T extends object>(item: T): T {
   // La marca de lectura (marca-de-lectura.ts) nunca se guarda.
-  return sacarMarcas(JSON.parse(JSON.stringify(item))) as T;
+  return sacarMarcas(item);
 }
 
 async function refreshCollectionFallback(
@@ -430,7 +430,14 @@ export async function mutateDataItem<T extends object>(
     void _syncedAt;
     const nuevo = cambiar(actual as T);
     if (!nuevo) return;
-    transaction.set(ref, { ...cleanCollectionItem(nuevo), _syncedAt: new Date().toISOString() });
+    const { FieldValue } = await import("firebase-admin/firestore");
+    const payload: Record<string, unknown> = { ...(nuevo as unknown as Record<string, unknown>) };
+    for (const [k, v] of Object.entries(nuevo as unknown as Record<string, unknown>)) {
+      if (v === undefined) {
+        payload[k] = FieldValue.delete();
+      }
+    }
+    transaction.set(ref, { ...cleanCollectionItem(payload as unknown as T), _syncedAt: new Date().toISOString() }, { merge: true });
     resultado = nuevo;
   });
   if (resultado) await refreshCollectionFallback(normalizedFilePath, options);
@@ -504,7 +511,7 @@ export async function updateDataPartial<T extends Record<string, any>>(
   }
 
   try {
-    await syncToFirestore(normalizedFilePath, partialData);
+    await syncToFirestore(normalizedFilePath, partialData, { esParcial: true });
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       // Si NO se pudo leer lo que habia, no se guarda: guardar encima con la mano
       // vacia borraria todo lo demas del documento. Ver el comentario largo en

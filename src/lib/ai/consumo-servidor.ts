@@ -2,7 +2,7 @@ import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
-import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { exigirQueSePuedaGuardar, esSesionDeAuditor } from '@/lib/auth/solo-lectura';
 import { aFechaHoraLocal } from '@/lib/fechas/fecha-local';
 import {
   calcularConsumo,
@@ -34,14 +34,22 @@ export interface ConsumoDia {
   profundo?: number;
 }
 
+export interface FalloIAInfo {
+  cantidad: number;
+  ultimoMotivo: string;
+  ultimaVez: string;
+  avisoEnviado?: boolean;
+}
+
 export interface ConsumoGuardado {
   meses?: Record<string, ConteoPorFuncion>;
   dias?: Record<string, ConsumoDia>;
+  fallos?: Record<string, Record<string, FalloIAInfo>>;
   topeMensualUYU?: number;
   topeDiarioProfundo?: number;
 }
 
-const VACIO: ConsumoGuardado = { meses: {}, dias: {}, topeMensualUYU: 0, topeDiarioProfundo: 40 };
+const VACIO: ConsumoGuardado = { meses: {}, dias: {}, fallos: {}, topeMensualUYU: 0, topeDiarioProfundo: 40 };
 
 function normalizarConsumo(datos: any): ConsumoGuardado {
   const contenido = datos?._data ?? datos?._value ?? datos ?? VACIO;
@@ -51,6 +59,7 @@ function normalizarConsumo(datos: any): ConsumoGuardado {
   return {
     meses: contenido?.meses ?? {},
     dias: contenido?.dias ?? {},
+    fallos: contenido?.fallos ?? {},
     topeMensualUYU: Number(contenido?.topeMensualUYU) > 0 ? Number(contenido.topeMensualUYU) : 0,
     topeDiarioProfundo: topeDiario,
   };
@@ -93,12 +102,15 @@ async function cambiarConsumo<T>(
   });
 }
 
-/** Suma una generación al contador del mes. Nunca lanza, salvo para el candado de auditor. */
+/** Suma una generación al contador del mes. Nunca lanza, salvo para el candado de auditor. Con auditor no guarda ni lanza. */
 export async function registrarConsumoIA(
   funcion: FuncionConCosto,
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<void> {
+  if (await esSesionDeAuditor()) {
+    return;
+  }
   await exigirQueSePuedaGuardar();
   try {
     const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
@@ -125,6 +137,11 @@ export async function reservarConsumoIA(
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<ReservaConsumoIA | null> {
+  if (await esSesionDeAuditor()) {
+    return {
+      async liberar() {},
+    };
+  }
   await exigirQueSePuedaGuardar();
   const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
   if (!incremento) return null;
@@ -165,6 +182,9 @@ export async function reservarConsumoIA(
 }
 
 export async function reservarRespuestaProfunda(ahora?: Date | string): Promise<boolean> {
+  if (await esSesionDeAuditor()) {
+    return true;
+  }
   await exigirQueSePuedaGuardar();
   const fechaUY = aFechaHoraLocal(ahora).slice(0, 10);
   if (!fechaUY) return false;
@@ -280,4 +300,82 @@ export async function hayPresupuestoParaIA(ahora: Date | string = new Date()): P
   } catch {
     return true;
   }
+}
+
+/**
+ * Registra un fallo de IA (cuando cae a respuesta de respaldo).
+ * No escribe si la sesión es de auditor.
+ * Si hoy hubo más de 5 fallos de una misma función, dispara aviso al dueño (una vez por día).
+ */
+export async function anotarFalloIA(
+  funcion: string,
+  motivo: string,
+  ahora: Date | string = new Date(),
+): Promise<void> {
+  if (await esSesionDeAuditor()) {
+    return;
+  }
+
+  const fechaUY = aFechaHoraLocal(ahora).slice(0, 10);
+  if (!fechaUY) return;
+
+  type InfoAviso = { debeAvisar: boolean; datosAviso: { funcion: string; cantidad: number; motivo: string } | null };
+
+  let avisoInfo: InfoAviso | undefined;
+
+  try {
+    avisoInfo = await cambiarConsumo<InfoAviso>((datos) => {
+      const fallos = { ...(datos.fallos ?? {}) };
+      const delDia = { ...(fallos[fechaUY] ?? {}) };
+      const anterior = delDia[funcion] ?? { cantidad: 0, ultimoMotivo: '', ultimaVez: '' };
+      const nuevaCantidad = anterior.cantidad + 1;
+      const yaAvisado = Boolean(anterior.avisoEnviado);
+      let debeAvisar = false;
+      let datosAviso: { funcion: string; cantidad: number; motivo: string } | null = null;
+
+      if (nuevaCantidad > 5 && !yaAvisado) {
+        debeAvisar = true;
+        datosAviso = { funcion, cantidad: nuevaCantidad, motivo };
+      }
+
+      delDia[funcion] = {
+        cantidad: nuevaCantidad,
+        ultimoMotivo: motivo,
+        ultimaVez: typeof ahora === 'string' ? ahora : ahora.toISOString(),
+        avisoEnviado: yaAvisado || debeAvisar,
+      };
+      fallos[fechaUY] = delDia;
+
+      return {
+        siguiente: { ...datos, fallos },
+        resultado: { debeAvisar, datosAviso },
+      };
+    });
+  } catch (err) {
+    // Nunca romper ante fallos de registro
+    console.warn('[anotarFalloIA] No se pudo guardar el fallo de IA:', err);
+  }
+
+  if (avisoInfo?.debeAvisar && avisoInfo.datosAviso) {
+    try {
+      const fechaAviso = typeof ahora === 'string' ? new Date(ahora) : ahora;
+      const { avisarAlDuenio } = await import('@/lib/asistente/avisar-al-duenio');
+      await avisarAlDuenio([{
+        clave: `fallo-ia-${fechaUY}-${funcion}`,
+        area: 'asistente',
+        titulo: `Respuestas de respaldo reiteradas en: ${funcion}`,
+        quePasa: `La función "${funcion}" falló ${avisoInfo.datosAviso.cantidad} veces hoy y cayó al respaldo. Último motivo: ${avisoInfo.datosAviso.motivo}`,
+        porQueImporta: 'Los usuarios pueden estar recibiendo respuestas fijas o de respaldo.',
+        esImportante: true,
+      }], fechaAviso);
+    } catch {
+      // Ignorar si avisarAlDuenio falla
+    }
+  }
+}
+
+export async function getFallosIAHoy(ahora: Date | string = new Date()): Promise<Record<string, FalloIAInfo>> {
+  const datos = await leer();
+  const fechaUY = aFechaHoraLocal(ahora).slice(0, 10);
+  return datos.fallos?.[fechaUY] ?? {};
 }

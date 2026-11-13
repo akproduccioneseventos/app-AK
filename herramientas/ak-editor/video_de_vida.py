@@ -951,10 +951,13 @@ def exportar_video_de_vida(
             golpes = []
 
     # Configurar VideoWriter
+    tiene_audio = bool(ruta_audio and os.path.exists(ruta_audio))
+    ruta_render_video = ruta_salida_mp4 + ".video.mp4" if tiene_audio else ruta_salida_mp4
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    writer = cv2.VideoWriter(ruta_salida_mp4, fourcc, float(fps), (ancho, alto))
+    writer = cv2.VideoWriter(ruta_render_video, fourcc, float(fps), (ancho, alto))
 
     logo_img = cv2.imread(ruta_logo_ak) if ruta_logo_ak and os.path.exists(ruta_logo_ak) else None
+    cuadros_totales = 0
 
     try:
         # 1. Intro AK: 2 segundos
@@ -1019,5 +1022,44 @@ def exportar_video_de_vida(
 
     finally:
         writer.release()
+
+    if tiene_audio:
+        try:
+            # Obtener duración del video con OpenCV
+            cap = cv2.VideoCapture(ruta_render_video)
+            cuadros = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            fps_real = cap.get(cv2.CAP_PROP_FPS) or float(fps)
+            cap.release()
+            duracion_seg = (cuadros / fps_real) if fps_real > 0 else 6.0
+            st_fade = max(0.0, duracion_seg - 1.0)
+            filtro_audio = f"afade=t=in:ss=0:d=1,afade=t=out:st={st_fade:.2f}:d=1"
+
+            cmd = [
+                "ffmpeg", "-y",
+                "-i", ruta_render_video,
+                "-i", ruta_audio,
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-af", filtro_audio,
+                "-shortest",
+                ruta_salida_mp4,
+            ]
+            res = subprocess.run(cmd, capture_output=True, check=False)
+            if res.returncode == 0 and os.path.exists(ruta_salida_mp4) and os.path.getsize(ruta_salida_mp4) > 0:
+                try:
+                    os.remove(ruta_render_video)
+                except Exception:
+                    pass
+            else:
+                if os.path.exists(ruta_render_video):
+                    if os.path.exists(ruta_salida_mp4):
+                        try:
+                            os.remove(ruta_salida_mp4)
+                        except Exception:
+                            pass
+                    os.rename(ruta_render_video, ruta_salida_mp4)
+        except Exception:
+            if os.path.exists(ruta_render_video) and not os.path.exists(ruta_salida_mp4):
+                os.rename(ruta_render_video, ruta_salida_mp4)
 
     return ruta_salida_mp4

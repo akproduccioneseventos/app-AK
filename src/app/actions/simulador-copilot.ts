@@ -14,6 +14,8 @@ import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { detalleDePaquetes } from '@/lib/simulador/detalle-de-paquetes';
+import { anotarFalloIA } from '@/lib/ai/consumo-servidor';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
@@ -269,6 +271,7 @@ export async function chatWithBudgetCopilot(
   // FALLBACK: Rule-based static response if API Key is not configured
   if (!apiKey) {
     logger.warn('[copilot] API Key missing. Falling back to rule-based engine.');
+    await anotarFalloIA('simulador-copilot', 'API Key missing').catch(() => {});
     return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
   }
 
@@ -316,6 +319,12 @@ export async function chatWithBudgetCopilot(
       return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
     }
 
+    const preguntaPorPaquetes = /paquete|incluye|trae|diferencia/i.test(normalizedInput.message);
+    const detalleTexto = detalleDePaquetes(paquetesCatalog);
+    const promptPersonalidad = preguntaPorPaquetes
+      ? `${copilotConfig.promptPersonalidad}\n\nIMPORTANTE: No enumeres qué incluye cada paquete: el detalle va aparte.`
+      : copilotConfig.promptPersonalidad;
+
     // 2. Call Gemini
     const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
     const { output } = await ejecutarPromptConFallback(copilotPrompt, {
@@ -324,7 +333,7 @@ export async function chatWithBudgetCopilot(
       currentState: normalizedInput.currentState,
       businessContext,
       currentStateJson,
-      copilotSystemPrompt: copilotConfig.promptPersonalidad,
+      copilotSystemPrompt: promptPersonalidad,
       faqsJson: JSON.stringify(copilotConfig.faqs)
     } as any, effectiveModel);
 
@@ -332,6 +341,10 @@ export async function chatWithBudgetCopilot(
 
     if (!output) {
       throw new Error('Gemini no retornó una respuesta válida.');
+    }
+
+    if (preguntaPorPaquetes && detalleTexto && !output.response.includes(detalleTexto)) {
+      output.response = `${output.response.trim()}\n\n${detalleTexto}`;
     }
 
     // 3. Process check_availability custom tool logic on server side
@@ -370,7 +383,25 @@ export async function chatWithBudgetCopilot(
 
   } catch (error: any) {
     logger.error('[copilot] Error in chatWithBudgetCopilot:', error);
-    return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
+    await anotarFalloIA('simulador-copilot', error?.message || String(error)).catch(() => {});
+    const fallback = getStaticFallbackResponse(normalizedInput, config);
+    if (/paquete|incluye|trae|diferencia/i.test(normalizedInput.message)) {
+      const serviceById = new Map((services || []).map((service) => [service.id, service]));
+      const paquetesCatalogFallback = (config?.paquetes || []).map((pkg) => ({
+        id: pkg.id,
+        nombre: pkg.nombre,
+        serviciosIncluidos: pkg.serviciosIncluidos.map((inc) => ({
+          id: inc.id,
+          nombre: serviceById.get(inc.id)?.nombre || 'Servicio',
+          esRegalo: Boolean(inc.esRegalo),
+        })),
+      }));
+      const detalle = detalleDePaquetes(paquetesCatalogFallback);
+      if (detalle && !fallback.response.includes(detalle)) {
+        fallback.response = `${fallback.response.trim()}\n\n${detalle}`;
+      }
+    }
+    return sanitizeCopilotOutput(fallback, config, services, menus);
   }
 }
 
