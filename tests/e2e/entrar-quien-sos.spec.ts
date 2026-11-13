@@ -41,7 +41,7 @@ test.describe('Orden 263: pantalla /entrar (¿Quién sos?)', () => {
     expect(page.url()).toContain('/login');
   });
 
-  test('con cookie de sesión del equipo, /entrar va directo al dashboard', async ({ page, context }, testInfo) => {
+  test('con cookie de sesión del equipo, /entrar va directo al panel (y el panel existe)', async ({ page, context }, testInfo) => {
     test.setTimeout(60_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await context.addCookies([
@@ -50,7 +50,8 @@ test.describe('Orden 263: pantalla /entrar (¿Quién sos?)', () => {
 
     await page.goto('/entrar', { waitUntil: 'domcontentloaded' });
 
-    await page.waitForURL((url) => url.pathname.includes('/dashboard'), { timeout: 20_000 });
-    expect(page.url()).toContain('/dashboard');
+    // Antes esperaba /dashboard, que no existe: la prueba pasaba con la pantalla de "Esta página no existe" (auditor, 12/11/2026).
+    await page.waitForURL((url) => url.pathname.startsWith('/admin'), { timeout: 20_000 });
+    await expect(page.getByText(/esta p[aá]gina no existe/i)).toHaveCount(0);
   });
 });

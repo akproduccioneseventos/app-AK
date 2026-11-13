@@ -265,3 +265,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 97. **¿La IA le cuenta a un cliente qué incluye algo o cuánto sale?** Que eso lo arme el código con los datos.
 98. **¿Tu acción borra o quita algo?** Volvé a leer la base después: tiene que no estar, no sólo devolver `success`.
 99. **¿Guardás el mismo dato en dos campos?** Que el cambio recalcule los dos desde el valor nuevo, sin `|| valor viejo`.
+100. **¿Tu acción guarda plata o comida, o borra?** Su prueba va en `tests/firebase/`, contra la base de verdad: hacer, volver a leer y, si se puede deshacer, deshacer y comparar con el principio.
+101. **¿Escribiste una dirección a mano (`href`, `redirect`, `router.push`)?** Que exista: lo revisa `ningun-enlace-lleva-a-una-pagina-que-no-existe`.
+102. **¿Llamás a la IA?** Mirá el tope antes de llamar, no sólo anotes el gasto después.

@@ -80,7 +80,7 @@ export function EntrarClient() {
       }
 
       if (res.fiestaId) {
-        router.push(`/portal/${encodeURIComponent(res.fiestaId)}`);
+        router.push(`/portal-cliente/${encodeURIComponent(res.fiestaId)}`);
         return;
       }
 
@@ -243,7 +243,7 @@ export function EntrarClient() {
                         <button
                           key={f.id}
                           type="button"
-                          onClick={() => router.push(`/portal/${encodeURIComponent(f.id)}`)}
+                          onClick={() => router.push(`/portal-cliente/${encodeURIComponent(f.id)}`)}
                           className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm flex items-center justify-between transition"
                         >
                           <span className="truncate">{f.nombreEvento}</span>
