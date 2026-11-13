@@ -13,7 +13,7 @@ los logos de empresas como respaldo y los textos "100% / Listo / Excelente" qued
 
 ## Barrido en toda la app (Claude, 13/11/2026)
 
-- **Nombres de fiestas con caracteres rotos guardados** ("XV aÃ±os", "DÃaz", "En PlanificaciÃ³n"): salen de los datos,
+- **Nombres de fiestas con caracteres rotos guardados** (la "ñ" y las vocales con tilde guardadas como dos caracteres raros, p. ej. en "XV años", "Díaz", "En Planificación"): salen de los datos,
   no del código. Se ven en panel, alertas, calendario, kioscos y borradores de Instagram.
 - **Nombres "Otro de <cliente>"**: el tipo de evento "Otro" se usa para armar el nombre de la fiesta.
 - **Post-fiesta para el cliente con lenguaje interno:** `src/app/post-fiesta/[fiestaId]/page.tsx` ("consumo de datos de
@@ -35,10 +35,10 @@ los logos de empresas como respaldo y los textos "100% / Listo / Excelente" qued
 ## Bloque 1 — Reparar los nombres rotos guardados (P1)
 
 Una tarea de una sola vez (idempotente) en `src/lib/automatico/` que recorre `fiestas.json`, clientes y prospectos y
-arregla los textos con caracteres rotos (`Ã¡`→`á`, `Ã©`→`é`, `Ã±`→`ñ`, `Ã³`→`ó`, `Ã­`/`Ã`→`í`, `Ãº`→`ú`), **sólo en
+arregla los textos con caracteres rotos (UTF-8 leído como Latin-1: reconvertir con `Buffer.from(texto, "latin1").toString("utf8")` sólo cuando el resultado no tiene caracteres de reemplazo), **sólo en
 campos de texto de nombre** (nombre, clienteNombre, título). Corre con sesión que no es auditor, deja un aviso con cuántos
-arregló, y **no borra ni junta registros**. Los pares con el mismo cliente y fecha (p. ej. "XV aÃ±os de Claudia Flores" y
-"XV años de Claudia Flores") **no se tocan**: se listan en el aviso para que el dueño decida.
+arregló, y **no borra ni junta registros**. Los pares con el mismo cliente y fecha (p. ej. dos "XV años de Claudia Flores", una
+con la ñ rota) **no se tocan**: se listan en el aviso para que el dueño decida.
 
 ## Bloque 2 — "Otro de …" pasa a "Evento de …" (P2)
 
@@ -68,7 +68,7 @@ Producciones" → **"Lugar a coordinar"** (o videollamada, según lo que ya ofre
 
 ## Pruebas
 
-- `src/__tests__/los-nombres-rotos-se-reparan.test.ts`: "XV aÃ±os de Ana" → "XV años de Ana", "Otro de Juan" → "Evento de
+- `src/__tests__/los-nombres-rotos-se-reparan.test.ts`: un nombre con la ñ rota queda con la ñ bien (armá el texto roto en la prueba con `Buffer.from("XV años de Ana","utf8").toString("latin1")`), "Otro de Juan" → "Evento de
   Juan"; una segunda corrida no cambia nada; un par repetido se lista y no se borra; con sesión de auditor no escribe.
 - `src/__tests__/el-cliente-no-ve-lenguaje-interno.test.ts`: post-fiesta y LED no contienen "Firebase", "agente",
   "catalogo interno".
