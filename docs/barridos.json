@@ -886,6 +886,10 @@
     "orden-303": {
       "fecha": "2026-11-13",
       "resultado": "Complemento de auditoría: portal de decoración y moodboard sin sesión, recuerdos que piden ingreso al cliente, fiesta pasada en cuenta regresiva, testimonios 'Cliente N', penalidad contradictoria y catálogo que no llega al cierre → orden 303."
+    },
+    "orden-304": {
+      "fecha": "2026-11-13",
+      "resultado": "Evaluación de Sofía y del multiagente: respuestas del especialista ocultas por el filtro de agente, paquetes que cambian entre turnos, disponibilidad afirmada sin verificar, promesa de avisos inexistente y error de teléfono repetido → orden 304."
     }
   }
 }
