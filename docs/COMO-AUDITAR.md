@@ -1654,3 +1654,15 @@ Las pruebas daban verde porque la base de mentira guarda listas vacías y campos
 reemplazaban la pieza donde estaba la falla (la reversión de precios). Toda acción que guarda plata o comida, o que borra,
 tiene su prueba en `tests/firebase/` contra el emulador, que vuelve a leer y hace la ida y vuelta. Lo exige
 `lo-que-guarda-se-prueba-contra-la-base.test.ts`; lo que falta está en `docs/ida-y-vuelta-pendientes.json` y sólo se achica.
+
+### 130. Un destino escrito en el código (`redirect`, `router.push`, `href`), ¿existe como pantalla?
+
+Ronda de interfaz del auditor, 12/11/2026. `/entrar` mandaba a `/dashboard`, y el cliente que entraba con su teléfono a
+`/portal/<id>`: las dos direcciones no existen. Lo revisa solo `ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` en
+cada publicación (pantallas, rutas del servidor, redirecciones de `next.config.js` y archivos de `public/`).
+
+### 131. Lo que cuesta plata por uso (la IA), ¿se frena ANTES de gastar o sólo se anota después?
+
+Ronda de interfaz del auditor, 12/11/2026. El asistente del equipo anotaba el gasto después de contestar y nunca miraba el
+tope. Se buscan los `registrarConsumoIA` y se mira que antes, en el mismo camino, haya `hayPresupuestoParaIA`,
+`reservarConsumoIA` o `getEffectiveGeminiModelForAgent`.

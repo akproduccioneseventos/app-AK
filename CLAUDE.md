@@ -1978,6 +1978,7 @@ con otra cara.
 | Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
 | Revertir un ajuste de precios dejaba el catálogo en negativo, y se aceptaba bajar -200% | `src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts` |
 | Once acciones decían "listo" sin guardar, y las pruebas daban verde con una base de mentira mejor que la real | `src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts` con `docs/ida-y-vuelta-pendientes.json` |
+| "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
 
 ### Cómo se elige el matafuego
 

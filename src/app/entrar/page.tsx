@@ -11,7 +11,7 @@ export default async function EntrarPage() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('ak_session');
   if (sessionCookie && sessionCookie.value) {
-    redirect('/dashboard');
+    redirect('/admin');
   }
 
   return <EntrarClient />;
