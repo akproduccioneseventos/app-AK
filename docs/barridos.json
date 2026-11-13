@@ -496,6 +496,22 @@
     "124": {
       "fecha": "2026-11-12",
       "resultado": "Buscado await repair/migrate/reparar/migrar en src/app y src/components: sólo /presupuestos/nuevo → orden 290 bloque 1."
+    },
+    "125": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscados los catch y caminos sin respuesta de la IA: Sofía (simulador-copilot.ts ~451), asistente-virtual.ts y generateWithGeminiFallback (src/ai/genkit.ts) para todos los flows → orden 291 bloque 2, de raíz en genkit."
+    },
+    "126": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscados los chats con clientes, prospectos e invitados: sólo Sofía enumera paquetes (simulador-copilot.ts); el asistente del portal lee la fiesta → orden 291 bloque 1."
+    },
+    "127": {
+      "fecha": "2026-11-12",
+      "resultado": "Raíz en src/lib/firebase-sync.ts: lista vacía ignorada fuera de ALLOW_EMPTY_ARRAY_RESET_FILES (plantillas de tareas, canvas y marketing) y undefined omitido en merge (updateMenuAsignado) → orden 292 bloques 1 y 2, con recorrido de las bajas en src/app/actions."
+    },
+    "128": {
+      "fecha": "2026-11-12",
+      "resultado": "Buscado el patrón \"|| valorViejo\" en pares de campos: isCeliac en invitados.actions.ts (dos lugares) → orden 292 bloque 5. Los demás pares (clienteId/clienteNombre) se recalculan juntos."
     }
   },
   "hallazgos": {
@@ -786,6 +802,14 @@
     "orden-290": {
       "fecha": "2026-11-12",
       "resultado": "Informe parte 3 del auditor. Respaldo por forma esperada (arreglado por Claude, barrido completo con control). Reparación al abrir: sólo presupuestos. Wfolio: módulo sin importar y promesa en post-fiesta → bloque 3. Placeholder repetido: sólo la invitación pública."
+    },
+    "orden-291": {
+      "fecha": "2026-11-12",
+      "resultado": "Informe del auditor sobre la IA y cobertura. Barrido de IA sin aviso (raíz en genkit), auditor sin poder probar la IA (consumo-servidor), paquetes inventados (sólo Sofía), tareas que dicen corrió sin hacer nada (el blog). Descartados: proveedores-portal sin fiesta (a propósito), Poner al día (lista para marcar a mano), WhatsApp de anuncios (decisión del dueño)."
+    },
+    "orden-292": {
+      "fecha": "2026-11-12",
+      "resultado": "Prueba funcional aislada del auditor: precio revertido negativo y -200% (arreglado por Claude), bajas que no llegan a la base y campos undefined (raíz en firebase-sync), CRM con etapas propias, reinicio de presupuestos con prospecto colgado, celiaquía residual, buzón con archivos falsos, kiosco que pide sesión, Video de Vida sin música."
     }
   }
 }

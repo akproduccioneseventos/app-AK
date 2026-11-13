@@ -1620,3 +1620,29 @@ Lo hace solo `el-respaldo-espera-la-forma-que-se-guarda.test.ts`.
 Auditor externo, 12/11/2026. `/presupuestos/nuevo` esperaba `repairVerifiedBudgetDates()` (lee la lista entera) antes de
 pedir la lista: 22 segundos en el celular. Se buscan `await repair…`, `await migrate…`, `reparar`, `migrar` en las
 pantallas: lo que hace falta una vez corre después de mostrar la pantalla, o una sola vez.
+
+### 125. Una función de IA que no consigue respuesta y contesta un texto fijo, ¿alguien del equipo se entera?
+
+Auditor externo, 12/11/2026. Sofía contestaba "modo asistente básico" y el asistente del portal un texto de respaldo, sin
+dejar rastro: con la IA sin saldo un mes, nadie lo hubiera visto. Se buscan los `catch` y los caminos sin respuesta de cada
+llamada a la IA (`generateWithGeminiFallback`, `ai.generate`, `fetch` a Gemini) y se mira que anoten el fallo donde el
+equipo lo vea.
+
+### 126. Lo que la IA le dice a un cliente sobre qué incluye o cuánto sale algo, ¿sale de los datos o del modelo?
+
+Auditor externo, 12/11/2026. Sofía dijo que los tres paquetes traen discoteca y pantallas LED; el Básico no las trae. Se
+buscan los chats con clientes, prospectos e invitados y se mira que lo que incluye un paquete, un precio o una condición
+lo arme el código con los datos, y que el modelo sólo converse.
+
+### 127. Una acción que dice "borrado" o "quitado", ¿lo borró también en la base, o sólo en la copia local?
+
+Prueba funcional del auditor, 12/11/2026. Borrar la última plantilla devolvía éxito y la base la conservaba (la escritura
+de lista vacía se ignora salvo una lista de archivos), y quitar el menú de una fiesta con `undefined` dejaba el campo viejo
+(se omite al guardar con `merge`). Se buscan las bajas que terminan en una lista vacía y las actualizaciones parciales con
+`undefined`, y se mira la base después, no el objeto devuelto.
+
+### 128. Dos campos que guardan lo mismo, ¿se actualizan juntos?
+
+Prueba funcional del auditor, 12/11/2026. `dietaryRestriction` pasaba a "Ninguna" y `isCeliac` seguía en `true` por un
+`|| inv.isCeliac`: la cocina seguía contando un celíaco. Se buscan los pares que repiten un dato (un booleano y un texto, un
+id y un nombre) y se mira que cada cambio recalcule los dos desde el mismo valor nuevo.

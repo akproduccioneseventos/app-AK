@@ -1,25 +1,25 @@
-# Estado actual — 12 de noviembre de 2026
+# Estado actual — 12 de noviembre de 2026 (noche)
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la 1389.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1394**.
 
-## Publicado
-- **1389:** órdenes 280 y 281 (estilo AK de fotos, editor liviano) y el arreglo para que el dueño con cuenta vieja
-  pueda abrir y cerrar el acceso del auditor (Usuarios → "Auditoría externa").
-- **1388:** órdenes 273 a 279 revisadas (auditor de sólo lectura, claves comparadas de forma segura, la web no pierde
-  lo que eligió el prospecto).
-- **1386:** Next.js 15.5.29 y preguntas 113-116 del método. **1384:** WhatsApp de los catálogos, editor, blog.
+## Publicado hoy
+- **1394:** el respaldo automático vuelve a guardarse (esperaba lista donde hay objeto; no guardaba desde el 13/10).
+  Cada pregunta nueva del método se escanea sola en cada publicación. Órdenes 287 a 291 y preguntas 117 a 126.
+- **1392:** respaldo de a 4 con motivo, órdenes 283-286. **1391/1390:** acceso del auditor.
 
-## Para Gemini (todas en la principal, arranca de `main`)
-- **Orden 282:** la presencia digital trabaja sola (contestar, ocultar negativos, publicar a las 12 h).
-  El bloque 1 necesita que el dueño inicie sesión en Facebook/Instagram desde su PC.
-- **Orden 283:** la app interna simple y de celular (un solo inicio, menú corto + "Más", ajustes con buscador).
-- **Orden 278, bloque 1:** crear la clave del despertador en Firebase (App Hosting `cron-secret` y la de funciones
-  `CRON_SECRET`) desde la PC del dueño; recién ahí se vuelve a exigir en `cron-despachador`.
-- **Orden 277, bloque 13:** la presentación lleva las entradas, con su prueba de navegador que ande.
-- **Orden 269:** la decoración puede pagarle dos veces a la IA.
+## Para Gemini (todas en la principal)
+- Una sola entrega en su rama `gemini/ordenes-282-283-entrega-completa` (fusionando `origin/main`): órdenes
+  **284, 285, 286, 287, 288, 289, 290 y 291**. La 289 es la IA en dos niveles (tope 40 por día, aprobado por el dueño).
+- Pendientes de antes: 282 (Meta desde la PC del dueño), 278 bloque 1 (clave del despertador), 277 bloque 13, 269.
+
+## Para mirar mañana
+- Que el respaldo automático haya guardado copia (Ajustes → Backup): el primero después de publicar la 1394.
+- Pruebas de navegador que fallan sólo en la corrida completa y pasan solas: simulador en celular y fotos del catering.
+  Va en la orden 290, bloque 4.
+
+## Sólo el dueño
+- Prender las tareas programadas de Firebase (hoy no hay ninguna) — orden 278 bloque 1.
+- 7 fiestas pasadas con $1.855.627 sin cobrar en la app: marcar en "Poner al día" lo ya cobrado.
 
 ## Decisiones pendientes del dueño
 - 15% de contratos nuevos: fijo o acumulativo. Play Store: falta la huella SHA-256.
-
-## Errores de plata y permisos abiertos
-- Ninguno conocido. (El despertador sin clave sigue con el freno de concurrencia hasta el bloque 1 de la 278.)

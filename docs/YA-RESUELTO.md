@@ -1,12 +1,38 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/11/2026 - Revertir un ajuste de precios dejaba el catálogo en negativo (prueba funcional del auditor)
+
+- **Qué pasaba:** la cuenta del porcentaje inverso multiplicaba de más por 100: revertir un +10% aplicaba -909% y un
+  precio de 100 terminaba en -890. Y `adjustAllServicePrices` / `adjustAllServiceCosts` aceptaban -200%.
+- **Qué se hizo:** `porcentajeInverso` y `porcentajeDeAjusteValido` en `src/lib/precios/porcentaje-inverso.ts`, usados por
+  la reversión y por las dos acciones (no se acepta bajar 100% o más). Lo frena
+  `revertir-un-ajuste-vuelve-al-precio.test.ts`, comprobado en rojo con la cuenta vieja.
+
+```comprobar
+usa: porcentajeInverso en src/app/actions/price-adjustments.ts
+usa: porcentajeDeAjusteValido en src/app/actions/servicios-empresa.ts
+prueba: src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts
+```
+
+## 12/11/2026 - Cada pregunta nueva del método se escanea sola
+
+- **Pedido del dueño:** *"todos los errores tienen que crear preguntas nuevas y automáticas, y escaneos automáticos"*. Las
+  preguntas 88, 121 y 124 se buscan solas en cada publicación (`scripts/las-formas-que-mienten.mjs`, frena lo que cambió);
+  las que no se pueden buscar con una expresión nombran la prueba que las cubre (`PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR`).
+  Desde la 117, una pregunta sin una de las dos cosas no deja publicar (`cada-pregunta-nueva-tiene-su-escaneo.test.ts`,
+  comprobado en rojo con una pregunta de prueba).
+
+```comprobar
+usa: PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR en scripts/las-formas-que-mienten.mjs
+prueba: src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts
+```
+
 ## 12/11/2026 - La causa verdadera del respaldo que no se guardaba (informe parte 3 del auditor)
 
 - **El arreglo de la mañana no la curó** (el contador siguió de 338 a 340). La causa la reprodujo el auditor: la lista de lo
   que se respalda decía que `galeria-publica.json` y `carga-operativa-templates.json` eran listas, y en la base son
   objetos. La lectura marcaba "falla" sin motivo y el respaldo entero se cancelaba.
-- **Qué se hizo:** las dos entradas de `src/lib/backup/backup-registry.ts` esperan objeto, y `readDataConDetalle` dice el
-  motivo cuando la forma no coincide. Lo frena `el-respaldo-espera-la-forma-que-se-guarda.test.ts`, que compara la forma
+- **Qué se hizo:** las dos entradas de `src/lib/backup/backup-registry.ts` esperan objeto. Lo frena `el-respaldo-espera-la-forma-que-se-guarda.test.ts`, que compara la forma
   de cada archivo del respaldo con la forma con que lo usa la app (comprobado en rojo con la entrada vieja).
 
 ```comprobar

@@ -1,5 +1,6 @@
 'use server';
 
+import { porcentajeDeAjusteValido } from '@/lib/precios/porcentaje-inverso';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
@@ -232,9 +233,8 @@ export async function adjustAllServicePrices(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
-  if (isNaN(percentage) || percentage === 0) {
-    return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
-  }
+  const porcentajeInvalido = porcentajeDeAjusteValido(percentage);
+  if (porcentajeInvalido) return { success: false, error: porcentajeInvalido };
 
   try {
     const inventario = await leerServiciosParaAjustar();
@@ -280,9 +280,8 @@ export async function adjustAllServiceCosts(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
-  if (isNaN(percentage) || percentage === 0) {
-    return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
-  }
+  const porcentajeInvalido = porcentajeDeAjusteValido(percentage);
+  if (porcentajeInvalido) return { success: false, error: porcentajeInvalido };
 
   try {
     const inventario = await leerServiciosParaAjustar();

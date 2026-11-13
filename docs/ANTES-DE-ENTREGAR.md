@@ -261,3 +261,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 93. **¿Marcás algo como "subido" o "publicado" en otro servicio?** Sólo después de ver la respuesta o el archivo del otro lado.
 94. **¿Leés un archivo con un valor por defecto?** Que sea de la misma forma (lista u objeto) con que se guarda.
 95. **¿Tu pantalla corre una corrección al abrir?** Que muestre primero y corrija después, sin esperarla.
+96. **¿Una IA puede quedarse sin respuesta?** Que lo anote donde el equipo lo vea, no sólo un texto fijo al usuario.
+97. **¿La IA le cuenta a un cliente qué incluye algo o cuánto sale?** Que eso lo arme el código con los datos.
+98. **¿Tu acción borra o quita algo?** Volvé a leer la base después: tiene que no estar, no sólo devolver `success`.
+99. **¿Guardás el mismo dato en dos campos?** Que el cambio recalcule los dos desde el valor nuevo, sin `|| valor viejo`.

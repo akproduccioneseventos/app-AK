@@ -64,7 +64,55 @@ const FORMAS = [
     buscar: /new Date\(\s*\w*[Ff]echa\w*\s*\)\s*\.toLocale/g,
     comoSeArregla: 'Armar la fecha con los tres numeros del texto, sin que la zona horaria la mueva. Mirar `src/lib/reportes/rango-de-dias.ts`.',
   },
+  // ── Desde la pregunta 117, cada pregunta nueva del método trae su escaneo acá, o figura en
+  // ── PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR con el control que la cubre. Lo exige
+  // ── src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts (orden del dueño, 12/11/2026).
+  {
+    pregunta: 88,
+    nombre: 'La hora de Greenwich puesta en un campo de fecha y hora local',
+    porque: '"Crear publicación" proponía la hora tres horas adelantada, y cada edición la corría otras tres (auditor, 12/11/2026).',
+    buscar: /toISOString\(\)\.(?:substring|slice)\(0,\s*16\)/g,
+    comoSeArregla: 'Armar AAAA-MM-DDTHH:mm con la hora de Uruguay (src/lib/fechas/).',
+  },
+  {
+    pregunta: 121,
+    nombre: 'El texto para mandar afuera con marcadores sin completar',
+    porque: 'El generador de marketing dejaba salir "[NOMBRE]" y "[X] años" en textos para redes (auditor, 12/11/2026).',
+    buscar: /\[(?:NOMBRE|FECHA|MES\/AÑO|CLIENTE|EVENTO)\]|\[X\] años/g,
+    comoSeArregla: 'Usar {{CLAVE}} con su reemplazo, y no dejar copiar si queda alguno sin dato.',
+  },
+  {
+    pregunta: 124,
+    nombre: 'La pantalla que corre una corrección antes de mostrar nada',
+    porque: 'Presupuestos esperaba una corrección de fechas que lee la lista entera: 22 segundos en el celular (auditor, 12/11/2026).',
+    buscar: /await\s+(?:withTimeout\(\s*)?(?:repair|migrate|reparar|migrar)\w*\(/g,
+    comoSeArregla: 'Mostrar primero y correr la corrección después, sin esperarla, o una sola vez.',
+  },
+  {
+    pregunta: 128,
+    nombre: 'El booleano que no puede volver a falso',
+    porque: 'isCeliac se calculaba "=== Celiaco || inv.isCeliac": pasar a "Ninguna" dejaba al invitado celíaco para la cocina (auditor, 12/11/2026).',
+    buscar: /===\s*'[^']+'\s*\|\|\s*\w+\.is[A-Z]\w*/g,
+    comoSeArregla: 'Calcular el campo sólo del valor nuevo; si el valor nuevo no vino, conservar los dos campos juntos.',
+  },
 ];
+
+/**
+ * Preguntas del método que no tienen una forma buscable con una expresión: cada una nombra el
+ * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
+ */
+const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  117: 'Las fechas que salen a Google Calendar o a un .ics: prueba de la orden 285 (calendar-links con ctz).',
+  118: 'Botones que arman enlaces con un dato guardado: el recorrido de pantallas abre cada destino.',
+  119: 'Pantallas de estado que dicen "listo": prueba el-control-del-respaldo-mira-si-anda (orden 286).',
+  120: 'Tareas que fallan seguido sin avisar: prueba el-respaldo-que-falla-avisa (orden 286) y tareas-no-marcan-exito-al-fallar.',
+  122: 'Estados "subido" sin comprobar del otro lado: prueba test_wfolio_no_dice_subido_sin_ver (orden 288).',
+  123: 'Forma esperada contra forma guardada: src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts.',
+  125: 'IA que cae al respaldo sin avisar: prueba la-ia-que-cae-al-respaldo-avisa (orden 291), con la anotación de raíz en genkit.',
+  126: 'Lo que incluye un paquete sale de los datos: prueba sofia-no-inventa-los-paquetes (orden 291).',
+  127: 'Bajas que no llegan a la base: raíz en firebase-sync, pruebas borrar-el-ultimo-queda-borrado y sacar-un-dato-lo-saca-de-la-base (orden 292).',
+};
+
 
 const soloLoQueCambio = process.argv.includes('--lo-que-cambio');
 
