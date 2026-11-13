@@ -1444,3 +1444,4 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 ```comprobar
 prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 ```
+- Orden 302 → pregunta 4
