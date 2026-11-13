@@ -1,8 +1,9 @@
 # Estado actual — 12 de noviembre de 2026 (noche)
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1395**.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1396**.
 
 ## Publicado hoy
+- **1396 (13/11):** "Entrar" y el portal del cliente por teléfono ya no llevan a una página que no existe; control de todos los enlaces y método de ida y vuelta contra la base (108 acciones pendientes, orden 293).
 - **1395:** revertir un ajuste de precios ya no deja el catálogo en negativo; no se acepta bajar 100% o más. Orden 292.
 - **1394:** el respaldo automático vuelve a guardarse (esperaba lista donde hay objeto; no guardaba desde el 13/10).
   Cada pregunta nueva del método se escanea sola en cada publicación. Órdenes 287 a 291 y preguntas 117 a 126.
@@ -10,7 +11,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Pub
 
 ## Para Gemini (todas en la principal)
 - Una sola entrega en su rama `gemini/ordenes-282-283-entrega-completa` (fusionando `origin/main`): órdenes
-  **284 a 292**. La 289 es la IA en dos niveles (tope 40 por día, aprobado por el dueño).
+  **284 a 294**. La 289 es la IA en dos niveles (tope 40 por día, aprobado por el dueño).
 - Pendientes de antes: 282 (Meta desde la PC del dueño), 278 bloque 1 (clave del despertador), 277 bloque 13, 269.
 
 ## Para mirar mañana

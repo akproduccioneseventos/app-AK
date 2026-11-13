@@ -1666,3 +1666,9 @@ cada publicación (pantallas, rutas del servidor, redirecciones de `next.config.
 Ronda de interfaz del auditor, 12/11/2026. El asistente del equipo anotaba el gasto después de contestar y nunca miraba el
 tope. Se buscan los `registrarConsumoIA` y se mira que antes, en el mismo camino, haya `hayPresupuestoParaIA`,
 `reservarConsumoIA` o `getEffectiveGeminiModelForAgent`.
+
+### 132. Una fecha que elige alguien de afuera (prospecto, cliente, invitado), ¿el servidor rechaza que ya haya pasado?
+
+Auditoría de resultados, 12/11/2026. El simulador público guardó una fiesta del 26/10 como prospecto y presupuesto: el
+servidor miraba si la fecha estaba ocupada y si el teléfono era válido, pero no si ya había pasado. Se buscan las acciones
+públicas que reciben una fecha (`eventoFecha`, `fecha`, `eventDate`) y se mira que comparen con `hoyEnUruguay()`.

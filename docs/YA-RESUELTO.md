@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - El simulador presupuestaba fiestas en el pasado
+
+- **Qué pasaba:** el auditor eligió el 26/10/2026 y el simulador creó el prospecto y un presupuesto de $84.838 sin avisar.
+- **Qué se hizo:** `sanitizeDate` (`src/lib/budget/public-simulator-persistence.ts`) rechaza una fecha anterior a hoy en hora
+  de Uruguay, antes de crear prospecto o presupuesto (lo usan el simulador y el asistente comercial). Probado en rojo sin el
+  freno. El calendario que no ofrece días pasados va en la orden 295.
+
+```comprobar
+usa: ya pasó en src/lib/budget/public-simulator-persistence.ts
+```
+
 ## 13/11/2026 - "Entrar" y el portal del cliente llevaban a páginas que no existen
 
 - **Qué pasaba:** con la sesión abierta, `/entrar` mandaba a `/dashboard` (no existe); y el cliente que entraba con su
