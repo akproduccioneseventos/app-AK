@@ -866,6 +866,10 @@
     "orden-298": {
       "fecha": "2026-11-13",
       "resultado": "Edición sola: el video resumen prometía cortes al ritmo y salía mudo; ajustar_tiempos_a_golpes escrita sin uso; cortes del AK Editor sin cámara lenta, boomerang, color ni música. Inventario completo de video y fotos verificado."
+    },
+    "orden-299": {
+      "fecha": "2026-11-13",
+      "resultado": "El auditor no podía probar como cliente (portal sin fiesta habilitada y sin poder crear una) ni como prospecto (el simulador se frenaba al guardar). Invitado ya anda. Fiesta de muestra creada por el sistema, excluida de plata y ventas."
     }
   }
 }
