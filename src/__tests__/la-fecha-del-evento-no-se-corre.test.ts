@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { formatDate } from '@/app/portal/page';
-import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+import { formatPortalEventDate as formatDate, formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 describe('Orden 286 — Bloque 3: La fecha del evento no se corre', () => {
   const originalTz = process.env.TZ;

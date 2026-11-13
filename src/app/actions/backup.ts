@@ -268,7 +268,7 @@ async function acquireAutoBackupLease(db: Firestore): Promise<boolean> {
   });
 }
 
-export async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<void> {
+async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<void> {
   const now = Date.now();
   const nowIso = new Date(now).toISOString();
 

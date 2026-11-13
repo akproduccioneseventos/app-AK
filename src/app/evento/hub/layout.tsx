@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Zona Digital | AK Producciones',
+  title: 'Zona Digital',
   description: 'Conectate a la fiesta digital de AK Producciones',
 };
 

@@ -164,7 +164,9 @@ describe('respaldo y restauración de recibos de ajustes de costos', () => {
     store.proveedores = {};
     expect(await readFromFirestore('proveedores.json')).toEqual([]);
     store.proveedores = { p1: { id: 'p1', nombre: 'Proveedor' } };
-    await syncToFirestore('proveedores.json', []);
+    await expect(syncToFirestore('proveedores.json', [])).rejects.toThrow(
+      'No se guardó: la lista quedaría vacía y este archivo no permite vaciarse'
+    );
     expect(Object.keys(store.proveedores)).toEqual(['p1']);
     readFailure = new Error('sin conexion');
     expect(await readFromFirestore('proveedores.json')).toBeNull();

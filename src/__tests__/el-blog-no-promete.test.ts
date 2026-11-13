@@ -22,6 +22,7 @@ jest.mock('@/ai/genkit', () => {
   const actual = jest.requireActual('@/ai/genkit');
   return {
     ...actual,
+    getEffectiveGeminiModelForAgent: jest.fn(async () => actual.geminiProModel),
     generateWithGeminiFallback: jest.fn(async (...args: any[]) => {
       if (mockGenerate) return mockGenerate(...args);
       return actual.generateWithGeminiFallback(...args);

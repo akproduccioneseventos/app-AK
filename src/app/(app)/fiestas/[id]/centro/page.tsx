@@ -208,7 +208,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
                   </Link>
                 </Button>
               )}
-              <BotonVerComoInvitado fiestaId={params.id} />
+              <BotonVerComoInvitado fiestaId={params.id} accion={enlaceDeInvitadoDeMuestra} />
             </div>
           )}
         </div>

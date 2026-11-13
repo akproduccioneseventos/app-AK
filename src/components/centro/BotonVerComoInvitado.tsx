@@ -8,16 +8,17 @@ import { enlaceDeInvitadoDeMuestra } from '@/app/actions/fiesta/vista-de-muestra
 
 interface BotonVerComoInvitadoProps {
   fiestaId: string;
+  accion?: typeof enlaceDeInvitadoDeMuestra;
 }
 
-export function BotonVerComoInvitado({ fiestaId }: BotonVerComoInvitadoProps) {
+export function BotonVerComoInvitado({ fiestaId, accion }: BotonVerComoInvitadoProps) {
   const [cargando, setCargando] = useState(false);
   const { toast } = useToast();
 
   const handleClick = async () => {
     setCargando(true);
     try {
-      const res = await enlaceDeInvitadoDeMuestra(fiestaId);
+      const res = await (accion ?? enlaceDeInvitadoDeMuestra)(fiestaId);
       if (res.success && res.url) {
         window.open(res.url, '_blank', 'noopener,noreferrer');
       } else {

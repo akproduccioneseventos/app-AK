@@ -153,7 +153,7 @@ function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
 }
 
-export function parseEventDate(dateString: string) {
+function parseEventDate(dateString: string) {
   if (dateString.includes('T')) {
     return new Date(dateString);
   }
@@ -177,7 +177,7 @@ function safeExternalUrl(url?: string) {
   }
 }
 
-export function formatDate(dateString?: string) {
+function formatDate(dateString?: string) {
   if (!dateString) return 'Fecha a confirmar';
   const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) {

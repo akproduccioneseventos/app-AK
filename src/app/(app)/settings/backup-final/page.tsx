@@ -7,8 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildBackupReadinessReport, evaluarInformeBackupFinal } from '@/lib/backup/backup-health';
 import { getBackupStatus } from '@/app/actions/backup';
 
-export { evaluarInformeBackupFinal };
-
 export default async function BackupFinalPage() {
   const readiness = buildBackupReadinessReport();
   const backupStatus = await getBackupStatus().catch(() => null);

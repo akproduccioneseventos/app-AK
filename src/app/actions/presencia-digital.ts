@@ -487,4 +487,4 @@ export async function setAjustesPublicarSoloAction(activo: boolean): Promise<{
   }
 }
 
-export const setAjustesPublicarSolo = setAjustesPublicarSoloAction;
+export async function setAjustesPublicarSolo(activo: boolean) { return await setAjustesPublicarSoloAction(activo); }

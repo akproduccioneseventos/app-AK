@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -88,8 +88,8 @@ function PresupuestoDashboardContent() {
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
 
-    // La reparaciÃ³n de fechas corre en segundo plano sin bloquear la apertura inicial.
-    // SÃ³lo si se detectÃ³ algÃºn cambio, se refresca la lista.
+    // La reparación de fechas corre en segundo plano sin bloquear la apertura inicial.
+    // Sólo si se detectó algún cambio, se refresca la lista.
     const repairDatesRanRef = useRef(false);
     useEffect(() => {
         if (repairDatesRanRef.current) return;
@@ -123,7 +123,7 @@ function PresupuestoDashboardContent() {
         try {
             const result = await resetAllPresupuestos();
             if (result.success) {
-                toast({ title: 'ðŸ—‘ï¸ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
+                toast({ title: '🗑️ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
                 setPresupuestos([]);
                 setTotalPresupuestosCount(0);
                 router.refresh();
@@ -169,7 +169,7 @@ function PresupuestoDashboardContent() {
         <div className="space-y-6">
              {fiestaIdParam && (
                 <div data-testid="aviso-presupuesto-para-fiesta" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
-                  <span className="font-semibold">EstÃ¡s armando un presupuesto para una fiesta ya cargada.</span>
+                  <span className="font-semibold">Estás armando un presupuesto para una fiesta ya cargada.</span>
                   <Button asChild size="sm"><Link href={crearHref}>Crear el presupuesto de esa fiesta</Link></Button>
                 </div>
              )}
@@ -181,7 +181,7 @@ function PresupuestoDashboardContent() {
                   {/* El configurador existia y no lo enlazaba ninguna pantalla:
                       el vendedor no tenia como llegar. Va aca, que es donde
                       arma el presupuesto antes de la reunion. */}
-                  <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reuniÃ³n</Link></Button>
+                  <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reunión</Link></Button>
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
                   <Button asChild><Link href={crearHref} data-testid="btn-nuevo-presupuesto"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
@@ -189,20 +189,20 @@ function PresupuestoDashboardContent() {
                       <AlertDialogTrigger asChild>
                       <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>
                         {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                        ðŸ—‘ï¸ Borrar todos
+                        🗑️ Borrar todos
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>âš ï¸ Â¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
+                        <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acciÃ³n eliminarÃ¡ <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrÃ¡n recuperar</strong>. Esta operaciÃ³n borra directamente de Firestore y no puede deshacerse.
+                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                         <AlertDialogAction onClick={handleResetAllPresupuestos} className="bg-destructive hover:bg-destructive/90">
-                          SÃ­, borrar todos permanentemente
+                          Sí, borrar todos permanentemente
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -249,7 +249,7 @@ function PresupuestoDashboardContent() {
                   </Button>
                   <div className="relative w-full md:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                    <Input placeholder="Buscar cliente o NÂº..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+                    <Input placeholder="Buscar cliente o Nº..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
                   </div>
                 </div>
               </CardHeader>
@@ -283,7 +283,7 @@ function PresupuestoDashboardContent() {
                                     <CalendarDays className="h-4 w-4 text-primary" />
                                     Eventos contratados
                                   </h3>
-                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha de la fiesta mÃ¡s prÃ³xima.</p>
+                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha de la fiesta más próxima.</p>
                                 </div>
                                 <span className="text-sm font-semibold tabular-nums">{organizedBudgets.contracted.length}</span>
                               </div>

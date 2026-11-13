@@ -8,6 +8,11 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     const h1 = page.locator('h1');
     await expect(h1).toHaveText('Club Uruguay Salto');
 
+    const title = await page.title();
+    const ocurrenciasMarca = title.match(/AK Producciones/g) ?? [];
+    expect(ocurrenciasMarca).toHaveLength(1);
+    await expect(page.getByText('Condición comercial del dueño')).toHaveCount(0);
+
     await expect(page.getByText('Uruguay 754').first().first()).toBeVisible();
     await expect(page.getByText('50 a 250 personas').first().first()).toBeVisible();
 
@@ -43,9 +48,9 @@ test.describe('Orden 248: Club Uruguay - Visita, espacios y galería accesible',
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
 
-    // BANDA 4: Historia y patrimonio (150 aniversario 2025 y mural)
-    await expect(page.getByText('150 aniversario en 2025').first()).toBeVisible();
-    await expect(page.getByText('mural patrimonial').first()).toBeVisible();
+    // BANDA 4: Historia y patrimonio
+    await expect(page.getByText('Historia que se vuelve parte de tu fiesta').first()).toBeVisible();
+    await expect(page.getByText('museo intocable')).toHaveCount(0);
 
     // BANDA 5: Ubicación céntrica
     await expect(page.locator('h2:has-text("Ubicación céntrica en Uruguay 754")')).toBeVisible();

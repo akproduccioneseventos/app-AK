@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - Entrega unificada de órdenes 284 a 296 (Gemini)
+
+- **Qué estaba mal y qué se hizo:**
+  - **Órdenes 284 a 287:** mapa unificado de navegación (`src/lib/navegacion/mapa.ts`) y barra de la casa (`barra-de-la-casa.tsx`), enlaces seguros de documentos del cliente (`enlaceDeDocumentoDelCliente`), vista de invitado de muestra en el Centro de Fiesta (`enlaceDeInvitadoDeMuestra`), zona horaria de Uruguay en calendario (`ctz=America/Montevideo`), avisos de respaldo automático vencido o fallido y evidencia `docs/evidencias/285-enlaces-con-datos-guardados.md`.
+  - **Orden 288:** hora local de Uruguay en publicaciones (`aFechaHoraLocal`, `aIsoUruguay`), textos completos sin marcadores rotos en marketing, miniaturas relativas en galería, verificación remota de subida en `wfolio.py` y paquete actualizado de `ak-editor.zip`, estados reales de tareas automáticas, deduplicación de fiestas importadas en contabilidad, freno al doble envío en invitación, tarjeta de menú en fase financiera del portal, confirmación `"ELIMINAR"` en datos y ajustes de celular (390 px).
+  - **Órdenes 289 y 290:** IA en dos niveles (`googleai/gemini-pro-latest` con caída a Flash y tope diario de 40 respuestas profundas en `reservarRespuestaProfunda`), apertura rápida de `/presupuestos/nuevo` sin bloquear por `repairVerifiedBudgetDates`, tarjeta de entrega de álbum Wfolio en el Centro de Fiesta y carga diferida en el simulador.
+  - **Órdenes 291, 292 y 294:** detalle real de paquetes para Sofía (`detalleDePaquetes`), registro de fallos de IA (`anotarFalloIA`), vaciado permitido de plantillas (`task-templates.json`, `deco-canvas-templates.json`, `marketing-templates.json`), borrado explícito con `FieldValue.delete()` para campos en `undefined` al sincronizar listas o documentos (`conBorradosExplicitos` en `firebase-sync.ts`), limpieza de `presupuestoId` en prospectos al reiniciar o borrar presupuestos, recálculo de `isCeliac` al cambiar restricción alimentaria, validación de firma binaria de imágenes en el buzón, lectura sin sesión en `getFiestaActivaDeHoy`, y guardia `hayPresupuestoParaIA()` antes de gastar en `multiagent/message` y `extract-receipt-data`.
+  - **Orden 293:** pruebas de ida y vuelta reales contra el emulador de Firestore (`tests/firebase/ida-y-vuelta-auditor.test.ts` y `tests/firebase/ida-y-vuelta-plata.test.ts`), relectura fresca en `revertPriceAdjustment` para no chocar con la marca de lectura (`_syncedAt`) y actualización de `docs/ida-y-vuelta-pendientes.json`.
+  - **Orden 295:** prop `desdeHoy` en `DatePickerDemo` activada en ambos simuladores para no ofrecer días pasados en hora de Uruguay, primer sábado futuro en `obtenerPrimerSabadoDeMes`, descarte de fechas pasadas conservando el teléfono en `captureSimulatorLeadProgress`, y separación de `googleWorkspaceCredencialesDeLaApp` y `googleWorkspaceCuentaConectada` en `/api/health`.
+  - **Orden 296:** retiro de notas internas a la vista del cliente en `/club-uruguay` y portada (`description: undefined` en fotos del maestro, `"Beneficio con AK Producciones"`, `"Se coordina:"`, `"en 2025 cumplió 150 años"` y sin repetir `| AK Producciones` en `title`), más las cuatro mejoras aprobadas por el dueño: foto de apertura desde `salon.fotos[0]`, historia breve (`"Historia que se vuelve parte de tu fiesta"`), frases sin tono defensivo (`"El lugar"`, `"La organización de tu fiesta"`, `"filmación"`) y fotos del módulo de Salones primero en la galería.
+
+```comprobar
+archivo: tests/firebase/ida-y-vuelta-auditor.test.ts
+archivo: tests/firebase/ida-y-vuelta-plata.test.ts
+usa: desdeHoy en src/components/date-picker-demo.tsx
+usa: googleWorkspaceCuentaConectada en src/app/api/health/route.ts
+prueba: src/__tests__/el-prospecto-no-guarda-una-fecha-pasada.test.ts
+prueba: src/__tests__/el-asistente-frena-antes-de-gastar.test.ts
+prueba: src/__tests__/el-cliente-no-ve-notas-internas.test.tsx
+prueba: src/__tests__/la-apertura-del-club-muestra-el-lugar.test.ts
+```
+
 ## 13/11/2026 - El modo sin conexión no llegaba a la versión publicada
 
 - **Qué pasaba:** en el dominio, `/sw.js` daba 404 y el navegador no podía registrar el modo sin conexión (adenda 2 del

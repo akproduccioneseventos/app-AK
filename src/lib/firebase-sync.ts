@@ -176,6 +176,20 @@ export function sanitizeForFirestore(
   return value;
 }
 
+/**
+ * Un campo que la lista trae EXPLICITAMENTE en `undefined` se borra de la base. Como las listas se guardan con
+ * `merge: true`, omitirlo lo dejaba vivo (orden 293: el prospecto seguia apuntando a un presupuesto borrado).
+ * Un campo que simplemente no viene no se toca.
+ */
+function conBorradosExplicitos(item: unknown, limpio: Record<string, unknown>): Record<string, unknown> {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return limpio;
+  const salida = { ...limpio };
+  for (const [clave, valor] of Object.entries(item as Record<string, unknown>)) {
+    if (valor === undefined) salida[clave] = FieldValue.delete();
+  }
+  return salida;
+}
+
 async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -333,6 +347,7 @@ export async function syncToFirestore(
             const ref = db.collection(collectionName).doc(docId);
             let cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
             if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBasePorId.get(docId));
+            cleanData = conBorradosExplicitos(item, cleanData);
             transaction.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
           }
         }), `transaction-sync: ${collectionName}`);
@@ -400,6 +415,7 @@ export async function syncToFirestore(
           const ref = db.collection(collectionName).doc(docId);
           let cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
           if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBaseFueraDeTransaccion.get(docId));
+          cleanData = conBorradosExplicitos(item, cleanData);
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
 

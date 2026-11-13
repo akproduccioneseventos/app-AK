@@ -12,11 +12,13 @@ jest.mock('@/app/actions/fiesta/portal.actions', () => ({
 jest.mock('@/ai/genkit', () => ({
   generateWithGeminiFallback: jest.fn(),
   geminiCommercialModel: 'gemini-test-model',
+  getEffectiveGeminiModelForAgent: jest.fn().mockResolvedValue('gemini-test-model'),
 }));
 
 jest.mock('@/lib/ai/consumo-servidor', () => ({
   hayPresupuestoParaIA: jest.fn().mockResolvedValue(true),
   registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
+  anotarFalloIA: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/lib/commercial/public-rate-limit', () => ({

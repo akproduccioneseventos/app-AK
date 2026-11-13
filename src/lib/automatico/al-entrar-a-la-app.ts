@@ -218,7 +218,7 @@ export async function ponerAlDiaAlEntrar(
           }
 
           const cantPostsAntes = posts?.length ?? 0;
-          const tocabaPublicar = cantPostsAntes === 0 || (ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000);
+          const tocabaPublicar = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
 
           const { runMarketingAutomation } = await import('@/lib/marketing-automation');
           const res = await runMarketingAutomation({ includeRecontacto: false });

@@ -208,7 +208,10 @@ export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiesta
   // fiesta hay hoy. Pedir cuenta aca dejaba esas tres sin encontrar la fiesta en
   // pleno evento.
   try {
-    const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+    let fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+    if (!Array.isArray(fiestas)) {
+      fiestas = await FiestaModule.getFiestas(false);
+    }
     const todayStr = hoyEnUruguay();
 
     const activeFiesta = fiestas.find(f => f.configuracion?.fechaEvento === todayStr);

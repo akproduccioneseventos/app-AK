@@ -93,10 +93,10 @@ async function readLocalFiestaDirectory(directory: string): Promise<FiestaEnPlan
 }
 
 /**
- * La frontera de las fiestas (Codex, auditorÃ­a 69, orden 118, 6/10/2026). Antes alcanzaba con
- * tener sesiÃ³n: el perfil `personal`, que no tiene ningÃºn permiso, leÃ­a la fiesta entera â€”la clave
- * del portal, la credencial de cada invitado, los costosâ€” y la podÃ­a guardar. Es del equipo quien
- * tiene algÃºn permiso; el operador, sÃ³lo en las fiestas a las que estÃ¡ asignado. Ver
+ * La frontera de las fiestas (Codex, auditoría 69, orden 118, 6/10/2026). Antes alcanzaba con
+ * tener sesión: el perfil `personal`, que no tiene ningún permiso, leía la fiesta entera —la clave
+ * del portal, la credencial de cada invitado, los costos— y la podía guardar. Es del equipo quien
+ * tiene algún permiso; el operador, sólo en las fiestas a las que está asignado. Ver
  * `src/lib/auth/equipo-de-la-fiesta.ts`.
  */
 async function esEquipoParaFiesta(fiestaId: string): Promise<boolean> {
@@ -117,7 +117,7 @@ function paraAfuera(fiesta: FiestaEnPlanificacion, esCliente = false): FiestaEnP
 async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPlanificacion> {
     if (!(await usuarioDelEquipo())) throw new Error('Tu usuario no tiene acceso a las fiestas.');
     const decide = await quienEsElEquipo();
-    // Orden 183: al equipo tambiÃ©n se le recorta lo que su perfil no ve: costos sin GANANCIAS,
+    // Orden 183: al equipo también se le recorta lo que su perfil no ve: costos sin GANANCIAS,
     // sueldos sin SUELDOS, pagos sin CONTABILIDAD. Al guardar se repone de lo guardado
     // (`reponerLoDelPerfil`, `reponerLaPlata`); las cuentas del servidor leen con LECTURA_COMPLETA.
     const { verifySession } = await import('@/lib/auth/session-token');
@@ -127,14 +127,14 @@ async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPl
 }
 
 /**
- * LO QUE EL GUARDADO GENERAL NO CAMBIA SIN CONTABILIDAD (Codex, auditorÃ­a 71, CAMPO01/02).
+ * LO QUE EL GUARDADO GENERAL NO CAMBIA SIN CONTABILIDAD (Codex, auditoría 71, CAMPO01/02).
  *
- * `saveFiesta` y `updateFiestaPartial` sÃ³lo cuidaban lo interno del equipo. Un operador asignado
- * marcaba cuotas cobradas por acÃ¡, y el cliente desde su portal marcaba el contrato en papel
+ * `saveFiesta` y `updateFiestaPartial` sólo cuidaban lo interno del equipo. Un operador asignado
+ * marcaba cuotas cobradas por acá, y el cliente desde su portal marcaba el contrato en papel
  * firmado y la fiesta Contratada. Cada uno de estos campos tiene su camino propio, que pide su
  * permiso: cobros y plan (`payment-plans`), contrato en papel (`documentos.actions`), pagos a
  * proveedores (`pagos.actions`), presupuesto y facturas (`presupuestos`). Por el guardado general
- * sÃ³lo los cambia quien tiene contabilidad; para los demÃ¡s quedan como estaban guardados.
+ * sólo los cambia quien tiene contabilidad; para los demás quedan como estaban guardados.
  */
 const CAMPOS_DE_PLATA_Y_CONTRATO = [
   'estado',
@@ -149,7 +149,7 @@ const CAMPOS_DE_PLATA_Y_CONTRATO = [
   'contratoServicioTexto',
 ] as const;
 
-/** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organizaciÃ³n. */
+/** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organización. */
 const PAGO_DE_LA_COMPRA = ['pagado', 'montoPagado'] as const;
 
 async function tocaLaPlata(): Promise<boolean> {
@@ -160,7 +160,7 @@ async function tocaLaPlata(): Promise<boolean> {
 
 const mismoValor = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
-/** Deja lo de plata como estÃ¡ guardado. Para el guardado ENTERO de quien no tiene contabilidad. */
+/** Deja lo de plata como está guardado. Para el guardado ENTERO de quien no tiene contabilidad. */
 function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanificacion | null): FiestaEnPlanificacion {
   const copia: Record<string, unknown> = { ...nueva };
   for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) {
@@ -183,7 +183,7 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
   return copia as unknown as FiestaEnPlanificacion;
 }
 
-/** El parcial sin lo de plata: eso queda como estÃ¡ en la fiesta de ese momento. */
+/** El parcial sin lo de plata: eso queda como está en la fiesta de ese momento. */
 function sinLaPlata(parcial: Partial<FiestaEnPlanificacion>, actual: FiestaEnPlanificacion): Partial<FiestaEnPlanificacion> {
   const copia: Record<string, unknown> = { ...parcial };
   for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) delete copia[campo];
@@ -204,7 +204,7 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
     const previos = compraGuardadaDeCadaUna(antes, nuevas);
     return nuevas.some((e, i) => {
       const previo = previos[i];
-      // Sin la casilla (llegÃ³ recortada por el perfil, orden 183) no pide cambiarla: se conserva.
+      // Sin la casilla (llegó recortada por el perfil, orden 183) no pide cambiarla: se conserva.
       return PAGO_DE_LA_COMPRA.some((k) => k in e && !mismoValor(e[k], previo?.[k]));
     });
   }
@@ -241,8 +241,8 @@ export async function getAllFiestas() {
 }
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-    // PÃºblica a propÃ³sito (la pantalla de mesas), pero a quien no es su equipo le llega sin la
-    // clave del portal ni las credenciales de los invitados (Codex, auditorÃ­a 69).
+    // Pública a propósito (la pantalla de mesas), pero a quien no es su equipo le llega sin la
+    // clave del portal ni las credenciales de los invitados (Codex, auditoría 69).
     const elegida = await elegirFiestaActual();
     return (await quienEsElEquipo())(elegida) ? elegida : paraAfuera(elegida);
 }
@@ -299,8 +299,8 @@ function validatePersonalAssignments(personalAsignado: FiestaEnPlanificacion['pe
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   await requireFiestaWriteAccess(fiestaData.id);
   if (!(await esEquipoParaFiesta(fiestaData.id))) {
-    // EntrÃ³ por el portal del cliente: lo interno del equipo (costos, personal, pagos a
-    // proveedores) no lo cambia Ã©l. Se saca lo que mandÃ³ y se repone lo guardado.
+    // Entró por el portal del cliente: lo interno del equipo (costos, personal, pagos a
+    // proveedores) no lo cambia él. Se saca lo que mandó y se repone lo guardado.
     const copia: Record<string, unknown> = { ...fiestaData };
     for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
     fiestaData = copia as unknown as FiestaEnPlanificacion;
@@ -348,7 +348,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
           }
 
           if (pantallaCambio && baseCambio) {
-            throw new Error('Alguien cambiÃ³ los pagos de esta fiesta mientras la tenÃ­as abierta. RecargÃ¡ y volvÃ© a intentar.');
+            throw new Error('Alguien cambió los pagos de esta fiesta mientras la tenías abierta. Recargá y volvé a intentar.');
           }
 
           if (!pantallaCambio) {
@@ -381,7 +381,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
               return PAGO_DE_LA_COMPRA.some((k) => k in (e as any) && !mismoValor((e as any)[k], (prev as any)?.[k]));
             });
             if (tocoPago) {
-              throw new Error('Alguien cambiÃ³ los pagos de esta fiesta mientras la tenÃ­as abierta. RecargÃ¡ y volvÃ© a intentar.');
+              throw new Error('Alguien cambió los pagos de esta fiesta mientras la tenías abierta. Recargá y volvé a intentar.');
             }
           }
 
@@ -420,12 +420,12 @@ export async function updateFiestaPartial(
   partialData: Partial<FiestaEnPlanificacion>,
   options?: { allowPortal?: boolean }
 ): Promise<{ success: boolean; error?: string }> {
-  // La constancia de la firma digital sÃ³lo la escribe `signContractDigitally` (Codex 240, C2).
+  // La constancia de la firma digital sólo la escribe `signContractDigitally` (Codex 240, C2).
   if ('firmaDigitalConstancia' in (partialData as Record<string, unknown>)) {
-    return { success: false, error: 'La constancia de la firma sÃ³lo se registra firmando desde el portal.' };
+    return { success: false, error: 'La constancia de la firma sólo se registra firmando desde el portal.' };
   }
-  // Con la constancia puesta, el texto que firmÃ³ el cliente no se cambia por el guardado parcial.
-  // Se mira antes (para no hacer trabajo de mÃ¡s) Y adentro de la escritura: una firma que llega
+  // Con la constancia puesta, el texto que firmó el cliente no se cambia por el guardado parcial.
+  // Se mira antes (para no hacer trabajo de más) Y adentro de la escritura: una firma que llega
   // entre la lectura y el guardado dejaba la constancia de A junto al texto B (Codex 264, orden 219).
   // Lo mismo con el contrato en papel y con el plan de pagos (barrido de la pregunta 94).
   const tocaElContrato = 'contratoServicioTexto' in (partialData as Record<string, unknown>)
@@ -436,11 +436,11 @@ export async function updateFiestaPartial(
     if ('contratoServicioTexto' in (partialData as Record<string, unknown>) && actual.contratoServicioTexto !== partialData.contratoServicioTexto) {
       throw new Error(actual.contratoFirmaInfo?.isSigned
         ? 'No se puede modificar el contrato una vez firmado.'
-        : 'El cliente ya firmÃ³ este contrato en su portal: para cambiarlo hace falta una adenda.');
+        : 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.');
     }
     const planNuevo = (partialData.contratoDatos as any)?.planPagos;
     if (planNuevo !== undefined && JSON.stringify(planNuevo) !== JSON.stringify((actual.contratoDatos as any)?.planPagos)) {
-      throw new Error('El contrato ya estÃ¡ firmado: el plan de pagos no se cambia sin una adenda.');
+      throw new Error('El contrato ya está firmado: el plan de pagos no se cambia sin una adenda.');
     }
   };
   if (tocaElContrato) {
@@ -455,7 +455,7 @@ export async function updateFiestaPartial(
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
     if (!(await esEquipoParaFiesta(fiestaId))) {
-      // El cliente no toca lo interno del equipo (auditorÃ­a 69).
+      // El cliente no toca lo interno del equipo (auditoría 69).
       const tocaLoDelEquipo = CAMPOS_DEL_EQUIPO.some((campo) => campo in (partialData as Record<string, unknown>));
       if (tocaLoDelEquipo) return { success: false, error: 'Esa parte de la fiesta la maneja el equipo de AK.' };
     }
@@ -496,8 +496,8 @@ export async function updateFiestaPartial(
     if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
       return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
     }
-    // Lo de plata que vino igual a lo leÃ­do no se escribe: se queda lo de ESE momento, adentro de
-    // la operaciÃ³n (auditorÃ­a 73). Si no, un cobro anotado en el medio volvÃ­a a cero.
+    // Lo de plata que vino igual a lo leído no se escribe: se queda lo de ESE momento, adentro de
+    // la operación (auditoría 73). Si no, un cobro anotado en el medio volvía a cero.
     const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
     const r = await actualizarFiesta(fiestaId, (actual) => {
       noPisaLoFirmado(actual);
@@ -584,7 +584,7 @@ async function leerFiestaConEstado(
             const { recortarFiestaParaAfuera } = await import('@/lib/fiesta/recortar-para-afuera');
             fiesta = recortarFiestaParaAfuera(fiesta, { esCliente });
         } else if (lectura !== LECTURA_COMPLETA) {
-            // Orden 183: al equipo tambiÃ©n se le saca lo que su perfil no ve (costos, sueldos, pagos).
+            // Orden 183: al equipo también se le saca lo que su perfil no ve (costos, sueldos, pagos).
             const { verifySession } = await import('@/lib/auth/session-token');
             const sesion = await verifySession();
             fiesta = recortarFiestaPorPerfil(fiesta, sesion.success ? sesion.user : null);
@@ -608,7 +608,7 @@ export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificaci
   // Publica a proposito: es el enlace corto de la invitacion, que abre el invitado.
   const fiestas = await leerFiestasCrudas(true);
   const fiesta = fiestas.find(f => f.invitacionSlug === normalized) || null;
-  // Al invitado le llega la invitaciÃ³n, no la clave del portal ni las credenciales (auditorÃ­a 69).
+  // Al invitado le llega la invitación, no la clave del portal ni las credenciales (auditoría 69).
   if (!fiesta) return null;
   return (await quienEsElEquipo())(fiesta) ? fiesta : paraAfuera(fiesta);
 }
@@ -620,13 +620,13 @@ export async function updateInvitacionSlug(fiestaId: string, slug: string): Prom
 
   const normalized = normalizeInvitationSlug(slug);
   if (!isValidInvitationSlug(normalized)) {
-    return { success: false, error: 'El slug debe usar solo letras minÃºsculas, nÃºmeros y guiones.' };
+    return { success: false, error: 'El slug debe usar solo letras minúsculas, números y guiones.' };
   }
 
   const allFiestas = await getFiestas(true);
   const existing = allFiestas.find(f => f.id !== fiestaId && f.invitacionSlug === normalized);
   if (existing) {
-    return { success: false, error: 'Ese enlace ya estÃ¡ en uso. ProbÃ¡ con otro.' };
+    return { success: false, error: 'Ese enlace ya está en uso. Probá con otro.' };
   }
 
   const result = await saveFiesta({ ...fiesta, invitacionSlug: normalized });
@@ -637,7 +637,7 @@ export async function updateInvitacionSlug(fiestaId: string, slug: string): Prom
   return { success: true, slug: normalized };
 }
 
-// --- HELPERS DE SINCRONIZACIÃ“N ---
+// --- HELPERS DE SINCRONIZACIÓN ---
 
 /** Returns true if the item's service name or category contains any of the given keywords (case-insensitive). */
 function itemMatchesKeywords(item: ItemPresupuestado, keywords: string[]): boolean {
@@ -676,8 +676,8 @@ function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuest
         else if (name.includes('jugo')) targetCatId = 'jugos';
         else if (name.includes('gaseosa') || name.includes('refresco') || name.includes('cola')) targetCatId = 'refrescos_gaseosas';
         else if (name.includes('agua')) targetCatId = 'aguas_saborizadas';
-        else if (name.includes('cafÃ©') || name.includes('cafe') || name.includes('cafeterÃ­a') || name.includes('cafeteria') || name.includes('tÃ© ') || name.includes(' tÃ©') || name.includes('infusiÃ³n')) targetCatId = 'cafeteria';
-        else if (name.includes('cÃ³ctel') || name.includes('coctel') || name.includes('bienvenida')) targetCatId = 'coctel_bienvenida';
+        else if (name.includes('café') || name.includes('cafe') || name.includes('cafetería') || name.includes('cafeteria') || name.includes('té ') || name.includes(' té') || name.includes('infusión')) targetCatId = 'cafeteria';
+        else if (name.includes('cóctel') || name.includes('coctel') || name.includes('bienvenida')) targetCatId = 'coctel_bienvenida';
 
         const cat = findOrActivateCategory(targetCatId);
         if (!cat) continue;
@@ -703,7 +703,7 @@ function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuest
 }
 
 /**
- * Merges reposterÃ­a items from the budget into the fiesta's reposterÃ­a data.
+ * Merges repostería items from the budget into the fiesta's repostería data.
  */
 function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: ItemPresupuestado[]): ReposteriaData {
     if (reposteriaItems.length === 0) return existing;
@@ -754,7 +754,7 @@ function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: Item
 }
 
 /**
- * Merges decoraciÃ³n items from the budget into the fiesta's decoraciÃ³n data.
+ * Merges decoración items from the budget into the fiesta's decoración data.
  */
 function syncDecoracionFromItems(existing: DecoracionData, decorItems: ItemPresupuestado[]): DecoracionData {
     if (decorItems.length === 0) return existing;
@@ -824,13 +824,13 @@ async function syncCargaOperativaFromBudget(
         const cat = (item.categoriaServicio || '').toLowerCase();
         const name = item.nombreServicio.toLowerCase();
         if (cat.includes('discoteca') || name.includes('dj')) targetAssetCategories.add('Discoteca');
-        if (cat.includes('decoraciÃ³n') || cat.includes('decoracion') || name.includes('ambientaciÃ³n') || name.includes('ambientacion')) {
-            targetAssetCategories.add('DecoraciÃ³n (Activo)');
+        if (cat.includes('decoración') || cat.includes('decoracion') || name.includes('ambientación') || name.includes('ambientacion')) {
+            targetAssetCategories.add('Decoración (Activo)');
             targetAssetCategories.add('Mobiliario');
         }
         if (cat.includes('catering') || name.includes('vajilla') || name.includes('mantel') || name.includes('silla') || name.includes('mesa')) {
             targetAssetCategories.add('Vajilla (Activo)');
-            targetAssetCategories.add('MantelerÃ­a');
+            targetAssetCategories.add('Mantelería');
             targetAssetCategories.add('Equipamiento de Cocina');
         }
         if (cat.includes('bebida') || name.includes('barra') || name.includes('trago')) {
@@ -853,7 +853,7 @@ async function syncCargaOperativaFromBudget(
             let qty = '1';
             if (asset.categoria?.includes('Vajilla')) {
                 qty = String(totalInvitados);
-            } else if (asset.categoria?.includes('MantelerÃ­a') && asset.nombre.toLowerCase().includes('mantel')) {
+            } else if (asset.categoria?.includes('Mantelería') && asset.nombre.toLowerCase().includes('mantel')) {
                 qty = String(Math.ceil(totalInvitados / 8));
             } else if (asset.invitadosPorUnidad) {
                 qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
@@ -891,33 +891,33 @@ function generateTareasFromServices(modulos: ModulosContratados, eventoTipo: str
     const tareasGenerales = [
         'Confirmar fecha y lugar del evento',
         'Enviar invitaciones a los invitados',
-        'Confirmar nÃºmero final de invitados',
+        'Confirmar número final de invitados',
         'Preparar lista de invitados con necesidades especiales',
-        'Hacer check de equipo y materiales el dÃ­a anterior',
+        'Hacer check de equipo y materiales el día anterior',
     ];
     tareasGenerales.forEach(texto => tareas.push({ id: makeId(), texto, completada: false, asignadaA: 'Organizador', esPredeterminada: true }));
 
     if (modulos.catering) {
-        ['Confirmar menÃº definitivo con el cliente', 'Calcular insumos y hacer lista de compras', 'Coordinar personal de cocina', 'Verificar restricciones alimentarias de invitados'].forEach(texto =>
+        ['Confirmar menú definitivo con el cliente', 'Calcular insumos y hacer lista de compras', 'Coordinar personal de cocina', 'Verificar restricciones alimentarias de invitados'].forEach(texto =>
             tareas.push({ id: makeId(), texto: `[Catering] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
         );
     }
 
     if (modulos.musica) {
-        ['Confirmar playlist o setlist con el DJ/Banda', 'Verificar equipo de sonido e iluminaciÃ³n', 'Coordinar horarios de DJ'].forEach(texto =>
-            tareas.push({ id: makeId(), texto: `[MÃºsica] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        ['Confirmar playlist o setlist con el DJ/Banda', 'Verificar equipo de sonido e iluminación', 'Coordinar horarios de DJ'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Música] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
         );
     }
 
     if (modulos.fotografia) {
-        ['Confirmar horario y lugar con fotÃ³grafo/filmador', 'Preparar lista de fotos especiales requeridas', 'Coordinar acceso del fotÃ³grafo al lugar'].forEach(texto =>
+        ['Confirmar horario y lugar con fotógrafo/filmador', 'Preparar lista de fotos especiales requeridas', 'Coordinar acceso del fotógrafo al lugar'].forEach(texto =>
             tareas.push({ id: makeId(), texto: `[Foto/Video] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
         );
     }
 
     if (modulos.decoracion) {
-        ['Confirmar esquema de decoraciÃ³n con el cliente', 'Coordinar montaje y desmontaje de decoraciÃ³n', 'Verificar disponibilidad de materiales decorativos'].forEach(texto =>
-            tareas.push({ id: makeId(), texto: `[DecoraciÃ³n] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        ['Confirmar esquema de decoración con el cliente', 'Coordinar montaje y desmontaje de decoración', 'Verificar disponibilidad de materiales decorativos'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Decoración] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
         );
     }
 
@@ -925,12 +925,12 @@ function generateTareasFromServices(modulos: ModulosContratados, eventoTipo: str
     tareas.push({ id: makeId(), texto: 'Confirmar asistencia al evento', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
     tareas.push({ id: makeId(), texto: 'Compartir lista de invitados VIP', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
     if (eventoTipo?.toLowerCase().includes('boda') || eventoTipo?.toLowerCase().includes('casamiento')) {
-        tareas.push({ id: makeId(), texto: '[Boda] Confirmar canciÃ³n de apertura y primer baile', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+        tareas.push({ id: makeId(), texto: '[Boda] Confirmar canción de apertura y primer baile', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
         tareas.push({ id: makeId(), texto: '[Boda] Entregar lista de testigos y padrinos', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
     }
     if (eventoTipo?.toLowerCase().includes('xv') || eventoTipo?.toLowerCase().includes('quince')) {
-        tareas.push({ id: makeId(), texto: '[XV AÃ±os] Confirmar vals de honor y vals sorpresa', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
-        tareas.push({ id: makeId(), texto: '[XV AÃ±os] Confirmar chambelanes/damas de honor', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+        tareas.push({ id: makeId(), texto: '[XV Años] Confirmar vals de honor y vals sorpresa', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+        tareas.push({ id: makeId(), texto: '[XV Años] Confirmar chambelanes/damas de honor', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
     }
 
     return tareas;
@@ -946,41 +946,41 @@ function generateItinerarioSugerido(eventoTipo: string, modulos: ModulosContrata
     const isCorporativo = eventoTipo?.toLowerCase().includes('corpor') || eventoTipo?.toLowerCase().includes('empresa') || eventoTipo?.toLowerCase().includes('business') || eventoTipo?.toLowerCase().includes('networking');
 
     if (isBoda) {
-        items.push({ id: makeId(), hora: '18:00', titulo: 'Llegada de invitados', descripcion: 'RecepciÃ³n y bienvenida en la entrada del salÃ³n', icono: 'ðŸ‘‹' });
-        items.push({ id: makeId(), hora: '19:00', titulo: 'Ceremonia', descripcion: 'Ceremonia civil o religiosa de los novios', icono: 'ðŸ’' });
-        items.push({ id: makeId(), hora: '20:00', titulo: 'CÃ³ctel', descripcion: 'Aperitivos y bienvenida formal a los invitados', icono: 'ðŸ¥‚' });
-        items.push({ id: makeId(), hora: '21:00', titulo: 'Ingreso al salÃ³n', descripcion: 'Entrada de los novios y primera danza', icono: 'ðŸŽŠ' });
-        items.push({ id: makeId(), hora: '21:15', titulo: 'Vals de Novios', descripcion: 'Primer baile de los reciÃ©n casados', icono: 'ðŸ’ƒ' });
-        if (modulos.catering) items.push({ id: makeId(), hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: 'ðŸ½ï¸' });
-        if (modulos.musica) items.push({ id: makeId(), hora: '23:00', titulo: 'Pista de baile', descripcion: 'DJ / Banda en vivo â€” fiesta abierta', icono: 'ðŸŽ¶' });
-        items.push({ id: makeId(), hora: '01:00', titulo: 'Torta', descripcion: 'Corte de torta nupcial', icono: 'ðŸŽ‚' });
-        items.push({ id: makeId(), hora: '04:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: 'ðŸŒ…' });
+        items.push({ id: makeId(), hora: '18:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida en la entrada del salón', icono: '👋' });
+        items.push({ id: makeId(), hora: '19:00', titulo: 'Ceremonia', descripcion: 'Ceremonia civil o religiosa de los novios', icono: '💍' });
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Cóctel', descripcion: 'Aperitivos y bienvenida formal a los invitados', icono: '🥂' });
+        items.push({ id: makeId(), hora: '21:00', titulo: 'Ingreso al salón', descripcion: 'Entrada de los novios y primera danza', icono: '🎊' });
+        items.push({ id: makeId(), hora: '21:15', titulo: 'Vals de Novios', descripcion: 'Primer baile de los recién casados', icono: '💃' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '23:00', titulo: 'Pista de baile', descripcion: 'DJ / Banda en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '01:00', titulo: 'Torta', descripcion: 'Corte de torta nupcial', icono: '🎂' });
+        items.push({ id: makeId(), hora: '04:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
     } else if (isXV) {
-        items.push({ id: makeId(), hora: '19:00', titulo: 'Llegada de invitados', descripcion: 'RecepciÃ³n y bienvenida en la entrada del salÃ³n', icono: 'ðŸ‘‹' });
-        items.push({ id: makeId(), hora: '20:00', titulo: 'Ingreso de la festejada', descripcion: 'Entrada de la quinceaÃ±era al salÃ³n', icono: 'ðŸ‘‘' });
-        items.push({ id: makeId(), hora: '20:15', titulo: 'Vals de honor', descripcion: 'Primer vals de la quinceaÃ±era con su padre/padrino', icono: 'ðŸ’ƒ' });
-        items.push({ id: makeId(), hora: '20:30', titulo: 'Vals sorpresa', descripcion: 'CoreografÃ­a sorpresa de chambelanes/damas de honor', icono: 'ðŸŽ­' });
-        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: 'ðŸ½ï¸' });
-        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo â€” fiesta abierta', icono: 'ðŸŽ¶' });
-        items.push({ id: makeId(), hora: '00:30', titulo: 'Torta', descripcion: 'Corte de torta de la quinceaÃ±era', icono: 'ðŸŽ‚' });
-        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: 'ðŸŒ…' });
+        items.push({ id: makeId(), hora: '19:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida en la entrada del salón', icono: '👋' });
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Ingreso de la festejada', descripcion: 'Entrada de la quinceañera al salón', icono: '👑' });
+        items.push({ id: makeId(), hora: '20:15', titulo: 'Vals de honor', descripcion: 'Primer vals de la quinceañera con su padre/padrino', icono: '💃' });
+        items.push({ id: makeId(), hora: '20:30', titulo: 'Vals sorpresa', descripcion: 'Coreografía sorpresa de chambelanes/damas de honor', icono: '🎭' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '00:30', titulo: 'Torta', descripcion: 'Corte de torta de la quinceañera', icono: '🎂' });
+        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
     } else if (isCorporativo) {
-        items.push({ id: makeId(), hora: '09:00', titulo: 'AcreditaciÃ³n y Bienvenida', descripcion: 'RecepciÃ³n de asistentes, entrega de credenciales y cafÃ© de bienvenida', icono: 'ðŸ‘‹' });
-        items.push({ id: makeId(), hora: '09:30', titulo: 'Apertura y PresentaciÃ³n', descripcion: 'Discurso de apertura por parte de directivos', icono: 'ðŸŽ¤' });
-        items.push({ id: makeId(), hora: '10:30', titulo: 'Coffee Break', descripcion: 'Espacio de networking y cafeterÃ­a', icono: 'â˜•' });
-        items.push({ id: makeId(), hora: '11:00', titulo: 'Paneles y Charlas', descripcion: 'Exposiciones de especialistas del sector', icono: 'ðŸ“Š' });
-        if (modulos.catering) items.push({ id: makeId(), hora: '13:00', titulo: 'Almuerzo de Trabajo', descripcion: 'Catering corporativo formal para los asistentes', icono: 'ðŸ½ï¸' });
-        items.push({ id: makeId(), hora: '14:30', titulo: 'Talleres / Workshops', descripcion: 'Sesiones interactivas grupales', icono: 'ðŸ’¼' });
-        items.push({ id: makeId(), hora: '16:30', titulo: 'Cierre de Actividades', descripcion: 'Palabras de cierre, conclusiones y prÃ³ximos pasos', icono: 'ðŸ' });
-        if (modulos.musica) items.push({ id: makeId(), hora: '17:00', titulo: 'After Office / CÃ³ctel', descripcion: 'Cierre de jornada con DJ en vivo, barra de tragos y networking informal', icono: 'ðŸ¥‚' });
+        items.push({ id: makeId(), hora: '09:00', titulo: 'Acreditación y Bienvenida', descripcion: 'Recepción de asistentes, entrega de credenciales y café de bienvenida', icono: '👋' });
+        items.push({ id: makeId(), hora: '09:30', titulo: 'Apertura y Presentación', descripcion: 'Discurso de apertura por parte de directivos', icono: '🎤' });
+        items.push({ id: makeId(), hora: '10:30', titulo: 'Coffee Break', descripcion: 'Espacio de networking y cafetería', icono: '☕' });
+        items.push({ id: makeId(), hora: '11:00', titulo: 'Paneles y Charlas', descripcion: 'Exposiciones de especialistas del sector', icono: '📊' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '13:00', titulo: 'Almuerzo de Trabajo', descripcion: 'Catering corporativo formal para los asistentes', icono: '🍽️' });
+        items.push({ id: makeId(), hora: '14:30', titulo: 'Talleres / Workshops', descripcion: 'Sesiones interactivas grupales', icono: '💼' });
+        items.push({ id: makeId(), hora: '16:30', titulo: 'Cierre de Actividades', descripcion: 'Palabras de cierre, conclusiones y próximos pasos', icono: '🏁' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '17:00', titulo: 'After Office / Cóctel', descripcion: 'Cierre de jornada con DJ en vivo, barra de tragos y networking informal', icono: '🥂' });
     } else {
-        // Fiesta general / cumpleaÃ±os
-        items.push({ id: makeId(), hora: '20:00', titulo: 'Llegada de invitados', descripcion: 'RecepciÃ³n y bienvenida', icono: 'ðŸ‘‹' });
-        items.push({ id: makeId(), hora: '20:30', titulo: 'Apertura oficial', descripcion: 'Palabras de bienvenida del festejado/organizador', icono: 'ðŸŽ‰' });
-        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: 'ðŸ½ï¸' });
-        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo â€” fiesta abierta', icono: 'ðŸŽ¶' });
-        items.push({ id: makeId(), hora: '00:00', titulo: 'Torta', descripcion: 'Corte de torta y brindis', icono: 'ðŸŽ‚' });
-        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: 'ðŸŒ…' });
+        // Fiesta general / cumpleaños
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida', icono: '👋' });
+        items.push({ id: makeId(), hora: '20:30', titulo: 'Apertura oficial', descripcion: 'Palabras de bienvenida del festejado/organizador', icono: '🎉' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '00:00', titulo: 'Torta', descripcion: 'Corte de torta y brindis', icono: '🎂' });
+        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
     }
 
     return items;
@@ -1002,11 +1002,11 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
             backgroundColor: '#ffffff',
             paletaColores: { primary: '#6d8b74', secondary: '#363636', accent: '#ffffff' },
             items: [
-                { id: 'trago_novios_1', nombre: 'Mojito de los Novios', imageUrl: '', aiHint: 'mojito lime mint cocktail', descripcion: 'Ron blanco, menta fresca, lima y azÃºcar. El trago insignia de la noche para celebrar el amor.', ingredientes: ['Ron Blanco', 'Menta', 'Lima', 'Soda'], stockDisponible: 150 },
-                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fÃ¡cil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clÃ¡sico fresco y cÃ­trico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['CachaÃ§a', 'Lima', 'AzÃºcar'], stockDisponible: 120 },
-                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rÃ¡pido de servir; una opciÃ³n segura para invitados clÃ¡sicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_novios_1', nombre: 'Mojito de los Novios', imageUrl: '', aiHint: 'mojito lime mint cocktail', descripcion: 'Ron blanco, menta fresca, lima y azúcar. El trago insignia de la noche para celebrar el amor.', ingredientes: ['Ron Blanco', 'Menta', 'Lima', 'Soda'], stockDisponible: 150 },
+                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fácil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
                 { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
             ],
             empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
@@ -1023,16 +1023,16 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
             backgroundColor: '#ffffff',
             paletaColores: { primary: '#1e3a8a', secondary: '#363636', accent: '#ffffff' },
             items: [
-                { id: 'trago_corp_1', nombre: 'Gin Tonic Corporativo', imageUrl: '', aiHint: 'gin tonic rosemary cocktail', descripcion: 'Gin premium con agua tÃ³nica y un toque de romero y pepino, proyectando sobriedad y Ã©xito.', ingredientes: ['Gin', 'TÃ³nica', 'Romero', 'Pepino'], stockDisponible: 150 },
-                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clÃ¡sico fresco y cÃ­trico, ideal para distenderse en el networking.', ingredientes: ['CachaÃ§a', 'Lima', 'AzÃºcar'], stockDisponible: 120 },
-                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de tÃ© helado y limÃ³n.', ingredientes: ['Vodka', 'TÃ© helado', 'LimÃ³n'], stockDisponible: 120 },
-                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rÃ¡pido de servir; una opciÃ³n segura para invitados clÃ¡sicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_corp_1', nombre: 'Gin Tonic Corporativo', imageUrl: '', aiHint: 'gin tonic rosemary cocktail', descripcion: 'Gin premium con agua tónica y un toque de romero y pepino, proyectando sobriedad y éxito.', ingredientes: ['Gin', 'Tónica', 'Romero', 'Pepino'], stockDisponible: 150 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para distenderse en el networking.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de té helado y limón.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
                 { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
             ],
             empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio corporativo premium', contacto: '098 355 530' },
         };
     } else {
-        // XV aÃ±os / General default
+        // XV años / General default
         return {
             titulo: 'CARTA DE TRAGOS',
             protagonistaNombre: clienteNombre || 'La Agasajada',
@@ -1044,14 +1044,14 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
             backgroundColor: '#ffffff',
             paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
             items: [
-                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fÃ¡cil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clÃ¡sico fresco y cÃ­trico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['CachaÃ§a', 'Lima', 'AzÃºcar'], stockDisponible: 120 },
-                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de tÃ© helado y limÃ³n para mantener la pista activa.', ingredientes: ['Vodka', 'TÃ© helado', 'LimÃ³n'], stockDisponible: 120 },
-                { id: 'trago_4', nombre: 'Daiquiri de AnanÃ¡', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', descripcion: 'Tropical, dulce y brillante; perfecto para fotos y para una barra con energÃ­a de fiesta.', ingredientes: ['Ron', 'AnanÃ¡', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', ingredientes: ['Licor de melÃ³n', 'Vodka', 'Sprite'], stockDisponible: 120 },
-                { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', descripcion: 'Mix frutal alegre, pensado para una experiencia fresca y fÃ¡cil de recomendar.', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limÃ³n'], stockDisponible: 120 },
-                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rÃ¡pido de servir; una opciÃ³n segura para invitados clÃ¡sicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fácil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de té helado y limón para mantener la pista activa.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
+                { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', descripcion: 'Tropical, dulce y brillante; perfecto para fotos y para una barra con energía de fiesta.', ingredientes: ['Ron', 'Ananá', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', ingredientes: ['Licor de melón', 'Vodka', 'Sprite'], stockDisponible: 120 },
+                { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', descripcion: 'Mix frutal alegre, pensado para una experiencia fresca y fácil de recomendar.', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
                 { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail', descripcion: 'Naranja y granadina para un efecto visual tipo sunset, ideal para barra de tragos.', ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'], stockDisponible: 120 },
                 { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
             ],
@@ -1061,8 +1061,8 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
 }
 
 /**
- * MOTOR DE SINCRONIZACIÃ“N MAESTRA
- * Dispara la configuraciÃ³n operativa de la fiesta basÃ¡ndose en el presupuesto aceptado.
+ * MOTOR DE SINCRONIZACIÓN MAESTRA
+ * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
  */
 export async function syncFiestaFromBudget(fiestaId: string) {
     await requireAppSession();
@@ -1078,23 +1078,23 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const guests = presupuesto.invitadosCantidad || 100;
     const items = normalizeBudgetItemsForSync(presupuesto.itemsPresupuestados);
 
-    // 1. ACTIVACIÃ“N DE MÃ“DULOS
+    // 1. ACTIVACIÓN DE MÓDULOS
     const modulos: ModulosContratados = { ...defaultModulosContratados };
     const hasItem = (term: string) => {
         const search = term.toLowerCase();
         return items.some(i => (i.nombreServicio || '').toLowerCase().includes(search));
     };
 
-    modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre', 'Servicio de catering', 'MenÃº Infantil', 'MenÃº Infantil/Adolescente'].includes(i.categoriaServicio || ''));
+    modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre', 'Servicio de catering', 'Menú Infantil', 'Menú Infantil/Adolescente'].includes(i.categoriaServicio || ''));
     modulos.musica = hasItem('discoteca') || hasItem(' dj') || items.some(i => ['Servicio de discoteca', 'Servicio de entretenimiento'].includes(i.categoriaServicio || ''));
-    modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmaciÃ³n', 'Servicio de fotografÃ­a'].includes(i.categoriaServicio || ''));
-    modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoraciÃ³n') || hasItem('decorac') || hasItem('ambientac');
+    modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmación', 'Servicio de fotografía'].includes(i.categoriaServicio || ''));
+    modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
     Object.assign(modulos, deriveBudgetModulesForSync(items));
 
     updatedFiesta.modulosContratados = modulos;
 
-    // 2. CÃLCULO DE PERSONAL AUTOMÃTICO (VACANTES)
+    // 2. CÁLCULO DE PERSONAL AUTOMÁTICO (VACANTES)
     const personalReq: PersonalAsignadoDetalleStorage[] = [];
 
     const addVacantes = (roleSearch: string, qty: number, sueldo?: number) => {
@@ -1110,7 +1110,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         }
     };
 
-    // Regla: 1 mozo cada 25 invitados (si hay catering). Cocina, regla del dueÃ±o (21/10/2026): una
+    // Regla: 1 mozo cada 25 invitados (si hay catering). Cocina, regla del dueño (21/10/2026): una
     // persona cada 25 invitados, y la primera es el chef. 100 invitados = chef + 3 ayudantes.
     if (modulos.catering) {
         addVacantes('Mozo', Math.ceil(guests / 25));
@@ -1119,10 +1119,10 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         addVacantes('Ayudante de Cocina', cocina.ayudantes);
     }
 
-    // Regla: 1 utilero cada 30 invitados para logÃ­stica (dueÃ±o, 21/10/2026)
+    // Regla: 1 utilero cada 30 invitados para logística (dueño, 21/10/2026)
     addVacantes('Utilero', utilerosPorInvitados(guests));
 
-    // Regla: Especialistas segÃºn presupuesto
+    // Regla: Especialistas según presupuesto
     if (modulos.musica) addVacantes('DJ', 1);
     if (hasItem('asado')) addVacantes('Asador', 1);
     if (hasItem('barra') || hasItem('trago')) {
@@ -1130,12 +1130,12 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         addVacantes('Barman', barra.cantidad, barra.sueldo);
     }
 
-    // Solo actualizar si no hay personal asignado manualmente aÃºn para no borrar trabajo
+    // Solo actualizar si no hay personal asignado manualmente aún para no borrar trabajo
     if (!updatedFiesta.personalAsignado || updatedFiesta.personalAsignado.length === 0) {
         updatedFiesta.personalAsignado = personalReq;
     }
 
-    // 3. ACTUALIZAR CONFIGURACIÃ“N DE PORTAL
+    // 3. ACTUALIZAR CONFIGURACIÓN DE PORTAL
     updatedFiesta.clientPortalSettings = mergeClientPortalSettingsForSync(updatedFiesta.clientPortalSettings);
 
     // 5. ACTUALIZAR CONFIG GENERAL
@@ -1144,7 +1144,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         nombreEvento: `${presupuesto.eventoTipo} de ${
             presupuesto.protagonista1Nombre
                 ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
-                : presupuesto.clienteNombre ? presupuesto.clienteNombre : (presupuesto.eventoTipo === 'XV aÃ±os' ? 'la QuinceaÃ±era' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'))
+                : presupuesto.clienteNombre ? presupuesto.clienteNombre : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'))
         }`,
         fechaEvento: presupuesto.eventoFecha,
         invitadosEstimados: guests,
@@ -1155,15 +1155,15 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         nombreLugar: presupuesto.salonFiestas
     };
 
-    // 6. SINCRONIZAR ESTADO DE LA FIESTA â€” nunca archivar automÃ¡ticamente
+    // 6. SINCRONIZAR ESTADO DE LA FIESTA — nunca archivar automáticamente
     // Solo el usuario puede archivar manualmente desde /eventos
     if (presupuesto.estado === 'Facturado') {
         updatedFiesta.estado = 'Facturado';
     } else if (!updatedFiesta.estado || updatedFiesta.estado === 'Archivada') {
-        updatedFiesta.estado = 'En PlanificaciÃ³n';
+        updatedFiesta.estado = 'En Planificación';
     }
 
-    // 7. SINCRONIZAR BEBIDAS â€” activar categorÃ­as y agregar Ã­tems del presupuesto
+    // 7. SINCRONIZAR BEBIDAS — activar categorías y agregar ítems del presupuesto
     const bebidaItems = items.filter(i =>
         i.categoriaServicio === 'Servicio de bebidas' ||
         itemMatchesKeywords(i, ['barra', 'trago', 'cerveza', 'vino', 'espumante', 'champagne', 'licor', 'fernet', 'whisky', 'ron', 'vodka', 'jugo', 'gaseosa', 'refresco', 'agua'])
@@ -1172,32 +1172,32 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         updatedFiesta.bebidas = syncBebidasFromItems(updatedFiesta.bebidas || defaultBebidasData, bebidaItems);
     }
 
-    // 8. SINCRONIZAR REPOSTERÃA â€” activar categorÃ­as y agregar Ã­tems del presupuesto
+    // 8. SINCRONIZAR REPOSTERÍA — activar categorías y agregar ítems del presupuesto
     const reposteriaItems = items.filter(i =>
-        i.categoriaServicio === 'Servicio de reposterÃ­a' ||
-        itemMatchesKeywords(i, ['torta', 'reposterÃ­a', 'reposteria', 'dulce', 'candy', 'pastel', 'cake', 'chocolate', 'fuente', 'helado'])
+        i.categoriaServicio === 'Servicio de repostería' ||
+        itemMatchesKeywords(i, ['torta', 'repostería', 'reposteria', 'dulce', 'candy', 'pastel', 'cake', 'chocolate', 'fuente', 'helado'])
     );
     if (reposteriaItems.length > 0) {
         updatedFiesta.reposteria = syncReposteriaFromItems(updatedFiesta.reposteria || defaultReposteriaData, reposteriaItems);
     }
 
-    // 9. SINCRONIZAR DECORACIÃ“N â€” agregar Ã­tems decorativos del presupuesto
+    // 9. SINCRONIZAR DECORACIÓN — agregar ítems decorativos del presupuesto
     const decorItems = items.filter(i =>
-        i.categoriaServicio === 'Servicio de decoraciÃ³n' ||
+        i.categoriaServicio === 'Servicio de decoración' ||
         itemMatchesKeywords(i, ['decorac', 'ambientac', 'globo', 'flor', 'centro de mesa', 'backdrop'])
     );
     if (decorItems.length > 0) {
         updatedFiesta.decoracion = syncDecoracionFromItems(updatedFiesta.decoracion || defaultDecoracion, decorItems);
     }
 
-    // 10. SINCRONIZAR COSTOS â€” pre-poblar con todos los Ã­tems del presupuesto
+    // 10. SINCRONIZAR COSTOS — pre-poblar con todos los ítems del presupuesto
     updatedFiesta.gestionCostos = syncCostosFromBudget(
         updatedFiesta.gestionCostos || defaultGestionCostos,
         items,
         presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
     );
 
-    // 11. SINCRONIZAR CARGA OPERATIVA â€” equipamiento y activos fijos relacionados
+    // 11. SINCRONIZAR CARGA OPERATIVA — equipamiento y activos fijos relacionados
     updatedFiesta.listaDeCargaOperativa = await syncCargaOperativaFromBudget(
         fiestaId,
         updatedFiesta.listaDeCargaOperativa || { categorias: [] },
@@ -1205,7 +1205,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         guests
     );
 
-    // 12. TAREAS AUTOMÃTICAS por servicio (solo si no hay tareas previas)
+    // 12. TAREAS AUTOMÁTICAS por servicio (solo si no hay tareas previas)
     if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
         updatedFiesta.tareas = generateTareasFromServices(modulos, presupuesto.eventoTipo || 'General');
     }
@@ -1223,7 +1223,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const saved = await saveFiesta(updatedFiesta);
     if (!saved.success) return saved;
 
-    // 14. SINCRONIZAR LAVADERO despuÃ©s de guardar para evitar sobrescribir su actualizaciÃ³n de costos
+    // 14. SINCRONIZAR LAVADERO después de guardar para evitar sobrescribir su actualización de costos
     try {
         await syncLaundryCosts(fiestaId, guests, items);
     } catch (error: any) {
@@ -1231,7 +1231,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
             fiestaId,
             error: error?.message || String(error),
         });
-        return { success: false, error: 'La fiesta se sincronizÃ³, pero fallÃ³ la actualizaciÃ³n de costos de lavadero.' };
+        return { success: false, error: 'La fiesta se sincronizó, pero falló la actualización de costos de lavadero.' };
     }
 
     return saved;
@@ -1239,7 +1239,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   // Borrar, archivar o cancelar una fiesta saca plata y trabajo de la cuenta: no alcanza con tener
-  // sesiÃ³n (el personal y el operador tambiÃ©n la tienen). Pregunta 47, 10/10/2026.
+  // sesión (el personal y el operador también la tienen). Pregunta 47, 10/10/2026.
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
@@ -1392,7 +1392,7 @@ export async function createFiestaVacia(
         const newFiesta = {
             ...initialFiestaActualData,
             id: idDeLaPantalla ?? `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-            estado: 'En PlanificaciÃ³n' as const,
+            estado: 'En Planificación' as const,
             configuracion: {
                 ...initialFiestaActualData.configuracion,
                 fechaEvento: '',
@@ -1431,7 +1431,7 @@ export async function createDemoFiesta(
 }
 
 export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null): Promise<{ success: boolean; error?: string }> {
-    await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisiÃ³n de plata, 6/10/2026: no cualquier sesiÃ³n (enganchar facturas y presupuesto)
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado.");
@@ -1444,7 +1444,7 @@ export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId:
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     await requireAppSession();
-    return { success: false, error: "FunciÃ³n deshabilitada por seguridad" };
+    return { success: false, error: "Función deshabilitada por seguridad" };
 }
 export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
   await requireAppSession();
@@ -1534,7 +1534,7 @@ export async function updateFiestaPostEvento(
 }
 
 /**
- * Crea un nuevo evento/fiesta vinculado a un cliente reciÃ©n creado.
+ * Crea un nuevo evento/fiesta vinculado a un cliente recién creado.
  * Se usa cuando se crea un cliente directamente (no desde el CRM).
  */
 export async function createNewFiestaForCustomer(customer: { id: string; name: string; partyDate?: string; partyType?: string; venueName?: string; guestCount?: number; }): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
@@ -1543,7 +1543,7 @@ export async function createNewFiestaForCustomer(customer: { id: string; name: s
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
       id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      estado: 'En PlanificaciÃ³n',
+      estado: 'En Planificación',
       configuracion: {
         ...initialFiestaActualData.configuracion,
         clienteId: customer.id,
@@ -1740,8 +1740,8 @@ export async function actualizarFiesta(
 }
 
 /**
- * Guarda la entrega del Ã¡lbum de fotos digital por Wfolio.
- * Requiere sesiÃ³n de la app y valida que el link sea un dominio oficial de Wfolio.
+ * Guarda la entrega del álbum de fotos digital por Wfolio.
+ * Requiere sesión de la app y valida que el link sea un dominio oficial de Wfolio.
  */
 export async function guardarAlbumWfolioAction(
   fiestaId: string,
@@ -1772,7 +1772,7 @@ export async function guardarAlbumWfolioAction(
   } as any);
 
   if (!res.success) {
-    return { success: false, error: res.error || 'No se pudo guardar la entrega del Ã¡lbum.' };
+    return { success: false, error: res.error || 'No se pudo guardar la entrega del álbum.' };
   }
 
   return { success: true, delivery };

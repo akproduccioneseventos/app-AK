@@ -1,6 +1,6 @@
 ﻿/**
- * Orden 290 - Bloque 3: La entrega del Ã¡lbum por Wfolio se usa.
- * Verifica la validaciÃ³n de URLs de Wfolio, que guarde enlaces vÃ¡lidos
+ * Orden 290 - Bloque 3: La entrega del álbum por Wfolio se usa.
+ * Verifica la validación de URLs de Wfolio, que guarde enlaces válidos
  * y rechace enlaces que no son de Wfolio, y que con ?wfolioUrl= el campo se precarga.
  */
 
@@ -34,13 +34,13 @@ jest.mock('@/lib/data-service-firebase', () => ({
   readDataConDetalle: jest.fn().mockResolvedValue({ valor: [], huboFalla: false }),
 }));
 
-describe('Orden 290 - Bloque 3: Entrega del Ã¡lbum por Wfolio', () => {
+describe('Orden 290 - Bloque 3: Entrega del álbum por Wfolio', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('ValidaciÃ³n de enlaces de Wfolio', () => {
-    it('acepta enlaces vÃ¡lidos con dominio wfolio.com o wfolio.pro', () => {
+  describe('Validación de enlaces de Wfolio', () => {
+    it('acepta enlaces válidos con dominio wfolio.com o wfolio.pro', () => {
       expect(isValidWfolioUrl('https://estudio.wfolio.com/boda-sofia')).toBe(true);
       expect(isValidWfolioUrl('https://wfolio.com/my/disk')).toBe(true);
       expect(isValidWfolioUrl('https://eventos.wfolio.pro/album-123')).toBe(true);
@@ -54,14 +54,14 @@ describe('Orden 290 - Bloque 3: Entrega del Ã¡lbum por Wfolio', () => {
     });
   });
 
-  describe('Guardado de la entrega del Ã¡lbum', () => {
+  describe('Guardado de la entrega del álbum', () => {
     it('rechaza guardar un enlace que no es de Wfolio', async () => {
       const resultado = await guardarAlbumWfolioAction('fiesta-123', 'https://drive.google.com/drive/xyz');
       expect(resultado.success).toBe(false);
       expect(resultado.error).toMatch(/wfolio\.com|wfolio\.pro/i);
     });
 
-    it('rechaza si el enlace estÃ¡ vacÃ­o', async () => {
+    it('rechaza si el enlace está vacío', async () => {
       const resultado = await guardarAlbumWfolioAction('fiesta-123', '   ');
       expect(resultado.success).toBe(false);
       expect(resultado.error).toMatch(/wfolio/i);
@@ -78,7 +78,7 @@ describe('Orden 290 - Bloque 3: Entrega del Ã¡lbum por Wfolio', () => {
         galeriaUrl: '',
       };
 
-      // SimulaciÃ³n de la resoluciÃ³n de wfolio en CentroDeFiestaPage
+      // Simulación de la resolución de wfolio en CentroDeFiestaPage
       const wfolioUrlResuelto = (searchParams?.wfolioUrl || fiesta.galeriaUrl || '').trim();
 
       expect(wfolioUrlResuelto).toBe('https://fotos.wfolio.pro/los-15-de-mora');

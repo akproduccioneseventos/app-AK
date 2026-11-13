@@ -1,4 +1,4 @@
-import { BASE_TEMPLATES, renderVariables } from '@/app/marketing/page';
+import { BASE_TEMPLATES, renderVariables } from '@/lib/marketing/plantillas-base';
 import { SITE_URL } from '@/lib/seo/paginas-publicas';
 
 describe('El texto de marketing sale completo', () => {

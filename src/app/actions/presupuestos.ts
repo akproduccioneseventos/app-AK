@@ -58,7 +58,7 @@ function getFiestaSubjectName(input: {
   if (protagonista1 && protagonista2) return `${protagonista1} y ${protagonista2}`;
   if (protagonista1) return protagonista1;
   if (cliente) return cliente;
-  if (input.eventoTipo === 'XV aÃ±os') return 'la QuinceaÃ±era';
+  if (input.eventoTipo === 'XV años') return 'la Quinceañera';
   if (input.eventoTipo === 'Boda') return 'los Novios';
   return 'el Agasajado';
 }
@@ -75,10 +75,10 @@ function buildFiestaNameFromBudget(input: {
 
 
 /**
- * QuÃ© parte de los presupuestos ve cada perfil (Codex, auditorÃ­a 66, 5/10/2026). Antes alcanzaba
- * cualquier sesiÃ³n: el personal leÃ­a todos los presupuestos con los cobros y el saldo del cliente.
- * - Contabilidad (dueÃ±o, secretaria): completo.
- * - OrganizaciÃ³n sin contabilidad (el operador, "nada de plata"): los servicios para planificar,
+ * Qué parte de los presupuestos ve cada perfil (Codex, auditoría 66, 5/10/2026). Antes alcanzaba
+ * cualquier sesión: el personal leía todos los presupuestos con los cobros y el saldo del cliente.
+ * - Contabilidad (dueño, secretaria): completo.
+ * - Organización sin contabilidad (el operador, "nada de plata"): los servicios para planificar,
  *   sin los cobros. Guardar igual conserva los cobros de la base (`los-cobros-no-se-pisan.ts`).
  * - El resto: nada.
  */
@@ -95,8 +95,8 @@ function sinCobros(p: Presupuesto): Presupuesto {
 }
 
 /**
- * QuiÃ©n cambia un presupuesto (revisiÃ³n de plata, 6/10/2026). Antes alcanzaba la sesiÃ³n: el
- * personal podÃ­a armar, aceptar, facturar o archivar presupuestos. Cada acciÃ³n pide el perfil
+ * Quién cambia un presupuesto (revisión de plata, 6/10/2026). Antes alcanzaba la sesión: el
+ * personal podía armar, aceptar, facturar o archivar presupuestos. Cada acción pide el perfil
  * que la usa de verdad; devuelve la misma forma que `verifySession`.
  */
 async function verifySessionConPermiso(...permisos: Array<(typeof PERMISOS)[keyof typeof PERMISOS]>) {
@@ -119,9 +119,9 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
   if (!auth.success) throw new Error('No autorizado');
   const nivel = nivelDePresupuestos(auth.user);
   if (!nivel) throw new Error('Tu perfil no tiene acceso a los presupuestos.');
-  // Pregunta 50: si la base no contestÃ³, se avisa; "no hay presupuestos" harÃ­a que alguien los cargue de nuevo.
+  // Pregunta 50: si la base no contestó, se avisa; "no hay presupuestos" haría que alguien los cargue de nuevo.
   const { valor: all, huboFalla } = await readDataConDetalle<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. ProbÃ¡ de nuevo en un momento.');
+  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. Probá de nuevo en un momento.');
   const visibles = includeArchived ? all : all.filter(p => !p.archived);
   return nivel === 'completo' ? visibles : visibles.map(sinCobros);
 }
@@ -133,7 +133,7 @@ export async function getPresupuestosConTotal(includeArchived = false): Promise<
   const nivel = nivelDePresupuestos(auth.user);
   if (!nivel) throw new Error('Tu perfil no tiene acceso a los presupuestos.');
   const { valor: all, huboFalla } = await readDataConDetalle<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. ProbÃ¡ de nuevo en un momento.');
+  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. Probá de nuevo en un momento.');
   const visibles = includeArchived ? all : all.filter(p => !p.archived);
   const data = nivel === 'completo' ? visibles : visibles.map(sinCobros);
   return {
@@ -178,9 +178,9 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   const sessionAuth = await verifySession();
 
   let soloOperativo = false;
-  // Con una sesiÃ³n que no ve presupuestos (el cliente con su sesiÃ³n del portal), vale igual el
-  // enlace de ESE presupuesto: antes devolvÃ­a nada y el portal decÃ­a "falta el presupuesto"
-  // (Codex 193, orden 210, A3). El enlace sÃ³lo abre su propio documento, nunca otro.
+  // Con una sesión que no ve presupuestos (el cliente con su sesión del portal), vale igual el
+  // enlace de ESE presupuesto: antes devolvía nada y el portal decía "falta el presupuesto"
+  // (Codex 193, orden 210, A3). El enlace sólo abre su propio documento, nunca otro.
   const nivel = sessionAuth.success ? nivelDePresupuestos(sessionAuth.user) : null;
   if (nivel) {
     soloOperativo = nivel === 'operativo';
@@ -254,7 +254,7 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
         // no-mira-el-resultado: aviso secundario al equipo; si no sale, el cliente igual ve su presupuesto
         await createNotification({
           titulo: 'Presupuesto abierto',
-          mensaje: `${nombreCliente} abriÃ³ su presupuesto reciÃ©n: buen momento para escribirle.`,
+          mensaje: `${nombreCliente} abrió su presupuesto recién: buen momento para escribirle.`,
           href: `/presupuestos/${id}/ver`,
           link: `/presupuestos/${id}/ver`,
           modulo: 'presupuestos',
@@ -379,11 +379,11 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
-  // Pregunta 38 (auditorÃ­a 71): armar un presupuesto es de organizaciÃ³n o comercial, pero nacer
+  // Pregunta 38 (auditoría 71): armar un presupuesto es de organización o comercial, pero nacer
   // con cobros adentro o ya Aceptado/Facturado es plata. Sin contabilidad, nace sin cobros y como
-  // propuesta; los cobros y la aceptaciÃ³n tienen su camino, que pide contabilidad.
+  // propuesta; los cobros y la aceptación tienen su camino, que pide contabilidad.
   if (!puede(auth.user, PERMISOS.CONTABILIDAD)) {
-    const ESTADOS_DE_PROPUESTA: Presupuesto['estado'][] = ['Borrador', 'Pendiente VerificaciÃ³n', 'Enviado'];
+    const ESTADOS_DE_PROPUESTA: Presupuesto['estado'][] = ['Borrador', 'Pendiente Verificación', 'Enviado'];
     const { pagosCliente: _pagos, fechaFirmaContrato: _firma, ...sinPlata } = presupuestoData as Omit<Presupuesto, 'id'> & { fechaFirmaContrato?: string };
     presupuestoData = {
       ...sinPlata,
@@ -469,7 +469,7 @@ export async function savePresupuesto(
     if (solicitud) nuevoPresupuesto = await confirmarSeguimientoSolicitud(presupuestoId, syncRes.lead.id);
   } catch (crmError: any) {
     console.warn(`CRM Sync error during save: ${crmError.message}`);
-    avisoCrm = 'El presupuesto se guardÃ³, pero el cliente no se pudo cargar en el seguimiento comercial. Revisalo a mano.';
+    avisoCrm = 'El presupuesto se guardó, pero el cliente no se pudo cargar en el seguimiento comercial. Revisalo a mano.';
   }
 
   if (!solicitud) {
@@ -479,13 +479,13 @@ export async function savePresupuesto(
       logger.info('[Presupuesto] Guardado exitoso:', presupuestoId, `#${nuevoNumero}`, nuevoPresupuesto.clienteNombre);
     } catch (writeError: any) {
       logger.error('[Presupuesto] Error al guardar:', writeError.message || writeError);
-      return { success: false, error: 'No se pudo guardar el presupuesto. IntentÃ¡ de nuevo.' };
+      return { success: false, error: 'No se pudo guardar el presupuesto. Intentá de nuevo.' };
     }
   }
 
   await syncLinkedFiesta(nuevoPresupuesto);
 
-  // NotificaciÃ³n de negocio: nuevo presupuesto creado
+  // Notificación de negocio: nuevo presupuesto creado
   createNotification({
     titulo: 'Nuevo Presupuesto',
     mensaje: `Nuevo presupuesto #${nuevoPresupuesto.numero || nuevoNumero} creado para ${nuevoPresupuesto.clienteNombre}.`,
@@ -528,9 +528,9 @@ export async function savePresupuesto(
 }
 
 /**
- * Si no se pudo leer la fiesta, NO se sabe si el contrato estÃ¡ firmado, y eso no es lo mismo que "no
- * firmado". Antes un error de lectura devolvÃ­a "no firmado" y dejaba cambiar un contrato firmado
- * (Codex 204, orden 211, B5). Ahora el que llama frena con un error que dice lo que pasÃ³.
+ * Si no se pudo leer la fiesta, NO se sabe si el contrato está firmado, y eso no es lo mismo que "no
+ * firmado". Antes un error de lectura devolvía "no firmado" y dejaba cambiar un contrato firmado
+ * (Codex 204, orden 211, B5). Ahora el que llama frena con un error que dice lo que pasó.
  */
 async function estadoDelContrato(presupuestoId: string): Promise<'firmado' | 'libre' | 'no-se-sabe'> {
   try {
@@ -538,12 +538,12 @@ async function estadoDelContrato(presupuestoId: string): Promise<'firmado' | 'li
     const linked = fiestas.find(f => f.presupuestoId === presupuestoId);
     return linked?.contratoFirmaInfo?.isSigned ? 'firmado' : 'libre';
   } catch (error) {
-    console.warn('[presupuestos] No se pudo comprobar si el contrato estÃ¡ firmado:', error);
+    console.warn('[presupuestos] No se pudo comprobar si el contrato está firmado:', error);
     return 'no-se-sabe';
   }
 }
 
-const NO_SE_PUDO_COMPROBAR_EL_CONTRATO = 'No se pudo comprobar si el contrato estÃ¡ firmado, asÃ­ que no se tocÃ³ nada. ProbÃ¡ de nuevo en un momento.';
+const NO_SE_PUDO_COMPROBAR_EL_CONTRATO = 'No se pudo comprobar si el contrato está firmado, así que no se tocó nada. Probá de nuevo en un momento.';
 
 function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuesto): boolean {
   if (oldBudget.invitadosCantidad !== newBudget.invitadosCantidad) return true;
@@ -627,13 +627,13 @@ async function guardarPresupuestoSinTurno(
         updated.leadId = syncRes.lead.id;
     } catch (e) {
         console.warn("CRM Sync error during update", e);
-        avisoCrm = 'El presupuesto se guardÃ³, pero no se pudo actualizar el seguimiento comercial del cliente.';
+        avisoCrm = 'El presupuesto se guardó, pero no se pudo actualizar el seguimiento comercial del cliente.';
     }
 
-    // Lo que deciden sus propios caminos no lo vuelve atrÃ¡s un formulario abierto de antes: la
+    // Lo que deciden sus propios caminos no lo vuelve atrás un formulario abierto de antes: la
     // factura (markPresupuestoAsFacturado) y la firma del contrato. Antes, guardar una pantalla vieja
-    // devolvÃ­a un presupuesto Facturado a su estado anterior y perdÃ­a el nÃºmero de factura
-    // (auditorÃ­a contable 22/10).
+    // devolvía un presupuesto Facturado a su estado anterior y perdía el número de factura
+    // (auditoría contable 22/10).
     if (oldBudget.estado === 'Facturado') {
       updated.estado = 'Facturado';
       updated.ajusteAnualActivo = oldBudget.ajusteAnualActivo ?? updated.ajusteAnualActivo;
@@ -739,8 +739,8 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
       };
     }
 
-    // Orden 249, bloque 2: lo leÃ­do arriba puede estar viejo si otro servidor cobrÃ³ en el medio. Se
-    // vuelve a mirar el presupuesto y se lo borra en la MISMA transacciÃ³n de la base: si ya tiene un
+    // Orden 249, bloque 2: lo leído arriba puede estar viejo si otro servidor cobró en el medio. Se
+    // vuelve a mirar el presupuesto y se lo borra en la MISMA transacción de la base: si ya tiene un
     // cobro o la firma, no se borra.
     if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
       const { dbAdmin } = await import('@/lib/firebase/server');
@@ -762,7 +762,7 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
         } catch (txError: any) {
           const msg = String(txError?.message || '');
           if (!msg.includes('Could not load the default credentials') && !msg.includes('default credentials')) {
-            return { success: false, error: 'No se pudo comprobar si el presupuesto tiene cobros. No se borrÃ³.' };
+            return { success: false, error: 'No se pudo comprobar si el presupuesto tiene cobros. No se borró.' };
           }
         }
         if (bloqueado) {
@@ -795,8 +795,8 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
         const allLeads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
         const idx = allLeads.findIndex(l => l.id === target.leadId);
         if (idx !== -1) {
-          const { presupuestoId: _pid, presupuestoEstado: _pe, ...rest } = allLeads[idx];
-          allLeads[idx] = rest;
+          // En `undefined` y no sacados: la base guarda las listas con merge y un campo que no viene sigue vivo.
+          allLeads[idx] = { ...allLeads[idx], presupuestoId: undefined, presupuestoEstado: undefined };
           await writeData('crm-leads.json', allLeads);
         }
       } catch (e) {
@@ -861,7 +861,7 @@ export async function markPresupuestoAsFacturado(
     }
 
     // Sincronizar con la fiesta si ya existe. No crear una nueva fiesta
-    // automÃ¡ticamente sin contrato firmado: el flujo de contrataciÃ³n debe
+    // automáticamente sin contrato firmado: el flujo de contratación debe
     // iniciarse desde el CRM con confirmBookingWithContract.
     try {
       const fiestas = await getAllFiestas();
@@ -872,7 +872,7 @@ export async function markPresupuestoAsFacturado(
         return { success: true };
       }
 
-      // No hay evento creado aÃºn â†’ sugerir flujo de contrataciÃ³n al llamador
+      // No hay evento creado aún → sugerir flujo de contratación al llamador
       return { success: true, suggestContractFlow: true };
     } catch (e) {
       console.warn("Error syncing fiesta on invoice", e);
@@ -885,7 +885,7 @@ export async function markPresupuestoAsFacturado(
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  // Cambia los precios del presupuesto: es de contabilidad (auditorÃ­a 66).
+  // Cambia los precios del presupuesto: es de contabilidad (auditoría 66).
   if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, error: 'Tu perfil no puede cambiar precios de presupuestos.' };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
@@ -929,14 +929,14 @@ export async function addPagoToPresupuesto(
   // El id se puede pasar cuando el cobro ya esta enganchado a otra cosa (la factura).
   pago: Omit<PagoCliente, 'id'> & { id?: string }
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // Cobros: sÃ³lo contabilidad (Codex, auditorÃ­a 70, COB10). Antes alcanzaba la sesiÃ³n y el
-  // personal podÃ­a anotar un cobro confirmado y borrarlo.
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
   const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!auth.ok) return { success: false, error: auth.error };
 
   // Un id que viene de afuera (identidad del intento, pregunta 58) tiene que tener forma segura.
   if (pago.id !== undefined && !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
-    return { success: false, error: 'La identidad del cobro no es vÃ¡lida.' };
+    return { success: false, error: 'La identidad del cobro no es válida.' };
   }
 
   const referencia = pago.referencia?.trim() || undefined;
@@ -947,7 +947,7 @@ export async function addPagoToPresupuesto(
     entroUnCobroNuevo = false;
     const pagos = presupuesto.pagosCliente || [];
 
-    // Reintento del mismo intento (la respuesta se perdiÃ³): ya estÃ¡, no se vuelve a validar el saldo
+    // Reintento del mismo intento (la respuesta se perdió): ya está, no se vuelve a validar el saldo
     // contra un cobro que ya cuenta ni se agrega otro.
     if (pago.id && pagos.some((p) => p.id === pago.id)) return { sinCambios: true };
 
@@ -1034,8 +1034,8 @@ export async function deletePagoFromPresupuesto(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // Cobros: sÃ³lo contabilidad (Codex, auditorÃ­a 70, COB10). Antes alcanzaba la sesiÃ³n y el
-  // personal podÃ­a anotar un cobro confirmado y borrarlo.
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
   const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!auth.ok) return { success: false, error: auth.error };
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
@@ -1074,7 +1074,7 @@ function parseImportedGuestBreakdown(texto: string, totalInvitados: number): Gue
   };
 
   const adultos = readCount([/(?:adultos?|mayores?)\D{0,20}(\d+)/, /(\d+)\s+(?:adultos?|mayores?)/]);
-  const ninos = readCount([/(?:niÃ±os?|ninos?|menores?|infantiles?)\D{0,20}(\d+)/, /(\d+)\s+(?:niÃ±os?|ninos?|menores?|infantiles?)/]);
+  const ninos = readCount([/(?:niños?|ninos?|menores?|infantiles?)\D{0,20}(\d+)/, /(\d+)\s+(?:niños?|ninos?|menores?|infantiles?)/]);
   const adolescentes = readCount([/(?:adolescentes?)\D{0,20}(\d+)/, /(\d+)\s+adolescentes?/]);
   const menores = ninos + adolescentes;
 
@@ -1082,13 +1082,13 @@ function parseImportedGuestBreakdown(texto: string, totalInvitados: number): Gue
     const resolvedAdultos = adultos > 0 ? adultos : Math.max(0, totalInvitados - menores);
     const resolvedTotal = resolvedAdultos + menores;
     if (totalInvitados > 0 && resolvedTotal !== totalInvitados) {
-      warnings.push(`La importaciÃ³n detectÃ³ ${resolvedTotal} invitados discriminados, distinto al total ${totalInvitados}. Revisar adultos/niÃ±os.`);
+      warnings.push(`La importación detectó ${resolvedTotal} invitados discriminados, distinto al total ${totalInvitados}. Revisar adultos/niños.`);
     }
     return { adultos: resolvedAdultos, ninos, adolescentes, warnings };
   }
 
   if (totalInvitados > 0) {
-    warnings.push('No se detectÃ³ desglose de adultos/niÃ±os/adolescentes. Se mantiene el total como adultos para no inventar menores.');
+    warnings.push('No se detectó desglose de adultos/niños/adolescentes. Se mantiene el total como adultos para no inventar menores.');
   }
   return { adultos: totalInvitados, ninos: 0, adolescentes: 0, warnings };
 }
@@ -1106,7 +1106,7 @@ export async function importarPresupuestoDesdeTexto(
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   if (!texto || texto.trim().length < 20) {
-    return { success: false, error: 'El texto pegado estÃ¡ vacÃ­o o es demasiado corto.' };
+    return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
   }
 
   const parsed = parseBudgetText(texto);
@@ -1116,7 +1116,7 @@ export async function importarPresupuestoDesdeTexto(
   if (!parsed.clienteNombre && parsed.items.length === 0) {
     return {
       success: false,
-      error: 'No se pudo detectar informaciÃ³n vÃ¡lida en el texto. RevisÃ¡ el formato.',
+      error: 'No se pudo detectar información válida en el texto. Revisá el formato.',
       warnings: parsed.warnings,
     };
   }
@@ -1124,7 +1124,7 @@ export async function importarPresupuestoDesdeTexto(
   if (options.senaManual !== undefined && options.senaManual !== null) {
     const s = Number(options.senaManual);
     if (!Number.isFinite(s) || s < 0) {
-      return { success: false, error: 'El importe de la seÃ±a manual debe ser un nÃºmero vÃ¡lido mayor o igual a 0.' };
+      return { success: false, error: 'El importe de la seña manual debe ser un número válido mayor o igual a 0.' };
     }
   }
 
@@ -1138,7 +1138,7 @@ export async function importarPresupuestoDesdeTexto(
   const notas = [
     parsed.notas,
     `Total declarado: $${total.toLocaleString('es-UY')}`,
-    `SeÃ±a: $${sena.toLocaleString('es-UY')} (${senaPct}%)`,
+    `Seña: $${sena.toLocaleString('es-UY')} (${senaPct}%)`,
     `Saldo: $${(total - sena).toLocaleString('es-UY')}`,
   ].filter(Boolean).join(' | ');
 
@@ -1178,7 +1178,7 @@ export async function importarPresupuestoDesdeTexto(
         ...initialFiestaActualData,
         id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         presupuestoId,
-        estado: 'En PlanificaciÃ³n',
+        estado: 'En Planificación',
         configuracion: {
           ...initialFiestaActualData.configuracion,
           nombreEvento: buildFiestaNameFromBudget(parsed),
@@ -1206,10 +1206,10 @@ export async function importarPresupuestoDesdeTexto(
           icono: 'PartyPopper',
         });
       } else {
-        parsed.warnings.push(`El presupuesto se creÃ³ pero no se pudo crear la fiesta: ${fiestaResult.error}`);
+        parsed.warnings.push(`El presupuesto se creó pero no se pudo crear la fiesta: ${fiestaResult.error}`);
       }
     } catch (e: any) {
-      parsed.warnings.push(`El presupuesto se creÃ³ pero hubo un error al crear la fiesta: ${e.message}`);
+      parsed.warnings.push(`El presupuesto se creó pero hubo un error al crear la fiesta: ${e.message}`);
     }
   }
 
@@ -1250,7 +1250,7 @@ export async function createFiestaFromPresupuesto(
     ...initialFiestaActualData,
     id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     presupuestoId,
-    estado: 'En PlanificaciÃ³n',
+    estado: 'En Planificación',
     configuracion: {
       ...initialFiestaActualData.configuracion,
       nombreEvento: buildFiestaNameFromBudget(presupuesto),
@@ -1278,7 +1278,7 @@ export async function createFiestaFromPresupuesto(
     return {
       success: false,
       fiestaId: result.fiesta.id,
-      error: syncResult.error || 'La fiesta se creÃ³, pero no se pudo completar la sincronizaciÃ³n del presupuesto.',
+      error: syncResult.error || 'La fiesta se creó, pero no se pudo completar la sincronización del presupuesto.',
     };
   }
 
@@ -1308,7 +1308,7 @@ export async function approvePresupuesto(
         rechazo = undefined;
         const tieneCobros = (actual.pagosCliente || []).some(isConfirmedClientPayment);
         if (actual.estado === 'Aceptado' || actual.estado === 'Facturado' || actual.fechaFirmaContrato || tieneCobros) {
-          rechazo = 'Este presupuesto ya estÃ¡ aceptado o tiene contrato o cobros: no se puede volver a marcar como enviado.';
+          rechazo = 'Este presupuesto ya está aceptado o tiene contrato o cobros: no se puede volver a marcar como enviado.';
           return null;
         }
         return { ...actual, estado: 'Enviado' };
@@ -1355,11 +1355,11 @@ export async function addPagoClienteFromPortal(
   pago: Omit<PagoCliente, 'id' | 'estadoPago'> & { id?: string },
   token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // Lo carga el equipo en nombre del cliente: es un cobro, va con contabilidad (auditorÃ­a 70).
+  // Lo carga el equipo en nombre del cliente: es un cobro, va con contabilidad (auditoría 70).
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
   if (pago.id !== undefined && !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
-    return { success: false, error: 'La identidad del cobro no es vÃ¡lida.' };
+    return { success: false, error: 'La identidad del cobro no es válida.' };
   }
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
@@ -1367,7 +1367,7 @@ export async function addPagoClienteFromPortal(
   let entroUnCobroNuevo = false as boolean;
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
     entroUnCobroNuevo = false;
-    // Reintento del mismo intento (pregunta 58): ya estÃ¡, no se agrega otro ni se avisa de nuevo.
+    // Reintento del mismo intento (pregunta 58): ya está, no se agrega otro ni se avisa de nuevo.
     if (pago.id && (actual.pagosCliente || []).some((p) => p.id === pago.id)) return { sinCambios: true };
     const validation = validatePaymentAgainstBudget(actual, pago.monto, { includePendingForLimit: true });
     if (!validation.ok) return { error: validation.error || 'El cobro no entra en el presupuesto.' };
@@ -1388,7 +1388,7 @@ export async function addPagoClienteFromPortal(
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
     createNotification({
       titulo: 'Pago Informado por Cliente',
-      mensaje: `${presupuesto.clienteNombre} informÃ³ un pago de ${montoFmt} (${pago.metodoPago}). Pendiente de confirmaciÃ³n.`,
+      mensaje: `${presupuesto.clienteNombre} informó un pago de ${montoFmt} (${pago.metodoPago}). Pendiente de confirmación.`,
       href: `/pagos-rapidos`,
       icono: 'ListChecks',
       tipo: 'aviso',
@@ -1404,8 +1404,8 @@ export async function confirmPagoCliente(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // Cobros: sÃ³lo contabilidad (Codex, auditorÃ­a 70, COB10). Antes alcanzaba la sesiÃ³n y el
-  // personal podÃ­a anotar un cobro confirmado y borrarlo.
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
   const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!auth.ok) return { success: false, error: auth.error };
   let monto = 0;
@@ -1448,8 +1448,8 @@ export async function rejectPagoCliente(
   pagoId: string,
   motivo: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  // Cobros: sÃ³lo contabilidad (Codex, auditorÃ­a 70, COB10). Antes alcanzaba la sesiÃ³n y el
-  // personal podÃ­a anotar un cobro confirmado y borrarlo.
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
   const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!auth.ok) return { success: false, error: auth.error };
   const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
@@ -1509,13 +1509,13 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
       const deletedIds = new Set(all.map(p => p.id));
       const deletedCount = all.length;
 
-      // Directly delete all docs from Firestore â€” bypasses the empty-array safety guard
+      // Directly delete all docs from Firestore — bypasses the empty-array safety guard
       // in syncToFirestore that would otherwise prevent deletion of existing documents.
       try {
         await forceDeleteCollectionFromFirestore('presupuestos');
       } catch (e) {
         // Non-fatal: fall through to local JSON cleanup and CRM cleanup.
-        logger.warn('[Presupuestos] forceDeleteCollectionFromFirestore fallÃ³, se continÃºa con limpieza local:', e);
+        logger.warn('[Presupuestos] forceDeleteCollectionFromFirestore falló, se continúa con limpieza local:', e);
       }
 
       // Keep local JSON fallbacks in sync so the UI doesn't resurrect deleted presupuestos.
@@ -1553,16 +1553,17 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
         const cleanedLeads = leads.map((lead) => {
           if (lead.presupuestoId && (deletedIds.size === 0 || deletedIds.has(lead.presupuestoId))) {
             huboCambios = true;
-            const {
-              presupuestoId: _pid,
-              presupuestoEstado: _pestado,
-              budgetSource: _bs,
-              lastBudgetAt: _lba,
-              presupuestoVecesVisto: _pvv,
-              presupuestoVistoAt: _pva,
-              ...rest
-            } = lead;
-            return rest;
+            // En `undefined` (no sacados del objeto): la base guarda las listas con merge y un
+            // campo que no viene se queda vivo; en `undefined` se borra de verdad.
+            return {
+              ...lead,
+              presupuestoId: undefined,
+              presupuestoEstado: undefined,
+              budgetSource: undefined,
+              lastBudgetAt: undefined,
+              presupuestoVecesVisto: undefined,
+              presupuestoVistoAt: undefined,
+            };
           }
           return lead;
         });
