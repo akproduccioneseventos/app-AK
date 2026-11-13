@@ -88,6 +88,17 @@ describe('ida y vuelta contra la base: las once del auditor', () => {
         // ignorar errores de limpieza local
       }
     }
+    for (const dir of [path.join(process.cwd(), 'data', 'fiestas'), path.join(process.cwd(), 'src', 'data', 'fiestas')]) {
+      try {
+        if (fs.existsSync(dir)) {
+          for (const f of fs.readdirSync(dir)) {
+            if (f.includes('293')) fs.unlinkSync(path.join(dir, f));
+          }
+        }
+      } catch {
+        // ignorar errores de limpieza local
+      }
+    }
   });
 
   it('revertPriceAdjustment: +10% y la vuelta dejan 100 y 40', async () => {
