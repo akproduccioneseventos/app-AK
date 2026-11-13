@@ -1326,6 +1326,18 @@ otra andando y se va sin tocar nada (`.ak-corrida-en-curso` en
 `scripts/run-playwright-production.mjs`). Y para probar una prueba suelta mientras la puerta
 corre, la respuesta es **esperar**: no hay atajo.
 
+## LA IDA Y VUELTA CONTRA LA BASE (orden del dueño, 13 de noviembre de 2026)
+
+Palabras suyas: *"pensá un método para que no suceda y se pueda corregir"*, después de que la prueba funcional del auditor
+encontrara once acciones que decían "listo" sin haber guardado. **Una prueba con una base de mentira no prueba lo que
+guarda**: la de mentira acepta cosas que la real ignora.
+
+- Toda acción que guarda **plata o comida, o que borra**, tiene una prueba en `tests/firebase/` contra el emulador: hace la
+  acción, **vuelve a leer de la base** y, si se puede deshacer, hace la vuelta y compara con el principio.
+- `src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts` lo exige a toda acción nueva; las viejas sin prueba
+  están en `docs/ida-y-vuelta-pendientes.json`, **que sólo se achica** (no se agrega nada para que el control se calle).
+- Toda orden que toque una acción de ese tipo pide su prueba de ida y vuelta y que salga de la lista.
+
 ## EL CANDADO DE LA PLATA (orden del dueño, 6 de octubre de 2026)
 
 Palabras suyas: *"hacé lo que me asegure que esto no pase más"*. Después de meses de encontrar de
@@ -1965,6 +1977,8 @@ con otra cara.
 | El respaldo esperaba una lista donde la app guarda un objeto y no se guardó en un mes | `src/__tests__/el-respaldo-espera-la-forma-que-se-guarda.test.ts` |
 | Una pregunta nueva del método quedaba escrita y nadie la buscaba en el código | `src/__tests__/cada-pregunta-nueva-tiene-su-escaneo.test.ts` con `scripts/las-formas-que-mienten.mjs` |
 | Revertir un ajuste de precios dejaba el catálogo en negativo, y se aceptaba bajar -200% | `src/__tests__/revertir-un-ajuste-vuelve-al-precio.test.ts` |
+| Once acciones decían "listo" sin guardar, y las pruebas daban verde con una base de mentira mejor que la real | `src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts` con `docs/ida-y-vuelta-pendientes.json` |
+| "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
 
 ### Cómo se elige el matafuego
 

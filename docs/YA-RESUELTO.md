@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - "Entrar" y el portal del cliente llevaban a páginas que no existen
+
+- **Qué pasaba:** con la sesión abierta, `/entrar` mandaba a `/dashboard` (no existe); y el cliente que entraba con su
+  teléfono y su clave iba a `/portal/<id>` (tampoco existe): veía "Esta página no existe". Lo primero lo vio el auditor;
+  lo segundo lo encontró el control nuevo.
+- **Qué se hizo:** `/entrar` va a `/admin` y el cliente a `/portal-cliente/<id>`. Lo frena
+  `ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts`, que revisa todos los destinos escritos en el código (comprobado en
+  rojo con los destinos viejos).
+
+```comprobar
+no-usa: redirect('/dashboard') en src/app/entrar/page.tsx
+usa: /portal-cliente/ en src/app/entrar/EntrarClient.tsx
+prueba: src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts
+```
+
+## 13/11/2026 - Lo que guarda plata, comida o borra se prueba contra la base de verdad
+
+- **Por qué:** la prueba funcional del auditor encontró once acciones que decían "listo" sin haber guardado; las pruebas de
+  Jest daban verde con una base de mentira que se porta mejor que la real. Pedido del dueño: un método para que no pase.
+- **Cómo quedó:** `lo-que-guarda-se-prueba-contra-la-base.test.ts` recorre todas las acciones del servidor; las que guardan
+  plata o comida, o borran, tienen que tener su prueba en `tests/firebase/` (emulador, vuelve a leer, ida y vuelta). Las 108
+  que hoy no la tienen están en `docs/ida-y-vuelta-pendientes.json`, que sólo se achica. Comprobado en rojo sacando una de la
+  lista. Las pruebas las escribe Gemini (orden 293).
+
+```comprobar
+prueba: src/__tests__/lo-que-guarda-se-prueba-contra-la-base.test.ts
+archivo: docs/ida-y-vuelta-pendientes.json
+```
+
 ## 12/11/2026 - Revertir un ajuste de precios dejaba el catálogo en negativo (prueba funcional del auditor)
 
 - **Qué pasaba:** la cuenta del porcentaje inverso multiplicaba de más por 100: revertir un +10% aplicaba -909% y un
