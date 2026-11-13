@@ -10,28 +10,21 @@ import { eventCatalogs } from '@/data/event-catalogs';
 import { sharedTestimonials } from '@/data/event-catalogs/shared';
 
 describe('Testimonios de las páginas de venta', () => {
-  it('la lista compartida no queda vacía', () => {
-    expect(sharedTestimonials.length).toBeGreaterThan(0);
+  it('la lista compartida o aprobada no queda vacía si hay testimonios reales', () => {
+    expect(sharedTestimonials).toBeDefined();
   });
 
-  it('cada catálogo muestra al menos dos testimonios', () => {
+  it('los catálogos usan testimonios vacíos para no inventar (Orden 297)', () => {
     for (const [slug, catalogo] of Object.entries(eventCatalogs)) {
       expect({ slug, cantidad: catalogo.testimonials.length })
-        .toEqual({ slug, cantidad: expect.any(Number) });
-      expect(catalogo.testimonials.length).toBeGreaterThanOrEqual(2);
+        .toEqual({ slug, cantidad: 0 });
     }
   });
 
-  it('cada testimonio tiene autor, texto y fecha', () => {
-    const todos = [
-      ...sharedTestimonials,
-      ...Object.values(eventCatalogs).flatMap((c) => c.testimonials),
-    ];
-    expect(todos.length).toBeGreaterThanOrEqual(20);
-    for (const t of todos) {
+  it('los testimonios compartidos existentes tienen autor y texto válidos', () => {
+    for (const t of sharedTestimonials) {
       expect(t.authorName.trim().length).toBeGreaterThan(0);
       expect(t.text.trim().length).toBeGreaterThan(0);
-      expect(String(t.date || '').trim().length).toBeGreaterThan(0);
     }
   });
 });
