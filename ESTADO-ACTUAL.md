@@ -1,8 +1,10 @@
 # Estado actual — 12 de noviembre de 2026 (noche)
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1397**.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1398**.
 
 ## Publicado hoy
+- **(13/11, en verificación):** el modo sin conexión llega a la versión publicada (`/sw.js` daba 404). Pregunta 134.
+- **1398 (13/11):** el asistente del equipo ya no da error con la sesión del auditor (anotar el gasto de IA tumbaba la respuesta). Pregunta 133. Falta que el auditor repita el ensayo del asistente.
 - **1397 (13/11):** el simulador ya no presupuesta fiestas en el pasado (servidor). Orden 295 para el calendario. Quedan 2 prospectos "PRUEBA" del auditor para que el dueño borre.
 - **1396 (13/11):** "Entrar" y el portal del cliente por teléfono ya no llevan a una página que no existe; control de todos los enlaces y método de ida y vuelta contra la base (108 acciones pendientes, orden 293).
 - **1395:** revertir un ajuste de precios ya no deja el catálogo en negativo; no se acepta bajar 100% o más. Orden 292.

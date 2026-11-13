@@ -1680,3 +1680,10 @@ preguntas: la IA ya había contestado, pero anotar el gasto tiraba el error del 
 500. Se buscan las llamadas que se hacen **después** de tener la respuesta (`registrarConsumoIA`, `anotar…`, `guardarHistorial…`)
 y se mira que no puedan tirar error hacia arriba: o no lanzan nunca, o van en un `try` que deja pasar la respuesta.
 
+### 134. Lo que la compilación genera (archivos en `public/`), ¿llega al paquete que se publica, o sólo a la copia que usan las pruebas?
+
+Adenda 2 del auditor, 13/11/2026. `/sw.js` daba 404 en el dominio: la compilación lo generaba en `public/`, pero el
+paquete que atiende en Firebase (`.next/standalone`) salía sin él. Las pruebas corren con `next start`, que sirve `public/`
+directo, y nunca lo vieron. Se compara la lista de `public/` con la de `.next/standalone/public` después de compilar: tienen
+que ser iguales.
+
