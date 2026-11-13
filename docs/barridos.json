@@ -890,6 +890,10 @@
     "orden-304": {
       "fecha": "2026-11-13",
       "resultado": "Evaluación de Sofía y del multiagente: respuestas del especialista ocultas por el filtro de agente, paquetes que cambian entre turnos, disponibilidad afirmada sin verificar, promesa de avisos inexistente y error de teléfono repetido → orden 304."
+    },
+    "orden-305": {
+      "fecha": "2026-11-13",
+      "resultado": "Auditoría de módulos restantes: la copia importada fiesta_doc_* se cuenta junto a la verificada en todo menos Eventos Activos (dedupe sólo en una pantalla), DEMO en posteos y alertas, alertas de seña sobre fiestas pasadas, menú sin fiesta y flujo de caja en $0 → orden 305."
     }
   }
 }
