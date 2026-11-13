@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 import { compraGuardadaDeCadaUna } from '@/lib/fiesta/reponer-la-plata';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requirePermisoAlguno, requireAppSession } from '@/lib/auth/require-session';

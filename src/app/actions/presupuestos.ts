@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { buscarGemeloCargadoAMano, esEspejoDeFactura } from '@/lib/budget/pago-duplicado';

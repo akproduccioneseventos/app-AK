@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
