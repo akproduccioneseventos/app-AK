@@ -1672,3 +1672,11 @@ tope. Se buscan los `registrarConsumoIA` y se mira que antes, en el mismo camino
 Auditoría de resultados, 12/11/2026. El simulador público guardó una fiesta del 26/10 como prospecto y presupuesto: el
 servidor miraba si la fecha estaba ocupada y si el teléfono era válido, pero no si ya había pasado. Se buscan las acciones
 públicas que reciben una fecha (`eventoFecha`, `fecha`, `eventDate`) y se mira que comparen con `hoyEnUruguay()`.
+
+### 133. Lo accesorio (anotar el gasto, el historial, un contador), ¿puede tumbar la respuesta principal?
+
+Adenda del ensayo del asistente, 13/11/2026. Con sesión de auditor, el Encargado General devolvía error en las tres
+preguntas: la IA ya había contestado, pero anotar el gasto tiraba el error del candado de solo lectura y la ruta respondía
+500. Se buscan las llamadas que se hacen **después** de tener la respuesta (`registrarConsumoIA`, `anotar…`, `guardarHistorial…`)
+y se mira que no puedan tirar error hacia arriba: o no lanzan nunca, o van en un `try` que deja pasar la respuesta.
+

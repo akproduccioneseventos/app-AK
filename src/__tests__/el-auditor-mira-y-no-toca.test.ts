@@ -119,10 +119,11 @@ describe('Orden 276: El auditor mira y no toca', () => {
       }),
     ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
 
-    // 7. registrarConsumoIA
+    // 7. registrarConsumoIA: desde el 13/11/2026 NO tira error con auditor (tumbaba la respuesta del asistente
+    // que ya se había generado, pregunta 133). No anota nada: lo cubre el-auditor-prueba-la-ia-sin-guardar.
     await expect(
       registrarConsumoIA('asistente_consulta', 1),
-    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
+    ).resolves.toBeUndefined();
 
     // 8 y 9. Google Workspace (Gmail y Calendar)
     const fakeAccount: GoogleWorkspaceAccount = {

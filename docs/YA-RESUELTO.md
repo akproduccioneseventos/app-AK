@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/11/2026 - El asistente del equipo daba error con la sesión del auditor
+
+- **Qué pasaba:** el Encargado General contestaba error en las tres preguntas del ensayo. La IA ya había respondido, pero
+  anotar el gasto (`registrarConsumoIA`) tiraba el error del candado de solo lectura y la ruta devolvía 500.
+- **Qué se hizo:** con sesión de auditor, `registrarConsumoIA` no anota y sigue, y `reservarConsumoIA` respeta el tope
+  leyendo y no escribe (`esSesionDeSoloLectura` en `src/lib/auth/solo-lectura.ts`). El auditor sigue sin poder guardar en
+  ningún otro lado. Probado en rojo sin el arreglo. Pregunta 133 del método.
+
+```comprobar
+usa: esSesionDeSoloLectura en src/lib/ai/consumo-servidor.ts
+prueba: src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts
+```
+
 ## 13/11/2026 - El simulador presupuestaba fiestas en el pasado
 
 - **Qué pasaba:** el auditor eligió el 26/10/2026 y el simulador creó el prospecto y un presupuesto de $84.838 sin avisar.

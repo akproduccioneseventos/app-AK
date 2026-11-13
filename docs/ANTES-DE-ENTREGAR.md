@@ -269,3 +269,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 101. **¿Escribiste una dirección a mano (`href`, `redirect`, `router.push`)?** Que exista: lo revisa `ningun-enlace-lleva-a-una-pagina-que-no-existe`.
 102. **¿Llamás a la IA?** Mirá el tope antes de llamar, no sólo anotes el gasto después.
 103. **¿Alguien de afuera elige una fecha?** El servidor rechaza una fecha pasada, y el calendario no la ofrece.
+104. **¿Después de tener la respuesta anotás algo (gasto, historial, contador)?** Que esa anotación no pueda tirar error y tumbar la respuesta.

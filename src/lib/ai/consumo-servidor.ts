@@ -2,7 +2,7 @@ import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
-import { exigirQueSePuedaGuardar, esSesionDeAuditor } from '@/lib/auth/solo-lectura';
+import { exigirQueSePuedaGuardar, esSesionDeAuditor, esSesionDeSoloLectura } from '@/lib/auth/solo-lectura';
 import { aFechaHoraLocal } from '@/lib/fechas/fecha-local';
 import {
   calcularConsumo,
@@ -102,16 +102,14 @@ async function cambiarConsumo<T>(
   });
 }
 
-/** Suma una generación al contador del mes. Nunca lanza, salvo para el candado de auditor. Con auditor no guarda ni lanza. */
+/** Suma una generación al contador del mes. Nunca lanza: con sesión de auditor no anota nada. */
 export async function registrarConsumoIA(
   funcion: FuncionConCosto,
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<void> {
-  if (await esSesionDeAuditor()) {
-    return;
-  }
-  await exigirQueSePuedaGuardar();
+  // El auditor mira sin guardar: no se anota nada, y la respuesta que ya se generó le llega igual.
+  if (await esSesionDeSoloLectura()) return;
   try {
     const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
     if (!incremento) return;
@@ -137,14 +135,12 @@ export async function reservarConsumoIA(
   cantidad = 1,
   ahora: Date = new Date(),
 ): Promise<ReservaConsumoIA | null> {
-  if (await esSesionDeAuditor()) {
-    return {
-      async liberar() {},
-    };
-  }
-  await exigirQueSePuedaGuardar();
   const incremento = Number.isFinite(cantidad) ? Math.max(0, Math.floor(cantidad)) : 0;
   if (!incremento) return null;
+  // El auditor no guarda: se respeta el tope (sólo leyendo) y la reserva no escribe nada.
+  if (await esSesionDeSoloLectura()) {
+    return (await hayPresupuestoParaIA(ahora)) ? { async liberar() {} } : null;
+  }
 
   const mes = claveDelMes(ahora);
   const reservada = await cambiarConsumo((datos) => {
