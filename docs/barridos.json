@@ -878,6 +878,10 @@
     "orden-301": {
       "fecha": "2026-11-13",
       "resultado": "Auditoría de contabilidad: \"Poner al día\" traía los cobros marcados (arreglado por Claude); etiquetas del panel y del flujo de caja que dicen otra cosa, cobro con fecha de la fiesta, CRM que no avanza, ajuste anual sin línea, contrato con huecos y fiesta DEMO en los totales → orden 301."
+    },
+    "orden-302": {
+      "fecha": "2026-11-13",
+      "resultado": "Auditoría de entretenimiento: acciones de control, moderación y juegos a comprobar con permiso de noche; red social sin identidad; tablero de estaciones, invitados, saldo y tipos de evento que no dicen de dónde salen; web del evento, tótem sin número y textos → orden 302."
     }
   }
 }

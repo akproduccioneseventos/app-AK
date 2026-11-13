@@ -1476,6 +1476,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **IVA y vencimiento del presupuesto (13 de noviembre de 2026).** AK **no paga IVA**: las facturas van al 0% y no se vuelve a preguntar. Un presupuesto aceptado **vale desde la fecha en que se firma el contrato**; el ajuste anual corre desde ahí.
+
 - **Promesas, logos y contrato (13 de noviembre de 2026).** Se sacan "garantía de satisfacción", "flexibilidad absoluta" y
   promesas parecidas (orden 300, bloque 6). **Los logos de empresas de la presentación son clientes reales: quedan.** La
   plantilla del contrato con el domicilio y la cédula del dueño **queda como está**. No se vuelve a plantear.
