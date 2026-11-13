@@ -42,11 +42,10 @@ En `src/app/actions/simulador-copilot.ts`, ya se arma `paquetesCatalog` (~276) c
 - En la pantalla de Ajustes → Asistente IA, una tarjeta "Respuestas de respaldo hoy": por función, cuántas y el último
   motivo. Si hoy hubo más de 5 de una misma función, aviso al dueño con `avisarAlDuenio` una vez por día.
 
-## Bloque 3 — El auditor puede probar la IA sin guardar nada (permiso, P2)
+## Bloque 3 — El auditor puede probar la IA sin guardar nada (YA LO HIZO CLAUDE, 13/11/2026: no se toca)
 
-En `registrarConsumoIA` y `reservarConsumoIA`: con sesión de auditor, **no escribir** y seguir (registrar devuelve sin
-hacer nada; reservar devuelve una reserva que no guarda, con `liberar()` vacío). Nada más cambia para el auditor: sigue
-sin poder guardar en ningún otro lado. `anotarFalloIA` tampoco escribe con auditor.
+`registrarConsumoIA` y `reservarConsumoIA` ya no escriben ni tiran error con sesión de auditor (`esSesionDeSoloLectura`).
+Lo único tuyo acá: que `anotarFalloIA` (bloque 2) tampoco escriba con auditor, usando la misma función.
 
 ## Bloque 4 — El blog no dice "corrió" sin nota nueva (P2)
 

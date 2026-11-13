@@ -29,3 +29,18 @@ export async function exigirQueSePuedaGuardar(): Promise<void> {
     // no frena nada.
   }
 }
+
+/**
+ * Lo mismo que `exigirQueSePuedaGuardar`, pero sin tirar: dice si la sesión es de sólo mirar. Lo usa lo que anota algo
+ * accesorio (el contador de gasto de IA) para saltear la escritura sin romper lo que el auditor está mirando
+ * (auditor, 13/11/2026: el asistente respondía y la anotación del gasto tiraba el error, la pantalla quedaba sin respuesta).
+ */
+export async function esSesionDeSoloLectura(): Promise<boolean> {
+  try {
+    const session = await verifySession();
+    if (!session.success || !session.user) return false;
+    return session.user.perfil === 'auditor' || session.user.role === 'auditor';
+  } catch {
+    return false;
+  }
+}

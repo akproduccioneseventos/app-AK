@@ -528,6 +528,10 @@
     "132": {
       "fecha": "2026-11-13",
       "resultado": "Acciones públicas con fecha: el guardado del presupuesto público (arreglado por Claude en public-simulator-persistence.ts, cubre también al asistente comercial), el progreso del prospecto y el calendario de los simuladores → orden 295 bloque 1."
+    },
+    "133": {
+      "fecha": "2026-11-13",
+      "resultado": "Anotaciones después de la respuesta: registrarConsumoIA era la que podía tirar error (candado del auditor) y la usan rutas sin try (multiagente y otras). Arreglada de raíz por Claude: ya no lanza nunca; reservarConsumoIA con auditor no escribe. En el multiagente, el historial (appendMultiAgentChatTurn) y las acciones ya iban en try."
     }
   },
   "hallazgos": {
