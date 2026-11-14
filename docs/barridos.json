@@ -580,6 +580,14 @@
     "145": {
       "fecha": "2026-11-14",
       "resultado": "Aftershoot: falta editar cada foto, cara principal y antes/después → orden 307. Otros reemplazos declarados (Filmora, Wfolio) ya tienen su medición en MEDICION.md y WFOLIO.md."
+    },
+    "146": {
+      "fecha": "2026-11-14",
+      "resultado": "Eliminar todo (eventos y ajustes de datos), Reiniciar Planificador, Archivar/Eliminar/Duplicar por evento y Restaurar respaldo, todos visibles sin mirar el permiso → orden 308 bloque 1."
+    },
+    "147": {
+      "fecha": "2026-11-14",
+      "resultado": "El contrato lee con getFiestaForPortalSession (sólo cliente) → orden 308 bloque 2. Decoración, ideas y mesas ya pasan por el control que acepta las dos sesiones."
     }
   },
   "hallazgos": {
@@ -938,6 +946,10 @@
     "orden-307": {
       "fecha": "2026-11-14",
       "resultado": "Comparación con Aftershoot (página oficial y reseñas): el modo Fotos no edita cada foto, califica 5/0, sin cara principal ni antes/después → orden 307."
+    },
+    "orden-308": {
+      "fecha": "2026-11-14",
+      "resultado": "Reauditoría post-publicación: botones destructivos visibles para el auditor, contrato que no abre con la sesión del equipo, insumo vacío en recetas de la barra y textos ('Stonk', 'GROUMET', nota interna) → orden 308."
     }
   }
 }
