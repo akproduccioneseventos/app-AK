@@ -1,6 +1,7 @@
 'use server';
 
 import { verifySession, type SessionUserData } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 import { perfilDe, esPerfilValido, PERMISOS_POR_PERFIL, type Permiso } from '@/lib/auth/perfiles';
 
 /**
@@ -50,6 +51,7 @@ export async function getUsuarioActual(): Promise<{ usuario: SessionUserData | n
  * Dice si la sesión actual es de sólo lectura (perfil auditor externo).
  */
 export async function esSesionDeSoloLectura(): Promise<boolean> {
+  await requireAppSession().catch(() => null);
   const { esSesionDeSoloLectura: check } = await import('@/lib/auth/solo-lectura');
   return check();
 }
