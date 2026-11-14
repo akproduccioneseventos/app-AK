@@ -41,7 +41,7 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
     if (!tienePortal) {
       const { verifySession } = await import('@/lib/auth/session-token');
       const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
-      if (!sesion.success || !sesion.user) {
+      if (!sesion.success || !sesion.user || !(await puedeVerLaPlataDelCliente(sesion.user.perfil))) {
         return { success: false, error: 'Sesión del portal no autorizada.' };
       }
     }
@@ -456,4 +456,10 @@ async function dejarLaFiestaContratada(
         };
 }
 
-
+/** El equipo entra al portal del cliente sólo si su perfil ve la plata del cliente (dueño, secretaria, auditor): el
+ *  personal y el operador de la noche no ven contrato ni pagos (Claude, revisión de la 1419, 14/11/2026). */
+async function puedeVerLaPlataDelCliente(perfil: unknown): Promise<boolean> {
+  const { PERMISOS, PERMISOS_POR_PERFIL } = await import('@/lib/auth/perfiles');
+  const permisos = (PERMISOS_POR_PERFIL as Record<string, readonly string[]>)[String(perfil || '')] || [];
+  return permisos.includes(PERMISOS.CONTABILIDAD);
+}
