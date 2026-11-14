@@ -282,3 +282,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 114. **¿Mostrás un importe con un título?** Que el título diga exactamente lo que suma la cuenta.
 115. **¿Tu pantalla anota un cobro?** Que guarde la fecha y el medio en que se cobró, no la fecha de la fiesta.
 116. **¿Lo tuyo reemplaza un servicio pago?** Listá lo central de ese servicio y comprobá cada punto, no sólo el nombre.
+117. **¿Agregaste un botón que borra o restaura?** Que no se vea para quien no tiene permiso, aunque el servidor lo frene.
+118. **¿Tocaste una pantalla del portal?** Que abra con la sesión del cliente y también con la del equipo.

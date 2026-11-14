@@ -15,9 +15,15 @@
   Además, el `public/descargas/ak-editor.zip` no estaba rearmado: corré `npm run editor:empaquetar` cuando toques el editor.
 - **Qué hacer:** en tu rama `gemini/ordenes-297-298`, fusioná `origin/main` y arreglá esos cinco. Corré cada prueba sola antes de
   entregar (`npx playwright test <archivo>`). Después, en la **misma** propuesta: órdenes **304** (Sofía y el asistente), **305** (cada fiesta
-  se cuenta una vez), **306** (buscador) y **307** (el modo Fotos edita como Aftershoot).
+  se cuenta una vez), **306** (buscador) y **307** (el modo Fotos edita como Aftershoot), y **308** (lo que encontró la reauditoría).
+- **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**
+  1. **Borrar las dos fiestas de Lorena Ferreira** (`fiesta_doc_lorena_ferreira_2026_05_30` y `fiesta_verified_lorena_ferreira_2026_12_12`): se suspendió.
+     Si alguna tiene seña o cuotas cobradas, **no la borres**: dejá anotado en tu entrega cuánto y avisá. No le mandes nada a la clienta.
+  2. **Desplegar el despertador de las tareas automáticas** (`firebase deploy --only functions:despertadorTareasAutomaticas`): la pantalla dice
+     que nunca tocó la puerta. Después, la orden 278 bloque 1 (la clave), en el orden que dice ahí.
+  3. La fiesta de Soraya Texeira es la del **21/8/2027**; la copia del 4/3/2028 es vieja (la saca la orden 305).
 - **Una sola propuesta.** No abras una por orden: cada fusión se paga.
-- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 116.
+- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 118.
 
 Para programar y asistir en este proyecto de forma óptima:
 0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está
