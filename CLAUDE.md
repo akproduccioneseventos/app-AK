@@ -2009,6 +2009,7 @@ con otra cara.
 | "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
 | El asistente del equipo daba error al auditor porque anotar el gasto tumbaba la respuesta | `src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts` |
 | El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
+| El portal del cliente (decoración, ideas, mesas) se abría con sólo el enlace | `src/__tests__/el-portal-del-cliente-pide-sesion.test.ts` |
 
 ### Cómo se elige el matafuego
 

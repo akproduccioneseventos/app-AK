@@ -20,7 +20,11 @@ Sale del complemento de la auditoría (catálogo, fiestas pasadas, salón 3D, ac
 - **Testimonios inventados:** `src/app/catalogo/[tipo]/page.tsx` ~693 arma `authorName: \`Cliente ${idx + 1}\``.
 - **Penalidad:** `src/app/catalogo/[tipo]/page.tsx` ~505 dice 30%; la otra diapositiva que lo contradice hay que alinearla a esa.
 
-## Bloque 1 — El portal de decoración y el moodboard piden la sesión del cliente (P1, quién ve qué)
+## Bloque 1 — El portal de decoración y el moodboard piden la sesión del cliente (P1) — YA LO HIZO CLAUDE (14/11)
+
+Hecho con `src/lib/portal/el-portal-pide-sesion.ts`, llamado desde `src/app/portal/[fiestaId]/layout.tsx` y `src/app/portal/mesas/page.tsx`. **No tocar.**
+
+Lo que decía la orden:
 
 En `decoracion/page.tsx`, `moodboard/page.tsx` y `src/app/portal/mesas/page.tsx` (ampliación 14/11, pregunta 139), hacer lo mismo que `[module]/page.tsx`: sin sesión del portal (`verifyPortalSession`)
 ni del equipo, redirigir a `/portal?fiestaId=<id>`. Prueba de navegador: sin sesión, `/portal/<id>/decoracion` no muestra la propuesta.
@@ -51,9 +55,9 @@ Navegador para los bloques 1, 2 y 4 (sin sesión el portal no muestra la decorac
 recuerdos; el catálogo no dice "Cliente 1" y llega a la última diapositiva).
 
 ```comprobar
-usa: verifyPortalSession en src/app/portal/[fiestaId]/decoracion/page.tsx
-usa: verifyPortalSession en src/app/portal/[fiestaId]/moodboard/page.tsx
-usa: verifyPortalSession en src/app/portal/mesas/page.tsx
+usa: elPortalPideSesion en src/app/portal/[fiestaId]/layout.tsx
+usa: elPortalPideSesion en src/app/portal/mesas/page.tsx
+prueba: src/__tests__/el-portal-del-cliente-pide-sesion.test.ts
 no-usa: Cliente ${idx + 1} en src/app/catalogo/[tipo]/page.tsx
 prueba: tests/e2e/el-portal-y-los-recuerdos-piden-al-cliente.spec.ts
 ```
