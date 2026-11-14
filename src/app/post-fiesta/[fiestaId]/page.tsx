@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
   ArrowRight,
   Camera,
@@ -20,6 +20,8 @@ import {
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
 import { buildUltimateEventSystem } from '@/lib/experience-ak/ultimate-event-system';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +40,16 @@ function isVideoPost(post: any) {
 
 export default async function PostFiestaPage(props: PageProps) {
   const params = await props.params;
+  const [hasPortalSession, teamUser] = await Promise.all([
+    verifyPortalSession(params.fiestaId),
+    usuarioDelEquipo(),
+  ]);
+
+  if (!hasPortalSession && !teamUser) {
+    redirect(`/portal?fiestaId=${encodeURIComponent(params.fiestaId)}`);
+  }
+
+  const esEquipo = Boolean(teamUser);
   const fiesta = await getFiestaById(params.fiestaId);
   if (!fiesta) notFound();
 
@@ -75,11 +87,13 @@ export default async function PostFiestaPage(props: PageProps) {
             Gracias por celebrar con nosotros. Esta página reúne todos los recuerdos interactivos, fotos, audios de dedicatorias y el cierre oficial de tu experiencia digital.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button asChild className="rounded-xl bg-indigo-600 font-bold hover:bg-indigo-700 h-11 text-white shadow-lg shadow-indigo-500/10">
-              <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> Ir a Google Drive / Wfolio
-              </a>
-            </Button>
+            {customAlbumUrl && (
+              <Button asChild className="rounded-xl bg-indigo-600 font-bold hover:bg-indigo-700 h-11 text-white shadow-lg shadow-indigo-500/10">
+                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="mr-2 h-4 w-4" /> {esEquipo ? 'Ir a Google Drive / Wfolio' : 'Ver álbum completo'}
+                </a>
+              </Button>
+            )}
             <Button asChild variant="outline" className="rounded-xl border-white/20 bg-white/5 font-bold text-white hover:bg-white hover:text-slate-900 h-11 backdrop-blur-md">
               <Link href={feedbackUrl}>
                 <Star className="mr-2 h-4 w-4" /> Dejar testimonio
@@ -94,7 +108,13 @@ export default async function PostFiestaPage(props: PageProps) {
         {[
           { icon: Heart, title: 'Momentos en Pantalla', text: 'Todas las fotos, videos y recuerdos que subieron tus invitados recopilados.' },
           { icon: MessageCircle, title: 'Buzón de Audios', text: 'Escuchá y descargá las dedicatorias y mensajes de voz privados de tus invitados.' },
-          { icon: Share2, title: 'Compartir Carpeta', text: 'Facilidad de acceso a wfolio y Google Drive para descargas masivas de alta calidad.' },
+          {
+            icon: Share2,
+            title: 'Compartir Carpeta',
+            text: esEquipo
+              ? 'Facilidad de acceso a wfolio y Google Drive para descargas masivas de alta calidad.'
+              : 'Accedé a tu galería de recuerdos en alta calidad para guardar y compartir.',
+          },
         ].map((item) => (
           <Card key={item.title} className="rounded-3xl border-slate-100 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
@@ -117,9 +137,21 @@ export default async function PostFiestaPage(props: PageProps) {
               <p className="text-xs font-black uppercase tracking-widest">Memory Hub del Evento</p>
             </div>
             <CardTitle className="text-2xl font-black text-slate-900 mt-2">Descarga de Recuerdos Digitales</CardTitle>
-            <CardDescription className="text-sm">Descargá el material de la fiesta compilado externamente para cuidar tu consumo de datos de Firebase.</CardDescription>
+            <CardDescription className="text-sm">
+              {esEquipo
+                ? 'Descargá el material de la fiesta compilado externamente para cuidar tu consumo de datos de Firebase.'
+                : 'Reviví y descargá las fotos, videos y dedicatorias de tu fiesta.'}
+            </CardDescription>
           </CardHeader>
           <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
+            {posts.length === 0 && audioDeds.length === 0 ? (
+              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-6 text-center space-y-2">
+                <p className="text-base font-bold text-slate-800">Tus recuerdos se están preparando</p>
+                <p className="text-xs text-slate-600 max-w-md mx-auto">
+                  Todavía estamos reuniendo y procesando las fotos, videos y dedicatorias de tu fiesta. En cuanto estén listos los vas a ver disponibles acá.
+                </p>
+              </div>
+            ) : null}
             <div className="grid gap-3 sm:grid-cols-2">
 
               {/* Fotos del Muro */}
@@ -228,13 +260,15 @@ export default async function PostFiestaPage(props: PageProps) {
               </div>
             )}
 
-            {/* Info Notice */}
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start mt-4">
-              <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Tus archivos multimedia y carpetas de descarga están vinculadas directamente a Google Drive o wfolio, asegurando que puedas guardar tu material completo y en alta resolución sin sobrecargas de datos en la plataforma.
-              </p>
-            </div>
+            {/* Info Notice (solo equipo) */}
+            {esEquipo && (
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start mt-4">
+                <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Tus archivos multimedia y carpetas de descarga están vinculadas directamente a Google Drive o wfolio, asegurando que puedas guardar tu material completo y en alta resolución sin sobrecargas de datos en la plataforma.
+                </p>
+              </div>
+            )}
 
           </CardContent>
         </Card>

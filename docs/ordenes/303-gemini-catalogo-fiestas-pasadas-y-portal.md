@@ -51,8 +51,11 @@ Navegador para los bloques 1, 2 y 4 (sin sesión el portal no muestra la decorac
 recuerdos; el catálogo no dice "Cliente 1" y llega a la última diapositiva).
 
 ```comprobar
+# Bloque 1
 usa: verifyPortalSession en src/app/portal/[fiestaId]/decoracion/page.tsx
 usa: verifyPortalSession en src/app/portal/[fiestaId]/moodboard/page.tsx
+# Bloque 4
 no-usa: Cliente ${idx + 1} en src/app/catalogo/[tipo]/page.tsx
+usa: personalRecomendado en src/app/presentacion-led/slides/equipo-slide.tsx
 prueba: tests/e2e/el-portal-y-los-recuerdos-piden-al-cliente.spec.ts
 ```
