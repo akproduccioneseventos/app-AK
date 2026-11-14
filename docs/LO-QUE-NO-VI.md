@@ -1409,10 +1409,11 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 291 → pregunta 133
 - Orden 296 → pregunta 135
 - Orden 297 → pregunta 136
-- Orden 298 → pregunta 4
+- Orden 298 → pregunta 111
 - Orden 299 → pregunta 3
 - Orden 300 → pregunta 135
-- Orden 301 → pregunta 4
+- Orden 301 → pregunta 143
+- Orden 301 → pregunta 144
 - Orden 265 → propia de Claude
 - Auditoria 732 (comisión, mes del pago a proveedores, seña sin presupuesto fuera del reporte) → pregunta 110
 - Auditoria 737 (la pregunta frecuente promete un ajuste distinto al del contrato) → pregunta 4
@@ -1444,5 +1445,10 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 ```comprobar
 prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 ```
-- Orden 302 → pregunta 4
-- Orden 303 → pregunta 4
+- Orden 302 → pregunta 139
+- Orden 303 → pregunta 139
+- Orden 304 → pregunta 140
+- Orden 305 → pregunta 137
+- Orden 306 → pregunta 141
+- Orden 304 → pregunta 138
+- Orden 305 → pregunta 142

@@ -8,9 +8,9 @@
   Seguí en tu rama `gemini/ordenes-282-283-entrega-completa`, fusioná `origin/claude/app-debug-stabilize-m70e6z`
   (trae los arreglos de Claude sobre tu entrega) y `origin/main`.
 - **Qué hacer, en esa misma propuesta (la 1393):** arreglar la ficha, y las órdenes **297** (textos de la web), **298**
-  (la edición sola, con los bloques 7 a 9 de pruebas devueltas) **299** (el auditor prueba cada papel) y **300** (textos de la app por dentro) y **301** (la contabilidad dice lo que cuenta) y **302** (entretenimiento y pantallas de la noche; el bloque 1 es de permisos, primero) y **303** (catálogo, fiestas pasadas y portal sin sesión; bloques 1 y 2 primero).
-- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 107.
-- **Cuando termines:** subí a tu rama; la propuesta 1393 ya está abierta. Cambiale el título a "Gemini: órdenes 284 a 303".
+  (la edición sola, con los bloques 7 a 9 de pruebas devueltas) **299** (el auditor prueba cada papel) y **300** (textos de la app por dentro) y **301** (la contabilidad dice lo que cuenta) y **302** (entretenimiento y pantallas de la noche; el bloque 1 es de permisos, primero) y **303** (catálogo, fiestas pasadas y portal sin sesión; bloques 1 y 2 primero) y **304** (Sofía y el asistente del equipo: las respuestas que no se ven, primero) y **305** (cada fiesta se cuenta una vez; bloque 1 toca plata) y **306** (el buscador encuentra los servicios).
+- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 115.
+- **Cuando termines:** subí a tu rama; la propuesta 1393 ya está abierta. Cambiale el título a "Gemini: órdenes 284 a 306".
 - **Cuando aparezca una orden nueva acá**, arrancá una rama nueva desde `origin/main` actualizado.
 - Lo que Claude corrigió de tu entrega, para no repetirlo: el guardado de a un registro tiene que **borrar en la base**
   los campos que el cambio saca del registro, no sólo los que pone en `undefined`. Está en `docs/YA-RESUELTO.md` (13/11).

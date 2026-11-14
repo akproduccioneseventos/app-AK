@@ -544,6 +544,38 @@
     "136": {
       "fecha": "2026-11-13",
       "resultado": "Testimonios escritos a mano en src/data/event-catalogs (6 archivos) → orden 297. Las opiniones reales están en src/data/testimonials.json."
+    },
+    "137": {
+      "fecha": "2026-11-14",
+      "resultado": "dedupeImportedEventCopies la usa sólo /eventos; tablero, alertas, calendario, muro, recursos y posteos leen sin limpiar → orden 305, bloque 1 (lectura central)."
+    },
+    "138": {
+      "fecha": "2026-11-14",
+      "resultado": "Un caso: multiagent-widget.tsx (filtro por agentType) → orden 304, bloque 1. Ningún otro chat filtra por pestaña."
+    },
+    "139": {
+      "fecha": "2026-11-14",
+      "resultado": "Sin comprobar la sesión: portal/[fiestaId]/decoracion, portal/[fiestaId]/moodboard, portal/mesas; post-fiesta pide la cuenta del equipo → orden 303 (mesas agregada al bloque 1). portal/page.tsx es la entrada con clave: no cuenta."
+    },
+    "140": {
+      "fecha": "2026-11-14",
+      "resultado": "Sofía (simulador-copilot): disponibilidad, avisos y paquetes → orden 304. El asistente interno no habla con clientes."
+    },
+    "141": {
+      "fecha": "2026-11-14",
+      "resultado": "Buscador público: 'fotocabina' sin resultado → orden 306. No hay otros textos de ejemplo con búsqueda."
+    },
+    "142": {
+      "fecha": "2026-11-14",
+      "resultado": "DEMO en posteos, alertas y contadores → orden 305, bloque 2 (y 301 bloque 6, 302 barrido). La fábrica está en src/lib/experience-ak/demo-fiesta-factory.ts."
+    },
+    "143": {
+      "fecha": "2026-11-14",
+      "resultado": "Contabilidad (ventas totales, flujo de caja, eficiencia) → orden 301 bloque 1 y 305 bloque 4. Tablero de la noche: 'SALDO POR…' sin origen → orden 302 bloque 4."
+    },
+    "144": {
+      "fecha": "2026-11-14",
+      "resultado": "Poner al día usaba la fecha de la fiesta → orden 301 bloque 2. Pagos rápidos, cuotas y facturas ya piden la fecha del cobro."
     }
   },
   "hallazgos": {
@@ -886,6 +918,18 @@
     "orden-303": {
       "fecha": "2026-11-13",
       "resultado": "Complemento de auditoría: portal de decoración y moodboard sin sesión, recuerdos que piden ingreso al cliente, fiesta pasada en cuenta regresiva, testimonios 'Cliente N', penalidad contradictoria y catálogo que no llega al cierre → orden 303."
+    },
+    "orden-304": {
+      "fecha": "2026-11-13",
+      "resultado": "Evaluación de Sofía y del multiagente: respuestas del especialista ocultas por el filtro de agente, paquetes que cambian entre turnos, disponibilidad afirmada sin verificar, promesa de avisos inexistente y error de teléfono repetido → orden 304."
+    },
+    "orden-305": {
+      "fecha": "2026-11-13",
+      "resultado": "Auditoría de módulos restantes: la copia importada fiesta_doc_* se cuenta junto a la verificada en todo menos Eventos Activos (dedupe sólo en una pantalla), DEMO en posteos y alertas, alertas de seña sobre fiestas pasadas, menú sin fiesta y flujo de caja en $0 → orden 305."
+    },
+    "orden-306": {
+      "fecha": "2026-11-14",
+      "resultado": "Guía de 19 puntos: el buscador público sugiere 'fotocabina' y no la encuentra (sólo indexa blog y catálogos) → orden 306. Lo demás es carga de datos o ya está en las órdenes 299-305."
     }
   }
 }
