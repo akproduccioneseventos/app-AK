@@ -16457,6 +16457,7 @@ archivo: src/lib/firebase/storage.ts
 usa: uploadToStorageWithDownloadToken en src/app/actions/fiesta/decoracion.actions.ts
 prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
 prueba: src/__tests__/el-portal-del-cliente-pide-sesion.test.ts
+prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
 ```
 
 - **29/10/2026, Claude sobre la 1371 (orden 253):** las pruebas de la foto del salón simulaban el guardado viejo y no corrían; ahora simulan la transacción de la fiesta con copias. Se sumó la prueba de dos servidores con un solo lugar libre (`salon-ia-cupo-entre-instancias`), comprobada en rojo sin contar las reservas pendientes. Y una imagen que llega en un formato que no sirve igual se cuenta como gasto, porque ya se pagó.
@@ -16469,3 +16470,5 @@ prueba: src/__tests__/el-portal-del-cliente-pide-sesion.test.ts
 - **03/11/2026, Claude:** la pantalla "¿Quién sos?" (`/entrar`) mandaba al ingreso del equipo porque no figuraba entre las direcciones públicas; ahora sí (sólo muestra los botones; cada uno pide su propia clave o sesión). Y tres pruebas de pantalla nuevas buscaban textos que aparecían dos veces.
 
 - **14/11/2026 — El portal del cliente ya no se abre con el enlace solo.** Decoración, tablero de ideas, contrato y mesas piden la sesión del equipo o la del portal de esa fiesta; sin ninguna, van a la entrada del portal (`src/lib/portal/el-portal-pide-sesion.ts`). Se hizo aparte y primero porque estaba roto en la app publicada (error 41); prueba `el-portal-del-cliente-pide-sesion`.
+
+- **14/11/2026 — Aprobar o rechazar lo que queda "para tu OK" es sólo del dueño.** La secretaria ya no puede (decisión del dueño). Prueba `aprueba-solo-el-duenio`.

@@ -69,7 +69,7 @@ export async function aprobarCambio(
   id: string,
   _aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION) /* aprueba o rechaza sólo el dueño (14/11/2026) */;
   if (!permiso.ok) return { success: false, error: permiso.error };
   const session = await verifySession();
   if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
@@ -102,7 +102,7 @@ export async function rechazarCambio(
   motivoRechazo: string,
   _rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION) /* aprueba o rechaza sólo el dueño (14/11/2026) */;
   if (!permiso.ok) return { success: false, error: permiso.error };
   const session = await verifySession();
   if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };

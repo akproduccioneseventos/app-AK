@@ -1453,3 +1453,5 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 304 → pregunta 138
 - Orden 305 → pregunta 142
 - Orden 307 → pregunta 145
+- Orden 308 → pregunta 146
+- Orden 308 → pregunta 147

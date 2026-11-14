@@ -1735,3 +1735,11 @@ Auditoría de contabilidad, 13/11/2026. "Poner al día" anotaba el cobro con la 
 ### 145. Lo que la app dice que reemplaza un servicio pago, ¿hace lo central de ese servicio?
 
 Pedido del dueño, 14/11/2026. La orden 280 daba por reemplazado Aftershoot, pero el AK Editor sólo armaba tres ajustes guardados y no editaba cada foto, que es lo que el dueño paga. Se busca qué hace el servicio (en su página), se lista lo central, y se mira en el código que cada punto exista y se llame.
+
+### 146. Un botón que borra, reinicia o restaura, ¿se ve para quien no lo puede usar?
+
+Reauditoría del 13/11/2026. El auditor, de sólo mirar, veía "Eliminar todo permanentemente", "Reiniciar Planificador" y "Restaurar". El servidor los frenaba, pero un toque equivocado de quien sí puede escribir y no debería es una pérdida. Se buscan en `src/app/(app)` los botones con Eliminar, Borrar, Restaurar o Reiniciar y se mira si se esconden según el permiso.
+
+### 147. Una pantalla del portal, ¿abre también con la sesión del equipo, o sólo con la del cliente?
+
+Reauditoría del 13/11/2026. El contrato del portal decía "No pudimos cargar tu contrato" con la sesión del equipo, porque leía sólo con la del cliente. Se recorren las pantallas de `src/app/portal/` y se mira con qué función leen la fiesta.
