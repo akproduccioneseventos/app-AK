@@ -16456,6 +16456,7 @@ usa: onCaptureReady en src/components/salon-3d/SalonScene.tsx
 archivo: src/lib/firebase/storage.ts
 usa: uploadToStorageWithDownloadToken en src/app/actions/fiesta/decoracion.actions.ts
 prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
+prueba: src/__tests__/el-portal-del-cliente-pide-sesion.test.ts
 ```
 
 - **29/10/2026, Claude sobre la 1371 (orden 253):** las pruebas de la foto del salón simulaban el guardado viejo y no corrían; ahora simulan la transacción de la fiesta con copias. Se sumó la prueba de dos servidores con un solo lugar libre (`salon-ia-cupo-entre-instancias`), comprobada en rojo sin contar las reservas pendientes. Y una imagen que llega en un formato que no sirve igual se cuenta como gasto, porque ya se pagó.
