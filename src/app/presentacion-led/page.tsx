@@ -99,9 +99,9 @@ const SKIP_TEEN_MENU_OFFSET = 2;
 const MAIN_DISHES_PER_PERSON = 1;
 /** Event duration (hours) from which 2 entradas are required instead of 1 */
 const ENTRADA_DUAL_DURATION_THRESHOLD = 4;
-// Fixed slides: portada(0), beneficios(1), datos(2), salon(3)
+// Fixed slides: portada(0), beneficios(1), datos(2), salon(3), equipo(4)
 const SALON_SLIDE_INDEX = 3;
-const DYNAMIC_START = 4; // = FIXED_SLIDES_START
+const DYNAMIC_START = 5; // = FIXED_SLIDES_START
 
 // ---- Helpers ----
 
@@ -495,7 +495,7 @@ export default function PresentacionLedPage() {
     if (index >= DYNAMIC_START && index < dynamicEndIndex) {
       const dynIndex = index - DYNAMIC_START;
       const slide = dynamicSlides[dynIndex];
-      if (slide.type === 'menu-adolescente' && !requireTeenMenu) {
+      if (slide?.type === 'menu-adolescente' && !requireTeenMenu) {
         return false;
       }
     }
@@ -821,6 +821,7 @@ export default function PresentacionLedPage() {
             <EquipoSlide
               tipoFiesta={clientData.tipoFiesta}
               equipoSettings={presentacionSettings?.equipo}
+              invitadosEstimados={resourceSummary.invitadosTotales || 100}
             />
           )}
           {currentDynamicSlide?.type === 'entradas' && (

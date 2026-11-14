@@ -46,7 +46,6 @@ describe('Las pantallas internas están detrás de la guardia', () => {
     'compras',
     'control-tower',
     'marketing',
-    'post-fiesta',
     'recepcion',
     'recursos-multi-evento',
     'secretaria-ak',

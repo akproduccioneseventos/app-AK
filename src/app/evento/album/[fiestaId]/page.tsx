@@ -668,7 +668,8 @@ export default function PublicAlbumPage() {
             ) : filteredPosts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <Camera className="w-12 h-12 text-zinc-700 mb-3" />
-                <p className="text-sm text-zinc-400">No hay fotos en esta sección todavía.</p>
+                <p className="text-sm font-semibold text-zinc-300">Los recuerdos de esta fiesta se están preparando</p>
+                <p className="text-xs text-zinc-500 mt-1">Volvé pronto para ver y descargar las fotos y videos.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
