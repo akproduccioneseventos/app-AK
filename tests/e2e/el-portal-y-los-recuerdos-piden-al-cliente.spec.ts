@@ -42,7 +42,8 @@ test.describe('Orden 303: Portal, recuerdos del cliente y catálogo', () => {
 
     // Inicia sesión del portal por el enlace con accessKey
     await page.goto(`/portal/c/${encodeURIComponent(clavePortal)}`);
-    await expect(page).toHaveURL(new RegExp(`/portal-cliente/${fiesta.id}`));
+    // El enlace con clave deja la sesión del portal (la cookie ak_portal_session); no cambia de dirección.
+    await expect.poll(async () => (await page.context().cookies()).some((c) => c.name === 'ak_portal_session'), { timeout: 30_000 }).toBe(true);
 
     // Ahora sí abre /post-fiesta/[fiestaId] como cliente
     await page.goto(`/post-fiesta/${encodeURIComponent(fiesta.id)}`);
