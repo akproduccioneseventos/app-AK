@@ -37,6 +37,10 @@ del catálogo del paquete Intermedio y no suma los del Premium.
 - Sin fecha exacta verificada, Sofía dice "lo confirmamos con la fecha exacta" y no afirma que hay lugar.
 - Sacar del prompt y de cualquier texto la promesa de "avisarte si otro consulta por tu fecha".
 
+## Bloque 3b — El precio, el de la lista (decisión del dueño, 14/11)
+
+Si la clienta insiste en un número, Sofía dice **el precio de lista del catálogo** para ese paquete y esa cantidad de invitados (el mismo que arma el simulador), nunca un rango inventado. Prueba: el número que da Sofía es el del catálogo.
+
 ## Bloque 4 — El teléfono se pide una vez (P2)
 
 El aviso de teléfono inválido sale cuando la persona escribe un teléfono mal, no debajo de cada respuesta de Sofía.

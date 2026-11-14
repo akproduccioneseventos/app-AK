@@ -1487,6 +1487,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Sofía y los precios; quién aprueba (14 de noviembre de 2026).** Si la clienta insiste, **Sofía dice el precio que tiene la lista** (el del catálogo), nunca un rango inventado. Lo que queda **"para tu OK" lo aprueba o rechaza sólo el dueño**, no la secretaria (`approvals.ts`, permiso ADMINISTRACION).
+
 - **IVA y vencimiento del presupuesto (13 de noviembre de 2026).** AK **no paga IVA**: las facturas van al 0% y no se vuelve a preguntar. Un presupuesto aceptado **vale desde la fecha en que se firma el contrato**; el ajuste anual corre desde ahí.
 
 - **Promesas, logos y contrato (13 de noviembre de 2026).** Se sacan "garantía de satisfacción", "flexibilidad absoluta" y
