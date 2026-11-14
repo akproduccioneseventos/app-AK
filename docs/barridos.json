@@ -894,6 +894,10 @@
     "orden-305": {
       "fecha": "2026-11-13",
       "resultado": "Auditoría de módulos restantes: la copia importada fiesta_doc_* se cuenta junto a la verificada en todo menos Eventos Activos (dedupe sólo en una pantalla), DEMO en posteos y alertas, alertas de seña sobre fiestas pasadas, menú sin fiesta y flujo de caja en $0 → orden 305."
+    },
+    "orden-306": {
+      "fecha": "2026-11-14",
+      "resultado": "Guía de 19 puntos: el buscador público sugiere 'fotocabina' y no la encuentra (sólo indexa blog y catálogos) → orden 306. Lo demás es carga de datos o ya está en las órdenes 299-305."
     }
   }
 }
