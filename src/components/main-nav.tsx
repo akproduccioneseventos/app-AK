@@ -319,7 +319,7 @@ export function MainNav() {
                     if (item.subgroup) lastSubgroup = item.subgroup;
 
                     return (
-                      <React.Fragment key={item.href}>
+                      <React.Fragment key={`${item.href}-${item.title}`}>
                         {showSubgroupHeader && (
                           <div className="pt-2 pb-1 px-3 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />

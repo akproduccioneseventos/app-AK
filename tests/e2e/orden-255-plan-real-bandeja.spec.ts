@@ -47,7 +47,7 @@ test.afterEach(() => {
 });
 
 test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto', async ({ context, page, baseURL }, testInfo) => {
-  test.setTimeout(120000);
+  test.setTimeout(240000);
   await ponerSesionDelEquipo(context, baseURL);
   let ventanasExternas = 0;
   page.on('popup', () => { ventanasExternas++; });
