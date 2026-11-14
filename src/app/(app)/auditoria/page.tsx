@@ -182,6 +182,36 @@ function AuditoriaContent() {
         </p>
       </div>
 
+      {/* Probar como — Orden 299 */}
+      <Card className="mb-6 border-indigo-200 bg-indigo-50/40">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2 text-indigo-700">
+            <Shield className="h-4 w-4" /> Probar como
+          </CardTitle>
+          <CardDescription>
+            Entrá a la fiesta de muestra como si fueras un cliente, un invitado o un prospecto.
+            Todo es de prueba: no se guarda nada en la base real.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-3">
+          <Link href="/portal/c/muestra-auditor-key-fija" target="_blank">
+            <Button size="sm" variant="outline" className="border-indigo-300 text-indigo-700 hover:bg-indigo-100">
+              <ArrowRight className="h-4 w-4 mr-2" /> Cliente
+            </Button>
+          </Link>
+          <Link href="/invitacion/fiesta_muestra_auditor/invitado/inv_1?token=token-muestra-1" target="_blank">
+            <Button size="sm" variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-100">
+              <ArrowRight className="h-4 w-4 mr-2" /> Invitado
+            </Button>
+          </Link>
+          <Link href="/simulador-de-presupuesto?muestra=1" target="_blank">
+            <Button size="sm" variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-100">
+              <Calculator className="h-4 w-4 mr-2" /> Prospecto (simulador)
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
       <Card className="mb-6">
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

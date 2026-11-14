@@ -235,7 +235,9 @@ function isSameAssistantDraft(stored: Presupuesto, incoming: Presupuesto): boole
 export async function persistPublicSimulatorBudget(
   data: LeadFromQuickBudget & { items?: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options: PublicSimulatorPersistenceOptions,
-): Promise<{ presupuesto: Presupuesto; leadId: string; reused: boolean }> {
+): Promise<{ presupuesto: Presupuesto; leadId: string; reused: boolean; soloPrueba?: boolean }> {
+  const { esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
+  const esAuditor = await esSesionDeSoloLectura();
   const validationError = validateSubmission(data);
   if (validationError) throw new Error(validationError);
 
@@ -283,6 +285,7 @@ export async function persistPublicSimulatorBudget(
     .filter(id => removableIds.has(id));
   // El Club Uruguay se informa como alquiler independiente y nunca integra
   // el total de servicios de AK que se guarda en el presupuesto y el CRM.
+
   const pricing = calculateSimulatorPricing({
     config,
     services,
@@ -311,7 +314,7 @@ export async function persistPublicSimulatorBudget(
 
   let presupuesto = normalizePresupuestoFinancials({
     id: presupuestoId,
-    numero: 0,
+    numero: esAuditor ? 0 : maxNumero + 1,
     clienteNombre: data.clienteNombre.trim().replace(/\s+/g, ' '),
     clienteContacto: phone,
     eventoTipo: options.eventoTipo || 'Evento',
@@ -340,6 +343,17 @@ export async function persistPublicSimulatorBudget(
     source: options.source,
     acquisition: attribution,
   } as Presupuesto, { preserveStoredTotal: true });
+
+  // Si es sesión de auditor (Orden 299), calcular el presupuesto completo pero devolverlo
+  // sin escribir en presupuestos.json ni tocar el CRM ni mandar alertas
+  if (esAuditor) {
+    return {
+      presupuesto,
+      leadId: 'lead_muestra_auditor',
+      reused: false,
+      soloPrueba: true,
+    };
+  }
 
   if (presupuesto.source === 'simulator_assistant' && presupuesto.estado === 'Borrador') {
     const anterior = existingBudgets.find(item => item.id === presupuesto.id);
