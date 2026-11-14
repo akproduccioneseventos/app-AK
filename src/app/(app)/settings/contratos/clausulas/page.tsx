@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getContractSettings, saveContractSettings } from '@/app/actions/settings';
 import { defaultContractSettings } from '@/types/settings';
 import type { ContractSettings, ContractClause } from '@/types/settings';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   ArrowUp,
   ArrowDown,
@@ -40,7 +42,22 @@ export default function ClausulasContractPage() {
   const [settings, setSettings] = useState<ContractSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    let montado = true;
+    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+      .then(([perms, soloLectura]) => {
+        if (!montado) return;
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      })
+      .catch(() => {
+        if (montado) setPuedeBorrar(false);
+      });
+    return () => { montado = false; };
+  }, []);
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
@@ -149,9 +166,11 @@ export default function ClausulasContractPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRestoreDefaults} className="rounded-xl">
-            <RotateCcw className="w-4 h-4 mr-2" /> Restaurar
-          </Button>
+          {puedeBorrar && (
+            <Button variant="outline" size="sm" onClick={handleRestoreDefaults} className="rounded-xl">
+              <RotateCcw className="w-4 h-4 mr-2" /> Restaurar
+            </Button>
+          )}
           <Button size="sm" onClick={handleSave} disabled={isSaving} className="rounded-xl">
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Guardar
@@ -280,9 +299,11 @@ export default function ClausulasContractPage() {
 
       {/* Bottom save bar */}
       <div className="flex justify-end gap-2 pb-8">
-        <Button variant="outline" onClick={handleRestoreDefaults} className="rounded-xl">
-          <RotateCcw className="w-4 h-4 mr-2" /> Restaurar Predeterminados
-        </Button>
+        {puedeBorrar && (
+          <Button variant="outline" onClick={handleRestoreDefaults} className="rounded-xl">
+            <RotateCcw className="w-4 h-4 mr-2" /> Restaurar Predeterminados
+          </Button>
+        )}
         <Button onClick={handleSave} disabled={isSaving} className="rounded-xl">
           {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Guardar Cambios

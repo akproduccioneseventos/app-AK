@@ -50,6 +50,7 @@ const isBebidaInsumo = (insumo: ServicioEmpresa) =>
   insumo.tipoItem === 'Bebida (Insumo)' ||
   insumo.tipoItem === 'Insumo/Ingrediente' ||
   insumo.categoria === 'Bebida (Insumo)' ||
+  (insumo.categoria as string) === 'Bebidas' ||
   insumo.categoria === 'Insumos varios' ||
   insumo.categoria === 'Barra de Tragos';
 
@@ -324,7 +325,6 @@ export default function TragosMasterPage() {
           <GlassWater className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-2xl font-black">Barra de Tragos (Master)</h1>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Módulo maestro independiente y sincronizado</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -345,7 +345,7 @@ export default function TragosMasterPage() {
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2 bg-transparent p-0">
           <TabsTrigger value="catalogo">🍹 Catálogo + Recetas</TabsTrigger>
           <TabsTrigger value="diseno">🖨️ Diseño Carta</TabsTrigger>
-          <TabsTrigger value="stock">📦 Stonk</TabsTrigger>
+          <TabsTrigger value="stock">📦 Stock</TabsTrigger>
           <TabsTrigger value="afinador">🧮 Afinador</TabsTrigger>
         </TabsList>
 
@@ -476,13 +476,16 @@ export default function TragosMasterPage() {
                     <p className="text-sm text-muted-foreground">Sin ingredientes aún.</p>
                   ) : (
                     <div className="space-y-2">
-                      {getRecipe(item).map((ingredient, index) => (
+                      {getRecipe(item).map((ingredient, index) => {
+                        const insumoEncontrado = insumos.find((i) => i.id === ingredient.insumoId);
+                        const insumoExiste = Boolean(insumoEncontrado);
+                        return (
                         <div key={ingredient.id || `${item.id}-${ingredient.insumoId}-${index}`} className="grid grid-cols-12 gap-2 items-center">
                           <div className="col-span-6">
                             <Select
                               value={ingredient.insumoId}
                               onValueChange={(value) => {
-                                const insumo = bebidaInsumos.find((i) => i.id === value);
+                                const insumo = insumos.find((i) => i.id === value) || bebidaInsumos.find((i) => i.id === value);
                                 if (!insumo) return;
                                 updateRecipeIngredient(item.id, index, {
                                   insumoId: insumo.id,
@@ -492,9 +495,21 @@ export default function TragosMasterPage() {
                               }}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecciona un insumo" />
+                                <SelectValue placeholder="Selecciona un insumo">
+                                  {insumoExiste ? insumoEncontrado?.nombre : (ingredient.insumoId ? 'Insumo borrado: elegí otro' : undefined)}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
+                                {!insumoExiste && ingredient.insumoId && (
+                                  <SelectItem value={ingredient.insumoId} className="text-red-500 font-medium">
+                                    Insumo borrado: elegí otro
+                                  </SelectItem>
+                                )}
+                                {insumoExiste && !bebidaInsumos.some((i) => i.id === ingredient.insumoId) && insumoEncontrado && (
+                                  <SelectItem value={insumoEncontrado.id}>
+                                    {insumoEncontrado.nombre}
+                                  </SelectItem>
+                                )}
                                 {bebidaInsumos.map((insumo) => (
                                   <SelectItem key={insumo.id} value={insumo.id}>
                                     {insumo.nombre}
@@ -525,7 +540,8 @@ export default function TragosMasterPage() {
                             </Button>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

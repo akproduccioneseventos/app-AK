@@ -84,7 +84,12 @@ export async function getClientPromotionalPhotoConsent(fiestaId: string): Promis
   authorized: boolean;
   recordedAt?: string;
 }> {
-  if (!(await verifyPortalSession(fiestaId))) throw new Error('Sesión de cliente no autorizada.');
+  const tienePortal = await verifyPortalSession(fiestaId);
+  if (!tienePortal) {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (!sesion.success || !sesion.user) throw new Error('Sesión de cliente no autorizada.');
+  }
   const consents = await import('@/lib/data-service').then(({ readData }) =>
     readData<Record<string, PromotionalPhotoConsent>>(PROMOTIONAL_PHOTO_CONSENTS_FILE, {}));
   const consent = consents[fiestaId];
@@ -252,9 +257,27 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
 }
 
 export async function getFiestaForPortalSession(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-  if (!(await verifyPortalSession(fiestaId))) return null;
+  const tienePortal = await verifyPortalSession(fiestaId);
+  let esEquipoOAuditor = false;
+  if (!tienePortal) {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (sesion.success && sesion.user) {
+      esEquipoOAuditor = true;
+    } else {
+      return null;
+    }
+  } else {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (sesion.success && sesion.user?.perfil === 'auditor') {
+      esEquipoOAuditor = true;
+    }
+  }
+
   const fiesta = await getFiestaByIdRaw(fiestaId);
-  if (!fiesta?.clientPortalSettings?.enabled) return null;
+  if (!fiesta) return null;
+  if (!esEquipoOAuditor && !fiesta?.clientPortalSettings?.enabled) return null;
   return mapFiestaToClientPortal(fiesta);
 }
 

@@ -37,8 +37,13 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
   error?: string;
 }> {
   try {
-    if (!(await verifyPortalSession(fiestaId))) {
-      return { success: false, error: 'Sesión del portal no autorizada.' };
+    const tienePortal = await verifyPortalSession(fiestaId);
+    if (!tienePortal) {
+      const { verifySession } = await import('@/lib/auth/session-token');
+      const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+      if (!sesion.success || !sesion.user) {
+        return { success: false, error: 'Sesión del portal no autorizada.' };
+      }
     }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
