@@ -16466,3 +16466,5 @@ prueba: src/__tests__/salon-cliente-foto-real-y-errores.test.ts
 
 - **03/11/2026, Claude sobre la entrega 262-265:** el ingreso del cliente por celular leía las fiestas como si fueran una sola lista; ahora usa el mismo lector que el resto de la app (sin archivadas ni suspendidas).
 - **03/11/2026, Claude:** la pantalla "¿Quién sos?" (`/entrar`) mandaba al ingreso del equipo porque no figuraba entre las direcciones públicas; ahora sí (sólo muestra los botones; cada uno pide su propia clave o sesión). Y tres pruebas de pantalla nuevas buscaban textos que aparecían dos veces.
+
+- **14/11/2026 — El portal del cliente ya no se abre con el enlace solo.** Decoración, tablero de ideas, contrato y mesas piden la sesión del equipo o la del portal de esa fiesta; sin ninguna, van a la entrada del portal (`src/lib/portal/el-portal-pide-sesion.ts`). Se hizo aparte y primero porque estaba roto en la app publicada (error 41); prueba `el-portal-del-cliente-pide-sesion`.
