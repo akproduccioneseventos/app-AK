@@ -245,6 +245,16 @@ function getDefaultPosition(side: DockSide): DockPosition {
   );
 }
 
+export function filterVisibleMessages<T extends { agentType?: string; fiestaId?: string }>(
+  messages: T[],
+  fiestaId?: string | null,
+): T[] {
+  return messages.filter((m) => {
+    if (fiestaId && m.fiestaId && m.fiestaId !== fiestaId) return false;
+    return true;
+  });
+}
+
 export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -535,11 +545,10 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const suggestedAgent  = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
   const visibleAgents   = useMemo(() => buildVisibleAgents(suggestedAgent, fiestaId), [suggestedAgent, fiestaId]);
   const sessionKey      = useMemo(() => buildSessionKey(activeAgent, pathname || '', fiestaId), [activeAgent, pathname, fiestaId]);
-  const visibleMessages = useMemo(() => messages.filter(m => {
-    if (m.agentType && m.agentType !== activeAgent) return false;
-    if (fiestaId && m.fiestaId && m.fiestaId !== fiestaId) return false;
-    return true;
-  }), [activeAgent, fiestaId, messages]);
+  const visibleMessages = useMemo(
+    () => filterVisibleMessages(messages, fiestaId),
+    [fiestaId, messages],
+  );
 
   const style = AGENT_STYLE[activeAgent];
 

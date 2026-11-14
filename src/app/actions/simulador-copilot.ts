@@ -12,6 +12,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu } from '@/types/catering';
 import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
+import { buildSofiaBusinessContext } from '@/lib/ai/sofia-context';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -273,38 +274,7 @@ export async function chatWithBudgetCopilot(
   }
 
   try {
-    const serviceById = new Map(services.map((service) => [service.id, service]));
-    const paquetesCatalog = (config?.paquetes || []).map((pkg) => ({
-      id: pkg.id,
-      nombre: pkg.nombre,
-      descripcion: pkg.descripcion,
-      recommended: pkg.recommended,
-      serviciosIncluidos: pkg.serviciosIncluidos.map((included) => {
-        const service = serviceById.get(included.id);
-        return {
-          id: included.id,
-          nombre: service?.nombre || 'Servicio sin nombre configurado',
-          esRegalo: Boolean(included.esRegalo),
-          precio: service?.precioVenta || service?.precioPorPersona || service?.precioBase || 0,
-          calculationMethod: service?.calculationMethod,
-        };
-      }),
-    }));
-    const businessContext = JSON.stringify({
-      paquetesCatalog,
-      menusCatalog: config?.menus || [],
-      serviciosCompletos: services.map(s => ({
-        id: s.id,
-        nombre: s.nombre,
-        categoria: s.categoria,
-        precio: s.precioVenta || s.precioPorPersona || s.precioBase || 0,
-        calculationMethod: s.calculationMethod
-      })),
-      cateringMenus: menus.map(m => ({
-        id: m.id,
-        nombre: m.name,
-      }))
-    });
+    const businessContext = buildSofiaBusinessContext(config, services, menus);
 
     const currentStateJson = JSON.stringify(normalizedInput.currentState);
 
@@ -334,18 +304,24 @@ export async function chatWithBudgetCopilot(
     }
 
     // 3. Process check_availability custom tool logic on server side
-    if (output.action?.type === 'check_availability' && output.action.changes?.eventoFecha) {
-      try {
-        const dateCheck = await checkDateAvailability(output.action.changes.eventoFecha);
+    if (output.action?.type === 'check_availability') {
+      const fecha = output.action.changes?.eventoFecha || '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        output.response = 'Para saber si hay lugar, lo confirmamos con la fecha exacta. Decime qué día tenés en mente y lo revisamos.';
+        output.action.type = 'none';
+        output.action.changes = undefined;
+      } else {
+        try {
+          const dateCheck = await checkDateAvailability(fecha);
         if (!dateCheck.isOccupied) {
-          output.response = `¡Buenas noticias! Estuve revisando el calendario y la fecha del ${output.action.changes.eventoFecha} está libre para tu evento. ¿Querés que la guardemos en el simulador?`;
+          output.response = `¡Buenas noticias! Estuve revisando el calendario y la fecha del ${fecha} está libre para tu evento. ¿Querés que la guardemos en el simulador?`;
           output.suggestionPill = {
             label: 'Guardar esta fecha',
-            messageToSubmit: `Sí, guardar fecha ${output.action.changes.eventoFecha}`
+            messageToSubmit: `Sí, guardar fecha ${fecha}`
           };
           output.action.type = 'apply_changes';
         } else {
-          output.response = `Estuve chequeando y la fecha del ${output.action.changes.eventoFecha} ya está ocupada o reservada. ¿Querés probar con otra fecha cercana?`;
+          output.response = `Estuve chequeando y la fecha del ${fecha} ya está ocupada o reservada. ¿Querés probar con otra fecha cercana?`;
           output.action.type = 'none';
           output.action.changes = undefined;
         }
@@ -354,6 +330,7 @@ export async function chatWithBudgetCopilot(
         output.response = `No pude revisar el calendario ahora. Podés seguir armando tu presupuesto y AK te confirma la fecha del ${output.action.changes?.eventoFecha} antes de la reserva.`;
         output.action.type = 'none';
         output.action.changes = undefined;
+      }
       }
     }
 
