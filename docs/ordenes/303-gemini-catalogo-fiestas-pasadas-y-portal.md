@@ -22,7 +22,7 @@ Sale del complemento de la auditoría (catálogo, fiestas pasadas, salón 3D, ac
 
 ## Bloque 1 — El portal de decoración y el moodboard piden la sesión del cliente (P1, quién ve qué)
 
-En `decoracion/page.tsx` y `moodboard/page.tsx`, hacer lo mismo que `[module]/page.tsx`: sin sesión del portal (`verifyPortalSession`)
+En `decoracion/page.tsx`, `moodboard/page.tsx` y `src/app/portal/mesas/page.tsx` (ampliación 14/11, pregunta 139), hacer lo mismo que `[module]/page.tsx`: sin sesión del portal (`verifyPortalSession`)
 ni del equipo, redirigir a `/portal?fiestaId=<id>`. Prueba de navegador: sin sesión, `/portal/<id>/decoracion` no muestra la propuesta.
 
 ## Bloque 2 — Los recuerdos los abre el cliente (P1)
@@ -53,6 +53,7 @@ recuerdos; el catálogo no dice "Cliente 1" y llega a la última diapositiva).
 ```comprobar
 usa: verifyPortalSession en src/app/portal/[fiestaId]/decoracion/page.tsx
 usa: verifyPortalSession en src/app/portal/[fiestaId]/moodboard/page.tsx
+usa: verifyPortalSession en src/app/portal/mesas/page.tsx
 no-usa: Cliente ${idx + 1} en src/app/catalogo/[tipo]/page.tsx
 prueba: tests/e2e/el-portal-y-los-recuerdos-piden-al-cliente.spec.ts
 ```

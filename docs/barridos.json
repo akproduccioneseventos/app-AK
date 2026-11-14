@@ -544,6 +544,38 @@
     "136": {
       "fecha": "2026-11-13",
       "resultado": "Testimonios escritos a mano en src/data/event-catalogs (6 archivos) → orden 297. Las opiniones reales están en src/data/testimonials.json."
+    },
+    "137": {
+      "fecha": "2026-11-14",
+      "resultado": "dedupeImportedEventCopies la usa sólo /eventos; tablero, alertas, calendario, muro, recursos y posteos leen sin limpiar → orden 305, bloque 1 (lectura central)."
+    },
+    "138": {
+      "fecha": "2026-11-14",
+      "resultado": "Un caso: multiagent-widget.tsx (filtro por agentType) → orden 304, bloque 1. Ningún otro chat filtra por pestaña."
+    },
+    "139": {
+      "fecha": "2026-11-14",
+      "resultado": "Sin comprobar la sesión: portal/[fiestaId]/decoracion, portal/[fiestaId]/moodboard, portal/mesas; post-fiesta pide la cuenta del equipo → orden 303 (mesas agregada al bloque 1). portal/page.tsx es la entrada con clave: no cuenta."
+    },
+    "140": {
+      "fecha": "2026-11-14",
+      "resultado": "Sofía (simulador-copilot): disponibilidad, avisos y paquetes → orden 304. El asistente interno no habla con clientes."
+    },
+    "141": {
+      "fecha": "2026-11-14",
+      "resultado": "Buscador público: 'fotocabina' sin resultado → orden 306. No hay otros textos de ejemplo con búsqueda."
+    },
+    "142": {
+      "fecha": "2026-11-14",
+      "resultado": "DEMO en posteos, alertas y contadores → orden 305, bloque 2 (y 301 bloque 6, 302 barrido). La fábrica está en src/lib/experience-ak/demo-fiesta-factory.ts."
+    },
+    "143": {
+      "fecha": "2026-11-14",
+      "resultado": "Contabilidad (ventas totales, flujo de caja, eficiencia) → orden 301 bloque 1 y 305 bloque 4. Tablero de la noche: 'SALDO POR…' sin origen → orden 302 bloque 4."
+    },
+    "144": {
+      "fecha": "2026-11-14",
+      "resultado": "Poner al día usaba la fecha de la fiesta → orden 301 bloque 2. Pagos rápidos, cuotas y facturas ya piden la fecha del cobro."
     }
   },
   "hallazgos": {

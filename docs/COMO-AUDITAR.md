@@ -1699,3 +1699,35 @@ maestro de salones". Son frases escritas para nosotros. Se buscan en las página
 Revisión de escritura de la web, 13/11/2026. Las páginas de servicios mostraban testimonios escritos en el código ("Familia
 Rodríguez", "Empresa Tech S.A."), y la demostración de la IA era la misma foto con un filtro. Se buscan nombres de autor
 escritos a mano en `src/data/` y `src/components/`, y "Antes/Después" que usen el mismo archivo.
+
+### 137. Un arreglo que vive en una sola pantalla, ¿lo necesitan también las otras que muestran lo mismo?
+
+Auditoría de módulos, 13/11/2026. Las copias importadas `fiesta_doc_*` se descartaban sólo en Eventos Activos (`dedupeImportedEventCopies`); el tablero, las alertas, el calendario y los posteos contaban 59 fiestas en vez de 22. Se busca cada función que limpia o filtra una lista y se cuenta quién la llama: si la usa una pantalla y hay otras que leen la misma lista, va en la lectura central.
+
+### 138. Una lista que se filtra por la pestaña activa, ¿esconde lo que acaba de llegar de otra?
+
+Evaluación de Sofía, 13/11/2026. El chat del equipo filtraba los mensajes por el agente elegido; cuando contestaba el especialista de la fiesta, la respuesta quedaba guardada e invisible y parecía que la app no contestaba. Se buscan filtros por agente, pestaña o tipo sobre la conversación en curso.
+
+### 139. Una pantalla del portal del cliente, ¿comprueba la sesión del portal antes de mostrar los datos de la fiesta?
+
+Complemento de auditoría, 13/11/2026. La decoración y el tablero de ideas del portal se abrían con sólo el enlace; los recuerdos, al revés, pedían la cuenta del equipo y el cliente no entraba. Se listan las pantallas de `src/app/portal/`, `src/app/post-fiesta/` y `src/app/portal-*` que leen la fiesta y no llaman a `verifyPortalSession` ni redirigen.
+
+### 140. Lo que promete la IA al cliente (fechas libres, avisos, qué incluye un paquete), ¿lo hace o lo sabe la app?
+
+Evaluación de Sofía, 13/11/2026. Afirmó disponibilidad de un mes sin verificar, prometió avisar si otro consultaba por la fecha (no existe) y cambió el contenido de los paquetes entre mensajes. Se lee el texto de instrucciones de cada IA que habla con clientes y se busca cada promesa en el código.
+
+### 141. Lo que la pantalla sugiere probar (un ejemplo, una búsqueda, un botón de ayuda), ¿da resultado?
+
+Guía de 19 puntos, 14/11/2026. El buscador sugería "fotocabina" y buscarla daba cero resultados. Se toma cada ejemplo de los textos de ayuda y se prueba.
+
+### 142. Una fiesta de demostración, ¿se cuenta, se avisa o se publica como si fuera real?
+
+Auditorías del 13/11/2026. "DEMO AK - XV Martina" aparecía en los totales, en las alertas de seña y en un borrador de Instagram de agradecimiento. Se busca dónde se recorre la lista de fiestas para sumar, avisar o publicar, y se mira si excluye las de demostración.
+
+### 143. La etiqueta de un número de plata, ¿dice lo que de verdad suma?
+
+Auditoría de contabilidad, 13/11/2026. "Ventas totales — Suma de todas las facturas generadas" sumaba presupuestos aceptados; "Cobros pendientes" era una proyección; "Eficiencia 100%" con costos en $0. Se lee cada tarjeta con un importe y se compara su texto con la cuenta que la arma.
+
+### 144. Un cobro que se anota desde una pantalla de carga rápida, ¿guarda la fecha y el medio en que se cobró?
+
+Auditoría de contabilidad, 13/11/2026. "Poner al día" anotaba el cobro con la fecha de la fiesta y traía todo marcado. Se buscan los lugares que crean un pago y se mira de dónde sale la fecha.

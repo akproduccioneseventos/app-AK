@@ -102,6 +102,13 @@ const FORMAS = [
     buscar: /===\s*'[^']+'\s*\|\|\s*\w+\.is[A-Z]\w*/g,
     comoSeArregla: 'Calcular el campo sólo del valor nuevo; si el valor nuevo no vino, conservar los dos campos juntos.',
   },
+  {
+    pregunta: 138,
+    nombre: 'La conversación filtrada por la pestaña activa',
+    porque: 'El chat del equipo escondía la respuesta del especialista porque filtraba por el agente elegido (evaluación de Sofía, 13/11/2026).',
+    buscar: /\.agentType\s*&&\s*\w+\.agentType\s*!==\s*active\w*/g,
+    comoSeArregla: 'Mostrar en la conversación en curso todo lo que llega, con el nombre de quien contestó.',
+  },
 ];
 
 /**
@@ -109,6 +116,13 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  143: 'Etiquetas de plata que dicen otra cosa: prueba la-contabilidad-dice-lo-que-cuenta (orden 301).',
+  144: 'Cobros con la fecha real: tests/firebase/poner-al-dia-guarda-la-fecha-real.test.ts (orden 301) y poner-al-dia-no-marca-cobros-solo.',
+  137: 'Lo que se limpia en una pantalla y no en las otras: prueba cada-fiesta-se-cuenta-una-vez (orden 305), con la lectura central en getFiestas.',
+  139: 'Pantallas del portal sin sesión: prueba el-portal-y-los-recuerdos-piden-al-cliente (orden 303), que recorre decoración, moodboard, mesas y recuerdos.',
+  140: 'Promesas de la IA: prueba sofia-no-improvisa-paquetes-ni-fechas (orden 304).',
+  141: 'Ejemplos que no dan resultado: prueba el-buscador-encuentra-lo-que-sugiere (orden 306).',
+  142: 'Demostraciones contadas como reales: prueba cada-fiesta-se-cuenta-una-vez (orden 305, bloque 2).',
   117: 'Las fechas que salen a Google Calendar o a un .ics: prueba de la orden 285 (calendar-links con ctz).',
   118: 'Botones que arman enlaces con un dato guardado: el recorrido de pantallas abre cada destino.',
   119: 'Pantallas de estado que dicen "listo": prueba el-control-del-respaldo-mira-si-anda (orden 286).',
