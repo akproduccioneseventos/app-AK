@@ -1731,3 +1731,7 @@ Auditoría de contabilidad, 13/11/2026. "Ventas totales — Suma de todas las fa
 ### 144. Un cobro que se anota desde una pantalla de carga rápida, ¿guarda la fecha y el medio en que se cobró?
 
 Auditoría de contabilidad, 13/11/2026. "Poner al día" anotaba el cobro con la fecha de la fiesta y traía todo marcado. Se buscan los lugares que crean un pago y se mira de dónde sale la fecha.
+
+### 145. Lo que la app dice que reemplaza un servicio pago, ¿hace lo central de ese servicio?
+
+Pedido del dueño, 14/11/2026. La orden 280 daba por reemplazado Aftershoot, pero el AK Editor sólo armaba tres ajustes guardados y no editaba cada foto, que es lo que el dueño paga. Se busca qué hace el servicio (en su página), se lista lo central, y se mira en el código que cada punto exista y se llame.

@@ -116,6 +116,7 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  145: 'Reemplazos de servicios pagos: pruebas test_fotos_edita_cada_foto y test_fotos_cara_principal (orden 307).',
   143: 'Etiquetas de plata que dicen otra cosa: prueba la-contabilidad-dice-lo-que-cuenta (orden 301).',
   144: 'Cobros con la fecha real: tests/firebase/poner-al-dia-guarda-la-fecha-real.test.ts (orden 301) y poner-al-dia-no-marca-cobros-solo.',
   137: 'Lo que se limpia en una pantalla y no en las otras: prueba cada-fiesta-se-cuenta-una-vez (orden 305), con la lectura central en getFiestas.',

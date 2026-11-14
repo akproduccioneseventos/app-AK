@@ -49,6 +49,7 @@ const CADA_CUANTO = {
   recordar_invitacion: 24 * 60 * 60 * 1000,
   recordatorio_invitados: 24 * 60 * 60 * 1000,
   asistente_proactivo: 60 * 60 * 1000,
+  muestra_auditor: 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -65,6 +66,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   recordar_invitacion: 'recordar-invitacion-no-abierta',
   recordatorio_invitados: 'recordatorio-a-los-invitados',
   asistente_proactivo: 'asistente-proactivo',
+  muestra_auditor: 'fiesta-muestra-auditor',
 };
 
 interface EstadoDeTareas {
@@ -284,6 +286,42 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { ejecutarAgentesAutonomos } = await import('@/lib/agentes/motor-agentes');
           return ejecutarAgentesAutonomos(ahora);
+        },
+      },
+      {
+        nombre: 'muestra_auditor',
+        correr: async () => {
+          const { esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
+          if (await esSesionDeSoloLectura()) {
+            return { omitido: 'auditor_no_escribe' };
+          }
+          const { readData: readFiestas, writeData: writeFiestas } = await import('@/lib/data-service');
+          const fiestas = await readFiestas<any[]>('fiestas.json', []);
+          const idMuestra = 'fiesta_muestra_auditor';
+          const existe = fiestas.some((f) => f.id === idMuestra);
+          if (!existe) {
+            const { buildAkDemoFiesta } = await import('@/lib/experience-ak/demo-fiesta-factory');
+            const demo = buildAkDemoFiesta('xv');
+            demo.id = idMuestra;
+            demo.esMuestra = true;
+            const fechaFutura = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            demo.configuracion.fechaEvento = fechaFutura;
+            demo.clientPortalSettings = {
+              ...(demo.clientPortalSettings || {}),
+              enabled: true,
+              accessKey: 'muestra-auditor-key-fija',
+            } as any;
+            if (Array.isArray(demo.invitados)) {
+              demo.invitados = demo.invitados.map((inv: any, idx: number) => ({
+                ...inv,
+                guestAccessToken: inv.guestAccessToken || `token-muestra-${idx + 1}`,
+              }));
+            }
+            fiestas.push(demo);
+            await writeFiestas('fiestas.json', fiestas);
+            return { creada: idMuestra };
+          }
+          return { yaExiste: true };
         },
       },
     ];
