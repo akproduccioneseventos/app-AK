@@ -45,3 +45,12 @@ export async function getUsuarioActual(): Promise<{ usuario: SessionUserData | n
     return { usuario: null };
   }
 }
+
+/**
+ * Dice si la sesión actual es de sólo lectura (perfil auditor externo).
+ */
+export async function esSesionDeSoloLectura(): Promise<boolean> {
+  const { esSesionDeSoloLectura: check } = await import('@/lib/auth/solo-lectura');
+  return check();
+}
+
