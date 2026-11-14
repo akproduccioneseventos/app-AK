@@ -576,6 +576,10 @@
     "144": {
       "fecha": "2026-11-14",
       "resultado": "Poner al día usaba la fecha de la fiesta → orden 301 bloque 2. Pagos rápidos, cuotas y facturas ya piden la fecha del cobro."
+    },
+    "145": {
+      "fecha": "2026-11-14",
+      "resultado": "Aftershoot: falta editar cada foto, cara principal y antes/después → orden 307. Otros reemplazos declarados (Filmora, Wfolio) ya tienen su medición en MEDICION.md y WFOLIO.md."
     }
   },
   "hallazgos": {
@@ -930,6 +934,10 @@
     "orden-306": {
       "fecha": "2026-11-14",
       "resultado": "Guía de 19 puntos: el buscador público sugiere 'fotocabina' y no la encuentra (sólo indexa blog y catálogos) → orden 306. Lo demás es carga de datos o ya está en las órdenes 299-305."
+    },
+    "orden-307": {
+      "fecha": "2026-11-14",
+      "resultado": "Comparación con Aftershoot (página oficial y reseñas): el modo Fotos no edita cada foto, califica 5/0, sin cara principal ni antes/después → orden 307."
     }
   }
 }

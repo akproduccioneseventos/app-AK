@@ -281,3 +281,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 113. **¿Sumás, avisás o publicás sobre todas las fiestas?** Dejá afuera las de demostración.
 114. **¿Mostrás un importe con un título?** Que el título diga exactamente lo que suma la cuenta.
 115. **¿Tu pantalla anota un cobro?** Que guarde la fecha y el medio en que se cobró, no la fecha de la fiesta.
+116. **¿Lo tuyo reemplaza un servicio pago?** Listá lo central de ese servicio y comprobá cada punto, no sólo el nombre.
