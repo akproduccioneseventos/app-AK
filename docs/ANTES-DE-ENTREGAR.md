@@ -273,3 +273,11 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 105. **¿Tu cambio genera un archivo al compilar?** Que llegue también al paquete que se publica (`.next/standalone`), no sólo a `public/`.
 106. **¿Escribiste un texto que ve el cliente?** Que no cuente cómo se hizo ni quién lo decidió: nada de "del dueño", "módulo maestro", "por confirmar" ni "sin inventar".
 107. **¿Mostrás una opinión, una cifra o un "antes y después"?** Que salga de algo real; si es de ejemplo, que diga "Ilustración".
+108. **¿Arreglaste una lista en una pantalla?** Buscá quién más muestra esa lista: el arreglo va donde se lee, no en la pantalla.
+109. **¿Filtrás una conversación o una lista por pestaña?** Que lo que acaba de llegar se vea aunque sea de otra pestaña.
+110. **¿Tocaste una pantalla del portal del cliente?** Que pida la sesión del portal antes de mostrar nada, y que el cliente con su sesión sí entre.
+111. **¿La IA le promete algo al cliente?** Que exista en la app; si no, que diga "lo confirmamos".
+112. **¿La pantalla sugiere un ejemplo?** Probalo: tiene que dar resultado.
+113. **¿Sumás, avisás o publicás sobre todas las fiestas?** Dejá afuera las de demostración.
+114. **¿Mostrás un importe con un título?** Que el título diga exactamente lo que suma la cuenta.
+115. **¿Tu pantalla anota un cobro?** Que guarde la fecha y el medio en que se cobró, no la fecha de la fiesta.
