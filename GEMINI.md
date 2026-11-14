@@ -27,6 +27,10 @@
   se comprobó). También `tests/e2e/el-menu-lleva-a-elegir-fiesta.spec.ts` no encuentra el enlace (nunca se corrió), y la entrega subía
   datos de corrida (`data/notifications.json`, `data/asistente-historial-aceptaciones.json`, `src/data/notifications.json`): no se suben nunca.
   Arreglalo en la misma rama, corré esas dos pruebas solas, y juntá todo con la 1406 en **una** propuesta.
+- **De la 1419 (orden 308)** Claude publicó lo que pasó y devuelve: las dos pruebas de navegador del auditor
+  (`lo-que-borra-no-se-ve-para-el-auditor`, `el-contrato-abre-con-la-sesion-del-equipo`) caen al ingreso: `ponerSesionDeAuditor` no deja una
+  sesión válida (probalo solo antes de entregar), y el cambio de `src/app/(app)/settings/datos/page.tsx`, que vuelve junto con su prueba.
+  Ojo: Claude cerró que el personal y el operador vieran el contrato y los pagos del cliente (`puedeVerLaPlataDelCliente`): no lo saques.
 - **Una sola propuesta.** No abras una por orden: cada fusión se paga.
 - **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 118.
 
