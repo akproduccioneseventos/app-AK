@@ -112,7 +112,7 @@ function PresupuestoDashboardContent() {
         if (repairDatesRanRef.current) return;
         repairDatesRanRef.current = true;
 
-        repairVerifiedBudgetDates()
+        repairVerifiedBudgetDates('presupuestos-nuevo-bg')
             .then((res) => {
                 if (!res.success && res.error) {
                     toast({

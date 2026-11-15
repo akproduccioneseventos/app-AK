@@ -143,7 +143,7 @@ export async function getPresupuestosConTotal(includeArchived = false): Promise<
   };
 }
 
-export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; changedCount: number; error?: string }> {
+export async function repairVerifiedBudgetDates(_origen?: string): Promise<{ success: boolean; changedCount: number; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
   if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, changedCount: 0, error: 'Tu perfil no puede corregir presupuestos.' };

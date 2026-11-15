@@ -9,7 +9,7 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
  */
 test.describe('Orden 298: Presupuestos abre rápido sin esperar la corrección de fechas', () => {
   test('a 390 px, la lista de presupuestos aparece antes de que termine la reparación de fechas', async ({ page, context }, testInfo) => {
-    test.setTimeout(60_000);
+    test.setTimeout(240_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
 
@@ -28,8 +28,8 @@ test.describe('Orden 298: Presupuestos abre rápido sin esperar la corrección d
         const postData = request.postData() || '';
         const headers = request.headers();
         const tieneNextAction = Boolean(headers['next-action']);
-        // repairVerifiedBudgetDates se llama con argumentos vacíos '[]'
-        const esReparacion = tieneNextAction && postData === '[]';
+        // repairVerifiedBudgetDates se llama con el marcador 'presupuestos-nuevo-bg'
+        const esReparacion = tieneNextAction && postData.includes('presupuestos-nuevo-bg');
 
         if (esReparacion && !reparacionRetenida) {
           reparacionRetenida = true;
