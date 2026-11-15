@@ -9,20 +9,43 @@ function eventDateValue(fiesta: FiestaEnPlanificacion, fallback: number): number
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
+function tienePlataCargada(fiesta: FiestaEnPlanificacion): boolean {
+  const f = fiesta as any;
+  if (Array.isArray(f.pagos) && f.pagos.length > 0) return true;
+  if (Array.isArray(f.presupuesto?.pagos) && f.presupuesto.pagos.length > 0) return true;
+  if (Number(f.resumenPagos?.totalPagado) > 0 || Number(f.resumenPagos?.seniaPagada) > 0) return true;
+  if (Array.isArray(f.planPagos) && f.planPagos.some((c: any) => c?.estado === 'pagada' || Number(c?.montoPagado) > 0)) {
+    return true;
+  }
+  return false;
+}
+
 export function dedupeImportedEventCopies(
   fiestas: FiestaEnPlanificacion[],
-): FiestaEnPlanificacion[] {
-  const verifiedClients = new Set(
-    fiestas.flatMap(fiesta => {
-      const match = fiesta.id.match(IMPORTED_EVENT_ID);
-      return match?.[1] === 'verified' ? [match[2]] : [];
-    }),
-  );
-
-  return fiestas.filter(fiesta => {
+): Array<FiestaEnPlanificacion & { revisarDuplicado?: boolean }> {
+  const verifiedByClient = new Map<string, FiestaEnPlanificacion[]>();
+  for (const fiesta of fiestas) {
     const match = fiesta.id.match(IMPORTED_EVENT_ID);
-    if (match?.[1] !== 'doc') return true;
-    return !verifiedClients.has(match[2]);
+    if (match?.[1] === 'verified') {
+      const list = verifiedByClient.get(match[2]) || [];
+      list.push(fiesta);
+      verifiedByClient.set(match[2], list);
+    }
+  }
+
+  return fiestas.flatMap((fiesta) => {
+    const match = fiesta.id.match(IMPORTED_EVENT_ID);
+    if (match?.[1] !== 'doc') return [fiesta];
+    const verifiedList = verifiedByClient.get(match[2]);
+    if (!verifiedList || verifiedList.length === 0) return [fiesta];
+
+    const fechaDoc = fiesta.configuracion?.fechaEvento || '';
+    const mismaFecha = verifiedList.some((v) => (v.configuracion?.fechaEvento || '') === fechaDoc);
+
+    if (tienePlataCargada(fiesta) || !mismaFecha) {
+      return [{ ...fiesta, revisarDuplicado: true }];
+    }
+    return [];
   });
 }
 

@@ -133,10 +133,12 @@ export default function FlujoCajaProyectadoPage() {
                                 {data.length > 0 ? data.reduce((prev, curr) => (prev.balance > curr.balance) ? prev : curr).month : 'N/A'}
                             </span>
                         </div>
+                        {stats.totalExpenses > 0 && (
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-400">Eficiencia Operativa:</span>
                             <span className="font-bold">{stats.totalIncome > 0 ? ((stats.netBalance / stats.totalIncome) * 100).toFixed(1) + '%' : 'N/A'}</span>
                         </div>
+                        )}
                     </div>
                 </CardContent>
                 <CardFooter className="bg-white/5 py-4 justify-center">

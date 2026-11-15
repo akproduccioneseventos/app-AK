@@ -26,6 +26,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -61,18 +63,37 @@ function PresupuestoDashboardContent() {
     const [showArchived, setShowArchived] = useState(false);
     const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
     const [sortMode, setSortMode] = useState<DashboardSortMode>('smart');
+    const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+    useEffect(() => {
+        let montado = true;
+        Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+            .then(([perms, soloLectura]) => {
+                if (!montado) return;
+                const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+                setPuedeBorrar(tieneAdmin && !soloLectura);
+            })
+            .catch(() => {
+                if (montado) setPuedeBorrar(false);
+            });
+        return () => { montado = false; };
+    }, []);
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
         try {
-            const repairResult = await withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas');
-            if (!repairResult.success) {
-                toast({
-                    title: 'No se pudieron corregir las fechas importadas',
-                    description: repairResult.error,
-                    variant: 'destructive',
-                });
-            }
+            // La corrección de fechas corre de fondo: la lista se muestra sin esperarla (pregunta 124).
+            void withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas')
+                .then((repairResult) => {
+                    if (!repairResult.success) {
+                        toast({
+                            title: 'No se pudieron corregir las fechas importadas',
+                            description: repairResult.error,
+                            variant: 'destructive',
+                        });
+                    }
+                })
+                .catch(() => { /* no pasa nada si falla: la lista ya se mostró y el aviso de error no hace falta */ });
 
             const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
             const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
@@ -189,28 +210,30 @@ function PresupuestoDashboardContent() {
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
                   <Button asChild><Link href={crearHref} data-testid="btn-nuevo-presupuesto"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>
-                        {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                        🗑️ Borrar todos
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleResetAllPresupuestos} className="bg-destructive hover:bg-destructive/90">
-                          Sí, borrar todos permanentemente
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    {puedeBorrar && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                        <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>
+                          {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                          🗑️ Borrar todos
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleResetAllPresupuestos} className="bg-destructive hover:bg-destructive/90">
+                            Sí, borrar todos permanentemente
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    )}
                   <Button asChild variant="outline"><Link href="/empresa/contabilidad">Volver</Link></Button>
                 </div>
             </div>

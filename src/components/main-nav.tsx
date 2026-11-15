@@ -127,8 +127,8 @@ export const navGroups: NavGroup[] = [
       { title: "Muro Social", href: "/empresa/red-social-eventos", icon: Camera },
       { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
       { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
-      { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
-      { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
+      { title: "Alergias y Dietas", href: "/eventos", icon: Wheat },
+      { title: "Portal de Proveedores", href: "/eventos", icon: HardHat },
       { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2, permiso: PERMISOS.ORGANIZACION },
       { title: "Edición de Videos", href: "/edicion-videos", icon: Video, permiso: PERMISOS.ADMINISTRACION },
     ],
@@ -319,7 +319,7 @@ export function MainNav() {
                     if (item.subgroup) lastSubgroup = item.subgroup;
 
                     return (
-                      <React.Fragment key={item.href}>
+                      <React.Fragment key={`${item.href}-${item.title}`}>
                         {showSubgroupHeader && (
                           <div className="pt-2 pb-1 px-3 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />

@@ -461,7 +461,7 @@ function SimuladorAKContent() {
           ]);
           return;
         }
-        shouldReAskPhone = true;
+        shouldReAskPhone = false;
         nextStep = 'phone';
         changesToApply.currentChatStep = 'phone';
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   Accordion,
   AccordionContent,
@@ -121,6 +123,21 @@ export default function CrmPage() {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [newFiestaId, setNewFiestaId] = useState<string | null>(null);
   const [isResettingCrm, setIsResettingCrm] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+  useEffect(() => {
+    let montado = true;
+    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+      .then(([perms, soloLectura]) => {
+        if (!montado) return;
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      })
+      .catch(() => {
+        if (montado) setPuedeBorrar(false);
+      });
+    return () => { montado = false; };
+  }, []);
 
   // Search + Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -391,28 +408,30 @@ export default function CrmPage() {
                 Nuevo Prospecto
               </Button>
             )}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="flex-1 sm:flex-none h-11 text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingCrm}>
-                  {isResettingCrm ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
-                  Reiniciar CRM
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Reiniciar el CRM?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción eliminará <strong>todos los prospectos</strong> del CRM de forma permanente. Las etapas se conservarán. Esta operación no se puede deshacer.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleResetCrm} className="bg-destructive hover:bg-destructive/90">
-                    Sí, reiniciar CRM
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {puedeBorrar && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="flex-1 sm:flex-none h-11 text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingCrm}>
+                    {isResettingCrm ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                    Reiniciar CRM
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Reiniciar el CRM?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción eliminará <strong>todos los prospectos</strong> del CRM de forma permanente. Las etapas se conservarán. Esta operación no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetCrm} className="bg-destructive hover:bg-destructive/90">
+                      Sí, reiniciar CRM
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             <Button asChild variant="outline" className="w-full h-11"><Link href="/empresa/contabilidad" className="flex-1 sm:flex-none"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
           </div>
         </div>

@@ -84,7 +84,12 @@ export async function getClientPromotionalPhotoConsent(fiestaId: string): Promis
   authorized: boolean;
   recordedAt?: string;
 }> {
-  if (!(await verifyPortalSession(fiestaId))) throw new Error('Sesión de cliente no autorizada.');
+  const tienePortal = await verifyPortalSession(fiestaId);
+  if (!tienePortal) {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (!sesion.success || !sesion.user || !(await puedeVerLaPlataDelCliente(sesion.user.perfil))) throw new Error('Sesión de cliente no autorizada.');
+  }
   const consents = await import('@/lib/data-service').then(({ readData }) =>
     readData<Record<string, PromotionalPhotoConsent>>(PROMOTIONAL_PHOTO_CONSENTS_FILE, {}));
   const consent = consents[fiestaId];
@@ -252,9 +257,27 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
 }
 
 export async function getFiestaForPortalSession(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-  if (!(await verifyPortalSession(fiestaId))) return null;
+  const tienePortal = await verifyPortalSession(fiestaId);
+  let esEquipoOAuditor = false;
+  if (!tienePortal) {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (sesion.success && sesion.user && (await puedeVerLaPlataDelCliente(sesion.user.perfil))) {
+      esEquipoOAuditor = true;
+    } else {
+      return null;
+    }
+  } else {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => ({ success: false, user: undefined }));
+    if (sesion.success && sesion.user?.perfil === 'auditor') {
+      esEquipoOAuditor = true;
+    }
+  }
+
   const fiesta = await getFiestaByIdRaw(fiestaId);
-  if (!fiesta?.clientPortalSettings?.enabled) return null;
+  if (!fiesta) return null;
+  if (!esEquipoOAuditor && !fiesta?.clientPortalSettings?.enabled) return null;
   return mapFiestaToClientPortal(fiesta);
 }
 
@@ -2204,3 +2227,10 @@ export async function resumenDeLaFiestaParaElCliente(
   return { success: true, data: resultado };
 }
 
+/** El equipo entra al portal del cliente sólo si su perfil ve la plata del cliente (dueño, secretaria, auditor): el
+ *  personal y el operador de la noche no ven contrato ni pagos (Claude, revisión de la 1419, 14/11/2026). */
+async function puedeVerLaPlataDelCliente(perfil: unknown): Promise<boolean> {
+  const { PERMISOS, PERMISOS_POR_PERFIL } = await import('@/lib/auth/perfiles');
+  const permisos = (PERMISOS_POR_PERFIL as Record<string, readonly string[]>)[String(perfil || '')] || [];
+  return permisos.includes(PERMISOS.CONTABILIDAD);
+}
