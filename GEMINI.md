@@ -2,28 +2,20 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 14/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 15/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Publicadas:** tus entregas 1408 (órdenes 299 a 302) y 1413 (orden 303). Claude resolvió los choques: el control de sesión del
-  portal quedó en `src/lib/portal/el-portal-pide-sesion.ts` (no lo toques).
-- **Devuelta: la 1406 (órdenes 284 a 298).** Con ella puesta fallan, en la corrida completa:
-  1. `tests/e2e/la-app-ordenada.spec.ts` (celular y escritorio): **la ficha de la fiesta sigue sin las 5 pestañas** (orden 298, bloque 9). Era lo urgente y no se arregló.
-  2. `tests/e2e/la-portada-nueva.spec.ts`.
-  3. `tests/e2e/el-catalogo-lleva-lo-elegido-al-simulador.spec.ts`.
-  4. `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts` (dos toques generan un solo pedido).
-  5. `tests/e2e/presupuestos-abre-rapido.spec.ts` sigue fallando en la línea 47 (segunda vez).
-  Además, el `public/descargas/ak-editor.zip` no estaba rearmado: corré `npm run editor:empaquetar` cuando toques el editor.
-- **Qué hacer:** en tu rama `gemini/ordenes-297-298`, fusioná `origin/main` y arreglá esos cinco. Corré cada prueba sola antes de
-  entregar (`npx playwright test <archivo>`). Después, en la **misma** propuesta: órdenes **304** (Sofía y el asistente), **305** (cada fiesta
-  se cuenta una vez), **306** (buscador) y **307** (el modo Fotos edita como Aftershoot), y **308** (lo que encontró la reauditoría).
+- **Tu 1406 (head `6df74926`) casi pasa: compila, 6071 pruebas en verde y la plata está bien.** Faltan dos cosas:
+  1. `tests/e2e/presupuestos-abre-rapido.spec.ts` falla por **tercera vez** (se agota el tiempo). **La falla es de la prueba:**
+     retiene *toda* acción del servidor cuyo cuerpo es `'[]'`, y la que carga la lista (`getPresupuestosConTotal()` sin
+     argumentos) también manda `'[]'`, así que la lista nunca llega. Retené sólo la reparación (por ejemplo, pasale a
+     `repairVerifiedBudgetDates` un argumento propio y retené ese cuerpo). Corré la prueba sola dos veces en verde antes de entregar.
+  2. `public/descargas/ak-editor.zip` desactualizado: `npm run editor:empaquetar`. Y no subas `data/notifications.json`,
+     `data/asistente-historial-aceptaciones.json` ni `src/data/notifications.json` (dejalos como en `origin/main`).
 - **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**
   1. **Borrar las dos fiestas de Lorena Ferreira** (`fiesta_doc_lorena_ferreira_2026_05_30` y `fiesta_verified_lorena_ferreira_2026_12_12`): se suspendió.
-     Si alguna tiene seña o cuotas cobradas, **no la borres**: dejá anotado en tu entrega cuánto y avisá. No le mandes nada a la clienta.
-  2. **Desplegar el despertador de las tareas automáticas** (`firebase deploy --only functions:despertadorTareasAutomaticas`): la pantalla dice
-     que nunca tocó la puerta. Después, la orden 278 bloque 1 (la clave), en el orden que dice ahí.
-  3. La fiesta de Soraya Texeira es la del **21/8/2027**; la copia del 4/3/2028 es vieja (la saca la orden 305).
-- **Corrección de Claude (15/11):** la falla de `orden-255-plan-real-bandeja` **no era tuya**: era basura de corrida en la máquina de Claude. Tus 1417 y 1419 se publican juntas con los arreglos de Claude.
-- **Queda de la 308:** las dos pruebas del auditor (`ponerSesionDeAuditor` no deja una sesión válida) y el cambio de `src/app/(app)/settings/datos/page.tsx` con su prueba. No saques `puedeVerLaPlataDelCliente` (el personal no ve contrato ni pagos).
+     Si alguna tiene seña o cuotas cobradas, **no la borres**: anotá cuánto y avisá. No le mandes nada a la clienta.
+  2. **Desplegar el despertador** (`firebase deploy --only functions:despertadorTareasAutomaticas`) y la orden 278 bloque 1.
+- No saques `puedeVerLaPlataDelCliente` (el personal no ve contrato ni pagos).
 - **Una sola propuesta.** No abras una por orden: cada fusión se paga.
 - **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 118.
 
