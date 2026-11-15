@@ -77,7 +77,12 @@ const noTrackeados = statusLines
   .map((l) => l.slice(3).trim());
 
 const aRestaurar = ESCRITOS_POR_LA_CORRIDA.filter((f) => modificados.includes(f));
-const aBorrar = ESCRITOS_POR_LA_CORRIDA.filter((f) => noTrackeados.includes(f));
+// Los ignorados por .gitignore no salen en `git status`, y se acumulaban corrida tras corrida: el 14/11/2026
+// data/scheduled-messages.json llegó a 2000 mensajes y el Centro de Control medía 700.000 px de alto, así que
+// la prueba de aprobar un plan fallaba y se le echó la culpa a dos entregas que estaban bien. Se borra todo
+// archivo de la lista que exista en el disco y no esté guardado en git.
+const guardadosEnGit = new Set(execFileSync('git', ['ls-files', '--', ...ESCRITOS_POR_LA_CORRIDA], { encoding: 'utf8' }).split('\n').filter(Boolean));
+const aBorrar = ESCRITOS_POR_LA_CORRIDA.filter((f) => noTrackeados.includes(f) || (!guardadosEnGit.has(f) && existsSync(f)));
 
 if (aRestaurar.length === 0 && aBorrar.length === 0) {
   console.log('Nada que limpiar: no quedaron datos de la corrida.');

@@ -22,18 +22,8 @@
   2. **Desplegar el despertador de las tareas automáticas** (`firebase deploy --only functions:despertadorTareasAutomaticas`): la pantalla dice
      que nunca tocó la puerta. Después, la orden 278 bloque 1 (la clave), en el orden que dice ahí.
   3. La fiesta de Soraya Texeira es la del **21/8/2027**; la copia del 4/3/2028 es vieja (la saca la orden 305).
-- **Devuelta también la 1417 (órdenes 304 a 306), 14/11:** con ella puesta falla
-  `tests/e2e/orden-255-plan-real-bandeja.spec.ts` (en el Centro de Control, aprobar el plan; antes pasaba en la versión principal, ya
-  se comprobó). También `tests/e2e/el-menu-lleva-a-elegir-fiesta.spec.ts` no encuentra el enlace (nunca se corrió), y la entrega subía
-  datos de corrida (`data/notifications.json`, `data/asistente-historial-aceptaciones.json`, `src/data/notifications.json`): no se suben nunca.
-  Arreglalo en la misma rama, corré esas dos pruebas solas, y juntá todo con la 1406 en **una** propuesta.
-- **Devuelta la 1419 (orden 308), 14/11.** Claude dejó tu entrega revisada en la rama `claude/orden-308-revisada`
-  (arrancá de ahí): cerró que el personal y el operador vieran el contrato y los pagos del cliente (`puedeVerLaPlataDelCliente`, no lo
-  saques) y la espera de Presupuestos. Falta:
-  1. Con la entrega puesta falla `tests/e2e/orden-255-plan-real-bandeja.spec.ts` (aprobar el plan en el Centro de Control); en la
-     versión principal pasa. Lo mismo pasó con la 1417: buscá qué tienen en común.
-  2. Las dos pruebas del auditor caen al ingreso: `ponerSesionDeAuditor` no deja una sesión válida. Probalas solas.
-  3. El cambio de `src/app/(app)/settings/datos/page.tsx` vuelve con su prueba.
+- **Corrección de Claude (15/11):** la falla de `orden-255-plan-real-bandeja` **no era tuya**: era basura de corrida en la máquina de Claude. Tus 1417 y 1419 se publican juntas con los arreglos de Claude.
+- **Queda de la 308:** las dos pruebas del auditor (`ponerSesionDeAuditor` no deja una sesión válida) y el cambio de `src/app/(app)/settings/datos/page.tsx` con su prueba. No saques `puedeVerLaPlataDelCliente` (el personal no ve contrato ni pagos).
 - **Una sola propuesta.** No abras una por orden: cada fusión se paga.
 - **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 118.
 

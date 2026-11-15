@@ -1261,6 +1261,17 @@ bien apareció un caso más (la pantalla de mesas del portal sin sesión).
 **Qué se hace distinto:** cada forma nueva de un informe lleva su pregunta propia (137 a 144), su búsqueda o la prueba que la cubre,
 y su línea en `barridos.json`. "→ pregunta 4" sólo vale si la forma es exactamente esa.
 
+### 54. Devolverle a Gemini dos entregas por una falla que era de mi máquina de pruebas
+
+**Pasó el 14 de noviembre de 2026.** La prueba de aprobar un plan en el Centro de Control fallaba con la 1417 y la 1419, y dije
+que las entregas la rompían. Era un archivo de datos de corrida (`data/scheduled-messages.json`) ignorado por git que
+`limpiar:corrida` nunca borraba: tenía 2000 mensajes y la pantalla medía 700.000 píxeles de alto.
+
+**Qué era lo cierto:** "en la principal pasa" lo medí en una carpeta limpia y la entrega en la carpeta sucia. No era la misma prueba.
+
+**Qué se hace distinto:** antes de culpar a una entrega, se compara en las mismas condiciones; y `limpiar:corrida` ahora borra
+también los archivos de la lista que git ignora (`scripts/limpiar-corrida.mjs`).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -2012,6 +2023,7 @@ con otra cara.
 | El asistente del equipo daba error al auditor porque anotar el gasto tumbaba la respuesta | `src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts` |
 | El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
 | El portal del cliente (decoración, ideas, mesas) se abría con sólo el enlace | `src/__tests__/el-portal-del-cliente-pide-sesion.test.ts` |
+| Los datos de corrida ignorados por git se acumulaban y rompían pruebas que estaban bien | `scripts/limpiar-corrida.mjs` borra también lo ignorado |
 
 ### Cómo se elige el matafuego
 
