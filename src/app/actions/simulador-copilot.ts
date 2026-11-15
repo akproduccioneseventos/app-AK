@@ -12,7 +12,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu } from '@/types/catering';
 import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
-import { buildSofiaBusinessContext } from '@/lib/ai/sofia-context';
+import { buildPaquetesCatalog, buildSofiaBusinessContext } from '@/lib/ai/sofia-context';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { detalleDePaquetes } from '@/lib/simulador/detalle-de-paquetes';
@@ -278,6 +278,7 @@ export async function chatWithBudgetCopilot(
   }
 
   try {
+    const paquetesCatalog = buildPaquetesCatalog(config, services);
     const businessContext = buildSofiaBusinessContext(config, services, menus);
 
     const currentStateJson = JSON.stringify(normalizedInput.currentState);

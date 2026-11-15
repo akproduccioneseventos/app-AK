@@ -2,13 +2,12 @@ import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu } from '@/types/catering';
 
-export function buildSofiaBusinessContext(
+export function buildPaquetesCatalog(
   config: ArmadoRapidoConfig | null,
   services: ServicioEmpresa[],
-  menus: FullMenu[],
-): string {
+) {
   const serviceById = new Map(services.map((service) => [service.id, service]));
-  const paquetesCatalog = (config?.paquetes || []).map((pkg) => ({
+  return (config?.paquetes || []).map((pkg) => ({
     id: pkg.id,
     nombre: pkg.nombre,
     descripcion: pkg.descripcion,
@@ -24,6 +23,14 @@ export function buildSofiaBusinessContext(
       };
     }),
   }));
+}
+
+export function buildSofiaBusinessContext(
+  config: ArmadoRapidoConfig | null,
+  services: ServicioEmpresa[],
+  menus: FullMenu[],
+): string {
+  const paquetesCatalog = buildPaquetesCatalog(config, services);
 
   return JSON.stringify({
     paquetesCatalog,
