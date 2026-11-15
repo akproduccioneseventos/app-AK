@@ -82,14 +82,18 @@ function PresupuestoDashboardContent() {
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
         try {
-            const repairResult = await withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas');
-            if (!repairResult.success) {
-                toast({
-                    title: 'No se pudieron corregir las fechas importadas',
-                    description: repairResult.error,
-                    variant: 'destructive',
-                });
-            }
+            // La corrección de fechas corre de fondo: la lista se muestra sin esperarla (pregunta 124).
+            void withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas')
+                .then((repairResult) => {
+                    if (!repairResult.success) {
+                        toast({
+                            title: 'No se pudieron corregir las fechas importadas',
+                            description: repairResult.error,
+                            variant: 'destructive',
+                        });
+                    }
+                })
+                .catch(() => { /* no pasa nada si falla: la lista ya se mostró y el aviso de error no hace falta */ });
 
             const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
             const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
