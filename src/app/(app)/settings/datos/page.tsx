@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,8 @@ import { resetCrm } from '@/app/actions/crm';
 import { resetAllPresupuestos } from '@/app/actions/presupuestos';
 import { resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { resetAppCompleto } from '@/app/actions/admin-reset';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export default function AdminDatosPage() {
   const { toast } = useToast();
@@ -35,6 +37,21 @@ export default function AdminDatosPage() {
   const [isCleaningDb, setIsCleaningDb] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+  useEffect(() => {
+    let montado = true;
+    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+      .then(([perms, soloLectura]) => {
+        if (!montado) return;
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      })
+      .catch(() => {
+        if (montado) setPuedeBorrar(false);
+      });
+    return () => { montado = false; };
+  }, []);
 
   const handleResetCrm = useCallback(async () => {
     setIsResettingCrm(true);
@@ -177,6 +194,20 @@ export default function AdminDatosPage() {
 
       <Separator />
 
+      {!puedeBorrar ? (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardHeader>
+            <CardTitle className="text-amber-800 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Acceso restringido
+            </CardTitle>
+            <CardDescription className="text-amber-700">
+              Las acciones para reiniciar, borrar o restaurar datos de Firestore no están disponibles para sesiones de sólo lectura o sin permisos de administración.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <>
       {/* CRM */}
       <Card>
         <CardHeader>
@@ -399,6 +430,8 @@ export default function AdminDatosPage() {
           </AlertDialog>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

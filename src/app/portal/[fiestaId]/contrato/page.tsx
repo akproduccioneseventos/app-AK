@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
 import { getFiestaForPortalSession, getClientPromotionalPhotoConsent, setClientPromotionalPhotoConsent } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfoPublica } from '@/app/actions/settings';
+import { esSesionDeSoloLectura } from '@/app/actions/sesion';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
 import { Separator } from '@/components/ui/separator';
@@ -54,6 +55,7 @@ export default function ClientContractPage() {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [esSoloLectura, setEsSoloLectura] = useState(false);
   const [isSigning, setIsSaving] = useState(false);
   const [signerFullName, setSignerFullName] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -74,15 +76,16 @@ export default function ClientContractPage() {
     setIsLoading(true);
     setLoadError(false);
     try {
-      const [data, companyData, summaryData] = await Promise.all([
+      const [data, companyData, summaryData, soloLectura] = await Promise.all([
           getFiestaForPortalSession(fiestaId),
           getCompanyInfoPublica(),
-          getContractSigningSummary(fiestaId),
+          getContractSigningSummary(fiestaId).catch(() => ({ success: false, summary: undefined })),
+          esSesionDeSoloLectura().catch(() => false),
       ]);
-      if (!data) throw new Error("Evento no encontrado");
       setFiesta(data);
+      setEsSoloLectura(soloLectura);
       setCompanyInfo(companyData);
-      if (summaryData.success && summaryData.summary) {
+      if (summaryData && 'summary' in summaryData && summaryData.summary) {
         setSummary(summaryData.summary);
       }
     } catch (e) {
@@ -173,7 +176,7 @@ export default function ClientContractPage() {
               <Card className="max-w-md text-center">
                   <CardHeader>
                       <AlertTriangle className="w-12 h-12 mx-auto text-amber-500"/>
-                      <CardTitle>Documento no disponible</CardTitle>
+                      <CardTitle>Todavía no hay contrato para esta fiesta</CardTitle>
                       <CardDescription>El contrato aún no ha sido redactado por el organizador.</CardDescription>
                   </CardHeader>
                   <CardFooter className="justify-center">
@@ -239,7 +242,7 @@ export default function ClientContractPage() {
                     ? 'Autorización vigente para usar fotos de esta fiesta en materiales promocionales.'
                     : 'No hay autorización vigente para usar fotos de esta fiesta.'}
                 </p>
-                <Button variant={photoConsent ? 'outline' : 'default'} disabled={savingPhotoConsent} onClick={photoConsent === null ? cargarPermisoFotos : togglePhotoConsent}>
+                <Button variant={photoConsent ? 'outline' : 'default'} disabled={savingPhotoConsent || esSoloLectura} onClick={photoConsent === null ? cargarPermisoFotos : togglePhotoConsent}>
                   {savingPhotoConsent && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {photoConsent === null ? 'Reintentar permiso' : photoConsent ? 'Revocar autorización' : 'Autorizar fotos'}
                 </Button>
@@ -415,7 +418,16 @@ export default function ClientContractPage() {
                         })()}
 
                         {/* Bloque para dejar constancia digital */}
-                        <div className="flex flex-col gap-4 p-6 bg-slate-50 border border-slate-200 rounded-3xl w-full text-left">
+                        {esSoloLectura ? (
+                          <div className="flex items-center gap-3 p-6 bg-slate-50 border border-slate-200 rounded-3xl w-full text-slate-600">
+                            <ShieldCheck className="w-5 h-5 text-slate-500 shrink-0" />
+                            <div>
+                              <h3 className="font-bold text-slate-800 text-sm">Sesión de sólo lectura</h3>
+                              <p className="text-xs text-slate-500">Acceso de auditor: podés consultar el contrato pero no firmar digitalmente.</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-4 p-6 bg-slate-50 border border-slate-200 rounded-3xl w-full text-left">
                             <div className="flex items-center gap-3">
                               <div className="p-2 bg-purple-100 text-purple-700 rounded-xl">
                                 <FileSignature className="w-5 h-5" />
@@ -484,7 +496,8 @@ export default function ClientContractPage() {
                                 </>
                               )}
                             </Button>
-                        </div>
+                          </div>
+                        )}
 
                         <div className="flex flex-col items-center gap-4 p-6 bg-amber-50 border border-amber-200 rounded-3xl w-full text-center">
                             <AlertTriangle className="w-8 h-8 text-amber-600"/>

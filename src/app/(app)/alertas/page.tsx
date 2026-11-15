@@ -368,7 +368,7 @@ export default function AlertasPage() {
               onClick={() => setSoloSinLeer(false)}
               className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground"
             >
-              Hay {leidasEscondidas} {leidasEscondidas === 1 ? 'alerta ya leída' : 'alertas ya leídas'} escondidas. Mostrarlas.
+              Hay {leidasEscondidas} {leidasEscondidas === 1 ? 'alerta ya leída escondida' : 'alertas ya leídas escondidas'}. Mostrarlas.
             </button>
           </CardContent>
         )}

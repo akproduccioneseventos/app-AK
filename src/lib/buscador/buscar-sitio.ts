@@ -68,5 +68,83 @@ export function buscarEnElSitio(termino: string): ResultadoBusqueda[] {
     }
   }
 
+  // 3. Páginas de venta y vidriera de tecnología
+  const paginasYServicios: Array<ResultadoBusqueda & { keywords: string[] }> = [
+    {
+      tipo: 'servicio',
+      titulo: 'Bodas en Salto — AK Producciones',
+      resumen: 'Organización integral de bodas: salón, catering, discoteca, fotografía, video y tecnología interactiva.',
+      url: '/bodas',
+      etiqueta: 'Bodas',
+      keywords: ['boda', 'bodas', 'casamiento', 'matrimonio', 'catering'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Fiestas de 15 años — AK Producciones',
+      resumen: 'Tu fiesta de 15 años con ambientación, música, catering, fotocabina, plataforma 360 y pantalla gigante.',
+      url: '/quinceaneras',
+      etiqueta: '15 años',
+      keywords: ['15', '15 años', 'quince', 'quinceañera', 'quinceaneras', 'catering'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Cumpleaños y Celebraciones — AK Producciones',
+      resumen: 'Festejá tu cumpleaños con producción completa, barra, catering, DJ y entretenimiento.',
+      url: '/cumpleanos',
+      etiqueta: 'Cumpleaños',
+      keywords: ['cumple', 'cumpleaños', 'cumpleanos', 'catering'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Fotocabina Interactiva',
+      resumen: 'Cabina de fotos con impresión instantánea, accesorios y galería digital para tus invitados.',
+      url: '/tecnologia',
+      etiqueta: 'Tecnología',
+      keywords: ['fotocabina', 'fotos', 'cabina', 'entretenimiento'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Plataforma 360°',
+      resumen: 'Videos en cámara lenta 360° editados al instante para compartir en redes.',
+      url: '/tecnologia',
+      etiqueta: 'Tecnología',
+      keywords: ['plataforma 360', '360', 'video'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Espejo Mágico y Cámara Bogue',
+      resumen: 'Estaciones interactivas de fotografía y video con estética editorial para tu evento.',
+      url: '/tecnologia',
+      etiqueta: 'Tecnología',
+      keywords: ['espejo', 'bogue', 'fotocabina', 'fotos'],
+    },
+    {
+      tipo: 'servicio',
+      titulo: 'Catering y Barra de Tragos',
+      resumen: 'Gastronomía propia, menú adulto y adolescente, y barra de tragos con bartenders.',
+      url: '/tecnologia',
+      etiqueta: 'Servicios',
+      keywords: ['catering', 'menu', 'menú', 'barra', 'tragos', 'comida'],
+    },
+  ];
+
+  for (const item of paginasYServicios) {
+    const coincide = terminosBusqueda.some(
+      (t) =>
+        item.titulo.toLowerCase().includes(t) ||
+        item.resumen.toLowerCase().includes(t) ||
+        item.keywords.some((k) => k.includes(t) || t.includes(k)),
+    );
+    if (coincide) {
+      resultados.push({
+        tipo: item.tipo,
+        titulo: item.titulo,
+        resumen: item.resumen,
+        url: item.url,
+        etiqueta: item.etiqueta,
+      });
+    }
+  }
+
   return resultados;
 }
