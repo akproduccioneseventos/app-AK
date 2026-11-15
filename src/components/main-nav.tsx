@@ -118,16 +118,6 @@ export const navGroups: NavGroup[] = [
         };
       }),
       {
-        title: "Alergias y Dietas",
-        href: "/eventos",
-        icon: Wheat,
-      },
-      {
-        title: "Portal de Proveedores",
-        href: "/eventos",
-        icon: HardHat,
-      },
-      {
         title: "Más",
         href: "/mas",
         icon: LayoutGrid,

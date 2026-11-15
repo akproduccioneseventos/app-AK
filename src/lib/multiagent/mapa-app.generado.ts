@@ -44,11 +44,11 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Alergias y Dietas",
-    "ruta": "/eventos"
+    "ruta": "/fiestas/nueva/alergias"
   },
   {
     "etiqueta": "Portal de Proveedores",
-    "ruta": "/eventos"
+    "ruta": "/fiestas/nueva/proveedores-portal"
   },
   {
     "etiqueta": "Personal en dos fiestas",
