@@ -98,14 +98,6 @@ export function ImagePlaceholder({ id, label, aspectRatio = '16/9', className, i
           <Camera className="h-5 w-5 text-white" />
         </div>
         <p className="text-sm font-black leading-tight text-white sm:text-base">{label}</p>
-        {/*
-          Aca abajo decia "Imagen de ejemplo reemplazable - ID hero-portada".
-          Esta pantalla es la que se le muestra al cliente sentado enfrente para
-          venderle la fiesta: leer un codigo interno ahi hace pensar que AK no
-          tiene fotos propias. El dato de que foto falta queda igual, pero para
-          adentro: en el nombre del cuadro, que no se ve en pantalla.
-        */}
-        <span className="sr-only">Falta cargar la foto {id}</span>
       </div>
     </div>
   );

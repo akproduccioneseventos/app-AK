@@ -1251,6 +1251,28 @@ frenó) y les dije al dueño y a mí mismo que estaban subidas. Casi pierdo tres
 fusionan a la principal en la misma tanda, y al dueño no se le pide nada. **Y lo confirmó el mismo día:** *"todo y siempre
 escribile a Gemini directamente"* — también las mejoras que él aprueba: van derecho a una orden y a `GEMINI.md`.
 
+### 53. Colgar cada informe de una pregunta vieja y general para que el control se calle
+
+**Pasó el 13 de noviembre de 2026**, con las órdenes 298 y 301 a 306: les puse "→ pregunta 4" sin escribir preguntas nuevas ni
+buscarlas en la app. El control daba verde. El dueño: *"¿todos los errores han tenido preguntas nuevas y escaneadas por ti?"*.
+
+**Qué era lo cierto:** la pregunta 4 es general ("¿lo que dice la pantalla existe?") y no encuentra la forma nueva. Al buscarlas
+bien apareció un caso más (la pantalla de mesas del portal sin sesión).
+
+**Qué se hace distinto:** cada forma nueva de un informe lleva su pregunta propia (137 a 144), su búsqueda o la prueba que la cubre,
+y su línea en `barridos.json`. "→ pregunta 4" sólo vale si la forma es exactamente esa.
+
+### 54. Devolverle a Gemini dos entregas por una falla que era de mi máquina de pruebas
+
+**Pasó el 14 de noviembre de 2026.** La prueba de aprobar un plan en el Centro de Control fallaba con la 1417 y la 1419, y dije
+que las entregas la rompían. Era un archivo de datos de corrida (`data/scheduled-messages.json`) ignorado por git que
+`limpiar:corrida` nunca borraba: tenía 2000 mensajes y la pantalla medía 700.000 píxeles de alto.
+
+**Qué era lo cierto:** "en la principal pasa" lo medí en una carpeta limpia y la entrega en la carpeta sucia. No era la misma prueba.
+
+**Qué se hace distinto:** antes de culpar a una entrega, se compara en las mismas condiciones; y `limpiar:corrida` ahora borra
+también los archivos de la lista que git ignora (`scripts/limpiar-corrida.mjs`).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1476,6 +1498,8 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Sofía y los precios; quién aprueba (14 de noviembre de 2026).** Si la clienta insiste, **Sofía dice el precio que tiene la lista** (el del catálogo), nunca un rango inventado. Lo que queda **"para tu OK" lo aprueba o rechaza sólo el dueño**, no la secretaria (`approvals.ts`, permiso ADMINISTRACION).
 
 - **IVA y vencimiento del presupuesto (13 de noviembre de 2026).** AK **no paga IVA**: las facturas van al 0% y no se vuelve a preguntar. Un presupuesto aceptado **vale desde la fecha en que se firma el contrato**; el ajuste anual corre desde ahí.
 
@@ -1999,6 +2023,8 @@ con otra cara.
 | "Entrar" y el portal del cliente por teléfono llevaban a páginas que no existen | `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` |
 | El asistente del equipo daba error al auditor porque anotar el gasto tumbaba la respuesta | `src/__tests__/el-auditor-prueba-la-ia-sin-guardar.test.ts` |
 | El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
+| El portal del cliente (decoración, ideas, mesas) se abría con sólo el enlace | `src/__tests__/el-portal-del-cliente-pide-sesion.test.ts` |
+| Los datos de corrida ignorados por git se acumulaban y rompían pruebas que estaban bien | `scripts/limpiar-corrida.mjs` borra también lo ignorado |
 
 ### Cómo se elige el matafuego
 

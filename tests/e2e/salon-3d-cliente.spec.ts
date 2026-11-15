@@ -65,8 +65,10 @@ test.describe('Orden 77: Salón 3D compartido en las dos puertas del cliente', (
     borrarFiesta(ID);
   });
 
-  test('Puerta 1: /portal/[fiestaId]/decoracion muestra la sección del salón 3D sin errores', async ({ page }) => {
+  test('Puerta 1: /portal/[fiestaId]/decoracion muestra la sección del salón 3D sin errores', async ({ page, baseURL }) => {
     test.setTimeout(60_000);
+    // El portal pide sesión desde el 14/11 (pregunta 139): se entra como el equipo.
+    await ponerSesionDelEquipo(page.context(), baseURL);
 
     await page.goto(`/portal/${ID}/decoracion`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);

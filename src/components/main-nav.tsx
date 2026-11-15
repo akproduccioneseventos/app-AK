@@ -30,6 +30,8 @@ import {
   Target,
   Building2,
   Settings,
+  Wheat,
+  HardHat,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -115,6 +117,16 @@ export const navGroups: NavGroup[] = [
             casa.pestanas.some((p) => pathname === p.ruta || isPathActive(pathname, p.ruta)),
         };
       }),
+      {
+        title: "Alergias y Dietas",
+        href: "/eventos",
+        icon: Wheat,
+      },
+      {
+        title: "Portal de Proveedores",
+        href: "/eventos",
+        icon: HardHat,
+      },
       {
         title: "Más",
         href: "/mas",
@@ -233,7 +245,7 @@ export function MainNav() {
                     if (item.subgroup) lastSubgroup = item.subgroup;
 
                     return (
-                      <React.Fragment key={item.href}>
+                      <React.Fragment key={`${item.href}-${item.title}`}>
                         {showSubgroupHeader && (
                           <div className="pt-2 pb-1 px-3 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />

@@ -23,6 +23,11 @@ export function barmanPorInvitados(invitados: number): { cantidad: number; sueld
   return { cantidad: 1, sueldo: 2000 };
 }
 
+export function personalRecomendado(invitados: number): number {
+  const cocina = personalDeCocina(invitados);
+  return cocina.chef + cocina.ayudantes + utilerosPorInvitados(invitados) + barmanPorInvitados(invitados).cantidad;
+}
+
 /**
  * Primero el nombre exacto. Si no está, el que lo contiene, pero sin pasar a otro puesto: "Barman" no
  * cae en "Ayudante de Barman" ni "Mozo" en "Mozo de Cocina" (Codex 178: con un catálogo "Mozo de

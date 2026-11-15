@@ -495,7 +495,7 @@ export default function PresentacionLedPage() {
     if (index >= DYNAMIC_START && index < dynamicEndIndex) {
       const dynIndex = index - DYNAMIC_START;
       const slide = dynamicSlides[dynIndex];
-      if (slide.type === 'menu-adolescente' && !requireTeenMenu) {
+      if (slide?.type === 'menu-adolescente' && !requireTeenMenu) {
         return false;
       }
     }
@@ -834,6 +834,7 @@ export default function PresentacionLedPage() {
             <EquipoSlide
               tipoFiesta={clientData.tipoFiesta}
               equipoSettings={presentacionSettings?.equipo}
+              invitadosEstimados={resourceSummary.invitadosTotales || 100}
             />
           )}
           {currentDynamicSlide?.type === 'entradas' && (

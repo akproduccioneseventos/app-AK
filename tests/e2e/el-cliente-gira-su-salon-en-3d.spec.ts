@@ -126,8 +126,10 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
     if (ID_SIN_PLANO) borrarFiesta(ID_SIN_PLANO);
   });
 
-  test('Puerta 1 (/portal/[fiestaId]/decoracion): con plano muestra salón 3D y permite girar', async ({ page }) => {
+  test('Puerta 1 (/portal/[fiestaId]/decoracion): con plano muestra salón 3D y permite girar', async ({ page, baseURL }) => {
     test.setTimeout(60_000);
+    // El portal pide sesión desde el 14/11 (pregunta 139): se entra como el equipo.
+    await ponerSesionDelEquipo(page.context(), baseURL);
 
     const res = await page.goto(`/portal/${ID_CON_PLANO}/decoracion`, { waitUntil: 'domcontentloaded' });
     expect(res?.status()).toBeLessThan(400);
@@ -154,8 +156,10 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
     }
   });
 
-  test('Puerta 2 (/portal/c/[accessKey]): con plano muestra salón 3D y permite girar', async ({ page }) => {
+  test('Puerta 2 (/portal/c/[accessKey]): con plano muestra salón 3D y permite girar', async ({ page, baseURL }) => {
     test.setTimeout(60_000);
+    // El portal pide sesión desde el 14/11 (pregunta 139): se entra como el equipo.
+    await ponerSesionDelEquipo(page.context(), baseURL);
 
     const res = await page.goto(`/portal/c/${CLAVE_CON_PLANO}`, { waitUntil: 'domcontentloaded' });
     expect(res?.status()).toBeLessThan(400);

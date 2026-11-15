@@ -25,6 +25,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { comoEstaElRespaldo } from '@/lib/respaldos/como-esta-el-respaldo';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export default function BackupPage() {
   const { toast } = useToast();
@@ -36,6 +38,21 @@ export default function BackupPage() {
   const [statusLoadError, setStatusLoadError] = useState(false);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+  useEffect(() => {
+    let montado = true;
+    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+      .then(([perms, soloLectura]) => {
+        if (!montado) return;
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      })
+      .catch(() => {
+        if (montado) setPuedeBorrar(false);
+      });
+    return () => { montado = false; };
+  }, []);
 
   const buildRestoreSummary = (summary: RestoreSummaryItem[]) => {
     const details = summary
@@ -350,47 +367,49 @@ export default function BackupPage() {
                             <span className="inline-flex items-center gap-1"><CalendarClock className="w-3.5 h-3.5" />{new Date(point.timestamp).toLocaleString('es-ES')}</span>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8 rounded-lg" disabled={!!processingPointName}>
-                                <RotateCw className="w-3.5 h-3.5 mr-1.5" />
-                                Restaurar
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>¿Restaurar desde este punto?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Se sobreescribirán todos los datos actuales con los del <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleRestoreFromPoint(point.name)}>Sí, Restaurar</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive rounded-lg" disabled={!!processingPointName}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>¿Eliminar este punto?</AlertDialogTitle>
-                                <AlertDialogDescription>El punto de restauración será eliminado permanentemente.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteRestorePoint(point.name)} className="bg-destructive hover:bg-destructive/90">
-                                  Eliminar
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                        {puedeBorrar && (
+                          <div className="flex gap-2">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-8 rounded-lg" disabled={!!processingPointName}>
+                                  <RotateCw className="w-3.5 h-3.5 mr-1.5" />
+                                  Restaurar
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Restaurar desde este punto?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Se sobreescribirán todos los datos actuales con los del <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleRestoreFromPoint(point.name)}>Sí, Restaurar</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive rounded-lg" disabled={!!processingPointName}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Eliminar este punto?</AlertDialogTitle>
+                                  <AlertDialogDescription>El punto de restauración será eliminado permanentemente.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteRestorePoint(point.name)} className="bg-destructive hover:bg-destructive/90">
+                                    Eliminar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
                       </div>
                     </Card>
                   ))
@@ -421,53 +440,57 @@ export default function BackupPage() {
                   Descargar ZIP
                 </Button>
               </a>
-              <Separator />
-              <Card className="shadow-sm border-orange-200 bg-orange-50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-black uppercase tracking-widest text-orange-700 flex items-center gap-2">
-                    <UploadCloud className="w-4 h-4" /> Restaurar desde archivo
-                  </CardTitle>
-                  <CardDescription className="text-orange-600 text-xs">
-                    Carga un .zip de respaldo o un .json de importacion validado para restaurar tus datos.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="zip-restore-input" className="text-xs font-bold text-orange-700">Archivo de respaldo o importacion</Label>
-                    <Input
-                      id="zip-restore-input"
-                      type="file"
-                      accept=".zip,.json,application/json,application/zip"
-                      className="rounded-xl bg-white border-orange-200 text-sm"
-                      onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                      disabled={isRestoringZip}
-                    />
-                    {file && <p className="text-[10px] text-orange-700 font-semibold truncate">Archivo: {file.name}</p>}
-                  </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="w-full h-10 rounded-xl font-bold border-orange-400 text-orange-700 bg-white hover:bg-orange-100" disabled={!file || isRestoringZip}>
-                        {isRestoringZip ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
-                        {isRestoringZip ? 'Restaurando...' : 'Restaurar archivo'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5 text-destructive" /> Restaurar archivo?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta accion <strong>sobreescribira los datos incluidos en el archivo</strong>. El importador de eventos confirmados no pisa tu catalogo de servicios salvo que el archivo lo indique expresamente.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleRestoreFromZip} className="bg-destructive hover:bg-destructive/90">Si, Restaurar Ahora</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </CardContent>
-              </Card>
+              {puedeBorrar && (
+                <>
+                  <Separator />
+                  <Card className="shadow-sm border-orange-200 bg-orange-50">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-black uppercase tracking-widest text-orange-700 flex items-center gap-2">
+                        <UploadCloud className="w-4 h-4" /> Restaurar desde archivo
+                      </CardTitle>
+                      <CardDescription className="text-orange-600 text-xs">
+                        Carga un .zip de respaldo o un .json de importacion validado para restaurar tus datos.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="zip-restore-input" className="text-xs font-bold text-orange-700">Archivo de respaldo o importacion</Label>
+                        <Input
+                          id="zip-restore-input"
+                          type="file"
+                          accept=".zip,.json,application/json,application/zip"
+                          className="rounded-xl bg-white border-orange-200 text-sm"
+                          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                          disabled={isRestoringZip}
+                        />
+                        {file && <p className="text-[10px] text-orange-700 font-semibold truncate">Archivo: {file.name}</p>}
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" className="w-full h-10 rounded-xl font-bold border-orange-400 text-orange-700 bg-white hover:bg-orange-100" disabled={!file || isRestoringZip}>
+                            {isRestoringZip ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
+                            {isRestoringZip ? 'Restaurando...' : 'Restaurar archivo'}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                              <AlertTriangle className="w-5 h-5 text-destructive" /> Restaurar archivo?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta accion <strong>sobreescribira los datos incluidos en el archivo</strong>. El importador de eventos confirmados no pisa tu catalogo de servicios salvo que el archivo lo indique expresamente.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleRestoreFromZip} className="bg-destructive hover:bg-destructive/90">Si, Restaurar Ahora</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

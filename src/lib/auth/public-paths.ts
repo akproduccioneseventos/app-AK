@@ -26,6 +26,7 @@ export const PUBLIC_PATH_PREFIXES = [
   '/public',
   '/blog',
   '/portal-cliente',
+  '/post-fiesta',
   '/simulador',
   '/simulador-ak',
   '/proveedor',

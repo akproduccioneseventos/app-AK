@@ -35,6 +35,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -65,11 +67,23 @@ export default function GestorFiestasPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [deleteAllConfirmText, setDeleteAllConfirmText] = useState('');
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       let kpiResult: Awaited<ReturnType<typeof getDashboardKpiData>> | undefined;
       try {
         kpiResult = await getDashboardKpiData();
@@ -423,85 +437,89 @@ export default function GestorFiestasPage() {
             </DialogContent>
           </Dialog>
 
-          <AlertDialog onOpenChange={(open) => { if (!open) setResetConfirmText(''); }}>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingPlanificador || fiestasActivas.length === 0}>
-                {isResettingPlanificador ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
-                Reiniciar Planificador
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Reiniciar el Planificador?</AlertDialogTitle>
-                <AlertDialogDescription asChild>
-                  <div className="space-y-3">
-                    <p>
-                      Esta acción archivará <strong>todos los eventos activos</strong> ({fiestasActivas.length}) para que puedas comenzar de cero. Los eventos se conservan en el historial. Esta operación no se puede deshacer.
-                    </p>
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
-                      <Input
-                        value={resetConfirmText}
-                        onChange={(e) => setResetConfirmText(e.target.value)}
-                        placeholder="ELIMINAR"
-                        className="border-destructive/40 focus-visible:ring-destructive"
-                      />
-                    </div>
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleResetPlanificador}
-                  className="bg-destructive hover:bg-destructive/90"
-                  disabled={resetConfirmText !== 'ELIMINAR'}
-                >
-                  Sí, archivar todos y reiniciar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          {puedeBorrar && (
+            <>
+              <AlertDialog onOpenChange={(open) => { if (!open) setResetConfirmText(''); }}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingPlanificador || fiestasActivas.length === 0}>
+                    {isResettingPlanificador ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                    Reiniciar Planificador
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Reiniciar el Planificador?</AlertDialogTitle>
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-3">
+                        <p>
+                          Esta acción archivará <strong>todos los eventos activos</strong> ({fiestasActivas.length}) para que puedas comenzar de cero. Los eventos se conservan en el historial. Esta operación no se puede deshacer.
+                        </p>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                          <Input
+                            value={resetConfirmText}
+                            onChange={(e) => setResetConfirmText(e.target.value)}
+                            placeholder="ELIMINAR"
+                            className="border-destructive/40 focus-visible:ring-destructive"
+                          />
+                        </div>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleResetPlanificador}
+                      className="bg-destructive hover:bg-destructive/90"
+                      disabled={resetConfirmText !== 'ELIMINAR'}
+                    >
+                      Sí, archivar todos y reiniciar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
 
-          <AlertDialog onOpenChange={(open) => { if (!open) setDeleteAllConfirmText(''); }}>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingAllFiestas || fiestasActivas.length === 0}>
-                {isDeletingAllFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                🗑️ Eliminar todo permanentemente
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
-                <AlertDialogDescription asChild>
-                  <div className="space-y-3">
-                    <p>
-                      Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos activos ({fiestasActivas.length}). Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
-                    </p>
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
-                      <Input
-                        value={deleteAllConfirmText}
-                        onChange={(e) => setDeleteAllConfirmText(e.target.value)}
-                        placeholder="ELIMINAR"
-                        className="border-destructive/40 focus-visible:ring-destructive"
-                      />
-                    </div>
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAllFiestas}
-                  className="bg-destructive hover:bg-destructive/90"
-                  disabled={deleteAllConfirmText !== 'ELIMINAR'}
-                >
-                  Sí, eliminar todo permanentemente
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+              <AlertDialog onOpenChange={(open) => { if (!open) setDeleteAllConfirmText(''); }}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingAllFiestas || fiestasActivas.length === 0}>
+                    {isDeletingAllFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                    🗑️ Eliminar todo permanentemente
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-3">
+                        <p>
+                          Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos activos ({fiestasActivas.length}). Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                        </p>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                          <Input
+                            value={deleteAllConfirmText}
+                            onChange={(e) => setDeleteAllConfirmText(e.target.value)}
+                            placeholder="ELIMINAR"
+                            className="border-destructive/40 focus-visible:ring-destructive"
+                          />
+                        </div>
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteAllFiestas}
+                      className="bg-destructive hover:bg-destructive/90"
+                      disabled={deleteAllConfirmText !== 'ELIMINAR'}
+                    >
+                      Sí, eliminar todo permanentemente
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
 
           <Button asChild variant="outline"><Link href="/calendario">
               <CalendarDays className="w-4 h-4 mr-2" />
@@ -608,23 +626,25 @@ export default function GestorFiestasPage() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {pastActiveEvents.map(fiesta => (
-                <Button
-                  key={fiesta.id}
-                  variant="outline"
-                  size="sm"
-                  className="max-w-full border-amber-300 text-amber-800 hover:bg-amber-100"
-                  onClick={() => handleArchivar(fiesta.id)}
-                  disabled={isProcessing === fiesta.id}
-                >
-                  {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Archive className="w-4 h-4 mr-1 shrink-0" />}
-                  {/* Con varios eventos vencidos, botones que decian todos
-                      "Archivar" no dejaban saber cual se estaba archivando. */}
-                  <span className="truncate">Archivar {fiesta.configuracion?.nombreEvento || 'evento'}</span>
-                </Button>
-              ))}
-            </div>
+            {puedeBorrar && (
+              <div className="flex flex-wrap gap-2">
+                {pastActiveEvents.map(fiesta => (
+                  <Button
+                    key={fiesta.id}
+                    variant="outline"
+                    size="sm"
+                    className="max-w-full border-amber-300 text-amber-800 hover:bg-amber-100"
+                    onClick={() => handleArchivar(fiesta.id)}
+                    disabled={isProcessing === fiesta.id}
+                  >
+                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Archive className="w-4 h-4 mr-1 shrink-0" />}
+                    {/* Con varios eventos vencidos, botones que decian todos
+                        "Archivar" no dejaban saber cual se estaba archivando. */}
+                    <span className="truncate">Archivar {fiesta.configuracion?.nombreEvento || 'evento'}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -726,48 +746,52 @@ export default function GestorFiestasPage() {
                     <Button asChild size="sm">
                       <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>Planificar</Link>
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9"
-                      aria-label={`Duplicar ${fiesta.configuracion.nombreEvento || 'evento'}`}
-                      title="Duplicar"
-                      onClick={() => handleDuplicate(fiesta.id)}
-                      disabled={isProcessing === fiesta.id}
-                    >
-                      {isProcessing === fiesta.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          aria-label={`Eliminar ${fiesta.configuracion.nombreEvento || 'evento'}`}
-                          title="Eliminar"
-                          disabled={isProcessing === fiesta.id}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>¿Eliminar evento activo?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            El evento "{fiesta.configuracion.nombreEvento || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteFiesta(fiesta.id, fiesta.configuracion.nombreEvento)}
-                            className="bg-destructive hover:bg-destructive/90"
+                    {puedeBorrar && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9"
+                        aria-label={`Duplicar ${fiesta.configuracion.nombreEvento || 'evento'}`}
+                        title="Duplicar"
+                        onClick={() => handleDuplicate(fiesta.id)}
+                        disabled={isProcessing === fiesta.id}
+                      >
+                        {isProcessing === fiesta.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    )}
+                    {puedeBorrar && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            aria-label={`Eliminar ${fiesta.configuracion.nombreEvento || 'evento'}`}
+                            title="Eliminar"
+                            disabled={isProcessing === fiesta.id}
                           >
-                            Eliminar
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>¿Eliminar evento activo?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              El evento "{fiesta.configuracion.nombreEvento || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteFiesta(fiesta.id, fiesta.configuracion.nombreEvento)}
+                              className="bg-destructive hover:bg-destructive/90"
+                            >
+                              Eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>
                 </div>
               );
@@ -806,27 +830,29 @@ export default function GestorFiestasPage() {
                     </CardDescription>
                   </div>
 
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
-                        {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar Evento Archivado?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta acción eliminará permanentemente el archivo del evento "{fiesta.configuracion.nombreEvento}". No podrás recuperar sus datos.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteArchived(fiesta.id)} className="bg-destructive hover:bg-destructive/90">
-                          Eliminar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  {puedeBorrar && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
+                          {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Eliminar Evento Archivado?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción eliminará permanentemente el archivo del evento "{fiesta.configuracion.nombreEvento}". No podrás recuperar sus datos.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteArchived(fiesta.id)} className="bg-destructive hover:bg-destructive/90">
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 </CardHeader>
               </Card>
             ))}

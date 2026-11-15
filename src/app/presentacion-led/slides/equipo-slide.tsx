@@ -9,20 +9,27 @@ import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import type { PresentacionLedEquipoSettings } from '@/types/contenido-publico';
 import { getFotosDePresentacion } from '@/app/actions/fotos-presentacion';
+import { personalRecomendado } from '@/lib/fiesta/personal-por-invitados';
 
 interface EquipoSlideProps {
   tipoFiesta?: string;
   equipoSettings?: PresentacionLedEquipoSettings;
+  invitadosEstimados?: number;
 }
 
-export function EquipoSlide({ tipoFiesta, equipoSettings }: EquipoSlideProps) {
+export function EquipoSlide({ tipoFiesta, equipoSettings, invitadosEstimados }: EquipoSlideProps) {
   const [failedFotos, setFailedFotos] = useState<Set<string>>(new Set());
 
+  const calculado = personalRecomendado(invitadosEstimados ?? 100);
+  const cantidadPersonas =
+    equipoSettings?.cantidadPersonas && equipoSettings.cantidadPersonas !== 11
+      ? equipoSettings.cantidadPersonas
+      : calculado;
   const titulo = equipoSettings?.titulo || 'Hay Equipo 🤝';
-  const frase =
+  const fraseBase =
     equipoSettings?.frase ||
-    `El día de ${tipoFiesta ? `tu ${tipoFiesta.toLowerCase()}` : 'tu fiesta'} somos 11 personas trabajando para vos.`;
-  const cantidadPersonas = equipoSettings?.cantidadPersonas || 11;
+    `El día de ${tipoFiesta ? `tu ${tipoFiesta.toLowerCase()}` : 'tu fiesta'} somos ${cantidadPersonas} personas trabajando para vos.`;
+  const frase = fraseBase.replace(/\b11 personas\b/g, `${cantidadPersonas} personas`);
   // Las fotos que cargo el dueno mandan. Si no cargo ninguna para este tipo de
   // fiesta, se usan las de la galeria que corresponden: asi los tipos que no
   // tienen catalogo impreso —los infantiles y los empresariales— igual tienen

@@ -58,6 +58,7 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { conLaConstanciaGuardada } from '@/lib/fiesta/constancia-de-firma';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
+import { dedupeImportedEventCopies } from '@/lib/events/event-ordering';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
@@ -232,7 +233,7 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
   // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
   await requireAppSession();
   const mostrar = await requireEquipo();
-  const crudas = await leerFiestasCrudas(includeArchived);
+  const crudas = dedupeImportedEventCopies(await leerFiestasCrudas(includeArchived));
   return crudas.map((f) => marcarItemLectura(mostrar(f) as unknown as Record<string, unknown>, (f as any)._syncedAt, CAMPOS_DE_PLATA_Y_CONTRATO) as unknown as FiestaEnPlanificacion);
 }
 

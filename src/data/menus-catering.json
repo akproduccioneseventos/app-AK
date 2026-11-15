@@ -2,7 +2,7 @@
   {
     "id": "menu_entradas_maestro",
     "name": "Catálogo Maestro de Entradas",
-    "description": "Selección completa de las 25 entradas disponibles.",
+    "description": "Selección completa de las 22 entradas disponibles.",
     "items": [
       {
         "id": "dish_entrada_2",
@@ -1910,7 +1910,7 @@
       },
       {
         "id": "dish_entrada_25",
-        "name": "TABLA DE FIAMBRE GROUMET",
+        "name": "TABLA DE FIAMBRE GOURMET",
         "type": "Entrada",
         "ingredients": [
           {
@@ -2078,7 +2078,7 @@
   {
     "id": "menu_principales_maestro",
     "name": "Catálogo Maestro de Platos Principales",
-    "description": "Selección completa de las 19 opciones principales.",
+    "description": "Selección completa de las 18 opciones principales.",
     "items": [
       {
         "id": "dish_main_2",

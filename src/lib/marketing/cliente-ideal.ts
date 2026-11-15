@@ -26,10 +26,12 @@ export interface AnalisisClienteIdeal {
 }
 
 export async function calcularClienteIdeal(): Promise<AnalisisClienteIdeal> {
-  const [presupuestos, fiestas] = await Promise.all([
+  const [presupuestos, fiestasTodas] = await Promise.all([
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
   ]);
+  // Excluir la fiesta de muestra del auditor de los análisis de negocio
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
 
   // Contratos cerrados / ganados
   const ganados = presupuestos.filter(

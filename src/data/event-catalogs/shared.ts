@@ -50,7 +50,7 @@ export const sharedServices: ServiceItem[] = [
   {
     id: 'elite',
     title: 'Paquete Premium',
-    description: 'La experiencia más exclusiva, sin límites.',
+    description: 'La experiencia más exclusiva para tu celebración.',
     included: [
       'Todo lo del Paquete Intermedio',
       'Animación y show en vivo',

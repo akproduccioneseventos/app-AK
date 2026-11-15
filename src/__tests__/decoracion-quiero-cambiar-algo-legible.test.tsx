@@ -27,7 +27,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(async () => ({ id: 'f1', configuracion: { nombreEvento: 'Fiesta' }, decoracion: {} })),
 }));
 
-import Page from '@/app/portal/[fiestaId]/decoracion/page';
+import Page from '@/app/portal/[fiestaId]/decoracion/decoracion-client';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });
@@ -48,7 +48,7 @@ test('"Quiero cambiar algo" lleva fondo oscuro y texto claro explicitos', async 
 });
 
 test('ningun boton outline de la pantalla deja texto claro sin fondo oscuro propio', () => {
-  const src = fs.readFileSync('src/app/portal/[fiestaId]/decoracion/page.tsx', 'utf8');
+  const src = fs.readFileSync('src/app/portal/[fiestaId]/decoracion/decoracion-client.tsx', 'utf8');
   for (const m of src.matchAll(/<Button\b[^>]*?variant="outline"[^>]*?>/gs)) {
     const c = /className="([^"]*)"/.exec(m[0])?.[1] ?? '';
     if (/text-(white|slate-(50|100|200|300)|purple-300)/.test(c)) expect(c).toMatch(/\bbg-slate-9\d\d\b/);

@@ -24,6 +24,7 @@ interface Props {
   config: InvitacionDigitalConfig;
   fiestaId: string;
   socialConnections?: SocialConnection[];
+  galeriaUrl?: string;
   isEditorMode?: boolean;
   onConfigChange?: (nextConfig: InvitacionDigitalConfig) => void;
 }
@@ -100,22 +101,30 @@ export function getSectionOrder(
 
 
 // ---------- COUNTDOWN ----------
-function Countdown({ fechaEvento }: { fechaEvento: string }) {
+function Countdown({ fechaEvento, galeriaUrl, headingClassName }: { fechaEvento: string; galeriaUrl?: string; headingClassName?: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+  const [termino, setTermino] = useState(false);
 
   const hoy = hoyEnUruguay();
   const fechaStr = (fechaEvento || '').slice(0, 10);
-  const yaPaso = fechaStr < hoy;
-  const esHoy = fechaStr === hoy;
+  const pasoPorFecha = Boolean(fechaStr && fechaStr < hoy);
+  const esHoy = Boolean(fechaStr && fechaStr === hoy);
 
   useEffect(() => {
-    if (yaPaso || esHoy) return;
+    if (pasoPorFecha || esHoy) return;
     const target = parseEventDate(fechaEvento)?.getTime() ?? new Date(fechaEvento).getTime();
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const update = () => {
       const now = Date.now();
-      const diff = Math.max(0, target - now);
+      const rawDiff = target - now;
+      if (Number.isFinite(target) && rawDiff <= 0) {
+        setTermino(true);
+        setTimeLeft({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+        return;
+      }
+      setTermino(false);
+      const diff = Math.max(0, rawDiff);
       setTimeLeft({
         dias: Math.floor(diff / (1000 * 60 * 60 * 24)),
         horas: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -129,26 +138,51 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 
     update();
     return () => clearTimeout(timeoutId);
-  }, [fechaEvento, yaPaso, esHoy]);
+  }, [fechaEvento, pasoPorFecha, esHoy]);
 
-  if (yaPaso) {
+  if (pasoPorFecha || termino) {
     return (
-      <div className="text-center py-2 text-2xl sm:text-3xl font-black" style={{ color: 'var(--inv-primary)' }}>
-        ¡Ya la festejaste!
+      <div className="space-y-4">
+        <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
+          Esta fiesta ya se realizó
+        </h2>
+        <p className="text-sm text-gray-600">
+          Gracias por haber sido parte de este momento tan especial.
+        </p>
+        {galeriaUrl && (
+          <div className="pt-2">
+            <a
+              href={galeriaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90"
+              style={{ backgroundColor: 'var(--inv-primary)' }}
+            >
+              <Camera className="w-4 h-4" />
+              Ver álbum de recuerdos
+            </a>
+          </div>
+        )}
       </div>
     );
   }
 
   if (esHoy) {
     return (
-      <div className="text-center py-2 text-2xl sm:text-3xl font-black" style={{ color: 'var(--inv-primary)' }}>
-        ¡Es hoy!
+      <div className="space-y-4">
+        <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
+          ¡Es hoy!
+        </h2>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center gap-3 sm:gap-6">
+    <>
+      <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
+        Faltan...
+      </h2>
+      <div className="flex justify-center gap-3 sm:gap-6">
       {Object.entries(timeLeft).map(([label, value]) => (
         <div key={label} className="text-center">
           <div className="text-3xl sm:text-5xl font-bold tabular-nums" style={{ color: 'var(--inv-primary)' }}>
@@ -157,7 +191,8 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
           <div className="text-xs sm:text-sm text-gray-500 mt-1 capitalize">{label}</div>
         </div>
       ))}
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -1090,7 +1125,7 @@ function EditableText({
 }
 
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], isEditorMode = false, onConfigChange }: Props) {
+export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange }: Props) {
   const styles = getTemplateStyles(config.plantillaId);
   const tipoLabel = TIPO_EVENTO_LABELS[config.tipoEvento] || 'Evento Especial';
   const isBoda = config.tipoEvento === 'boda';
@@ -1180,17 +1215,11 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   addSectionEntry('contador', config.contadorActivo && !!config.fechaEvento, (
     <Section key="contador" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
-      {(() => {
-        const hoy = hoyEnUruguay();
-        const fechaStr = (config.fechaEvento || '').slice(0, 10);
-        if (fechaStr < hoy) return null;
-        return (
-          <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            {fechaStr === hoy ? '¡Es hoy!' : 'Faltan...'}
-          </h2>
-        );
-      })()}
-      <Countdown fechaEvento={config.fechaEvento} />
+      <Countdown
+        fechaEvento={config.fechaEvento}
+        galeriaUrl={galeriaUrl}
+        headingClassName={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)}
+      />
     </Section>
   ));
 

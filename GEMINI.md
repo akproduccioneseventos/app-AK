@@ -2,18 +2,30 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 13/11/2026 (tarde).** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 14/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Primero, lo urgente:** tu entrega 1393 **no se publicó**: rompe la ficha de la fiesta (orden 298, bloque 9).
-  Seguí en tu rama `gemini/ordenes-282-283-entrega-completa`, fusioná `origin/claude/app-debug-stabilize-m70e6z`
-  (trae los arreglos de Claude sobre tu entrega) y `origin/main`.
-- **Qué hacer, en esa misma propuesta (la 1393):** arreglar la ficha, y las órdenes **297** (textos de la web), **298**
-  (la edición sola, con los bloques 7 a 9 de pruebas devueltas) **299** (el auditor prueba cada papel) y **300** (textos de la app por dentro) y **301** (la contabilidad dice lo que cuenta) y **302** (entretenimiento y pantallas de la noche; el bloque 1 es de permisos, primero).
-- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 107.
-- **Cuando termines:** subí a tu rama; la propuesta 1393 ya está abierta. Cambiale el título a "Gemini: órdenes 284 a 302".
-- **Cuando aparezca una orden nueva acá**, arrancá una rama nueva desde `origin/main` actualizado.
-- Lo que Claude corrigió de tu entrega, para no repetirlo: el guardado de a un registro tiene que **borrar en la base**
-  los campos que el cambio saca del registro, no sólo los que pone en `undefined`. Está en `docs/YA-RESUELTO.md` (13/11).
+- **Publicadas:** tus entregas 1408 (órdenes 299 a 302) y 1413 (orden 303). Claude resolvió los choques: el control de sesión del
+  portal quedó en `src/lib/portal/el-portal-pide-sesion.ts` (no lo toques).
+- **Devuelta: la 1406 (órdenes 284 a 298).** Con ella puesta fallan, en la corrida completa:
+  1. `tests/e2e/la-app-ordenada.spec.ts` (celular y escritorio): **la ficha de la fiesta sigue sin las 5 pestañas** (orden 298, bloque 9). Era lo urgente y no se arregló.
+  2. `tests/e2e/la-portada-nueva.spec.ts`.
+  3. `tests/e2e/el-catalogo-lleva-lo-elegido-al-simulador.spec.ts`.
+  4. `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts` (dos toques generan un solo pedido).
+  5. `tests/e2e/presupuestos-abre-rapido.spec.ts` sigue fallando en la línea 47 (segunda vez).
+  Además, el `public/descargas/ak-editor.zip` no estaba rearmado: corré `npm run editor:empaquetar` cuando toques el editor.
+- **Qué hacer:** en tu rama `gemini/ordenes-297-298`, fusioná `origin/main` y arreglá esos cinco. Corré cada prueba sola antes de
+  entregar (`npx playwright test <archivo>`). Después, en la **misma** propuesta: órdenes **304** (Sofía y el asistente), **305** (cada fiesta
+  se cuenta una vez), **306** (buscador) y **307** (el modo Fotos edita como Aftershoot), y **308** (lo que encontró la reauditoría).
+- **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**
+  1. **Borrar las dos fiestas de Lorena Ferreira** (`fiesta_doc_lorena_ferreira_2026_05_30` y `fiesta_verified_lorena_ferreira_2026_12_12`): se suspendió.
+     Si alguna tiene seña o cuotas cobradas, **no la borres**: dejá anotado en tu entrega cuánto y avisá. No le mandes nada a la clienta.
+  2. **Desplegar el despertador de las tareas automáticas** (`firebase deploy --only functions:despertadorTareasAutomaticas`): la pantalla dice
+     que nunca tocó la puerta. Después, la orden 278 bloque 1 (la clave), en el orden que dice ahí.
+  3. La fiesta de Soraya Texeira es la del **21/8/2027**; la copia del 4/3/2028 es vieja (la saca la orden 305).
+- **Corrección de Claude (15/11):** la falla de `orden-255-plan-real-bandeja` **no era tuya**: era basura de corrida en la máquina de Claude. Tus 1417 y 1419 se publican juntas con los arreglos de Claude.
+- **Queda de la 308:** las dos pruebas del auditor (`ponerSesionDeAuditor` no deja una sesión válida) y el cambio de `src/app/(app)/settings/datos/page.tsx` con su prueba. No saques `puedeVerLaPlataDelCliente` (el personal no ve contrato ni pagos).
+- **Una sola propuesta.** No abras una por orden: cada fusión se paga.
+- **Antes de decir "terminé":** `docs/ANTES-DE-ENTREGAR.md`, preguntas 88 a 118.
 
 Para programar y asistir en este proyecto de forma óptima:
 0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está

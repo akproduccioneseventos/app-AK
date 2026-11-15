@@ -75,5 +75,5 @@ export default async function InvitacionPublicaPage(props: PageProps) {
 
   const config = buildInvitacionConfigFromFiesta(fiesta, fiesta.invitacionConfig);
 
-  return <InvitacionPublicaClient config={config} fiestaId={params.fiestaId} socialConnections={socialConnections} />;
+  return <InvitacionPublicaClient config={config} fiestaId={params.fiestaId} socialConnections={socialConnections} galeriaUrl={fiesta.galeriaUrl} />;
 }

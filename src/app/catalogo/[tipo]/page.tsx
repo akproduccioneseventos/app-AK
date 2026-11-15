@@ -688,14 +688,9 @@ export default function CatalogoTipoPage() {
         : catalogSettings.galeria.length > 0
           ? catalogSettings.galeria.map((item, idx) => ({ id: `cfg-gallery-${idx}`, src: item.url, alt: item.alt || `Foto ${idx + 1}` }))
           : catalog.gallery,
-      testimonials: catalogSettings.testimonios.length > 0
-        ? catalogSettings.testimonios.map((text, idx) => ({
-          id: `cfg-testimonial-${idx}`,
-          authorName: `Cliente ${idx + 1}`,
-          source: 'text' as const,
-          text,
-        }))
-        : catalog.testimonials,
+      testimonials: (catalog.testimonials || []).filter(
+        (t) => Boolean(t.authorName?.trim()) && !/^Cliente\s+\d+$/i.test(t.authorName.trim()),
+      ),
       faqs: (catalog.faqs || []).map((faq) => ({
         ...faq,
         answer: faq.answer.replace(/\{SENIA\}/g, formatCurrency(bookingDepositAmount)),
@@ -703,26 +698,21 @@ export default function CatalogoTipoPage() {
     };
   }, [catalog, catalogSettings, fotosDelTipo, bookingDepositAmount]);
 
+  const visibleSlides = useMemo(
+    () => SLIDE_ORDER.filter((id) => id !== 'testimonios' || (mergedCatalog?.testimonials?.length ?? 0) > 0),
+    [mergedCatalog?.testimonials?.length],
+  );
+
   const selectedPackage = useMemo(
     () => (mergedCatalog ? mergedCatalog.services.find((s) => s.id === selectedPackageId) ?? null : null),
     [mergedCatalog, selectedPackageId],
   );
 
-  const activeSlides = useMemo(
-    () =>
-      SLIDE_ORDER.filter(
-        (id) =>
-          id !== 'testimonios' ||
-          Boolean(mergedCatalog?.testimonials && mergedCatalog.testimonials.length > 0)
-      ),
-    [mergedCatalog?.testimonials]
-  );
-
   const goToSlide = useCallback((next: number) => {
-    const clamped = Math.max(0, Math.min(next, activeSlides.length - 1));
+    const clamped = Math.max(0, Math.min(next, visibleSlides.length - 1));
     setDirection(next > currentSlide ? 1 : -1);
     setCurrentSlide(clamped);
-  }, [currentSlide, activeSlides.length]);
+  }, [currentSlide, visibleSlides.length]);
 
   const goNext = useCallback(() => goToSlide(currentSlide + 1), [goToSlide, currentSlide]);
   const goPrev = useCallback(() => goToSlide(currentSlide - 1), [goToSlide, currentSlide]);
@@ -783,10 +773,10 @@ export default function CatalogoTipoPage() {
   if (!mergedCatalog) return notFound();
 
   const accent = getAccent(mergedCatalog.hero.accentColor);
-  const currentSlideId = activeSlides[currentSlide] ?? activeSlides[0];
-  const isLastSlide = currentSlide === activeSlides.length - 1;
+  const currentSlideId = visibleSlides[currentSlide] ?? visibleSlides[0];
+  const isLastSlide = currentSlide === visibleSlides.length - 1;
   const isFirstSlide = currentSlide === 0;
-  const progress = activeSlides.length > 1 ? ((currentSlide) / (activeSlides.length - 1)) * 100 : 100;
+  const progress = ((currentSlide) / Math.max(1, visibleSlides.length - 1)) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/20 flex flex-col">
@@ -815,13 +805,13 @@ export default function CatalogoTipoPage() {
             </div>
 
             <div className="flex-shrink-0 text-xs text-slate-400 font-mono">
-              {currentSlide + 1}/{activeSlides.length}
+              {currentSlide + 1}/{visibleSlides.length}
             </div>
           </div>
 
           {/* Slide index tabs (desktop) */}
           <div className="hidden lg:flex items-center gap-1 mt-3 flex-wrap">
-            {activeSlides.map((id, idx) => (
+            {visibleSlides.map((id, idx) => (
               <button
                 key={id}
                 onClick={() => goToSlide(idx)}
@@ -909,7 +899,7 @@ export default function CatalogoTipoPage() {
 
           {/* Dot indicators */}
           <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catálogo">
-            {activeSlides.map((_, idx) => (
+            {visibleSlides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}

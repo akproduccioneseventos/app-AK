@@ -68,7 +68,7 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: `npx next dev -H 127.0.0.1 -p ${port}`,
+        command: `npx next dev --hostname 127.0.0.1 --port ${port}`,
         url: `${baseURL}/api/health`,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,

@@ -169,3 +169,34 @@ Una línea por hallazgo, separados en tres listas:
 
 Para cada uno: **pantalla** (la dirección), **qué hiciste**, **qué esperabas**, **qué pasó**, y si podés una captura.
 Si viste la app **como cliente o como invitado**, decilo en la línea.
+
+---
+
+## Lo que falta auditar (actualizado el 14/11/2026)
+
+Ya auditado: contabilidad, simulador, presupuesto, catálogo, Club Uruguay, web y textos, entretenimiento, pantallas de la noche,
+red social, invitados y puerta, salón 3D, asistentes (Sofía y el del equipo), módulos de control y la guía de 19 puntos.
+
+### Se puede hacer HOY con el acceso de auditor (sólo mirar)
+
+1. **Personal por dentro:** ficha de cada empleado, recibos de sueldo y "Total cobrado", y el portal del personal abierto con su enlace.
+2. **Comida:** menús, recetas e ingredientes (que los costos salgan del ingrediente), y la lista de compras de una fiesta con invitados.
+3. **Barra:** que cada trago de la carta tenga receta con insumos que existan.
+4. **Contrato:** abrir el contrato de una fiesta real y leerlo entero (huecos, fechas, horas, cédula).
+5. **Logística:** lista de carga de una fiesta, equipos asignados y mantenimiento.
+6. **Volver a mirar lo arreglado** cuando Claude avise que se publicó: fiestas contadas una vez (59 → 22), alertas, portal sin sesión,
+   respuestas del asistente.
+
+### Se puede cuando Gemini termine la orden 299 (fiesta de muestra para el auditor)
+
+7. Portal del cliente completo: pagos, contrato, decoración, invitados, como si fuera el cliente.
+8. Simulador hasta el final como prospecto, sin que quede guardado.
+
+### NO se puede con este acceso (hace falta el dueño)
+
+9. **Lo que guarda o cobra** (emitir factura, registrar un pago, agendar, firmar): sólo con una cuenta que escriba. Se hace en la
+   fiesta de muestra cuando esté la orden 299, o con el dueño al lado.
+10. **Cada papel por separado** (secretaria, personal, operador de la noche, proveedor): hace falta que el dueño cree una cuenta de
+    prueba por papel.
+11. **La voz del asistente:** sólo en un teléfono de verdad.
+12. **Volver atrás desde una copia de seguridad:** es destructivo; sólo con el dueño y sobre la fiesta de muestra.
