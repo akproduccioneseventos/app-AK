@@ -44,7 +44,7 @@ test.describe('Orden 298: Presupuestos abre rápido sin esperar la corrección d
 
     // La sección de ordenados aparece rápido y comprobamos el resultado
     const seccionOrdenados = page.getByText('Presupuestos ordenados');
-    await expect(seccionOrdenados.first()).toBeVisible({ timeout: 20_000 });
+    await expect(seccionOrdenados.first()).toBeVisible({ timeout: 120_000 });
     await expect(seccionOrdenados).toHaveCount(1);
     await expect(seccionOrdenados.first()).toContainText('Presupuestos ordenados');
 

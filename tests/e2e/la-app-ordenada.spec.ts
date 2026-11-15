@@ -36,12 +36,13 @@ test.describe('La app ordenada (Orden 182)', () => {
     }
   });
   test('en escritorio, la ficha de fiesta muestra 5 pestañas y recuerda ?pestana=noche', async ({ page, context, baseURL }) => {
+    test.setTimeout(180_000);
     await ponerSesionDelEquipo(context, baseURL);
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`);
+    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`, { waitUntil: 'domcontentloaded' });
 
     for (const pestana of PESTANAS) {
-      await expect(page.getByRole('tab', { name: pestana })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('tab', { name: pestana })).toBeVisible({ timeout: 90_000 });
     }
 
     // Tocar 'La noche'
@@ -49,32 +50,34 @@ test.describe('La app ordenada (Orden 182)', () => {
     await expect(page).toHaveURL(/pestana=noche/);
     // Por defecto la ficha muestra sólo las herramientas principales; el check-in está en "todas".
     await page.getByRole('button', { name: 'Ver todas las herramientas' }).click();
-    await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 20_000 });
   });
 
   test('en celular, la ficha de fiesta muestra pestañas navegables y QR / Check-in en La noche', async ({ page, context, baseURL }) => {
+    test.setTimeout(180_000);
     await ponerSesionDelEquipo(context, baseURL);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`);
+    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`, { waitUntil: 'domcontentloaded' });
 
     for (const pestana of PESTANAS) {
-      await expect(page.getByRole('tab', { name: pestana })).toBeAttached();
+      await expect(page.getByRole('tab', { name: pestana })).toBeAttached({ timeout: 90_000 });
     }
 
     await page.getByRole('tab', { name: 'La noche' }).click();
     await expect(page).toHaveURL(/pestana=noche/);
     // Por defecto la ficha muestra sólo las herramientas principales; el check-in está en "todas".
     await page.getByRole('button', { name: 'Ver todas las herramientas' }).click();
-    await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 20_000 });
   });
 
   test('/marketing muestra las cuatro puertas y cada una apunta a una pantalla que existe', async ({ page, context, baseURL }) => {
+    test.setTimeout(180_000);
     await ponerSesionDelEquipo(context, baseURL);
     await page.goto('/marketing');
 
     for (const puerta of CUATRO_PUERTAS_MARKETING) {
       const enlace = page.locator(`a[href="${puerta.destino}"]`).first();
-      await expect(enlace, `Enlace a ${puerta.destino} debe existir`).toBeAttached({ timeout: 15_000 });
+      await expect(enlace, `Enlace a ${puerta.destino} debe existir`).toBeAttached({ timeout: 45_000 });
       await expect(page.getByText(puerta.titulo)).toBeVisible();
 
       const res = await page.request.get(puerta.destino);

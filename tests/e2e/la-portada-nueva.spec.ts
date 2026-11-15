@@ -41,14 +41,14 @@ test.describe('Orden 177: La portada nueva (Plan Argon)', () => {
     await seVe(page.getByRole('button', { name: /Fotos de montajes/i }));
     await seVe(page.getByRole('button', { name: /Videos de fiestas reales/i }));
 
-    // 7. Estaciones: 3 grupos de filtros y Tótem Touch IA con Exclusivo con IA
+    // 7. Estaciones: 3 grupos de filtros y Tótem Touch IA con Con IA (Orden 297)
     // En el celular el botón muestra el nombre corto ("Visual y viral"); en escritorio, el largo.
     await seVe(page.getByRole('button', { name: /visual y viral/i }));
     await seVe(page.getByRole('button', { name: /Emoción y recuerdos/i }));
     await seVe(page.getByRole('button', { name: /Interacción en pista/i }));
 
     await seVe(page.getByRole('button', { name: /Tótem Touch IA/i }));
-    await seVe(page.getByText('Exclusivo con IA'));
+    await seVe(page.getByText(/Exclusivo con IA|Con IA/i));
 
     // 8. Ficha técnica del Salón Club Uruguay
     await seVe(page.getByText('Ficha técnica del salón'));

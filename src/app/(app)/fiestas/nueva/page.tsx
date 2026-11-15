@@ -330,6 +330,7 @@ function PlannerDashboardContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAllModules, setShowAllModules] = useState(false);
   const pestanaPedida = searchParams.get('pestana');
   const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(
     PESTANAS_FIESTA.some(p => p.id === pestanaPedida) ? (pestanaPedida as PestanaFiesta) : 'contrato-y-pagos'
@@ -966,6 +967,33 @@ function PlannerDashboardContent() {
           )}
         </div>
       </motion.div>
+
+      {/* Control de visualización: Herramientas Principales vs Ver todas las herramientas */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div>
+          <h3 className="text-sm sm:text-base font-black text-slate-800 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            {!showAllModules ? "Herramientas Principales del Evento" : "Todas las Herramientas y Categorías"}
+          </h3>
+          <p className="text-xs text-muted-foreground font-medium">
+            {!showAllModules
+              ? "Mostrando los accesos clave para la gestión diaria de la fiesta."
+              : "Mostrando todos los módulos disponibles para la fiesta."}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <Button
+            type="button"
+            variant={showAllModules ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowAllModules(!showAllModules)}
+            className="rounded-xl font-bold text-xs gap-1.5"
+          >
+            {showAllModules ? "Mostrar sólo principales" : "Ver todas las herramientas"}
+          </Button>
+        </div>
+      </div>
 
       {/* Module grid grouped by 5 Pestañas (Orden 284 Bloque 5) */}
       <div className="space-y-8 sm:space-y-12">

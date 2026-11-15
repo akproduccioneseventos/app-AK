@@ -26,7 +26,17 @@ import video_de_vida
 import redes
 import wfolio
 import glob
-from fotos import aprender_mi_estilo, procesar_seleccion_fotos
+import base64
+from fotos import (
+    AJUSTES_BASE_ESCENAS,
+    aprender_mi_estilo,
+    calcular_correccion_foto,
+    clasificar_escena,
+    leer_foto,
+    procesar_seleccion_fotos,
+    simular_edicion_foto,
+    volver_al_original,
+)
 
 PUERTO = 8765
 
@@ -43,17 +53,32 @@ ESTADO_GLOBAL = {
     "analizador": None,
 }
 
-# Estado global para el módulo de Fotos (Orden 280)
+# Estado global para el módulo de Fotos (Orden 280 / 307)
 ESTADO_FOTOS = {
     "carpeta": "",
     "en_progreso": False,
     "total": 0,
     "elegidas": 0,
     "rechazadas": 0,
+    "fotos_agasajada": 0,
+    "mensaje_agasajada": "",
     "detalles": [],
     "mensaje": "Listo para elegir fotos",
     "estilo_aprendido": None,
 }
+
+
+def codificar_miniatura_b64(img: np.ndarray, max_dim: int = 400) -> str:
+    """Codifica una imagen redimensionada en JPEG Base64 para vistas previas."""
+    if img is None or img.size == 0:
+        return ""
+    h, w = img.shape[:2]
+    if max(h, w) > max_dim:
+        scale = max_dim / float(max(h, w))
+        img = cv2.resize(img, (int(w * scale), int(h * scale)))
+    _, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return base64.b64encode(buf).decode("utf-8")
+
 
 # Estado global para Video de Vida (Orden 288)
 ESTADO_VIDA = {
@@ -711,6 +736,13 @@ class AKEditorHandler(BaseHTTPRequestHandler):
 
         if ruta == "/api/fotos/procesar":
             carpeta = body.get("carpeta", "").strip()
+            fotos_agasajada_raw = body.get("fotos_agasajada", [])
+            fotos_agasajada = []
+            if isinstance(fotos_agasajada_raw, str) and fotos_agasajada_raw.strip():
+                fotos_agasajada = [p.strip() for p in fotos_agasajada_raw.split(",") if p.strip()]
+            elif isinstance(fotos_agasajada_raw, list):
+                fotos_agasajada = [str(p).strip() for p in fotos_agasajada_raw if str(p).strip()]
+
             if not carpeta or not os.path.exists(carpeta):
                 self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
                 return
@@ -732,6 +764,8 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                         ESTADO_FOTOS["total"] = 0
                         ESTADO_FOTOS["elegidas"] = 0
                         ESTADO_FOTOS["rechazadas"] = 0
+                        ESTADO_FOTOS["fotos_agasajada"] = 0
+                        ESTADO_FOTOS["mensaje_agasajada"] = ""
                         ESTADO_FOTOS["detalles"] = []
                         return
 
@@ -740,11 +774,17 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                     def prog_cb(act, tot, msg):
                         ESTADO_FOTOS["mensaje"] = f"Procesando {act}/{tot}: {msg}"
 
-                    res = procesar_seleccion_fotos(rutas, progreso_callback=prog_cb)
+                    res = procesar_seleccion_fotos(
+                        rutas,
+                        fotos_referencia_agasajada=fotos_agasajada if fotos_agasajada else None,
+                        progreso_callback=prog_cb,
+                    )
                     ESTADO_FOTOS["elegidas"] = res["elegidas"]
                     ESTADO_FOTOS["rechazadas"] = res["rechazadas"]
+                    ESTADO_FOTOS["fotos_agasajada"] = res.get("fotos_agasajada", 0)
+                    ESTADO_FOTOS["mensaje_agasajada"] = res.get("mensaje_agasajada", "")
                     ESTADO_FOTOS["detalles"] = res["detalles"]
-                    ESTADO_FOTOS["mensaje"] = f"Selección completa: {res['elegidas']} elegidas, {res['rechazadas']} rechazadas."
+                    ESTADO_FOTOS["mensaje"] = f"Selección completa: {res['elegidas']} elegidas, {res['rechazadas']} rechazadas. {res.get('mensaje_agasajada', '')}"
                 except Exception as e:
                     ESTADO_FOTOS["mensaje"] = f"Error al procesar fotos: {str(e)}"
                 finally:
@@ -752,6 +792,54 @@ class AKEditorHandler(BaseHTTPRequestHandler):
 
             threading.Thread(target=tarea_fotos, daemon=True).start()
             self._responder_json(200, {"ok": True, "mensaje": "Procesamiento de fotos iniciado"})
+            return
+
+        if ruta == "/api/fotos/volver-al-original":
+            ruta_foto = body.get("ruta", "").strip()
+            if not ruta_foto or not os.path.exists(ruta_foto):
+                self._responder_json(400, {"error": "Ruta de foto inválida"})
+                return
+            ok = volver_al_original(ruta_foto)
+            for f in ESTADO_FOTOS.get("detalles", []):
+                if f.get("ruta") == ruta_foto:
+                    f["parametros_develop"] = None
+            self._responder_json(200, {"ok": ok, "mensaje": "Ajustes eliminados del .xmp"})
+            return
+
+        if ruta == "/api/fotos/previa-comparativa":
+            ruta_foto = body.get("ruta", "").strip()
+            if not ruta_foto or not os.path.exists(ruta_foto):
+                self._responder_json(400, {"error": "Ruta de foto inválida"})
+                return
+            img_orig = leer_foto(ruta_foto)
+            if img_orig is None:
+                self._responder_json(500, {"error": "No se pudo leer la foto"})
+                return
+
+            det = next((f for f in ESTADO_FOTOS.get("detalles", []) if f.get("ruta") == ruta_foto), None)
+            params = det.get("parametros_develop") if det else None
+            if not params:
+                escena = clasificar_escena(img_orig)
+                base = dict(AJUSTES_BASE_ESCENAS.get(escena, AJUSTES_BASE_ESCENAS["Salón noche"]))
+                params = calcular_correccion_foto(img_orig, base)
+
+            exp = float(params.get("Exposure2012", 0.0))
+            temp = float(params.get("Temperature", 5000))
+            tint = float(params.get("Tint", 0))
+            tex = float(params.get("Texture", 0))
+            clar = float(params.get("Clarity2012", 0))
+
+            img_edit = simular_edicion_foto(img_orig, exposure=exp, temperature=temp, tint=tint, texture=tex, clarity=clar)
+
+            orig_b64 = codificar_miniatura_b64(img_orig)
+            edit_b64 = codificar_miniatura_b64(img_edit)
+
+            self._responder_json(200, {
+                "ok": True,
+                "original_b64": orig_b64,
+                "editada_b64": edit_b64,
+                "parametros": params,
+            })
             return
 
         if ruta == "/api/fotos/aprender-estilo":
@@ -1082,11 +1170,17 @@ HTML_INTERFAZ = """<!DOCTYPE html>
           <input type="text" id="input-fotos-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Crudos">
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Fotos de la agasajada / cara principal (1 a 3 rutas opcionales, separadas por coma)</label>
+          <input type="text" id="input-fotos-agasajada" class="form-input" placeholder="C:\\Fotos\\Agasajada_01.jpg, C:\\Fotos\\Agasajada_02.jpg">
+        </div>
+
         <button class="btn btn-primary" onclick="procesarFotos()">Elegir fotos y enderezar</button>
 
         <div id="progreso-fotos-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
           Listo para comenzar
         </div>
+        <div id="aviso-agasajada" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #a21caf;"></div>
 
         <!-- Resumen de resultados -->
         <div id="resumen-fotos" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -1095,18 +1189,25 @@ HTML_INTERFAZ = """<!DOCTYPE html>
             <div id="stat-fotos-total" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">0</div>
           </div>
           <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
-            <div style="font-size: 0.75rem; color: #047857;">Elegidas (Rating 5)</div>
+            <div style="font-size: 0.75rem; color: #047857;">Elegidas (Rating 1-5)</div>
             <div id="stat-fotos-elegidas" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</div>
           </div>
           <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
             <div style="font-size: 0.75rem; color: #b91c1c;">Rechazadas (Rating 0)</div>
             <div id="stat-fotos-rechazadas" style="font-size: 1.5rem; font-weight: 700; color: #dc2626;">0</div>
           </div>
+          <div style="background: #fdf4ff; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
+            <div style="font-size: 0.75rem; color: #86198f;">Fotos Agasajada</div>
+            <div id="stat-fotos-agasajada" style="font-size: 1.5rem; font-weight: 700; color: #a21caf;">0</div>
+          </div>
         </div>
 
-        <!-- Guía de 3 pasos para retoque en Lightroom -->
+        <!-- Guía de 3 pasos para retoque en Lightroom (Bloque 4) -->
         <div style="margin-top: 1.5rem; background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 1rem;">
-          <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: #292524;">Retoque de piel y pelo en Lightroom Classic (Guía en 3 pasos)</h3>
+          <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: #292524;">Retoque de piel y pelo en Lightroom Classic (Orden 307 — Bloque 4)</h3>
+          <p style="font-size: 0.85rem; color: #57534e; margin-bottom: 0.5rem;">
+            Las fotos con personas llevan un suavizado suave global (textura −10, claridad −5) en su <code>.xmp</code>. El retoque fino (dientes, pelo suelto, brillo de piel) <strong>sigue en Lightroom Classic</strong> en un solo paso:
+          </p>
           <ol style="font-size: 0.85rem; color: #57534e; padding-left: 1.25rem; line-height: 1.6;">
             <li>En la biblioteca de Lightroom, filtrá por la palabra clave <strong>"con personas"</strong>.</li>
             <li>Seleccioná todas las fotos filtradas (<code>Ctrl + A</code>).</li>
@@ -1120,18 +1221,45 @@ HTML_INTERFAZ = """<!DOCTYPE html>
             <thead>
               <tr>
                 <th>Archivo</th>
-                <th>Estado</th>
-                <th>Motivo / Razón</th>
+                <th>Estado y Calificación</th>
+                <th>Escena y Ajustes</th>
                 <th>Personas</th>
                 <th>Enderezado</th>
+                <th>Antes / Después</th>
               </tr>
             </thead>
             <tbody id="tbody-fotos">
-              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Cargá una carpeta para procesar fotos</td></tr>
+              <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Cargá una carpeta para procesar fotos</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <!-- Modal Antes y Después (Bloque 3) -->
+      <div id="modal-comparativa" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:12px; padding:1.5rem; max-width:850px; width:90%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h3 id="modal-comparativa-titulo" style="font-size:1.1rem; font-weight:700; color:#1e293b;">Vista Antes y Después</h3>
+            <button onclick="cerrarComparativa()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+          </div>
+          <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+            <div style="flex:1; min-width:260px; text-align:center;">
+              <h4 style="font-size:0.9rem; color:#64748b; margin-bottom:0.5rem;">Original (Sin tocar)</h4>
+              <img id="img-comparativa-orig" style="max-width:100%; height:auto; border-radius:8px; border:1px solid #cbd5e1;" />
+            </div>
+            <div style="flex:1; min-width:260px; text-align:center;">
+              <h4 style="font-size:0.9rem; color:#047857; margin-bottom:0.5rem;">Editada (Aftershoot)</h4>
+              <img id="img-comparativa-edit" style="max-width:100%; height:auto; border-radius:8px; border:1px solid #cbd5e1;" />
+            </div>
+          </div>
+          <div id="datos-comparativa-ajustes" style="margin-top:1rem; font-size:0.85rem; color:#334155; background:#f8fafc; padding:0.75rem; border-radius:8px;"></div>
+          <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button class="btn btn-outline" id="btn-volver-original" onclick="ejecutarVolverAlOriginal()">Volver al original</button>
+            <button class="btn btn-primary" onclick="cerrarComparativa()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Card: Aprender mi estilo -->
       <div class="card">
@@ -1453,14 +1581,17 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       document.getElementById('resultado-video').innerText = 'Renderizado iniciado en segundo plano. Tiempo estimado: ' + data.tiempo_estimado + '. Destino: ' + data.destino;
     }
 
+    let fotoSeleccionadaParaComparativa = null;
+
     async function procesarFotos() {
       const carpeta = document.getElementById('input-fotos-carpeta').value.trim();
+      const fotos_agasajada = document.getElementById('input-fotos-agasajada').value.trim();
       if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos');
       document.getElementById('progreso-fotos-texto').innerText = 'Iniciando procesamiento de fotos...';
       const res = await fetch('/api/fotos/procesar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ carpeta })
+        body: JSON.stringify({ carpeta, fotos_agasajada })
       });
       const data = await res.json();
       if (!res.ok) return alert(data.error || 'Error al iniciar fotos');
@@ -1474,28 +1605,100 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       document.getElementById('stat-fotos-total').innerText = data.total;
       document.getElementById('stat-fotos-elegidas').innerText = data.elegidas;
       document.getElementById('stat-fotos-rechazadas').innerText = data.rechazadas;
+      if (document.getElementById('stat-fotos-agasajada')) {
+        document.getElementById('stat-fotos-agasajada').innerText = data.fotos_agasajada || 0;
+      }
+      if (document.getElementById('aviso-agasajada')) {
+        document.getElementById('aviso-agasajada').innerText = data.mensaje_agasajada || (data.fotos_agasajada ? `Salen ${data.fotos_agasajada} fotos de la agasajada` : '');
+      }
 
       if (data.detalles && data.detalles.length > 0) {
         const tbody = document.getElementById('tbody-fotos');
-        tbody.innerHTML = data.detalles.map(f => `
+        tbody.innerHTML = data.detalles.map(f => {
+          const estrellas = f.rating ? '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating) + ` (${f.rating})` : 'Rechazada';
+          const ajustesTxt = f.parametros_develop ? `Exp: ${f.parametros_develop.Exposure2012 >= 0 ? '+' : ''}${f.parametros_develop.Exposure2012} | ${f.parametros_develop.Temperature} K` : (f.motivo_rechazo || 'Rechazada');
+          const escenaTxt = f.escena ? `[${f.escena}] ` : '';
+          return `
           <tr>
-            <td><strong>${f.nombre}</strong></td>
+            <td>
+              <strong>${f.nombre}</strong>
+              ${f.contiene_agasajada ? '<span style="margin-left:0.35rem; font-size:0.75rem; background:#fdf4ff; color:#a21caf; padding:2px 6px; border-radius:4px; font-weight:600;">👑 Agasajada</span>' : ''}
+            </td>
             <td>
               <span class="badge" style="background:${f.estado === 'elegida' ? '#dcfce7' : '#fee2e2'}; color:${f.estado === 'elegida' ? '#15803d' : '#b91c1c'};">
-                ${f.estado === 'elegida' ? '★ Elegida (5)' : 'Rechazada'}
+                ${estrellas}
               </span>
             </td>
-            <td>${f.motivo_rechazo || 'Excelente nitidez y exposición'}</td>
+            <td><small>${escenaTxt}${ajustesTxt}</small></td>
             <td>${f.tiene_personas ? 'Con personas' : 'Sin personas'}</td>
             <td>${f.crop_angle ? f.crop_angle + '°' : 'No requirió'}</td>
+            <td>
+              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="abrirComparativa('${encodeURIComponent(f.ruta)}')">
+                Ver Antes / Después
+              </button>
+            </td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
       }
 
       if (data.en_progreso) {
         setTimeout(actualizarProgresoFotos, 1000);
       }
     }
+
+    async function abrirComparativa(rutaEncoded) {
+      const ruta = decodeURIComponent(rutaEncoded);
+      fotoSeleccionadaParaComparativa = ruta;
+      document.getElementById('modal-comparativa-titulo').innerText = 'Antes y Después: ' + ruta.split(/[\\\\/]/).pop();
+      document.getElementById('img-comparativa-orig').src = '';
+      document.getElementById('img-comparativa-edit').src = '';
+      document.getElementById('datos-comparativa-ajustes').innerText = 'Cargando y simulando vista previa...';
+      document.getElementById('modal-comparativa').style.display = 'flex';
+
+      const res = await fetch('/api/fotos/previa-comparativa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruta })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('datos-comparativa-ajustes').innerText = 'Error al cargar vista previa: ' + (data.error || 'desconocido');
+        return;
+      }
+      document.getElementById('img-comparativa-orig').src = 'data:image/jpeg;base64,' + data.original_b64;
+      document.getElementById('img-comparativa-edit').src = 'data:image/jpeg;base64,' + data.editada_b64;
+      const p = data.parametros || {};
+      document.getElementById('datos-comparativa-ajustes').innerHTML = `
+        <strong>Ajustes calculados estilo Aftershoot:</strong><br>
+        Exposición: <code>${p.Exposure2012 >= 0 ? '+' : ''}${p.Exposure2012 || 0} EV</code> |
+        Temperatura: <code>${p.Temperature || 5000} K</code> |
+        Matiz (Tint): <code>${p.Tint || 0}</code> |
+        Textura: <code>${p.Texture || 0}</code> |
+        Claridad: <code>${p.Clarity2012 || 0}</code>
+      `;
+    }
+
+    function cerrarComparativa() {
+      document.getElementById('modal-comparativa').style.display = 'none';
+      fotoSeleccionadaParaComparativa = null;
+    }
+
+    async function ejecutarVolverAlOriginal() {
+      if (!fotoSeleccionadaParaComparativa) return;
+      if (!confirm('¿Deseás sacar los ajustes automáticos del archivo .xmp de esta foto?')) return;
+      const res = await fetch('/api/fotos/volver-al-original', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruta: fotoSeleccionadaParaComparativa })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al volver al original');
+      alert('¡Listo! Se quitaron los ajustes del .xmp.');
+      cerrarComparativa();
+      actualizarProgresoFotos();
+    }
+
 
     async function cargarFotos() {
       actualizarProgresoFotos();

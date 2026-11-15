@@ -66,3 +66,43 @@ Todavía no se probó con una fiesta real.
 - **Memoria RAM máxima (proceso)**: 128.57 MB
 - **Cortes revisados por el dueño**: sin revisar
 - **Compatibilidad con Filmora**: sin probar
+
+## Medición de edición de fotos estilo Aftershoot (Orden 307)
+
+Planilla para completar por el dueño con 500 NEF de una fiesta real (no inventar datos):
+
+- **Material analizado**: 500 fotos NEF (sin correr todavía en fiesta real)
+- **Tiempo transcurrido**: sin medir
+- **Fotos elegidas**: sin medir
+- **Fotos rechazadas**: sin medir
+- **Memoria RAM máxima**: sin medir
+
+### Muestra de 10 fotos antes y después (para completar tras la corrida real)
+
+| Foto | Escena clasificada | Exposición calculada | Temperatura calculada | Resultado visual |
+|---|---|---|---|---|
+| Foto 01 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 02 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 03 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 04 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 05 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 06 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 07 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 08 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 09 | pendiente | pendiente | pendiente | sin revisar |
+| Foto 10 | pendiente | pendiente | pendiente | sin revisar |
+
+
+## Medición de corrida real — 2026-11-15 12:47:25
+- **Material analizado**: 132.0 s (7 archivos)
+- **Tiempo transcurrido**: 47.56 s
+- **Memoria RAM máxima (proceso)**: 129.10 MB
+- **Cortes revisados por el dueño**: sin revisar
+- **Compatibilidad con Filmora**: sin probar
+
+## Medición de corrida real — 2026-11-15 12:59:33
+- **Material analizado**: 132.0 s (7 archivos)
+- **Tiempo transcurrido**: 43.29 s
+- **Memoria RAM máxima (proceso)**: 128.75 MB
+- **Cortes revisados por el dueño**: sin revisar
+- **Compatibilidad con Filmora**: sin probar
