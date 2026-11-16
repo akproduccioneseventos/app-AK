@@ -2,15 +2,11 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 15/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 16/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Tu 1406 (head `6df74926`) casi pasa: compila, 6071 pruebas en verde y la plata está bien.** Faltan dos cosas:
-  1. `tests/e2e/presupuestos-abre-rapido.spec.ts` falla por **tercera vez** (se agota el tiempo). **La falla es de la prueba:**
-     retiene *toda* acción del servidor cuyo cuerpo es `'[]'`, y la que carga la lista (`getPresupuestosConTotal()` sin
-     argumentos) también manda `'[]'`, así que la lista nunca llega. Retené sólo la reparación (por ejemplo, pasale a
-     `repairVerifiedBudgetDates` un argumento propio y retené ese cuerpo). Corré la prueba sola dos veces en verde antes de entregar.
-  2. `public/descargas/ak-editor.zip` desactualizado: `npm run editor:empaquetar`. Y no subas `data/notifications.json`,
-     `data/asistente-historial-aceptaciones.json` ni `src/data/notifications.json` (dejalos como en `origin/main`).
+- **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
+- **Nuevo, pedido del dueño:** orden **309** (el blog trae noticias y tendencias del mundo, todos los días, y vende al final).
+  Rama nueva desde `origin/main`, una sola propuesta.
 - **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**
   1. **Borrar las dos fiestas de Lorena Ferreira** (`fiesta_doc_lorena_ferreira_2026_05_30` y `fiesta_verified_lorena_ferreira_2026_12_12`): se suspendió.
      Si alguna tiene seña o cuotas cobradas, **no la borres**: anotá cuánto y avisá. No le mandes nada a la clienta.
