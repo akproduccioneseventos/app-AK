@@ -588,6 +588,26 @@
     "147": {
       "fecha": "2026-11-14",
       "resultado": "El contrato lee con getFiestaForPortalSession (sólo cliente) → orden 308 bloque 2. Decoración, ideas y mesas ya pasan por el control que acepta las dos sesiones."
+    },
+    "148": {
+      "fecha": "2026-11-16",
+      "resultado": "Conteos de menú: sin números fijos en pantallas; vienen del catálogo → orden 310 bloque 4."
+    },
+    "149": {
+      "fecha": "2026-11-16",
+      "resultado": "La DEMO sin filtrar en 7 acciones de alertas y tareas → orden 310 bloque 2."
+    },
+    "150": {
+      "fecha": "2026-11-16",
+      "resultado": "Dos vistas del mismo dato con cálculos distintos (tablero 7/7 vs configuración 49%) → orden 310 bloque 2."
+    },
+    "151": {
+      "fecha": "2026-11-16",
+      "resultado": "Fin de la fiesta fijo 05:00 en tres lugares y el calendario con el suyo → orden 310 bloque 6."
+    },
+    "152": {
+      "fecha": "2026-11-16",
+      "resultado": "Fiestas que desaparecen: el código sólo esconde copias gemelas; se cuenta contra respaldos → orden 310 bloque 1."
     }
   },
   "hallazgos": {
@@ -950,6 +970,10 @@
     "orden-308": {
       "fecha": "2026-11-14",
       "resultado": "Reauditoría post-publicación: botones destructivos visibles para el auditor, contrato que no abre con la sesión del equipo, insumo vacío en recetas de la barra y textos ('Stonk', 'GROUMET', nota interna) → orden 308."
+    },
+    "orden-310": {
+      "fecha": "2026-11-16",
+      "resultado": "Retest integral del auditor: fiestas que no aparecen, DEMO mezclada, PRUEBA en CRM, conteos del catálogo, textos internos, contrato incompleto, PDF vacío, respaldo por tiempo → orden 310."
     }
   }
 }

@@ -1743,3 +1743,24 @@ Reauditoría del 13/11/2026. El auditor, de sólo mirar, veía "Eliminar todo pe
 ### 147. Una pantalla del portal, ¿abre también con la sesión del equipo, o sólo con la del cliente?
 
 Reauditoría del 13/11/2026. El contrato del portal decía "No pudimos cargar tu contrato" con la sesión del equipo, porque leía sólo con la del cliente. Se recorren las pantallas de `src/app/portal/` y se mira con qué función leen la fiesta.
+
+### 148. Un número que la pantalla anuncia ("25 entradas"), ¿se calcula de la lista real o está escrito a mano?
+
+Retest del 16/11/2026: el catálogo decía 25 entradas y había 22. Todo conteo que ve un cliente sale de contar la lista.
+
+### 149. La fiesta de muestra, ¿queda afuera de alertas, tareas, urgentes y números del negocio?
+
+Retest del 16/11/2026: la DEMO salía primera en "urgentes por falta de seña". Se buscan las acciones que recorren fiestas
+para avisar o contar, y cada una usa `esFiestaDemo`.
+
+### 150. Dos pantallas que muestran el mismo dato, ¿lo calculan con la misma función?
+
+Retest del 16/11/2026: el tablero decía "7/7 Todo en orden" y la configuración "8 módulos al 49%" de la misma fiesta.
+
+### 151. Un horario de la fiesta (inicio, fin), ¿sale del dato de la fiesta en todos lados, o hay uno fijo?
+
+Retest del 16/11/2026: el calendario terminaba 02:00 y el portal 05:00.
+
+### 152. Si una lista de la operación baja de golpe (fiestas, cobros, clientes), ¿alguien se entera y se puede contar contra el respaldo?
+
+Retest del 16/11/2026: Eventos pasó de 59 a 2 y nadie lo vio hasta el auditor.
