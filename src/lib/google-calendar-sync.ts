@@ -4,6 +4,7 @@ export interface GoogleCalendarEventDetails {
   location?: string;
   startIso: string;
   endIso?: string;
+  horaFin?: string;
 }
 
 /**
@@ -16,9 +17,19 @@ export function buildGoogleCalendarUrl(details: GoogleCalendarEventDetails): str
     throw new Error(`[GoogleCalendar] Fecha de inicio inválida: ${details.startIso}`);
   }
 
-  const endDate = details.endIso
-    ? new Date(details.endIso)
-    : new Date(startDate.getTime() + 4 * 60 * 60 * 1000);
+  let endDate: Date;
+  if (details.endIso) {
+    endDate = new Date(details.endIso);
+  } else if (details.horaFin && /^\d{2}:\d{2}$/.test(details.horaFin.trim())) {
+    const [hh, mm] = details.horaFin.trim().split(':').map(Number);
+    endDate = new Date(startDate);
+    endDate.setHours(hh, mm, 0, 0);
+    if (endDate <= startDate) {
+      endDate.setDate(endDate.getDate() + 1);
+    }
+  } else {
+    endDate = new Date(startDate.getTime() + 4 * 60 * 60 * 1000);
+  }
 
   if (isNaN(endDate.getTime())) {
     throw new Error(`[GoogleCalendar] Fecha de fin inválida: ${details.endIso}`);

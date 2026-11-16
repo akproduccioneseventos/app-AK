@@ -62,3 +62,13 @@ export function sortPastEvents(fiestas: FiestaEnPlanificacion[]): FiestaEnPlanif
     (a, b) => eventDateValue(b, 0) - eventDateValue(a, 0),
   );
 }
+
+/**
+ * Identifica si una fiesta es de muestra (DEMO AK) y no debe mezclarse con la operación real.
+ */
+export function esFiestaDemo(fiesta?: Partial<FiestaEnPlanificacion> | null): boolean {
+  if (!fiesta) return false;
+  const id = String(fiesta.id || '').toLowerCase();
+  const estado = String(fiesta.estado || '').trim();
+  return estado === 'Demo AK' || id.startsWith('demo_');
+}

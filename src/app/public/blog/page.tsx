@@ -103,10 +103,17 @@ export default async function BlogPage() {
                 />
               </div>
               <div className="space-y-4 p-6">
-                <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-red-700">
-                  <FeaturedIcon className="h-3.5 w-3.5" />
-                  Artículo destacado
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-red-700">
+                    <FeaturedIcon className="h-3.5 w-3.5" />
+                    Artículo destacado
+                  </p>
+                  {featured.tipoNota === 'tendencia' && (
+                    <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                      Tendencias
+                    </span>
+                  )}
+                </div>
                 <h2 className="text-2xl font-black leading-tight transition-colors group-hover:text-red-700">{featured.title}</h2>
                 <p className="line-clamp-3 text-sm font-medium leading-7 text-slate-600">{featured.excerpt}</p>
                 <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs font-black uppercase tracking-wider text-slate-500">

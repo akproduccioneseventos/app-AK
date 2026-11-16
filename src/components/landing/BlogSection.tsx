@@ -75,10 +75,17 @@ export function BlogSection({ posts }: BlogSectionProps) {
                   </div>
                   <div className="flex flex-1 flex-col justify-between space-y-6 p-7">
                     <div>
-                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-700">
-                        <Icon className="h-3.5 w-3.5" />
-                        {getBlogCategoryLabel(post.category)} - {post.readTime}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-700">
+                          <Icon className="h-3.5 w-3.5" />
+                          {getBlogCategoryLabel(post.category)} - {post.readTime}
+                        </span>
+                        {post.tipoNota === 'tendencia' && (
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-800">
+                            Tendencias
+                          </span>
+                        )}
+                      </div>
                       <h3 className="mt-3 text-xl font-black leading-tight text-slate-950 transition-colors duration-200 group-hover:text-red-700">
                         {post.title}
                       </h3>

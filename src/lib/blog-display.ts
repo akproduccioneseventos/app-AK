@@ -28,6 +28,11 @@ export function getBlogCategoryLabel(category: BlogPost['category']): string {
   return category;
 }
 
+export function getBlogTipoNotaLabel(tipoNota?: BlogPost['tipoNota']): string | null {
+  if (tipoNota === 'tendencia') return 'Tendencias';
+  return null;
+}
+
 export function getBlogPostCta(post: Pick<BlogPost, 'cta'>): BlogPostCta {
   if (post.cta?.label?.trim() && isSafeCtaHref(post.cta.href)) {
     return {
