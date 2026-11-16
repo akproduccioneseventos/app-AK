@@ -1499,6 +1499,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **El repositorio queda público hasta terminar la app (16 de noviembre de 2026).** Palabras suyas: *"cuando se termine la app va a pasar toda privada y solo yo voy a ver todos los datos con mi acceso"*. No se le vuelve a pedir que lo pase a privado; mientras tanto, los datos reales de personas no viajan en el repositorio (orden 311, bloque 1).
+
 - **Sofía y los precios; quién aprueba (14 de noviembre de 2026).** Si la clienta insiste, **Sofía dice el precio que tiene la lista** (el del catálogo), nunca un rango inventado. Lo que queda **"para tu OK" lo aprueba o rechaza sólo el dueño**, no la secretaria (`approvals.ts`, permiso ADMINISTRACION).
 
 - **IVA y vencimiento del presupuesto (13 de noviembre de 2026).** AK **no paga IVA**: las facturas van al 0% y no se vuelve a preguntar. Un presupuesto aceptado **vale desde la fecha en que se firma el contrato**; el ajuste anual corre desde ahí.
