@@ -513,5 +513,5 @@ export async function downloadSimulatorBudgetPdf(
     }, 1000);
     return;
   }
-  pdf.save(filename);
+  pdf.save(`presupuesto-ak-${input.documentId}.pdf`);
 }
