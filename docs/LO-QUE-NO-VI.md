@@ -1456,3 +1456,8 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 308 → pregunta 146
 - Orden 308 → pregunta 147
 - Orden 309 → no es un defecto
+- Orden 310 → pregunta 148
+- Orden 310 → pregunta 149
+- Orden 310 → pregunta 150
+- Orden 310 → pregunta 151
+- Orden 310 → pregunta 152

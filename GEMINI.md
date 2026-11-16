@@ -5,6 +5,8 @@
 **Actualizado el 16/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
+- **URGENTE, orden 310** (retest del auditor): primero el **bloque 1**, sólo contar fiestas contra los respaldos, sin
+  borrar ni restaurar nada. Después el resto de la 310 y la 309, **en una sola propuesta**.
 - **Nuevo, pedido del dueño:** orden **309** (el blog trae noticias y tendencias del mundo, todos los días, y vende al final).
   Rama nueva desde `origin/main`, una sola propuesta.
 - **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**

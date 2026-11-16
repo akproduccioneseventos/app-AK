@@ -116,6 +116,11 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  148: 'Conteos anunciados: orden 310 bloque 4, prueba del catálogo que cuenta la lista real.',
+  149: 'La DEMO fuera de alertas: comprobar de la orden 310 (esFiestaDemo en cada acción).',
+  150: 'Mismo dato, misma función: orden 310 bloque 2.',
+  151: 'Horario de la fiesta: comprobar de la orden 310 (horaFin en google-calendar-sync).',
+  152: 'Listas que bajan de golpe: orden 310 bloque 1, conteo contra respaldos.',
   146: 'Botones que borran a la vista: prueba lo-que-borra-no-se-ve-para-el-auditor (orden 308).',
   147: 'Portal con la sesión del equipo: prueba el-contrato-abre-con-la-sesion-del-equipo (orden 308).',
   145: 'Reemplazos de servicios pagos: pruebas test_fotos_edita_cada_foto y test_fotos_cara_principal (orden 307).',
