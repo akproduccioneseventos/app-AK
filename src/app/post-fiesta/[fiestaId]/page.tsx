@@ -139,7 +139,7 @@ export default async function PostFiestaPage(props: PageProps) {
             <CardTitle className="text-2xl font-black text-slate-900 mt-2">Descarga de Recuerdos Digitales</CardTitle>
             <CardDescription className="text-sm">
               {esEquipo
-                ? 'Descargá el material de la fiesta compilado externamente para cuidar tu consumo de datos de Firebase.'
+                ? 'Descargá el material de la fiesta compilado externamente en máxima resolución.'
                 : 'Reviví y descargá las fotos, videos y dedicatorias de tu fiesta.'}
             </CardDescription>
           </CardHeader>
@@ -265,7 +265,7 @@ export default async function PostFiestaPage(props: PageProps) {
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start mt-4">
                 <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Tus archivos multimedia y carpetas de descarga están vinculadas directamente a Google Drive o wfolio, asegurando que puedas guardar tu material completo y en alta resolución sin sobrecargas de datos en la plataforma.
+                  Tus archivos multimedia y carpetas de descarga están vinculadas directamente para que puedas descargar y guardar tu material completo en la máxima calidad.
                 </p>
               </div>
             )}

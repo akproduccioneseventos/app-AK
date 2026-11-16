@@ -36,6 +36,8 @@ import { getCartaTragosMaster, saveCartaTragosMaster } from '@/app/actions/carta
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const formatCurrency = (amount?: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(amount || 0));
@@ -70,6 +72,7 @@ export default function TragosMasterPage() {
 
   const [cartaPreview, setCartaPreview] = useState<CartaTragosData>(defaultCartaTragosData);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const [eventPeople, setEventPeople] = useState(100);
   const [selectedInsumoId, setSelectedInsumoId] = useState('');
@@ -79,6 +82,17 @@ export default function TragosMasterPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.INSUMOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const [master, allInsumos, allServicios] = await Promise.all([
         getCartaTragosMaster(),
         getInsumos(),
@@ -385,12 +399,14 @@ export default function TragosMasterPage() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label>Acciones</Label>
-                    <Button variant="destructive" onClick={() => removeItem(item.id)}>
-                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                    </Button>
-                  </div>
+                  {puedeBorrar && (
+                    <div className="space-y-1">
+                      <Label>Acciones</Label>
+                      <Button variant="destructive" onClick={() => removeItem(item.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
@@ -534,11 +550,13 @@ export default function TragosMasterPage() {
                               onChange={(e) => updateRecipeIngredient(item.id, index, { unidad: e.target.value })}
                             />
                           </div>
-                          <div className="col-span-2">
-                            <Button variant="ghost" onClick={() => removeRecipeIngredient(item.id, index)}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          {puedeBorrar && (
+                            <div className="col-span-2">
+                              <Button variant="ghost" onClick={() => removeRecipeIngredient(item.id, index)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         );
                       })}

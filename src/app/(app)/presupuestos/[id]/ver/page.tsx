@@ -327,7 +327,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         pdf.setTextColor(100);
         pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
       }
-      pdf.save(`presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`);
+      const filename = `presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`;
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } else {
+        pdf.save(filename);
+      }
       toast({
         title: 'Descarga exitosa',
         description: 'El archivo PDF de tu presupuesto se ha descargado correctamente.',

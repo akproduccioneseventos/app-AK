@@ -498,5 +498,20 @@ export async function downloadSimulatorBudgetPdf(
   input: SimulatorBudgetPdfInput,
 ) {
   const pdf = await createSimulatorBudgetPdf(input);
-  pdf.save(`presupuesto-ak-${input.documentId}.pdf`);
+  const filename = `presupuesto-ak-${input.documentId}.pdf`;
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    const blob = pdf.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
+    return;
+  }
+  pdf.save(filename);
 }

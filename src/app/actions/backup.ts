@@ -163,6 +163,58 @@ async function pruneV2Snapshots(db: Firestore): Promise<void> {
 const LECTURAS_A_LA_VEZ = 4;
 const TOPE_DE_LECTURA_DEL_RESPALDO_MS = 45_000;
 
+/**
+ * Lectura de presupuestos en partes (batches/paginación) para evitar que falle
+ * por tiempo en bases grandes (Bloque 7).
+ */
+async function readPresupuestosEnPartes(
+  db: Firestore,
+  topeMs: number = TOPE_DE_LECTURA_DEL_RESPALDO_MS,
+): Promise<{ valor: any[]; huboFalla: boolean; motivo?: string }> {
+  try {
+    const { FieldPath } = await import('firebase-admin/firestore');
+    const BATCH_SIZE = 50;
+    let allBudgets: any[] = [];
+    let lastDoc: FirebaseFirestore.QueryDocumentSnapshot | null = null;
+    let hasMore = true;
+    const startTime = Date.now();
+
+    while (hasMore) {
+      if (Date.now() - startTime > topeMs) {
+        throw new Error('Tiempo límite excedido leyendo presupuestos en partes');
+      }
+      let query = db.collection('presupuestos').orderBy(FieldPath.documentId()).limit(BATCH_SIZE);
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
+      }
+      const snapshot = await query.get();
+      if (snapshot.empty) {
+        hasMore = false;
+        break;
+      }
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        if (data) {
+          delete data._syncedAt;
+          allBudgets.push(data);
+        }
+      }
+      if (snapshot.docs.length < BATCH_SIZE) {
+        hasMore = false;
+      } else {
+        lastDoc = snapshot.docs[snapshot.docs.length - 1];
+      }
+    }
+    return { valor: allBudgets, huboFalla: false };
+  } catch (error) {
+    try {
+      return await readDataConDetalle('presupuestos.json', [], { topeMs });
+    } catch (fallbackError: any) {
+      return { valor: [], huboFalla: true, motivo: error instanceof Error ? error.message : String(error) };
+    }
+  }
+}
+
 async function readAllBackupData(): Promise<{
   leidas: Array<{ file: string; value: any }>;
   noSePudieronLeer: string[];
@@ -178,6 +230,20 @@ async function readAllBackupData(): Promise<{
     const tanda = BACKUP_COLLECTIONS.slice(i, i + LECTURAS_A_LA_VEZ);
     const leidasDeLaTanda = await Promise.all(tanda.map(async (collection): Promise<Resultado> => {
       try {
+        if (collection.file === 'presupuestos.json') {
+          let dbInstance: Firestore | null = null;
+          try {
+            dbInstance = await getBackupDb();
+          } catch {}
+          if (dbInstance) {
+            const { valor, huboFalla, motivo } = await readPresupuestosEnPartes(dbInstance, TOPE_DE_LECTURA_DEL_RESPALDO_MS);
+            if (huboFalla) {
+              console.warn(`[Backup] Lectura con fallas en ${collection.file}: no se guarda el snapshot`, motivo);
+              return { ok: false, file: collection.file, motivo: motivo || 'la lectura vino incompleta' };
+            }
+            return { ok: true, file: collection.file, value: valor };
+          }
+        }
         const { valor, huboFalla, motivo } = await readDataConDetalle(collection.file, collection.defaultValue, {
           topeMs: TOPE_DE_LECTURA_DEL_RESPALDO_MS,
         });
@@ -367,16 +433,17 @@ export async function getBackupStatus(): Promise<AutoBackupStatus> {
     } catch {}
   }
 
-  // Si aún no hay registro explícito, mirar el punto de restauración más reciente
+  // Buscar siempre la fecha de la última copia buena (manual o automática)
   let lastSuccessfulBackup = data?.lastCompletedAt || null;
-  if (!lastSuccessfulBackup) {
-    try {
-      const points = await getRestorePoints();
-      if (points.length > 0) {
-        lastSuccessfulBackup = points[0].timestamp;
+  try {
+    const points = await getRestorePoints();
+    if (points.length > 0) {
+      const newestPointTime = points[0].timestamp;
+      if (!lastSuccessfulBackup || new Date(newestPointTime).getTime() > new Date(lastSuccessfulBackup).getTime()) {
+        lastSuccessfulBackup = newestPointTime;
       }
-    } catch {}
-  }
+    }
+  } catch {}
 
   const lastAttemptAt = data?.lastAttemptAt || data?.failedAt || lastSuccessfulBackup;
   const lastError = data?.lastError || null;
@@ -478,6 +545,24 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
     };
     await manifestRef.set(manifest);
     await pruneV2Snapshots(db);
+
+    // Actualizar registro de última copia buena exitosa (Bloque 7)
+    const nowMs = Date.now();
+    await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).set({
+      lastCompletedAt: timestamp,
+      lastCompletedAtMs: nowMs,
+      lastAttemptAt: timestamp,
+      consecutiveFailures: 0,
+      lastError: null,
+      failedAt: null,
+    }, { merge: true }).catch(() => {});
+
+    await writeData('backup-status.json', {
+      lastCompletedAt: timestamp,
+      lastAttemptAt: timestamp,
+      consecutiveFailures: 0,
+      lastError: null,
+    }, undefined, { skipAutoBackup: true }).catch(() => {});
 
     return { success: true, point: toRestorePoint(manifest) };
   } catch (error: any) {

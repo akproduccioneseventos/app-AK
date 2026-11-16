@@ -8,7 +8,8 @@ function getPath(fiestaId: string) {
   return `mission-control/${fiestaId}.json`;
 }
 
-function createDefaultMissionControl(fiestaId: string): MissionControlData {
+function createDefaultMissionControl(fiestaId: string, horaFin?: string): MissionControlData {
+  const finFiesta = horaFin && /^\d{2}:\d{2}$/.test(horaFin.trim()) ? horaFin.trim() : '05:00';
   const etapas: EtapaTimeline[] = [
     {
       id: 'etapa-1',
@@ -129,7 +130,7 @@ function createDefaultMissionControl(fiestaId: string): MissionControlData {
       nombre: 'Desmontaje',
       descripcion: 'Limpieza y retiro de equipamiento',
       horaInicio: '03:00',
-      horaFin: '05:00',
+      horaFin: finFiesta,
       categoria: 'Montaje',
       estado: 'Pendiente',
       responsableLead: 'Por asignar',
@@ -156,7 +157,13 @@ export async function getMissionControl(fiestaId: string): Promise<{ success: bo
   try {
     const data = await readData<MissionControlData | null>(getPath(fiestaId), null);
     if (!data) {
-      const defaultData = createDefaultMissionControl(fiestaId);
+      let horaFin: string | undefined;
+      try {
+        const { getFiestaById } = await import('@/app/actions/fiesta-actual');
+        const fiesta = await getFiestaById(fiestaId);
+        horaFin = fiesta?.configuracion?.horaFin;
+      } catch {}
+      const defaultData = createDefaultMissionControl(fiestaId, horaFin);
       await writeData(getPath(fiestaId), defaultData);
       return { success: true, data: defaultData };
     }

@@ -133,6 +133,8 @@ export async function getMenus(): Promise<FullMenu[]> {
   return armarMenus();
 }
 
+import { sincronizarDescripcionMenu } from '@/lib/catering/sincronizar-menu';
+
 /** Sin comprobar sesion: uso interno de este archivo. */
 async function armarMenus(): Promise<FullMenu[]> {
   if (cachedMenus) return cachedMenus;
@@ -141,7 +143,7 @@ async function armarMenus(): Promise<FullMenu[]> {
   const menus = agregarVariantesBufet(menusGuardados);
 
   const allDishes = menus.flatMap(m => m.items);
-  const result = menus.map(m => recalculateMenu(m, catalog, allDishes));
+  const result = menus.map(m => sincronizarDescripcionMenu(recalculateMenu(m, catalog, allDishes)));
   cachedMenus = result;
   return result;
 }
@@ -183,7 +185,7 @@ async function readMenusFile(): Promise<FullMenu[]> {
 }
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
-  const cleanData = data.map(menu => ({
+  const cleanData = data.map(menu => sincronizarDescripcionMenu({
       ...menu,
       items: menu.items.filter(item => !item.id.endsWith('_virtual_buffet'))
   }));

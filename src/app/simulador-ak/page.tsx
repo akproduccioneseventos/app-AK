@@ -858,7 +858,22 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         pdf.setTextColor(100);
         pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
       }
-      pdf.save(`presupuesto-ak-${generatedId}.pdf`);
+      const filename = `presupuesto-ak-${generatedId}.pdf`;
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } else {
+        pdf.save(filename);
+      }
     } catch (error: any) {
       toast({
         title: 'No pudimos descargar el PDF',

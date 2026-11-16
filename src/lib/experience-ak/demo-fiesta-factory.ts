@@ -127,7 +127,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       tipoCelebracion: profile.type,
       fechaEvento: date,
       horaInicio: '21:00',
-      horaFin: '05:00',
+      horaFin: (profile as any).horaFin || initialFiestaActualData.configuracion?.horaFin || '05:00',
       nombreLugar: profile.place,
       direccionLugar: 'Uruguay 580, Salto',
       googleMapsUrl: 'https://maps.google.com',

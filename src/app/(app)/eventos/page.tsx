@@ -34,7 +34,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
+import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents, esFiestaDemo } from '@/lib/events/event-ordering';
 import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -126,15 +126,21 @@ export default function GestorFiestasPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return dedupedFiestasActivas.filter(fiesta => {
+      if (esFiestaDemo(fiesta)) return false;
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       return !eventDate || eventDate >= today || fiesta.estado === 'Contratada';
     }).length;
+  }, [dedupedFiestasActivas]);
+
+  const fiestasDemo = React.useMemo(() => {
+    return dedupedFiestasActivas.filter((f) => esFiestaDemo(f));
   }, [dedupedFiestasActivas]);
 
   const filteredFiestasActivas = React.useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return sortUpcomingEvents(dedupedFiestasActivas.filter(fiesta => {
+      if (esFiestaDemo(fiesta)) return false;
       const nombre = fiesta.configuracion.nombreEvento || '';
       const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
@@ -148,6 +154,7 @@ export default function GestorFiestasPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return sortPastEvents(dedupedFiestasActivas.filter(fiesta => {
+      if (esFiestaDemo(fiesta)) return false;
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       return eventDate && eventDate < today && !isContracted;
@@ -801,6 +808,60 @@ export default function GestorFiestasPage() {
           <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
             <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
             <p>No hay fiestas activas que coincidan con tu búsqueda.</p>
+          </div>
+        )}
+
+        {/* Fiesta de muestra (DEMO) aparte con su propio rótulo */}
+        {fiestasDemo.length > 0 && !isLoading && (
+          <div className="mt-8 print:break-before-page">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl font-semibold font-headline text-foreground print:text-lg">
+                Fiesta de muestra
+              </h2>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-300 font-bold">
+                Fiesta de muestra
+              </Badge>
+            </div>
+            <div className="overflow-hidden rounded-md border border-amber-200 bg-amber-50/20">
+              {fiestasDemo.map((fiesta) => (
+                <div
+                  key={fiesta.id}
+                  className="grid gap-4 p-4 transition-colors hover:bg-amber-100/30 md:grid-cols-[96px_minmax(200px,1.5fr)_minmax(180px,1fr)_auto] md:items-center"
+                >
+                  <div className="rounded-md bg-amber-100/80 px-3 py-2 text-center">
+                    <p className="text-xs font-semibold uppercase text-amber-800">Modelo</p>
+                    <p className="text-xl font-black text-amber-950">DEMO</p>
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate font-semibold text-foreground">
+                        {fiesta.configuracion.nombreEvento || 'Fiesta de muestra'}
+                      </h3>
+                      <Badge variant="outline" className="border-amber-400 text-amber-800 bg-amber-50 font-semibold">
+                        Fiesta de muestra
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {fiesta.configuracion.tipoCelebracion || 'Evento de muestra'} · Modelo para explorar el sistema sin alterar la operación real.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span><strong className="text-foreground">{fiesta.configuracion.invitadosEstimados || 0}</strong> invitados de muestra</span>
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 print:hidden md:justify-end">
+                    <Button asChild size="sm" variant="outline" className="border-amber-300 text-amber-900 hover:bg-amber-100">
+                      <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>Explorar muestra</Link>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

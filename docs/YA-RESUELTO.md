@@ -16472,3 +16472,13 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
 - **14/11/2026 — El portal del cliente ya no se abre con el enlace solo.** Decoración, tablero de ideas, contrato y mesas piden la sesión del equipo o la del portal de esa fiesta; sin ninguna, van a la entrada del portal (`src/lib/portal/el-portal-pide-sesion.ts`). Se hizo aparte y primero porque estaba roto en la app publicada (error 41); prueba `el-portal-del-cliente-pide-sesion`.
 
 - **14/11/2026 — Aprobar o rechazar lo que queda "para tu OK" es sólo del dueño.** La secretaria ya no puede (decisión del dueño). Prueba `aprueba-solo-el-duenio`.
+
+## 16/11/2026 - Orden 310 (Bloques 2, 4, 5, 6, 7 y 8)
+
+- **Bloque 2 (DEMO separada):** `esFiestaDemo` aplicada en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts`, `mi-dia/page.tsx`, `parte-manana.ts`, `asistente-proactivo/route.ts` y `motor-agentes.ts`. En `eventos/page.tsx` se muestra aparte como `"Fiesta de muestra"`, y el tablero + configuración de estaciones leen del mismo cálculo (`src/lib/entretenimiento/calculo-estaciones.ts`).
+- **Bloque 4 (Conteos dinámicos):** `sincronizarDescripcionMenu` (`src/lib/catering/sincronizar-menu.ts`) y los slides LED (`entradas-slide.tsx`, `menu-adulto-slide.tsx`) calculan las cantidades desde la lista real.
+- **Bloque 5 (Textos internos fuera):** se quitó `"Firebase"` en `post-fiesta/[fiestaId]/page.tsx`, la nota de venta interna en `portada-slide.tsx`, y `"AK está preparando esta sección"` en invitación y logística.
+- **Bloque 6 (Documentos):** el contrato toma datos del cliente/presupuesto y fechas de hitos avisando en rojo si faltan antes de imprimir; el simulador descarga el PDF por Blob URL sin pestaña en blanco; y el fin de fiesta usa `horaFin` (con fallback `'05:00'`).
+- **Bloque 7 (Respaldos):** `readPresupuestosEnPartes` lee en lotes de 50 documentos para evitar timeouts y `getBackupStatus` / `settings/backup/page.tsx` miran la fecha real de la última copia buena.
+- **Bloque 8 (Auditor):** se oculta `"Eliminar"` para `esSesionDeSoloLectura()` / sin permisos en recetas (`tragos`, `menus`, `catalogo`) y personal (`empleados`, `roles`, `fiestas/nueva/personal`).
+- *(Bloques 1 y 3 —contar fiestas en Firestore real y borrar registros `PRUEBA` en la base— quedan pendientes de conexión directa con credenciales de Firebase Admin en la PC del dueño).*

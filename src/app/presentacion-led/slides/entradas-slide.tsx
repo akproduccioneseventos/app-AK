@@ -196,7 +196,7 @@ export function EntradaSlide({
               Elegí las Entradas
             </h1>
             <p className="text-white/60 text-sm mt-1">
-              Seleccioná {requiredCount === 1 ? '1 entrada' : '2 entradas'} para el evento
+              Seleccioná {requiredCount === 1 ? '1 entrada' : '2 entradas'} para el evento ({entradas.length} entradas disponibles)
               {selectedIds.length > 0 && (
                 <span className="text-amber-300 font-semibold ml-2">
                   ({selectedIds.length}/{requiredCount} seleccionada{requiredCount !== 1 ? 's' : ''})

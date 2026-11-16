@@ -1199,16 +1199,19 @@ function SimuladorContent() {
     };
 
     const handleDownloadBudgetPdf = async () => {
-        if (!generatedPresupuestoId || isDownloadingPdf) return;
+        if (isDownloadingPdf) return;
         setIsDownloadingPdf(true);
         try {
-            const publicUrl = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`;
+            const docId = generatedPresupuestoId || 'estimado';
+            const publicUrl = generatedPresupuestoId
+                ? `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`
+                : window.location.href;
             const packageName = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId)?.nombre;
             await downloadSimulatorBudgetPdf({
-                documentId: generatedPresupuestoId,
+                documentId: docId,
                 publicUrl,
-                clientName: clienteNombre,
-                eventType: eventoTipo,
+                clientName: clienteNombre || 'Cliente',
+                eventType: eventoTipo || 'Evento',
                 eventDate: eventoFecha,
                 adults: adultos,
                 childrenAndTeens: ninosYAdolescentes,

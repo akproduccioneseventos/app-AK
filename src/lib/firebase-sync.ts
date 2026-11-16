@@ -502,6 +502,43 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
     // Array collection → read all docs and return as array
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
+      if (collectionName === 'presupuestos') {
+        // Bloque 7: Lectura de presupuestos en partes (batches/paginación) para que no falle por tiempo
+        const BATCH_SIZE = 50;
+        let allDocs: QueryDocumentSnapshot[] = [];
+        const { FieldPath } = await import('firebase-admin/firestore');
+        let query = db.collection(collectionName).orderBy(FieldPath.documentId()).limit(BATCH_SIZE);
+        let hasMore = true;
+        while (hasMore) {
+          const snapshot = await queryWithTimeout(query.get(), opciones.tiempoMs);
+          if (snapshot.empty) {
+            hasMore = false;
+            break;
+          }
+          allDocs = allDocs.concat(snapshot.docs);
+          if (snapshot.docs.length < BATCH_SIZE) {
+            hasMore = false;
+          } else {
+            const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+            query = db.collection(collectionName).orderBy(FieldPath.documentId()).startAfter(lastDoc).limit(BATCH_SIZE);
+          }
+        }
+        if (allDocs.length === 0) return ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
+        if (opciones.conMarcas) {
+          return marcarLectura(allDocs.map((doc: QueryDocumentSnapshot) => {
+            const data = doc.data();
+            const version = String(data._syncedAt ?? '');
+            delete data._syncedAt;
+            return { datos: sacarMarcas(data), version };
+          }));
+        }
+        return allDocs.map((doc: QueryDocumentSnapshot) => {
+          const data = doc.data();
+          delete data._syncedAt;
+          return data;
+        });
+      }
+
       const snapshot = await queryWithTimeout(db.collection(collectionName).get(), opciones.tiempoMs);
       // Una baja individual puede dejar proveedores vacio; no revivir la copia JSON vieja.
       // Esto no habilita el borrado masivo mediante syncToFirestore([]).

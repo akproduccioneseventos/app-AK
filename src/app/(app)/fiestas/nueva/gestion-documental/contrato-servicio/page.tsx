@@ -45,6 +45,37 @@ const formatDate = (dateString?: string) => {
 
 const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
+const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'setiembre', 'octubre', 'noviembre', 'diciembre'];
+function formatFechaEnEspanol(d: Date): string {
+  return `${d.getDate()} de ${MESES_ES[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+function calcularHitosDeContrato(fechaEventoStr?: string, fechaFirmaStr?: string) {
+  let hito30 = '';
+  let hito50 = '';
+  let fechaSaldoTotal = '';
+
+  if (!fechaEventoStr) return { hito30, hito50, fechaSaldoTotal };
+  const eventoDate = new Date(fechaEventoStr);
+  if (isNaN(eventoDate.getTime())) return { hito30, hito50, fechaSaldoTotal };
+
+  const dSaldo = new Date(eventoDate.getFullYear(), eventoDate.getMonth(), eventoDate.getDate() - 30, 12, 0, 0);
+  fechaSaldoTotal = formatFechaEnEspanol(dSaldo);
+
+  const firmaDate = fechaFirmaStr ? new Date(fechaFirmaStr) : new Date();
+  if (!isNaN(firmaDate.getTime())) {
+    const diffDias = Math.round((eventoDate.getTime() - firmaDate.getTime()) / (24 * 60 * 60 * 1000));
+    if (diffDias > 0) {
+      const d30 = new Date(firmaDate.getFullYear(), firmaDate.getMonth(), firmaDate.getDate() + Math.floor(diffDias / 3), 12, 0, 0);
+      hito30 = formatFechaEnEspanol(d30);
+      const d50 = new Date(firmaDate.getFullYear(), firmaDate.getMonth(), firmaDate.getDate() + Math.floor(diffDias / 2), 12, 0, 0);
+      hito50 = formatFechaEnEspanol(d50);
+    }
+  }
+
+  return { hito30, hito50, fechaSaldoTotal };
+}
+
 function ContratoServicioContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -169,20 +200,30 @@ function ContratoServicioContent() {
                 }
               }
 
+              const hitos = calcularHitosDeContrato(
+                fiestaData.configuracion.fechaEvento,
+                fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp
+              );
+
               const replacements: Record<string, string> = {
                   '{{FECHA_HOY}}': today,
+                  '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
+                  '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
                   '{{EMPRESA_NOMBRE}}': companyData.companyName,
                   '{{EMPRESA_RUT}}': companyData.companyTaxId,
                   '{{EMPRESA_DIRECCION}}': companyData.companyAddress,
                   '{{EMPRESA_EMAIL}}': companyData.companyContact,
                   '{{CLIENTE_NOMBRE}}': clienteData?.name || clienteData?.companyName || '________________________',
-                  '{{CLIENTE_DIRECCION}}': clienteData?.address || '________________________',
-                  '{{CLIENTE_CI}}': clienteData?.taxId || '_______________________',
-                  '{{CLIENTE_TELEFONO}}': clienteData?.phone || '_______________________',
+                  '{{CLIENTE_DIRECCION}}': clienteData?.address || (clienteData as any)?.domicilio || (presupuestoData as any)?.clienteDomicilio || '________________________',
+                  '{{CLIENTE_CI}}': clienteData?.ci || clienteData?.taxId || (presupuestoData as any)?.clienteCi || (presupuestoData as any)?.ci || '_______________________',
+                  '{{CLIENTE_TELEFONO}}': clienteData?.phone || (clienteData as any)?.telefono || presupuestoData?.clienteContacto || '_______________________',
                   '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
                   '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
                   '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
                   '{{SENIA}}': seniaValue,
+                  '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
+                  '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
+                  '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
                   '{{MOTIVO_CANCELACION}}': '________________________',
                   '{{NUEVA_FECHA}}': '________________________',
                   '{{PENALIZACION_PORCENTAJE}}': '30%',
@@ -220,20 +261,30 @@ function ContratoServicioContent() {
       } catch {}
     }
     let text = selectedTemplate.template;
+    const hitos = calcularHitosDeContrato(
+      fiesta.configuracion.fechaEvento,
+      fiesta.contratoDatos?.fechaFirmaContrato || presupuesto?.timestamp
+    );
+
     const replacements: Record<string, string> = {
       '{{FECHA_HOY}}': today,
+      '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
+      '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
       '{{EMPRESA_NOMBRE}}': companyInfo.companyName,
       '{{EMPRESA_RUT}}': companyInfo.companyTaxId,
       '{{EMPRESA_DIRECCION}}': companyInfo.companyAddress,
       '{{EMPRESA_EMAIL}}': companyInfo.companyContact,
       '{{CLIENTE_NOMBRE}}': cliente?.name || cliente?.companyName || '________________________',
-      '{{CLIENTE_DIRECCION}}': cliente?.address || '________________________',
-      '{{CLIENTE_CI}}': cliente?.taxId || '_______________________',
-      '{{CLIENTE_TELEFONO}}': cliente?.phone || '_______________________',
+      '{{CLIENTE_DIRECCION}}': cliente?.address || (cliente as any)?.domicilio || (presupuesto as any)?.clienteDomicilio || '________________________',
+      '{{CLIENTE_CI}}': cliente?.ci || cliente?.taxId || (presupuesto as any)?.clienteCi || (presupuesto as any)?.ci || '_______________________',
+      '{{CLIENTE_TELEFONO}}': cliente?.phone || (cliente as any)?.telefono || presupuesto?.clienteContacto || '_______________________',
       '{{EVENTO_FECHA}}': formatDate(fiesta.configuracion.fechaEvento),
       '{{EVENTO_SALON}}': fiesta.configuracion.nombreLugar || '____________',
       '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado),
       '{{SENIA}}': seniaValue,
+      '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
+      '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
+      '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
       '{{MOTIVO_CANCELACION}}': '________________________',
       '{{NUEVA_FECHA}}': '________________________',
       '{{PENALIZACION_PORCENTAJE}}': '30%',
@@ -254,6 +305,28 @@ function ContratoServicioContent() {
     () => Array.from(new Set(contractText.match(/\{\{[^}]+\}\}/g) ?? [])),
     [contractText],
   );
+
+  const datosFaltantesContrato = useMemo(() => {
+    const faltantes: string[] = [];
+    const ciVal = (cliente?.ci || cliente?.taxId || (presupuesto as any)?.clienteCi || (presupuesto as any)?.ci || '').trim();
+    if (!ciVal) faltantes.push('Cédula de identidad del cliente');
+    const domVal = (cliente?.address || (cliente as any)?.domicilio || (presupuesto as any)?.clienteDomicilio || '').trim();
+    if (!domVal) faltantes.push('Domicilio del cliente');
+    const telVal = (cliente?.phone || (cliente as any)?.telefono || presupuesto?.clienteContacto || '').trim();
+    if (!telVal) faltantes.push('Teléfono del cliente');
+
+    if (contractText.includes('al primer tercio del plazo') || !/primer tercio[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del hito de pago 30% (primer tercio sin fecha)');
+    }
+    if (contractText.includes('a la mitad del plazo') || !/mitad de ese tiempo[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del hito de pago 50% (mitad de plazo sin fecha)');
+    }
+    if (contractText.includes('30 días antes del evento') || !/treinta \(30\) días antes del evento[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del saldo final (30 días antes)');
+    }
+
+    return faltantes;
+  }, [cliente, presupuesto, contractText]);
 
   // Cambiar de plantilla reescribe el contrato entero. Antes lo hacia sin
   // preguntar y se llevaba puestas las clausulas escritas a mano.
@@ -464,6 +537,19 @@ function ContratoServicioContent() {
                       <strong>{marcadoresSinCompletar.join(', ')}</strong>. Si lo imprimís así, el cliente lo va a ver tal cual.
                       Completalo con el botón Editar Legal.
                     </p>
+                  </div>
+                </div>
+              )}
+              {datosFaltantesContrato.length > 0 && (
+                <div className="mt-3 rounded-lg border-2 border-red-500 bg-red-50 p-3 flex gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-bold text-red-900 uppercase tracking-tight">Faltan datos obligatorios antes de imprimir:</p>
+                    <ul className="list-disc list-inside text-red-800 mt-1 font-semibold space-y-0.5">
+                      {datosFaltantesContrato.map((d, i) => (
+                        <li key={i}>{d}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               )}

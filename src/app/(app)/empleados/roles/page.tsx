@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, BadgeHelp, UsersRound, DollarSign, Percent } from 'lucide-react';
 import { getRoles, saveRol, deleteRol as deleteRolAction } from '@/app/actions/roles';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -47,6 +49,7 @@ export default function GestionRolesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
@@ -54,6 +57,17 @@ export default function GestionRolesPage() {
   const fetchRoles = useCallback(async () => {
     setIsLoading(true);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.SUELDOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const data = await getRoles();
       setRoles(data);
     } catch (error) {
@@ -283,6 +297,7 @@ export default function GestionRolesPage() {
                     </div>
                     <div className="flex gap-1.5 self-start sm:self-center flex-shrink-0">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openModal(rol)}><Edit3 className="w-4 h-4" /></Button>
+                      {puedeBorrar && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="destructive" size="icon" className="h-8 w-8" disabled={deletingId === rol.id}>
@@ -305,6 +320,7 @@ export default function GestionRolesPage() {
                           </AlertDialogFooterConfirm>
                         </AlertDialogContentConfirm>
                       </AlertDialog>
+                      )}
                     </div>
                   </div>
                 </Card>

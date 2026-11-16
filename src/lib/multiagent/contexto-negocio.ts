@@ -17,6 +17,7 @@
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { puede, PERMISOS, perfilDe } from '@/lib/auth/perfiles';
 import { hoyEnUruguay } from '@/lib/utils';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 /** Tope de caracteres de todo lo que cambia con los datos del día (sin el manual ni el mapa). */
 export const TOPE_DATOS_EN_TIEMPO_REAL = 8000;
@@ -109,6 +110,7 @@ export function nombreDeFiesta(fiesta: any): string {
 /** Una fiesta suspendida, cancelada o archivada no entra en ninguna cuenta. */
 export function esFiestaViva(fiesta: any): boolean {
   if (!fiesta || fiesta.archived === true || fiesta.archivada === true) return false;
+  if (esFiestaDemo(fiesta)) return false;
   return !/(suspend|cancel|archiv)/i.test(String(fiesta.estado || ''));
 }
 

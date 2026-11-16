@@ -191,6 +191,13 @@ export function replaceContractPlaceholders(text: string, vars: ContractVarsInpu
   let hito50 = vars.hito50;
   let fechaSaldoTotal = vars.fechaSaldoTotal;
 
+  if (eventoDate) {
+    if (!fechaSaldoTotal) {
+      const dSaldo = new Date(eventoDate.getFullYear(), eventoDate.getMonth(), eventoDate.getDate() - 30, 12, 0, 0);
+      fechaSaldoTotal = formatDateTexto(dSaldo);
+    }
+  }
+
   if (eventoDate && firmaDate) {
     const diffDias = Math.round((eventoDate.getTime() - firmaDate.getTime()) / (24 * 60 * 60 * 1000));
     if (diffDias > 0) {
@@ -204,10 +211,6 @@ export function replaceContractPlaceholders(text: string, vars: ContractVarsInpu
         const d50 = new Date(firmaDate.getFullYear(), firmaDate.getMonth(), firmaDate.getDate() + dias50, 12, 0, 0);
         hito50 = formatDateTexto(d50);
       }
-    }
-    if (!fechaSaldoTotal) {
-      const dSaldo = new Date(eventoDate.getFullYear(), eventoDate.getMonth(), eventoDate.getDate() - 30, 12, 0, 0);
-      fechaSaldoTotal = formatDateTexto(dSaldo);
     }
   }
 

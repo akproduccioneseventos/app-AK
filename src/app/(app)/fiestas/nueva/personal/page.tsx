@@ -23,6 +23,8 @@ import { retryPersonalGoogleSync } from '@/app/actions/fiesta/personal.actions';
 import { obtenerPropuestaEquipoAction } from '@/app/actions/fiesta/proponer-equipo.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
@@ -104,12 +106,24 @@ function AsignarPersonalEventoContent() {
     propuesta: [],
   });
   const [isProponiendo, setIsProponiendo] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const fetchInitialData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.ORGANIZACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const fiestaActual = await getFiestaById(fiestaId);
       if (!fiestaActual) throw new Error("Fiesta no encontrada");
       setCurrentFiesta(fiestaActual);
@@ -719,7 +733,7 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                                       </>
                                   ) : null;
                               })()}
-                              {row.type === 'extra' && (
+                              {row.type === 'extra' && puedeBorrar && (
                                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleUpdateAssignment(row.originalIndex!, null, row.roleId)}>
                                       <Trash2 className="w-4 h-4"/>
                                   </Button>

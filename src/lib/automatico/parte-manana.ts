@@ -6,6 +6,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { hoyEnUruguay } from '@/lib/utils';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 const PARTE_CACHE_FILE = 'parte-manana-cache.json';
 
@@ -118,7 +119,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
   // `.catch(() => [])` lo tapaba y el parte decía "todo al día" (Codex, auditoría 81). Quién ve
   // la plata se decide al mostrarlo (`parteParaQuienMira`).
   let incompleto = false;
-  const [fiestas, presupuestos] = await Promise.all([
+  const [fiestasRaw, presupuestos] = await Promise.all([
     leerFiestasCrudas(false).catch((): FiestaEnPlanificacion[] => {
       incompleto = true;
       return [];
@@ -133,6 +134,8 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
         return [];
       }),
   ]);
+
+  const fiestas = (fiestasRaw || []).filter((f) => !esFiestaDemo(f));
 
   // 1. Cobranzas por atender en los próximos 7 días
   const presupuestosMap = new Map(presupuestos.map((p) => [p.id, p]));

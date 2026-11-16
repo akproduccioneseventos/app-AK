@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getRoles } from '@/app/actions/roles';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -52,11 +54,23 @@ export default function EditarEmpleadoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setNotFound(false);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.SUELDOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const [loadedEmpleado, fetchedRoles] = await Promise.all([
         getEmpleadoById(params.id),
         getRoles()
@@ -277,6 +291,7 @@ export default function EditarEmpleadoPage() {
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
+            {puedeBorrar && (
              <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" type="button" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>
@@ -300,6 +315,7 @@ export default function EditarEmpleadoPage() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            )}
           </CardFooter>
         </form>
       </Card>

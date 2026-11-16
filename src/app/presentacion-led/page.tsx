@@ -248,7 +248,7 @@ export default function PresentacionLedPage() {
         return {
           id: item.id,
           name: item.name,
-          description: item.notes || menu.description,
+          description: item.notes || '',
           imageUrl: item.imageUrl,
           featured: item.isFeatured || menu.featured,
           items: [item],

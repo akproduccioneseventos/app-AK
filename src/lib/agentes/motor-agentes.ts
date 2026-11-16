@@ -14,6 +14,7 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { getFiestaTimeRange, localDateTimeToUtcMs } from '@/lib/staff-agenda-conflicts';
 import { applyAutomaticStaffByGuests, createLiveBudgetState } from '@/lib/commercial/live-budget-editor';
 import { buscarRol } from '@/lib/fiesta/personal-por-invitados';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
@@ -149,7 +150,7 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
   ]);
-  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
 
@@ -312,7 +313,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
-  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const presupuestosMap = new Map(presupuestos.map((p) => [p.id, p]));
   const pendientes = scheduledMessages || [];
@@ -382,7 +383,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
     readData<any[]>('social-posts.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
-  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const ahoraMs = ahora.getTime();
   const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
@@ -531,7 +532,7 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
   const bucketHora = `${hoyEnUruguay(ahora)}-${horaLocal}`;
   const ahoraMs = ahora.getTime();
   const fiestasActivas = fiestasTodas.filter((fiesta) => {
-    if (fiesta.esMuestra) return false;
+    if (fiesta.esMuestra || esFiestaDemo(fiesta)) return false;
     if (typeof fiesta.id !== 'string' || !fiesta.id.trim()) return false;
     const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
     if (['suspendida', 'archivada', 'archivado', 'cancelada', 'cancelado', 'demo ak'].includes(estado)) return false;
@@ -644,7 +645,7 @@ export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroE
     readData<Array<{ id: string; nombre: string }>>('roles.json', []),
     readData<Invoice[]>('invoices.json', []),
   ]);
-  const fiestas = fiestasTodas.filter((f) => !f.esMuestra);
+  const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
   const presupuestosPorId = new Map(presupuestos.map((presupuesto) => [presupuesto.id, presupuesto]));
   const facturasPorId = new Map(invoices.filter(isFirmSalesInvoice).map((invoice) => [invoice.id, invoice]));
   const faltantesMozos = anticiparFaltantesDeMozos(fiestas, roles, ahora);
@@ -686,6 +687,7 @@ export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroE
 }
 
 function fiestaActivaParaAnticipador(fiesta: FiestaEnPlanificacion): boolean {
+  if (esFiestaDemo(fiesta)) return false;
   const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
   return !/^demo(?:_|-)/i.test(fiesta.id || '')
     && !['demo', 'demo ak', 'suspendida', 'suspendido', 'cancelada', 'cancelado', 'archivada', 'archivado', 'suspended', 'archived'].includes(estado);
