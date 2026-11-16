@@ -116,6 +116,10 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  153: 'Datos personales en el repositorio: prueba el-repositorio-no-lleva-datos-personales (orden 311).',
+  154: 'Cantidades negativas: prueba de navegador del presupuesto manual (orden 311 bloque 2).',
+  155: 'Horas sin zona: comprobar de la orden 311 (America/Montevideo en Mi Día).',
+  156: 'Acceso que abre otra pantalla: comprobar de la orden 311 (budget-display).',
   148: 'Conteos anunciados: orden 310 bloque 4, prueba del catálogo que cuenta la lista real.',
   149: 'La DEMO fuera de alertas: comprobar de la orden 310 (esFiestaDemo en cada acción).',
   150: 'Mismo dato, misma función: orden 310 bloque 2.',
