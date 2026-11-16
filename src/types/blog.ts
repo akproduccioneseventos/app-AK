@@ -34,6 +34,8 @@ export interface BlogPost {
   cta?: BlogPostCta;
   /** Stable seed used to avoid generating the same topic again. */
   topicKey?: string;
+  /** Tipo de nota: consejo clásico o tendencia/noticia mundial. */
+  tipoNota?: 'consejo' | 'tendencia';
   /** Fuentes externas consultadas en la investigación previa. */
   fuentes?: string[];
   /** Estado de publicación de la nota. */

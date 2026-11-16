@@ -1,6 +1,7 @@
 'use server';
 
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { evaluarReglasParaFiesta, evaluarReglasParaTodasLasFiestas } from '@/lib/automatizaciones-engine';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
@@ -25,7 +26,7 @@ export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
       activos = [];
     }
     // Only active (non-archived) fiestas. Evalúa mantenimiento-equipo-vencido con activos fijos
-    const activas = fiestas.filter(f => !f.generadoDesdeHistorico);
+    const activas = fiestas.filter(f => !f.generadoDesdeHistorico && !esFiestaDemo(f));
     const resultado = evaluarReglasParaTodasLasFiestas(activas, undefined, activos);
     if (errorActivos) {
       (resultado as any).lecturaIncompleta = true;

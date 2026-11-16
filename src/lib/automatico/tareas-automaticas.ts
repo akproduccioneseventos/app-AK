@@ -60,7 +60,7 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     id: 'generate-blog-post',
     nombre: 'Escribir las notas del blog',
     siNoCorre: 'No se publica ninguna nota nueva, y la web deja de sumar paginas por las que la gente la encuentra.',
-    cadaHoras: 56, // 3 veces por semana (Lunes, Miercoles y Viernes)
+    cadaHoras: 24, // 1 vez por día (orden 309: alterna consejo y tendencia)
   },
   {
     id: 'metricas-de-redes',

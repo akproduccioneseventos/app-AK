@@ -3,6 +3,7 @@ import { diasHastaEnUruguay } from '@/lib/utils';
 
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
 import { getNotifications } from '@/app/actions/notifications';
@@ -54,7 +55,7 @@ export async function getControlTowerData() {
   const dashboard = (dashboardResult as any)?.success ? (dashboardResult as any).data : null;
   const items: ControlTowerItem[] = [];
 
-  for (const fiesta of fiestas as any[]) {
+  for (const fiesta of (fiestas as any[]).filter((f) => !esFiestaDemo(f))) {
     const eventDate = toDate(fiesta?.configuracion?.fechaEvento);
     const eventName = fiesta?.configuracion?.nombreEvento || 'Fiesta sin nombre';
     const d = eventDate ? daysUntil(eventDate) : null;

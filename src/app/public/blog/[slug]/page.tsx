@@ -134,6 +134,14 @@ export default async function BlogPostPage({ params }: Props) {
               <div className="max-w-3xl space-y-5">
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em]">
                   {getBlogCategoryLabel(post.category)}
+                  {post.tipoNota === 'tendencia' && (
+                    <>
+                      <span className="h-1 w-1 rounded-full bg-white/50" />
+                      <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                        Tendencias
+                      </span>
+                    </>
+                  )}
                   <span className="h-1 w-1 rounded-full bg-white/50" />
                   <Timer className="h-3.5 w-3.5" />
                   {post.readTime}

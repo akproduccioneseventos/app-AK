@@ -44,10 +44,17 @@ export function BlogInteractiveList({ posts }: Props) {
             <div className="flex flex-1 flex-col justify-between space-y-4 p-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                  <span className="inline-flex items-center gap-2 text-red-700">
-                    <Icon className="h-3.5 w-3.5" />
-                    {getBlogCategoryLabel(post.category)}
-                  </span>
+                  <div className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2 text-red-700">
+                      <Icon className="h-3.5 w-3.5" />
+                      {getBlogCategoryLabel(post.category)}
+                    </span>
+                    {post.tipoNota === 'tendencia' && (
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-800">
+                        Tendencias
+                      </span>
+                    )}
+                  </div>
                   <span>{post.readTime}</span>
                 </div>
                 <h3 className="text-xl font-black leading-tight text-slate-950 transition-colors duration-300 group-hover:text-red-700">

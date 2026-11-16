@@ -6,7 +6,8 @@ import { generateWithGeminiFallback, geminiProModel, getEffectiveGeminiModelForA
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { fotoDeLaNota } from '@/lib/blog/foto-de-la-nota';
-import { DATOS_DE_AK_PARA_EL_BLOG, textoQuePromete } from '@/lib/blog/sin-promesas';
+import { DATOS_DE_AK_PARA_EL_BLOG, textoQuePromete, corregirPromesasDelBlog } from '@/lib/blog/sin-promesas';
+import { marcarFallo } from '@/lib/automatico/tareas-automaticas';
 import type { BlogPost } from '@/types/blog';
 import type { SocialPost } from '@/types/social-media';
 
@@ -117,9 +118,55 @@ async function saveGeneratedBlogPost(post: BlogPost, existingPosts?: BlogPost[])
   await writeData(BLOG_FILE, posts);
 }
 
-export async function generateBlogPostAndSocialDraft(options?: { offset?: number }) {
+async function savePostAndSocial(post: BlogPost, existingPosts?: BlogPost[]) {
+  await saveGeneratedBlogPost(post, existingPosts);
+
+  const socialText = [
+    'Nuevo articulo en nuestro blog:',
+    `"${post.title}"`,
+    '',
+    `Consejo clave: ${post.takeaway}`,
+    '',
+    `Lee los consejos completos y usa el simulador de presupuestos en https://akproducciones.uy/public/blog/${post.slug}`,
+    '',
+    '#akproducciones #eventos #salto #uruguay #catering #bodas',
+  ].join('\n');
+
+  const newSocialPost: SocialPost = {
+    id: `post_cron_${Date.now()}`,
+    platform: 'Instagram',
+    isGeneralCampaign: true,
+    publishDate: new Date().toISOString(),
+    text: socialText,
+    link: `https://akproducciones.uy/public/blog/${post.slug}`,
+    mediaUrl: post.image?.url || '',
+    mediaType: 'image',
+    status: 'Programado',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const socialPosts = await readData<SocialPost[]>('social-posts.json', []);
+  socialPosts.unshift(newSocialPost);
+  await writeData('social-posts.json', socialPosts);
+
+  return {
+    blogPost: {
+      slug: post.slug,
+      title: post.title,
+      category: post.category,
+    },
+    post,
+    socialPost: {
+      id: newSocialPost.id,
+      platform: newSocialPost.platform,
+    },
+  };
+}
+
+export async function generarNotaDeConsejo(options?: { offset?: number; fecha?: Date }) {
   const existingPosts = [...await readData<BlogPost[]>(BLOG_FILE, [])];
-  const date = new Date();
+  const date = options?.fecha ?? new Date();
   const daySeed = date.getDate() + date.getMonth() * 31 + (date.getFullYear() % 100) * 365;
   const selectedTopic = selectUnusedTopic(existingPosts, daySeed, options?.offset ?? 0);
   const selectedTopicKey = normalizeTopic(selectedTopic);
@@ -203,7 +250,7 @@ Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no l
     category: generated.category,
     readTime: generated.readTime,
     // Fecha de Uruguay: con la de Greenwich, una nota de la noche salía con la fecha de mañana.
-    publishedAt: hoyEnUruguay(),
+    publishedAt: options?.fecha ? hoyEnUruguay(options.fecha) : hoyEnUruguay(),
     accent: generated.accent,
     icon: generated.icon,
     takeaway: generated.takeaway,
@@ -217,52 +264,160 @@ Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no l
       message: generated.ctaMessage.trim().slice(0, 240),
     },
     topicKey: selectedTopicKey,
+    tipoNota: 'consejo',
     status: 'published',
     autor: 'ia',
     fuentes: fuentesInvestigacion.length > 0 ? fuentesInvestigacion : undefined,
   };
 
-  await saveGeneratedBlogPost(post, existingPosts);
+  return savePostAndSocial(post, existingPosts);
+}
 
-  const socialText = [
-    'Nuevo articulo en nuestro blog:',
-    `"${post.title}"`,
-    '',
-    `Consejo clave: ${post.takeaway}`,
-    '',
-    `Lee los consejos completos y usa el simulador de presupuestos en https://akproducciones.uy/public/blog/${post.slug}`,
-    '',
-    '#akproducciones #eventos #salto #uruguay #catering #bodas',
-  ].join('\n');
+export async function generarNotaDeTendencias(options?: { offset?: number; fecha?: Date }) {
+  const existingPosts = [...await readData<BlogPost[]>(BLOG_FILE, [])];
+  let notasInvestigacion = '';
+  let fuentesInvestigacion: string[] = [];
 
-  const newSocialPost: SocialPost = {
-    id: `post_cron_${Date.now()}`,
-    platform: 'Instagram',
-    isGeneralCampaign: true,
-    publishDate: new Date().toISOString(),
-    text: socialText,
-    link: `https://akproducciones.uy/public/blog/${post.slug}`,
-    mediaUrl: image.url,
-    mediaType: 'image',
-    status: 'Programado',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  try {
+    const modelInvestigacion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
+    const researchResult = await generateWithGeminiFallback({
+      model: modelInvestigacion,
+      prompt: `Investigá tendencias y novedades mundiales publicadas en los últimos 30 días sobre bodas, fiestas de 15 años y eventos (decoración, música, comida, catering y tecnología en eventos). Mencioná las novedades encontradas y detallá cada fuente consultada con su enlace web.`,
+      config: {
+        googleSearchRetrieval: {},
+      },
+    });
+
+    notasInvestigacion = researchResult.text || '';
+    const groundingMetadata = (researchResult as any).custom?.candidates?.[0]?.groundingMetadata || (researchResult as any).raw?.candidates?.[0]?.groundingMetadata;
+    const webSearchSources = groundingMetadata?.groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [];
+    const directSources: string[] = (researchResult as any).fuentes || (researchResult as any).sources || [];
+    const urlsInText: string[] = notasInvestigacion.match(/https?:\/\/[^\s\)\],]+/g) || [];
+    fuentesInvestigacion = Array.from(new Set([...webSearchSources, ...directSources, ...urlsInText]));
+  } catch (error) {
+    console.warn('[blog-ai-generator] Falló la investigación de tendencias mundiales:', error);
+    await marcarFallo(
+      'generate-blog-post',
+      'Falló la investigación web de tendencias mundiales: ' + (error instanceof Error ? error.message : String(error))
+    );
+    return await generarNotaDeConsejo(options);
+  }
+
+  if (fuentesInvestigacion.length < 2) {
+    await marcarFallo(
+      'generate-blog-post',
+      `Menos de 2 fuentes encontradas en tendencias mundiales (se encontraron ${fuentesInvestigacion.length})`
+    );
+    return await generarNotaDeConsejo(options);
+  }
+
+  const prompt = `Genera un articulo de blog sobre tendencias y novedades mundiales recientes de fiestas, bodas y 15 años de los ultimos 30 dias adaptadas a Salto, Uruguay.
+El articulo debe ayudar al cliente a conocer novedades mundiales y ver como aplicarlas de forma inteligente a su evento.
+Redactalo en espanol rioplatense, cercano y natural, usando palabras como "tenes", "salon", "quinceanera", "bodas" y "barra".
+
+REGLAS OBLIGATORIAS:
+- Cada novedad nombra de dónde sale (la fuente). No inventes noticias, cifras, marcas ni famosos que no estén en las fuentes.
+- Adaptá a Salto: "¿cómo se aplica esto en tu fiesta?".
+- CIERRE QUE VENDE: El último apartado debe llevar a AK Producciones con una llamada clara a usar el Simulador de Presupuestos para armar su fiesta gratis.
+- Sin promesas: No garantices plazos, garantías, resultados ni seguridad. No escribas 'garantía', 'garantizado', 'sin riesgos', etc.
+
+Fuentes consultadas:
+${fuentesInvestigacion.join('\n')}
+
+Notas de investigación:
+${notasInvestigacion}
+
+Datos oficiales de AK Producciones:
+${DATOS_DE_AK_PARA_EL_BLOG}`;
+
+  const modelGeneracion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
+  const result = await generateWithGeminiFallback({
+    model: modelGeneracion,
+    prompt,
+    output: {
+      schema: blogPostSchema,
+    },
+  });
+
+  const generated = result.output;
+  if (!generated) {
+    throw new Error('La generacion de IA no devolvio contenido estructurado.');
+  }
+
+  const slug = safeSlug(generated.slug || generated.title);
+  const image = await createBlogImage({
+    slug,
+    title: generated.title,
+    category: generated.category,
+    prompt: generated.imagePrompt,
+    alt: generated.imageAlt,
+  });
+
+  const fechaUy = options?.fecha ? hoyEnUruguay(options.fecha) : hoyEnUruguay();
+  const mesUy = fechaUy.slice(0, 7);
+  const topicKey = `${normalizeTopic(generated.title || 'tendencias')}-${mesUy}`;
+
+  const rawPost: BlogPost = {
+    slug,
+    title: generated.title,
+    excerpt: generated.excerpt,
+    category: generated.category,
+    readTime: generated.readTime,
+    publishedAt: fechaUy,
+    accent: generated.accent,
+    icon: generated.icon,
+    takeaway: generated.takeaway,
+    sections: generated.sections,
+    checklist: generated.checklist,
+    relatedSlugs: [],
+    image,
+    cta: {
+      label: generated.ctaLabel.trim().slice(0, 80) || 'Simular mi presupuesto',
+      href: '/simulador-de-presupuesto',
+      message: generated.ctaMessage.trim().slice(0, 240) || 'Armá tu fiesta gratis en el simulador.',
+    },
+    topicKey,
+    tipoNota: 'tendencia',
+    status: 'published',
+    autor: 'ia',
+    fuentes: fuentesInvestigacion,
   };
 
-  const socialPosts = await readData<SocialPost[]>('social-posts.json', []);
-  socialPosts.unshift(newSocialPost);
-  await writeData('social-posts.json', socialPosts);
+  const [postCorregido] = corregirPromesasDelBlog([rawPost]);
+  const post = postCorregido || rawPost;
 
-  return {
-    blogPost: {
-      slug: post.slug,
-      title: post.title,
-      category: post.category,
-    },
-    post,
-    socialPost: {
-      id: newSocialPost.id,
-      platform: newSocialPost.platform,
-    },
-  };
+  // Cierre que vende: asegurar llamada al simulador en el último apartado
+  if (post.sections && post.sections.length > 0) {
+    const lastSection = post.sections[post.sections.length - 1];
+    const cuerpo = (lastSection.body || []).join(' ');
+    if (!/simulador/i.test(cuerpo)) {
+      lastSection.body.push(
+        'Para probar estas tendencias y armar los números de tu fiesta en Salto, probá el Simulador de Presupuestos de AK Producciones.',
+      );
+    }
+  }
+
+  return savePostAndSocial(post, existingPosts);
+}
+
+export async function generateBlogPostAndSocialDraft(options?: {
+  offset?: number;
+  tipo?: 'consejo' | 'tendencia';
+  fecha?: Date;
+}) {
+  if (options?.tipo === 'consejo') {
+    return generarNotaDeConsejo(options);
+  }
+  if (options?.tipo === 'tendencia') {
+    return generarNotaDeTendencias(options);
+  }
+
+  const fechaStr = options?.fecha ? hoyEnUruguay(options.fecha) : hoyEnUruguay();
+  const dia = parseInt(fechaStr.slice(8, 10), 10);
+  const esDiaImpar = dia % 2 !== 0;
+
+  if (esDiaImpar) {
+    return generarNotaDeTendencias(options);
+  }
+  return generarNotaDeConsejo(options);
 }
