@@ -5,6 +5,11 @@
 **Actualizado el 16/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
+- **Play Store (16/11, el dueño ya creó su cuenta de desarrollador):** en su computadora, seguí `docs/GUIAS-PLAY-STORE-Y-PC.md`
+  desde el paso 2: armá el paquete con Bubblewrap (`uy.akproducciones.app`), creá la app en Play Console, poné la huella
+  SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
+  el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
+  producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
 - **URGENTE, orden 310** (retest del auditor): primero el **bloque 1**, sólo contar fiestas contra los respaldos, sin
   borrar ni restaurar nada. Después el resto de la 310 y la 309, **en una sola propuesta**.
 - **Nuevo, pedido del dueño:** orden **309** (el blog trae noticias y tendencias del mundo, todos los días, y vende al final).
