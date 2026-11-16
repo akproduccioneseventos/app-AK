@@ -1,0 +1,2 @@
+# El editor se empaqueta igual en Windows y en Linux (16/11/2026: el ZIP armado en Windows salía con CRLF y frenaba la puerta tres veces).
+herramientas/ak-editor/** text eol=lf

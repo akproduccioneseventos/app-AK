@@ -608,6 +608,22 @@
     "152": {
       "fecha": "2026-11-16",
       "resultado": "Fiestas que desaparecen: el código sólo esconde copias gemelas; se cuenta contra respaldos → orden 310 bloque 1."
+    },
+    "153": {
+      "fecha": "2026-11-16",
+      "resultado": "Datos personales en archivos del repositorio público: 6 archivos → orden 311 bloque 1."
+    },
+    "154": {
+      "fecha": "2026-11-16",
+      "resultado": "Cantidades negativas que dejan avanzar un formulario de plata: presupuesto manual → orden 311 bloque 2."
+    },
+    "155": {
+      "fecha": "2026-11-16",
+      "resultado": "Horas formateadas en el servidor sin zona de Uruguay: 141 llamadas sin timeZone → orden 311 bloque 3."
+    },
+    "156": {
+      "fecha": "2026-11-16",
+      "resultado": "Un acceso del menú que abre otra pantalla de la que nombra: Señas → promos → orden 311 bloque 5."
     }
   },
   "hallazgos": {
@@ -974,6 +990,10 @@
     "orden-310": {
       "fecha": "2026-11-16",
       "resultado": "Retest integral del auditor: fiestas que no aparecen, DEMO mezclada, PRUEBA en CRM, conteos del catálogo, textos internos, contrato incompleto, PDF vacío, respaldo por tiempo → orden 310."
+    },
+    "orden-311": {
+      "fecha": "2026-11-16",
+      "resultado": "Nuevo escaneo del auditor: datos personales en el repositorio, -1 adultos, horas de Mi Día, guías, Señas, conteos, Video de Vida, DEMO → orden 311."
     }
   }
 }

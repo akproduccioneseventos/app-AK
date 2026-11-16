@@ -1764,3 +1764,19 @@ Retest del 16/11/2026: el calendario terminaba 02:00 y el portal 05:00.
 ### 152. Si una lista de la operación baja de golpe (fiestas, cobros, clientes), ¿alguien se entera y se puede contar contra el respaldo?
 
 Retest del 16/11/2026: Eventos pasó de 59 a 2 y nadie lo vio hasta el auditor.
+
+### 153. ¿Hay datos reales de personas (cédula, teléfono, nacimiento) en archivos que viajan en el repositorio?
+
+Nuevo escaneo del 16/11/2026: el repositorio es público y `src/data/empleados.json` tenía 14 cédulas.
+
+### 154. Un campo de cantidad que entra en plata, ¿frena negativos y decimales en pantalla y en el servidor?
+
+Nuevo escaneo del 16/11/2026: el presupuesto manual avanzaba con -1 adultos.
+
+### 155. Una hora que se arma en el servidor, ¿lleva la zona de Uruguay?
+
+Nuevo escaneo del 16/11/2026: Mi Día mostraba las corridas tres horas adelantadas.
+
+### 156. Un acceso del menú, ¿abre la pantalla que nombra?
+
+Nuevo escaneo del 16/11/2026: "Política de Señas y Reservas" abría Promociones.

@@ -10,8 +10,13 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
-- **URGENTE, orden 310** (retest del auditor): primero el **bloque 1**, sólo contar fiestas contra los respaldos, sin
-  borrar ni restaurar nada. Después el resto de la 310 y la 309, **en una sola propuesta**.
+- **Nuevo: orden 311** (nuevo escaneo del auditor), en la misma propuesta que lo que falta de la 310. El bloque 1 (datos
+  personales en el repositorio) va primero junto con el conteo de fiestas.
+- **Publicadas tu 309 y una parte de la 310** (esFiestaDemo en 3 archivos y horaFin del calendario). **FALTA de la 310, y es lo que
+  sigue, en una sola propuesta:** bloque 1 (contar fiestas contra los respaldos y anotar los ids que faltan: **lo primero**),
+  esFiestaDemo en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts` y Eventos con el rótulo "Fiesta
+  de muestra", tablero y configuración con el mismo cálculo, y los bloques 3 a 8 enteros. El ZIP del editor ya no se rompe en
+  Windows (`.gitattributes`); igual corré `npm run editor:empaquetar` si tocás el editor.
 - **Nuevo, pedido del dueño:** orden **309** (el blog trae noticias y tendencias del mundo, todos los días, y vende al final).
   Rama nueva desde `origin/main`, una sola propuesta.
 - **Lo primero, en la computadora del dueño (pedido del dueño, 14/11):**
