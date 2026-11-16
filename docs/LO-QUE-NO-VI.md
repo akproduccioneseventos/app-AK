@@ -1461,3 +1461,7 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 310 → pregunta 150
 - Orden 310 → pregunta 151
 - Orden 310 → pregunta 152
+- Orden 311 → pregunta 153
+- Orden 311 → pregunta 154
+- Orden 311 → pregunta 155
+- Orden 311 → pregunta 156

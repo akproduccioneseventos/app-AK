@@ -10,6 +10,8 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **Nuevo: orden 311** (nuevo escaneo del auditor), en la misma propuesta que lo que falta de la 310. El bloque 1 (datos
+  personales en el repositorio) va primero junto con el conteo de fiestas.
 - **Publicadas tu 309 y una parte de la 310** (esFiestaDemo en 3 archivos y horaFin del calendario). **FALTA de la 310, y es lo que
   sigue, en una sola propuesta:** bloque 1 (contar fiestas contra los respaldos y anotar los ids que faltan: **lo primero**),
   esFiestaDemo en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts` y Eventos con el rótulo "Fiesta
