@@ -7,6 +7,7 @@ import { decodeSnapshotValue, encodeSnapshotValue, type EncodedSnapshotChunk } f
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AUTO_BACKUP_INTERNAL_TOKEN } from '@/lib/backup/internal-token';
+import { avisarAlDuenio } from '@/lib/asistente/avisar-al-duenio';
 
 const LEGACY_SNAPSHOTS_FILE = '_backup-snapshots.json';
 const SNAPSHOTS_COLLECTION = 'backup_snapshots_v2';
@@ -273,12 +274,14 @@ async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<vo
 
   let prevConsecutive = 0;
   let prevLastCompleted: string | null = null;
+  let prevAvisadoEl: string | null = null;
   try {
     const doc = await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).get();
     if (doc.exists) {
       const d = doc.data();
       prevConsecutive = Number(d?.consecutiveFailures || 0);
       prevLastCompleted = d?.lastCompletedAt || null;
+      prevAvisadoEl = d?.avisadoEl || null;
     }
   } catch {}
 
@@ -286,11 +289,39 @@ async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<vo
   const lastError = error ? (error instanceof Error ? error.message : String(error)) : null;
   const lastCompletedAt = error ? prevLastCompleted : nowIso;
 
+  let avisadoEl = error ? prevAvisadoEl : null;
+
+  if (error && consecutiveFailures >= 3) {
+    const yaAvisadoHoy = Boolean(
+      prevAvisadoEl &&
+      prevAvisadoEl.slice(0, 10) === nowIso.slice(0, 10)
+    );
+
+    if (!yaAvisadoHoy) {
+      const fechaCopia = prevLastCompleted || 'fecha desconocida';
+      const mensaje = `Los respaldos automáticos están fallando desde ${fechaCopia}. Motivo: ${lastError || 'Desconocido'}.`;
+      try {
+        await avisarAlDuenio([
+          {
+            clave: 'backup_auto_falla',
+            titulo: mensaje,
+            quePasa: mensaje,
+            esImportante: true,
+          },
+        ]);
+        avisadoEl = nowIso;
+      } catch (errAviso) {
+        console.warn('[finishAutoBackupLease] Error avisando al dueño:', errAviso);
+      }
+    }
+  }
+
   const updateData: Record<string, any> = {
     leaseUntilMs: 0,
     lastAttemptAt: nowIso,
     consecutiveFailures,
     lastError,
+    avisadoEl,
   };
 
   if (!error) {
@@ -310,6 +341,7 @@ async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<vo
       lastAttemptAt: nowIso,
       consecutiveFailures,
       lastError,
+      avisadoEl,
     }, undefined, { skipAutoBackup: true });
   } catch {}
 }

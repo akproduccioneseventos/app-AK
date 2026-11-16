@@ -435,6 +435,7 @@ function RegalosSlide({ catalog }: { catalog: EventCatalogData }) {
 }
 
 function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
+  if (!catalog.testimonials || catalog.testimonials.length === 0) return null;
   const accent = getAccent(catalog.hero.accentColor);
   const SOURCE_ICON: Record<string, string> = {
     instagram: '📸',
@@ -772,7 +773,7 @@ export default function CatalogoTipoPage() {
   if (!mergedCatalog) return notFound();
 
   const accent = getAccent(mergedCatalog.hero.accentColor);
-  const currentSlideId = visibleSlides[currentSlide];
+  const currentSlideId = visibleSlides[currentSlide] ?? visibleSlides[0];
   const isLastSlide = currentSlide === visibleSlides.length - 1;
   const isFirstSlide = currentSlide === 0;
   const progress = ((currentSlide) / Math.max(1, visibleSlides.length - 1)) * 100;

@@ -219,6 +219,7 @@ export function CierreSlide({
           >
             {/* Main CTA */}
             <motion.button
+              data-testid="btn-generar-presupuesto-manual"
               onClick={onCtaAction || onGenerateBudget}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

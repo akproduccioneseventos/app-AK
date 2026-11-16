@@ -2,6 +2,20 @@ import { verifySession } from '@/lib/auth/session-token';
 
 export const MENSAJE_ERROR_AUDITOR = 'Acceso de auditor: se puede mirar todo, pero no guardar ni mandar nada.';
 
+export async function esSesionDeAuditor(): Promise<boolean> {
+  try {
+    const session = await verifySession();
+    if (session.success && session.user) {
+      const perfil = session.user.perfil;
+      const role = session.user.role;
+      return perfil === 'auditor' || role === 'auditor';
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
 /**
  * El candado de "sólo mirar" para el perfil auditor (Orden 276).
  *

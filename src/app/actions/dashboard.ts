@@ -14,6 +14,7 @@ import { es } from 'date-fns/locale';
 import { getCrmLeadsForDashboard } from './crm';
 import { getRoles } from './roles';
 import { calculateFinancialLedger, getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { dedupeImportedEventCopies } from '@/lib/events/event-ordering';
 import { getPrioridadesDescartadas } from './alertas.actions';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
@@ -139,7 +140,9 @@ export async function getDashboardKpiData() {
     const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
 
-    const activeFiestas = fiestasData.filter(f => f && f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id?.startsWith('demo_'));
+    const activeFiestas = dedupeImportedEventCopies(
+      fiestasData.filter(f => f && f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id?.startsWith('demo_'))
+    );
     const activeCustomerIds = new Set(
       activeFiestas
         .filter(f => {

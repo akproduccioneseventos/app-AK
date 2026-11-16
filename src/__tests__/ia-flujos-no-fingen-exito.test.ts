@@ -25,6 +25,7 @@ const generar = jest.fn(async (..._a: any[]) => respuestaIA());
 jest.mock('@/ai/genkit', () => ({
   generateWithGeminiFallback: (...a: any[]) => generar(...a),
   getGeminiModelForAgent: () => 'googleai/modelo-de-prueba',
+  getEffectiveGeminiModelForAgent: jest.fn(async () => 'googleai/modelo-de-prueba'),
 }));
 jest.mock('@/lib/ai/consumo-servidor', () => ({
   hayPresupuestoParaIA: jest.fn(async () => true),

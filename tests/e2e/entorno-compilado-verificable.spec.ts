@@ -42,7 +42,8 @@ test('el servidor de la prueba esta aislado: ninguna credencial real configurada
   expect(cuerpo.services.gemini).toBe(false);
   expect(cuerpo.services.mercadoPago).toBe(false);
   expect(cuerpo.services.instagram).toBe(false);
-  expect(cuerpo.services.googleWorkspace).toBe(false);
+  expect(cuerpo.services.googleWorkspaceCredencialesDeLaApp).toBe(false);
+  expect(cuerpo.services.googleWorkspaceCuentaConectada).toBe(false);
   expect(cuerpo.services.mail).toBe(false);
 });
 

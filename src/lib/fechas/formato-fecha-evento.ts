@@ -121,3 +121,26 @@ export function anioDeLaFechaDelEvento(fecha?: string | Date | null): number | n
   const d = new Date(texto);
   return Number.isNaN(d.getTime()) ? null : d.getFullYear();
 }
+
+export function parsePortalEventDate(dateString: string): Date {
+  if (dateString.includes('T')) {
+    return new Date(dateString);
+  }
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+  }
+  return new Date(dateString);
+}
+
+export function formatPortalEventDate(dateString?: string): string {
+  if (!dateString) return 'Fecha a confirmar';
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    return d.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  }
+  const date = parsePortalEventDate(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+}

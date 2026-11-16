@@ -573,6 +573,12 @@ export async function saveAiAssistantSettings(
   }
 }
 
+export async function getAiAssistantFallosHoy(): Promise<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>> {
+  await requireAppSession();
+  const { getFallosIAHoy } = await import('@/lib/ai/consumo-servidor');
+  return getFallosIAHoy();
+}
+
 /**
  * Convierte una ruta absoluta de un archivo `page.tsx` dentro de `src/app`
  * en su URL de App Router.

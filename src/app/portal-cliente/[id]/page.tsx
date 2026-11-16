@@ -44,6 +44,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import Link from 'next/link';
 import {
   cambiarClavePortal,
@@ -641,7 +642,7 @@ export default function PortalClientePage() {
           style={{ minHeight: 220, background: primaryColor ?? '#991b1b' }}
         >
           <div className="absolute inset-0 bg-slate-950/55" />
-          <NextImage
+          <ImagenConRespaldo
             src={heroImageUrl}
             alt={config.protagonista1Nombre ?? 'Protagonista'}
             fill
@@ -1293,7 +1294,7 @@ export default function PortalClientePage() {
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {fiesta.decoracion.moodboardItems.slice(0, 8).map(item => (
                         <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-border shadow-sm bg-muted/30">
-                          <NextImage src={item.url} alt="inspiración" fill className="object-cover" />
+                          <ImagenConRespaldo src={item.url} alt="inspiración" fill className="object-cover" />
                           {item.likedByClient && (
                             <div className="absolute top-1 right-1 bg-rose-500 text-white p-0.5 rounded-full shadow">
                               <Heart className="w-2.5 h-2.5 fill-current" />

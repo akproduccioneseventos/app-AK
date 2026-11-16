@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText } from 'lucide-react';
+import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext } from '@/app/actions/settings';
+import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext, getAiAssistantFallosHoy } from '@/app/actions/settings';
 import { getAssistantOperationalStatus, type AssistantOperationalStatus } from '@/app/actions/assistant-operational-status';
 
 type KnowledgeDocument = {
@@ -39,14 +39,16 @@ export default function AiAssistantSettingsPage() {
   const [appFunctionalityContext, setAppFunctionalityContext] = useState('');
   const [isScanningApp, setIsScanningApp] = useState(false);
   const [operationalStatus, setOperationalStatus] = useState<AssistantOperationalStatus | null>(null);
+  const [fallosHoy, setFallosHoy] = useState<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>>({});
   const { toast } = useToast();
 
   useEffect(() => {
     Promise.all([
       getAiAssistantSettings(),
       getAssistantOperationalStatus(),
+      getAiAssistantFallosHoy().catch(() => ({})),
     ])
-      .then(([data, status]) => {
+      .then(([data, status, fallos]) => {
         setCustomInstructions(data.customInstructions || '');
         setOperationalInstructions(data.operationalInstructions || '');
         setSalesMarketingInstructions(data.salesMarketingInstructions || '');
@@ -56,6 +58,7 @@ export default function AiAssistantSettingsPage() {
         setKnowledgeDocuments(Array.isArray(data.knowledgeDocuments) ? data.knowledgeDocuments : []);
         setUpdatedAt(data.updatedAt || '');
         setOperationalStatus(status);
+        setFallosHoy(fallos || {});
       })
       .catch(() => {
         toast({ title: 'Error al cargar', description: 'No se pudieron cargar los ajustes del asistente.', variant: 'destructive' });
@@ -261,6 +264,51 @@ export default function AiAssistantSettingsPage() {
               </>
             )}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-amber-600" />
+            Respuestas de respaldo hoy
+          </CardTitle>
+          <CardDescription>
+            Funciones que no pudieron consultar a la IA y devolvieron su respuesta fija o alternativa.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {Object.keys(fallosHoy).length === 0 ? (
+            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
+              <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+              <span>Ninguna respuesta de respaldo hoy. La IA funcionó con normalidad en todas sus funciones.</span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {Object.entries(fallosHoy).map(([funcion, info]) => (
+                <div key={funcion} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-slate-800">{funcion}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">
+                        {info.cantidad} {info.cantidad === 1 ? 'caída al respaldo' : 'caídas al respaldo'}
+                      </span>
+                    </div>
+                    {info.ultimoMotivo && (
+                      <p className="text-xs text-slate-500 mt-1 font-mono break-all">
+                        Último motivo: {info.ultimoMotivo}
+                      </p>
+                    )}
+                  </div>
+                  {info.ultimaVez && (
+                    <span className="text-xs text-slate-400 shrink-0">
+                      {new Date(info.ultimaVez).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

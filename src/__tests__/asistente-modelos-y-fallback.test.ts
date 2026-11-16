@@ -2,6 +2,8 @@ let mockPresupuesto = true;
 
 jest.mock('@/lib/ai/consumo-servidor', () => ({
   hayPresupuestoParaIA: jest.fn(async () => mockPresupuesto),
+  reservarRespuestaProfunda: jest.fn(async () => mockPresupuesto),
+  anotarFalloIA: jest.fn(async () => undefined),
 }));
 
 import {
@@ -24,8 +26,8 @@ describe('Asistente AK — Selección de Modelos y Fallback de Presupuesto', () 
     expect(DEFAULT_GEMINI_MODEL).toBe('googleai/gemini-flash-latest');
   });
 
-  it('tiene configurado el modelo sin costo para razonamiento profundo', () => {
-    expect(DEFAULT_GEMINI_PRO_MODEL).toBe('googleai/gemini-flash-latest');
+  it('tiene configurado el modelo inteligente para razonamiento profundo', () => {
+    expect(DEFAULT_GEMINI_PRO_MODEL).toBe('googleai/gemini-pro-latest');
   });
 
   it('selecciona el modelo Pro cuando se pide deep o para agentes complejos', () => {

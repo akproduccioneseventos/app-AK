@@ -34,9 +34,7 @@ import {
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 import { scheduleCrmMeetingInternal } from '@/lib/crm/crm-meeting';
-import { AsyncMutex } from '@/lib/mutex';
-
-const crmMutex = new AsyncMutex();
+import { crmMutex } from '@/lib/crm/turno-crm';
 const LEADS_FILE = 'crm-leads.json';
 const CRM_LEADS_COLLECTION = 'prospectos';
 const STAGES_FILE = 'crm-stages.json';
@@ -934,12 +932,16 @@ export async function getCrmBoardData(): Promise<{
             getCrmLeads(),
             readData<any[]>('presupuestos.json', []).catch(() => []),
         ]);
-        const activeLeads = leads.filter(lead => lead.currentStageId !== 's4' && lead.currentStageId !== 's5');
-        const pipelineValue = presupuestos
+        const ganadoras = idsDeEtapaGanadora(stages);
+        const perdedoras = idsDeEtapaPerdida(stages);
+        const terminadas = new Set([...ganadoras, ...perdedoras]);
+
+        const activeLeads = leads.filter(lead => !terminadas.has(lead.currentStageId ?? ''));
+        const pipelineValue = (presupuestos || [])
             .filter(presupuesto => activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
             .reduce((sum, presupuesto) => sum + (Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0), 0);
-        const wonLeads = leads.filter(lead => lead.currentStageId === 's4').length;
-        const lostLeads = leads.filter(lead => lead.currentStageId === 's5').length;
+        const wonLeads = leads.filter(lead => ganadoras.has(lead.currentStageId ?? '')).length;
+        const lostLeads = leads.filter(lead => perdedoras.has(lead.currentStageId ?? '')).length;
         const totalFinished = wonLeads + lostLeads;
         return {
             success: true,

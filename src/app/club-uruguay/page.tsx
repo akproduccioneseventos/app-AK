@@ -35,7 +35,7 @@ import {
 } from '@/components/club-uruguay/ClubUruguayInteractive';
 
 export const metadata: Metadata = {
-  title: 'Club Uruguay Salto | Salón de Fiestas y Eventos | AK Producciones',
+  title: 'Club Uruguay Salto | Salón de Fiestas y Eventos',
   description:
     'Conocé el salón Club Uruguay en Uruguay 754, Salto. Opciones informadas para 50 y 250 personas, montajes reales y organización integral con AK Producciones.',
   alternates: {
@@ -82,18 +82,17 @@ export default async function ClubUruguayPage() {
   const masterPhotos: SalonPhoto[] = (salon?.fotos || []).map((src, index) => ({
     src,
     alt: `Club Uruguay, vista ${index + 1}`,
-    title: index === 0 ? 'El salón' : `Vista del salón ${index + 1}`,
-    description: 'Foto cargada desde el módulo maestro de salones.',
+    title: index === 0 ? 'El lugar' : `Vista ${index + 1}`,
+    description: undefined,
     aprobada: true,
   }));
 
   const curated = getDynamicSalonPhotos();
-  const heroPhoto = getClubUruguayHeroPhoto(curated);
-  // El hero aprobado siempre encabeza la presentación sin ser desplazado por el orden del maestro
+  const heroPhoto = getClubUruguayHeroPhoto(curated, salon?.fotos?.[0]);
   const allPhotos = dedupeSalonPhotos([
     heroPhoto,
+    ...masterPhotos.filter((p) => p.src !== heroPhoto.src),
     ...curated.filter((p) => p.src !== heroPhoto.src),
-    ...masterPhotos,
   ]);
 
   const salonAddress = salon?.direccion?.trim() || 'Uruguay 754, Salto';
@@ -171,14 +170,14 @@ export default async function ClubUruguayPage() {
               <div className="mt-6 inline-flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-xs text-zinc-300 backdrop-blur-sm">
                 <Users className="h-4 w-4 text-red-400" aria-hidden="true" />
                 <span>
-                  <strong>Opciones informadas:</strong> 50 a 250 personas según el montaje (informadas, no habilitación legal certificada).
+                  <strong>Opciones informadas:</strong> 50 a 250 personas según el montaje.
                 </span>
               </div>
 
               <div className="mt-8">
                 <ClubUruguayHeroActions whatsappHref={whatsappHeroHref} />
                 <p className="mt-3 text-xs text-zinc-400">
-                  La consulta por WhatsApp inicia la conversación para coordinar fecha y horario; no es una cita confirmada automáticamente.
+                  Escribinos y coordinamos una visita según disponibilidad.
                 </p>
               </div>
             </div>
@@ -198,13 +197,13 @@ export default async function ClubUruguayPage() {
                   Patrimonio vivo
                 </span>
                 <h2 className="mt-4 font-headline text-3xl font-black sm:text-5xl">
-                  150 aniversario en 2025: celebrar donde la historia tiene peso
+                  Historia que se vuelve parte de tu fiesta
                 </h2>
                 <p className="mt-5 text-base leading-relaxed text-zinc-300 sm:text-lg">
-                  Fundado en 1875, el Club Uruguay conmemora su sesquicentenario en 2025 en el corazón de Salto. No es un museo intocable: es un edificio vivo donde conviven techos altos de época y arquitectura clásica con la dinámica de una fiesta moderna.
+                  El Club Uruguay forma parte de la historia de Salto: en 2025 cumplió 150 años. Su identidad le da un marco propio a cada celebración, y con AK Producciones la fiesta se organiza alrededor de tu estilo y de cómo querés vivir ese día.
                 </p>
                 <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-                  El salón resguarda su mural patrimonial característico como rasgo de identidad visual, aportando un marco señorial que realza tanto una recepción protocolar como una fiesta bailable de quince años o una boda.
+                  El salón conserva su mural característico como rasgo de identidad visual para quince años, bodas y celebraciones familiares.
                 </p>
               </div>
 
@@ -223,7 +222,7 @@ export default async function ClubUruguayPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <Check className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
-                    <span><strong>Contraste con tecnología moderna:</strong> Pistas de luces LED, sonido robótico y estaciones interactivas integradas sin desentonar con la estructura.</span>
+                    <span><strong>Contraste con tecnología moderna:</strong> Pistas de luces LED, sonido profesional e iluminación robótica y estaciones interactivas integradas sin desentonar con la estructura.</span>
                   </li>
                 </ul>
               </div>
@@ -317,16 +316,13 @@ export default async function ClubUruguayPage() {
               <h2 className="mt-4 font-headline text-3xl font-black sm:text-5xl">
                 Organización integral con AK Producciones
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-zinc-300 sm:text-lg">
-                Diferenciamos con honestidad las instalaciones provistas por el club de los servicios de producción integral que podés contratar con AK.
-              </p>
             </div>
 
             <div className="mt-12 grid gap-8 lg:grid-cols-2">
-              {/* Instalaciones incluidas del club */}
+              {/* El lugar */}
               <div className="rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-lg">
                 <h3 className="font-headline text-2xl font-black text-white">
-                  Instalaciones incluidas del salón
+                  El lugar
                 </h3>
                 <p className="mt-2 text-sm text-zinc-400">
                   Infraestructura propia del edificio de Club Uruguay en Uruguay 754:
@@ -352,11 +348,11 @@ export default async function ClubUruguayPage() {
                 </ul>
               </div>
 
-              {/* Servicios contratables con AK Producciones */}
+              {/* La organización de tu fiesta */}
               <div className="rounded-3xl border border-red-600/40 bg-zinc-900/90 p-8 shadow-xl">
                 <div className="flex items-center justify-between gap-4">
                   <h3 className="font-headline text-2xl font-black text-white">
-                    Servicios contratables con AK
+                    La organización de tu fiesta
                   </h3>
                   <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white">
                     Catálogo vigente
@@ -381,7 +377,7 @@ export default async function ClubUruguayPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <Camera className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
-                    <span><strong>Fotografía & Video profesional:</strong> Registro en vivo de toda la fiesta.</span>
+                    <span><strong>Fotografía y filmación:</strong> Registro en vivo de toda la fiesta.</span>
                   </li>
                 </ul>
 
@@ -413,13 +409,13 @@ export default async function ClubUruguayPage() {
               <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 <div className="max-w-2xl">
                   <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-wider text-white">
-                    Condición comercial del dueño
+                    Beneficio con AK Producciones
                   </span>
                   <h3 className="mt-3 font-headline text-2xl font-black text-white sm:text-3xl">
                     50% de bonificación en el alquiler del salón
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-                    Acuerdo comercial directo con la dirección del Club Uruguay para eventos contratados con producción integral de AK Producciones. El descuento aplica al valor del alquiler del local según las condiciones del catálogo vigente. Sin cuentas regresivas inventadas ni modificaciones en el simulador.
+                    Acuerdo comercial directo con la dirección del Club Uruguay para eventos contratados con producción integral de AK Producciones. El descuento aplica al valor del alquiler del local según las condiciones del catálogo vigente.
                   </p>
                 </div>
                 <div className="shrink-0">

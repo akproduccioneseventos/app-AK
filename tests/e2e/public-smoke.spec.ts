@@ -10,7 +10,8 @@ test('health endpoint responds without exposing internal failures', async ({ req
     services: {
       firebase: expect.any(Boolean),
       gemini: expect.any(Boolean),
-      googleWorkspace: expect.any(Boolean),
+      googleWorkspaceCredencialesDeLaApp: expect.any(Boolean),
+      googleWorkspaceCuentaConectada: expect.any(Boolean),
       mail: expect.any(Boolean),
       instagram: expect.any(Boolean),
     },

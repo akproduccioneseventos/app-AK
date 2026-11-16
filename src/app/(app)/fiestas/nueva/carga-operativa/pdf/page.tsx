@@ -18,13 +18,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return "Fecha inválida"; }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 function CargaOperativaPdfContent() {
   const { toast } = useToast();

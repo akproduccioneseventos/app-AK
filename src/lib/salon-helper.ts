@@ -38,9 +38,25 @@ export const CURATED_CLUB_URUGUAY_PHOTOS: SalonPhoto[] = [
 
 export const HERO_CLUB_URUGUAY_PHOTO: SalonPhoto = CURATED_CLUB_URUGUAY_PHOTOS[0];
 
-export function getClubUruguayHeroPhoto(photos?: SalonPhoto[]): SalonPhoto {
-  const explicitHero = photos?.find((p) => p.isHero && p.aprobada);
-  return explicitHero || HERO_CLUB_URUGUAY_PHOTO;
+export function getClubUruguayHeroPhoto(
+  photos?: SalonPhoto[],
+  masterFirstSrc?: string,
+): SalonPhoto {
+  const explicitHero = photos?.find((p) => p.isHero && p.aprobada && p.src !== HERO_CLUB_URUGUAY_PHOTO.src) ||
+    photos?.find((p) => p.isHero && p.aprobada && !masterFirstSrc);
+  if (explicitHero && (!masterFirstSrc || explicitHero.src !== HERO_CLUB_URUGUAY_PHOTO.src)) {
+    return explicitHero;
+  }
+  if (masterFirstSrc && masterFirstSrc.trim()) {
+    return {
+      src: masterFirstSrc.trim(),
+      alt: 'Salón principal de Club Uruguay',
+      title: 'El lugar',
+      aprobada: true,
+    };
+  }
+  const anyExplicitHero = photos?.find((p) => p.isHero && p.aprobada);
+  return anyExplicitHero || HERO_CLUB_URUGUAY_PHOTO;
 }
 
 export function dedupeSalonPhotos(photos: SalonPhoto[]): SalonPhoto[] {

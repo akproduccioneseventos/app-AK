@@ -14,6 +14,7 @@ import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { checkBotShield } from '@/lib/security/bot-shield';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
@@ -171,11 +172,15 @@ export async function captureSimulatorLeadProgress(input: {
       limit: 100,
       windowMs: 60 * 60 * 1000,
     });
+    const fechaCandidata = input.eventoFecha?.trim();
+    const dias = fechaCandidata ? diasHastaEnUruguay(fechaCandidata) : NaN;
+    const fechaValida = fechaCandidata && !Number.isNaN(dias) && dias >= 0 ? fechaCandidata : undefined;
+
     const result = await upsertPublicCommercialLead({
       name: input.clienteNombre,
       phone,
       partyType: input.eventoTipo,
-      eventDate: input.eventoFecha,
+      eventDate: fechaValida,
       guestCount: input.invitados,
       venueName: input.salonFiestas,
       notes: 'El prospecto comenzo el simulador visual y todavia no genero el presupuesto final.',

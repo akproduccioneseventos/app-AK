@@ -33,6 +33,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFoo
 import { cn } from '@/lib/utils';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // --- HELPERS ---
 const formatCurrency = (amount?: number) => {
@@ -40,12 +41,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "No definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return "Inválida"; }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 const parseSafeNumber = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;

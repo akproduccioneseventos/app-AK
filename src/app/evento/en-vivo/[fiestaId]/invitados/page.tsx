@@ -271,26 +271,26 @@ export default function InvitadosPage() {
 
       <div className="max-w-lg mx-auto px-4 py-4">
         <Tabs defaultValue="fotos">
-          <TabsList className="grid grid-cols-5 w-full bg-purple-900/50 mb-4">
-            <TabsTrigger value="fotos" className="text-xs data-[state=active]:bg-purple-600">
-              <Camera className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Fotos</span>
+          <TabsList className="grid grid-cols-5 w-full bg-purple-900/50 mb-4 h-auto py-1">
+            <TabsTrigger value="fotos" aria-label="Fotos" className="text-xs data-[state=active]:bg-purple-600 flex flex-col sm:flex-row items-center justify-center py-1.5 px-1">
+              <Camera className="w-4 h-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Fotos</span>
             </TabsTrigger>
-            <TabsTrigger value="musica" className="text-xs data-[state=active]:bg-purple-600">
-              <Music className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Música</span>
+            <TabsTrigger value="musica" aria-label="Música" className="text-xs data-[state=active]:bg-purple-600 flex flex-col sm:flex-row items-center justify-center py-1.5 px-1">
+              <Music className="w-4 h-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Música</span>
             </TabsTrigger>
-            <TabsTrigger value="mensajes" className="text-xs data-[state=active]:bg-purple-600">
-              <MessageSquare className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Mensajes</span>
+            <TabsTrigger value="mensajes" aria-label="Mensajes" className="text-xs data-[state=active]:bg-purple-600 flex flex-col sm:flex-row items-center justify-center py-1.5 px-1">
+              <MessageSquare className="w-4 h-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Mensajes</span>
             </TabsTrigger>
-            <TabsTrigger value="votaciones" className="text-xs data-[state=active]:bg-purple-600">
-              <Vote className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Votaciones</span>
+            <TabsTrigger value="votaciones" aria-label="Votaciones" className="text-xs data-[state=active]:bg-purple-600 flex flex-col sm:flex-row items-center justify-center py-1.5 px-1">
+              <Vote className="w-4 h-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Votaciones</span>
             </TabsTrigger>
-            <TabsTrigger value="sorteo" className="text-xs data-[state=active]:bg-purple-600">
-              <Gift className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Sorteo</span>
+            <TabsTrigger value="sorteo" aria-label="Sorteo" className="text-xs data-[state=active]:bg-purple-600 flex flex-col sm:flex-row items-center justify-center py-1.5 px-1">
+              <Gift className="w-4 h-4 sm:mr-1" />
+              <span className="text-[10px] sm:text-xs">Sorteo</span>
             </TabsTrigger>
           </TabsList>
 
@@ -535,7 +535,7 @@ export default function InvitadosPage() {
                             ) : (
                               <Button
                                 variant="outline"
-                                className="w-full justify-start border-purple-600 text-white hover:bg-purple-700"
+                                className="w-full justify-start bg-white/10 border-white/30 text-white hover:bg-white/20"
                                 onClick={() => handleVotar(v, o.id)}
                               >
                                 {o.texto}

@@ -395,10 +395,10 @@ export default function CentroDeControlPage() {
 
       {/* Selector de Pestañas con nombres EXACTOS */}
       <Tabs value={pestanaActiva} onValueChange={setPestanaActiva} className="w-full space-y-6">
-        <TabsList className="w-full grid grid-cols-3 h-14 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-3 h-auto bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner gap-1.5">
           <TabsTrigger
             value="para-tu-ok"
-            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all flex items-center justify-center gap-1.5"
+            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all flex items-center justify-center gap-1.5 min-h-[44px] py-2 whitespace-normal leading-tight"
           >
             Para tu OK
             {itemsOK.length > 0 && (
@@ -409,13 +409,13 @@ export default function CentroDeControlPage() {
           </TabsTrigger>
           <TabsTrigger
             value="tus-reglas"
-            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all"
+            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all min-h-[44px] py-2 whitespace-normal leading-tight"
           >
             Tus reglas
           </TabsTrigger>
           <TabsTrigger
             value="lo-que-hizo-sola"
-            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all"
+            className="rounded-xl text-sm md:text-base font-bold data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm transition-all min-h-[44px] py-2 whitespace-normal leading-tight"
           >
             Lo que hizo sola
           </TabsTrigger>

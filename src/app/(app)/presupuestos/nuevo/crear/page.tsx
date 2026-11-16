@@ -97,6 +97,7 @@ function CrearPresupuestoContent() {
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [paquetesBase, setPaquetesBase] = useState<PaqueteArmadoRapido[]>([]);
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
+    const [entradasDePresentacion, setEntradasDePresentacion] = useState<string[]>([]);
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
@@ -265,6 +266,16 @@ function CrearPresupuestoContent() {
                     const leadName = searchParams.get('leadName');
                     const serviciosParams = searchParams.getAll('servicios');
                     const serviciosParam = searchParams.get('servicios');
+                    let entradasParams = searchParams.getAll('entradas');
+                    if (entradasParams.length === 0 && typeof window !== 'undefined') {
+                        try {
+                            const raw = sessionStorage.getItem('presentacion_entradas_seleccionadas');
+                            const parsed = raw ? JSON.parse(raw) : [];
+                            if (Array.isArray(parsed)) entradasParams = parsed.filter(id => typeof id === 'string' && id.trim().length > 0);
+                        } catch {
+                            // ignore
+                        }
+                    }
                     const menuIdParam = searchParams.get('menuId');
                     const teenMenuIdParam = searchParams.get('teenMenuId');
                     const adultosParam = safePositiveNumberParam(searchParams.get('adultos'));
@@ -273,7 +284,7 @@ function CrearPresupuestoContent() {
                     const tipoParam = searchParams.get('tipoFiesta');
                     const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
                     const salonParam = searchParams.get('salon');
-                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam);
+                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam || entradasParams.length > 0);
 
                     if (hasPlannerParams) {
                         const baseForm: PresupuestoFormData = {
@@ -329,6 +340,12 @@ function CrearPresupuestoContent() {
                             } catch {
                                 // ignore malformed query param
                             }
+                        }
+
+                        if (entradasParams.length > 0) {
+                            const validEntradas = entradasParams.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+                            setEntradasDePresentacion(validEntradas);
+                            validEntradas.forEach(addSelection);
                         }
 
                         if (menuIdParam) {
@@ -541,6 +558,18 @@ function CrearPresupuestoContent() {
                 <p data-testid="presupuesto-para-fiesta" className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-semibold">
                     Presupuesto para la fiesta {fiestaDelPresupuesto.nombre}
                 </p>
+            )}
+            {entradasDePresentacion.length > 0 && (
+                <div data-testid="entradas-cargadas-banner" className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900">
+                    Entradas seleccionadas desde la presentación LED ({entradasDePresentacion.length}):
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        {entradasDePresentacion.map(id => (
+                            <span key={id} data-testid={`entrada-cargada-${id}`} className="inline-block bg-emerald-200 text-emerald-800 rounded px-2 py-0.5 text-xs font-mono">
+                                {id}
+                            </span>
+                        ))}
+                    </div>
+                </div>
             )}
             <Card className="shadow-lg">
                 <CardHeader>

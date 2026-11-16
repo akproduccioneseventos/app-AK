@@ -1,6 +1,7 @@
 import type { CrmLead, CrmStage } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { cleanMojibakeString } from '@/lib/text/mojibake';
 
 export type CommercialLifecycleStatus = 'listo' | 'falta_cerrar' | 'pendiente';
 export type CommercialLifecycleStepId = 'crm' | 'presupuesto' | 'contrato' | 'fiesta' | 'cliente';
@@ -146,21 +147,26 @@ function buildRow(input: { lead?: CrmLead; presupuesto?: Presupuesto; fiesta?: F
   ].filter(Boolean);
   const action = buildMainAction({ lead, presupuesto, fiesta, contractReady });
 
+  const cleanText = (val?: string | null): string | undefined => {
+    if (!val) return val ?? undefined;
+    return cleanMojibakeString(val);
+  };
+
   return {
     id: lead?.id ?? presupuesto?.id ?? fiesta?.id ?? fallbackId,
-    customerName: textOr(lead?.name, textOr(presupuesto?.clienteNombre, textOr(fiesta?.configuracion?.clienteNombre, 'Cliente sin nombre'))),
+    customerName: cleanMojibakeString(textOr(lead?.name, textOr(presupuesto?.clienteNombre, textOr(fiesta?.configuracion?.clienteNombre, 'Cliente sin nombre')))),
     phone: lead?.phone ?? presupuesto?.clienteContacto,
-    partyType: lead?.partyType ?? presupuesto?.eventoTipo ?? fiesta?.configuracion?.tipoCelebracion,
+    partyType: cleanText(lead?.partyType ?? presupuesto?.eventoTipo ?? fiesta?.configuracion?.tipoCelebracion),
     eventDate: presupuesto?.eventoFecha ?? fiesta?.configuracion?.fechaEvento,
-    venueName: lead?.venueName ?? presupuesto?.salonFiestas ?? fiesta?.configuracion?.nombreLugar,
-    stageName: lead ? getStageName(stages, lead.currentStageId) : 'Sin CRM',
+    venueName: cleanText(lead?.venueName ?? presupuesto?.salonFiestas ?? fiesta?.configuracion?.nombreLugar),
+    stageName: cleanText(lead ? getStageName(stages, lead.currentStageId) : 'Sin CRM') ?? 'Sin CRM',
     score,
     status: statusFromScore(score),
     presupuestoId: presupuesto?.id,
     presupuestoEstado: presupuesto?.estado,
     presupuestoTotal: getBudgetTotal(presupuesto),
     fiestaId: fiesta?.id,
-    fiestaEstado: fiesta?.estado,
+    fiestaEstado: cleanText(fiesta?.estado),
     contratoEstado: getContractState(lead, presupuesto, fiesta),
     mainActionLabel: action.label,
     mainActionHref: action.href,

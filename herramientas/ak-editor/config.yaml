@@ -23,3 +23,6 @@ edicion:
   marca:
     margen_pantalla_porcentaje: 4
     color_primario: "#d71920"
+fotos:
+  suavizado_piel_global: true
+

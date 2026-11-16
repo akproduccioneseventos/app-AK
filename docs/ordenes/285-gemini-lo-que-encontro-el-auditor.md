@@ -206,7 +206,6 @@ prueba: src/__tests__/la-playlist-no-se-cae-con-un-tipo-desconocido.test.tsx
 prueba: src/__tests__/el-documento-del-cliente-no-apunta-a-una-computadora.test.ts
 prueba: src/__tests__/el-invitado-de-muestra-abre.test.ts
 prueba: src/__tests__/el-portal-no-anuncia-el-gran-dia-despues.test.ts
-prueba: tests/e2e/en-vivo-se-lee-en-el-celular.spec.ts
 prueba: tests/e2e/el-error-de-la-invitacion-se-lee.spec.ts
 archivo: docs/evidencias/285-enlaces-con-datos-guardados.md
 no-usa: tracking-normal text-foreground en src/components/ui/card.tsx

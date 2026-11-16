@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { EntrarClient } from './EntrarClient';
 
 export const metadata = {
-  title: 'Entrar | AK Producciones',
+  title: 'Entrar',
   description: 'Elegí cómo querés entrar a tu fiesta o plataforma de AK Producciones.',
 };
 

@@ -36,32 +36,7 @@ const bodasData: EventCatalogData = {
         }
       : s
   ),
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Valentina y Rodrigo',
-      source: 'instagram',
-      text: '¡AK Producciones hizo nuestra boda un sueño! Cada detalle fue perfecto, desde las flores hasta la torta. Eternamente agradecidos. 💕',
-      date: 'Marzo 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'Carolina M.',
-      source: 'whatsapp',
-      text: 'No puedo creer lo hermoso que quedó todo. El equipo estuvo presente en todo momento y nosotros solo tuvimos que disfrutar. ¡100% recomendados!',
-      date: 'Diciembre 2023',
-    },
-    {
-      id: 't3',
-      authorName: 'Florencia & Matías',
-      source: 'google',
-      text: 'Llevamos años pensando en nuestra boda y AK superó todas nuestras expectativas. Profesionales, cálidos y creativos.',
-      date: 'Octubre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     gifts: [

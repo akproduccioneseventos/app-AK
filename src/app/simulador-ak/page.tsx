@@ -986,7 +986,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {currentChatStep === 'date' && (
                 <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-xl max-w-sm mt-2 shadow-sm">
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Elegí la fecha de tu fiesta:</p>
-                  <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} />
+                  <DatePickerDemo desdeHoy selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} />
                   {dateWarning && (
                     <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-normal">
                       {dateWarning}

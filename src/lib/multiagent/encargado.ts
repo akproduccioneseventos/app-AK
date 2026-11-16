@@ -461,5 +461,6 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
     vueltasRealizadas: vuelta,
     preguntasAlDueno: preguntaAlDueno ? [preguntaAlDueno] : undefined,
     pasosEjecutados,
+    accionesEjecutadas: pasosEjecutados,
   };
 }

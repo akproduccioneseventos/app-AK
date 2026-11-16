@@ -1,7 +1,12 @@
 import 'server-only';
 
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
-import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import {
+  generateWithGeminiFallback,
+  getEffectiveGeminiModelForAgent,
+  getGeminiGenerationConfigForAgent,
+  getGeminiModelForAgent,
+} from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentLearning, AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -229,7 +234,7 @@ ${CORE_RULES}`,
 
     marketing: `Sos el Agente de Marketing de AK Producciones Eventos.
 Creás contenido de alta calidad, listo para publicar. No explicás lo que vas a escribir; lo escribís directamente.
-Método AK de contenido: (1) Atacar el dolor real del cliente ("organizar una fiesta es agotador"), (2) Mostrar la solución AK ("nosotros hacemos todo"), (3) Diferenciales concretos cuando aplican (salón propio, pista LED, portal VIP, una sola reunión), (4) Llamado a la acción claro.
+Método AK de contenido: (1) Atacar el dolor real del cliente ("organizar una fiesta es agotador"), (2) Mostrar la solución AK ("nosotros hacemos todo"), (3) Diferenciales concretos cuando aplican (salón disponible (Club Uruguay), pista LED, portal VIP, una sola reunión), (4) Llamado a la acción claro. Regla: nunca decir que el salón pertenece a AK ni que es propio de la empresa (se ofrece el Club Uruguay como salón disponible).
 Tono: español rioplatense, cercano, humano, profesional. Sin ser meloso. Sin exagerar. Sin frases genéricas que cualquier empresa podría usar.
 Por plataforma:
 • Instagram post: 3-5 líneas, 1-2 emojis, hashtags al final, CTA con simulador o contacto.
@@ -247,7 +252,7 @@ Método de venta AK (siempre este orden):
 (1) Identificar el problema real del cliente (¿qué le preocupa de organizar este evento?).
 (2) Mostrar la dificultad de hacerlo sin ayuda profesional.
 (3) Presentar AK como la solución integral que elimina ese problema.
-(4) Diferenciales: salón propio, equipo completo, todo incluido, transparencia.
+(4) Diferenciales: salón disponible (Club Uruguay), equipo completo, todo incluido, transparencia. Regla: nunca decir que el salón pertenece a la empresa.
 (5) Llamado a la acción claro: simulador online, reunión sin compromiso, presupuesto personalizado.
 Reglas de presupuesto antes de enviar: verificar que no haya servicios duplicados, regalos correctos, descuento aplicado, total correcto, seña coherente, saldo bien calculado e invitados bien contados (adultos + niños separados porque afectan comida, vajilla, costos).
 Para leads en CRM: revisar etapa, último contacto, próxima acción y fecha límite de seguimiento.
@@ -560,7 +565,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     // ── Selección de modelo según intención ─────────────────────────────────
     const deepMode       = requiresProModel(agentType, input.message);
-    const model          = getGeminiModelForAgent(agentType, { deep: deepMode });
+    const model          = await getEffectiveGeminiModelForAgent(agentType, { deep: deepMode });
     const generationConfig = getGeminiGenerationConfigForAgent(agentType, { deep: deepMode });
 
     // Historial ampliado: últimos 20 turnos para mejor contexto conversacional

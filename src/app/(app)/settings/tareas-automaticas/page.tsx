@@ -323,6 +323,12 @@ export default function TareasAutomaticasPage() {
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span className="font-bold text-base text-slate-900">{tarea.nombre}</span>
+                    {tarea.faltaConexion && (
+                      <Badge className="bg-amber-100 text-amber-900 border-amber-300 gap-1 font-semibold text-xs">
+                        <AlertTriangle className="h-3 w-3 text-amber-600" />
+                        No disponible: falta {tarea.faltaConexion}
+                      </Badge>
+                    )}
                     {esAlDia && (
                       <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100 gap-1 font-semibold text-xs">
                         <CheckCircle2 className="h-3 w-3 text-emerald-600" />
@@ -352,17 +358,24 @@ export default function TareasAutomaticasPage() {
                     {tarea.siNoCorre}
                   </p>
 
-                  {/* Última corrida y origen */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium pt-1">
+                  {/* Última corrida buena, último intento y origen */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium pt-1">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-slate-400" />
-                      <span className="text-slate-500">Última ejecución:</span>
-                      <span className={esNunca ? 'text-rose-600 font-bold' : esAtrasada ? 'text-rose-700 font-bold' : 'text-slate-700'}>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-slate-500">Última corrida buena:</span>
+                      <span className={esNunca ? 'text-rose-600 font-bold' : esAtrasada ? 'text-rose-700 font-bold' : 'text-slate-700 font-semibold'}>
                         {formatearFecha(tarea.ultimaCorrida)}
                       </span>
                       {tarea.horasDesdeLaUltima !== null && (
                         <span className="text-slate-400">({tarea.horasDesdeLaUltima} hs atrás)</span>
                       )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-slate-400" />
+                      <span className="text-slate-500">Último intento:</span>
+                      <span className="text-slate-700 font-semibold">
+                        {formatearFecha(tarea.ultimoIntento || tarea.ultimaCorrida)}
+                      </span>
                     </div>
                     {tarea.disparadoPor && (
                       <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
@@ -378,6 +391,19 @@ export default function TareasAutomaticasPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Motivo del último fallo */}
+                  {tarea.ultimoFallo && (
+                    <div className="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-rose-900">
+                        <XCircle className="h-4 w-4 text-rose-600 shrink-0" />
+                        <span>Motivo del último fallo {tarea.ultimoFallo.fecha ? `(${formatearFecha(tarea.ultimoFallo.fecha)})` : ''}:</span>
+                      </div>
+                      <p className="text-rose-700 pl-5 font-mono text-[11px] leading-relaxed break-words">
+                        {tarea.ultimoFallo.error}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Botón de acción manual */}

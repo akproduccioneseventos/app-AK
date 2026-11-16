@@ -5,41 +5,70 @@
  */
 jest.mock('server-only', () => ({}));
 
-const writeData = jest.fn(async () => undefined);
-const readData = jest.fn(async (_archivo: string, vacio: unknown) => vacio);
+const mockWriteData = jest.fn().mockResolvedValue(true);
+const mockReadData = jest.fn().mockResolvedValue({
+  meses: {},
+  dias: {},
+  fallos: {},
+  topeMensualUYU: 1000,
+  topeDiarioProfundo: 40,
+});
+
 jest.mock('@/lib/data-service', () => ({
-  readData: (archivo: string, vacio: unknown) => readData(archivo, vacio),
-  writeData: (...args: unknown[]) => writeData(...(args as [])),
+  readData: (...args: any[]) => mockReadData(...args),
+  writeData: (...args: any[]) => mockWriteData(...args),
 }));
 
-let usuario: { perfil?: string; role?: string } | null = { perfil: 'auditor', role: 'auditor' };
+let usuario: { userId?: string; email?: string; perfil?: string; role?: string } | null = {
+  userId: 'auditor_123',
+  email: 'auditor@externo.com',
+  perfil: 'auditor',
+  role: 'auditor',
+};
+
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: async () => (usuario ? { success: true, user: usuario } : { success: false }),
 }));
 
-import { registrarConsumoIA, reservarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { registrarConsumoIA, reservarConsumoIA, anotarFalloIA } from '@/lib/ai/consumo-servidor';
 
-describe('El auditor prueba la IA sin guardar nada', () => {
+describe('Orden 291 — Bloque 3: El auditor puede probar la IA sin guardar nada', () => {
   beforeEach(() => {
-    writeData.mockClear();
-    usuario = { perfil: 'auditor', role: 'auditor' };
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
+    mockWriteData.mockClear();
+    mockReadData.mockClear();
+    usuario = {
+      userId: 'auditor_123',
+      email: 'auditor@externo.com',
+      perfil: 'auditor',
+      role: 'auditor',
+    };
   });
 
-  it('anotar el gasto con sesión de auditor no tira error ni escribe', async () => {
-    await expect(registrarConsumoIA('multiagente')).resolves.toBeUndefined();
-    expect(writeData).not.toHaveBeenCalled();
+  it('con sesión de auditor, registrarConsumoIA no escribe y no tira error', async () => {
+    await expect(registrarConsumoIA('copiloto-presupuesto')).resolves.not.toThrow();
+    expect(mockWriteData).not.toHaveBeenCalled();
   });
 
-  it('reservar con sesión de auditor devuelve una reserva y no escribe', async () => {
-    const reserva = await reservarConsumoIA('multiagente');
+  it('con sesión de auditor, reservarConsumoIA devuelve una reserva y no escribe', async () => {
+    const reserva = await reservarConsumoIA('copiloto-presupuesto');
     expect(reserva).not.toBeNull();
-    await expect(reserva!.liberar()).resolves.toBeUndefined();
-    expect(writeData).not.toHaveBeenCalled();
+    expect(typeof reserva?.liberar).toBe('function');
+    expect(mockWriteData).not.toHaveBeenCalled();
+
+    // Liberar tampoco escribe ni tira error
+    await expect(reserva?.liberar()).resolves.not.toThrow();
+    expect(mockWriteData).not.toHaveBeenCalled();
+  });
+
+  it('con sesión de auditor, anotarFalloIA no escribe en la base', async () => {
+    await expect(anotarFalloIA('simulador-copilot', 'Fallo de prueba')).resolves.not.toThrow();
+    expect(mockWriteData).not.toHaveBeenCalled();
   });
 
   it('con sesión del equipo sí se anota el gasto', async () => {
-    usuario = { perfil: 'admin', role: 'admin' };
+    usuario = { userId: 'admin_1', email: 'admin@ak.uy', perfil: 'admin', role: 'admin' };
     await registrarConsumoIA('multiagente');
-    expect(writeData).toHaveBeenCalledTimes(1);
+    expect(mockWriteData).toHaveBeenCalledTimes(1);
   });
 });

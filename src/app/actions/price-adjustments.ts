@@ -191,12 +191,25 @@ async function revertPriceAdjustmentInterno(
     // Revert by applying the inverse percentage
     const revertPercentage = porcentajeInverso(adjustment.percentage);
 
+    // Cada guardado vuelve a leer la lista: con la base real, la lista leida antes trae la marca de
+    // lectura vieja y el segundo guardado chocaba con el primero ("otra persona cambio este dato").
+    const guardarCambio = async (cambiar: (a: PriceAdjustmentRecord) => void) => {
+      const fresca = await getPriceAdjustmentHistory();
+      const actual = fresca.find((a) => a.id === adjustmentId);
+      if (!actual) throw new Error('Ajuste no encontrado.');
+      cambiar(actual);
+      await writeData(ADJUSTMENTS_FILE, fresca);
+      return actual;
+    };
+
     // El marcador va antes de tocar un precio; cada parte hecha se marca, y un reintento termina
     // solo lo que falta (antes, revertir "ambos" con un corte en el medio deshacia los precios dos veces).
+    let enCurso = adjustment;
     if (adjustment.estado !== 'revirtiendo') {
-      adjustment.estado = 'revirtiendo';
-      adjustment.reversionPartesHechas = [];
-      await writeData(ADJUSTMENTS_FILE, history);
+      enCurso = await guardarCambio((a) => {
+        a.estado = 'revirtiendo';
+        a.reversionPartesHechas = [];
+      });
     }
 
     /**
@@ -207,20 +220,22 @@ async function revertPriceAdjustmentInterno(
      * entera hasta que se cotiza mal.
      */
     for (const parte of partesDe(adjustment.type)) {
-      if (adjustment.reversionPartesHechas?.includes(parte)) continue;
+      if (enCurso.reversionPartesHechas?.includes(parte)) continue;
       const r = parte === 'precios' ? await adjustAllServicePrices(revertPercentage) : await adjustAllServiceCosts(revertPercentage);
       if (!r?.success) {
         return { success: false, error: `${r?.error || (parte === 'precios' ? 'No se pudieron revertir los precios.' : 'No se pudieron revertir los costos.')} Volvé a revertir: sólo se termina lo que falta.` };
       }
-      adjustment.reversionPartesHechas = [...(adjustment.reversionPartesHechas || []), parte];
-      await writeData(ADJUSTMENTS_FILE, history);
+      enCurso = await guardarCambio((a) => {
+        a.reversionPartesHechas = [...(a.reversionPartesHechas || []), parte];
+      });
     }
 
     // Mark as reverted
-    adjustment.revertido = true;
-    adjustment.revertidoEn = new Date().toISOString();
-    adjustment.estado = 'listo';
-    await writeData(ADJUSTMENTS_FILE, history);
+    await guardarCambio((a) => {
+      a.revertido = true;
+      a.revertidoEn = new Date().toISOString();
+      a.estado = 'listo';
+    });
 
     return { success: true };
   } catch (error: any) {

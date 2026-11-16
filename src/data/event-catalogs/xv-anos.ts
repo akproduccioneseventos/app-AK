@@ -16,7 +16,7 @@ const xvAnosData: EventCatalogData = {
   hero: {
     headline: 'Los mejores XV años de su vida',
     subheadline:
-      'Convertimos sus XV años en una noche de ensueño. Decoraciones de cuento, música, catering y todo lo que necesita para brillar como merece.',
+      'Convertimos tus XV en una noche de ensueño. Decoraciones de cuento, música, catering y todo lo que necesitás para brillar como merecés.',
     gradientClasses: 'from-purple-50 via-fuchsia-50 to-pink-50',
     accentColor: 'purple',
     emoji: '👑',
@@ -35,32 +35,7 @@ const xvAnosData: EventCatalogData = {
         }
       : s
   ),
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Familia Rodríguez',
-      source: 'instagram',
-      text: '¡La fiesta de mis XV fue como un cuento de hadas! Gracias AK por hacer todo tan perfecto. Mis amigas no podían creerlo. 👑✨',
-      date: 'Junio 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'Luciana P.',
-      source: 'whatsapp',
-      text: 'Desde la primera reunión hasta el último baile, el equipo de AK estuvo impecable. Muy profesionales y creativos. ¡Los recomiendo con los ojos cerrados!',
-      date: 'Enero 2024',
-    },
-    {
-      id: 't3',
-      authorName: 'Romina G.',
-      source: 'google',
-      text: 'Mi hija lleva meses hablando de su fiesta. Todo fue exactamente como lo imaginamos, o mejor. Gracias por hacer su sueño realidad.',
-      date: 'Noviembre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Regalos especiales para la quinceañera',

@@ -34,7 +34,7 @@ const normalizarFinalesDeLinea = (contenido: string) => contenido.replace(/\r\n/
 describe('El mapa de la app esta al dia', () => {
   it('el mapa generado coincide con las pantallas que hay de verdad', () => {
     const antes = readFileSync(ARCHIVO_MAPA, 'utf8');
-    execFileSync('node', [GENERADOR], { cwd: RAIZ, stdio: 'pipe' });
+    execFileSync(process.execPath, [GENERADOR], { cwd: RAIZ, stdio: 'pipe' });
     const despues = readFileSync(ARCHIVO_MAPA, 'utf8');
 
     if (antes !== despues) {

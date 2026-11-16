@@ -20,6 +20,36 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
+const VERSION_ZIP = 'v2.0';
+
+const MODOS_EDITOR = [
+  {
+    nombre: 'Edición',
+    estado: 'Disponible' as const,
+    descripcion: 'Sincronización multicámara, vals con música continua, discursos intactos y exportación XML a Filmora 16.',
+  },
+  {
+    nombre: 'Fotos',
+    estado: 'Disponible' as const,
+    descripcion: 'Descarte inteligente de fotos borrosas y ojos cerrados, enderezado y recorte 3:2, y presets automáticos para Lightroom Classic.',
+  },
+  {
+    nombre: 'Video de Vida',
+    estado: 'Disponible' as const,
+    descripcion: 'Carga de 300+ fotos ordenadas cronológicamente, encuadre facial que nunca corta caras, fondo desenfocado sin franjas negras y ritmo musical.',
+  },
+  {
+    nombre: 'Redes',
+    estado: 'En prueba' as const,
+    descripcion: 'Generación en 3 formatos simultáneos (Reel 9:16, Cuadrado 1:1, Vertical 4:5) por estación y noche completa con placa AK.',
+  },
+  {
+    nombre: 'Wfolio',
+    estado: 'En prueba' as const,
+    descripcion: 'Subida con verificación remota de presencia (nombre y tamaño). Si no se puede comprobar, queda pendiente para reanudar donde quedó.',
+  },
+];
+
 export default function EdicionVideosPage() {
   const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -86,6 +116,9 @@ export default function EdicionVideosPage() {
               </h1>
               <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 text-xs font-semibold">
                 Local
+              </Badge>
+              <Badge variant="outline" className="text-slate-600 border-slate-300 bg-slate-100 text-xs font-semibold">
+                Versión del ZIP: {VERSION_ZIP}
               </Badge>
             </div>
             <p className="text-slate-600 text-sm mt-1">
@@ -207,6 +240,43 @@ export default function EdicionVideosPage() {
         </div>
       </div>
 
+      {/* Qué trae el programa: Modos incluidos */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-red-600" />
+            Qué trae el programa (Modos incluidos)
+          </h2>
+          <span className="text-xs font-medium text-slate-500">
+            Versión del ZIP: <strong className="text-slate-800">{VERSION_ZIP}</strong>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {MODOS_EDITOR.map((modo) => (
+            <Card key={modo.nombre} className="border-slate-200 shadow-sm bg-white">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-slate-900 text-sm">{modo.nombre}</span>
+                  <Badge
+                    className={
+                      modo.estado === 'Disponible'
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-emerald-200 text-xs font-semibold'
+                        : 'bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200 text-xs font-semibold'
+                    }
+                  >
+                    {modo.estado}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {modo.descripcion}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       {/* Características principales */}
       <Card className="border-slate-200 shadow-sm bg-gradient-to-br from-white to-slate-50">
         <CardHeader>
@@ -247,3 +317,4 @@ export default function EdicionVideosPage() {
     </div>
   );
 }
+

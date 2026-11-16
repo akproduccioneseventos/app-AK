@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,8 @@ import { resetCrm } from '@/app/actions/crm';
 import { resetAllPresupuestos } from '@/app/actions/presupuestos';
 import { resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { resetAppCompleto } from '@/app/actions/admin-reset';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export default function AdminDatosPage() {
   const { toast } = useToast();
@@ -31,10 +33,26 @@ export default function AdminDatosPage() {
   const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
   const [isArchivingFiestas, setIsArchivingFiestas] = useState(false);
   const [isDeletingFiestas, setIsDeletingFiestas] = useState(false);
+  const [deleteFiestasConfirmText, setDeleteFiestasConfirmText] = useState('');
   const [isResettingAll, setIsResettingAll] = useState(false);
   const [isCleaningDb, setIsCleaningDb] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+  useEffect(() => {
+    let montado = true;
+    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+      .then(([perms, soloLectura]) => {
+        if (!montado) return;
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      })
+      .catch(() => {
+        if (montado) setPuedeBorrar(false);
+      });
+    return () => { montado = false; };
+  }, []);
 
   const handleResetCrm = useCallback(async () => {
     setIsResettingCrm(true);
@@ -86,6 +104,7 @@ export default function AdminDatosPage() {
 
   const handleDeleteAllFiestas = useCallback(async () => {
     setIsDeletingFiestas(true);
+    setDeleteFiestasConfirmText('');
     try {
       const result = await deleteAllFiestas();
       if (result.success) {
@@ -177,6 +196,20 @@ export default function AdminDatosPage() {
 
       <Separator />
 
+      {!puedeBorrar ? (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardHeader>
+            <CardTitle className="text-amber-800 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Acceso restringido
+            </CardTitle>
+            <CardDescription className="text-amber-700">
+              Sesión de sólo lectura: las acciones para reiniciar, borrar o restaurar datos de Firestore no están disponibles para sesiones de sólo lectura o sin permisos de administración.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <>
       {/* CRM */}
       <Card>
         <CardHeader>
@@ -271,7 +304,7 @@ export default function AdminDatosPage() {
             </AlertDialogContent>
           </AlertDialog>
 
-          <AlertDialog>
+          <AlertDialog onOpenChange={(open) => { if (!open) setDeleteFiestasConfirmText(''); }}>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingFiestas}>
                 {isDeletingFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
@@ -281,13 +314,30 @@ export default function AdminDatosPage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos de Firestore. Los datos <strong>NO se podrán recuperar</strong>. Esta operación no puede deshacerse.
+                <AlertDialogDescription asChild>
+                  <div className="space-y-3">
+                    <p>
+                      Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos de Firestore. Los datos <strong>NO se podrán recuperar</strong>. Esta operación no puede deshacerse.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                      <Input
+                        value={deleteFiestasConfirmText}
+                        onChange={(e) => setDeleteFiestasConfirmText(e.target.value)}
+                        placeholder="ELIMINAR"
+                        className="border-destructive/40 focus-visible:ring-destructive"
+                      />
+                    </div>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAllFiestas} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogCancel onClick={() => setDeleteFiestasConfirmText('')}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAllFiestas}
+                  disabled={deleteFiestasConfirmText !== 'ELIMINAR'}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
                   Sí, eliminar todo permanentemente
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -399,6 +449,8 @@ export default function AdminDatosPage() {
           </AlertDialog>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

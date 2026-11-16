@@ -14,7 +14,7 @@ import { Metadata } from 'next';
  * cada rato."*
  */
 export const metadata: Metadata = {
-  title: 'Fotocabina | AK Producciones',
+  title: 'Fotocabina',
   description: 'Sacate fotos con marcos interactivos y subilas al muro.',
   manifest: '/api/manifest-estacion?estacion=fotocabina',
 };

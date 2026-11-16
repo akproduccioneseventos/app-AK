@@ -50,6 +50,7 @@ export function ContratarnosSlide({
 
         <motion.button
           type="button"
+          data-testid="btn-generar-presupuesto-manual"
           onClick={onCtaAction}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

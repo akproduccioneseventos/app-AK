@@ -5,7 +5,7 @@ import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Centro de Presencia Digital | AK Producciones',
+  title: 'Centro de Presencia Digital',
   description: 'Tablero centralizado de redes sociales, publicidad Meta vs fiestas reales y revisión diaria.',
 };
 

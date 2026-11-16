@@ -135,6 +135,42 @@ export async function uploadBuzonMessage(
     };
   }
 
+  let bytes: Uint8Array;
+  const blob = file as Blob | null | undefined;
+  if (blob && typeof blob.arrayBuffer === 'function') {
+    bytes = new Uint8Array(await blob.arrayBuffer());
+  } else if (blob && typeof blob.text === 'function') {
+    const txt = await blob.text();
+    bytes = new Uint8Array(Buffer.from(txt, 'binary'));
+  } else if (Buffer.isBuffer(file)) {
+    bytes = new Uint8Array(file);
+  } else {
+    bytes = new Uint8Array(Buffer.from(String(file || '')));
+  }
+  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+  const isWebp = String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP';
+  const isIsoMedia = String.fromCharCode(...bytes.slice(4, 8)) === 'ftyp';
+  const isWebm = bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3;
+
+  if (mediaType === 'photo' && !isJpeg && !isPng && !isWebp && !isIsoMedia) {
+    return { success: false, error: 'El archivo no es una foto' };
+  }
+  if (mediaType === 'video' && !isWebm && !isIsoMedia) {
+    return { success: false, error: 'El archivo no es un video' };
+  }
+
+  const detectedMedia = detectBuzonMedia(bytes, mediaType, file.type);
+  if (!detectedMedia) {
+    if (mediaType === 'photo') {
+      return { success: false, error: 'El archivo no es una foto' };
+    }
+    if (mediaType === 'video') {
+      return { success: false, error: 'El archivo no es un video' };
+    }
+    return { success: false, error: 'El contenido del archivo no coincide con un audio, video o foto válido.' };
+  }
+
   try {
     if (!(await hasEntertainmentGuestAccess(fiestaId, 'capsulaTiempo', accessToken))) {
       return { success: false, error: 'Acceso de estación no autorizado.' };
@@ -156,12 +192,6 @@ export async function uploadBuzonMessage(
       limit: 30,
       windowMs: 10 * 60 * 1000,
     });
-
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const detectedMedia = detectBuzonMedia(bytes, mediaType, file.type);
-    if (!detectedMedia) {
-      return { success: false, error: 'El contenido del archivo no coincide con un audio, video o foto válido.' };
-    }
 
     const contentHash = crypto.createHash('sha256').update(bytes).digest('hex');
     const db = await getDb();

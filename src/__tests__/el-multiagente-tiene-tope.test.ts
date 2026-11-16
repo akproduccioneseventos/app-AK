@@ -27,6 +27,7 @@ jest.mock('@/lib/commercial/public-rate-limit', () => ({
 }));
 
 jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn().mockResolvedValue(true),
   registrarConsumoIA: jest.fn(),
 }));
 

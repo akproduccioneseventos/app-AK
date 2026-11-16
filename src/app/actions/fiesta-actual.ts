@@ -4,6 +4,7 @@
  * @fileOverview Central de Acciones de Servidor para la Planificación de Fiestas.
  */
 import { hoyEnUruguay } from '@/lib/utils';
+import { readData } from '@/lib/data-service';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
 import * as ConfigModule from './fiesta/configuracion.actions';
@@ -207,7 +208,10 @@ export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiesta
   // fiesta hay hoy. Pedir cuenta aca dejaba esas tres sin encontrar la fiesta en
   // pleno evento.
   try {
-    const fiestas = await FiestaModule.getFiestas(false);
+    let fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+    if (!Array.isArray(fiestas)) {
+      fiestas = await FiestaModule.getFiestas(false);
+    }
     const todayStr = hoyEnUruguay();
 
     const activeFiesta = fiestas.find(f => f.configuracion?.fechaEvento === todayStr);

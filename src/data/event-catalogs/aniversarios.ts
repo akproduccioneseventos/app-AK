@@ -35,25 +35,7 @@ const aniversariosData: EventCatalogData = {
         }
       : s
   ),
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Roberto y Marta',
-      source: 'instagram',
-      text: 'Nuestras Bodas de Oro fueron más hermosas que nuestra boda original. Gracias AK por este regalo tan especial. 💛',
-      date: 'Julio 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'Familia González',
-      source: 'whatsapp',
-      text: 'Organizamos una sorpresa de aniversario de 25 años para mis padres y lloramos de emoción. AK capturó todo perfectamente.',
-      date: 'Marzo 2024',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Detalles especiales para aniversarios',

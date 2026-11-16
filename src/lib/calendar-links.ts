@@ -8,7 +8,7 @@ export type CalendarEventInput = {
   durationHours?: number;
 };
 
-function parseTime(time?: string | null) {
+function parseTimeParts(time?: string | null) {
   if (!time) return { hours: 20, minutes: 0 };
   const [hoursRaw, minutesRaw] = time.split(':');
   const hours = Number(hoursRaw);
@@ -17,42 +17,47 @@ function parseTime(time?: string | null) {
   return { hours, minutes: Number.isFinite(minutes) ? minutes : 0 };
 }
 
-function parseLocalDateTime(date?: string | null, time?: string | null) {
-  if (!date) return null;
-  const dateText = String(date);
+export function buildGoogleCalendarUrl(input: CalendarEventInput): string | null {
+  if (!input.startDate) return null;
+  const dateText = String(input.startDate);
   const match = dateText.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  const { hours, minutes } = parseTime(time);
+  if (!match) return null;
 
-  if (match) {
-    const [, year, month, day] = match;
-    return new Date(Number(year), Number(month) - 1, Number(day), hours, minutes);
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const { hours, minutes } = parseTimeParts(input.startTime);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const startStr = `${year}${pad(month)}${pad(day)}T${pad(hours)}${pad(minutes)}00`;
+
+  let endUtc: number;
+  if (input.endTime) {
+    const endParts = parseTimeParts(input.endTime);
+    const startUtc = Date.UTC(year, month - 1, day, hours, minutes);
+    let candidateEndUtc = Date.UTC(year, month - 1, day, endParts.hours, endParts.minutes);
+    if (candidateEndUtc <= startUtc) {
+      candidateEndUtc += 24 * 60 * 60 * 1000;
+    }
+    endUtc = candidateEndUtc;
+  } else {
+    const duration = input.durationHours ?? 5;
+    const startUtc = Date.UTC(year, month - 1, day, hours, minutes);
+    endUtc = startUtc + duration * 60 * 60 * 1000;
   }
 
-  const parsed = new Date(dateText);
-  if (Number.isNaN(parsed.getTime())) return null;
-  parsed.setHours(hours, minutes, 0, 0);
-  return parsed;
-}
-
-function toGoogleDate(date: Date) {
-  return date.toISOString().replace(/[-:]|\.\d{3}/g, '');
-}
-
-export function buildGoogleCalendarUrl(input: CalendarEventInput) {
-  const start = parseLocalDateTime(input.startDate, input.startTime);
-  if (!start) return null;
-
-  const end = parseLocalDateTime(input.startDate, input.endTime);
-  const fallbackEnd = new Date(start.getTime() + (input.durationHours ?? 5) * 60 * 60 * 1000);
-  const finalEnd = end && end > start ? end : fallbackEnd;
+  const endDate = new Date(endUtc);
+  const endStr = `${endDate.getUTCFullYear()}${pad(endDate.getUTCMonth() + 1)}${pad(endDate.getUTCDate())}T${pad(endDate.getUTCHours())}${pad(endDate.getUTCMinutes())}00`;
 
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: input.title || 'Evento AK Producciones',
-    dates: `${toGoogleDate(start)}/${toGoogleDate(finalEnd)}`,
+    dates: `${startStr}/${endStr}`,
     details: input.details || 'Evento coordinado por AK Producciones.',
     location: input.location || '',
+    ctz: 'America/Montevideo',
   });
 
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  const rawUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
+  return rawUrl.replace(`${startStr}%2F${endStr}`, `${startStr}/${endStr}`);
 }

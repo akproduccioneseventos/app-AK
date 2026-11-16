@@ -275,7 +275,7 @@ export function LeadCaptureForm({
             onChange={(event) => setMarketingConsent(event.target.checked)}
             className="mt-0.5 h-4 w-4 shrink-0 accent-red-700"
           />
-          <span>Acepto que AK Producciones use mis datos para medir esta campaña y enviarme promociones. Es opcional.</span>
+          <span>Acepto que AK Producciones use mis datos para saber cómo nos encontraste y enviarme promociones. Es opcional.</span>
         </label>
 
         <button

@@ -57,10 +57,10 @@ export function FAQSection({ faqs, className }: FAQSectionProps) {
             Preguntas frecuentes
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
-            ¿Tenés dudas? Aquí respondemos las más comunes
+            ¿Tenés dudas? Acá respondemos las más comunes
           </h2>
           <p className="mt-3 text-slate-500">
-            Si tu pregunta no está aquí, escribinos por WhatsApp y te respondemos enseguida.
+            Si tu pregunta no está acá, escribinos por WhatsApp y te respondemos enseguida.
           </p>
         </div>
 

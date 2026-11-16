@@ -35,6 +35,8 @@ jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ avisarAlDuenio: jest.fn(a
 jest.mock('@/ai/genkit', () => ({
   generateWithGeminiFallback: jest.fn(async (args: any) => mockGenerate(args)),
   geminiCommercialModel: 'googleai/gemini-flash-latest',
+  geminiProModel: 'googleai/gemini-pro-latest',
+  getEffectiveGeminiModelForAgent: jest.fn().mockResolvedValue('googleai/gemini-pro-latest'),
 }));
 
 import {

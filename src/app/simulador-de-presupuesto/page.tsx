@@ -47,12 +47,11 @@ import { useToast } from '@/hooks/use-toast';
 // Protegido con bot-shield en servidor contra solicitudes automáticas
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
+import dynamic from 'next/dynamic';
 import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
-import { SimulatorMeetingScheduler } from '@/components/simulator/SimulatorMeetingScheduler';
-import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
@@ -61,15 +60,29 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem } from '@/lib/calculations';
-import { cn, toSentenceCase } from '@/lib/utils';
+import { cn, hoyEnUruguay, parseUruguayDate, toSentenceCase } from '@/lib/utils';
 import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
+
+const SimulatorMeetingScheduler = dynamic(
+  () => import('@/components/simulator/SimulatorMeetingScheduler').then((m) => m.SimulatorMeetingScheduler),
+  { ssr: false, loading: () => <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" /></div> }
+);
+
+const VideoDeAyuda = dynamic(
+  () => import('@/components/ayuda/VideoDeAyuda').then((m) => m.VideoDeAyuda),
+  { ssr: false }
+);
+
+const DatePickerDemo = dynamic(
+  () => import('@/components/date-picker-demo').then((m) => m.DatePickerDemo),
+  { ssr: false }
+);
 import { cateringDishIdsWithoutConfirmedImage, fotoDelPlatoParaMostrar, getCateringDishImage, getCateringMenuImage, GLITTER_BAR_FOTO_DE_EJEMPLO } from '@/lib/catering/menu-images';
 import {
   calculateSimulatorPricing,
@@ -86,9 +99,9 @@ import {
   getRemovablePackageServices,
   getTierMissingServices,
 } from '@/lib/simulator/package-customization';
-import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
+import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -270,6 +283,10 @@ function obtenerPrimerSabadoDeMes(mesStr?: string | null): Date | undefined {
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
     const date = new Date(year, month, 1, 12, 0, 0);
+    const hoy = parseUruguayDate(hoyEnUruguay());
+    if (date.getTime() < hoy.getTime()) {
+        date.setTime(hoy.getTime());
+    }
     while (date.getDay() !== 6) {
         date.setDate(date.getDate() + 1);
     }
@@ -1045,7 +1062,7 @@ function SimuladorContent() {
             const availability = await checkDateAvailability(date.toISOString());
             if (requestId !== dateAvailabilityRequestRef.current) return;
             if (availability.isOccupied) {
-                setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+                setDateWarning('âš ï¸ Fecha no disponible. Te sugerimos estas fechas cercanas:');
                 setDateSuggestions(availability.suggestions || []);
                 setDateAvailabilityStatus('occupied');
             } else {
@@ -2237,7 +2254,7 @@ function SimuladorContent() {
                                         onClick={() => setStep(2)}
                                         className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
                                     >
-                                        Cotizar Ahora →
+                                        Cotizar Ahora â†’
                                     </Button>
                                 </div>
                             </div>
@@ -2389,7 +2406,7 @@ function SimuladorContent() {
 
                             <div className="space-y-2">
                                 <Label>Fecha del evento</Label>
-                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={(date) => { handleEventoFechaChange(date); setFieldErrors(prev => ({ ...prev, fecha: false })); }} className={cn("h-12 rounded-xl bg-white text-slate-900 border-slate-200", fieldErrors.fecha && "border-red-500 focus-visible:ring-red-500")} />
+                                <DatePickerDemo desdeHoy selectedDate={eventoFecha} onDateChange={(date) => { handleEventoFechaChange(date); setFieldErrors(prev => ({ ...prev, fecha: false })); }} className={cn("h-12 rounded-xl bg-white text-slate-900 border-slate-200", fieldErrors.fecha && "border-red-500 focus-visible:ring-red-500")} />
                                 {fieldErrors.fecha && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Seleccioná la fecha prevista para tu evento.</p>}
                                 {dateWarning && (
                                     <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
@@ -2433,7 +2450,7 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                      <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
                                                      </div>
                                                 )}
                                                 {imageUrl && (
@@ -2469,7 +2486,7 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                      <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
                                                      </div>
                                                 )}
                                                 {imageUrl && (
@@ -2506,7 +2523,7 @@ function SimuladorContent() {
                                                 )}>
                                                     {isRecommended && (
                                                          <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                             <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                             <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
                                                          </div>
                                                     )}
                                                     {imageUrl && (
@@ -2655,7 +2672,7 @@ function SimuladorContent() {
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-bold text-slate-600">Fecha del evento</Label>
-                                        <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 w-full" />
+                                        <DatePickerDemo desdeHoy selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 w-full" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-xs font-bold text-slate-600">Invitados Adultos</Label>
@@ -2870,7 +2887,7 @@ function SimuladorContent() {
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
                                                         className="min-h-[2.75rem] h-auto py-2.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs tracking-tight shadow-xl transition-all w-full sm:w-auto text-center"
                                                     >
-                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
+                                                        âš¡ Pasarme al Plan {tierMissingData.nextPackageName}
                                                     </Button>
                                                 )}
                                             </div>
@@ -3132,7 +3149,7 @@ function SimuladorContent() {
                             onClick={() => setIsFaqOpen(false)}
                             className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs tracking-normal min-h-[2.75rem] h-auto py-2.5 px-6 shadow-md transition"
                         >
-                            ← Volver a mi Presupuesto
+                            â† Volver a mi Presupuesto
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -3144,7 +3161,7 @@ function SimuladorContent() {
                     <DialogHeader className="text-left space-y-2">
                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                             <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
-                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
+                            âš¡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
                         </div>
                         <DialogTitle className="text-xl font-black text-white leading-tight">
                             {tierMissingData.missingServices.length > 0
@@ -3189,7 +3206,7 @@ function SimuladorContent() {
                                 }}
                                 className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl transition transform hover:scale-105 text-center leading-snug"
                             >
-                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                                âš¡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
                             </Button>
                         ) : (
                             <Button
@@ -3197,7 +3214,7 @@ function SimuladorContent() {
                                 onClick={() => setIsUpgradePromptOpen(false)}
                                 className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl text-center leading-snug"
                             >
-                                Ver Presupuesto Completo →
+                                Ver Presupuesto Completo â†’
                             </Button>
                         )}
                         <Button

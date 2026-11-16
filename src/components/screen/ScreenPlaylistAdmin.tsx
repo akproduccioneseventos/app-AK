@@ -180,7 +180,7 @@ export function ScreenPlaylistAdmin({ fiestaId }: ScreenPlaylistAdminProps) {
           {/* Items list */}
           <div className="space-y-2">
             {playlist.items.map((item, index) => {
-              const Icon = typeIcons[item.type];
+              const Icon = (typeIcons as Record<string, any>)[item.type] ?? Image;
               return (
                 <div key={item.id} className={`flex items-center gap-3 p-3 rounded-xl border ${item.enabled ? 'bg-white border-border' : 'bg-muted/40 border-muted opacity-60'}`}>
                   <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export function ScreenPlaylistAdmin({ fiestaId }: ScreenPlaylistAdminProps) {
                   <div className="flex-1">
                     <p className="font-semibold text-sm">{item.label}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">{typeLabels[item.type]}</Badge>
+                      <Badge variant="outline" className="text-xs">{(typeLabels as Record<string, any>)[item.type] ?? 'Otro'}</Badge>
                       <Input
                         type="number"
                         value={item.durationSeconds}

@@ -540,7 +540,9 @@ export default function GestorFiestasPage() {
             <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.fiestasPasadas}</div>
+            <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
+              {error ? "No se pudo leer la lista" : kpiData.fiestasPasadas}
+            </div>
             <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
           </CardContent>
         </Card>
@@ -551,7 +553,9 @@ export default function GestorFiestasPage() {
             <CalendarClock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activePlanningCount}</div>
+            <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
+              {error ? "No se pudo leer la lista" : activePlanningCount}
+            </div>
             <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
           </CardContent>
         </Card>

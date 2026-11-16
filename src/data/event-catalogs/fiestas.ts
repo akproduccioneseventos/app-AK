@@ -23,32 +23,7 @@ const fiestasData: EventCatalogData = {
     ctaLabel: '¡Organizar mi fiesta!',
   },
   services: sharedServices,
-  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
-  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
-  // agosto de 2026. Detalle completo en `shared.ts`.
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Gabriel S.',
-      source: 'instagram',
-      text: 'Organizamos el cumple de 50 de mi mamá con AK y fue increíble. Decoración espectacular, la comida riquísima y el DJ hizo bailar a todos. ¡Gracias! 🎊',
-      date: 'Mayo 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'Daniela F.',
-      source: 'whatsapp',
-      text: 'Contratamos para una despedida de soltera y quedamos fascinadas. Muy creativos, súper atentos y con precios justos.',
-      date: 'Febrero 2024',
-    },
-    {
-      id: 't3',
-      authorName: 'Martín R.',
-      source: 'google',
-      text: 'La graduación de mi hija fue un evento de revista. Todo coordinado a la perfección. No dudaría en volver a contratar.',
-      date: 'Diciembre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: sharedPromotion,
   faqs: sharedFAQs,
   paymentMethods: sharedPaymentMethods,

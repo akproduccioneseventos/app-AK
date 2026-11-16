@@ -46,6 +46,11 @@ const formatCurrency = (amount?: number) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    return d.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
   try {
     return new Date(dateString).toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch { return '—'; }

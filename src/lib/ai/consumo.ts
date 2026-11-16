@@ -36,7 +36,8 @@ export type FuncionConCosto =
   | 'voz-cliente'
   | 'whatsapp-media'
   | 'asistente-dot-contador'
-  | 'recorte-decoracion';
+  | 'recorte-decoracion'
+  | 'respuesta-profunda';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -76,6 +77,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'whatsapp-media': 1,
   'asistente-dot-contador': 1,
   'recorte-decoracion': 6,
+  'respuesta-profunda': 3,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
@@ -99,6 +101,8 @@ export interface ResumenDeGasto extends ConsumoDelMes {
   /** Cuando está pasado, las funciones que generan imágenes dejan de gastar. */
   frenado: boolean;
   mensaje: string;
+  respuestasProfundasHoy?: number;
+  topeDiarioProfundo?: number;
 }
 
 /** El mes en curso, como '2026-08'. */

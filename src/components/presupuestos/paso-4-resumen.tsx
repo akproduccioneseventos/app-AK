@@ -14,6 +14,7 @@ import type { BudgetDisplaySettings, WhatsAppTemplates } from '@/types/settings'
 import Image from 'next/image';
 import { calculateBudgetFinancials } from '@/lib/budget/financial-guardrails';
 import { DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE, DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // Company Info Constants
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
@@ -152,7 +153,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     const template = waTemplates?.budgetShareTemplate;
     if (template) {
       const fechaEvento = presupuesto.eventoFecha
-        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+        ? formatearFechaEvento(presupuesto.eventoFecha)
         : '';
       const baseText = template
         .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre || '')

@@ -1,30 +1,21 @@
-# Estado actual — 12 de noviembre de 2026 (noche)
+# Estado actual — 13 de noviembre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (igual a la principal). Publicada: la **1399**.
+Rama de trabajo: `gemini/ordenes-282-283-entrega-completa` (fusionada con `origin/main`). Publicada: la **1401**.
 
-## Publicado hoy
-- **1399 (13/11):** el modo sin conexión llega a la versión publicada (`/sw.js` daba 404). Pregunta 134.
-- **1398 (13/11):** el asistente del equipo ya no da error con la sesión del auditor (anotar el gasto de IA tumbaba la respuesta). Pregunta 133. Falta que el auditor repita el ensayo del asistente.
-- **1397 (13/11):** el simulador ya no presupuesta fiestas en el pasado (servidor). Orden 295 para el calendario. Quedan 2 prospectos "PRUEBA" del auditor para que el dueño borre.
-- **1396 (13/11):** "Entrar" y el portal del cliente por teléfono ya no llevan a una página que no existe; control de todos los enlaces y método de ida y vuelta contra la base (108 acciones pendientes, orden 293).
-- **1395:** revertir un ajuste de precios ya no deja el catálogo en negativo; no se acepta bajar 100% o más. Orden 292.
-- **1394:** el respaldo automático vuelve a guardarse (esperaba lista donde hay objeto; no guardaba desde el 13/10).
-  Cada pregunta nueva del método se escanea sola en cada publicación. Órdenes 287 a 291 y preguntas 117 a 126.
-- **1392:** respaldo de a 4 con motivo, órdenes 283-286. **1391/1390:** acceso del auditor.
+## Entrega de Gemini lista para revisar
+- **Órdenes 284 a 296 completas** en una sola propuesta contra `main` ("Gemini: órdenes 284 a 296"):
+  - **284–287:** mapa único de navegación, enlaces seguros de cliente/invitado, calendario en hora de Uruguay, aviso de respaldo vencido o fallido y evidencia 285.
+  - **288:** hora local Uruguay en publicaciones, textos de marketing sin marcadores rotos, miniaturas relativas, verificación remota de subida en `wfolio.py` (`ak-editor.zip`), deduplicación contable, freno al doble envío en invitación, tarjeta de menú en portal, confirmación `"ELIMINAR"` y ajustes en celular (390 px).
+  - **289–290:** IA en dos niveles (`gemini-pro-latest` + caída a Flash y tope de 40/día), apertura rápida de `/presupuestos/nuevo`, entrega de álbum en Centro de Fiesta y carga diferida en simulador.
+  - **291, 292 y 294:** detalle real de paquetes para Sofía, registro de fallos de IA, vaciado permitido de plantillas, `FieldValue.delete()` explícito en `firebase-sync.ts`, limpieza de `presupuestoId` en prospectos, recálculo de `isCeliac`, validación binaria de imágenes en buzón, lectura sin sesión en `getFiestaActivaDeHoy` y guardia `hayPresupuestoParaIA()` antes de gastar.
+  - **293:** pruebas de ida y vuelta contra emulador (`ida-y-vuelta-auditor.test.ts` e `ida-y-vuelta-plata.test.ts`), relectura fresca en `revertPriceAdjustment` y recorte de `docs/ida-y-vuelta-pendientes.json`.
+  - **295–296:** `desdeHoy` en `DatePickerDemo` para ambos simuladores, primer sábado futuro, descarte de fechas pasadas conservando teléfono en prospecto, separación de estado de Google Workspace en `/api/health`, y retiro de notas internas y marca repetida en `/club-uruguay`.
 
-## Para Gemini (todas en la principal)
-- Una sola entrega en su rama `gemini/ordenes-282-283-entrega-completa` (fusionando `origin/main`): órdenes
-  **284 a 295**. La 289 es la IA en dos niveles (tope 40 por día, aprobado por el dueño).
-- Pendientes de antes: 282 (Meta desde la PC del dueño), 278 bloque 1 (clave del despertador), 277 bloque 13, 269.
-
-## Para mirar mañana
-- Que el respaldo automático haya guardado copia (Ajustes → Backup): el primero después de publicar la 1394.
-- Pruebas de navegador que fallan sólo en la corrida completa y pasan solas: simulador en celular y fotos del catering.
-  Va en la orden 290, bloque 4.
+## Publicado hoy en `main`
+- **1401 (13/11):** orden 296 y pregunta 135 con escaneo automático.
+- **1399 / 1398 / 1397 / 1396 (13/11):** modo sin conexión en standalone (`/sw.js`), sesión de auditor en asistente sin romper por gasto, freno en servidor a fechas pasadas y enlaces `/entrar` y `/portal-cliente`.
 
 ## Sólo el dueño
-- Prender las tareas programadas de Firebase (hoy no hay ninguna) — orden 278 bloque 1.
+- Prender las tareas programadas de Firebase (orden 278 bloque 1) y correr 282 desde la PC del dueño.
 - 7 fiestas pasadas con $1.855.627 sin cobrar en la app: marcar en "Poner al día" lo ya cobrado.
-
-## Decisiones pendientes del dueño
-- 15% de contratos nuevos: fijo o acumulativo. Play Store: falta la huella SHA-256.
+- Decisiones pendientes: 15% de contratos nuevos (fijo o acumulativo) y huella SHA-256 para Play Store.

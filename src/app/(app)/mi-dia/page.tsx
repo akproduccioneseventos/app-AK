@@ -218,6 +218,32 @@ export default async function MiDiaPage() {
         </div>
       </div>
 
+      {/* Tarjeta de interacción con el asistente del Centro de Control (Orden 283) */}
+      <Card className="rounded-2xl border-indigo-100 bg-gradient-to-r from-indigo-50/90 via-purple-50/50 to-white shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-md shadow-indigo-600/20 shrink-0">
+            <Bot className="w-6 h-6" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-black text-slate-900 text-base sm:text-lg">Hablar con AK</h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium">
+              Consultá tus fiestas, dale indicaciones por voz o texto y coordiná tus eventos con el Asistente AK.
+            </p>
+          </div>
+        </div>
+        <Button
+          asChild
+          size="default"
+          className="rounded-xl font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 w-full sm:w-auto shrink-0 min-h-[44px]"
+        >
+          <Link href="/centro-de-control">
+            <Bot className="w-4 h-4 mr-2" />
+            Hablar con AK
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Link>
+        </Button>
+      </Card>
+
       {/* El Parte de la Mañana por el Encargado */}
       <ParteDeLaMananaPlayer parte={parte} />
 

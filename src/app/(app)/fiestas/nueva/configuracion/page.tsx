@@ -26,6 +26,25 @@ import { getPresupuestos, getPresupuestoById } from '@/app/actions/presupuestos'
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
+function parseFechaSegura(fecha?: string | Date | null): Date | undefined {
+  if (!fecha) return undefined;
+  if (fecha instanceof Date) return isNaN(fecha.getTime()) ? undefined : fecha;
+  const match = String(fecha).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+  }
+  const d = new Date(fecha);
+  return isNaN(d.getTime()) ? undefined : d;
+}
+
+function formatFechaAaaaMmDd(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
   fechaEvento?: Date;
@@ -78,7 +97,7 @@ function ConfiguracionEventoContent() {
 
       let tempConfig: ConfigFormState = {
         ...(fiesta.configuracion || defaultEventConfigFromFiesta),
-        fechaEvento: (fiesta.configuracion?.fechaEvento) ? new Date(fiesta.configuracion.fechaEvento) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined),
+        fechaEvento: parseFechaSegura(fiesta.configuracion?.fechaEvento || defaultEventConfigFromFiesta.fechaEvento),
         clienteId: fiesta.configuracion?.clienteId || undefined,
       };
       const cantidadContratada = Number(fiesta.configuracion?.invitadosEstimados) || 0;
@@ -92,7 +111,7 @@ function ConfiguracionEventoContent() {
                   : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'));
               tempConfig.nombreEvento = tempConfig.nombreEvento || `${presupuesto.eventoTipo} de ${protagonista}`;
               tempConfig.tipoCelebracion = tempConfig.tipoCelebracion || presupuesto.eventoTipo;
-              tempConfig.fechaEvento = tempConfig.fechaEvento || new Date(presupuesto.eventoFecha);
+              tempConfig.fechaEvento = tempConfig.fechaEvento || parseFechaSegura(presupuesto.eventoFecha);
               tempConfig.invitadosEstimados = tempConfig.invitadosEstimados || presupuesto.invitadosCantidad;
               tempConfig.presupuestoEstimado = tempConfig.presupuestoEstimado || (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
               tempConfig.nombreLugar = tempConfig.nombreLugar || presupuesto.salonFiestas;
@@ -127,7 +146,7 @@ function ConfiguracionEventoContent() {
       if (!cfg || !fiestaId) return { success: false, error: 'No hay datos de configuración para guardar' };
       const configToSave: ConfigEventoDataStorage = {
         ...cfg,
-        fechaEvento: cfg.fechaEvento ? cfg.fechaEvento.toISOString() : undefined,
+        fechaEvento: cfg.fechaEvento ? formatFechaAaaaMmDd(cfg.fechaEvento) : undefined,
         clienteId: cfg.clienteId || undefined,
         invitadosEstimados: Number(cfg.invitadosEstimados) || 0,
         presupuestoEstimado: Number(cfg.presupuestoEstimado) || 0,
@@ -181,7 +200,7 @@ function ConfiguracionEventoContent() {
         if (customerDetails) {
           updatedConfig.nombreEvento = customerDetails.name || customerDetails.companyName || defaultEventConfigFromFiesta.nombreEvento;
           updatedConfig.tipoCelebracion = customerDetails.partyType || defaultEventConfigFromFiesta.tipoCelebracion;
-          updatedConfig.fechaEvento = customerDetails.partyDate ? new Date(customerDetails.partyDate) : updatedConfig.fechaEvento;
+          updatedConfig.fechaEvento = customerDetails.partyDate ? parseFechaSegura(customerDetails.partyDate) : updatedConfig.fechaEvento;
           updatedConfig.invitadosEstimados = customerDetails.guestCount || updatedConfig.invitadosEstimados;
           updatedConfig.nombreLugar = customerDetails.venueName || updatedConfig.nombreLugar;
         }
@@ -432,7 +451,15 @@ function ConfiguracionEventoContent() {
                   )}
               </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2 md:col-span-1"><Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label><DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} /></div>
+              <div className="space-y-2 md:col-span-1">
+                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label>
+                <DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} />
+                {fechaEventoContrato && (
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">
+                    {formatearFechaEvento(fechaEventoContrato)}
+                  </p>
+                )}
+              </div>
               <div className="space-y-2"><Label htmlFor="hora-inicio" className="text-base">Hora de Inicio</Label><Input id="hora-inicio" type="time" value={config.horaInicio || ''} onChange={(e) => handleChange('horaInicio', e.target.value)} className="text-base p-3" disabled={isSaving}/></div>
               <div className="space-y-2"><Label htmlFor="hora-fin" className="text-base">Hora de Fin (Opcional)</Label><Input id="hora-fin" type="time" value={config.horaFin || ''} onChange={(e) => handleChange('horaFin', e.target.value)} className="text-base p-3" disabled={isSaving}/></div>
             </div>

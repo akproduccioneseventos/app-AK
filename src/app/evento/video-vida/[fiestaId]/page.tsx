@@ -12,6 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -155,7 +156,7 @@ const PhotoUploadSlot: React.FC<{
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
         {slot.imageUrl && !isUploading ? (
-          <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+          <ImagenConRespaldo src={slot.imageUrl} alt={`Foto ${slot.number}`} fill className="object-cover" />
         ) : !isUploading && (
           <div className="flex flex-col items-center">
             <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />

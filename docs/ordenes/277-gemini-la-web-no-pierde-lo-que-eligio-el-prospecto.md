@@ -208,5 +208,4 @@ no-usa: Se requiere el 30 % del total en src/app/catalogo/[tipo]/page.tsx
 no-usa: Precio Real: $36.000 en src/lib/budget/simulator-budget-pdf.ts
 usa: entradas en src/app/(app)/presupuestos/nuevo/crear/page.tsx
 prueba: src/__tests__/las-estaciones-muestran-el-instagram-de-ak.test.ts
-prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
 ```

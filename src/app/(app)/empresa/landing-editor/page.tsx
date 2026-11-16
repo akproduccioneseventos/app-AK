@@ -454,17 +454,17 @@ export default function LandingEditorPage() {
             </p>
           </div>
         </div>
-        <div className="flex gap-2 w-full md:w-auto">
-          <Button asChild variant="outline" className="rounded-xl w-full md:w-auto"><Link href="/landing" target="_blank" className="flex-1 md:flex-none">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          <Button asChild variant="outline" className="rounded-xl flex-1 sm:flex-none"><Link href="/landing" target="_blank" className="flex-1 md:flex-none">
               <Eye className="w-4 h-4 mr-2" />
               Ver Landing
               <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
             </Link></Button>
-          <Button asChild variant="outline" className="rounded-xl w-full md:w-auto"><Link href="/empresa" className="flex-1 md:flex-none">
+          <Button asChild variant="outline" className="rounded-xl flex-1 sm:flex-none"><Link href="/empresa" className="flex-1 md:flex-none">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver
             </Link></Button>
-          <Button onClick={handleSave} disabled={isSaving} className="rounded-xl flex-1 md:flex-none">
+          <Button onClick={handleSave} disabled={isSaving} className="rounded-xl flex-1 sm:flex-none">
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Guardar Cambios
           </Button>
@@ -472,30 +472,30 @@ export default function LandingEditorPage() {
       </header>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
-          <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Type className="w-3 h-3" /> Hero
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:grid-cols-8 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200 gap-1">
+          <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Type className="w-3 h-3 shrink-0" /> <span className="truncate">Hero</span>
           </TabsTrigger>
-          <TabsTrigger value="services" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" /> Servicios
+          <TabsTrigger value="services" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Sparkles className="w-3 h-3 shrink-0" /> <span className="truncate">Servicios</span>
           </TabsTrigger>
-          <TabsTrigger value="stats" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <BarChart3 className="w-3 h-3" /> Estadísticas
+          <TabsTrigger value="stats" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <BarChart3 className="w-3 h-3 shrink-0" /> <span className="truncate">Estadísticas</span>
           </TabsTrigger>
-          <TabsTrigger value="cta" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Phone className="w-3 h-3" /> CTA
+          <TabsTrigger value="cta" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Phone className="w-3 h-3 shrink-0" /> <span className="truncate">CTA</span>
           </TabsTrigger>
-          <TabsTrigger value="gallery" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Camera className="w-3 h-3" /> Galería
+          <TabsTrigger value="gallery" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Camera className="w-3 h-3 shrink-0" /> <span className="truncate">Galería</span>
           </TabsTrigger>
-          <TabsTrigger value="colors" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Palette className="w-3 h-3" /> Colores
+          <TabsTrigger value="colors" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Palette className="w-3 h-3 shrink-0" /> <span className="truncate">Colores</span>
           </TabsTrigger>
-          <TabsTrigger value="seo" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            <Globe className="w-3 h-3" /> SEO
+          <TabsTrigger value="seo" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <Globe className="w-3 h-3 shrink-0" /> <span className="truncate">SEO</span>
           </TabsTrigger>
-          <TabsTrigger value="faq" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
-            ❓ FAQ
+          <TabsTrigger value="faq" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
+            <span className="shrink-0">❓</span> <span className="truncate">FAQ</span>
           </TabsTrigger>
         </TabsList>
 
@@ -730,8 +730,8 @@ export default function LandingEditorPage() {
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {settings.stats.map((stat, index) => (
-                <div key={index} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div className="grid grid-cols-3 gap-3 flex-grow">
+                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 min-w-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-grow min-w-0">
                     <div className="space-y-1">
                       <Label className="text-[10px] font-black uppercase text-slate-400">Icono (emoji)</Label>
                       <Input
@@ -941,7 +941,7 @@ export default function LandingEditorPage() {
                                 <p className="text-xs font-bold uppercase tracking-wide">Sin fotos</p>
                               </div>
                             ) : (
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 min-w-0">
                                 {group.fotos.map((foto) => (
                                   <div key={foto.id} className="border border-slate-200 rounded-2xl p-2 bg-white space-y-2">
                                     {sanitizeImageUrl(foto.url) ? (

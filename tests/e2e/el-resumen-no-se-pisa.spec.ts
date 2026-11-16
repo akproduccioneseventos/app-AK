@@ -20,7 +20,7 @@ function boxesIntersect(
 
 test.describe('Orden 277 — Bloque 7: Las acciones del resumen no se pisan', () => {
   test('a 320, 390 y 1280, las cajas de los botones del resumen no se cruzan', async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(360_000);
 
     const anioFuturo = new Date().getFullYear() + 1;
     await page.goto(

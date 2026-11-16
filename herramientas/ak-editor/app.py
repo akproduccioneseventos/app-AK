@@ -23,8 +23,20 @@ from exportador_filmora import exportar_timeline_filmora, generar_xml_prueba
 from exportador_video import estimar_tiempo_render_formateado, exportar_video_ffmpeg
 from reglas import ReglasEdicion, aprender_de_mis_videos, cargar_configuracion
 import video_de_vida
+import redes
+import wfolio
 import glob
-from fotos import aprender_mi_estilo, procesar_seleccion_fotos
+import base64
+from fotos import (
+    AJUSTES_BASE_ESCENAS,
+    aprender_mi_estilo,
+    calcular_correccion_foto,
+    clasificar_escena,
+    leer_foto,
+    procesar_seleccion_fotos,
+    simular_edicion_foto,
+    volver_al_original,
+)
 
 PUERTO = 8765
 
@@ -41,16 +53,189 @@ ESTADO_GLOBAL = {
     "analizador": None,
 }
 
-# Estado global para el módulo de Fotos (Orden 280)
+# Estado global para el módulo de Fotos (Orden 280 / 307)
 ESTADO_FOTOS = {
     "carpeta": "",
     "en_progreso": False,
     "total": 0,
     "elegidas": 0,
     "rechazadas": 0,
+    "fotos_agasajada": 0,
+    "mensaje_agasajada": "",
     "detalles": [],
     "mensaje": "Listo para elegir fotos",
     "estilo_aprendido": None,
+}
+
+
+def codificar_miniatura_b64(img: np.ndarray, max_dim: int = 400) -> str:
+    """Codifica una imagen redimensionada en JPEG Base64 para vistas previas."""
+    if img is None or img.size == 0:
+        return ""
+    h, w = img.shape[:2]
+    if max(h, w) > max_dim:
+        scale = max_dim / float(max(h, w))
+        img = cv2.resize(img, (int(w * scale), int(h * scale)))
+    _, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return base64.b64encode(buf).decode("utf-8")
+
+
+# Estado global para Video de Vida (Orden 288)
+ESTADO_VIDA = {
+    "en_progreso": False,
+    "mensaje": "Listo para generar Video de Vida",
+    "total": 0,
+    "actual": 0,
+    "ruta_salida": "",
+}
+
+# Estado global para Redes (Orden 288)
+ESTADO_REDES = {
+    "en_progreso": False,
+    "mensaje": "Listo para generar videos para redes",
+    "videos": [],
+    "carpeta": "",
+}
+
+# Estado global para Modo Automático (Orden 298 - Bloque 6)
+ESTADO_AUTOMATICO = {
+    "en_progreso": False,
+    "mensaje": "Listo para modo automático",
+    "paso_actual": "",
+    "resultado": None,
+}
+
+
+def ejecutar_modo_automatico(
+    carpeta_entrada: str,
+    carpeta_salida: Optional[str] = None,
+    fiesta_nombre: str = "Fiesta",
+    ruta_musica: Optional[str] = None,
+    endpoint_wfolio_simulado: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Ejecuta el pipeline completo de edición de forma 100% automática:
+
+    1. Análisis de material y clasificación
+    2. Generación de cortes de video y timeline
+    3. Exportación de video final MP4 con música y cortes dinámicos
+    4. Generación de Video de Vida
+    5. Generación de videos para redes
+    6. Preparación y sincronización con Wfolio
+    7. Emisión de informe resumen_automatico.json
+    """
+    if not os.path.exists(carpeta_entrada):
+        raise FileNotFoundError(f"Carpeta de entrada no existe: {carpeta_entrada}")
+
+    if not carpeta_salida:
+        carpeta_salida = os.path.expanduser(os.path.join("~", "Documents", "AK Editor", fiesta_nombre, "automatico"))
+    os.makedirs(carpeta_salida, exist_ok=True)
+
+    ESTADO_AUTOMATICO["en_progreso"] = True
+    ESTADO_AUTOMATICO["mensaje"] = "Iniciando análisis de material..."
+    ESTADO_AUTOMATICO["paso_actual"] = "analisis"
+
+    # Almacén temporal para este proceso
+    ruta_db = os.path.join(carpeta_salida, "automatizacion.db")
+    alm = Almacen(ruta_db)
+    anl = Analizador(alm)
+
+    # 1. Registrar y analizar videos
+    extensiones_video = ("*.mp4", "*.mov", "*.m4v", "*.avi", "*.MP4", "*.MOV")
+    rutas_video = []
+    for ext in extensiones_video:
+        rutas_video.extend(glob.glob(os.path.join(carpeta_entrada, ext)))
+    rutas_video = sorted(list(set(rutas_video)))
+
+    for rv in rutas_video:
+        arch_id = anl.registrar_archivo(rv)
+        anl.analizar_archivo(rv, arch_id)
+
+    # 2. Generar cortes
+    ESTADO_AUTOMATICO["paso_actual"] = "cortes"
+    ESTADO_AUTOMATICO["mensaje"] = "Generando cortes inteligentes de video..."
+    cortes = armar_proyecto(carpeta=carpeta_entrada, almacen=alm)
+
+    # 3. Exportar MP4
+    ESTADO_AUTOMATICO["paso_actual"] = "exportacion_mp4"
+    ESTADO_AUTOMATICO["mensaje"] = "Exportando MP4 terminado con color y sonido..."
+    ruta_video_final = os.path.join(carpeta_salida, f"{fiesta_nombre}_terminado.mp4")
+    exportar_ok = exportar_video_ffmpeg(cortes, ruta_video_final, ruta_musica=ruta_musica)
+
+    # 4. Video de Vida si hay fotos
+    ESTADO_AUTOMATICO["paso_actual"] = "video_vida"
+    ESTADO_AUTOMATICO["mensaje"] = "Revisando y generando Video de Vida..."
+    extensiones_foto = ("*.jpg", "*.jpeg", "*.png", "*.JPG", "*.JPEG", "*.PNG")
+    rutas_foto = []
+    for ext in extensiones_foto:
+        rutas_foto.extend(glob.glob(os.path.join(carpeta_entrada, ext)))
+    rutas_foto = sorted(list(set(rutas_foto)))
+
+    ruta_vida_mp4 = None
+    if rutas_foto:
+        try:
+            fotos_dicts = [{"ruta": r, "nombre": os.path.basename(r)} for r in rutas_foto]
+            fotos_ord = video_de_vida.ordenar_fotos_vida(fotos_dicts, max_fotos=60)
+            ruta_vida_mp4 = os.path.join(carpeta_salida, f"{fiesta_nombre}_video_de_vida.mp4")
+            video_de_vida.exportar_video_de_vida(fotos_ord, ruta_vida_mp4, ruta_audio=ruta_musica)
+        except Exception as e_vida:
+            print(f"[Automático] Video de Vida omitido: {e_vida}")
+
+    # 5. Videos para Redes
+    ESTADO_AUTOMATICO["paso_actual"] = "redes"
+    ESTADO_AUTOMATICO["mensaje"] = "Generando clips para redes..."
+    carpeta_redes = os.path.join(carpeta_salida, "redes")
+    clips_redes = []
+    try:
+        if rutas_video:
+            clips_redes = redes.generar_videos_redes(
+                carpeta_origen=carpeta_entrada,
+                carpeta_destino=carpeta_redes,
+                nombre_evento=fiesta_nombre,
+                ruta_musica=ruta_musica,
+            )
+    except Exception as e_redes:
+        print(f"[Automático] Redes omitido: {e_redes}")
+
+    # 6. Sincronización Wfolio simulada/real
+    ESTADO_AUTOMATICO["paso_actual"] = "wfolio"
+    ESTADO_AUTOMATICO["mensaje"] = "Preparando entrega en Wfolio..."
+    resumen_wfolio = None
+    try:
+        resumen_wfolio = wfolio.subir_a_wfolio(
+            carpeta_fotos=carpeta_entrada if rutas_foto else carpeta_salida,
+            id_seccion="auto_entrega",
+            nombre_cliente=fiesta_nombre,
+            endpoint_simulado=endpoint_wfolio_simulado,
+        )
+    except Exception as e_wf:
+        print(f"[Automático] Wfolio omitido: {e_wf}")
+
+    resumen_resultado = {
+        "ok": True,
+        "fiesta": fiesta_nombre,
+        "total_videos_procesados": len(rutas_video),
+        "total_cortes_generados": len(cortes),
+        "video_final_mp4": ruta_video_final if os.path.exists(ruta_video_final) else None,
+        "video_de_vida_mp4": ruta_vida_mp4 if (ruta_vida_mp4 and os.path.exists(ruta_vida_mp4)) else None,
+        "videos_redes": clips_redes,
+        "wfolio": resumen_wfolio,
+        "mensaje_entrega_listo": f"Hola {fiesta_nombre}, tu material ya está editado y listo para ver.",
+    }
+
+    # Guardar resumen_automatico.json
+    ruta_resumen = os.path.join(carpeta_salida, "resumen_automatico.json")
+    with open(ruta_resumen, "w", encoding="utf-8") as f:
+        json.dump(resumen_resultado, f, indent=2, ensure_ascii=False)
+
+    ESTADO_AUTOMATICO["en_progreso"] = False
+    ESTADO_AUTOMATICO["mensaje"] = "Edición automática completada con éxito."
+    ESTADO_AUTOMATICO["resultado"] = resumen_resultado
+    return resumen_resultado
+
+ESTADO_WFOLIO = {
+    "en_progreso": False,
+    "mensaje": "Listo para sincronizar con Wfolio",
+    "resumen": None,
 }
 
 
@@ -411,6 +596,22 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             self._responder_json(200, ESTADO_FOTOS)
             return
 
+        if ruta == "/api/vida/estado":
+            self._responder_json(200, ESTADO_VIDA)
+            return
+
+        if ruta == "/api/redes/estado":
+            self._responder_json(200, ESTADO_REDES)
+            return
+
+        if ruta == "/api/wfolio/estado":
+            self._responder_json(200, ESTADO_WFOLIO)
+            return
+
+        if ruta == "/api/automatico/estado":
+            self._responder_json(200, ESTADO_AUTOMATICO)
+            return
+
         self._responder_json(404, {"error": "Ruta no encontrada"})
 
     def do_POST(self) -> None:
@@ -535,6 +736,13 @@ class AKEditorHandler(BaseHTTPRequestHandler):
 
         if ruta == "/api/fotos/procesar":
             carpeta = body.get("carpeta", "").strip()
+            fotos_agasajada_raw = body.get("fotos_agasajada", [])
+            fotos_agasajada = []
+            if isinstance(fotos_agasajada_raw, str) and fotos_agasajada_raw.strip():
+                fotos_agasajada = [p.strip() for p in fotos_agasajada_raw.split(",") if p.strip()]
+            elif isinstance(fotos_agasajada_raw, list):
+                fotos_agasajada = [str(p).strip() for p in fotos_agasajada_raw if str(p).strip()]
+
             if not carpeta or not os.path.exists(carpeta):
                 self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
                 return
@@ -556,6 +764,8 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                         ESTADO_FOTOS["total"] = 0
                         ESTADO_FOTOS["elegidas"] = 0
                         ESTADO_FOTOS["rechazadas"] = 0
+                        ESTADO_FOTOS["fotos_agasajada"] = 0
+                        ESTADO_FOTOS["mensaje_agasajada"] = ""
                         ESTADO_FOTOS["detalles"] = []
                         return
 
@@ -564,11 +774,17 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                     def prog_cb(act, tot, msg):
                         ESTADO_FOTOS["mensaje"] = f"Procesando {act}/{tot}: {msg}"
 
-                    res = procesar_seleccion_fotos(rutas, progreso_callback=prog_cb)
+                    res = procesar_seleccion_fotos(
+                        rutas,
+                        fotos_referencia_agasajada=fotos_agasajada if fotos_agasajada else None,
+                        progreso_callback=prog_cb,
+                    )
                     ESTADO_FOTOS["elegidas"] = res["elegidas"]
                     ESTADO_FOTOS["rechazadas"] = res["rechazadas"]
+                    ESTADO_FOTOS["fotos_agasajada"] = res.get("fotos_agasajada", 0)
+                    ESTADO_FOTOS["mensaje_agasajada"] = res.get("mensaje_agasajada", "")
                     ESTADO_FOTOS["detalles"] = res["detalles"]
-                    ESTADO_FOTOS["mensaje"] = f"Selección completa: {res['elegidas']} elegidas, {res['rechazadas']} rechazadas."
+                    ESTADO_FOTOS["mensaje"] = f"Selección completa: {res['elegidas']} elegidas, {res['rechazadas']} rechazadas. {res.get('mensaje_agasajada', '')}"
                 except Exception as e:
                     ESTADO_FOTOS["mensaje"] = f"Error al procesar fotos: {str(e)}"
                 finally:
@@ -576,6 +792,54 @@ class AKEditorHandler(BaseHTTPRequestHandler):
 
             threading.Thread(target=tarea_fotos, daemon=True).start()
             self._responder_json(200, {"ok": True, "mensaje": "Procesamiento de fotos iniciado"})
+            return
+
+        if ruta == "/api/fotos/volver-al-original":
+            ruta_foto = body.get("ruta", "").strip()
+            if not ruta_foto or not os.path.exists(ruta_foto):
+                self._responder_json(400, {"error": "Ruta de foto inválida"})
+                return
+            ok = volver_al_original(ruta_foto)
+            for f in ESTADO_FOTOS.get("detalles", []):
+                if f.get("ruta") == ruta_foto:
+                    f["parametros_develop"] = None
+            self._responder_json(200, {"ok": ok, "mensaje": "Ajustes eliminados del .xmp"})
+            return
+
+        if ruta == "/api/fotos/previa-comparativa":
+            ruta_foto = body.get("ruta", "").strip()
+            if not ruta_foto or not os.path.exists(ruta_foto):
+                self._responder_json(400, {"error": "Ruta de foto inválida"})
+                return
+            img_orig = leer_foto(ruta_foto)
+            if img_orig is None:
+                self._responder_json(500, {"error": "No se pudo leer la foto"})
+                return
+
+            det = next((f for f in ESTADO_FOTOS.get("detalles", []) if f.get("ruta") == ruta_foto), None)
+            params = det.get("parametros_develop") if det else None
+            if not params:
+                escena = clasificar_escena(img_orig)
+                base = dict(AJUSTES_BASE_ESCENAS.get(escena, AJUSTES_BASE_ESCENAS["Salón noche"]))
+                params = calcular_correccion_foto(img_orig, base)
+
+            exp = float(params.get("Exposure2012", 0.0))
+            temp = float(params.get("Temperature", 5000))
+            tint = float(params.get("Tint", 0))
+            tex = float(params.get("Texture", 0))
+            clar = float(params.get("Clarity2012", 0))
+
+            img_edit = simular_edicion_foto(img_orig, exposure=exp, temperature=temp, tint=tint, texture=tex, clarity=clar)
+
+            orig_b64 = codificar_miniatura_b64(img_orig)
+            edit_b64 = codificar_miniatura_b64(img_edit)
+
+            self._responder_json(200, {
+                "ok": True,
+                "original_b64": orig_b64,
+                "editada_b64": edit_b64,
+                "parametros": params,
+            })
             return
 
         if ruta == "/api/fotos/aprender-estilo":
@@ -589,6 +853,151 @@ class AKEditorHandler(BaseHTTPRequestHandler):
                 self._responder_json(200, {"ok": True, "resultado": res})
             except Exception as e:
                 self._responder_json(500, {"error": str(e)})
+            return
+
+        if ruta == "/api/vida/generar":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+
+            modo = body.get("modo", "xv").strip()
+            plantilla = body.get("plantilla", "clasica-dorada").strip()
+            audio = body.get("audio", "").strip() or None
+
+            def tarea_vida():
+                ESTADO_VIDA["en_progreso"] = True
+                ESTADO_VIDA["mensaje"] = "Leyendo y clasificando fotos para Video de Vida..."
+                try:
+                    cargadas = video_de_vida.cargar_fotos(carpeta, modo=modo)
+                    fotos = cargadas.get("fotos", [])
+                    if not fotos:
+                        ESTADO_VIDA["mensaje"] = "No se encontraron fotos en la carpeta seleccionada."
+                        return
+
+                    ESTADO_VIDA["total"] = len(fotos)
+                    ESTADO_VIDA["mensaje"] = f"Ordenando {len(fotos)} fotos cronológicamente..."
+                    ordenadas = video_de_vida.ordenar_fotos_vida(fotos)
+
+                    destino_dir = os.path.expanduser(
+                        os.path.join("~", "Documents", "AK Editor", ESTADO_GLOBAL["evento_actual"])
+                    )
+                    os.makedirs(destino_dir, exist_ok=True)
+                    salida_mp4 = os.path.join(destino_dir, "video_de_vida.mp4")
+
+                    def cb_prog(act, tot, msg):
+                        ESTADO_VIDA["actual"] = act
+                        ESTADO_VIDA["total"] = tot
+                        ESTADO_VIDA["mensaje"] = f"Video de Vida ({act}/{tot}): {msg}"
+
+                    res_mp4 = video_de_vida.exportar_video_de_vida(
+                        ordenadas,
+                        salida_mp4,
+                        ruta_audio=audio,
+                        plantilla_id=plantilla,
+                        progreso_callback=cb_prog,
+                    )
+                    ESTADO_VIDA["ruta_salida"] = res_mp4
+                    ESTADO_VIDA["mensaje"] = f"¡Video de Vida generado con éxito! Destino: {res_mp4}"
+                except Exception as e:
+                    ESTADO_VIDA["mensaje"] = f"Error al generar Video de Vida: {str(e)}"
+                finally:
+                    ESTADO_VIDA["en_progreso"] = False
+
+            threading.Thread(target=tarea_vida, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Generación de Video de Vida iniciada"})
+            return
+
+        if ruta == "/api/redes/generar":
+            origen = body.get("origen", "").strip()
+            if not origen or not os.path.exists(origen):
+                self._responder_json(400, {"error": "Carpeta de origen inválida o no encontrada"})
+                return
+
+            destino = body.get("destino", "").strip()
+            if not destino:
+                destino = os.path.expanduser(
+                    os.path.join("~", "Documents", "AK Editor", ESTADO_GLOBAL["evento_actual"], "redes")
+                )
+
+            musica = body.get("musica", "").strip() or None
+
+            def tarea_redes():
+                ESTADO_REDES["en_progreso"] = True
+                ESTADO_REDES["carpeta"] = destino
+                ESTADO_REDES["mensaje"] = "Generando videos en los 3 formatos para redes..."
+                try:
+                    def cb_prog(act, tot, msg):
+                        ESTADO_REDES["mensaje"] = f"Redes ({act}/{tot}): {msg}"
+
+                    res = redes.generar_videos_redes(
+                        origen=origen,
+                        carpeta_destino=destino,
+                        ruta_musica=musica,
+                        progreso_callback=cb_prog,
+                    )
+                    ESTADO_REDES["videos"] = res.get("videos", [])
+                    ESTADO_REDES["mensaje"] = (
+                        f"¡Videos de redes listos! Se generaron {len(res.get('videos', []))} videos en {destino}."
+                    )
+                except Exception as e:
+                    ESTADO_REDES["mensaje"] = f"Error al generar videos para redes: {str(e)}"
+                finally:
+                    ESTADO_REDES["en_progreso"] = False
+
+            threading.Thread(target=tarea_redes, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Generación de videos para redes iniciada"})
+            return
+
+        if ruta == "/api/wfolio/subir":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+
+            fiesta = body.get("fiesta", ESTADO_GLOBAL["evento_actual"]).strip()
+
+            def tarea_wfolio():
+                ESTADO_WFOLIO["en_progreso"] = True
+                ESTADO_WFOLIO["mensaje"] = f"Iniciando subida y comprobación en Wfolio para {fiesta}..."
+                try:
+                    resumen = wfolio.subir_a_wfolio(
+                        ruta_carpetas=carpeta,
+                        fiesta_nombre=fiesta,
+                    )
+                    ESTADO_WFOLIO["resumen"] = resumen
+                    ESTADO_WFOLIO["mensaje"] = resumen.get("mensaje", "Sincronización finalizada")
+                except Exception as e:
+                    ESTADO_WFOLIO["mensaje"] = f"Error al sincronizar con Wfolio: {str(e)}"
+                finally:
+                    ESTADO_WFOLIO["en_progreso"] = False
+
+            threading.Thread(target=tarea_wfolio, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Subida a Wfolio iniciada"})
+            return
+
+        if ruta == "/api/wfolio/login":
+            threading.Thread(target=wfolio.abrir_navegador_para_login, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Navegador abierto para iniciar sesión en Wfolio"})
+            return
+
+        if ruta == "/api/automatico/ejecutar":
+            carpeta = body.get("carpeta", "").strip()
+            if not carpeta or not os.path.exists(carpeta):
+                self._responder_json(400, {"error": "Carpeta inválida o no encontrada"})
+                return
+            fiesta = body.get("fiesta", "Fiesta").strip()
+            musica = body.get("musica", "").strip() or None
+
+            def tarea_auto():
+                try:
+                    ejecutar_modo_automatico(carpeta_entrada=carpeta, fiesta_nombre=fiesta, ruta_musica=musica)
+                except Exception as e_auto:
+                    ESTADO_AUTOMATICO["en_progreso"] = False
+                    ESTADO_AUTOMATICO["mensaje"] = f"Error en modo automático: {str(e_auto)}"
+
+            threading.Thread(target=tarea_auto, daemon=True).start()
+            self._responder_json(200, {"ok": True, "mensaje": "Modo automático iniciado"})
             return
 
         self._responder_json(404, {"error": "Ruta no encontrada"})
@@ -659,6 +1068,9 @@ HTML_INTERFAZ = """<!DOCTYPE html>
     <button class="nav-tab" onclick="cambiarPestana('analisis')">Análisis</button>
     <button class="nav-tab" onclick="cambiarPestana('revision')">Revisión</button>
     <button class="nav-tab" onclick="cambiarPestana('fotos')">Fotos</button>
+    <button class="nav-tab" onclick="cambiarPestana('vida')">Video de Vida</button>
+    <button class="nav-tab" onclick="cambiarPestana('redes')">Redes</button>
+    <button class="nav-tab" onclick="cambiarPestana('wfolio')">Wfolio</button>
     <button class="nav-tab" onclick="cambiarPestana('exportar')">Exportar a Filmora</button>
   </nav>
 
@@ -758,11 +1170,17 @@ HTML_INTERFAZ = """<!DOCTYPE html>
           <input type="text" id="input-fotos-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Crudos">
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Fotos de la agasajada / cara principal (1 a 3 rutas opcionales, separadas por coma)</label>
+          <input type="text" id="input-fotos-agasajada" class="form-input" placeholder="C:\\Fotos\\Agasajada_01.jpg, C:\\Fotos\\Agasajada_02.jpg">
+        </div>
+
         <button class="btn btn-primary" onclick="procesarFotos()">Elegir fotos y enderezar</button>
 
         <div id="progreso-fotos-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
           Listo para comenzar
         </div>
+        <div id="aviso-agasajada" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #a21caf;"></div>
 
         <!-- Resumen de resultados -->
         <div id="resumen-fotos" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -771,18 +1189,25 @@ HTML_INTERFAZ = """<!DOCTYPE html>
             <div id="stat-fotos-total" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">0</div>
           </div>
           <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
-            <div style="font-size: 0.75rem; color: #047857;">Elegidas (Rating 5)</div>
+            <div style="font-size: 0.75rem; color: #047857;">Elegidas (Rating 1-5)</div>
             <div id="stat-fotos-elegidas" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</div>
           </div>
           <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
             <div style="font-size: 0.75rem; color: #b91c1c;">Rechazadas (Rating 0)</div>
             <div id="stat-fotos-rechazadas" style="font-size: 1.5rem; font-weight: 700; color: #dc2626;">0</div>
           </div>
+          <div style="background: #fdf4ff; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 140px;">
+            <div style="font-size: 0.75rem; color: #86198f;">Fotos Agasajada</div>
+            <div id="stat-fotos-agasajada" style="font-size: 1.5rem; font-weight: 700; color: #a21caf;">0</div>
+          </div>
         </div>
 
-        <!-- Guía de 3 pasos para retoque en Lightroom -->
+        <!-- Guía de 3 pasos para retoque en Lightroom (Bloque 4) -->
         <div style="margin-top: 1.5rem; background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 1rem;">
-          <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: #292524;">Retoque de piel y pelo en Lightroom Classic (Guía en 3 pasos)</h3>
+          <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: #292524;">Retoque de piel y pelo en Lightroom Classic (Orden 307 — Bloque 4)</h3>
+          <p style="font-size: 0.85rem; color: #57534e; margin-bottom: 0.5rem;">
+            Las fotos con personas llevan un suavizado suave global (textura −10, claridad −5) en su <code>.xmp</code>. El retoque fino (dientes, pelo suelto, brillo de piel) <strong>sigue en Lightroom Classic</strong> en un solo paso:
+          </p>
           <ol style="font-size: 0.85rem; color: #57534e; padding-left: 1.25rem; line-height: 1.6;">
             <li>En la biblioteca de Lightroom, filtrá por la palabra clave <strong>"con personas"</strong>.</li>
             <li>Seleccioná todas las fotos filtradas (<code>Ctrl + A</code>).</li>
@@ -796,18 +1221,45 @@ HTML_INTERFAZ = """<!DOCTYPE html>
             <thead>
               <tr>
                 <th>Archivo</th>
-                <th>Estado</th>
-                <th>Motivo / Razón</th>
+                <th>Estado y Calificación</th>
+                <th>Escena y Ajustes</th>
                 <th>Personas</th>
                 <th>Enderezado</th>
+                <th>Antes / Después</th>
               </tr>
             </thead>
             <tbody id="tbody-fotos">
-              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Cargá una carpeta para procesar fotos</td></tr>
+              <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Cargá una carpeta para procesar fotos</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <!-- Modal Antes y Después (Bloque 3) -->
+      <div id="modal-comparativa" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:12px; padding:1.5rem; max-width:850px; width:90%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h3 id="modal-comparativa-titulo" style="font-size:1.1rem; font-weight:700; color:#1e293b;">Vista Antes y Después</h3>
+            <button onclick="cerrarComparativa()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+          </div>
+          <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+            <div style="flex:1; min-width:260px; text-align:center;">
+              <h4 style="font-size:0.9rem; color:#64748b; margin-bottom:0.5rem;">Original (Sin tocar)</h4>
+              <img id="img-comparativa-orig" style="max-width:100%; height:auto; border-radius:8px; border:1px solid #cbd5e1;" />
+            </div>
+            <div style="flex:1; min-width:260px; text-align:center;">
+              <h4 style="font-size:0.9rem; color:#047857; margin-bottom:0.5rem;">Editada (Aftershoot)</h4>
+              <img id="img-comparativa-edit" style="max-width:100%; height:auto; border-radius:8px; border:1px solid #cbd5e1;" />
+            </div>
+          </div>
+          <div id="datos-comparativa-ajustes" style="margin-top:1rem; font-size:0.85rem; color:#334155; background:#f8fafc; padding:0.75rem; border-radius:8px;"></div>
+          <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button class="btn btn-outline" id="btn-volver-original" onclick="ejecutarVolverAlOriginal()">Volver al original</button>
+            <button class="btn btn-primary" onclick="cerrarComparativa()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Card: Aprender mi estilo -->
       <div class="card">
@@ -828,6 +1280,157 @@ HTML_INTERFAZ = """<!DOCTYPE html>
 
         <button class="btn btn-outline" onclick="aprenderEstiloFotos()">Aprender mi estilo y armar presets</button>
         <div id="resultado-aprender-estilo" style="margin-top: 1rem; font-size: 0.85rem; color: #047857;"></div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: VIDEO DE VIDA -->
+    <div id="tab-vida" class="tab-content">
+      <div class="card">
+        <h2>Video de Vida Inteligente (Orden 273 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Crea el video cronológico de la homenajeada (300+ fotos sin límite). Encuadre inteligente que <strong>nunca corta caras</strong>, fondo desenfocado 16:9 sin franjas negras, sincronización a los golpes de la música y modo Boda con pantalla partida paralela.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta donde están las fotos</label>
+          <input type="text" id="input-vida-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Vida">
+        </div>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="form-label">Modo de Evento</label>
+            <select id="select-vida-modo" class="form-input">
+              <option value="xv">15 Años (Línea cronológica)</option>
+              <option value="boda">Boda (Pantalla partida / Paralelo novio y novia)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="form-label">Plantilla Visual</label>
+            <select id="select-vida-plantilla" class="form-input">
+              <option value="clasica-dorada">Clásica Dorada (Elegante)</option>
+              <option value="moderna-minimalista">Moderna Minimalista</option>
+              <option value="romantica-floral">Romántica Floral</option>
+              <option value="neon-fiesta">Neón Fiesta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Archivo de música / audio (opcional, para ritmo automático)</label>
+          <input type="text" id="input-vida-audio" class="form-input" placeholder="C:\\Musica\\tema_vida.mp3">
+        </div>
+
+        <button class="btn btn-primary" onclick="generarVideoVida()">Generar Video de Vida en MP4</button>
+
+        <div class="progress-bar-container" style="margin-top: 1rem;">
+          <div id="progreso-vida-fill" class="progress-bar-fill"></div>
+        </div>
+        <div id="progreso-vida-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155;">
+          Listo para comenzar
+        </div>
+        <div id="resultado-vida" style="margin-top: 0.75rem; font-size: 0.85rem; color: #047857; font-weight: 600;"></div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: REDES -->
+    <div id="tab-redes" class="tab-content">
+      <div class="card">
+        <h2>Videos para Redes Sociales (Orden 275 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Genera automáticamente los 3 formatos exactos para cada estación y para la noche completa:
+          <strong>Reel 9:16 (1080×1920)</strong>, <strong>Cuadrado 1:1 (1080×1080)</strong> y <strong>Vertical 4:5 (1080×1350)</strong> con placa de cierre de AK Producciones.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta con fotos o estaciones de la fiesta</label>
+          <input type="text" id="input-redes-origen" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Estaciones">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta de destino (opcional)</label>
+          <input type="text" id="input-redes-destino" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Videos_Redes">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pista de música (opcional)</label>
+          <input type="text" id="input-redes-musica" class="form-input" placeholder="C:\\Musica\\cancion_redes.mp3">
+        </div>
+
+        <button class="btn btn-primary" onclick="generarVideosRedes()">Generar Videos en los 3 Formatos</button>
+
+        <div id="progreso-redes-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
+          Listo para comenzar
+        </div>
+
+        <div id="lista-redes-container" style="margin-top: 1rem;">
+          <table id="tabla-redes">
+            <thead>
+              <tr>
+                <th>Estación</th>
+                <th>Formato</th>
+                <th>Archivo</th>
+                <th>Duración</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-redes">
+              <tr><td colspan="4" style="text-align:center; color:#94a3b8;">No hay videos generados aún</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA: WFOLIO -->
+    <div id="tab-wfolio" class="tab-content">
+      <div class="card">
+        <h2>Sincronización con Wfolio Disk (Orden 281 / 288)</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+          Sube tus fotos organizadas en carpetas al disco privado de Wfolio.
+          <strong>Verificación estricta:</strong> sólo se marca 'subido' tras comprobar la presencia del archivo remoto (nombre y tamaño). Si no se puede comprobar, queda 'pendiente' con el motivo para reanudar donde quedó.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Nombre del Evento / Álbum en Wfolio</label>
+          <input type="text" id="input-wfolio-fiesta" class="form-input" placeholder="XV_Sofia">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Carpeta con fotos organizadas por entrega</label>
+          <input type="text" id="input-wfolio-carpeta" class="form-input" placeholder="C:\\Fotos\\Quince_Sofia\\Entrega">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="subirWfolio()">Subir a Wfolio (con verificación)</button>
+          <button class="btn btn-outline" onclick="loginWfolio()">Iniciar sesión en Wfolio</button>
+        </div>
+
+        <div id="progreso-wfolio-texto" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 1rem;">
+          Listo para sincronizar
+        </div>
+
+        <div id="resumen-wfolio" style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div style="background: #f1f5f9; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #64748b;">Total Fotos</div>
+            <div id="stat-wfolio-total" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">0</div>
+          </div>
+          <div style="background: #ecfdf5; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #047857;">Comprobadas / Subidas</div>
+            <div id="stat-wfolio-subidas" style="font-size: 1.5rem; font-weight: 700; color: #059669;">0</div>
+          </div>
+          <div style="background: #fffbeb; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #b45309;">Pendientes</div>
+            <div id="stat-wfolio-pendientes" style="font-size: 1.5rem; font-weight: 700; color: #d97706;">0</div>
+          </div>
+          <div style="background: #fef2f2; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; min-width: 130px;">
+            <div style="font-size: 0.75rem; color: #b91c1c;">Fallidas</div>
+            <div id="stat-wfolio-fallidas" style="font-size: 1.5rem; font-weight: 700; color: #dc2626;">0</div>
+          </div>
+        </div>
+
+        <div id="enlace-wfolio-box" style="margin-top: 1rem; display: none; padding: 0.75rem 1rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 0.85rem;">
+          <strong>Enlace privado del álbum:</strong> <a id="enlace-wfolio-link" href="#" target="_blank" style="color: var(--color-primario); font-weight: 600; text-decoration: underline;"></a>
+        </div>
       </div>
     </div>
 
@@ -865,6 +1468,9 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       if (id === 'material') cargarMaterial();
       if (id === 'revision') cargarRevision();
       if (id === 'fotos') cargarFotos();
+      if (id === 'vida') cargarVida();
+      if (id === 'redes') cargarRedes();
+      if (id === 'wfolio') cargarWfolio();
     }
 
     async function crearNuevoEvento() {
@@ -975,14 +1581,17 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       document.getElementById('resultado-video').innerText = 'Renderizado iniciado en segundo plano. Tiempo estimado: ' + data.tiempo_estimado + '. Destino: ' + data.destino;
     }
 
+    let fotoSeleccionadaParaComparativa = null;
+
     async function procesarFotos() {
       const carpeta = document.getElementById('input-fotos-carpeta').value.trim();
+      const fotos_agasajada = document.getElementById('input-fotos-agasajada').value.trim();
       if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos');
       document.getElementById('progreso-fotos-texto').innerText = 'Iniciando procesamiento de fotos...';
       const res = await fetch('/api/fotos/procesar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ carpeta })
+        body: JSON.stringify({ carpeta, fotos_agasajada })
       });
       const data = await res.json();
       if (!res.ok) return alert(data.error || 'Error al iniciar fotos');
@@ -996,28 +1605,100 @@ HTML_INTERFAZ = """<!DOCTYPE html>
       document.getElementById('stat-fotos-total').innerText = data.total;
       document.getElementById('stat-fotos-elegidas').innerText = data.elegidas;
       document.getElementById('stat-fotos-rechazadas').innerText = data.rechazadas;
+      if (document.getElementById('stat-fotos-agasajada')) {
+        document.getElementById('stat-fotos-agasajada').innerText = data.fotos_agasajada || 0;
+      }
+      if (document.getElementById('aviso-agasajada')) {
+        document.getElementById('aviso-agasajada').innerText = data.mensaje_agasajada || (data.fotos_agasajada ? `Salen ${data.fotos_agasajada} fotos de la agasajada` : '');
+      }
 
       if (data.detalles && data.detalles.length > 0) {
         const tbody = document.getElementById('tbody-fotos');
-        tbody.innerHTML = data.detalles.map(f => `
+        tbody.innerHTML = data.detalles.map(f => {
+          const estrellas = f.rating ? '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating) + ` (${f.rating})` : 'Rechazada';
+          const ajustesTxt = f.parametros_develop ? `Exp: ${f.parametros_develop.Exposure2012 >= 0 ? '+' : ''}${f.parametros_develop.Exposure2012} | ${f.parametros_develop.Temperature} K` : (f.motivo_rechazo || 'Rechazada');
+          const escenaTxt = f.escena ? `[${f.escena}] ` : '';
+          return `
           <tr>
-            <td><strong>${f.nombre}</strong></td>
+            <td>
+              <strong>${f.nombre}</strong>
+              ${f.contiene_agasajada ? '<span style="margin-left:0.35rem; font-size:0.75rem; background:#fdf4ff; color:#a21caf; padding:2px 6px; border-radius:4px; font-weight:600;">👑 Agasajada</span>' : ''}
+            </td>
             <td>
               <span class="badge" style="background:${f.estado === 'elegida' ? '#dcfce7' : '#fee2e2'}; color:${f.estado === 'elegida' ? '#15803d' : '#b91c1c'};">
-                ${f.estado === 'elegida' ? '★ Elegida (5)' : 'Rechazada'}
+                ${estrellas}
               </span>
             </td>
-            <td>${f.motivo_rechazo || 'Excelente nitidez y exposición'}</td>
+            <td><small>${escenaTxt}${ajustesTxt}</small></td>
             <td>${f.tiene_personas ? 'Con personas' : 'Sin personas'}</td>
             <td>${f.crop_angle ? f.crop_angle + '°' : 'No requirió'}</td>
+            <td>
+              <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="abrirComparativa('${encodeURIComponent(f.ruta)}')">
+                Ver Antes / Después
+              </button>
+            </td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
       }
 
       if (data.en_progreso) {
         setTimeout(actualizarProgresoFotos, 1000);
       }
     }
+
+    async function abrirComparativa(rutaEncoded) {
+      const ruta = decodeURIComponent(rutaEncoded);
+      fotoSeleccionadaParaComparativa = ruta;
+      document.getElementById('modal-comparativa-titulo').innerText = 'Antes y Después: ' + ruta.split(/[\\\\/]/).pop();
+      document.getElementById('img-comparativa-orig').src = '';
+      document.getElementById('img-comparativa-edit').src = '';
+      document.getElementById('datos-comparativa-ajustes').innerText = 'Cargando y simulando vista previa...';
+      document.getElementById('modal-comparativa').style.display = 'flex';
+
+      const res = await fetch('/api/fotos/previa-comparativa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruta })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('datos-comparativa-ajustes').innerText = 'Error al cargar vista previa: ' + (data.error || 'desconocido');
+        return;
+      }
+      document.getElementById('img-comparativa-orig').src = 'data:image/jpeg;base64,' + data.original_b64;
+      document.getElementById('img-comparativa-edit').src = 'data:image/jpeg;base64,' + data.editada_b64;
+      const p = data.parametros || {};
+      document.getElementById('datos-comparativa-ajustes').innerHTML = `
+        <strong>Ajustes calculados estilo Aftershoot:</strong><br>
+        Exposición: <code>${p.Exposure2012 >= 0 ? '+' : ''}${p.Exposure2012 || 0} EV</code> |
+        Temperatura: <code>${p.Temperature || 5000} K</code> |
+        Matiz (Tint): <code>${p.Tint || 0}</code> |
+        Textura: <code>${p.Texture || 0}</code> |
+        Claridad: <code>${p.Clarity2012 || 0}</code>
+      `;
+    }
+
+    function cerrarComparativa() {
+      document.getElementById('modal-comparativa').style.display = 'none';
+      fotoSeleccionadaParaComparativa = null;
+    }
+
+    async function ejecutarVolverAlOriginal() {
+      if (!fotoSeleccionadaParaComparativa) return;
+      if (!confirm('¿Deseás sacar los ajustes automáticos del archivo .xmp de esta foto?')) return;
+      const res = await fetch('/api/fotos/volver-al-original', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruta: fotoSeleccionadaParaComparativa })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al volver al original');
+      alert('¡Listo! Se quitaron los ajustes del .xmp.');
+      cerrarComparativa();
+      actualizarProgresoFotos();
+    }
+
 
     async function cargarFotos() {
       actualizarProgresoFotos();
@@ -1048,6 +1729,144 @@ HTML_INTERFAZ = """<!DOCTYPE html>
         document.getElementById('resultado-aprender-estilo').innerText = '¡Estilo aprendido! Presets generados: ' + nombres.join(', ') + ' y archivo estilo-ak.json.';
       }
     }
+
+    // Video de Vida
+    async function generarVideoVida() {
+      const carpeta = document.getElementById('input-vida-carpeta').value.trim();
+      if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos para el Video de Vida');
+      const modo = document.getElementById('select-vida-modo').value;
+      const plantilla = document.getElementById('select-vida-plantilla').value;
+      const audio = document.getElementById('input-vida-audio').value.trim();
+
+      document.getElementById('progreso-vida-texto').innerText = 'Iniciando generación de Video de Vida...';
+      document.getElementById('resultado-vida').innerText = '';
+
+      const res = await fetch('/api/vida/generar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carpeta, modo, plantilla, audio })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar Video de Vida');
+      actualizarProgresoVida();
+    }
+
+    async function actualizarProgresoVida() {
+      const res = await fetch('/api/vida/estado');
+      const data = await res.json();
+      const pct = data.total > 0 ? Math.round((data.actual / data.total) * 100) : 0;
+      document.getElementById('progreso-vida-fill').style.width = pct + '%';
+      document.getElementById('progreso-vida-texto').innerText = data.mensaje;
+      if (data.ruta_salida) {
+        document.getElementById('resultado-vida').innerText = 'Video listo: ' + data.ruta_salida;
+      }
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoVida, 1000);
+      }
+    }
+
+    async function cargarVida() {
+      actualizarProgresoVida();
+    }
+
+    // Redes Sociales
+    async function generarVideosRedes() {
+      const origen = document.getElementById('input-redes-origen').value.trim();
+      if (!origen) return alert('Por favor ingresá la carpeta de origen con las fotos/estaciones');
+      const destino = document.getElementById('input-redes-destino').value.trim();
+      const musica = document.getElementById('input-redes-musica').value.trim();
+
+      document.getElementById('progreso-redes-texto').innerText = 'Iniciando generación de videos para redes...';
+
+      const res = await fetch('/api/redes/generar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origen, destino, musica })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar videos de redes');
+      actualizarProgresoRedes();
+    }
+
+    async function actualizarProgresoRedes() {
+      const res = await fetch('/api/redes/estado');
+      const data = await res.json();
+      document.getElementById('progreso-redes-texto').innerText = data.mensaje;
+
+      if (data.videos && data.videos.length > 0) {
+        const tbody = document.getElementById('tbody-redes');
+        tbody.innerHTML = data.videos.map(v => `
+          <tr>
+            <td><strong>${v.estacion}</strong></td>
+            <td><span class="badge" style="background:#e0f2fe; color:#0369a1;">${v.formato}</span></td>
+            <td>${v.archivo}</td>
+            <td>${v.duracion}s</td>
+          </tr>
+        `).join('');
+      }
+
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoRedes, 1000);
+      }
+    }
+
+    async function cargarRedes() {
+      actualizarProgresoRedes();
+    }
+
+    // Wfolio Disk
+    async function subirWfolio() {
+      const carpeta = document.getElementById('input-wfolio-carpeta').value.trim();
+      const fiesta = document.getElementById('input-wfolio-fiesta').value.trim();
+      if (!carpeta) return alert('Por favor ingresá la carpeta con las fotos a subir');
+
+      document.getElementById('progreso-wfolio-texto').innerText = 'Iniciando subida y verificación en Wfolio...';
+
+      const res = await fetch('/api/wfolio/subir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carpeta, fiesta })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Error al iniciar subida a Wfolio');
+      actualizarProgresoWfolio();
+    }
+
+    async function loginWfolio() {
+      const res = await fetch('/api/wfolio/login', { method: 'POST' });
+      const data = await res.json();
+      alert(data.mensaje || 'Navegador iniciado para iniciar sesión');
+    }
+
+    async function actualizarProgresoWfolio() {
+      const res = await fetch('/api/wfolio/estado');
+      const data = await res.json();
+      document.getElementById('progreso-wfolio-texto').innerText = data.mensaje;
+
+      if (data.resumen) {
+        const r = data.resumen;
+        document.getElementById('stat-wfolio-total').innerText = r.total_fotos || 0;
+        document.getElementById('stat-wfolio-subidas').innerText = r.total_subidas || 0;
+        document.getElementById('stat-wfolio-pendientes').innerText = r.total_pendientes || 0;
+        document.getElementById('stat-wfolio-fallidas').innerText = r.total_fallidas || 0;
+
+        if (r.enlace_privado) {
+          const box = document.getElementById('enlace-wfolio-box');
+          const link = document.getElementById('enlace-wfolio-link');
+          box.style.display = 'block';
+          link.href = r.enlace_privado;
+          link.innerText = r.enlace_privado;
+        }
+      }
+
+      if (data.en_progreso) {
+        setTimeout(actualizarProgresoWfolio, 1000);
+      }
+    }
+
+    async function cargarWfolio() {
+      actualizarProgresoWfolio();
+    }
   </script>
 </body>
 </html>
@@ -1067,3 +1886,4 @@ def iniciar_servidor(puerto: int = PUERTO) -> None:
 if __name__ == "__main__":
     puerto_elegido = int(sys.argv[1]) if len(sys.argv) > 1 else PUERTO
     iniciar_servidor(puerto_elegido)
+

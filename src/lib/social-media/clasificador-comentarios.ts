@@ -1,21 +1,27 @@
 /**
  * Clasificador de comentarios de redes sociales con Inteligencia Artificial.
  *
- * REGLAS FUNDAMENTALES DEL DUEÑO:
+ * REGLAS FUNDAMENTALES DEL DUEÑO (Actualizado 12/11/2026, Orden 282):
  * 1. Pasa obligatoriamente por el contador de presupuesto: `hayPresupuestoParaIA()` antes,
  *    y `registrarConsumoIA('clasificacion-comentarios')` después.
  * 2. Si no hay presupuesto o la IA no responde, queda sin clasificar. NUNCA inventar por palabras sueltas.
  * 3. Idioma rioplatense y modismos uruguayos:
  *    - "Está de más" / "divino" / "impecable" -> Positivo.
  *    - "Y bueno..." / dudas operativas -> Neutro.
- * 4. Quejas legítimas de clientes -> Negativo / isLegitimateComplaint: true (NO SE OCULTAN SOLAS; se avisa).
- * 5. Insultos, agresiones, spam, datos personales o nombres de menores -> isInsultOrSpam: true (se ocultan de forma reversible con aviso).
- * 6. Si duda entre queja e insulto -> trata como queja (avisa y no oculta).
+ * 4. Quejas legítimas y comentarios negativos -> autoHideRecommended: true (SE OCULTAN SOLAS
+ *    de forma preventiva y reversible; en Meta ocultar no borra y el autor lo sigue viendo; NUNCA borrar).
+ * 5. A una queja legítima o comentario negativo NO se le contesta automáticamente sola (debeResponder: false).
+ *    Se envía alerta por WhatsApp al dueño en el momento con texto y enlace para que él conteste en persona si quiere.
+ * 6. Insultos, agresiones, spam, datos personales o nombres de menores -> isInsultOrSpam: true (se ocultan sin borrar).
+ * 7. Comentarios positivos o neutros reciben agradecimiento cordial con la voz de AK (sin precios, sin 'garantía',
+ *    sin '24/7', sin nombrar personal ni agasajado).
  */
 
 import { generateWithGeminiFallback } from '@/ai/genkit';
-import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
-import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { readData } from '@/lib/data-service';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import type { CommentSentiment } from '@/types/comentarios-redes';
 
 export interface ClasificacionComentarioResult {
@@ -26,7 +32,105 @@ export interface ClasificacionComentarioResult {
   isLegitimateComplaint?: boolean;
   esPregunta?: boolean;
   autoHideRecommended?: boolean;
+  debeResponder?: boolean;
   error?: string;
+}
+
+export function sanitizarTextoRespuesta(texto: string): string {
+  return texto
+    .replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|pesos|uyu)?/gi, '')
+    .replace(/garant[íi]a\w*/gi, '')
+    .replace(/24\/7/gi, '')
+    .replace(/24\s*hs?/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+export interface AlertaComentarioParams {
+  text: string;
+  authorName?: string;
+  permalink?: string;
+  postUrl?: string;
+  sentimentReason?: string;
+  network?: string;
+}
+
+/**
+ * Alerta por WhatsApp al dueño en el momento ante una queja o comentario negativo con el texto y enlace.
+ */
+export async function alertarDuenioPorComentarioNegativo(
+  comentario: AlertaComentarioParams
+): Promise<{ enviado: boolean; mensaje: string; error?: string }> {
+  const settings = await readData<any>('asistente-settings.json', {}).catch(() => ({}));
+  const numeroDuenio = (settings?.numeroDuenio || '').replace(/\D/g, '') || AK_WHATSAPP_NUMBER;
+  const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
+  const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+
+  const enlace = comentario.permalink || comentario.postUrl || 'https://facebook.com';
+  const autor = comentario.authorName || 'Usuario';
+  const motivo = comentario.sentimentReason ? ` (${comentario.sentimentReason})` : '';
+
+  const mensaje = `⚠️ *Alerta: queja o comentario negativo detectado en redes*${motivo}\n\n` +
+    `👤 *Autor:* ${autor}\n` +
+    `💬 *Comentario:* "${comentario.text}"\n` +
+    `🔗 *Enlace:* ${enlace}\n\n` +
+    `_Se ocultó preventivamente de forma reversible en Meta. Podés responder directamente desde el enlace._`;
+
+  if (!apiToken || !phoneNumberId) {
+    return { enviado: false, mensaje, error: 'Faltan credenciales de WhatsApp Meta' };
+  }
+
+  try {
+    const res = await sendMetaWhatsAppMessage({
+      to: numeroDuenio,
+      text: mensaje,
+      apiToken,
+      phoneNumberId,
+    });
+    return { enviado: res.success, mensaje, error: res.error };
+  } catch (err: any) {
+    return { enviado: false, mensaje, error: err?.message || String(err) };
+  }
+}
+
+/**
+ * Genera agradecimiento cordial con la voz de AK para comentarios positivos o neutros.
+ * Sin precios, sin 'garantía', sin '24/7', sin nombrar personal ni agasajado.
+ */
+export async function armarAgradecimientoComentario(
+  comentarioTexto: string,
+  autor?: string,
+): Promise<string | null> {
+  const tienePresupuesto = await hayPresupuestoParaIA();
+  if (!tienePresupuesto) return null;
+
+  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return '¡Muchas gracias por acompañarnos y por la buena onda! Nos alegra un montón que te guste nuestro trabajo.';
+  }
+
+  try {
+    const prompt = `Un usuario (${autor || 'Cliente'}) dejó este comentario en las redes de AK Producciones:
+"${comentarioTexto}"
+
+Generá una respuesta corta (máximo 2 oraciones), amable y cordial en español rioplatense (uruguayo) agradeciendo el comentario con la voz de AK Producciones.
+REGLAS ESTRICTAS DE SEGURIDAD Y ESTILO:
+1. NO des ningún precio ni menciones números de dinero bajo ningún concepto.
+2. NUNCA uses la palabra "garantía" ni "garantizar".
+3. NUNCA menciones atención o servicio "24/7" ni "24 horas".
+4. NO nombres a nadie del personal ni menciones el nombre del agasajado o cliente específico.
+5. Mostrá calidez, cercanía y gratitud sincera.`;
+
+    const respuesta = await generateWithGeminiFallback({ prompt });
+    const textoIA = (respuesta.text || '').trim();
+    const agradecimiento = textoIA || '¡Muchas gracias por el apoyo y la linda onda!';
+
+    await registrarConsumoIA('clasificacion-comentarios');
+
+    return sanitizarTextoRespuesta(agradecimiento);
+  } catch {
+    return '¡Muchas gracias por acompañarnos y por el lindo comentario!';
+  }
 }
 
 export async function clasificarComentario(
@@ -41,7 +145,9 @@ export async function clasificarComentario(
       sentimentReason: 'Comentario vacío o sin texto',
       isInsultOrSpam: false,
       isLegitimateComplaint: false,
+      esPregunta: false,
       autoHideRecommended: false,
+      debeResponder: false,
     };
   }
 
@@ -76,9 +182,10 @@ Reglas estrictas de moderación y modismos uruguayos:
 4. Insulto / Spam / Datos: agresiones directas, groserías ofensivas, spam comercial ajeno, publicación de números de teléfono personales o exposición indebida de menores.
 5. Pregunta Comercial: consultas sobre precios, fechas, disponibilidad de fechas o cómo contratar.
 
-CRITERIO DE SEGURIDAD:
-- Si dudás entre insulto y queja legítima, marcalo SIEMPRE como queja legítima (NO ocultar automáticamente).
-- El campo "autoHide" debe ser true ÚNICAMENTE para insultos graves, spam evidente o violación de privacidad. Para quejas legítimas debe ser false.
+CRITERIO DE SEGURIDAD (Decisión del dueño, 12/11/2026, Orden 282):
+- Tanto insultos/spam como quejas legítimas y comentarios negativos recomiendan ocultar automáticamente (autoHide: true) porque en Meta ocultar no borra y es reversible.
+- A las quejas legítimas y comentarios negativos NO se les contesta de forma automática sola (debeResponder: false).
+- A los comentarios positivos o neutros se les puede contestar automáticamente (debeResponder: true).
 
 Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
 {
@@ -87,7 +194,8 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
   "isInsultOrSpam": boolean,
   "isLegitimateComplaint": boolean,
   "esPregunta": boolean,
-  "autoHide": boolean
+  "autoHide": boolean,
+  "debeResponder": boolean
 }`;
 
     // Pasa por la función con respaldos de modelo: antes llamaba a gemini-1.5-flash (retirado) por
@@ -120,8 +228,15 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
         ),
     );
 
-    // Si es queja legítima, autoHide nunca debe ser true
-    const autoHideRecommended = isLegitimateComplaint ? false : Boolean(parsed.autoHide || isInsultOrSpam);
+    const esQuejaONegativo = sentiment === 'negativo' || isLegitimateComplaint;
+
+    // Decisión del dueño (12/11/2026, Orden 282): las quejas legítimas y comentarios negativos
+    // AHORA TAMBIÉN recomiendan ocultar (autoHideRecommended: true), porque ocultar en Meta no borra y es reversible.
+    const autoHideRecommended = Boolean(parsed.autoHide || isInsultOrSpam || esQuejaONegativo);
+
+    // A una queja o comentario negativo NO se le contesta automáticamente sola (debeResponder: false).
+    // Insultos y spam tampoco se contestan automáticamente.
+    const debeResponder = !esQuejaONegativo && !isInsultOrSpam && (parsed.debeResponder !== false);
 
     return {
       classified: true,
@@ -131,6 +246,7 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
       isLegitimateComplaint,
       esPregunta,
       autoHideRecommended,
+      debeResponder,
     };
   } catch (error: any) {
     console.warn('[clasificador-comentarios] Error procesando comentario:', error?.message);

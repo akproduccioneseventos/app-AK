@@ -263,7 +263,7 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
-        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuración: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as unknown as FiestaEnPlanificacion);
+        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as unknown as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
       }
@@ -591,7 +591,7 @@ function PaginaWebPageContent() {
         <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'}><ArrowLeft className="w-5 h-5" /></Link></Button>
             <h1 className="text-lg md:text-xl font-black font-headline tracking-tight hidden sm:block">
-                {fiesta ? `Constructor: ${fiesta.configuracion.nombreEvento}` : 'Editor de Plantilla'}
+                {fiesta ? `Constructor: ${fiesta.configuracion?.nombreEvento || 'Evento'}` : 'Editor de Plantilla'}
             </h1>
         </div>
 

@@ -169,18 +169,24 @@ export async function updateGuestRsvp(
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== invitadoId) return inv;
+      const nuevaRestriccion = submission.dietaryRestriction !== undefined
+        ? submission.dietaryRestriction
+        : inv.dietaryRestriction;
+      const nuevoIsCeliac = submission.dietaryRestriction !== undefined
+        ? submission.dietaryRestriction === 'Celiaco'
+        : inv.isCeliac;
       updatedInvitado = {
         ...inv,
         rsvp: submission.rsvp,
         partySize: submission.partySize ?? inv.partySize,
         companionNames: submission.companionNames ?? inv.companionNames,
-        dietaryRestriction: submission.dietaryRestriction ?? inv.dietaryRestriction,
+        dietaryRestriction: nuevaRestriccion,
         alergiasEspecificas:
           submission.alergiasEspecificas !== undefined
             ? submission.alergiasEspecificas
             : inv.alergiasEspecificas,
         cancionesDJ: submission.cancionesDJ ?? inv.cancionesDJ,
-        isCeliac: submission.dietaryRestriction === 'Celiaco' || inv.isCeliac,
+        isCeliac: nuevoIsCeliac,
         ...(submission.mensaje !== undefined ? { mensaje: submission.mensaje } : {}),
         ...(submission.requiereAccesibilidad !== undefined ? { requiereAccesibilidad: submission.requiereAccesibilidad } : {}),
       };
@@ -330,10 +336,17 @@ export async function updateGuestDetails(
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== invitadoId) return inv;
+      const nuevaRestriccion = details.dietaryRestriction !== undefined
+        ? details.dietaryRestriction
+        : inv.dietaryRestriction;
+      const nuevoIsCeliac = details.dietaryRestriction !== undefined
+        ? details.dietaryRestriction === 'Celiaco'
+        : inv.isCeliac;
       updatedInvitado = {
         ...inv,
         ...details,
-        isCeliac: details.dietaryRestriction === 'Celiaco' || inv.isCeliac,
+        dietaryRestriction: nuevaRestriccion,
+        isCeliac: nuevoIsCeliac,
       };
       return updatedInvitado;
     });

@@ -1,4 +1,5 @@
 import { AuthGuard } from '../auth-guard';
+import { BarraDeLaCasa } from '@/components/navegacion/barra-de-la-casa';
 
 /**
  * Pantalla del equipo: muestra las plantillas y la lista de tareas de marketing.
@@ -13,5 +14,12 @@ import { AuthGuard } from '../auth-guard';
  * declaradas como publicas siguen pasando: `AuthGuard` las deja pasar.
  */
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <AuthGuard>{children}</AuthGuard>;
+  return (
+    <AuthGuard>
+      <div className="w-full">
+        <BarraDeLaCasa casaId="marketing" />
+        {children}
+      </div>
+    </AuthGuard>
+  );
 }

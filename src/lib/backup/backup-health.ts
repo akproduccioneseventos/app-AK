@@ -78,3 +78,70 @@ export function buildBackupReadinessReport(date: Date = new Date()): BackupReadi
     areas,
   };
 }
+
+export interface BackupStatusReport {
+  lastSuccessfulBackup: string | null;
+  consecutiveFailures: number;
+  lastError: string | null;
+  ok: boolean;
+  motivo: string | null;
+}
+
+export interface BackupFinalReport {
+  ready: boolean;
+  cobertura: BackupReadinessReport;
+  estadoRespaldo: BackupStatusReport;
+}
+
+export function evaluarComoVieneElRespaldo(status: {
+  lastSuccessfulBackup: string | null;
+  consecutiveFailures?: number;
+  lastError?: string | null;
+}, now: Date = new Date()): BackupStatusReport {
+  const consecutiveFailures = Number(status.consecutiveFailures || 0);
+  const sinFallos = consecutiveFailures === 0;
+
+  const ms24h = 24 * 60 * 60 * 1000;
+  const lastTime = status.lastSuccessfulBackup ? new Date(status.lastSuccessfulBackup).getTime() : 0;
+  const tieneMenosDe24h = lastTime > 0 && !isNaN(lastTime) && (now.getTime() - lastTime < ms24h);
+
+  const ok = sinFallos && tieneMenosDe24h;
+
+  let motivo: string | null = null;
+  if (!sinFallos) {
+    motivo = status.lastError || `Hay ${consecutiveFailures} fallos seguidos`;
+  } else if (!tieneMenosDe24h) {
+    motivo = status.lastSuccessfulBackup
+      ? 'La última copia tiene más de 24 horas'
+      : 'No hay registros de copias exitosas';
+  }
+
+  return {
+    lastSuccessfulBackup: status.lastSuccessfulBackup,
+    consecutiveFailures,
+    lastError: status.lastError || null,
+    ok,
+    motivo,
+  };
+}
+
+export function evaluarInformeBackupFinal(params: {
+  readiness?: BackupReadinessReport;
+  status: {
+    lastSuccessfulBackup: string | null;
+    consecutiveFailures?: number;
+    lastError?: string | null;
+  };
+  now?: Date;
+}): BackupFinalReport {
+  const cobertura = params.readiness || buildBackupReadinessReport(params.now);
+  const estadoRespaldo = evaluarComoVieneElRespaldo(params.status, params.now);
+  const ready = cobertura.ready && estadoRespaldo.ok;
+
+  return {
+    ready,
+    cobertura,
+    estadoRespaldo,
+  };
+}
+

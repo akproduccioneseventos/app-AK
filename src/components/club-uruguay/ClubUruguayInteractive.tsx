@@ -214,7 +214,7 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
                   </div>
                   <div className="flex items-start gap-3 text-zinc-500">
                     <Layers className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden="true" />
-                    <span><strong>Por confirmar:</strong> Disposición particular de estaciones (360, fotocabina, barra) según lista de asistentes.</span>
+                    <span><strong>Se coordina:</strong> Disposición particular de estaciones (360, fotocabina, barra) según lista de asistentes.</span>
                   </div>
                 </div>
               </div>
@@ -238,7 +238,7 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
               <div>
                 <div className="flex items-center justify-between gap-4">
                   <span className="rounded-full bg-zinc-200 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-zinc-800">
-                    Formato contenido
+                    Para reuniones más chicas
                   </span>
                   <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-500">
                     <Users className="h-4 w-4 text-red-600" aria-hidden="true" />
@@ -264,7 +264,7 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
                   </div>
                   <div className="flex items-start gap-3 text-zinc-500">
                     <Layers className="h-5 w-5 shrink-0 text-zinc-400" aria-hidden="true" />
-                    <span><strong>Por confirmar:</strong> Montaje de sonido según estilo de reunión y confirmación de fecha.</span>
+                    <span><strong>Se coordina:</strong> Montaje de sonido según estilo de reunión y confirmación de fecha.</span>
                   </div>
                 </div>
               </div>
@@ -283,12 +283,6 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
               </div>
             </div>
           </div>
-
-          <div className="mt-8 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-5 text-xs leading-relaxed text-amber-900">
-            <p>
-              <strong>Aclaración sobre aforos y fotografías:</strong> Los valores de 50 y 250 personas corresponden a capacidades informadas según montajes habituales y no constituyen una habilitación legal certificada ni se suman como aforo simultáneo de 300 invitados. Las fotografías exhibidas a continuación reflejan vistas generales y montajes reales en Club Uruguay coordinados por AK Producciones.
-            </p>
-          </div>
         </div>
       </section>
 
@@ -303,7 +297,7 @@ export function ClubUruguayInteractive({ photos, whatsappNumber }: ClubUruguayIn
               Galería real de montajes en Club Uruguay
             </h2>
             <p className="mt-4 text-base leading-relaxed text-zinc-300 sm:text-lg">
-              Inspeccioná fotos reales de ambientaciones, pista y salones. Hacé clic en cualquier imagen para abrir el visor ampliado con zoom accesible.
+              Conocé el lugar y mirá cómo se transforma para una fiesta. Tocá las fotos para verlas en detalle.
             </p>
           </div>
 

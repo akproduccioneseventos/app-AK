@@ -73,7 +73,7 @@ const STATIONS: TechStationItem[] = [
   {
     id: 'totemTouchIA',
     name: 'Tótem Touch IA',
-    badge: 'Exclusivo con IA',
+    badge: 'Con IA',
     tagline: 'Transforma la foto del invitado en personajes y estilos con inteligencia artificial',
     description:
       'Tus invitados posan frente a la pantalla táctil y el sistema de IA los convierte en superhéroes, personajes temáticos o retratos artísticos al instante, listos para descargar por QR o imprimir.',
@@ -381,7 +381,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
                   <span
                     className={cn(
                       'px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider',
-                      selectedStation.badge === 'Exclusivo con IA'
+                      selectedStation.badge === 'Con IA'
                         ? 'bg-purple-900/60 text-purple-200 border border-purple-500/50 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
                         : 'bg-white/10 text-slate-200'
                     )}
@@ -469,7 +469,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
                   </div>
 
                   <p className="text-xs text-slate-300">
-                    Así transforma el Tótem Touch IA la foto de tus invitados en tiempo real:
+                    Así puede verse una foto con el Tótem Touch IA:
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 pt-1">
@@ -491,7 +491,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
                       </div>
                     </div>
 
-                    {/* Después (IA) */}
+                    {/* Ilustración */}
                     <div className="relative rounded-xl overflow-hidden border-2 border-purple-500/60 bg-slate-900 aspect-[4/5] flex flex-col shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                       <div className="relative flex-1 w-full bg-slate-800 overflow-hidden">
                         <Image
@@ -507,11 +507,15 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
                       </div>
                       <div className="bg-purple-950/90 text-center py-1.5 border-t border-purple-800/60">
                         <span className="text-[11px] font-black text-purple-200 uppercase tracking-wider">
-                          Después (IA)
+                          Ilustración
                         </span>
                       </div>
                     </div>
                   </div>
+
+                  <p className="text-[11px] text-slate-400 text-center pt-2">
+                    Las fotos de los invitados se usan sólo para la fiesta. Para pedir que se borre una, escribinos.
+                  </p>
 
                   {/* Highlights List */}
                   <ul className="text-left space-y-2 max-w-xs mx-auto pt-3 border-t border-slate-800">

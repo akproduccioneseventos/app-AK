@@ -17,6 +17,7 @@ interface Props {
   fecha: string;
   fotos: ItemFotoResumen[];
   fiestaId?: string;
+  musicaUrl?: string;
 }
 
 export function TuVideoDeLaFiestaModal({
@@ -26,6 +27,7 @@ export function TuVideoDeLaFiestaModal({
   fecha,
   fotos,
   fiestaId,
+  musicaUrl,
 }: Props) {
   const { toast } = useToast();
   const [generando, setGenerando] = useState(false);
@@ -57,6 +59,7 @@ export function TuVideoDeLaFiestaModal({
         fecha,
         fotos: fotos.slice(0, 30),
         duracionSegundos: 60,
+        musicaUrl: musicaUrl || '/audio/musica-resumen-ak.wav',
         onProgress: (p) => setProgreso(p),
       });
       setResultado(res);
@@ -74,6 +77,12 @@ export function TuVideoDeLaFiestaModal({
       setGenerando(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && !resultado && !generando && fotos && fotos.length > 0) {
+      handleGenerar();
+    }
+  }, [isOpen]);
 
   const handleDescargar = () => {
     if (!resultado) return;

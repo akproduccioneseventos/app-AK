@@ -10,7 +10,7 @@ import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
  * pantalla es de cliente y ahi no se puede definir.
  */
 export const metadata: Metadata = {
-  title: 'Sofía, tu asistente para cotizar la fiesta | AK Producciones',
+  title: 'Sofía, tu asistente para cotizar la fiesta',
   description:
     'Contale a Sofía cómo imaginás tu fiesta y armá el presupuesto con servicios reales de AK Producciones, con el precio vigente y el valor por persona.',
   openGraph: {

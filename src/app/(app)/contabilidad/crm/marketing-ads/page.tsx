@@ -26,7 +26,7 @@ import { calcularClienteIdeal } from '@/lib/marketing/cliente-ideal';
 import { FichaClienteIdeal } from '@/components/marketing/FichaClienteIdeal';
 
 export const metadata: Metadata = {
-  title: 'Cerebro de Publicidad & Meta Ads | AK Producciones',
+  title: 'Cerebro de Publicidad & Meta Ads',
   description: 'Dónde poner la plata en publicidad: inversión, consultas reales y retorno en contratos.',
 };
 

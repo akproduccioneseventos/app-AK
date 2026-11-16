@@ -17,6 +17,7 @@ import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { uploadDocumentoFiesta } from '@/app/actions/fiesta-actual';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ -';
@@ -25,11 +26,13 @@ const formatCurrency = (amount?: number) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '____________';
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch {
-    return '____________';
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
+  const res = formatearFechaEvento(dateString);
+  return res === 'Fecha no definida' || res === 'Fecha inválida' ? '____________' : res;
 };
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });

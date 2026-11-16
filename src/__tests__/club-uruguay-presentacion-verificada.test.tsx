@@ -154,7 +154,7 @@ describe('Orden 248: Club Uruguay - Presentación verificada y auténtica', () =
       expect(html).toContain('50');
       expect(html).toContain('Capacidad informada');
       // No debe sumar 50+250 como aforo simultáneo de 300
-      expect(html).toContain('no constituyen una habilitación legal certificada ni se suman como aforo simultáneo de 300 invitados');
+      expect(html).toContain('no un aforo acumulativo de 300 invitados');
     });
 
     it('galería muestra captions descriptivos y registros reales de AK', async () => {
@@ -170,16 +170,17 @@ describe('Orden 248: Club Uruguay - Presentación verificada y auténtica', () =
       const element = await ClubUruguayPage();
       const html = renderToStaticMarkup(element);
 
-      expect(html).toContain('150 aniversario en 2025');
-      expect(html).toContain('mural patrimonial');
+      expect(html).toContain('Historia que se vuelve parte de tu fiesta');
+      expect(html).toContain('en 2025 cumplió 150 años');
+      expect(html).toContain('mural');
     });
 
     it('distingue contratables con AK de instalaciones incluidas y mantiene visible la tecnología', async () => {
       const element = await ClubUruguayPage();
       const html = renderToStaticMarkup(element);
 
-      expect(html).toContain('Instalaciones incluidas del salón');
-      expect(html).toContain('Servicios contratables con AK');
+      expect(html).toContain('El lugar');
+      expect(html).toContain('La organización de tu fiesta');
       // Tecnología visible sin esconder
       expect(html).toContain('Fotocabina QR');
       expect(html).toContain('Plataforma 360°');

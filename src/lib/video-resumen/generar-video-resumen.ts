@@ -106,6 +106,103 @@ export function calcularDuracionVideoResumen(cantidadFotos: number): number {
 }
 
 /**
+ * Detecta los golpes de música en un AudioBuffer mediante cálculo de energía RMS en ventanas de 50 ms.
+ * Devuelve los tiempos de transición entre fotos sincronizados con los golpes musicales.
+ */
+export function detectarGolpesEnAudioBuffer(
+  audioBuffer: AudioBuffer,
+  cantidadFotos: number,
+  inicioSegundos: number,
+  finSegundos: number
+): number[] {
+  if (cantidadFotos <= 0) return [];
+  const tiempoFotos = finSegundos - inicioSegundos;
+  if (tiempoFotos <= 0) return [];
+
+  const raw = audioBuffer.getChannelData(0);
+  const sampleRate = audioBuffer.sampleRate;
+  const ventanaMuestras = Math.max(10, Math.floor(sampleRate * 0.05)); // 50 ms
+  const totalVentanas = Math.floor(raw.length / ventanaMuestras);
+
+  const energias: number[] = new Array(totalVentanas);
+  let sumaEnergia = 0;
+  for (let i = 0; i < totalVentanas; i++) {
+    let sumaCuad = 0;
+    const offset = i * ventanaMuestras;
+    for (let j = 0; j < ventanaMuestras; j++) {
+      const v = raw[offset + j];
+      sumaCuad += v * v;
+    }
+    const rms = Math.sqrt(sumaCuad / ventanaMuestras);
+    energias[i] = rms;
+    sumaEnergia += rms;
+  }
+
+  const mediaEnergia = sumaEnergia / Math.max(1, totalVentanas);
+  let sumaVar = 0;
+  for (let i = 0; i < totalVentanas; i++) {
+    const diff = energias[i] - mediaEnergia;
+    sumaVar += diff * diff;
+  }
+  const stdEnergia = Math.sqrt(sumaVar / Math.max(1, totalVentanas));
+  const umbralGolpe = mediaEnergia + 0.3 * stdEnergia;
+
+  // Encontrar picos (golpes) con distancia mínima de 300 ms entre ellos
+  const distanciaMinVentanas = Math.floor(0.3 / 0.05);
+  const golpesSegundos: number[] = [];
+  let ultimoPico = -distanciaMinVentanas;
+
+  for (let i = 1; i < totalVentanas - 1; i++) {
+    if (
+      energias[i] > umbralGolpe &&
+      energias[i] > energias[i - 1] &&
+      energias[i] >= energias[i + 1] &&
+      i - ultimoPico >= distanciaMinVentanas
+    ) {
+      const seg = (i * ventanaMuestras) / sampleRate;
+      golpesSegundos.push(seg);
+      ultimoPico = i;
+    }
+  }
+
+  // Alinear cada cambio de foto al golpe más cercano
+  const tiemposCambio: number[] = [];
+  let tiempoActual = inicioSegundos;
+  const duracionMediaDeseada = tiempoFotos / cantidadFotos;
+
+  for (let i = 0; i < cantidadFotos; i++) {
+    const esUltima = i === cantidadFotos - 1;
+    if (esUltima) {
+      tiemposCambio.push(finSegundos);
+      break;
+    }
+
+    const objetivo = tiempoActual + duracionMediaDeseada;
+    // Buscar golpes en ventana razonable alrededor del objetivo
+    const candidatos = golpesSegundos.filter(
+      (g) => g >= tiempoActual + 1.5 && g <= tiempoActual + duracionMediaDeseada * 1.6
+    );
+
+    let elegido = objetivo;
+    if (candidatos.length > 0) {
+      let menorDif = Infinity;
+      for (const c of candidatos) {
+        const dif = Math.abs(c - objetivo);
+        if (dif < menorDif) {
+          menorDif = dif;
+          elegido = c;
+        }
+      }
+    }
+
+    tiemposCambio.push(Number(elegido.toFixed(3)));
+    tiempoActual = elegido;
+  }
+
+  return tiemposCambio;
+}
+
+/**
  * Renderiza el montaje de video completo en un elemento Canvas y exporta un Blob WebM.
  */
 export async function generarVideoResumenWebM(
@@ -151,9 +248,59 @@ export async function generarVideoResumenWebM(
     throw new Error('No se pudo cargar ninguna imagen válida para el video.');
   }
 
+  // 1.5. Cargar audio si se provee musicaUrl
+  let audioContext: AudioContext | null = null;
+  let audioSource: AudioBufferSourceNode | null = null;
+  let audioDestination: MediaStreamAudioDestinationNode | null = null;
+  let audioBuffer: AudioBuffer | null = null;
+  let tiemposCambioFotos: number[] = [];
+
+  const musicaUrl = opciones.musicaUrl;
+  if (musicaUrl && typeof window !== 'undefined') {
+    try {
+      const resp = await fetch(musicaUrl);
+      if (resp.ok) {
+        const arrayBuffer = await resp.arrayBuffer();
+        const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtxClass) {
+          audioContext = new AudioCtxClass();
+          audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          audioDestination = audioContext.createMediaStreamDestination();
+
+          const gainNode = audioContext.createGain();
+          // Fade in suave (1.5 s)
+          gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(1.0, audioContext.currentTime + 1.5);
+
+          // Fade out suave en los últimos 2.5 s
+          const inicioFadeOut = Math.max(1.5, audioContext.currentTime + duracionSegundos - 2.5);
+          gainNode.gain.setValueAtTime(1.0, inicioFadeOut);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duracionSegundos);
+
+          audioSource = audioContext.createBufferSource();
+          audioSource.buffer = audioBuffer;
+          audioSource.loop = true;
+          audioSource.connect(gainNode);
+          gainNode.connect(audioDestination);
+        }
+      }
+    } catch (audioErr) {
+      console.warn('[Video Resumen] No se pudo cargar o decodificar el audio:', audioErr);
+    }
+  }
+
   // 2. Configurar MediaRecorder
   const fps = 30;
   const stream = canvas.captureStream(fps);
+
+  // Sumar pista de audio al MediaRecorder si existe
+  if (audioDestination) {
+    const audioTracks = audioDestination.stream.getAudioTracks();
+    if (audioTracks.length > 0) {
+      stream.addTrack(audioTracks[0]);
+    }
+  }
+
   const chunks: Blob[] = [];
 
   let mediaRecorder: MediaRecorder;
@@ -181,6 +328,9 @@ export async function generarVideoResumenWebM(
   });
 
   mediaRecorder.start();
+  try {
+    audioSource?.start(0);
+  } catch {}
 
   // 3. Plan de tiempos:
   // - Intro: 3 segundos
@@ -189,7 +339,29 @@ export async function generarVideoResumenWebM(
   const introSegundos = 3;
   const outroSegundos = 3;
   const tiempoFotos = Math.max(10, duracionSegundos - introSegundos - outroSegundos);
-  const tiempoPorFoto = tiempoFotos / imagenesCargadas.length;
+  const tiempoPorFotoUniforme = tiempoFotos / imagenesCargadas.length;
+
+  if (audioBuffer) {
+    try {
+      tiemposCambioFotos = detectarGolpesEnAudioBuffer(
+        audioBuffer,
+        imagenesCargadas.length,
+        introSegundos,
+        duracionSegundos - outroSegundos
+      );
+    } catch {
+      tiemposCambioFotos = [];
+    }
+  }
+
+  // Si no se detectaron golpes o no hay audio, usar reparto parejo
+  if (tiemposCambioFotos.length !== imagenesCargadas.length) {
+    tiemposCambioFotos = [];
+    for (let i = 0; i < imagenesCargadas.length; i++) {
+      tiemposCambioFotos.push(introSegundos + (i + 1) * tiempoPorFotoUniforme);
+    }
+  }
+
   let frameActual = 0;
 
   // Función auxiliar de renderizado de cuadro
@@ -228,17 +400,18 @@ export async function generarVideoResumenWebM(
 
       ctx.restore();
     } else if (timestampSeg < duracionSegundos - outroSegundos) {
-      // --- FASE 2: FOTOS CON KEN BURNS Y CROSSFADE ---
-      const tiempoEnFotos = timestampSeg - introSegundos;
-      const fotoIdx = Math.min(
-        Math.floor(tiempoEnFotos / tiempoPorFoto),
-        imagenesCargadas.length - 1
-      );
-      const tiempoEnFotoActual = tiempoEnFotos - (fotoIdx * tiempoPorFoto);
-      const progFoto = tiempoEnFotoActual / tiempoPorFoto;
+      // --- FASE 2: FOTOS CON KEN BURNS Y CROSSFADE AL RITMO ---
+      let fotoIdx = tiemposCambioFotos.findIndex((t) => timestampSeg < t);
+      if (fotoIdx === -1) fotoIdx = imagenesCargadas.length - 1;
 
-      const duracionCrossfade = Math.min(0.4, tiempoPorFoto * 0.25);
-      const tiempoRestante = tiempoPorFoto - tiempoEnFotoActual;
+      const tInicioFoto = fotoIdx === 0 ? introSegundos : tiemposCambioFotos[fotoIdx - 1];
+      const tFinFoto = tiemposCambioFotos[fotoIdx];
+      const durFoto = Math.max(0.1, tFinFoto - tInicioFoto);
+      const tiempoEnFotoActual = timestampSeg - tInicioFoto;
+      const progFoto = Math.min(1.0, Math.max(0.0, tiempoEnFotoActual / durFoto));
+
+      const duracionCrossfade = Math.min(0.4, durFoto * 0.25);
+      const tiempoRestante = tFinFoto - timestampSeg;
 
       const imgActual = imagenesCargadas[fotoIdx];
       dibujarFotogramaKenBurns(ctx, imgActual, width, height, progFoto, 1.0);
@@ -325,6 +498,10 @@ export async function generarVideoResumenWebM(
 
   mediaRecorder.stop();
   const videoBlob = await recordingPromise;
+  try {
+    audioSource?.stop();
+    audioContext?.close();
+  } catch {}
   onProgress?.(100);
 
   const videoUrl = URL.createObjectURL(videoBlob);

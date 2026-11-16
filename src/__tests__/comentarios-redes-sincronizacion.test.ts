@@ -12,7 +12,13 @@ import { clasificarComentario } from '@/lib/social-media/clasificador-comentario
 process.env.AK_USE_LOCAL_JSON_ONLY = 'true'; // el guardado por parches usa readData/writeData (sin la base real)
 
 jest.mock('@/lib/data-service', () => ({ readData: jest.fn(), writeData: jest.fn() }));
-jest.mock('@/lib/social-media/clasificador-comentarios', () => ({ clasificarComentario: jest.fn() }));
+jest.mock('@/lib/social-media/clasificador-comentarios', () => ({
+  clasificarComentario: jest.fn(),
+  armarAgradecimientoComentario: jest.fn().mockResolvedValue('¡Muchas gracias por acompañarnos!'),
+  armarRespuestaAPregunta: jest.fn().mockResolvedValue('Hola, te contactamos por privado.'),
+  alertarDuenioPorComentarioNegativo: jest.fn().mockResolvedValue({ alertado: true }),
+  sanitizarTextoRespuesta: jest.fn((t: string) => t),
+}));
 
 const mockedReadData = readData as jest.MockedFunction<typeof readData>;
 const mockedWriteData = writeData as jest.MockedFunction<typeof writeData>;

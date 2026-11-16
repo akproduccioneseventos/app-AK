@@ -19,25 +19,27 @@ let intentos = 0;
 // Lo que hace "el otro servidor" entre el intento descartado y el que se guarda.
 let entreIntentos: (() => void) | undefined;
 
-const baseDeMentira = {
-  collection: () => ({ doc: () => ({ id: 'galeria-publica' }) }),
-  runTransaction: async (fn: (t: any) => Promise<unknown>) => {
-    // Primer intento: otro servidor guardo en el medio, la base lo descarta y repite.
-    for (let vuelta = 0; vuelta < 2; vuelta++) {
-      if (vuelta === 1) entreIntentos?.();
-      intentos++;
-      let escrito: Record<string, any> | undefined;
-      const transaccion = {
-        get: async () => ({ exists: guardado !== undefined, data: () => (guardado ? copia(guardado) : undefined) }),
-        set: (_ref: unknown, valor: Record<string, any>) => { escrito = copia(valor); },
-      };
-      await fn(transaccion);
-      if (vuelta === 1 && escrito) guardado = escrito;
-    }
+jest.mock('@/lib/firebase/server', () => ({
+  get dbAdmin() {
+    return {
+      collection: () => ({ doc: () => ({ id: 'galeria-publica' }) }),
+      runTransaction: async (fn: (t: any) => Promise<unknown>) => {
+        // Primer intento: otro servidor guardo en el medio, la base lo descarta y repite.
+        for (let vuelta = 0; vuelta < 2; vuelta++) {
+          if (vuelta === 1) entreIntentos?.();
+          intentos++;
+          let escrito: Record<string, any> | undefined;
+          const transaccion = {
+            get: async () => ({ exists: guardado !== undefined, data: () => (guardado ? copia(guardado) : undefined) }),
+            set: (_ref: unknown, valor: Record<string, any>) => { escrito = copia(valor); },
+          };
+          await fn(transaccion);
+          if (vuelta === 1 && escrito) guardado = escrito;
+        }
+      },
+    };
   },
-};
-
-jest.mock('@/lib/firebase/server', () => ({ dbAdmin: baseDeMentira }));
+}));
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),

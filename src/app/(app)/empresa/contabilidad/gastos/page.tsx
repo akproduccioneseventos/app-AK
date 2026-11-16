@@ -107,12 +107,12 @@ export default function GastosGeneralesPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Calculator className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gastos Generales</h1>
+          <Calculator className="w-8 h-8 text-primary shrink-0" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Gastos Generales</h1>
         </div>
-        <Button asChild variant="outline"><Link href="/empresa/contabilidad"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Link></Button>
+        <Button asChild variant="outline" className="w-full sm:w-auto"><Link href="/empresa/contabilidad"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Link></Button>
       </div>
 
       <Card>
@@ -185,14 +185,14 @@ export default function GastosGeneralesPage() {
             {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> :
              gastos.length > 0 ? (
                 gastos.map(gasto => (
-                    <div key={gasto.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40">
-                       <div>
-                            <p className="font-semibold">{gasto.concepto} <span className="text-xs text-muted-foreground ml-2">({gasto.categoria})</span></p>
+                    <div key={gasto.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40 gap-3 min-w-0">
+                       <div className="min-w-0 flex-1">
+                            <p className="font-semibold truncate">{gasto.concepto} <span className="text-xs text-muted-foreground ml-2">({gasto.categoria})</span></p>
                             <p className="text-sm text-muted-foreground">{formatDate(gasto.fecha)} - <span className="font-medium text-destructive/80">{formatCurrency(gasto.monto)}</span></p>
                        </div>
                        <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={deletingId === gasto.id}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" disabled={deletingId === gasto.id}>
                                 {deletingId === gasto.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                             </Button>
                         </AlertDialogTrigger>

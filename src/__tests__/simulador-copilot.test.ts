@@ -18,7 +18,10 @@ jest.mock('@/ai/genkit', () => ({
   getGeminiModelForAgent: jest.fn().mockReturnValue('mock-model'),
   getGeminiGenerationConfigForAgent: jest.fn().mockReturnValue({}),
   geminiFastModel: 'mock-fast-model',
+  geminiProModel: 'mock-pro-model',
   geminiModel: 'mock-model',
+  getEffectiveGeminiModelForAgent: jest.fn().mockResolvedValue('mock-pro-model'),
+  ejecutarPromptConFallback: jest.fn((prompt: any, input: any) => prompt(input)),
 }));
 
 import { chatWithBudgetCopilot, type CopilotInput } from '@/app/actions/simulador-copilot';

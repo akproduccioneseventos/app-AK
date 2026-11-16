@@ -19,6 +19,7 @@ import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -32,15 +33,8 @@ const formatCurrency = (amount?: number) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  } catch {
-    return '—';
-  }
+  const res = formatearFechaEvento(dateString);
+  return res === 'Fecha no definida' || res === 'Fecha inválida' ? '—' : res;
 };
 
 const MetodoPagoIcon = ({ metodo }: { metodo: string }) => {

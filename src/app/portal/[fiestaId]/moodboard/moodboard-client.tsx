@@ -3,7 +3,7 @@ import { volverAlPortal } from '@/lib/portal/volver-al-portal';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import NextImage from 'next/image';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -151,7 +151,7 @@ export default function ClientMoodboardPage() {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     className="relative aspect-square rounded-[2rem] overflow-hidden border shadow-sm group bg-white"
                                 >
-                                    <NextImage src={item.url} alt="inspiración" layout="fill" objectFit="cover" className="transition-transform duration-1000 group-hover:scale-110" />
+                                    <ImagenConRespaldo src={item.url} alt="inspiración" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                                     <button 
                                         onClick={() => handleToggleLike(item.id)}

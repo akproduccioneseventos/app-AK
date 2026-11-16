@@ -1,12 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShoppingCart, ChefHat, Palette, HardHat } from 'lucide-react';
 
-export default function ComprasPage() {
+function ComprasContent() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
+  const cateringHref = fiestaId
+    ? `/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`
+    : '/fiestas/nueva/catering/lista-compras';
+  const decoracionHref = fiestaId
+    ? `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`
+    : '/fiestas/nueva/decoracion';
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -30,13 +41,13 @@ export default function ComprasPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/fiestas/nueva/catering/lista-compras">
+            <Link href={cateringHref}>
                 <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
                     <CardHeader><CardTitle className="flex items-center gap-2"><ChefHat className="text-primary"/>Compras de Catering</CardTitle></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground">Ver la lista consolidada de ingredientes y bebidas.</p></CardContent>
                 </Card>
             </Link>
-             <Link href="/fiestas/nueva/decoracion">
+             <Link href={decoracionHref}>
                 <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
                     <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="text-primary"/>Compras de Decoración</CardTitle></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground">Gestionar y adquirir los elementos decorativos.</p></CardContent>
@@ -54,5 +65,13 @@ export default function ComprasPage() {
         Este módulo centraliza los accesos a las diferentes áreas de compra para una gestión más eficiente.
       </p>
     </div>
+  );
+}
+
+export default function ComprasPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Cargando compras...</div>}>
+      <ComprasContent />
+    </Suspense>
   );
 }

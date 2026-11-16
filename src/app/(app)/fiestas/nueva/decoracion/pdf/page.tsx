@@ -14,12 +14,9 @@ import type { Customer } from '@/types/customer';
 import { getFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { cn } from '@/lib/utils';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try { return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); }
-  catch (e) { return "Fecha inválida"; }
-};
+const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
 
 const companyName = "AK Producciones";
 
@@ -101,7 +98,7 @@ function DecorationPdfPageContent() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Button asChild variant="outline" size="sm"><Link href="/fiestas/nueva/decoracion"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link href={`/fiestas/nueva/decoracion?fiestaId=${fiesta.id}`}><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Link></Button>
           <div className="flex gap-2"><Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button><Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button></div>
         </div>
 

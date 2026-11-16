@@ -10,6 +10,7 @@ import type {
   ProcessStep,
   PromotionData,
 } from '@/types/public-landing';
+import testimonialsRaw from '@/data/testimonials.json';
 
 export const sharedServices: ServiceItem[] = [
   {
@@ -27,12 +28,11 @@ export const sharedServices: ServiceItem[] = [
   },
   {
     id: 'premium',
-    // Los paquetes que vende AK son Basico, Intermedio y Premium. La web
-    // publicaba Basico, Premium y Elite: ofrecia un "Elite" que no existe y el
-    // Intermedio no aparecia en ningun lado. Se renombran los carteles nada mas;
-    // el contenido de cada paquete lo armo el dueno y no se toca. Los
-    // identificadores internos (`premium`, `elite`) quedan igual para no romper
-    // los enlaces ya compartidos.
+    // Los paquetes que vende AK son Básico, Intermedio y Premium. La web
+    // antes publicaba una escala desactualizada con nombres que no correspondían.
+    // Se renombran los carteles nada más; el contenido de cada paquete lo armó el
+    // dueño y no se toca. Los identificadores internos (`premium`, `elite`) quedan
+    // igual para no romper los enlaces ya compartidos.
     title: 'Paquete Intermedio',
     description: 'Experiencia completa con atención personalizada.',
     included: [
@@ -93,7 +93,7 @@ export const sharedFAQs: FAQItem[] = [
     id: 'personalizar',
     question: '¿Puedo personalizar el paquete a mi gusto?',
     answer:
-      'Absolutamente. Todos nuestros paquetes son puntos de partida. Trabajamos contigo para armar la propuesta ideal según tu visión y presupuesto.',
+      'Absolutamente. Todos nuestros paquetes son puntos de partida. Trabajamos con vos para armar la propuesta ideal según tu visión y presupuesto.',
   },
   {
     id: 'reunion',
@@ -195,64 +195,22 @@ export const sharedProcess: ProcessStep[] = [
   },
 ];
 
-// LOS TESTIMONIOS DE ACA SON REALES. NO SE BORRAN.
-//
-// Salieron de comentarios de Facebook que el dueno tenia guardados en su
-// catalogo impreso, y se transcribieron al armar la web. El 18 de agosto de 2026
-// una auditoria los tomo por relleno y los borro; el dueno confirmo que son
-// suyos y se repusieron tal cual estaban.
-//
-// Se leen como texto suelto porque les falta la captura del comentario, que es
-// lo unico que los hace verificables. El campo `screenshotUrl` y el carrusel ya
-// existen, y desde ahora tambien la pantalla para subir la imagen.
-//
-// Ojo: el campo `source` dice de que red se copio cada uno y no siempre coincide
-// con Facebook. Cuando se enganchen las capturas hay que revisar que el origen
-// declarado sea el de la imagen.
-export const sharedTestimonials: Testimonial[] = [
-  {
-    id: 'ts1',
-    authorName: 'Familia García',
-    source: 'google',
-    text: 'AK Producciones transformó nuestra fiesta en algo increíble. Cada detalle estuvo cuidado al máximo. El equipo es muy profesional y siempre dispuesto a ayudar.',
-    date: 'Marzo 2025',
-  },
-  {
-    id: 'ts2',
-    authorName: 'Laura M.',
-    source: 'instagram',
-    text: '¡Simplemente perfectos! Desde la primera reunión hasta el último momento de la fiesta, todo fluyó sin estrés. Los recomiendo con los ojos cerrados. 🙌',
-    date: 'Diciembre 2024',
-  },
-  {
-    id: 'ts3',
-    authorName: 'Sebastián R.',
-    source: 'whatsapp',
-    text: 'Contratamos a AK para nuestro evento corporativo y superaron todas las expectativas. Puntualidad, calidad y atención al cliente de primer nivel.',
-    date: 'Octubre 2024',
-  },
-  {
-    id: 'ts4',
-    authorName: 'Valeria y Matías',
-    source: 'google',
-    text: 'Organizaron nuestra boda y fue un sueño. Cada invitado nos preguntaba quién era la organización. ¡Gracias por hacer nuestro día tan especial! 💍',
-    date: 'Agosto 2024',
-  },
-  {
-    id: 'ts5',
-    authorName: 'Claudia P.',
-    source: 'instagram',
-    text: 'La fiesta de 15 de mi hija quedó espectacular. Todo el salón hermoso, el servicio excelente y los chicos re contentos. ¡Mejor no podría haber sido!',
-    date: 'Junio 2024',
-  },
-  {
-    id: 'ts6',
-    authorName: 'Roberto A.',
-    source: 'whatsapp',
-    text: 'Muy buena relación calidad-precio. Cumplieron con todo lo prometido y más. Sin dudas volveríamos a contratarlos para nuestra próxima celebración.',
-    date: 'Febrero 2024',
-  },
-];
+// Testimonios REALES aprobados de clientes desde testimonials.json
+export const sharedTestimonials: Testimonial[] = (testimonialsRaw as Array<{
+  id: string;
+  clientName: string;
+  testimonialText: string;
+  isApproved: boolean;
+  createdAt?: string;
+}>)
+  .filter((t) => t.isApproved)
+  .map((t) => ({
+    id: t.id,
+    authorName: t.clientName,
+    source: 'text' as const,
+    text: t.testimonialText,
+    date: '2026',
+  }));
 
 export const sharedPromotion: PromotionData = {
   sectionTitle: '🎁 Regalos incluidos en todos los paquetes',
@@ -268,7 +226,7 @@ export const sharedPromotion: PromotionData = {
       id: 'torta',
       icon: '🎂',
       title: 'Torta de regalo',
-      description: 'Incluida en los paquetes Premium y Elite, con diseño personalizado.',
+      description: 'Con diseño personalizado, según el paquete que elijas.',
     },
     {
       id: 'album',

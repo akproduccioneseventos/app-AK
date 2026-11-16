@@ -10,6 +10,8 @@ jest.mock('@/app/actions/fiesta/portal.actions', () => ({
 jest.mock('@/ai/genkit', () => ({
   generateWithGeminiFallback: jest.fn(),
   geminiCommercialModel: 'gemini-test-model',
+  geminiProModel: 'gemini-pro-test-model',
+  getEffectiveGeminiModelForAgent: jest.fn().mockResolvedValue('gemini-pro-test-model'),
 }));
 
 jest.mock('@/lib/ai/consumo-servidor', () => ({

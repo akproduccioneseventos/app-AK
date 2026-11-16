@@ -24,7 +24,7 @@ export function EventProcess({ steps, className }: EventProcessProps) {
             Nuestro proceso
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
-            ¿Cómo trabajamos contigo?
+            ¿Cómo trabajamos con vos?
           </h2>
           <p className="mt-3 text-slate-500 max-w-xl mx-auto">
             Un proceso claro y sencillo para que siempre sepas qué esperar.

@@ -4,6 +4,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   Accessibility,
@@ -277,23 +278,28 @@ function GuestPortalContent() {
   }
   if (loadError || !fiesta || !guest) {
     return (
-      <main className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white">
-        <div className="max-w-md space-y-4">
-          <AlertTriangle className="mx-auto h-10 w-10 text-red-400" />
-          <h1 className="mt-5 text-2xl font-black">No pudimos abrir tu invitación</h1>
+      <main
+        className="grid min-h-screen place-items-center p-6 text-center text-white"
+        style={{ backgroundColor: '#020617', color: '#ffffff' }}
+      >
+        <div className="max-w-md space-y-4 rounded-3xl bg-slate-900/95 p-8 border border-white/10 shadow-2xl backdrop-blur-md">
+          <AlertTriangle className="mx-auto h-12 w-12 text-amber-400" />
+          <h1 className="mt-5 text-2xl font-black text-white" style={{ color: '#ffffff' }}>
+            No pudimos abrir tu invitación
+          </h1>
           <p className="mt-3 text-sm text-slate-300">
             {loadError || 'Verificá el enlace o contactá al organizador del evento.'}
           </p>
           <p className="text-xs text-slate-400 leading-relaxed">
             Puede que el enlace haya expirado, que el token de acceso sea incorrecto o que la fiesta ya no esté disponible. Revisá el mensaje de WhatsApp o email donde recibiste la invitación y abrí el enlace original completo.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
-            <Button onClick={loadData} className="bg-white text-slate-950 hover:bg-slate-200">
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <Button onClick={loadData} className="min-h-[44px] px-6 bg-white text-slate-950 hover:bg-slate-200 font-bold">
               Reintentar
             </Button>
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center justify-center rounded-md border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/20 bg-white/10 px-6 py-2 text-sm font-bold text-white hover:bg-white/20 transition-all"
             >
               Ir al inicio
             </Link>
@@ -407,7 +413,15 @@ function GuestPortalContent() {
   return (
     <main className="min-h-screen bg-slate-100 pb-24 text-slate-950 sm:pb-12">
       <section className="relative flex min-h-[56svh] items-end overflow-hidden bg-slate-950 text-white">
-        {heroImage && <img src={heroImage} alt={config?.nombreEvento || 'Evento'} className="absolute inset-0 h-full w-full object-cover motion-safe:animate-[guestHero_18s_ease-in-out_infinite_alternate]" decoding="async" />}
+        {heroImage && (
+          <ImagenConRespaldo
+            src={heroImage}
+            alt={config?.nombreEvento || 'Evento'}
+            fill
+            unoptimized
+            className="object-cover motion-safe:animate-[guestHero_18s_ease-in-out_infinite_alternate]"
+          />
+        )}
         <div className="absolute inset-0 bg-black/65" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(220,38,38,0.22),transparent_65%)]" />
         <div className="relative z-10 mx-auto flex min-h-[58svh] w-full max-w-4xl flex-col justify-end px-5 py-8 sm:px-8 sm:py-12">
