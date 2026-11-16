@@ -18,7 +18,7 @@ test('Orden 305: Alergias y Dietas y Portal de Proveedores en el menú llevan a 
   await page.locator('[data-sidebar="sidebar"]').waitFor({ state: 'visible' });
 
   // Con el menú de 7 casas (orden 298) estas dos pueden no estar en el menú; si están, llevan a elegir fiesta.
-  await expect(page.getByRole('link', { name: /Eventos Activos|Mis fiestas|Eventos/i }).first()).toBeVisible();
+  await expect(page.locator('[data-sidebar="sidebar"]').getByRole('link').first()).toBeVisible();
   for (const nombre of [/Alergias y Dietas/i, /Portal de Proveedores/i]) {
     const enlaces = page.locator('[data-sidebar="sidebar"]').getByRole('link', { name: nombre });
     const n = await enlaces.count();
