@@ -26,6 +26,7 @@ function PlaybooksContent() {
   const [fiestaIdInput, setFiestaIdInput] = useState(fiestaIdFromUrl);
   const [applying, setApplying] = useState(false);
   const [errorAplicaciones, setErrorAplicaciones] = useState<string | null>(null);
+  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     async function load() {
@@ -216,10 +217,10 @@ function PlaybooksContent() {
                         <CheckCircle2 className="h-4 w-4 text-primary" /> Tareas
                       </h3>
                       <div className="grid gap-1">
-                        {pb.tareas.slice(0, 8).map((tarea, i) => (
-                          <div key={i} className="flex items-center gap-2 text-sm py-1">
+                        {(expandedTasks[pb.id] ? pb.tareas : pb.tareas.slice(0, 8)).map((tarea, i) => (
+                          <div key={i} className="flex flex-wrap items-center gap-2 text-sm py-1">
                             <Badge variant="outline" className="text-xs shrink-0">{tarea.prioridad}</Badge>
-                            <span>{tarea.titulo}</span>
+                            <span className="min-w-0 break-words">{tarea.titulo}</span>
                             {tarea.diasAntesEvento !== undefined && (
                               <span className="text-xs text-muted-foreground ml-auto shrink-0">
                                 {tarea.diasAntesEvento === 0 ? 'Día del evento' : `${Math.abs(tarea.diasAntesEvento)}d antes`}
@@ -228,7 +229,15 @@ function PlaybooksContent() {
                           </div>
                         ))}
                         {pb.tareas.length > 8 && (
-                          <p className="text-xs text-muted-foreground mt-1">...y {pb.tareas.length - 8} más</p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="w-fit h-7 px-2 text-xs text-primary mt-1"
+                            onClick={() => setExpandedTasks((prev) => ({ ...prev, [pb.id]: !prev[pb.id] }))}
+                          >
+                            {expandedTasks[pb.id] ? 'Ver menos' : `Ver todas (${pb.tareas.length})`}
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -282,13 +291,32 @@ function PlaybooksContent() {
               Ingresá el ID del evento donde querés aplicar <strong>{selectedPlaybook?.nombre}</strong>.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <label className="text-sm font-medium mb-1 block">ID del Evento</label>
-            <Input
-              placeholder="ej: fiesta_1234567890"
-              value={fiestaIdInput}
-              onChange={(e) => setFiestaIdInput(e.target.value)}
-            />
+          <div className="py-2 space-y-3">
+            <div>
+              <label className="text-sm font-medium mb-1 block">ID del Evento</label>
+              <Input
+                placeholder="ej: fiesta_1234567890"
+                value={fiestaIdInput}
+                onChange={(e) => setFiestaIdInput(e.target.value)}
+              />
+            </div>
+            {selectedPlaybook && selectedPlaybook.tareas.length > 0 && (
+              <div className="rounded-lg border p-3 max-h-48 overflow-y-auto space-y-1.5">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Tareas a aplicar ({selectedPlaybook.tareas.length})
+                </p>
+                {selectedPlaybook.tareas.map((tarea, i) => (
+                  <div key={i} className="flex items-center justify-between gap-2 text-xs">
+                    <span className="truncate">{tarea.titulo}</span>
+                    {tarea.diasAntesEvento !== undefined && (
+                      <span className="text-muted-foreground shrink-0">
+                        {tarea.diasAntesEvento === 0 ? 'Día del evento' : `${Math.abs(tarea.diasAntesEvento)}d antes`}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           {errorAplicaciones && (
             <div role="alert" className="p-3 my-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-semibold flex items-center justify-between gap-2">

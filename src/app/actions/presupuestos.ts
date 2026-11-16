@@ -380,6 +380,10 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
+  const cantidadesInvitados = [presupuestoData.invitadosAdultos, presupuestoData.invitadosAdolescentes, presupuestoData.invitadosNinos];
+  if (cantidadesInvitados.some((v) => v !== undefined && v !== null && (!Number.isInteger(Number(v)) || Number(v) < 0))) {
+    return { success: false, error: 'La cantidad de invitados debe ser un número entero mayor o igual a 0.' };
+  }
   // Pregunta 38 (auditoría 71): armar un presupuesto es de organización o comercial, pero nacer
   // con cobros adentro o ya Aceptado/Facturado es plata. Sin contabilidad, nace sin cobros y como
   // propuesta; los cobros y la aceptación tienen su camino, que pide contabilidad.
@@ -577,6 +581,10 @@ export async function updatePresupuesto(
   // Cambiar un presupuesto (precios, servicios) pide el perfil, igual que armarlo (candado de plata).
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
+  const cantidadesInvitados = [presupuestoData.invitadosAdultos, presupuestoData.invitadosAdolescentes, presupuestoData.invitadosNinos];
+  if (cantidadesInvitados.some((v) => v !== undefined && v !== null && (!Number.isInteger(Number(v)) || Number(v) < 0))) {
+    return { success: false, error: 'La cantidad de invitados debe ser un número entero mayor o igual a 0.' };
+  }
   return await presupuestosMutex.runExclusive(() => guardarPresupuestoSinTurno(presupuestoData, options));
 }
 

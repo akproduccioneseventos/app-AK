@@ -403,6 +403,13 @@ function CrearPresupuestoContent() {
                  toast({ title: "Requerido", description: "Por favor, completa el nombre del cliente para continuar.", variant: "destructive" });
                  return;
              }
+             const invalido = [formData.invitadosAdultos, formData.invitadosAdolescentes, formData.invitadosNinos].some(
+                 (v) => v !== null && v !== undefined && (!Number.isInteger(v) || v < 0),
+             );
+             if (invalido) {
+                 toast({ title: "Cantidad inválida", description: "Las cantidades de invitados deben ser números enteros mayores o iguales a 0.", variant: "destructive" });
+                 return;
+             }
         }
         if (paso < 3) setPaso(p => p + 1);
     };

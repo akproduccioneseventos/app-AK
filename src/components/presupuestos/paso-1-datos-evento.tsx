@@ -214,24 +214,32 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
           <Input
             id="invitadosAdultos"
             type="number"
+            step="1"
             placeholder="Ej: 50"
             value={formData.invitadosAdultos ?? ''}
-            onChange={(e) => handleChange('invitadosAdultos', e.target.value ? parseInt(e.target.value) : null)}
+            onChange={(e) => handleChange('invitadosAdultos', e.target.value === '' ? null : Number(e.target.value))}
             min="0"
             className="text-base p-3"
           />
+          {formData.invitadosAdultos !== null && formData.invitadosAdultos !== undefined && (!Number.isInteger(formData.invitadosAdultos) || formData.invitadosAdultos < 0) && (
+            <p role="alert" className="text-xs font-medium text-destructive">Ingresá un número entero mayor o igual a 0.</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="invitadosNinos" className="text-base">Nº Niños y Adolescentes</Label>
           <Input
             id="invitadosNinos"
             type="number"
+            step="1"
             placeholder="Ej: 10"
             value={formData.invitadosNinos ?? ''}
-            onChange={(e) => handleChange('invitadosNinos', e.target.value ? parseInt(e.target.value) : null)}
+            onChange={(e) => handleChange('invitadosNinos', e.target.value === '' ? null : Number(e.target.value))}
             min="0"
             className="text-base p-3"
           />
+          {formData.invitadosNinos !== null && formData.invitadosNinos !== undefined && (!Number.isInteger(formData.invitadosNinos) || formData.invitadosNinos < 0) && (
+            <p role="alert" className="text-xs font-medium text-destructive">Ingresá un número entero mayor o igual a 0.</p>
+          )}
         </div>
       </div>
     </div>

@@ -215,7 +215,7 @@ export default async function MiDiaPage() {
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="px-3 py-1.5 rounded-xl text-xs font-bold border-slate-200 bg-white shadow-sm">
             <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary" />
-            {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+            {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Montevideo' })}
           </Badge>
         </div>
       </div>
@@ -267,7 +267,7 @@ export default async function MiDiaPage() {
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">{reg.hallazgos.join('. ') || 'Sin novedades'}</p>
                 <div className="text-[10px] text-slate-400">
-                  {new Date(reg.ejecutadoEn).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs
+                  {new Date(reg.ejecutadoEn).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo' })} hs
                 </div>
               </div>
             ))}
