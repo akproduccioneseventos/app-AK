@@ -6,6 +6,8 @@ export function roundInvoiceMoney(value: unknown, currency = 'UYU'): number {
   return Math.max(0, Math.round((parsed + Number.EPSILON) * factor) / factor);
 }
 
+// En pesos los importes ya son enteros: no hay centavos que tolerar. Con $1 de margen entraba un cobro de $1 de más y una
+// factura de $1 nacía pagada sin cobros (auditor, pruebas funcionales 17/11/2026).
 export function invoiceMoneyTolerance(currency = 'UYU'): number {
-  return currency.toUpperCase() === 'UYU' ? 1 : 0.01;
+  return currency.toUpperCase() === 'UYU' ? 0 : 0.01;
 }

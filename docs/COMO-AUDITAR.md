@@ -1839,3 +1839,23 @@ Revisión transversal del auditor, 17/11/2026: "Crear Nuevo Menú" decía "✓ G
 Revisión transversal del auditor, 17/11/2026: el "promedio por evento" dividía los ingresos del año por las fiestas pasadas
 de toda la historia, y el margen sin costos cargados daba 100%.
 
+### 171. Un margen de redondeo, ¿deja pasar un peso entero de más en algo que ya está en pesos enteros?
+
+Pruebas funcionales del auditor, 17/11/2026: un cobro de $1.201 sobre $1.200 entraba y cada pantalla contaba otra historia.
+
+### 172. Un estado de plata ("Pagada", "Saldada"), ¿puede ponerse solo con cero cobrado?
+
+Pruebas funcionales del auditor, 17/11/2026: una factura de $1 nacía "Pagada" sin cobros y quedaba atrapada.
+
+### 173. Lo que se muestra como costo, ¿es lo que le cuesta a AK o es el precio de venta?
+
+Pruebas funcionales del auditor, 17/11/2026: la ganancia de la fiesta tomaba el precio de venta de cada servicio como costo.
+
+### 174. Una hora que se muestra, ¿sale del campo de la hora o se saca de una fecha guardada en Greenwich?
+
+Pruebas funcionales del auditor, 17/11/2026: el contrato decía "a las 03:00" sin hora cargada.
+
+### 175. Un formulario de "modificar", ¿arranca con lo que la persona ya respondió?
+
+Pruebas funcionales del auditor, 17/11/2026: "Modificar confirmación" abría el formulario en blanco.
+

@@ -1064,7 +1064,7 @@ function SimuladorContent() {
             const availability = await checkDateAvailability(date.toISOString());
             if (requestId !== dateAvailabilityRequestRef.current) return;
             if (availability.isOccupied) {
-                setDateWarning('âš ï¸ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+                setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
                 setDateSuggestions(availability.suggestions || []);
                 setDateAvailabilityStatus('occupied');
             } else {
@@ -2256,7 +2256,7 @@ function SimuladorContent() {
                                         onClick={() => setStep(2)}
                                         className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
                                     >
-                                        Cotizar Ahora â†’
+                                        Cotizar Ahora →
                                     </Button>
                                 </div>
                             </div>
@@ -2452,7 +2452,7 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                      <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
                                                      </div>
                                                 )}
                                                 {imageUrl && (
@@ -2488,7 +2488,7 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                      <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
                                                      </div>
                                                 )}
                                                 {imageUrl && (
@@ -2525,7 +2525,7 @@ function SimuladorContent() {
                                                 )}>
                                                     {isRecommended && (
                                                          <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-                                                             <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> â­ RECOMENDADO PRO
+                                                             <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
                                                          </div>
                                                     )}
                                                     {imageUrl && (
@@ -2889,7 +2889,7 @@ function SimuladorContent() {
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
                                                         className="min-h-[2.75rem] h-auto py-2.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs tracking-tight shadow-xl transition-all w-full sm:w-auto text-center"
                                                     >
-                                                        âš¡ Pasarme al Plan {tierMissingData.nextPackageName}
+                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
                                                     </Button>
                                                 )}
                                             </div>
@@ -3151,7 +3151,7 @@ function SimuladorContent() {
                             onClick={() => setIsFaqOpen(false)}
                             className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs tracking-normal min-h-[2.75rem] h-auto py-2.5 px-6 shadow-md transition"
                         >
-                            â† Volver a mi Presupuesto
+                            ← Volver a mi Presupuesto
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -3163,7 +3163,7 @@ function SimuladorContent() {
                     <DialogHeader className="text-left space-y-2">
                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                             <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
-                            âš¡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
+                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
                         </div>
                         <DialogTitle className="text-xl font-black text-white leading-tight">
                             {tierMissingData.missingServices.length > 0
@@ -3208,7 +3208,7 @@ function SimuladorContent() {
                                 }}
                                 className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl transition transform hover:scale-105 text-center leading-snug"
                             >
-                                âš¡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
                             </Button>
                         ) : (
                             <Button
@@ -3216,7 +3216,7 @@ function SimuladorContent() {
                                 onClick={() => setIsUpgradePromptOpen(false)}
                                 className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl text-center leading-snug"
                             >
-                                Ver Presupuesto Completo â†’
+                                Ver Presupuesto Completo →
                             </Button>
                         )}
                         <Button
