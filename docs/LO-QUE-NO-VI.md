@@ -1468,3 +1468,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 312 → pregunta 157
 - Orden 312 → pregunta 158
 - Orden 312 → pregunta 159
+- Orden 313 → no es un defecto
