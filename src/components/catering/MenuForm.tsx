@@ -459,6 +459,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     if (saveStatus === 'saving') return 'Guardando...';
     if (saveStatus === 'saved' && !hasUnsavedChanges) return '✓ Guardado';
     if (saveStatus === 'error') return 'Error al guardar';
+    // Un menú nuevo que todavía no se guardó no dice "Guardado" (auditor, 17/11/2026).
+    if (!existingMenu && saveStatus === 'idle') return hasUnsavedChanges ? 'Cambios sin guardar' : 'Sin guardar todavía';
     return hasUnsavedChanges ? 'Cambios sin guardar' : '✓ Guardado';
   };
 

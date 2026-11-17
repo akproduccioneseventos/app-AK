@@ -116,6 +116,14 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  165: 'Personas con fracción: comprobar de la orden 316 (Math.floor en el simulador) y prueba del servidor.',
+  166: 'Importes en cero en algo pagado: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts.',
+  167: 'Rechazar un cobro confirmado: src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts.',
+  168: 'Contadores de alertas: prueba de la orden 317 (el-centro-de-alertas-cuenta-lo-del-panel).',
+  169: 'Guardado antes de guardar: comprobar de la orden 317 (Sin guardar todavía en MenuForm).',
+  170: 'Tablero sin definición: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts y orden 317 bloque 2.',
+  163: 'Cuotas con otra base que el precio: e2e el-simulador-no-muestra-el-ajuste (orden 316 bloque 1).',
+  164: 'Cola local contada como envío: prueba del buzón de la orden 316 bloque 2.',
   160: 'Botones sin cartel de éxito o error: pruebas de navegador de la orden 315 (foto, buzón, RSVP).',
   161: 'Capa que se queda con el clic: regla del recorrido de la orden 313.',
   162: 'Enlace de prueba a un dato que no existe: comprobar de la orden 315 (sin inv_1 en la consola).',

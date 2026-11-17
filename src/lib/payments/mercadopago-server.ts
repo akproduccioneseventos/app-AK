@@ -17,7 +17,7 @@ import {
   type MercadoPagoPaymentSnapshot,
   type MercadoPagoSessionStatus,
 } from './mercadopago-core';
-import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { exigirQueNoSalgaAfuera } from '@/lib/auth/solo-lectura';
 
 const API_BASE = 'https://api.mercadopago.com';
 const SESSION_COLLECTION = 'mercadopago_checkout_sessions';
@@ -143,7 +143,7 @@ export async function createMercadoPagoCheckout(input: {
   presupuesto: Presupuesto;
   purpose: MercadoPagoCheckoutPurpose;
 }): Promise<{ session: MercadoPagoCheckoutSession; checkoutUrl: string }> {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   const summary = getBudgetPaymentSummary(input.presupuesto, {
     includeAnnualAdjustment: true,
   });

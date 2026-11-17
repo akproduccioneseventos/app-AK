@@ -648,6 +648,38 @@
     "162": {
       "fecha": "2026-11-17",
       "resultado": "Un enlace de prueba escrito a mano a un dato que no existe: la consola de auditoría → orden 315 bloque 4."
+    },
+    "163": {
+      "fecha": "2026-11-17",
+      "resultado": "Cuotas que no salen del mismo total que se muestra: sólo el simulador público (sumaba el ajuste que el prospecto no ve), arreglado → orden 316 bloque 1."
+    },
+    "164": {
+      "fecha": "2026-11-17",
+      "resultado": "Algo guardado en el teléfono contado como enviado: sólo el buzón → orden 316 bloque 2."
+    },
+    "165": {
+      "fecha": "2026-11-17",
+      "resultado": "Cantidades de personas que aceptan fracciones: los 4 campos del simulador público (arreglados); el presupuesto manual ya pide enteros en la orden 311 bloque 2; el servidor → orden 316 bloque 1b."
+    },
+    "166": {
+      "fecha": "2026-11-17",
+      "resultado": "Importes vacíos en algo pagado: recibos de sueldo y pagos a proveedor (arreglados por Claude). Facturas, cobros y gastos ya rechazaban el cero."
+    },
+    "167": {
+      "fecha": "2026-11-17",
+      "resultado": "Cambios de estado de plata sin mirar el anterior: sólo rejectPagoCliente (arreglado)."
+    },
+    "168": {
+      "fecha": "2026-11-17",
+      "resultado": "Panel vs Centro de Alertas → orden 317 bloque 1; los 'por cobrar' se rotulan en el bloque 2."
+    },
+    "169": {
+      "fecha": "2026-11-17",
+      "resultado": "'Guardado' sin guardar: sólo el formulario de menús (arreglado); el indicador común sólo lo dice con lastSaved."
+    },
+    "170": {
+      "fecha": "2026-11-17",
+      "resultado": "Tableros sin definición: /analytics (cuentas arregladas por Claude) y /admin/finanzas → orden 317 bloque 2."
     }
   },
   "hallazgos": {
@@ -1030,6 +1062,14 @@
     "orden-315": {
       "fecha": "2026-11-17",
       "resultado": "Auditoría funcional de botones: foto del muro, buzón, RSVP, enlace de invitado y presentación LED → orden 315."
+    },
+    "orden-316": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría de aceptación: cuotas con otra base que el precio (arreglado), buzón que cuenta la cola como envío, RSVP sin marca clara → orden 316."
+    },
+    "orden-317": {
+      "fecha": "2026-11-17",
+      "resultado": "Revisión transversal del auditor + auditoría contable interna: contables arreglados por Claude; alertas y rótulos de tableros → orden 317."
     }
   }
 }

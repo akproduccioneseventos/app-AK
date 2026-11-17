@@ -33,6 +33,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   return handleCleanDb(request);
 }
 

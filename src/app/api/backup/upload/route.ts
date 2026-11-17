@@ -27,6 +27,8 @@ async function restoreJsonFile(file: File) {
 }
 
 export async function POST(request: Request) {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   try {
     // Restaurar pisa TODOS los datos del negocio. Tener sesion no alcanza: eso lo tiene
     // cualquier operador de fiesta. Lo encontro Codex el 16 de septiembre de 2026 (BKP02).

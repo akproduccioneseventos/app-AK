@@ -56,3 +56,13 @@ export async function esSesionDeSoloLectura(): Promise<boolean> {
   return check();
 }
 
+
+/**
+ * Dice si la sesión es del auditor externo. Desde el 17/11/2026 el auditor prueba todo, menos los borrados masivos,
+ * restaurar respaldos y firmar como el cliente: las pantallas que los muestran lo usan para esconder esos botones.
+ */
+export async function esSesionDelAuditor(): Promise<boolean> {
+  await requireAppSession().catch(() => null);
+  const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+  return esSesionDeAuditor();
+}

@@ -1804,3 +1804,38 @@ Auditoría funcional del 17/11/2026: las restricciones alimentarias del RSVP no 
 ### 162. Un enlace de muestra o de prueba, ¿apunta a un dato que existe?
 
 Auditoría funcional del 17/11/2026: la consola de auditoría llevaba a un invitado `inv_1` que no existe.
+
+### 163. Un plan de cuotas en pantalla, ¿suma lo mismo que el precio que se muestra al lado?
+
+Auditoría de aceptación del 17/11/2026: el simulador mostraba $92.675 y cuotas por $106.576, con el ajuste anual que el
+prospecto no ve.
+
+### 164. Lo que queda guardado en el teléfono para mandar después, ¿se muestra como pendiente y no como enviado?
+
+Auditoría de aceptación del 17/11/2026: el buzón volvía al inicio con dos fotos en la cola local y el receptor en cero.
+
+### 165. Una cantidad de personas o de unidades, ¿acepta sólo enteros, y el total y el "por persona" usan la misma?
+
+Nueva ronda del auditor, 17/11/2026: el simulador aceptaba 2,5 personas y dividía el precio por 3.
+
+### 166. Un importe vacío o en cero, en algo que queda "pagado" o "cobrado", ¿se rechaza o se guarda como cero en silencio?
+
+Auditoría contable del 17/11/2026: un recibo de sueldo "pagado" por $0 y un pago a proveedor de $0 se guardaban sin aviso.
+
+### 167. Un cambio de estado de plata (rechazar, anular, cancelar), ¿mira en qué estado estaba antes?
+
+Auditoría contable del 17/11/2026: con una pantalla vieja se podía rechazar un cobro ya confirmado y el saldo subía.
+
+### 168. Dos contadores de lo mismo en pantallas distintas, ¿dan el mismo número, y el "ver todas" lleva a esas?
+
+Revisión transversal del auditor, 17/11/2026: el panel decía 4 alertas urgentes y el Centro de Alertas tenía 1, de otro tipo.
+
+### 169. Un cartel de "Guardado", ¿aparece sólo después de guardar de verdad?
+
+Revisión transversal del auditor, 17/11/2026: "Crear Nuevo Menú" decía "✓ Guardado" sin haber guardado nada.
+
+### 170. Un número de un tablero, ¿dice qué cuenta y de qué período, y la cuenta usa el mismo período arriba y abajo?
+
+Revisión transversal del auditor, 17/11/2026: el "promedio por evento" dividía los ingresos del año por las fiestas pasadas
+de toda la historia, y el margen sin costos cargados daba 100%.
+

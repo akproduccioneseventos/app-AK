@@ -145,6 +145,17 @@ export async function saveReciboFirmado(
   if (!payload.fiestaId?.trim()) {
     return { success: false, error: 'La fiesta es obligatoria.' };
   }
+  // Auditoría contable 17/11/2026: un recibo "pagado" o "firmado" con el monto vacío quedaba guardado por $0, y el
+  // comprobante de lo que se le pagó a la persona decía cero. Un importe inválido ya no se convierte en cero en silencio.
+  if (payload.monto !== undefined) {
+    const montoPedido = Number(payload.monto);
+    if (!Number.isFinite(montoPedido) || montoPedido < 0) {
+      return { success: false, error: 'El monto del recibo no es válido.' };
+    }
+    if ((payload.estado === 'pagado' || payload.estado === 'firmado_subido') && montoPedido <= 0) {
+      return { success: false, error: 'Un recibo pagado tiene que tener un monto mayor a cero.' };
+    }
+  }
 
   const username = permiso.user?.email || 'Administrador';
 

@@ -236,8 +236,8 @@ export async function persistPublicSimulatorBudget(
   data: LeadFromQuickBudget & { items?: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options: PublicSimulatorPersistenceOptions,
 ): Promise<{ presupuesto: Presupuesto; leadId: string; reused: boolean; soloPrueba?: boolean }> {
-  const { esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
-  const esAuditor = await esSesionDeSoloLectura();
+  const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+  const esAuditor = await esSesionDeAuditor();
   const validationError = validateSubmission(data);
   if (validationError) throw new Error(validationError);
 

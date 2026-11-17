@@ -131,10 +131,13 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
               precioUnitarioPresupuesto: esRegalo ? 0 : current.precioUnitarioOriginal,
             });
         } else {
-            let num = Number(value);
+            // Auditoría contable 17/11/2026: la pantalla calculaba con 2,5 o con un precio negativo y al guardar el
+            // servidor redondea a entero y pone en cero lo negativo (roundMoney), así que el total aprobado no era el
+            // guardado. La pantalla usa la misma regla que el guardado.
+            const num = Number(value);
             newSelected.set(servicioId, {
               ...current,
-              [field]: isNaN(num) ? 0 : num,
+              [field]: Number.isFinite(num) ? Math.max(0, Math.round(num)) : 0,
                esRegalo: false,
             });
         }
@@ -242,7 +245,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-end">
                                         <div className="space-y-1.5">
                                             <Label className="text-[10px] uppercase font-black text-slate-400">Cant.</Label>
-                                            <Input type="number" value={servicio.cantidad} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-10 rounded-xl bg-slate-50 border-none shadow-inner text-center font-bold" />
+                                            {/* Por persona o por cantidad de invitados la cuenta usa los invitados, no este número: se muestra sin editar
+                                                para que no parezca que cambia el importe (auditoría contable 17/11/2026). */}
+                                            <Input type="number" min={0} step={1} value={servicio.cantidad} readOnly={!!(servicio as any).calculationMethod && (servicio as any).calculationMethod !== 'fijo'} title={(servicio as any).calculationMethod && (servicio as any).calculationMethod !== 'fijo' ? 'Se calcula con la cantidad de invitados' : undefined} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-10 rounded-xl bg-slate-50 border-none shadow-inner text-center font-bold read-only:opacity-60" />
                                         </div>
                                         <div className="space-y-1.5">
                                             <Label className="text-[10px] uppercase font-black text-slate-400">Precio Unit. ($)</Label>

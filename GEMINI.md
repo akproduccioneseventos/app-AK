@@ -2,7 +2,7 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 16/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 17/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
 - **Play Store (16/11, el dueño ya creó su cuenta de desarrollador):** en su computadora, seguí `docs/GUIAS-PLAY-STORE-Y-PC.md`
@@ -10,6 +10,11 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **Nuevo: orden 317** (revisión transversal del auditor, 17/11): alertas del panel y del centro, rótulos de los tableros y
+  cuentas de prueba por perfil para el auditor. Lo contable ya lo arregló Claude. En la misma propuesta, al final.
+- **El auditor ahora guarda en toda la app** (decisión del dueño, 17/11): si una prueba tuya contaba con que el auditor no
+  guarda, cambió. Sólo sigue frenado lo que sale a clientes, publica, cobra o borra todo (`src/lib/auth/solo-lectura.ts`).
+- **Nuevo: orden 316** (auditoría de aceptación, 17/11): en la misma propuesta, al final. El bloque 1 ya lo arregló Claude; te queda su prueba.
 - **Nuevo: orden 315** (auditoría funcional de botones, 17/11): en la misma propuesta, al final.
 - **Nuevo: orden 314** (el simulador vende primero el valor, aprobada por el dueño): en la misma propuesta, después de la 312.
 - **REGLA NUEVA (17/11, pedido del dueño): primero se terminan las órdenes abiertas, completas y de a una.** Orden de hoy:

@@ -1456,7 +1456,14 @@ export async function rejectPagoCliente(
   const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
     const pagos = actual.pagosCliente || [];
-    if (!pagos.some(p => p.id === pagoId)) return { error: 'Pago no encontrado' };
+    const pagoActual = pagos.find(p => p.id === pagoId);
+    if (!pagoActual) return { error: 'Pago no encontrado' };
+    // Auditoría contable 17/11/2026: con una pantalla vieja o dos personas a la vez se podía rechazar un cobro ya
+    // confirmado, y el saldo del cliente subía sin que nadie devolviera la plata. Un cobro confirmado no se rechaza.
+    if (pagoActual.estadoPago === 'confirmado') {
+      return { error: 'Ese pago ya está confirmado: no se puede rechazar. Si hubo un error, registrá un ajuste aparte.' };
+    }
+    if (pagoActual.estadoPago === 'rechazado') return { sinCambios: true };
     return {
       pagos: pagos.map(pago =>
         pago.id === pagoId
@@ -1500,6 +1507,8 @@ export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllPresupuestos(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };

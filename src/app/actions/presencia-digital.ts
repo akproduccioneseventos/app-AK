@@ -475,10 +475,10 @@ export async function setAjustesPublicarSoloAction(activo: boolean): Promise<{
     const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
     if (!permiso.ok) return { success: false, error: permiso.error };
     if (permiso.user.perfil === 'auditor' || permiso.user.role === 'auditor') {
-      return { success: false, error: 'Acceso de auditor: se puede mirar todo, pero no guardar ni mandar nada.' };
+      return { success: false, error: 'Acceso de auditor: se puede probar todo, pero no se publica en redes.' };
     }
-    const { exigirQueSePuedaGuardar } = await import('@/lib/auth/solo-lectura');
-    await exigirQueSePuedaGuardar();
+    const { exigirQueNoSalgaAfuera } = await import('@/lib/auth/solo-lectura');
+    await exigirQueNoSalgaAfuera();
     const { setAjustesPublicarSolo } = await import('@/lib/presencia-digital/publicador');
     const data = await setAjustesPublicarSolo(activo);
     return { success: true, data };

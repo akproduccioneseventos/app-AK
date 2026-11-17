@@ -1321,6 +1321,8 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
  * In production (Firestore), each active fiesta is archived; in local dev the files are moved.
  */
 export async function resetAllActiveFiestas(): Promise<{ success: boolean; archivedCount?: number; errors?: string[]; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const activas = await getFiestas(false);
@@ -1350,6 +1352,8 @@ export async function resetAllActiveFiestas(): Promise<{ success: boolean; archi
  * This is a destructive admin-only operation; the UI must require explicit confirmation.
  */
 export async function deleteAllFiestas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   // Esta accion no comprobaba NADA: ni sesion. El comentario de arriba delegaba
   // la proteccion en la confirmacion de la pantalla, y una server action se
   // puede invocar sin pasar por la pantalla.
