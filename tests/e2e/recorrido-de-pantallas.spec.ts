@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import { getAllRoutes, crearCookieDeSesion, FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
 import { esErrorDelArmazonAlRedirigir } from './helpers/errores-que-no-son-de-la-app';
+import { TAMANOS_AUDITORIA } from '../../src/lib/visual/auditor-pantalla';
 
 const PROHIBITED_TECHNICAL_STRINGS = [
   'undefined',
@@ -230,6 +231,39 @@ test.describe('Recorrido de las 353 pantallas', () => {
           page.off('pageerror', errorListener);
           return;
         }
+
+        // Check 2b: Auditoría visual en 3 tamaños (Orden 313: scrollWidth, palabra por palabra, contraste y símbolos)
+        for (const tam of TAMANOS_AUDITORIA) {
+          await page.setViewportSize({ width: tam.width, height: tam.height });
+          const fallasTam = await page.evaluate((w) => {
+            const errs: string[] = [];
+            const sw = document.documentElement.scrollWidth;
+            if (sw > w + 1) errs.push(`desborde scrollWidth=${sw}>${w}`);
+            const els = Array.from(document.querySelectorAll('h1,h2,h3,h4,p,button,input,select')) as HTMLElement[];
+            for (const el of els) {
+              const st = window.getComputedStyle(el);
+              if (st.display === 'none' || st.visibility === 'hidden') continue;
+              const rect = el.getBoundingClientRect();
+              if (rect.width === 0 && rect.height === 0) continue;
+              if (rect.right > w + 1) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
+              const txt = (el.textContent || '').trim();
+              if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && txt.split(/\s+/).length > 3 && rect.width < 90) {
+                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px)`);
+              }
+            }
+            return errs.slice(0, 3);
+          }, tam.width);
+          if (fallasTam.length > 0) {
+            results.push({
+              ...r,
+              tamano: tam.nombre,
+              estado: 'FALLO',
+              motivo: `[${tam.nombre}] ${fallasTam.join('; ')}`,
+              duracionMs,
+            });
+          }
+        }
+        await page.setViewportSize({ width: 1280, height: 800 });
 
         // Check 2: Errores no capturados
         if (pageErrors.length > 0) {

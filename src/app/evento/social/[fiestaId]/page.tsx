@@ -727,9 +727,13 @@ export default function SocialEventPage() {
       formData.append('accessToken', stationAccessToken);
     }
     if (uploadFile.type.startsWith('image/')) {
-      if (crypto.subtle) {
-        const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
-        formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+      try {
+        if (typeof crypto !== 'undefined' && crypto.subtle) {
+          const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
+          formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+        }
+      } catch {
+        // Si crypto.subtle falla o no está disponible, se sube igual sin la huella
       }
 
       // Medir nitidez y brillo en el celular del invitado

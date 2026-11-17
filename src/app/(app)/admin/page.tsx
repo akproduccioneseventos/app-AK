@@ -193,6 +193,7 @@ export default function MainDashboardPage() {
   }, [usuario]);
 
   const alerts: GlobalAlert[] = useMemo(() => kpiData?.alerts || [], [kpiData]);
+  const totalAlertasUrgentes = useMemo(() => alerts.filter(alert => alert.severity === 'high').length, [alerts]);
   const alertasUrgentes = useMemo(() => alerts.filter(alert => alert.severity === 'high').slice(0, 4), [alerts]);
   const unavailableSources: string[] = useMemo(() => kpiData?.unavailableSources || [], [kpiData]);
   const sourceAvailable = useCallback(
@@ -312,7 +313,9 @@ export default function MainDashboardPage() {
           <CardHeader className="pb-2 pt-4 px-5 flex-row items-center justify-between gap-4">
             <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-2">
               <Bell className="w-4 h-4 text-amber-600" /> Alertas Urgentes
-              <Badge className="ml-1 bg-amber-500 text-white text-[10px] px-1.5 py-0">{alertasUrgentes.length}</Badge>
+              <Badge className="ml-1 bg-amber-500 text-white text-[10px] px-1.5 py-0">
+                {totalAlertasUrgentes > alertasUrgentes.length ? `${alertasUrgentes.length} de ${totalAlertasUrgentes}` : alertasUrgentes.length}
+              </Badge>
             </CardTitle>
             <Button asChild variant="outline" size="sm" className="h-7 text-xs border-amber-200 text-amber-700 hover:bg-amber-50"><Link href="/alertas">Ver todas <ArrowRight className="w-3 h-3 ml-1" /></Link></Button>
           </CardHeader>

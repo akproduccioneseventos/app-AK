@@ -100,36 +100,42 @@ export default function AnalyticsDashboardPage() {
           value={isLoading ? '...' : (data?.kpis.totalEventosRealizados ?? 0)}
           icon={CalendarCheck}
           isLoading={isLoading}
+          description="Fiestas con fecha pasada"
         />
         <KpiCard
           title="Valor Promedio por Venta (12M)"
           value={formatCurrency(data?.kpis.valorPromedioEvento)}
           icon={DollarSign}
           isLoading={isLoading}
+          description="Facturas y presupuestos aceptados de los últimos 12 meses ÷ cantidad de ventas"
         />
         <KpiCard
           title="Tasa de Conversión"
           value={isLoading ? '...' : `${data?.kpis.tasaConversion ?? 0}%`}
           icon={Target}
           isLoading={isLoading}
+          description="Presupuestos aceptados ÷ todos los presupuestos"
         />
         <KpiCard
           title="Rentabilidad Neta (12M)"
           value={formatCurrency(data?.kpis.rentabilidadNeta)}
           icon={TrendingUp}
           isLoading={isLoading}
+          description="Ingresos − costos cargados, últimos 12 meses"
         />
         <KpiCard
           title="Conversión Simulador"
           value={isLoading ? '...' : `${data?.kpis.simulatorConversionRate ?? 0}%`}
           icon={Zap}
           isLoading={isLoading}
+          description="Presupuestos del simulador que se aceptaron"
         />
         <KpiCard
           title="Margen Bruto Promedio"
           value={isLoading ? '...' : (data?.kpis.margenBrutoPromedio == null ? 'Sin costos cargados' : `${data.kpis.margenBrutoPromedio}%`)}
           icon={BarChart2}
           isLoading={isLoading}
+          description="(Ingresos − costos) ÷ ingresos; sin costos cargados no se calcula"
         />
       </div>
 

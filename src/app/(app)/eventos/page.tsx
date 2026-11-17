@@ -686,7 +686,7 @@ export default function GestorFiestasPage() {
           <div className="overflow-hidden rounded-md border bg-card">
             {filteredFiestasActivas.map((fiesta, index) => {
               const eventDate = fiesta.configuracion.fechaEvento
-                ? new Date(fiesta.configuracion.fechaEvento)
+                ? parseEventDate(fiesta.configuracion.fechaEvento)
                 : null;
               const validEventDate = eventDate && !Number.isNaN(eventDate.getTime()) ? eventDate : null;
 

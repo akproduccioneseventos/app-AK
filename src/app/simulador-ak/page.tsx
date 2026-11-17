@@ -1421,7 +1421,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         )}
 
         {/* INPUT AREA */}
-        <div className="p-4 border-t border-border bg-card flex items-center gap-2 shrink-0">
+        <div className="p-3 sm:p-4 border-t border-border bg-card flex items-center gap-2 shrink-0 min-w-0 w-full">
           <input
             type="text"
             data-ak-tone="dark"
@@ -1430,7 +1430,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
             placeholder="Escribile tu respuesta o pregunta a Sofía..."
             disabled={isAiLoading}
-            className="flex-1 rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-w-0 w-full flex-1 rounded-lg border border-border bg-muted/20 px-3 sm:px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-40"
           />
           <Button
             size="icon"
@@ -1446,7 +1446,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         {/* El boton flotante vive abajo a la derecha, justo donde esta el campo
             para escribirle a Sofia: tapaba el boton de enviar y el clic se lo
             llevaba WhatsApp. Se sube para dejar libre la barra de escritura. */}
-        <FloatingWhatsApp className="bottom-28" />
+        <FloatingWhatsApp className="bottom-36 sm:bottom-28" />
         <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
 </div>
     );

@@ -141,6 +141,10 @@ export default function FinanzasPage() {
               <p className="text-xs text-amber-700 font-medium">Por cobrar</p>
             </div>
             <p className="text-xl font-bold text-amber-700">{formatCurrency(porCobrar)}</p>
+            <p className="text-[11px] text-amber-700/80 mt-0.5">sólo de las fiestas cargadas</p>
+            <Link href="/contabilidad" className="text-[11px] font-semibold text-amber-800 underline mt-1 inline-block">
+              Ver todo lo que se debe
+            </Link>
           </CardContent>
         </Card>
         <Card className={gananciaCobrado >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}>

@@ -91,7 +91,33 @@ export async function marcarTodasLeidas(): Promise<{ success: boolean }> {
 
 export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]> {
   await requireAppSession();
-  const alertasActuales = await getAlertasGlobales();
+  const alertasReglas = await getAlertasGlobales();
+  let alertasPanel: AlertaAutomatica[] = [];
+  try {
+    const { getDashboardKpiData } = await import('@/app/actions/dashboard');
+    const kpiRes = await getDashboardKpiData();
+    const rawPanelAlerts = kpiRes?.success && kpiRes.data?.alerts ? kpiRes.data.alerts : [];
+    const idsExistentes = new Set(alertasReglas.map((a) => a.id));
+    alertasPanel = rawPanelAlerts
+      .filter((a) => a?.id && !idsExistentes.has(a.id))
+      .map((a) => ({
+        id: a.id,
+        reglaId: a.type || 'panel_kpi',
+        reglaNombre: a.title || 'Plata y agenda',
+        categoria: 'Plata y agenda',
+        titulo: a.title,
+        mensaje: a.description,
+        severidad: a.severity === 'high' ? 'alta' : a.severity === 'medium' ? 'media' : 'baja',
+        fiestaId: '',
+        fiestaNombre: 'Plata y agenda',
+        enlace: a.href || '/admin',
+        rutaDestino: a.href || '/admin',
+        leida: false,
+      } as unknown as AlertaAutomatica));
+  } catch {
+    // Si falla el dashboard, al menos devolvemos las de las fiestas
+  }
+  const alertasActuales = [...alertasReglas, ...alertasPanel];
   const [idsLeidos, idsDescartados] = await Promise.all([
     readData<string[]>(ALERTAS_LEIDAS_FILE, []),
     readData<string[]>(ALERTAS_DESCARTADAS_FILE, []),

@@ -167,7 +167,7 @@ export function SimulatorMeetingScheduler({
             ¿Cuándo querés venir a verlo?
           </h3>
           <p className="text-xs text-slate-600 mt-0.5">
-            Elegí el día y la hora para tu entrevista sin costo en nuestra oficina.
+            Elegí el día y la hora para tu reunión sin costo: en el salón, por videollamada o donde acordemos.
           </p>
         </div>
       </div>

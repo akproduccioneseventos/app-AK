@@ -218,7 +218,7 @@ export default function PresentacionLedConfiguracionPage() {
           </Link>
           <div>
             <h1 className="text-white font-black text-xl">Fotos del Presentador LED</h1>
-            <p className="text-white/40 text-sm">Subí fotos directamente desde tu PC para cada servicio y menú</p>
+            <p className="text-slate-200 text-sm">Subí fotos directamente desde tu PC para cada servicio y menú</p>
           </div>
         </div>
         <Button
