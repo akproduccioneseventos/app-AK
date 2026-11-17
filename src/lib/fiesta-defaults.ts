@@ -502,7 +502,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
   configuracion: {
     nombreEvento: 'Nuevo Evento',
-    tipoCelebracion: 'Boda',
+    tipoCelebracion: '',
     fechaEvento: '',
     horaInicio: '21:00',
     horaFin: '04:00',

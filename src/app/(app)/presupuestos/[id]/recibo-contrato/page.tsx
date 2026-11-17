@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+import { horaEventoOConfirmar } from '@/lib/fechas/hora-evento';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -222,7 +223,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const isClubUruguayDoc = searchParams.get('club') === 'uruguay';
   const hasDeposit = overriddenMontoSenia > 0;
   const eventDateSource = overriddenFecha || presupuesto?.eventoFecha;
-  const eventStartTimeRaw = presupuesto?.eventoHoraInicio || extractTimeFromDate(eventDateSource);
+  const eventStartTimeRaw = horaEventoOConfirmar(presupuesto?.eventoHoraInicio);
   const eventStartTime = (eventStartTimeRaw ?? '').trim();
   const canGenerateContract = Boolean(overriddenFecha);
   const effectiveTotalPagado = hasValidSeniaParam ? overriddenMontoSenia : totalPagado;

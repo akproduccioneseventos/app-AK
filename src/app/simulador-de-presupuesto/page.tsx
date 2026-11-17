@@ -2293,15 +2293,6 @@ function SimuladorContent() {
                                             <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
                                         </div>
                                     </div>
-=======
-                                    <Button
-                                        type="button"
-                                        onClick={() => setStep(2)}
-                                        className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
-                                    >
-                                        Cotizar Ahora →
-                                    </Button>
->>>>>>> origin/main
                                 </div>
                             </div>
                         </div>
@@ -2496,7 +2487,6 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                      <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
-<<<<<<< HEAD
                                                          <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> RECOMENDADO PRO
                                                      </div>
                                                 )}
@@ -3339,3 +3329,4 @@ export default function ArmadoRapidoPage() {
         </Suspense>
     );
 }
+

@@ -285,10 +285,9 @@ function getModuleProgress(moduleId: string, fiesta: FiestaEnPlanificacion | nul
     case 'planPagos':
     case 'costos': {
       const hasDocs = Boolean(
-        fiesta.presupuestoId ||
         fiesta.contratoGenerado ||
-        fiesta.invoiceIds?.length ||
-        fiesta.othersDocumentos?.length
+        (fiesta as any).contratoFirmado ||
+        (fiesta as any).contratoFirmadoCliente
       );
       return { percentage: hasDocs ? 100 : 0, text: hasDocs ? 'Documentación al día' : 'Pendiente' };
     }
@@ -521,7 +520,7 @@ function PlannerDashboardContent() {
               </>
             )}
             <Button asChild className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest text-xs sm:text-sm"><Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
-                    <Zap className="w-4 h-4 mr-2 sm:mr-3"/> EN VIVO
+                    <Zap className="w-4 h-4 mr-2 sm:mr-3"/> Modo en vivo
                 </Link></Button>
             <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-border font-bold hover:bg-muted/40 transition-all text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver

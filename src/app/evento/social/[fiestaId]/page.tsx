@@ -1312,7 +1312,7 @@ export default function SocialEventPage() {
                     if (!activeSong) {
                       return (
                         <motion.div key="empty" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute inset-0 grid place-items-center">
-                          <EmptyState icon={Music2} title="¡Ya votaste todo!" text="Pedí una nueva canción arriba." />
+                          <EmptyState icon={Music2} title={songs.length === 0 ? "Todavía no hay canciones para votar" : "¡Ya votaste todo!"} text="Pedí una nueva canción arriba." />
                         </motion.div>
                       );
                     }

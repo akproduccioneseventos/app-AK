@@ -27,6 +27,7 @@ import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfoPublica } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import { enlacePublicoDelPresupuesto } from '@/lib/presupuestos/enlace-publico';
+import { horaEventoOConfirmar } from '@/lib/fechas/hora-evento';
 import Image from 'next/image';
 import html2canvas from 'html2canvas';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
@@ -372,7 +373,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const eventStartTime = useMemo(() => {
     if (!presupuesto) return '';
-    return (presupuesto.eventoHoraInicio || extractTimeFromDate(presupuesto.eventoFecha)).trim();
+    return horaEventoOConfirmar(presupuesto.eventoHoraInicio);
   }, [presupuesto]);
   const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
   const currentYear = new Date().getFullYear();
@@ -700,9 +701,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   if (!presupuesto && esAccesoDelCliente) return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
       <p className="text-4xl">🔗</p>
-      <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>
+      <h2 className="text-2xl font-bold">Este enlace fue desactivado</h2>
       <p className="text-muted-foreground max-w-sm">
-        Puede estar incompleto o ya no estar vigente. Escribinos y te mandamos uno nuevo.
+        Este enlace fue desactivado. Pedile uno nuevo a AK Producciones.
       </p>
     </div>
   );
