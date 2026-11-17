@@ -939,6 +939,8 @@ export async function createUser(data: {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   const auth = await verifySession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
   if (auth.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede crear usuarios.' };
@@ -1010,6 +1012,8 @@ export async function updateUserModules(
   if (!db) return { success: false, error: 'Base de datos no disponible.' };
 
   const session = await requireSession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
   if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
@@ -1081,6 +1085,8 @@ export async function deleteUser(
   if (!db) return { success: false, error: 'Base de datos no disponible.' };
 
   const session = await requireSession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
   if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
@@ -1134,6 +1140,8 @@ export async function adminResetUserPassword(
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   const session = await requireSession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!session.ok) return { success: false, error: session.error || 'No autorizado' };
   if (!puede(session.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
   if (session.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede modificar usuarios ni permisos.' };
@@ -1197,6 +1205,8 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   const session = await verifySession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!session.success || !session.user) {
     return { success: false, error: 'Sesión no autorizada.' };
   }
@@ -1305,6 +1315,8 @@ export async function cerrarAccesoAuditor(emailAuditor?: string): Promise<{
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   const session = await verifySession();
+  // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
+  if (await (await import('@/lib/auth/solo-lectura')).esSesionDeAuditor()) return { success: false, error: 'Acceso de auditor: usuarios, permisos y claves los maneja sólo el dueño.' } as any;
   if (!session.success || !session.user) {
     return { success: false, error: 'Sesión no autorizada.' };
   }
