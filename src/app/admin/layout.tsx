@@ -16,7 +16,7 @@ export default async function AdminLayout({
           data-testid="franja-auditor"
           className="sticky top-0 z-[100] w-full bg-amber-500 text-slate-950 px-4 py-2 text-center text-sm font-black shadow-md flex items-center justify-center tracking-wide"
         >
-          Acceso de auditor · sólo mirar
+          Acceso de auditor · prueba todo, sin mandar nada a clientes
         </div>
       )}
       {children}

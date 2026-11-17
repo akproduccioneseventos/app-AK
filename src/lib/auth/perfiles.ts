@@ -81,7 +81,7 @@ export const NOMBRE_DEL_PERFIL: Record<Perfil, string> = {
   cliente: 'Cliente',
   prospecto: 'Prospecto',
   invitado: 'Invitado',
-  auditor: 'Auditor externo (sólo mirar)',
+  auditor: 'Auditor externo (prueba todo, sin mandar nada afuera)',
 };
 
 export const QUE_HACE_CADA_PERFIL: Record<Perfil, string> = {

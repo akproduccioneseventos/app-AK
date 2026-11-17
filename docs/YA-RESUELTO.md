@@ -16489,6 +16489,8 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
   Contactos, publicar en redes, abrir un cobro de Mercado Pago (`exigirQueNoSalgaAfuera`), los borrados masivos y restaurar
   respaldos (`exigirQueNoBorreTodo`), bajar el respaldo completo y firmar el contrato como el cliente. Su gasto de IA ahora
   cuenta para el tope. Pruebas `el-auditor-mira-y-no-toca` y `el-auditor-prueba-la-ia-sin-guardar`, actualizadas.
+- **17/11/2026 — La franja del auditor ya no dice "sólo mirar"**: dice que prueba todo sin mandar nada a clientes (el
+  informe de rutas de la tarde todavía la vio con el texto viejo).
 - **17/11/2026 — El auditor no maneja usuarios, permisos, claves ni accesos** (crear, cambiar módulos, borrar, resetear
   clave, abrir o cerrar el acceso de auditor): si pudiera crearse una cuenta propia, seguiría entrando después de cerrarle el
   acceso. Prueba `el-auditor-no-toca-usuarios`.
