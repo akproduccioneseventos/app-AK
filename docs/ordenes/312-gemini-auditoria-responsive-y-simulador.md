@@ -31,7 +31,7 @@ Documental (botón Volver cortado), `/playbooks` (Boda Clásica: botones debajo 
 `resumen-planificacion` y el hub (importe y encabezado se cortan a 820 px con la barra lateral abierta). **No resolver
 escondiendo con `overflow-hidden`.**
 
-## Bloque 5 — El reloj del simulador no corre (S02)
+## Bloque 5 — El reloj del simulador no corre (S02) — REEMPLAZADO por la orden 314, bloque 5
 
 El reloj **va y su texto no se toca** (decisión del dueño). Lo roto es que el auditor lo vio en 15:00 pasados 15 minutos.
 Revisá `updateTimer` (línea ~429 de `src/app/simulador-de-presupuesto/page.tsx`): tiene que bajar segundo a segundo, llegar a
