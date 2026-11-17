@@ -161,6 +161,11 @@ function isConfirmedPayment(payment: PortalPaymentRecord): boolean {
     && status !== 'rechazada';
 }
 
+function isRejectedPayment(payment: PortalPaymentRecord): boolean {
+  const status = normalizeText(payment.estadoPago ?? payment.estado ?? '');
+  return status === 'rechazado' || status === 'rechazada';
+}
+
 export function getPortalPaymentSummary(input: {
   total?: number | null;
   payments?: PortalPaymentRecord[] | null;
@@ -171,7 +176,9 @@ export function getPortalPaymentSummary(input: {
   const notifications = input.notifications ?? [];
 
   const confirmedPayments = payments.filter(isConfirmedPayment);
-  const pendingPayments = payments.filter(payment => !isConfirmedPayment(payment));
+  // Un pago que AK rechazó no está "en revisión" (auditoría contable 17/11/2026: el portal se lo mostraba al cliente
+  // como esperando confirmación para siempre).
+  const pendingPayments = payments.filter(payment => !isConfirmedPayment(payment) && !isRejectedPayment(payment));
   const pendingNotifications = notifications.filter(notification => normalizeText(notification.estado) === 'pendiente');
   const approvedNotifications = notifications.filter(notification => normalizeText(notification.estado) === 'aprobado');
 

@@ -45,20 +45,18 @@ describe('Orden 291 — Bloque 3: El auditor puede probar la IA sin guardar nada
     };
   });
 
-  it('con sesión de auditor, registrarConsumoIA no escribe y no tira error', async () => {
+  // Desde el 17/11/2026 el auditor prueba todo (decisión del dueño) y su gasto de IA SE ANOTA: cuenta para el tope
+  // de la app como el de cualquiera, así probar no puede pasar el límite sin que se vea.
+  it('con sesión de auditor, registrarConsumoIA anota el gasto y no tira error', async () => {
     await expect(registrarConsumoIA('copiloto-presupuesto')).resolves.not.toThrow();
-    expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockWriteData).toHaveBeenCalled();
   });
 
-  it('con sesión de auditor, reservarConsumoIA devuelve una reserva y no escribe', async () => {
+  it('con sesión de auditor, reservarConsumoIA devuelve una reserva que se puede liberar', async () => {
     const reserva = await reservarConsumoIA('copiloto-presupuesto');
     expect(reserva).not.toBeNull();
     expect(typeof reserva?.liberar).toBe('function');
-    expect(mockWriteData).not.toHaveBeenCalled();
-
-    // Liberar tampoco escribe ni tira error
     await expect(reserva?.liberar()).resolves.not.toThrow();
-    expect(mockWriteData).not.toHaveBeenCalled();
   });
 
   it('con sesión de auditor, anotarFalloIA no escribe en la base', async () => {

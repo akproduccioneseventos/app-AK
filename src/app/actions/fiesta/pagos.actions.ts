@@ -23,7 +23,7 @@ export async function agregarPagoProveedor(
     if (typeof pago?.id !== 'string' || !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
       return { success: false, error: 'La identidad del pago no es válida.' };
     }
-    if (!Number.isFinite(Number(pago.monto)) || Number(pago.monto) < 0) {
+    if (!Number.isFinite(Number(pago.monto)) || Number(pago.monto) <= 0) {
       return { success: false, error: 'El importe del pago no es válido.' };
     }
     let yaEstaba = false;

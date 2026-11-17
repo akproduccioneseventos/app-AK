@@ -737,6 +737,8 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden resetear facturas.' };
+    // El auditor prueba todo menos los borrados masivos (17/11/2026).
+    await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;
     if (dbAdmin) {

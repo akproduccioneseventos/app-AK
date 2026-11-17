@@ -5,7 +5,6 @@ import { MENSAJE_ERROR_AUDITOR } from '@/lib/auth/solo-lectura';
 import { writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { dbAdmin } from '@/lib/firebase/server';
-import { uploadToStorage } from '@/lib/firebase/storage';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { sendGoogleGmailMessage, upsertGoogleCalendarEvent } from '@/lib/google-workspace';
@@ -51,7 +50,7 @@ jest.mock('next/headers', () => ({
   })),
 }));
 
-describe('Orden 276: El auditor mira y no toca', () => {
+describe('El auditor prueba todo y no manda nada afuera (17/11/2026; antes orden 276)', () => {
   const originalSecret = process.env.AK_SESSION_SECRET;
 
   beforeAll(() => {
@@ -80,7 +79,9 @@ describe('Orden 276: El auditor mira y no toca', () => {
     currentCookieToken = undefined;
   });
 
-  it('con sesión de auditor, cada una tira el error del candado y no escribe nada', async () => {
+  // Decisión del dueño, 17/11/2026: el auditor PRUEBA TODO. Guarda en la base y en el almacenamiento como el equipo;
+  // sólo se le frena lo que sale a una persona real (WhatsApp, Gmail, Calendar) o cobra de verdad.
+  it('con sesión de auditor, guarda en la base pero no manda nada afuera', async () => {
     currentCookieToken = await createSignedSessionToken({
       userId: 'usr-auditor-1',
       email: 'auditor@externo.com',
@@ -88,26 +89,11 @@ describe('Orden 276: El auditor mira y no toca', () => {
       perfil: 'auditor',
     });
 
-    // 1. writeData
-    await expect(writeData('salones.json', [])).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
-
-    // 2. mutateGenericJsonArray
-    await expect(mutateGenericJsonArray('salones.json', () => [])).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
-
-    // 3. un set con dbAdmin
-    await expect(
-      dbAdmin.collection('test_col').doc('doc1').set({ prueba: 1 }),
-    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
-
-    // 4. un runTransaction con dbAdmin
-    await expect(
-      dbAdmin.runTransaction(async () => {}),
-    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
-
-    // 5. uploadToStorage
-    await expect(
-      uploadToStorage(Buffer.from('fake'), 'test/doc.pdf', 'application/pdf'),
-    ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
+    // 1 a 4. Guardar ya no lo frena
+    await expect(writeData('salones.json', [])).resolves.not.toThrow();
+    await expect(mutateGenericJsonArray('salones.json', () => [])).resolves.toEqual([]);
+    await expect(dbAdmin.collection('test_col').doc('doc1').set({ prueba: 1 })).resolves.not.toThrow();
+    await expect(dbAdmin.runTransaction(async () => {})).resolves.not.toThrow();
 
     // 6. el envío de WhatsApp
     await expect(
@@ -119,8 +105,7 @@ describe('Orden 276: El auditor mira y no toca', () => {
       }),
     ).rejects.toThrow(MENSAJE_ERROR_AUDITOR);
 
-    // 7. registrarConsumoIA: desde el 13/11/2026 NO tira error con auditor (tumbaba la respuesta del asistente
-    // que ya se había generado, pregunta 133). No anota nada: lo cubre el-auditor-prueba-la-ia-sin-guardar.
+    // 7. registrarConsumoIA no tira error con auditor (pregunta 133); desde el 17/11 anota el gasto.
     await expect(
       registrarConsumoIA('asistente_consulta', 1),
     ).resolves.toBeUndefined();

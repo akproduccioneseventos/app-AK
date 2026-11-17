@@ -51,7 +51,8 @@ export interface AnalyticsKpis {
   tasaConversion: number;
   rentabilidadNeta: number;
   simulatorConversionRate: number;
-  margenBrutoPromedio: number;
+  /** null cuando no hay ningún costo cargado en el período: sin costos no hay margen que mostrar. */
+  margenBrutoPromedio: number | null;
 }
 
 /** Profitability broken down by event type */
@@ -117,11 +118,16 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       monthlyMap.set(key, { ingresos: 0, costos: 0 });
     }
 
+    // Cuántas ventas (facturas o presupuestos aceptados) entraron en los ingresos de los 12 meses: el promedio se
+    // divide por esto. Antes se dividía por las fiestas ya realizadas de toda la historia, y con una sola fiesta pasada
+    // el "promedio" daba el total del año (auditor, 17/11/2026).
+    let ventasEnElPeriodo = 0;
+
     // Revenue from invoices (by issue date)
     invoicesData.filter(isFirmSalesInvoice).forEach(inv => {
       const key = format(parseAnalyticsDate(inv.issueDate), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
-      if (entry) entry.ingresos += inv.totalAmount;
+      if (entry) { entry.ingresos += inv.totalAmount; ventasEnElPeriodo += 1; }
     });
 
     // Revenue from accepted presupuestos not yet invoiced (by event date)
@@ -135,7 +141,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       if (!pres.eventoFecha) return;
       const key = format(parseAnalyticsDate(pres.eventoFecha), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
-      if (entry) entry.ingresos += getBudgetCollectibleTotal(pres);
+      if (entry) { entry.ingresos += getBudgetCollectibleTotal(pres); ventasEnElPeriodo += 1; }
     });
 
     // Costs from fiestas (gestionCostos + pagosProveedores + staff salaries)
@@ -217,8 +223,8 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const rentabilidadNeta = totalRevenue - totalCosts;
 
     const valorPromedioEvento =
-      totalEventosRealizados > 0
-        ? Math.round(totalRevenue / totalEventosRealizados)
+      ventasEnElPeriodo > 0
+        ? Math.round(totalRevenue / ventasEnElPeriodo)
         : 0;
 
     const tasaConversion = total > 0 ? Math.round((aceptados / total) * 100) : 0;
@@ -235,7 +241,8 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     // ─── Gross Margin Average ─────────────────────────────────────────────────
     const margenBrutoPromedio =
-      totalRevenue > 0 ? Math.round(((totalRevenue - totalCosts) / totalRevenue) * 100) : 0;
+      // Sin ningún costo cargado el margen daba 100%: no es un margen, es que faltan los costos (auditor, 17/11/2026).
+      totalRevenue > 0 && totalCosts > 0 ? Math.round(((totalRevenue - totalCosts) / totalRevenue) * 100) : null;
 
     const kpis: AnalyticsKpis = {
       totalEventosRealizados,

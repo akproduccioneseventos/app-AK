@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
-import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 const formatDate = (dateString?: string) => {
@@ -76,7 +76,7 @@ export default function GestorFiestasPage() {
       try {
         const [perms, soloLectura] = await Promise.all([
           getMisPermisos(),
-          esSesionDeSoloLectura(),
+          esSesionDelAuditor(),
         ]);
         const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
         setPuedeBorrar(tieneAdmin && !soloLectura);

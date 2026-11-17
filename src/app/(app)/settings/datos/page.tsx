@@ -23,7 +23,7 @@ import { resetCrm } from '@/app/actions/crm';
 import { resetAllPresupuestos } from '@/app/actions/presupuestos';
 import { resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { resetAppCompleto } from '@/app/actions/admin-reset';
-import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 export default function AdminDatosPage() {
@@ -42,7 +42,7 @@ export default function AdminDatosPage() {
 
   useEffect(() => {
     let montado = true;
-    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+    Promise.all([getMisPermisos(), esSesionDelAuditor()])
       .then(([perms, soloLectura]) => {
         if (!montado) return;
         const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);

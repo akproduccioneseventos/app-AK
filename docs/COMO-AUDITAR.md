@@ -1817,3 +1817,25 @@ Auditoría de aceptación del 17/11/2026: el buzón volvía al inicio con dos fo
 ### 165. Una cantidad de personas o de unidades, ¿acepta sólo enteros, y el total y el "por persona" usan la misma?
 
 Nueva ronda del auditor, 17/11/2026: el simulador aceptaba 2,5 personas y dividía el precio por 3.
+
+### 166. Un importe vacío o en cero, en algo que queda "pagado" o "cobrado", ¿se rechaza o se guarda como cero en silencio?
+
+Auditoría contable del 17/11/2026: un recibo de sueldo "pagado" por $0 y un pago a proveedor de $0 se guardaban sin aviso.
+
+### 167. Un cambio de estado de plata (rechazar, anular, cancelar), ¿mira en qué estado estaba antes?
+
+Auditoría contable del 17/11/2026: con una pantalla vieja se podía rechazar un cobro ya confirmado y el saldo subía.
+
+### 168. Dos contadores de lo mismo en pantallas distintas, ¿dan el mismo número, y el "ver todas" lleva a esas?
+
+Revisión transversal del auditor, 17/11/2026: el panel decía 4 alertas urgentes y el Centro de Alertas tenía 1, de otro tipo.
+
+### 169. Un cartel de "Guardado", ¿aparece sólo después de guardar de verdad?
+
+Revisión transversal del auditor, 17/11/2026: "Crear Nuevo Menú" decía "✓ Guardado" sin haber guardado nada.
+
+### 170. Un número de un tablero, ¿dice qué cuenta y de qué período, y la cuenta usa el mismo período arriba y abajo?
+
+Revisión transversal del auditor, 17/11/2026: el "promedio por evento" dividía los ingresos del año por las fiestas pasadas
+de toda la historia, y el margen sin costos cargados daba 100%.
+

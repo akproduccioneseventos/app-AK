@@ -102,7 +102,7 @@ export default function AnalyticsDashboardPage() {
           isLoading={isLoading}
         />
         <KpiCard
-          title="Valor Promedio Evento"
+          title="Valor Promedio por Venta (12M)"
           value={formatCurrency(data?.kpis.valorPromedioEvento)}
           icon={DollarSign}
           isLoading={isLoading}
@@ -127,7 +127,7 @@ export default function AnalyticsDashboardPage() {
         />
         <KpiCard
           title="Margen Bruto Promedio"
-          value={isLoading ? '...' : `${data?.kpis.margenBrutoPromedio ?? 0}%`}
+          value={isLoading ? '...' : (data?.kpis.margenBrutoPromedio == null ? 'Sin costos cargados' : `${data.kpis.margenBrutoPromedio}%`)}
           icon={BarChart2}
           isLoading={isLoading}
         />

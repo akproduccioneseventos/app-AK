@@ -660,6 +660,26 @@
     "165": {
       "fecha": "2026-11-17",
       "resultado": "Cantidades de personas que aceptan fracciones: los 4 campos del simulador público (arreglados); el presupuesto manual ya pide enteros en la orden 311 bloque 2; el servidor → orden 316 bloque 1b."
+    },
+    "166": {
+      "fecha": "2026-11-17",
+      "resultado": "Importes vacíos en algo pagado: recibos de sueldo y pagos a proveedor (arreglados por Claude). Facturas, cobros y gastos ya rechazaban el cero."
+    },
+    "167": {
+      "fecha": "2026-11-17",
+      "resultado": "Cambios de estado de plata sin mirar el anterior: sólo rejectPagoCliente (arreglado)."
+    },
+    "168": {
+      "fecha": "2026-11-17",
+      "resultado": "Panel vs Centro de Alertas → orden 317 bloque 1; los 'por cobrar' se rotulan en el bloque 2."
+    },
+    "169": {
+      "fecha": "2026-11-17",
+      "resultado": "'Guardado' sin guardar: sólo el formulario de menús (arreglado); el indicador común sólo lo dice con lastSaved."
+    },
+    "170": {
+      "fecha": "2026-11-17",
+      "resultado": "Tableros sin definición: /analytics (cuentas arregladas por Claude) y /admin/finanzas → orden 317 bloque 2."
     }
   },
   "hallazgos": {
@@ -1046,6 +1066,10 @@
     "orden-316": {
       "fecha": "2026-11-17",
       "resultado": "Auditoría de aceptación: cuotas con otra base que el precio (arreglado), buzón que cuenta la cola como envío, RSVP sin marca clara → orden 316."
+    },
+    "orden-317": {
+      "fecha": "2026-11-17",
+      "resultado": "Revisión transversal del auditor + auditoría contable interna: contables arreglados por Claude; alertas y rótulos de tableros → orden 317."
     }
   }
 }
