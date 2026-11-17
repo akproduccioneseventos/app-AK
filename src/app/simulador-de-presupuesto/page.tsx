@@ -861,11 +861,13 @@ function SimuladorContent() {
     );
     const paymentPlan = useMemo(() => calculateSimulatorPaymentPlan({
         currentTotal: stats.totalFinal,
-        projectedTotal: stats.totalProyectado,
-        annualAdjustmentApplies: stats.annualProjection.applies,
+        // Decisión del dueño (03/11/2026, orden 267): el prospecto no ve el ajuste anual. Las cuotas se calculan
+        // sobre el mismo precio que se muestra; el ajuste aparece recién en el portal, con el contrato firmado.
+        projectedTotal: stats.totalFinal,
+        annualAdjustmentApplies: false,
         bookingDepositAmount: configuredBookingDeposit,
         eventDate: eventoFecha,
-    }), [stats.totalFinal, stats.totalProyectado, stats.annualProjection.applies, configuredBookingDeposit, eventoFecha]);
+    }), [stats.totalFinal, configuredBookingDeposit, eventoFecha]);
     const bookingDepositLabel = formatCurrency(configuredBookingDeposit);
 
     const saveProgress = async (includeEventDetails: boolean) => {

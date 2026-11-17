@@ -16472,3 +16472,6 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
 - **14/11/2026 — El portal del cliente ya no se abre con el enlace solo.** Decoración, tablero de ideas, contrato y mesas piden la sesión del equipo o la del portal de esa fiesta; sin ninguna, van a la entrada del portal (`src/lib/portal/el-portal-pide-sesion.ts`). Se hizo aparte y primero porque estaba roto en la app publicada (error 41); prueba `el-portal-del-cliente-pide-sesion`.
 
 - **14/11/2026 — Aprobar o rechazar lo que queda "para tu OK" es sólo del dueño.** La secretaria ya no puede (decisión del dueño). Prueba `aprueba-solo-el-duenio`.
+
+- **17/11/2026 — Las cuotas del simulador suman el precio que se muestra.** Para fechas del año siguiente el plan de pagos
+  se calculaba con el ajuste anual (que el prospecto no ve, orden 267) y no cuadraba con el precio. Ahora usa el mismo total.

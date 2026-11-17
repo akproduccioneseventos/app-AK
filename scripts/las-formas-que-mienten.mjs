@@ -116,6 +116,8 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  163: 'Cuotas con otra base que el precio: e2e el-simulador-no-muestra-el-ajuste (orden 316 bloque 1).',
+  164: 'Cola local contada como envío: prueba del buzón de la orden 316 bloque 2.',
   160: 'Botones sin cartel de éxito o error: pruebas de navegador de la orden 315 (foto, buzón, RSVP).',
   161: 'Capa que se queda con el clic: regla del recorrido de la orden 313.',
   162: 'Enlace de prueba a un dato que no existe: comprobar de la orden 315 (sin inv_1 en la consola).',

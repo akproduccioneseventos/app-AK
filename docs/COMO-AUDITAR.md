@@ -1804,3 +1804,12 @@ Auditoría funcional del 17/11/2026: las restricciones alimentarias del RSVP no 
 ### 162. Un enlace de muestra o de prueba, ¿apunta a un dato que existe?
 
 Auditoría funcional del 17/11/2026: la consola de auditoría llevaba a un invitado `inv_1` que no existe.
+
+### 163. Un plan de cuotas en pantalla, ¿suma lo mismo que el precio que se muestra al lado?
+
+Auditoría de aceptación del 17/11/2026: el simulador mostraba $92.675 y cuotas por $106.576, con el ajuste anual que el
+prospecto no ve.
+
+### 164. Lo que queda guardado en el teléfono para mandar después, ¿se muestra como pendiente y no como enviado?
+
+Auditoría de aceptación del 17/11/2026: el buzón volvía al inicio con dos fotos en la cola local y el receptor en cero.
