@@ -73,3 +73,33 @@ describe('El tablero ejecutivo no inventa promedio ni margen', () => {
     expect(fuente).toMatch(/totalCosts > 0 \? Math\.round/);
   });
 });
+
+describe('Un cobro no pasa el total ni por un peso', () => {
+  it('$1.201 sobre un presupuesto de $1.200 se rechaza; $1.200 entra', () => {
+    const { validatePaymentAgainstBudget } = require('@/lib/budget/financial-guardrails');
+    const presupuesto = {
+      id: 'p1', totalConDescuento: 1200, costoTotalEstimado: 1200, pagosCliente: [],
+      itemsPresupuestados: [], estado: 'Aceptado',
+    } as any;
+    expect(validatePaymentAgainstBudget(presupuesto, 1201).ok).toBe(false);
+    expect(validatePaymentAgainstBudget(presupuesto, 1200).ok).toBe(true);
+  });
+});
+
+describe('Una factura no nace pagada sin cobros', () => {
+  it('pagada exige al menos un cobro, y una pagada sin cobros puede volver atrás', () => {
+    const fuente = leer('src/app/actions/invoices.ts');
+    expect(fuente).toMatch(/totalAmount > 0 && totalPaid > 0 && totalPaid >= totalAmount/);
+    expect(fuente).toMatch(/if \(totalPaid > 0 && totalPaid >= roundInvoiceMoney/);
+    expect(fuente).toMatch(/facturaActual\.status === 'Paid' && \(facturaActual\.payments \?\? \[\]\)\.length > 0/);
+  });
+});
+
+describe('Subir un archivo privado no depende de firmar direcciones', () => {
+  it('uploadToStorage devuelve una dirección con ficha de descarga, no una firmada', () => {
+    const fuente = leer('src/lib/firebase/storage.ts');
+    const cuerpo = fuente.slice(fuente.indexOf('export async function uploadToStorage('), fuente.indexOf('export async function uploadToStorageWithDownloadToken('));
+    expect(cuerpo).toMatch(/firebaseStorageDownloadTokens: fichaDeDescarga/);
+    expect(cuerpo).not.toMatch(/getSignedUrl\(/);
+  });
+});

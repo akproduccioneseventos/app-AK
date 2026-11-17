@@ -8,7 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 
-const PATRON_MOJIBAKE = /Ã[¡©\u00ad³º±\t ]|Â[¿¡«»°]|â€[™œ<\s]|â”[€‚Œ]/;
+// Emojis y flechas rotas (â†’, âš ï¸, âš¡, â­, âÅ“…): pasaron sin control al simulador público hasta el 17/11/2026.
+const PATRON_MOJIBAKE = /Ã[¡©\u00ad³º±\t ]|Â[¿¡«»°]|â€[™œ<\s]|â”[€‚Œ]|â[\u0161\u2020\u00ad\u009d]|âÅ|ï¸/;
 
 const ARCHIVOS_PERMITIDOS = new Set([
   'src/__tests__/acentos-rotos.test.ts',

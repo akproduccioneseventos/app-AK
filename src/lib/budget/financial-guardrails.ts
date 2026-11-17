@@ -312,7 +312,9 @@ export function validatePaymentAgainstBudget(
     };
   }
 
-  if (!options.allowOverpay && totalReservedAfterPayment > total + MONEY_TOLERANCE) {
+  // Los importes ya están redondeados a pesos enteros: no hay centavos que tolerar. Con el margen de $1 entraba un pago
+  // de $1.201 sobre $1.200 y cada pantalla contaba otra historia (auditor, pruebas funcionales 17/11/2026).
+  if (!options.allowOverpay && totalReservedAfterPayment > total) {
     return {
       ok: false,
       error: `El pago supera el saldo pendiente. Saldo: $${remainingBeforePayment.toLocaleString('es-UY')}.`,
@@ -425,7 +427,7 @@ export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): F
     });
   }
 
-  if (financials.confirmedPaid > paymentSummary.total + MONEY_TOLERANCE) {
+  if (financials.confirmedPaid > paymentSummary.total) {
     issues.push({
       field: 'pagosCliente',
       message: 'Los pagos confirmados superan el total del presupuesto.',
