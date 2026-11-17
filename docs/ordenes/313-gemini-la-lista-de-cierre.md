@@ -42,6 +42,12 @@ Cada falla se anota con pantalla, tamaño y qué elemento.
 - No esconder con `overflow-hidden` ni achicar letras para que pase: se arregla el diseño.
 - No agregar pantallas a una lista de "conocidas" para que el número baje.
 
+## Barrido en toda la app
+
+Hecho por Claude el 17/11: hoy el recorrido abre las 382 pantallas sólo a 1280 px y sólo mira que abran; ninguna prueba
+mide contraste ni texto palabra por palabra en toda la app. Las formas del informe (preguntas 157 a 159) ya están barridas
+en la orden 312. Esta orden es el control que las mira solo.
+
 ## Qué tiene que comprobar la prueba
 
 `src/__tests__/la-lista-de-cierre-ve-lo-que-ve-el-auditor.test.ts` con páginas de muestra en HTML: una con un botón que se

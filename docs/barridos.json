@@ -1010,6 +1010,10 @@
     "orden-312": {
       "fecha": "2026-11-17",
       "resultado": "Auditoría responsive y del simulador: símbolos rotos, simulador IA en celular, textos ilegibles, cabeceras, reloj, fecha de Eventos → orden 312."
+    },
+    "orden-313": {
+      "fecha": "2026-11-17",
+      "resultado": "La lista de cierre: el recorrido de las 382 pantallas mira en tres tamaños desborde, texto palabra por palabra, contraste y símbolos rotos → orden 313."
     }
   }
 }
