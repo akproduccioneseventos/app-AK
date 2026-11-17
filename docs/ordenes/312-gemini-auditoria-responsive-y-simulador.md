@@ -6,9 +6,9 @@ tocada lleva su prueba de navegador a **320, 390 y 820 px** que mire que no haya
 
 ## Bloque 1 — Símbolos rotos en el simulador (S01) y el control que no los vio
 
-- `src/app/simulador-de-presupuesto/page.tsx` líneas ~2453, ~2489 y ~2526: `â­ RECOMENDADO PRO` → sacá el `â­`
-  (ya hay ícono `Sparkles` al lado). Buscá en los cinco pasos cualquier otro `â` / `Ã` suelto.
-- **Matafuego:** `npm run check:acentos` dio "bien" con esto adentro. Sumale el patrón `â[\u0080-¿€­]` (estrella y
+- `src/app/simulador-de-presupuesto/page.tsx` líneas ~2453, ~2489 y ~2526: la estrella rota delante de `RECOMENDADO PRO` → sacala
+  (ya hay ícono `Sparkles` al lado). Buscá en los cinco pasos cualquier otro símbolo roto.
+- **Matafuego:** `npm run check:acentos` dio "bien" con esto adentro. Sumale el patrón de la estrella y
   comillas rotas) y comprobá que frena poniendo uno a propósito.
 
 ## Bloque 2 — El simulador con IA en el celular (R01)
@@ -45,12 +45,12 @@ corre un día. Las dos partes de la tarjeta salen de la misma fecha local (`pars
 ## Barrido en toda la app
 
 Hecho por Claude el 17/11:
-- Símbolos `â­`: 3 lugares, todos en el simulador → bloque 1. `check:acentos` no los veía.
+- Estrella rota: 3 lugares, todos en el simulador → bloque 1. `check:acentos` no los veía.
 - Cabeceras con título y botones en la misma fila sin apilar: las 7 pantallas del informe → bloque 4 (componente común).
 - Fechas `YYYY-MM-DD` por `new Date()` en tarjetas: ya es la pregunta 70; nuevo caso en Eventos → bloque 6.
 - El D02 (la DEMO incoherente) ya está en la orden 310 bloque 2 y la 311 bloque 8: no se repite acá.
 
 ```comprobar
-no-usa: â­ en src/app/simulador-de-presupuesto/page.tsx
+usa: Sparkles en src/app/simulador-de-presupuesto/page.tsx
 usa: updateTimer en src/app/simulador-de-presupuesto/page.tsx
 ```

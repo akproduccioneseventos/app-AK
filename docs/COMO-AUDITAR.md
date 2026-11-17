@@ -1781,9 +1781,9 @@ Nuevo escaneo del 16/11/2026: Mi Día mostraba las corridas tres horas adelantad
 
 Nuevo escaneo del 16/11/2026: "Política de Señas y Reservas" abría Promociones.
 
-### 157. ¿Hay símbolos rotos (â­, â€, Ã) que el control de acentos no ve?
+### 157. ¿Hay símbolos rotos (estrellas o comillas mal guardadas) que el control de acentos no ve?
 
-Auditoría del 17/11/2026: "â­ RECOMENDADO PRO" en el simulador, con `check:acentos` en verde.
+Auditoría del 17/11/2026: "RECOMENDADO PRO" con una estrella rota en el simulador, con `check:acentos` en verde.
 
 ### 158. Una cabecera con título largo y botones, ¿apila a lo angosto o aplasta el título?
 
