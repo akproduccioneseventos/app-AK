@@ -16,7 +16,7 @@ export interface FallaVisual {
   detalle: string;
 }
 
-const SIMBOLOS_ROTOS_RE = /(?:Ã[\u0080-\u00BF]|â[\u0080-\u00BF]{1,2}|ï¿½|★\s*RECOMENDADO|â˜…|â€œ|â€|Â¿|Â¡)/;
+const SIMBOLOS_ROTOS_RE = /(?:\u00C3[\u0080-\u00BF]|\u00E2[\u0080-\u00BF]{1,2}|\uFFFD|\u2605\s*RECOMENDADO|\u00E2\u02DC\u2026|\u00E2\u20AC\u0153|\u00C2\u00BF|\u00C2\u00A1)/;
 
 export function parseRgbColor(colorStr: string): [number, number, number, number] | null {
   const m = colorStr.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)/i);
