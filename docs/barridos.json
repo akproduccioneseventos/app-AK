@@ -624,6 +624,18 @@
     "156": {
       "fecha": "2026-11-16",
       "resultado": "Un acceso del menú que abre otra pantalla de la que nombra: Señas → promos → orden 311 bloque 5."
+    },
+    "157": {
+      "fecha": "2026-11-17",
+      "resultado": "Símbolos rotos que check:acentos no veía (estrella rota): 3 en el simulador → orden 312 bloque 1."
+    },
+    "158": {
+      "fecha": "2026-11-17",
+      "resultado": "Cabeceras con título y botones en una fila que no apila a lo angosto: 7 pantallas → orden 312 bloque 4."
+    },
+    "159": {
+      "fecha": "2026-11-17",
+      "resultado": "Un reloj o contador que se ve pero no corre: el del simulador → orden 312 bloque 5."
     }
   },
   "hallazgos": {
@@ -994,6 +1006,10 @@
     "orden-311": {
       "fecha": "2026-11-16",
       "resultado": "Nuevo escaneo del auditor: datos personales en el repositorio, -1 adultos, horas de Mi Día, guías, Señas, conteos, Video de Vida, DEMO → orden 311."
+    },
+    "orden-312": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría responsive y del simulador: símbolos rotos, simulador IA en celular, textos ilegibles, cabeceras, reloj, fecha de Eventos → orden 312."
     }
   }
 }

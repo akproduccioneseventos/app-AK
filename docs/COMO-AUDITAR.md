@@ -1780,3 +1780,15 @@ Nuevo escaneo del 16/11/2026: Mi Día mostraba las corridas tres horas adelantad
 ### 156. Un acceso del menú, ¿abre la pantalla que nombra?
 
 Nuevo escaneo del 16/11/2026: "Política de Señas y Reservas" abría Promociones.
+
+### 157. ¿Hay símbolos rotos (estrellas o comillas mal guardadas) que el control de acentos no ve?
+
+Auditoría del 17/11/2026: "RECOMENDADO PRO" con una estrella rota en el simulador, con `check:acentos` en verde.
+
+### 158. Una cabecera con título largo y botones, ¿apila a lo angosto o aplasta el título?
+
+Auditoría del 17/11/2026: siete pantallas con el título partido palabra por palabra en celular o tablet.
+
+### 159. Un reloj o contador en pantalla, ¿corre de verdad y qué muestra al llegar a cero?
+
+Auditoría del 17/11/2026: el reloj del simulador seguía en 15:00 pasados 15 minutos.

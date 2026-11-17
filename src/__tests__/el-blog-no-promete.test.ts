@@ -235,7 +235,7 @@ describe('Bloque 6 (Orden 96) — El blog tampoco promete', () => {
       };
     };
 
-    const resultado = await generateBlogPostAndSocialDraft();
+    const resultado = await generateBlogPostAndSocialDraft({ tipo: 'consejo' });
     expect(resultado).toBeDefined();
     expect(resultado.post.fuentes).toBeUndefined();
     expect(mockWriteData).toHaveBeenCalled();
@@ -274,7 +274,7 @@ describe('Bloque 6 (Orden 96) — El blog tampoco promete', () => {
       };
     };
 
-    await expect(generateBlogPostAndSocialDraft()).rejects.toThrow(/seguras para interiores/i);
+    await expect(generateBlogPostAndSocialDraft({ tipo: 'consejo' })).rejects.toThrow(/seguras para interiores/i);
     expect(mockWriteData).not.toHaveBeenCalled();
   });
 });
