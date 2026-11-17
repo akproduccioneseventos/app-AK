@@ -1813,3 +1813,7 @@ prospecto no ve.
 ### 164. Lo que queda guardado en el teléfono para mandar después, ¿se muestra como pendiente y no como enviado?
 
 Auditoría de aceptación del 17/11/2026: el buzón volvía al inicio con dos fotos en la cola local y el receptor en cero.
+
+### 165. Una cantidad de personas o de unidades, ¿acepta sólo enteros, y el total y el "por persona" usan la misma?
+
+Nueva ronda del auditor, 17/11/2026: el simulador aceptaba 2,5 personas y dividía el precio por 3.

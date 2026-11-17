@@ -2345,12 +2345,12 @@ function SimuladorContent() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <Label>Adultos</Label>
-                                        <Input type="number" min={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Number(e.target.value))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
+                                        <Input type="number" min={1} step={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Math.floor(Number(e.target.value) || 0))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
                                         {fieldErrors.adultos && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Indicá al menos 1 adulto.</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Niños y adolescentes</Label>
-                                        <Input type="number" min={0} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Number(e.target.value)))} className="h-12 rounded-md bg-white text-slate-900" />
+                                        <Input type="number" min={0} step={1} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Math.floor(Number(e.target.value) || 0)))} className="h-12 rounded-md bg-white text-slate-900" />
                                     </div>
                                 </div>
                             </div>
@@ -2682,7 +2682,7 @@ function SimuladorContent() {
                                             type="number"
                                             min={1}
                                             value={adultos || ''}
-                                            onChange={e => setAdultos(Math.max(1, Number(e.target.value) || 0))}
+                                            onChange={e => setAdultos(Math.max(1, Math.floor(Number(e.target.value) || 0)))}
                                             className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>
@@ -2692,7 +2692,7 @@ function SimuladorContent() {
                                             type="number"
                                             min={0}
                                             value={ninosYAdolescentes || ''}
-                                            onChange={e => setNinosYAdolescentes(Math.max(0, Number(e.target.value) || 0))}
+                                            onChange={e => setNinosYAdolescentes(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
                                             className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>

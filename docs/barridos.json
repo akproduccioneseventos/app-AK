@@ -656,6 +656,10 @@
     "164": {
       "fecha": "2026-11-17",
       "resultado": "Algo guardado en el teléfono contado como enviado: sólo el buzón → orden 316 bloque 2."
+    },
+    "165": {
+      "fecha": "2026-11-17",
+      "resultado": "Cantidades de personas que aceptan fracciones: los 4 campos del simulador público (arreglados); el presupuesto manual ya pide enteros en la orden 311 bloque 2; el servidor → orden 316 bloque 1b."
     }
   },
   "hallazgos": {

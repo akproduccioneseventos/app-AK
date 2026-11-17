@@ -13,6 +13,13 @@ precio que se muestra (`calculateSimulatorPaymentPlan` en `src/app/simulador-de-
 viene, seña + cuotas = precio vigente que se ve en pantalla. Y revisá que el PDF del simulador
 (`src/lib/budget/simulator-budget-pdf.ts`) diga los mismos números que la pantalla.
 
+## Bloque 1b — Personas enteras (nueva ronda, 10:16) — YA ARREGLADO POR CLAUDE
+
+El simulador aceptaba 2,5 personas y calculaba servicios con la fracción, mientras el valor por persona dividía por 3.
+Claude dejó los cuatro campos de adultos y niños en enteros (`Math.floor`, `step={1}`). **Lo que queda para vos:** que el
+servidor también rechace cantidades no enteras o negativas al guardar el presupuesto público y el manual
+(`src/app/actions/presupuestos.ts`), con su prueba: 2,5 no se guarda; 50 sí.
+
 ## Bloque 2 — Buzón: guardado en el teléfono no es "recibido" (C8)
 
 Ampliá el bloque 2 de la orden 315: el buzón guarda en una cola del teléfono (`ak_offline_media_storage`, almacén
@@ -37,5 +44,6 @@ lo usaba así (arreglado). El presupuesto manual y el portal usan el total del p
 propósito, con contrato firmado). **Cola local contada como envío:** sólo el buzón (bloque 2).
 
 ```comprobar
+usa: Math.floor(Number(e.target.value) en src/app/simulador-de-presupuesto/page.tsx
 usa: annualAdjustmentApplies: false en src/app/simulador-de-presupuesto/page.tsx
 ```

@@ -16475,3 +16475,4 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
 
 - **17/11/2026 — Las cuotas del simulador suman el precio que se muestra.** Para fechas del año siguiente el plan de pagos
   se calculaba con el ajuste anual (que el prospecto no ve, orden 267) y no cuadraba con el precio. Ahora usa el mismo total.
+- **17/11/2026 — El simulador sólo acepta personas enteras.** Aceptaba 2,5 invitados y calculaba con la fracción.
