@@ -10,6 +10,9 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
+  prospecto→presupuesto con teléfono, enlace apagado, agenda del CRM y más. **Bloque 0 en la computadora del dueño:** el permiso
+  de Google para firmar archivos y borrar los datos PRUEBA del auditor (ids en la orden). En la misma propuesta, al final.
 - **Nuevo: orden 317** (revisión transversal del auditor, 17/11): alertas del panel y del centro, rótulos de los tableros y
   cuentas de prueba por perfil para el auditor. Lo contable ya lo arregló Claude. En la misma propuesta, al final.
 - **El auditor ahora guarda en toda la app** (decisión del dueño, 17/11): si una prueba tuya contaba con que el auditor no

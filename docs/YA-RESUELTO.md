@@ -16489,6 +16489,8 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
   Contactos, publicar en redes, abrir un cobro de Mercado Pago (`exigirQueNoSalgaAfuera`), los borrados masivos y restaurar
   respaldos (`exigirQueNoBorreTodo`), bajar el respaldo completo y firmar el contrato como el cliente. Su gasto de IA ahora
   cuenta para el tope. Pruebas `el-auditor-mira-y-no-toca` y `el-auditor-prueba-la-ia-sin-guardar`, actualizadas.
+- **17/11/2026 — La franja del auditor ya no dice "sólo mirar"**: dice que prueba todo sin mandar nada a clientes (el
+  informe de rutas de la tarde todavía la vio con el texto viejo).
 - **17/11/2026 — El auditor no maneja usuarios, permisos, claves ni accesos** (crear, cambiar módulos, borrar, resetear
   clave, abrir o cerrar el acceso de auditor): si pudiera crearse una cuenta propia, seguiría entrando después de cerrarle el
   acceso. Prueba `el-auditor-no-toca-usuarios`.
@@ -16504,6 +16506,18 @@ prueba: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts
 
 ```comprobar
 prueba: src/__tests__/el-auditor-no-toca-usuarios.test.ts
+```
+
+- **17/11/2026 — Pruebas funcionales del auditor, lo de plata.** Un cobro de $1 de más ya no entra (en pesos no hay margen); una
+  factura sin cobros no nace "Pagada", y si quedó así puede volver atrás y borrarse; la ganancia de la fiesta ya no cuenta el
+  precio de venta copiado del presupuesto como costo (sólo lo pagado a proveedores en ese renglón). Subir un documento privado
+  no depende más de firmar direcciones (usa ficha de descarga, que además no vence a la semana). Caracteres rotos del simulador
+  y de Ajustes → IA, y el control de acentos ahora agarra flechas y emojis rotos (probado rompiéndolo). El resto → orden 318.
+
+```comprobar
+usa: esPrecioDeVentaCopiado en src/lib/costos/ganancia-evento.ts
+usa: firebaseStorageDownloadTokens: fichaDeDescarga en src/lib/firebase/storage.ts
+usa: totalAmount > 0 && totalPaid > 0 en src/app/actions/invoices.ts
 ```
 
 ## 16/11/2026 - Orden 310 (Bloques 2, 4, 5, 6, 7 y 8)

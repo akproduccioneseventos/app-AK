@@ -299,7 +299,9 @@ async function saveInvoiceInner(
           }
         }
       }
-      if (facturaActual.status === 'Paid' && dataToUpdate.status && dataToUpdate.status !== 'Paid') {
+      // Una factura "Pagada" sin ningún cobro anotado (las que nacían así por el margen de redondeo) sí puede volver a
+      // otro estado, y después borrarse: no hay plata que se pierda. Con cobros, sigue cerrada.
+      if (facturaActual.status === 'Paid' && (facturaActual.payments ?? []).length > 0 && dataToUpdate.status && dataToUpdate.status !== 'Paid') {
         return { success: false, error: 'Una factura pagada no puede volver a otro estado. Registrá una nota de crédito o un ajuste.' };
       }
 
@@ -381,7 +383,9 @@ async function saveInvoiceInner(
         totalAmount,
         currency,
         payments,
-        status: totalAmount > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
+        // Sin ningún cobro no hay factura pagada: con el margen de redondeo, una factura de $1 nacía "Pagada" con $0
+        // cobrado y quedaba atrapada (auditor, pruebas funcionales 17/11/2026).
+        status: totalAmount > 0 && totalPaid > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
           ? 'Paid'
           : invoiceDataInput.status,
         sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId,
@@ -773,7 +777,7 @@ function estadoAlSacarElPago(actual: Invoice, restantes: Payment[], estadoAntes:
 
 function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status'] {
   const totalPaid = pagos.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
-  if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
+  if (totalPaid > 0 && totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
     return 'Paid';
   }
   if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {

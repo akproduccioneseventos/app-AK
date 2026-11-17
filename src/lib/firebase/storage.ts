@@ -60,9 +60,16 @@ export async function uploadToStorage(
 
   try {
     const file = bucket.file(storagePath);
+    // Los archivos privados se devuelven con una ficha de descarga propia (dirección imposible de adivinar), igual que
+    // `uploadToStorageWithDownloadToken`. Antes se firmaba la dirección por 7 días: en el servidor publicado eso pide un
+    // permiso de Google que no está ("iam.serviceAccounts.signBlob denied"), el archivo quedaba subido y la pantalla
+    // decía "Error al subir" (auditor, pruebas funcionales 17/11/2026); y además la dirección vencía a la semana.
+    const fichaDeDescarga = isPublic ? undefined : randomUUID();
 
     await file.save(buffer, {
-      metadata: { contentType },
+      metadata: fichaDeDescarga
+        ? { contentType, metadata: { firebaseStorageDownloadTokens: fichaDeDescarga } }
+        : { contentType },
       resumable: false,
     });
 
@@ -77,12 +84,7 @@ export async function uploadToStorage(
       return `https://storage.googleapis.com/${STORAGE_BUCKET}/${storagePath}`;
     }
 
-    // Return a signed URL valid for 7 days
-    const [signedUrl] = await file.getSignedUrl({
-      action: 'read',
-      expires: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRY_MS),
-    });
-    return signedUrl;
+    return `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(STORAGE_BUCKET)}/o/${encodeURIComponent(storagePath)}?alt=media&token=${fichaDeDescarga}`;
   } catch (error: any) {
     // Si el almacenamiento falla, se avisa: guardar la foto adentro del registro como texto
     // la haria pasar por subida sin estarlo, y la base rechaza registros tan grandes.

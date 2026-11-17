@@ -680,6 +680,26 @@
     "170": {
       "fecha": "2026-11-17",
       "resultado": "Tableros sin definición: /analytics (cuentas arregladas por Claude) y /admin/finanzas → orden 317 bloque 2."
+    },
+    "171": {
+      "fecha": "2026-11-17",
+      "resultado": "Márgenes de redondeo en controles de plata: presupuestos y facturas (arreglados, sin margen en pesos)."
+    },
+    "172": {
+      "fecha": "2026-11-17",
+      "resultado": "Estados de plata con cero cobrado: alta de factura y estadoTrasElPago (arreglados)."
+    },
+    "173": {
+      "fecha": "2026-11-17",
+      "resultado": "Precio de venta como costo: syncCostosFromBudget contado en ganancia-evento.ts (arreglado en la cuenta única)."
+    },
+    "174": {
+      "fecha": "2026-11-17",
+      "resultado": "Hora sacada de la fecha: recibo-contrato y ver del presupuesto → orden 318 bloque 1."
+    },
+    "175": {
+      "fecha": "2026-11-17",
+      "resultado": "Formularios de modificar vacíos: RSVP → orden 318 bloque 2; el resto carga lo guardado."
     }
   },
   "hallazgos": {
@@ -1070,6 +1090,10 @@
     "orden-317": {
       "fecha": "2026-11-17",
       "resultado": "Revisión transversal del auditor + auditoría contable interna: contables arreglados por Claude; alertas y rótulos de tableros → orden 317."
+    },
+    "orden-318": {
+      "fecha": "2026-11-17",
+      "resultado": "Pruebas funcionales del auditor: plata, subida y textos rotos arreglados por Claude; el resto → orden 318."
     }
   }
 }

@@ -102,7 +102,13 @@ export function calcularGananciaDeEvento(
   personalAsignado?: any[] | { personalAsignado?: any[]; roles?: any[] } | null,
   roles?: any[] | null,
 ): GananciaDeEvento {
-  const items = (gestionCostos?.costosItems ?? []).filter((item) => item.id !== MERMA_DUPLICADA);
+  // Los renglones que se copian del presupuesto (`sync_budget_*`, `syncCostosFromBudget`) llevan el PRECIO DE VENTA de
+  // cada servicio, no lo que le cuesta a AK. Contarlos como costo daba siempre "ganancia = − descuento" (auditor, pruebas
+  // funcionales 17/11/2026: ingreso $1.200, inversión $1.500). Se listan para que se les cargue el costo, pero como costo
+  // cuenta sólo lo que se le pagó al proveedor en ese renglón.
+  const items = (gestionCostos?.costosItems ?? [])
+    .filter((item) => item.id !== MERMA_DUPLICADA)
+    .map((item) => (esPrecioDeVentaCopiado(item.id) ? { ...item, montoEstimado: 0 } : item));
   const pagos = pagosProveedores ?? [];
   const others = gestionCostos?.others;
 
@@ -235,4 +241,9 @@ export function calcularGananciaDeEvento(
     recargosCobrados,
     cobrosSinComisionInformada,
   };
+}
+
+/** Renglón copiado del presupuesto: su monto es el precio de venta, no un costo. */
+export function esPrecioDeVentaCopiado(id: string | undefined): boolean {
+  return String(id || '').startsWith('sync_budget_');
 }

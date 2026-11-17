@@ -119,7 +119,7 @@ export default function AiAssistantSettingsPage() {
     if (skipped.length > 0) {
       const plural = skipped.length > 1;
       toast({
-        title: 'âÅ¡ ï¸ Archivos no leídos automáticamente',
+        title: '⚠️ Archivos no leídos automáticamente',
         description: plural
           ? `Estos archivos no fueron leídos automáticamente: ${skipped.join(', ')}. Pegá el texto o subí versión TXT.`
           : `${skipped[0]}: Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.`,
@@ -141,16 +141,16 @@ export default function AiAssistantSettingsPage() {
       const result = await testGeminiConnection();
       if (result.ok) {
         setApiStatus('ok');
-        toast({ title: 'âÅ“… Conexión exitosa', description: 'La API de Gemini está funcionando correctamente.' });
+        toast({ title: '✅ Conexión exitosa', description: 'La API de Gemini está funcionando correctamente.' });
       } else {
         setApiStatus('error');
         setApiError(result.error || 'Error desconocido');
-        toast({ title: 'âÅ’ Error de conexión', description: result.error || 'No se pudo conectar a Gemini.', variant: 'destructive' });
+        toast({ title: '❌ Error de conexión', description: result.error || 'No se pudo conectar a Gemini.', variant: 'destructive' });
       }
     } catch {
       setApiStatus('error');
       setApiError('No se pudo contactar al servidor.');
-      toast({ title: 'âÅ’ Error', description: 'No se pudo probar la conexión.', variant: 'destructive' });
+      toast({ title: '❌ Error', description: 'No se pudo probar la conexión.', variant: 'destructive' });
     } finally {
       setIsTesting(false);
     }
@@ -225,10 +225,10 @@ export default function AiAssistantSettingsPage() {
           </CardTitle>
           <CardDescription>
             {apiStatus === 'ok' && (
-              <span className="text-green-700 font-medium">âÅ“… Conectada — La API de Gemini está funcionando correctamente.</span>
+              <span className="text-green-700 font-medium">✅ Conectada — La API de Gemini está funcionando correctamente.</span>
             )}
             {apiStatus === 'error' && (
-              <span className="text-red-700 font-medium">âÅ’ Sin conexión — El Asistente AK no puede funcionar sin esta API.</span>
+              <span className="text-red-700 font-medium">❌ Sin conexión — El Asistente AK no puede funcionar sin esta API.</span>
             )}
             {apiStatus === 'unknown' && (
               <span className="text-slate-500">Verificá si la API key de Gemini está configurada y es válida.</span>
