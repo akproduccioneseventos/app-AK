@@ -4,7 +4,7 @@ describe('invoice money', () => {
   it('rounds Uruguayan pesos to whole units', () => {
     expect(roundInvoiceMoney(100.49, 'UYU')).toBe(100);
     expect(roundInvoiceMoney(100.5, 'UYU')).toBe(101);
-    expect(invoiceMoneyTolerance('UYU')).toBe(1);
+    expect(invoiceMoneyTolerance('UYU')).toBe(0); // pesos enteros: sin margen (17/11/2026)
   });
 
   it('keeps cents and a cent-sized tolerance for foreign currencies', () => {

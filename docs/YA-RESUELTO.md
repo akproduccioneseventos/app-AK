@@ -16507,3 +16507,16 @@ prueba: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts
 ```comprobar
 prueba: src/__tests__/el-auditor-no-toca-usuarios.test.ts
 ```
+
+- **17/11/2026 — Pruebas funcionales del auditor, lo de plata.** Un cobro de $1 de más ya no entra (en pesos no hay margen); una
+  factura sin cobros no nace "Pagada", y si quedó así puede volver atrás y borrarse; la ganancia de la fiesta ya no cuenta el
+  precio de venta copiado del presupuesto como costo (sólo lo pagado a proveedores en ese renglón). Subir un documento privado
+  no depende más de firmar direcciones (usa ficha de descarga, que además no vence a la semana). Caracteres rotos del simulador
+  y de Ajustes → IA, y el control de acentos ahora agarra flechas y emojis rotos (probado rompiéndolo). El resto → orden 318.
+
+```comprobar
+usa: esPrecioDeVentaCopiado en src/lib/costos/ganancia-evento.ts
+usa: firebaseStorageDownloadTokens: fichaDeDescarga en src/lib/firebase/storage.ts
+usa: totalAmount > 0 && totalPaid > 0 en src/app/actions/invoices.ts
+```
+
