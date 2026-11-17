@@ -116,6 +116,9 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  160: 'Botones sin cartel de éxito o error: pruebas de navegador de la orden 315 (foto, buzón, RSVP).',
+  161: 'Capa que se queda con el clic: regla del recorrido de la orden 313.',
+  162: 'Enlace de prueba a un dato que no existe: comprobar de la orden 315 (sin inv_1 en la consola).',
   157: 'Símbolos rotos: check:acentos con el patrón nuevo (orden 312 bloque 1).',
   158: 'Cabeceras que no apilan: pruebas de navegador a 320/390/820 (orden 312 bloque 4).',
   159: 'Reloj que no corre: prueba con reloj falso del simulador (orden 312 bloque 5).',

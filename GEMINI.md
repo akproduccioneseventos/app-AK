@@ -10,6 +10,7 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **Nuevo: orden 315** (auditoría funcional de botones, 17/11): en la misma propuesta, al final.
 - **Nuevo: orden 314** (el simulador vende primero el valor, aprobada por el dueño): en la misma propuesta, después de la 312.
 - **REGLA NUEVA (17/11, pedido del dueño): primero se terminan las órdenes abiertas, completas y de a una.** Orden de hoy:
   **313 primero** (la lista de cierre: el recorrido mira las pantallas en tres tamaños como el auditor), después la 310

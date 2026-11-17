@@ -1792,3 +1792,15 @@ Auditoría del 17/11/2026: siete pantallas con el título partido palabra por pa
 ### 159. Un reloj o contador en pantalla, ¿corre de verdad y qué muestra al llegar a cero?
 
 Auditoría del 17/11/2026: el reloj del simulador seguía en 15:00 pasados 15 minutos.
+
+### 160. Un botón que envía algo, ¿termina siempre en un cartel de éxito o con el motivo del error?
+
+Auditoría funcional del 17/11/2026: "Publicar" foto, "Enviar recuerdo" y "Confirmar asistencia" no decían nada.
+
+### 161. Un botón o una opción visible, ¿recibe el clic, o hay algo encima?
+
+Auditoría funcional del 17/11/2026: las restricciones alimentarias del RSVP no se podían elegir.
+
+### 162. Un enlace de muestra o de prueba, ¿apunta a un dato que existe?
+
+Auditoría funcional del 17/11/2026: la consola de auditoría llevaba a un invitado `inv_1` que no existe.

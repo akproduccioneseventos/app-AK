@@ -636,6 +636,18 @@
     "159": {
       "fecha": "2026-11-17",
       "resultado": "Un reloj o contador que se ve pero no corre: el del simulador → orden 312 bloque 5."
+    },
+    "160": {
+      "fecha": "2026-11-17",
+      "resultado": "Botones de pantallas del invitado que envían sin cartel de éxito o error: 3 confirmados (foto del muro, buzón, RSVP); barrido de evento, invitación, i y portal → orden 315."
+    },
+    "161": {
+      "fecha": "2026-11-17",
+      "resultado": "Una capa encima que se queda con el clic: el RSVP; regla sumada al recorrido de la 313 → orden 315 bloque 3."
+    },
+    "162": {
+      "fecha": "2026-11-17",
+      "resultado": "Un enlace de prueba escrito a mano a un dato que no existe: la consola de auditoría → orden 315 bloque 4."
     }
   },
   "hallazgos": {
@@ -1014,6 +1026,10 @@
     "orden-313": {
       "fecha": "2026-11-17",
       "resultado": "La lista de cierre: el recorrido de las 382 pantallas mira en tres tamaños desborde, texto palabra por palabra, contraste y símbolos rotos → orden 313."
+    },
+    "orden-315": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría funcional de botones: foto del muro, buzón, RSVP, enlace de invitado y presentación LED → orden 315."
     }
   }
 }
