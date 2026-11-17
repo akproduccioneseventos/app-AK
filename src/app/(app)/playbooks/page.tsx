@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, CheckCircle2, FileText, ShoppingCart, Layers, Play, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { getPlaybooks, applyPlaybookToFiesta, getPlaybookAplicaciones } from '@/app/actions/playbooks';
+import { PageHeaderResponsive } from '@/components/ui/page-header-responsive';
 import type { Playbook } from '@/types/playbook';
 
 function PlaybooksContent() {
@@ -123,15 +124,16 @@ function PlaybooksContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <BookOpen className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Playbooks Inteligentes</h1>
-        </div>
-        <p className="text-muted-foreground">
-          Plantillas prediseñadas para cada tipo de evento. Aplicalas a un evento para generar tareas, documentos y compras automáticamente.
-        </p>
-      </div>
+      <PageHeaderResponsive
+        className="mb-8"
+        leading={<BookOpen className="h-8 w-8 text-primary mt-1" />}
+        title={<h1 className="text-2xl sm:text-3xl font-bold">Playbooks Inteligentes</h1>}
+        description={
+          <p className="text-muted-foreground">
+            Plantillas prediseñadas para cada tipo de evento. Aplicalas a un evento para generar tareas, documentos y compras automáticamente.
+          </p>
+        }
+      />
 
       {playbooks.length === 0 ? (
         <Card>
