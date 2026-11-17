@@ -116,6 +116,9 @@ const FORMAS = [
  * control que la cubre. Si no se puede nombrar ninguno, la pregunta no está terminada.
  */
 const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+  157: 'Símbolos rotos: check:acentos con el patrón nuevo (orden 312 bloque 1).',
+  158: 'Cabeceras que no apilan: pruebas de navegador a 320/390/820 (orden 312 bloque 4).',
+  159: 'Reloj que no corre: prueba con reloj falso del simulador (orden 312 bloque 5).',
   153: 'Datos personales en el repositorio: prueba el-repositorio-no-lleva-datos-personales (orden 311).',
   154: 'Cantidades negativas: prueba de navegador del presupuesto manual (orden 311 bloque 2).',
   155: 'Horas sin zona: comprobar de la orden 311 (America/Montevideo en Mi Día).',
