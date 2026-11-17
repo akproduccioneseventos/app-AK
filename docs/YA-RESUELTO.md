@@ -16489,6 +16489,9 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
   Contactos, publicar en redes, abrir un cobro de Mercado Pago (`exigirQueNoSalgaAfuera`), los borrados masivos y restaurar
   respaldos (`exigirQueNoBorreTodo`), bajar el respaldo completo y firmar el contrato como el cliente. Su gasto de IA ahora
   cuenta para el tope. Pruebas `el-auditor-mira-y-no-toca` y `el-auditor-prueba-la-ia-sin-guardar`, actualizadas.
+- **17/11/2026 — El auditor no maneja usuarios, permisos, claves ni accesos** (crear, cambiar módulos, borrar, resetear
+  clave, abrir o cerrar el acceso de auditor): si pudiera crearse una cuenta propia, seguiría entrando después de cerrarle el
+  acceso. Prueba `el-auditor-no-toca-usuarios`.
 - **17/11/2026 — "Crear Nuevo Menú" ya no dice "✓ Guardado" antes de guardar, y `/presupuestos` redirige sin pantalla de espera.**
 
 ```comprobar
@@ -16497,4 +16500,8 @@ usa: isRejectedPayment en src/lib/client-portal/client-portal-summary.ts
 usa: exigirQueNoSalgaAfuera en src/lib/whatsapp/meta-sender.ts
 usa: exigirQueNoBorreTodo en src/app/actions/admin-reset.ts
 prueba: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts
+```
+
+```comprobar
+prueba: src/__tests__/el-auditor-no-toca-usuarios.test.ts
 ```
