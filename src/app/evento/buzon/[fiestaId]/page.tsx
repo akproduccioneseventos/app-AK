@@ -1181,7 +1181,7 @@ export default function GuestBuzonPage() {
           resetPhotoUpload();
           toast({
             title: 'Guardado en tu teléfono, se manda cuando haya señal',
-            description: 'Tu recuerdo quedó en cola sin conexión y se enviará automáticamente al volver la señal.',
+            description: 'Tu mensaje quedó guardado sin conexión y se subirá automáticamente al volver la señal.',
           });
           return;
         } catch (offlineErr: any) {
