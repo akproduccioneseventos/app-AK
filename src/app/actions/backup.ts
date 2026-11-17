@@ -582,6 +582,8 @@ export async function createRestorePoint(): Promise<{ success: boolean; error?: 
 }
 
 export async function restoreFromPoint(pointName: string): Promise<{ success: boolean; error?: string; summary?: RestoreSummaryItem[] }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
@@ -615,6 +617,8 @@ export async function restoreFromPoint(pointName: string): Promise<{ success: bo
 }
 
 export async function deleteRestorePoint(pointName: string): Promise<{ success: boolean; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {

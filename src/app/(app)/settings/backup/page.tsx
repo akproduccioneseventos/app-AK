@@ -25,7 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { comoEstaElRespaldo } from '@/lib/respaldos/como-esta-el-respaldo';
-import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 export default function BackupPage() {
@@ -42,7 +42,7 @@ export default function BackupPage() {
 
   useEffect(() => {
     let montado = true;
-    Promise.all([getMisPermisos(), esSesionDeSoloLectura()])
+    Promise.all([getMisPermisos(), esSesionDelAuditor()])
       .then(([perms, soloLectura]) => {
         if (!montado) return;
         const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);

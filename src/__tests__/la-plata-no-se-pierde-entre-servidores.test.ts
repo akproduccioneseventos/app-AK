@@ -143,6 +143,15 @@ describe('La plata no se pierde con dos operaciones a la vez', () => {
     expect(cobros()[0].estadoPago).toBe('rechazado');
   });
 
+  // Auditoría contable 17/11/2026: con una pantalla vieja se podía rechazar un cobro ya confirmado y el saldo subía.
+  it('un cobro ya confirmado no se puede rechazar', async () => {
+    await confirmPagoCliente(PRESUPUESTO.id, PENDIENTE.id);
+    const rechazo = await rejectPagoCliente(PRESUPUESTO.id, PENDIENTE.id, 'Pantalla vieja');
+    expect(rechazo.success).toBe(false);
+    expect(rechazo.error).toMatch(/ya está confirmado/);
+    expect(cobros().find((p) => p.id === PENDIENTE.id)?.estadoPago).toBe('confirmado');
+  });
+
   it('el mismo cobro con el mismo identificador no entra dos veces', async () => {
     const pago = { id: 'pago-senia-1', monto: 3000, fecha: '2026-09-02T10:00:00.000Z', metodoPago: 'Efectivo' } as any;
     await Promise.all([addPagoToPresupuesto(PRESUPUESTO.id, pago), addPagoToPresupuesto(PRESUPUESTO.id, pago)]);

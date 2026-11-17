@@ -624,6 +624,62 @@
     "156": {
       "fecha": "2026-11-16",
       "resultado": "Un acceso del menú que abre otra pantalla de la que nombra: Señas → promos → orden 311 bloque 5."
+    },
+    "157": {
+      "fecha": "2026-11-17",
+      "resultado": "Símbolos rotos que check:acentos no veía (estrella rota): 3 en el simulador → orden 312 bloque 1."
+    },
+    "158": {
+      "fecha": "2026-11-17",
+      "resultado": "Cabeceras con título y botones en una fila que no apila a lo angosto: 7 pantallas → orden 312 bloque 4."
+    },
+    "159": {
+      "fecha": "2026-11-17",
+      "resultado": "Un reloj o contador que se ve pero no corre: el del simulador → orden 312 bloque 5."
+    },
+    "160": {
+      "fecha": "2026-11-17",
+      "resultado": "Botones de pantallas del invitado que envían sin cartel de éxito o error: 3 confirmados (foto del muro, buzón, RSVP); barrido de evento, invitación, i y portal → orden 315."
+    },
+    "161": {
+      "fecha": "2026-11-17",
+      "resultado": "Una capa encima que se queda con el clic: el RSVP; regla sumada al recorrido de la 313 → orden 315 bloque 3."
+    },
+    "162": {
+      "fecha": "2026-11-17",
+      "resultado": "Un enlace de prueba escrito a mano a un dato que no existe: la consola de auditoría → orden 315 bloque 4."
+    },
+    "163": {
+      "fecha": "2026-11-17",
+      "resultado": "Cuotas que no salen del mismo total que se muestra: sólo el simulador público (sumaba el ajuste que el prospecto no ve), arreglado → orden 316 bloque 1."
+    },
+    "164": {
+      "fecha": "2026-11-17",
+      "resultado": "Algo guardado en el teléfono contado como enviado: sólo el buzón → orden 316 bloque 2."
+    },
+    "165": {
+      "fecha": "2026-11-17",
+      "resultado": "Cantidades de personas que aceptan fracciones: los 4 campos del simulador público (arreglados); el presupuesto manual ya pide enteros en la orden 311 bloque 2; el servidor → orden 316 bloque 1b."
+    },
+    "166": {
+      "fecha": "2026-11-17",
+      "resultado": "Importes vacíos en algo pagado: recibos de sueldo y pagos a proveedor (arreglados por Claude). Facturas, cobros y gastos ya rechazaban el cero."
+    },
+    "167": {
+      "fecha": "2026-11-17",
+      "resultado": "Cambios de estado de plata sin mirar el anterior: sólo rejectPagoCliente (arreglado)."
+    },
+    "168": {
+      "fecha": "2026-11-17",
+      "resultado": "Panel vs Centro de Alertas → orden 317 bloque 1; los 'por cobrar' se rotulan en el bloque 2."
+    },
+    "169": {
+      "fecha": "2026-11-17",
+      "resultado": "'Guardado' sin guardar: sólo el formulario de menús (arreglado); el indicador común sólo lo dice con lastSaved."
+    },
+    "170": {
+      "fecha": "2026-11-17",
+      "resultado": "Tableros sin definición: /analytics (cuentas arregladas por Claude) y /admin/finanzas → orden 317 bloque 2."
     }
   },
   "hallazgos": {
@@ -994,6 +1050,26 @@
     "orden-311": {
       "fecha": "2026-11-16",
       "resultado": "Nuevo escaneo del auditor: datos personales en el repositorio, -1 adultos, horas de Mi Día, guías, Señas, conteos, Video de Vida, DEMO → orden 311."
+    },
+    "orden-312": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría responsive y del simulador: símbolos rotos, simulador IA en celular, textos ilegibles, cabeceras, reloj, fecha de Eventos → orden 312."
+    },
+    "orden-313": {
+      "fecha": "2026-11-17",
+      "resultado": "La lista de cierre: el recorrido de las 382 pantallas mira en tres tamaños desborde, texto palabra por palabra, contraste y símbolos rotos → orden 313."
+    },
+    "orden-315": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría funcional de botones: foto del muro, buzón, RSVP, enlace de invitado y presentación LED → orden 315."
+    },
+    "orden-316": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría de aceptación: cuotas con otra base que el precio (arreglado), buzón que cuenta la cola como envío, RSVP sin marca clara → orden 316."
+    },
+    "orden-317": {
+      "fecha": "2026-11-17",
+      "resultado": "Revisión transversal del auditor + auditoría contable interna: contables arreglados por Claude; alertas y rótulos de tableros → orden 317."
     }
   }
 }

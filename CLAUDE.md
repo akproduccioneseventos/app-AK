@@ -1273,6 +1273,19 @@ que las entregas la rompían. Era un archivo de datos de corrida (`data/schedule
 **Qué se hace distinto:** antes de culpar a una entrega, se compara en las mismas condiciones; y `limpiar:corrida` ahora borra
 también los archivos de la lista que git ignora (`scripts/limpiar-corrida.mjs`).
 
+### 55. Creer que las preguntas y el escaneo iban a cerrar la app, sin una línea de llegada
+
+**Pasó del 12 al 17 de noviembre de 2026.** Cada informe del auditor sumó preguntas y escaneos, y cada informe siguiente
+trajo errores de otra clase. El dueño: *"nunca termino de encontrar errores… con las preguntas y el escaneo eso se iba a
+arreglar pero no ha funcionado"*.
+
+**Qué era lo cierto:** las preguntas nacen después del error, el escaneo lee el código y no la pantalla, y lo detectado se
+acumulaba en órdenes a medias (14 abiertas).
+
+**Qué se hace distinto:** la lista de cierre (orden 313): todas las pantallas × tres tamaños, mirada por la app como la mira
+el auditor, con un número que tiene que llegar a cero (`npm run "cierre?"`). Y Gemini termina las órdenes abiertas antes de
+recibir nuevas.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1498,6 +1511,8 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
 - **El repositorio queda público hasta terminar la app (16 de noviembre de 2026).** Palabras suyas: *"cuando se termine la app va a pasar toda privada y solo yo voy a ver todos los datos con mi acceso"*. No se le vuelve a pedir que lo pase a privado; mientras tanto, los datos reales de personas no viajan en el repositorio (orden 311, bloque 1).
 

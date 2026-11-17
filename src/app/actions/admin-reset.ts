@@ -25,6 +25,8 @@ export async function resetAppCompleto(): Promise<{
   results?: Record<string, number>;
   error?: string;
 }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   try {
     // Borra fiestas, clientes, facturas, presupuestos y CRM de una sola vez.
     // Es la accion mas destructiva de la app: exige admin, no solo sesion.

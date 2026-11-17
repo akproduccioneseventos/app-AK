@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
 import { getFiestaForPortalSession, getClientPromotionalPhotoConsent, setClientPromotionalPhotoConsent } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfoPublica } from '@/app/actions/settings';
-import { esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { esSesionDelAuditor } from '@/app/actions/sesion';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
 import { Separator } from '@/components/ui/separator';
@@ -80,7 +80,7 @@ export default function ClientContractPage() {
           getFiestaForPortalSession(fiestaId),
           getCompanyInfoPublica(),
           getContractSigningSummary(fiestaId).catch(() => ({ success: false, summary: undefined })),
-          esSesionDeSoloLectura().catch(() => false),
+          esSesionDelAuditor().catch(() => false),
       ]);
       setFiesta(data);
       setEsSoloLectura(soloLectura);

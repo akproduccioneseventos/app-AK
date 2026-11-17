@@ -258,7 +258,10 @@ export async function setTopeMensual(topeUYU: number, ahora?: Date | string): Pr
 }
 
 export async function setTopeDiarioProfundo(tope: number, ahora?: Date | string): Promise<ResumenDeGasto> {
-  await exigirQueSePuedaGuardar();
+  // El tope de gasto de IA lo decide el dueño: subirlo aumenta lo que se paga. El auditor no lo cambia (17/11/2026).
+  if (await esSesionDeAuditor()) {
+    throw new Error('Acceso de auditor: el tope de gasto de la IA lo cambia sólo el dueño.');
+  }
   const valor = Number.isFinite(tope) && tope >= 0 ? Math.round(tope) : 40;
   return cambiarConsumo((datos) => {
     const siguiente: ConsumoGuardado = { ...datos, topeDiarioProfundo: valor };

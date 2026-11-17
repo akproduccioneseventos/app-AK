@@ -153,6 +153,8 @@ export async function generarDesdeHistorico(
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllFiestasHistoricas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   const admin = await requireAdminSession();
   if (!admin.ok) return { success: false, error: admin.error };
   try {

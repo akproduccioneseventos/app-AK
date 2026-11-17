@@ -1465,3 +1465,19 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 311 → pregunta 154
 - Orden 311 → pregunta 155
 - Orden 311 → pregunta 156
+- Orden 312 → pregunta 157
+- Orden 312 → pregunta 158
+- Orden 312 → pregunta 159
+- Orden 313 → no es un defecto
+- Orden 314 → no es un defecto
+- Orden 315 → pregunta 160
+- Orden 315 → pregunta 161
+- Orden 315 → pregunta 162
+- Orden 316 → pregunta 163
+- Orden 316 → pregunta 164
+- Orden 316 → pregunta 165
+- Orden 317 → pregunta 166
+- Orden 317 → pregunta 167
+- Orden 317 → pregunta 168
+- Orden 317 → pregunta 169
+- Orden 317 → pregunta 170

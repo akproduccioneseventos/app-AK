@@ -391,6 +391,8 @@ export async function syncCustomerFromFiestaConfig(
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllCustomers(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  // El auditor prueba todo menos los borrados masivos (17/11/2026).
+  await (await import('@/lib/auth/solo-lectura')).exigirQueNoBorreTodo();
   try {
     // Borra la cartera entera de clientes: mismo criterio que resetAllInvoices
     // y resetAllPresupuestos, que ya exigian admin.

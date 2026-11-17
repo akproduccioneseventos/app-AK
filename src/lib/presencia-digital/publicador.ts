@@ -27,7 +27,7 @@ import { publishToX } from '@/lib/social-media/x-publisher';
 import { publishToUnifiedGateway } from '@/lib/social-media/unified-gateway-publisher';
 import { mejorHorario, type ResultadoMejorHorario } from '@/lib/presencia-digital/mejor-horario';
 import { getUruguayParts } from '@/lib/utils';
-import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { exigirQueNoSalgaAfuera } from '@/lib/auth/solo-lectura';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { fotosPromocionalesDeFiesta } from '@/lib/asistente/comercial-borrador';
@@ -133,7 +133,7 @@ export async function publishPostInternal(
   targetPlatforms?: PlatformName[],
   opciones?: { yaReclamado?: boolean },
 ): Promise<PublicarResultado> {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   if (!opciones?.yaReclamado) {
     const ganado = await reclamarParaPublicarAhora(postId, new Date());
     if (!ganado) {

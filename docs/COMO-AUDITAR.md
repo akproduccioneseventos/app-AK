@@ -1780,3 +1780,62 @@ Nuevo escaneo del 16/11/2026: Mi Día mostraba las corridas tres horas adelantad
 ### 156. Un acceso del menú, ¿abre la pantalla que nombra?
 
 Nuevo escaneo del 16/11/2026: "Política de Señas y Reservas" abría Promociones.
+
+### 157. ¿Hay símbolos rotos (estrellas o comillas mal guardadas) que el control de acentos no ve?
+
+Auditoría del 17/11/2026: "RECOMENDADO PRO" con una estrella rota en el simulador, con `check:acentos` en verde.
+
+### 158. Una cabecera con título largo y botones, ¿apila a lo angosto o aplasta el título?
+
+Auditoría del 17/11/2026: siete pantallas con el título partido palabra por palabra en celular o tablet.
+
+### 159. Un reloj o contador en pantalla, ¿corre de verdad y qué muestra al llegar a cero?
+
+Auditoría del 17/11/2026: el reloj del simulador seguía en 15:00 pasados 15 minutos.
+
+### 160. Un botón que envía algo, ¿termina siempre en un cartel de éxito o con el motivo del error?
+
+Auditoría funcional del 17/11/2026: "Publicar" foto, "Enviar recuerdo" y "Confirmar asistencia" no decían nada.
+
+### 161. Un botón o una opción visible, ¿recibe el clic, o hay algo encima?
+
+Auditoría funcional del 17/11/2026: las restricciones alimentarias del RSVP no se podían elegir.
+
+### 162. Un enlace de muestra o de prueba, ¿apunta a un dato que existe?
+
+Auditoría funcional del 17/11/2026: la consola de auditoría llevaba a un invitado `inv_1` que no existe.
+
+### 163. Un plan de cuotas en pantalla, ¿suma lo mismo que el precio que se muestra al lado?
+
+Auditoría de aceptación del 17/11/2026: el simulador mostraba $92.675 y cuotas por $106.576, con el ajuste anual que el
+prospecto no ve.
+
+### 164. Lo que queda guardado en el teléfono para mandar después, ¿se muestra como pendiente y no como enviado?
+
+Auditoría de aceptación del 17/11/2026: el buzón volvía al inicio con dos fotos en la cola local y el receptor en cero.
+
+### 165. Una cantidad de personas o de unidades, ¿acepta sólo enteros, y el total y el "por persona" usan la misma?
+
+Nueva ronda del auditor, 17/11/2026: el simulador aceptaba 2,5 personas y dividía el precio por 3.
+
+### 166. Un importe vacío o en cero, en algo que queda "pagado" o "cobrado", ¿se rechaza o se guarda como cero en silencio?
+
+Auditoría contable del 17/11/2026: un recibo de sueldo "pagado" por $0 y un pago a proveedor de $0 se guardaban sin aviso.
+
+### 167. Un cambio de estado de plata (rechazar, anular, cancelar), ¿mira en qué estado estaba antes?
+
+Auditoría contable del 17/11/2026: con una pantalla vieja se podía rechazar un cobro ya confirmado y el saldo subía.
+
+### 168. Dos contadores de lo mismo en pantallas distintas, ¿dan el mismo número, y el "ver todas" lleva a esas?
+
+Revisión transversal del auditor, 17/11/2026: el panel decía 4 alertas urgentes y el Centro de Alertas tenía 1, de otro tipo.
+
+### 169. Un cartel de "Guardado", ¿aparece sólo después de guardar de verdad?
+
+Revisión transversal del auditor, 17/11/2026: "Crear Nuevo Menú" decía "✓ Guardado" sin haber guardado nada.
+
+### 170. Un número de un tablero, ¿dice qué cuenta y de qué período, y la cuenta usa el mismo período arriba y abajo?
+
+Revisión transversal del auditor, 17/11/2026: el "promedio por evento" dividía los ingresos del año por las fiestas pasadas
+de toda la historia, y el margen sin costos cargados daba 100%.
+

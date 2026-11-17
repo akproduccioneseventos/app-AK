@@ -16473,6 +16473,39 @@ prueba: src/__tests__/aprueba-solo-el-duenio.test.ts
 
 - **14/11/2026 — Aprobar o rechazar lo que queda "para tu OK" es sólo del dueño.** La secretaria ya no puede (decisión del dueño). Prueba `aprueba-solo-el-duenio`.
 
+- **17/11/2026 — Las cuotas del simulador suman el precio que se muestra.** Para fechas del año siguiente el plan de pagos
+  se calculaba con el ajuste anual (que el prospecto no ve, orden 267) y no cuadraba con el precio. Ahora usa el mismo total.
+- **17/11/2026 — El simulador sólo acepta personas enteras.** Aceptaba 2,5 invitados y calculaba con la fracción.
+- **17/11/2026 — Auditoría contable completa (pedido del dueño).** Arreglado: un recibo de sueldo "pagado" con monto vacío
+  quedaba por $0; un pago a proveedor de $0 se aceptaba; con una pantalla vieja se podía rechazar un cobro ya confirmado
+  (el saldo subía); el portal le mostraba al cliente "pago en revisión" por pagos que AK rechazó; el presupuesto manual
+  calculaba con 2,5 o con precios negativos y guardaba otro total; la cantidad de un servicio por persona se podía editar
+  sin cambiar nada. El tablero ejecutivo dividía los ingresos del año por las fiestas pasadas de siempre y daba 100% de
+  margen sin costos cargados. Prueba `la-contabilidad-no-acepta-montos-falsos` y un caso en `la-plata-no-se-pierde-entre-servidores`,
+  puestas en rojo sacando cada arreglo. **Descartado tras verificar:** el plan de pagos del simulador redondea la cuota
+  hacia arriba (hasta unos pesos de más en total); es a propósito para que las cuotas cubran el saldo.
+- **17/11/2026 — El auditor prueba todo (decisión del dueño: "en toda la app").** Guarda en la base como el equipo. Sigue
+  frenado sólo lo que sale a una persona real o borra el negocio: mandar WhatsApp o correos, tocar Google Calendar o
+  Contactos, publicar en redes, abrir un cobro de Mercado Pago (`exigirQueNoSalgaAfuera`), los borrados masivos y restaurar
+  respaldos (`exigirQueNoBorreTodo`), bajar el respaldo completo y firmar el contrato como el cliente. Su gasto de IA ahora
+  cuenta para el tope. Pruebas `el-auditor-mira-y-no-toca` y `el-auditor-prueba-la-ia-sin-guardar`, actualizadas.
+- **17/11/2026 — El auditor no maneja usuarios, permisos, claves ni accesos** (crear, cambiar módulos, borrar, resetear
+  clave, abrir o cerrar el acceso de auditor): si pudiera crearse una cuenta propia, seguiría entrando después de cerrarle el
+  acceso. Prueba `el-auditor-no-toca-usuarios`.
+- **17/11/2026 — "Crear Nuevo Menú" ya no dice "✓ Guardado" antes de guardar, y `/presupuestos` redirige sin pantalla de espera.**
+
+```comprobar
+usa: Un recibo pagado tiene que tener un monto mayor a cero en src/app/actions/recibos-personal.ts
+usa: isRejectedPayment en src/lib/client-portal/client-portal-summary.ts
+usa: exigirQueNoSalgaAfuera en src/lib/whatsapp/meta-sender.ts
+usa: exigirQueNoBorreTodo en src/app/actions/admin-reset.ts
+prueba: src/__tests__/la-contabilidad-no-acepta-montos-falsos.test.ts
+```
+
+```comprobar
+prueba: src/__tests__/el-auditor-no-toca-usuarios.test.ts
+```
+
 ## 16/11/2026 - Orden 310 (Bloques 2, 4, 5, 6, 7 y 8)
 
 - **Bloque 2 (DEMO separada):** `esFiestaDemo` aplicada en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts`, `mi-dia/page.tsx`, `parte-manana.ts`, `asistente-proactivo/route.ts` y `motor-agentes.ts`. En `eventos/page.tsx` se muestra aparte como `"Fiesta de muestra"`, y el tablero + configuración de estaciones leen del mismo cálculo (`src/lib/entretenimiento/calculo-estaciones.ts`).

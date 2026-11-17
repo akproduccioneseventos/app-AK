@@ -1,5 +1,5 @@
 ﻿import crypto from 'crypto';
-import { exigirQueSePuedaGuardar } from '@/lib/auth/solo-lectura';
+import { exigirQueNoSalgaAfuera } from '@/lib/auth/solo-lectura';
 import { clavesIguales } from '@/lib/security/claves-iguales';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
@@ -388,7 +388,7 @@ export async function upsertGoogleContact(
   account: GoogleWorkspaceAccount,
   input: GoogleContactInput,
 ): Promise<GoogleContactSyncResult> {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   if (!hasGoogleContactsScope(account)) {
     throw new Error('Vuelve a conectar Google Workspace para habilitar la sincronizacion de contactos.');
   }
@@ -623,7 +623,7 @@ export async function upsertGoogleCalendarEvent(
   input: GoogleWorkspaceEventInput,
   existingEventId?: string
 ) {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   const calendarId = encodeURIComponent(account.calendarId || 'primary');
   const sendUpdates = process.env.GOOGLE_WORKSPACE_SEND_UPDATES || 'all';
   const eventBody = toCalendarApiEvent(input);
@@ -654,7 +654,7 @@ export async function sendGoogleGmailMessage(
   html: string,
   attachment?: { filename: string; content: string; contentType?: string }
 ) {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   let rawMessage: string;
   if (!attachment) {
     rawMessage = [
@@ -882,7 +882,7 @@ export async function borrarEventoDeLaAgenda(
   account: GoogleWorkspaceAccount,
   eventId: string,
 ): Promise<void> {
-  await exigirQueSePuedaGuardar();
+  await exigirQueNoSalgaAfuera();
   const calendarId = encodeURIComponent(account.calendarId || 'primary');
   const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events/${encodeURIComponent(eventId)}?sendUpdates=none`;
   const respuesta = await fetch(url, {
