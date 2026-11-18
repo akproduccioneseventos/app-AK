@@ -701,9 +701,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   if (!presupuesto && esAccesoDelCliente) return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
       <p className="text-4xl">🔗</p>
-      <h2 className="text-2xl font-bold">Este enlace fue desactivado</h2>
+      <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>
       <p className="text-muted-foreground max-w-sm">
-        Este enlace fue desactivado. Pedile uno nuevo a AK Producciones.
+        Puede estar incompleto o, si fue desactivado, ya no está vigente. Pedile uno nuevo a AK Producciones.
       </p>
     </div>
   );

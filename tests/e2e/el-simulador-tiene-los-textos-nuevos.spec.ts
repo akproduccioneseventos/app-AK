@@ -156,8 +156,8 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     expect(montoServicios).toBeGreaterThan(0);
     expect(montoTotalRef).toBe(montoClub + montoServicios);
 
-    // Botones "Coordinar mi entrevista gratuita" y "Consultar por WhatsApp"
-    await expect(page.getByRole('button', { name: /Coordinar mi entrevista gratuita/i })).toBeVisible();
+    // Orden 314: el botón principal del cierre es "Coordinar reunión por WhatsApp", y "Consultar por WhatsApp"
+    await expect(page.getByRole('button', { name: /Coordinar reunión por WhatsApp/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Consultar por WhatsApp/i }).first()).toBeVisible();
 
     // Prohibido "congel"
