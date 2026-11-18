@@ -17,6 +17,8 @@ N20, N21, N24, N30, N31, N33, N34 (319).
 - **C18-01 (continuación del informe):** el sueldo cargado a mano en Personal entra en la ganancia aunque la fiesta no tenga
   presupuesto ni se haya sincronizado (`calcularGananciaDeEvento` recibe `fiesta.personalAsignado` en todas las pantallas).
 - **Mantenimiento:** el gasto automático queda en el día elegido (mediodía de Uruguay), no el día anterior.
+- **C18-03 (novedades de las 11:46):** el reporte de ganancias rechaza un período con el inicio después del fin, y el
+  título del resumen dice el período que se calculó, no el que está elegido en los filtros.
 - **M3:** "Política de Señas" ya lleva a `/settings/budget-display` (vino en tu 1429).
 - **N26:** la lista de compras suma el menú asignado aunque la fiesta no tenga presupuesto
   (`catering/lista-compras/page.tsx`); también bebidas y postres, que estaban adentro del mismo bloque.
@@ -83,6 +85,13 @@ hasta 10 (nombre, etapa, fecha de la fiesta). **Sólo lee.** Que la vean los per
   enlace a `/fiestas/nueva/plan-pagos?fiestaId=…`, donde ya se aprueban. **No agregues un botón de aprobar en otro lado:**
   aprobar sigue donde está. Pide el permiso de plata que ya pide Pagos rápidos.
 
+## Bloque 5b — La pantalla en vivo con dos estados vacíos (C18-04, novedades de las 11:46)
+
+`/evento/muro-en-vivo/[fiestaId]`: con el muro apagado, la lista pausada en un turno de Juego y ningún juego activo, se dibujan
+a la vez "El muro de fotos está apagado" y "Zona de juegos", uno encima del otro. Que se vea uno solo (prioridad: muro
+apagado) o cada uno en su lugar. Probar las cuatro combinaciones: con y sin juego, muro prendido y apagado. Y en el panel
+lateral, terminada una trivia, que diga "Finalizado" en vez de dejar la pregunta.
+
 ## Bloque 6 — AK Editor (`herramientas/ak-editor/`): que cada botón diga la verdad
 
 Lo probó con material inventado (sin red ni datos reales). Prioridad en este orden:
@@ -122,6 +131,8 @@ Después de tocar el editor: `npm run editor:empaquetar` (el ZIP que se descarga
 - **Pregunta 187 (C18-01: un costo cargado en una pantalla que la cuenta sólo ve después de "sincronizar"):** buscar en
   `src/` totales guardados (`total…Cost`, `totalPagado`) que se muestren sin recalcular desde el dato. Plata: me lo listás.
 - **Pregunta 188 (C18-02: una fiesta suspendida contada como activa):** toda lista de próximos, conflictos o disponibilidad.
+- **Pregunta 190 (C18-03: un período, rango o filtro imposible que se calcula igual):** buscar en `src/` las pantallas con
+  "desde"/"hasta" o `startDate`/`endDate` que generan o exportan sin comparar las dos fechas.
 - **Pregunta 189 (E2/E3: un proceso de varios pasos que dice "listo" si un paso falló):** en el editor y en las tareas
   automáticas de la app (`src/lib/cron`, `src/app/api/cron`).
 - Lo de plata, cobros, comida y permisos que encuentres **no lo arregles**: listalo en la propuesta.

@@ -1921,3 +1921,8 @@ Continuación de la auditoría del 18/11/2026 (C18-02): Recursos Multi-Evento co
 Continuación de la auditoría del 18/11/2026 (E2/E3): el modo automático del editor decía "completado con éxito" con el Video
 de Vida y las Redes fallados.
 
+
+### 190. Un período "desde/hasta", ¿rechaza el inicio después del fin, o calcula un cero que parece real?
+
+Novedades del auditor del 18/11/2026 a las 11:46 (C18-03): el reporte de ganancias del 19/11 al 18/11 daba $0 y se podía
+bajar como si fuera un período sin actividad.

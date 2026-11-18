@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - El reporte de ganancias no acepta un período al revés
+
+- **Qué pasaba:** con inicio 19/11 y fin 18/11, el reporte daba $0 en todo y se podía bajar como un período sin actividad
+  (C18-03). Y al cambiar una fecha sin regenerar, el título del resumen mostraba el período nuevo con los números viejos.
+- **Qué se hizo:** la pantalla y el servidor rechazan el inicio después del fin, con el motivo junto al filtro; el título
+  dice el período que se calculó. Pregunta 190.
+
+```comprobar
+usa: posterior a la de fin en src/app/actions/reportes.ts
+usa: rangoDelReporte?.from en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+prueba: src/__tests__/un-solo-numero-de-plata.test.ts
+```
+
 ## 18/11/2026 - El sueldo cargado a mano entra en la ganancia, y el gasto de mantenimiento queda en su día
 
 - **Qué pasaba:** en una fiesta sin presupuesto, un coordinador de $1 aparecía en Personal y en el recibo, pero la ganancia

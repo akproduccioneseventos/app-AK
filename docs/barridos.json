@@ -756,6 +756,10 @@
     "189": {
       "fecha": "2026-11-18",
       "resultado": "Éxitos con pasos fallados: modo automático del editor → orden 320 bloque 6; tareas automáticas ya marcan fallo (tareas-no-marcan-exito-al-fallar)."
+    },
+    "190": {
+      "fecha": "2026-11-18",
+      "resultado": "Períodos al revés: reporte de ganancias (arreglado en pantalla y servidor); el resto de las pantallas con desde/hasta → orden 320 barrido."
     }
   },
   "hallazgos": {
@@ -1157,7 +1161,7 @@
     },
     "orden-320": {
       "fecha": "2026-11-18",
-      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6."
+      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b."
     }
   }
 }

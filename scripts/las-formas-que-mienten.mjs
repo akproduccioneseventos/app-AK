@@ -137,6 +137,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   183: 'Número del contrato: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts ($10.000 y 30 días contra la plantilla).',
   184: 'Marcadores por pantalla: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (anexo sin huecos).',
   185: 'Arreglo que no corre en el caso: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts (caso sin presupuesto).',
+  190: 'Período al revés: src/__tests__/un-solo-numero-de-plata.test.ts (inicio posterior al fin).',
   187: 'Costo visible sólo tras sincronizar: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (sueldo de $1 sin presupuesto).',
   188: 'Suspendidas como activas: comprobar de la orden 320 (suspendid en recursos-multi-evento).',
   189: 'Listo con un paso fallado: orden 320 bloque 6 (resumen del modo automático del editor).',
