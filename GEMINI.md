@@ -10,10 +10,17 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
-- **DEVUELTO de tu 1429 (orden 318, bloque 2):** "Modificar confirmación" sigue abriendo el formulario vacío: no se hizo la
-  precarga. La prueba que mandaste no lo comprobaba (sólo llenaba el formulario) y no corría: usaba la fiesta `demo_ak_oficial`,
-  que no existe en el entorno de pruebas. Se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado
-  (`crearFiestaDeEstaNoche` en `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
+- **Tu 1429 (órdenes 310 a 318) está revisada y casi lista, pero NO se publicó todavía (18/11).** Claude le agregó arreglos
+  (contrato sin buscar al cliente por nombre, pruebas al día con el simulador nuevo, el recorrido sin contar las zonas que se
+  deslizan). **Esos arreglos están en `docs/parches/`**: en tu rama `gemini/ordenes-309-310`, primero `git merge origin/main`,
+  después `git am docs/parches/juntar-1429.patch` y `git apply docs/parches/juntar-1429-contrato.diff`, y
+  `npm run editor:empaquetar`. Lo que la frena es tu propio control
+  de tres tamaños (orden 313): marca estas pantallas con texto partido palabra por palabra o que se sale. Arreglalas (sin
+  esconder con overflow ni achicar letras), en la misma rama:
+  `/empresa/menus` (celular y tablet), `/empresa/presentacion-led/configuracion` (celular), `/empresa/servicios` (tablet),
+  `/fiestas/nueva/decoracion` (tablet), `/settings/biblioteca-visual-ak` (tablet), `/settings/catalogo-servicios` (los tres),
+  `/settings/contratos/clausulas` (celular), `/settings/estilo-fotos` (tablet), `/settings/feature-flags` (celular y tablet),
+  `/control-tower` (tablet: se sale, 933 > 820). Después corré `npm run "publicar?"` y dejá la propuesta abierta.
 - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
   deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,

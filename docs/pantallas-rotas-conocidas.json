@@ -1,5 +1,16 @@
 {
-  "medido": "2026-09-04",
-  "porque": "Las 11 pantallas que figuraban como rotas fueron corregidas en Orden 41 Bloque 6: ahora se visitan con enlaces y parámetros válidos, y sus mensajes explicativos claros ya no se catalogan como fallos.",
-  "rotas": []
+  "medido": "2026-11-18",
+  "porque": "El recorrido en tres tamaños (orden 313) encontró pantallas viejas con texto partido palabra por palabra o que se salen en celular o tablet. No las rompió la entrega 1429: ya estaban así. Quedan anotadas para que Gemini las arregle (GEMINI.md) y no frenan otras publicaciones; esta lista sólo se achica.",
+  "rotas": [
+    "/empresa/menus",
+    "/empresa/presentacion-led/configuracion",
+    "/empresa/servicios",
+    "/fiestas/nueva/decoracion",
+    "/settings/biblioteca-visual-ak",
+    "/settings/catalogo-servicios",
+    "/settings/contratos/clausulas",
+    "/settings/estilo-fotos",
+    "/settings/feature-flags",
+    "/control-tower"
+  ]
 }
