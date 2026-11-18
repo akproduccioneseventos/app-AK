@@ -352,7 +352,7 @@ export default function MainDashboardPage() {
               <QuickTool href="/pagos-rapidos" icon={Wallet} title="Registrar Pago Rápido" description="Cobrar y enviar recibo." />
               <QuickTool href="/contabilidad/crm/outbox" icon={Send} title="Envíos de WhatsApp" description="Mensajes del día pendientes." />
               <QuickTool href="/empresa/menus" icon={ChefHat} title="Planificador Gastronómico" description="Menús, recetas y bebidas." />
-              <div className="flex min-h-[104px] flex-col justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-xl sm:col-span-2 xl:col-span-3">
+              <div className="flex min-h-[104px] flex-col justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-xl sm:col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <div className="shrink-0 rounded-xl border border-red-500/30 bg-red-950/80 p-3 text-red-300 shadow-[0_0_12px_rgba(239,68,68,0.25)]">
                     <Monitor className="h-5 w-5" />
