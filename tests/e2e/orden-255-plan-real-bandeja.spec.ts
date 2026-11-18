@@ -12,7 +12,18 @@ const carpetas = ['data', 'src/data'];
 function leer(archivo: string, carpeta = 'data'): Record<string, any>[] {
   const ruta = path.join(process.cwd(), carpeta, archivo);
   if (!fs.existsSync(ruta)) return [];
-  const datos = JSON.parse(fs.readFileSync(ruta, 'utf8'));
+  // La app puede estar escribiendo el archivo justo cuando se lee (con la máquina cargada se vio vacío a medias):
+  // se vuelve a leer un par de veces antes de dar por mala la lista.
+  let datos: unknown;
+  for (let intento = 0; ; intento++) {
+    try {
+      datos = JSON.parse(fs.readFileSync(ruta, 'utf8'));
+      break;
+    } catch (error) {
+      if (intento >= 20) throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+    }
+  }
   if (!Array.isArray(datos)) throw new Error(`La lista ${archivo} no tiene el formato esperado.`);
   return datos;
 }
