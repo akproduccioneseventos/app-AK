@@ -16520,6 +16520,28 @@ usa: firebaseStorageDownloadTokens: fichaDeDescarga en src/lib/firebase/storage.
 usa: totalAmount > 0 && totalPaid > 0 en src/app/actions/invoices.ts
 ```
 
+- **18/11/2026 — Auditoría integral, lo de plata y comida.** El costo de cada servicio copiado del presupuesto a la fiesta es el
+  costo base del catálogo, no el precio de venta (sin costo cargado queda en $0 con el aviso). "Propuestas activas" del CRM
+  ya no suma presupuestos archivados. La lista de compras suma el menú asignado a la fiesta. Ajustes → IA dice "activo"
+  cuando el asistente escribe (decía "desactivado"). F1, F3 y F8 del informe ya estaban arreglados en la publicación de la
+  noche del 17. El resto → orden 319.
+
+```comprobar
+usa: costoDeCatalogo en src/lib/costos/ganancia-evento.ts
+usa: fiestaData.menuAsignadoId en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/el-asistente-dice-si-escribe.test.ts
+```
+
+- **18/11/2026 — Lo de plata que seguía pendiente desde el 13/11 (orden 301) y la revisión de la 1429.** "Poner al día" pide
+  la fecha real del cobro (no futura) y el medio, y confirma "Vas a registrar N cobros por $X"; antes anotaba la fecha de la
+  fiesta y "Otro". "Ventas Totales" pasa a "Ventas comprometidas" (suma facturas y presupuestos aceptados), "Cobros
+  Pendientes" del flujo de caja a "Ingresos esperados", y sin costos el ratio dice "Sin datos suficientes".
+
+```comprobar
+usa: detalleCobros en src/app/actions/poner-al-dia.ts
+prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
+```
+
 ## 16/11/2026 - Orden 310 (Bloques 2, 4, 5, 6, 7 y 8)
 
 - **Bloque 2 (DEMO separada):** `esFiestaDemo` aplicada en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts`, `mi-dia/page.tsx`, `parte-manana.ts`, `asistente-proactivo/route.ts` y `motor-agentes.ts`. En `eventos/page.tsx` se muestra aparte como `"Fiesta de muestra"`, y el tablero + configuración de estaciones leen del mismo cálculo (`src/lib/entretenimiento/calculo-estaciones.ts`).

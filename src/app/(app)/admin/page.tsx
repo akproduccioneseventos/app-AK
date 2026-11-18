@@ -281,7 +281,7 @@ export default function MainDashboardPage() {
       )}
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados" />
+        <KpiCard title="Ventas comprometidas" value={formatCurrency(kpiData?.ventasTotales, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados" />
         <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={CreditCard} isLoading={isLoading} description="Cobrado hasta hoy" />
         <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={Banknote} isLoading={isLoading} description="Por cobrar" />
         <KpiCard title="Prospectos Activos" value={isLoading ? '...' : sourceAvailable('prospectos') ? (kpiData?.prospectosActivos ?? 0) : 'No disponible'} icon={Users} isLoading={isLoading} description="En pipeline CRM" />

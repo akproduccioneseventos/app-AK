@@ -177,6 +177,37 @@ function ListaDeComprasContent() {
               }
           });
 
+          // 1b. EL MENÚ ASIGNADO A LA FIESTA (Catering → asignar menú). La pantalla de catering promete que sus
+          // ingredientes se suman solos, y la lista sólo miraba los platos del presupuesto (auditoría integral 17/11/2026,
+          // N26: menú asignado y "NO HAY INGREDIENTES"). Se suman los platos del menú que el presupuesto no trae ya.
+          const menuAsignado = fiestaData.menuAsignadoId
+              ? allMenus.find(m => m.id === fiestaData.menuAsignadoId)
+              : undefined;
+          if (menuAsignado) {
+              const yaContados = new Set(budgetDishes.map(b => b.idServicioCatalogo));
+              for (const plato of menuAsignado.items || []) {
+                  if (yaContados.has(plato.id)) continue;
+                  if (!plato.ingredients?.length) {
+                      sinIngredientes.push(plato.name);
+                      continue;
+                  }
+                  for (const ing of plato.ingredients) {
+                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
+                      if (qtyPerPerson <= 0) continue;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
+                      rawList.push({
+                          nombre: ing.name,
+                          cantidadNecesaria: qtyPerPerson * totalInvitados,
+                          unit: ing.unit,
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
+                          proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
+                          origen: `Menú asignado: ${plato.name}`,
+                          origenId: ing.origenId,
+                      });
+                  }
+              }
+          }
+
           setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
 
           // 2. PROCESAR BEBIDAS (Todas las categorías activadas)

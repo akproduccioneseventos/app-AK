@@ -63,6 +63,6 @@ test.describe('Orden 303: Portal, recuerdos del cliente y catálogo', () => {
       await nextBtn.first().click();
     }
 
-    await expect(page.getByRole('button', { name: /Crear Presupuesto/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Crear presupuesto', exact: true })).toBeVisible();
   });
 });

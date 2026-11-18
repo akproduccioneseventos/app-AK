@@ -784,19 +784,35 @@ function syncDecoracionFromItems(existing: DecoracionData, decorItems: ItemPresu
  * Pre-populates gestionCostos with all non-gift budget line items.
  * Preserves manually-added cost items and updates existing synced items.
  */
-function syncCostosFromBudget(existing: GestionCostosData, items: ItemPresupuestado[], totalConDescuento: number): GestionCostosData {
+function syncCostosFromBudget(
+    existing: GestionCostosData,
+    items: ItemPresupuestado[],
+    totalConDescuento: number,
+    costoBasePorServicio: Map<string, number> = new Map(),
+): GestionCostosData {
     const SYNC_PREFIX = 'sync_budget_';
     const manualItems = (existing.costosItems || []).filter(i => !i.id.startsWith(SYNC_PREFIX));
     const syncedItems: CostoItem[] = [];
 
     for (const item of items) {
         if (item.esRegalo) continue;
+        // El costo es el costo base del catálogo (`valorUnitarioEstimado`) por las unidades vendidas, no el precio de venta
+        // (auditoría integral 17/11/2026, O15: "Lluvia de burbujas" figuraba a $1.500 con costo base $600). Las unidades
+        // salen de lo cobrado ÷ precio aplicado, así valen igual para fijo, por persona y por ratio. Sin costo cargado en
+        // el catálogo, el renglón queda en $0 y lo dice: no se inventa.
+        const costoBase = costoBasePorServicio.get(item.idServicioCatalogo);
+        const precioAplicado = Number(item.precioUnitarioPresupuesto ?? item.precioUnitario) || 0;
+        const unidades = precioAplicado > 0 ? (Number(item.costoTotalItem) || 0) / precioAplicado : 0;
+        const tieneCosto = typeof costoBase === 'number' && costoBase > 0 && unidades > 0;
         syncedItems.push({
             id: `${SYNC_PREFIX}${item.idServicioCatalogo}`,
             nombre: item.nombreServicio,
             category: item.categoriaServicio || 'Otros servicios',
-            montoEstimado: Math.round(item.costoTotalItem),
-            notas: `Sincronizado desde presupuesto. ${item.descripcionServicio || ''}`.trim(),
+            montoEstimado: tieneCosto ? Math.round(costoBase * unidades) : 0,
+            costoDeCatalogo: tieneCosto,
+            notas: tieneCosto
+                ? `Costo base del catálogo. ${item.descripcionServicio || ''}`.trim()
+                : 'Falta cargar el costo base de este servicio en el catálogo.',
         });
     }
 
@@ -1192,10 +1208,23 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     }
 
     // 10. SINCRONIZAR COSTOS — pre-poblar con todos los ítems del presupuesto
+    const costoBasePorServicio = new Map<string, number>();
+    try {
+        // Lectura interna, sin pedir sesión: la sincronización corre también desde el portal del cliente y tareas.
+        const { readData } = await import('@/lib/data-service');
+        const servicios = await readData<Array<{ id?: string; valorUnitarioEstimado?: unknown }>>('servicios-empresa.json', []);
+        for (const servicio of Array.isArray(servicios) ? servicios : []) {
+            const costo = Number(servicio.valorUnitarioEstimado);
+            if (servicio.id && Number.isFinite(costo) && costo > 0) costoBasePorServicio.set(servicio.id, costo);
+        }
+    } catch {
+        // Sin catálogo los renglones quedan en $0 con el aviso de que falta el costo: no se usa el precio de venta.
+    }
     updatedFiesta.gestionCostos = syncCostosFromBudget(
         updatedFiesta.gestionCostos || defaultGestionCostos,
         items,
-        presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+        presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+        costoBasePorServicio,
     );
 
     // 11. SINCRONIZAR CARGA OPERATIVA — equipamiento y activos fijos relacionados

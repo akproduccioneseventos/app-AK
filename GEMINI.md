@@ -2,7 +2,7 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 17/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 18/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
 - **Play Store (16/11, el dueño ya creó su cuenta de desarrollador):** en su computadora, seguí `docs/GUIAS-PLAY-STORE-Y-PC.md`
@@ -10,6 +10,19 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **Tu 1429 (órdenes 310 a 318) está revisada y casi lista, pero NO se publicó todavía (18/11).** Claude le agregó arreglos
+  (contrato sin buscar al cliente por nombre, pruebas al día con el simulador nuevo, el recorrido sin contar las zonas que se
+  deslizan). **Esos arreglos están en `docs/parches/`**: en tu rama `gemini/ordenes-309-310`, primero `git merge origin/main`,
+  después `git am docs/parches/juntar-1429.patch` y `git apply docs/parches/juntar-1429-contrato.diff`, y
+  `npm run editor:empaquetar`. Lo que la frena es tu propio control
+  de tres tamaños (orden 313): marca estas pantallas con texto partido palabra por palabra o que se sale. Arreglalas (sin
+  esconder con overflow ni achicar letras), en la misma rama:
+  `/empresa/menus` (celular y tablet), `/empresa/presentacion-led/configuracion` (celular), `/empresa/servicios` (tablet),
+  `/fiestas/nueva/decoracion` (tablet), `/settings/biblioteca-visual-ak` (tablet), `/settings/catalogo-servicios` (los tres),
+  `/settings/contratos/clausulas` (celular), `/settings/estilo-fotos` (tablet), `/settings/feature-flags` (celular y tablet),
+  `/control-tower` (tablet: se sale, 933 > 820). Después corré `npm run "publicar?"` y dejá la propuesta abierta.
+- **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
+  deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
   prospecto→presupuesto con teléfono, enlace apagado, agenda del CRM y más. **Bloque 0 en la computadora del dueño:** el permiso
   de Google para firmar archivos y borrar los datos PRUEBA del auditor (ids en la orden). En la misma propuesta, al final.

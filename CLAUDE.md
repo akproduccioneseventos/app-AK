@@ -1286,6 +1286,15 @@ acumulaba en órdenes a medias (14 abiertas).
 el auditor, con un número que tiene que llegar a cero (`npm run "cierre?"`). Y Gemini termina las órdenes abiertas antes de
 recibir nuevas.
 
+### 56. Trabajar cada informe del auditor por separado y dejar plata esperando en órdenes viejas
+
+**Pasó del 13 al 18 de noviembre de 2026.** Cada informe salió con sus preguntas, su barrido y su orden, pero nunca volví a
+cruzar lo pendiente desde el principio. El dueño preguntó *"¿revisaste todo desde el inicio?"*: la orden 301 (Poner al día
+anotaba los cobros con la fecha de la fiesta, rótulos del panel que decían otra cosa) llevaba cinco días esperando a Gemini.
+
+**Qué se hace distinto:** al juntar cada informe nuevo se corre `npm run ordenes?` y lo de plata que siga en FALTA se programa
+en la misma tanda, aunque esté en una orden de Gemini (error 41).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
