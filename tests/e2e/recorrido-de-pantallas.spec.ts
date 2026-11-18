@@ -257,8 +257,14 @@ test.describe('Recorrido de las 353 pantallas', () => {
               if (rect.width === 0 && rect.height === 0) continue;
               if (rect.right > w + 1 && !dentroDeUnaZonaQueRecorta(el)) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
               const txt = (el.textContent || '').trim();
-              if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && txt.split(/\s+/).length > 3 && rect.width < 90) {
-                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px)`);
+              // Partido palabra por palabra = tantos renglones como palabras. Mirar sólo el ancho daba falsas alarmas
+              // (textos chicos que entran en un renglón, o que todavía se estaban acomodando al medir): en cada vuelta
+              // marcaba pantallas distintas, como el ingreso (revisión de la orden 313, 18/11/2026).
+              const palabras = txt.split(/\s+/).length;
+              const alto = parseFloat(st.lineHeight) || parseFloat(st.fontSize) * 1.2 || 16;
+              const renglones = Math.round(rect.height / alto);
+              if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && palabras > 3 && rect.width < 90 && renglones >= palabras - 1) {
+                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px, ${renglones} renglones)`);
               }
             }
             return errs.slice(0, 3);
