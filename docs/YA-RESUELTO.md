@@ -16520,3 +16520,15 @@ usa: firebaseStorageDownloadTokens: fichaDeDescarga en src/lib/firebase/storage.
 usa: totalAmount > 0 && totalPaid > 0 en src/app/actions/invoices.ts
 ```
 
+- **18/11/2026 — Auditoría integral, lo de plata y comida.** El costo de cada servicio copiado del presupuesto a la fiesta es el
+  costo base del catálogo, no el precio de venta (sin costo cargado queda en $0 con el aviso). "Propuestas activas" del CRM
+  ya no suma presupuestos archivados. La lista de compras suma el menú asignado a la fiesta. Ajustes → IA dice "activo"
+  cuando el asistente escribe (decía "desactivado"). F1, F3 y F8 del informe ya estaban arreglados en la publicación de la
+  noche del 17. El resto → orden 319.
+
+```comprobar
+usa: costoDeCatalogo en src/lib/costos/ganancia-evento.ts
+usa: fiestaData.menuAsignadoId en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/el-asistente-dice-si-escribe.test.ts
+```
+

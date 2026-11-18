@@ -105,10 +105,11 @@ export function calcularGananciaDeEvento(
   // Los renglones que se copian del presupuesto (`sync_budget_*`, `syncCostosFromBudget`) llevan el PRECIO DE VENTA de
   // cada servicio, no lo que le cuesta a AK. Contarlos como costo daba siempre "ganancia = − descuento" (auditor, pruebas
   // funcionales 17/11/2026: ingreso $1.200, inversión $1.500). Se listan para que se les cargue el costo, pero como costo
-  // cuenta sólo lo que se le pagó al proveedor en ese renglón.
+  // cuenta sólo lo que se le pagó al proveedor en ese renglón. Desde el 17/11 la copia trae el costo base del catálogo
+  // (`costoDeCatalogo`); ese sí cuenta.
   const items = (gestionCostos?.costosItems ?? [])
     .filter((item) => item.id !== MERMA_DUPLICADA)
-    .map((item) => (esPrecioDeVentaCopiado(item.id) ? { ...item, montoEstimado: 0 } : item));
+    .map((item) => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
   const pagos = pagosProveedores ?? [];
   const others = gestionCostos?.others;
 

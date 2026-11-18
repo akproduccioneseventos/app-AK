@@ -120,3 +120,30 @@ describe('La ganancia de la fiesta no toma el precio de venta como costo', () =>
     expect(conPago.costoReal).toBe(500);
   });
 });
+
+describe('Auditoría integral 17/11: costo de catálogo, propuestas activas y menú en la lista de compras', () => {
+  it('un renglón copiado con costo de catálogo sí cuenta como costo', () => {
+    const { calcularGananciaDeEvento } = require('@/lib/costos/ganancia-evento');
+    const gestion = {
+      ingresosTotalesEstimados: 1200,
+      costosItems: [{ id: 'sync_budget_burbujas', nombre: 'Lluvia de burbujas', category: 'Otros', montoEstimado: 600, costoDeCatalogo: true }],
+    } as any;
+    expect(calcularGananciaDeEvento(gestion, []).costoReal).toBe(600);
+  });
+
+  it('la copia del presupuesto usa el costo base del catálogo, no el precio de venta', () => {
+    const fuente = leer('src/app/actions/fiesta/fiesta.actions.ts');
+    expect(fuente).toMatch(/montoEstimado: tieneCosto \? Math\.round\(costoBase \* unidades\) : 0/);
+    expect(fuente).not.toMatch(/montoEstimado: Math\.round\(item\.costoTotalItem\)/);
+  });
+
+  it('"Propuestas activas" deja afuera los presupuestos archivados', () => {
+    const fuente = leer('src/app/actions/crm.ts');
+    expect((fuente.match(/archived \&\& activeLeads\.some/g) || []).length).toBe(2);
+  });
+
+  it('la lista de compras suma el menú asignado a la fiesta', () => {
+    const fuente = leer('src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx');
+    expect(fuente).toMatch(/fiestaData\.menuAsignadoId/);
+  });
+});

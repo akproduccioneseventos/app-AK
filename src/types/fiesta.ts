@@ -1217,6 +1217,8 @@ export interface CostoItem {
   notas?: string;
   /** Renglón cerrado: ya no se espera pagar más que lo pagado (orden 251). */
   cerrado?: boolean;
+  /** Renglón copiado del presupuesto cuyo monto es el costo base del catálogo (no el precio de venta). 17/11/2026. */
+  costoDeCatalogo?: boolean;
 }
 
 export interface PagoProveedor {
