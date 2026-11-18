@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - El asistente ve todos los prospectos
+
+- **Qué pasaba:** el contexto del asistente traía 12 prospectos; con 16, el Vendedor no encontraba uno recién creado (A18-04).
+- **Qué se hizo:** van con detalle los 12 más nuevos y del resto el nombre, con el total. La herramienta de búsqueda sigue en la
+  orden 320. Pregunta 186, ahora con escaneo automático.
+
+```comprobar
+prueba: src/__tests__/el-vendedor-ve-todos-los-prospectos.test.ts
+```
+
 
 ## 18/11/2026 - Orden 319 (Auditoría integral: check-in, empleados, multiagente y salones)
 

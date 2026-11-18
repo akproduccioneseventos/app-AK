@@ -55,6 +55,9 @@ Cierre 04:00 pasan delante de Llegada 18:00. Lo mismo en `orden-de-evento/page.t
 
 ## Bloque 3 — A18-04: el asistente Vendedor no encuentra un prospecto que existe (P2)
 
+**Claude ya hizo una parte:** el contexto trae los 12 más nuevos con detalle y el nombre de todos los demás
+(`contexto-negocio.ts`). Falta la herramienta de búsqueda para el detalle de cualquiera.
+
 `src/lib/multiagent/contexto-negocio.ts` ~línea 63 recorta los prospectos a 12 para el contexto, y no hay herramienta para
 buscar. Agregar `buscarProspecto` en `src/lib/assistant/tool-registry.ts` (junto a `crearProspectoTool`, ~línea 185, y en
 `TOOL_REGISTRY` ~línea 375): busca por nombre o teléfono sin distinguir mayúsculas ni acentos en **todo** el CRM y devuelve
