@@ -430,7 +430,7 @@ export default function AlertasPage() {
                       <div
                         key={alerta.id}
                         className={cn(
-                          'flex items-start gap-3 px-5 py-4 transition-colors bg-red-50/20 dark:bg-red-950/10',
+                          'flex flex-wrap lg:flex-nowrap items-start gap-3 px-5 py-4 transition-colors bg-red-50/20 dark:bg-red-950/10',
                           alerta.leida ? 'opacity-50' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20',
                         )}
                       >
@@ -444,7 +444,7 @@ export default function AlertasPage() {
                             {alerta.mensaje}
                           </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 basis-full lg:basis-auto">
                           {alerta.accionUrl && (
                             <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
                               <Link href={alerta.accionUrl}>
@@ -484,7 +484,7 @@ export default function AlertasPage() {
                       <div
                         key={alerta.id}
                         className={cn(
-                          'flex items-start gap-3 px-5 py-3.5 transition-colors',
+                          'flex flex-wrap lg:flex-nowrap items-start gap-3 px-5 py-3.5 transition-colors',
                           alerta.leida ? 'opacity-50' : 'hover:bg-muted/30',
                         )}
                       >
@@ -498,7 +498,7 @@ export default function AlertasPage() {
                             {alerta.mensaje}
                           </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 basis-full lg:basis-auto">
                           {alerta.tipo === 'recordatorio' && (
                             datosFiestas[alerta.fiestaId]?.telefono?.trim() ? (
                               <Button

@@ -269,7 +269,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
               const alto = parseFloat(st.lineHeight) || parseFloat(st.fontSize) * 1.2 || 16;
               const renglones = Math.round(rect.height / alto);
               if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && palabras > 3 && rect.width < 90 && renglones >= palabras - 1) {
-                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px, ${renglones} renglones)`);
+                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px, ${renglones} renglones) "${txt.slice(0, 40)}"`);
               }
             }
             return errs.slice(0, 3);
