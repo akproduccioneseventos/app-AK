@@ -32,6 +32,8 @@ prueba: src/__tests__/el-vendedor-ve-todos-los-prospectos.test.ts
 ```comprobar
 usa: undoCheckInGuest en src/app/recepcion/[fiestaId]/RecepcionClient.tsx
 prueba: src/__tests__/el-check-in-se-puede-deshacer.test.ts
+```
+
 ## 18/11/2026 - El reporte de ganancias no acepta un período al revés
 
 - **Qué pasaba:** con inicio 19/11 y fin 18/11, el reporte daba $0 en todo y se podía bajar como un período sin actividad
