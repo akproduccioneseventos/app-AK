@@ -1,4 +1,5 @@
 'use client';
+import { condicionesDelInvitado } from '@/lib/catering/condiciones-del-invitado';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
@@ -104,7 +105,7 @@ export default function ConfirmarInvitadosPortalPage() {
   const pendientesPersonas = pendientes.reduce((sum, i) => sum + (i.partySize ?? 1), 0);
   const rechazadosPersonas = rechazados.reduce((sum, i) => sum + (i.partySize ?? 1), 0);
   const talVezPersonas = talVez.reduce((sum, i) => sum + (i.partySize ?? 1), 0);
-  const conDieta          = invitados.filter(i => i.dietaryRestriction && i.dietaryRestriction !== 'Ninguna');
+  const conDieta          = invitados.filter(i => condicionesDelInvitado(i).length > 0);
   const conCanciones      = invitados.filter(i => i.cancionesDJ && i.cancionesDJ.length > 0);
   const checkedIn         = invitados.filter(i => i.checkedIn);
 
@@ -379,7 +380,7 @@ export default function ConfirmarInvitadosPortalPage() {
               {conDieta.map(inv => (
                 <div key={inv.id} className="flex items-start gap-2 text-xs">
                   <span className="font-semibold text-slate-700 shrink-0">{inv.nombre}:</span>
-                  <span className="text-orange-700">{inv.dietaryRestriction}</span>
+                  <span className="text-orange-700">{condicionesDelInvitado(inv).join(' + ')}</span>
                   {inv.alergiasEspecificas && (
                     <span className="text-red-600">· ⚠ {inv.alergiasEspecificas}</span>
                   )}

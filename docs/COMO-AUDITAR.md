@@ -1931,3 +1931,25 @@ bajar como si fuera un período sin actividad.
 
 Auditoría del simulador y la LED, 18/11/2026 (R18-03): la LED pasaba los menores como adolescentes y el presupuesto manual
 mostraba 0 en "Niños y Adolescentes", que sólo leía niños.
+
+### 192. Una condición que se guarda en dos campos (la dieta y "celíaco"), ¿cada lista y cada copia mira los dos?
+
+Cierre de ronda del 18/11/2026 (R18-01): el celíaco marcado aparte contaba en el contador y no estaba en el reporte ni en la
+copia para cocina; "Vegano + celíaco" salía sólo vegano.
+
+### 193. Un cálculo con datos imposibles (negativos, vacíos), ¿se frena, o muestra un resultado y deja aplicarlo?
+
+Cierre de ronda del 18/11/2026 (R18-02): el afinador de la barra daba un costo sugerido con litros negativos y dejaba
+"Aplicar".
+
+### 194. El alta y la edición del mismo dato, ¿aceptan los mismos valores?
+
+Cierre de ronda del 18/11/2026 (R18-04): el alta de un insumo no aceptaba 1,5 kg y la edición sí.
+
+### 195. Al importar un texto, ¿un dato del evento (personas, fecha) puede terminar como un concepto que se cobra?
+
+Cierre de ronda del 18/11/2026 (R18-05): "Adultos: 40" y "Niños: 10" se importaban como artículos de $40 y $10.
+
+### 196. Un monto que sigue a una etiqueta, ¿se lee después de la etiqueta, o se toma el primer número suelto?
+
+Cierre de ronda del 18/11/2026 (R18-06): "TOTAL: $2.500" daba $0 y "TOTAL:2500" daba $2.500.

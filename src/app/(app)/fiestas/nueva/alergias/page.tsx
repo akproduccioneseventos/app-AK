@@ -1,5 +1,6 @@
 'use client';
 
+import { condicionesDelInvitado, tieneCondicionAlimentaria } from '@/lib/catering/condiciones-del-invitado';
 import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { detectarChoquesMenuYAlergias, type ChoqueAlergiaPlato } from '@/lib/catering/choques-alergias';
@@ -70,9 +71,8 @@ function AlergiasContent() {
 
   const allGuests = useMemo(() => fiesta?.invitados ?? [], [fiesta?.invitados]);
   const confirmedGuests = allGuests.filter(g => g.rsvp === 'Confirmado');
-  const guestsWithRestrictions = confirmedGuests.filter(
-    g => g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna'
-  );
+  // Celíaco marcado aparte (`isCeliac`) también es una restricción (auditoría del 18/11/2026, R18-01).
+  const guestsWithRestrictions = confirmedGuests.filter(g => tieneCondicionAlimentaria(g));
   const guestsWithCeliac = confirmedGuests.filter(g => g.isCeliac);
 
   /**
@@ -96,9 +96,9 @@ function AlergiasContent() {
   const dietCounts = useMemo(() => {
     const counts: Partial<Record<DietaryRestriction, number>> = {};
     confirmedGuests.forEach(g => {
-      if (g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna') {
-        // Suma las personas del grupo, no una por fila.
-        counts[g.dietaryRestriction] = (counts[g.dietaryRestriction] ?? 0) + (g.partySize || 1);
+      // Suma las personas del grupo, no una por fila; cada condición del invitado cuenta (vegano y celíaco, las dos).
+      for (const condicion of condicionesDelInvitado(g)) {
+        counts[condicion] = (counts[condicion] ?? 0) + (g.partySize || 1);
       }
     });
     return counts;
@@ -130,8 +130,8 @@ function AlergiasContent() {
       '',
       '=== DETALLE POR INVITADO ===',
       ...guestsWithRestrictions.map(g => {
-        const cfg = g.dietaryRestriction ? DIET_CONFIG[g.dietaryRestriction] : null;
-        return `• ${g.nombre} (Mesa ${g.tableNumber ?? '-'}): ${cfg?.label ?? ''} ${g.alergiasEspecificas ? `| Detalle: ${g.alergiasEspecificas}` : ''} ${g.notes ? `| Notas: ${g.notes}` : ''}`.trim();
+        const etiquetas = condicionesDelInvitado(g).map(c => DIET_CONFIG[c]?.label ?? c).join(' + ');
+        return `• ${g.nombre} (Mesa ${g.tableNumber ?? '-'}): ${etiquetas} ${g.alergiasEspecificas ? `| Detalle: ${g.alergiasEspecificas}` : ''} ${g.notes ? `| Notas: ${g.notes}` : ''}`.trim();
       }),
     ];
     // Se espera la copia: antes decia "copiado" aunque el navegador la bloqueara, y la lista de
@@ -374,7 +374,7 @@ function AlergiasContent() {
           ) : (
             <div className="space-y-2">
               {filteredGuests.map(guest => {
-                const diet = guest.dietaryRestriction;
+                const diet = condicionesDelInvitado(guest)[0];
                 const cfg = diet ? DIET_CONFIG[diet] : null;
                 const Icon = cfg?.icon ?? Utensils;
                 return (

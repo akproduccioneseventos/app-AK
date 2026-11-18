@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - Cierre de ronda: celíaco, afinador, insumo 1,5 kg e importador
+
+- **Qué pasaba:** el celíaco marcado aparte no llegaba al reporte ni a la copia para cocina (R18-01); el afinador de la barra
+  sugería un costo con litros negativos y dejaba aplicarlo (R18-02); el alta del insumo rechazaba 1,5 kg (R18-04); el
+  importador cobraba "Adultos: 40" y "Niños: 10" como conceptos (R18-05) y leía "TOTAL: $2.500" como $0 (R18-06).
+- **Qué se hizo:** `condicionesDelInvitado` junta la dieta y el celíaco en alergias, orden de evento y el portal; el
+  afinador no calcula ni aplica sin datos válidos; alta y edición del insumo aceptan decimales; el importador toma las
+  personas como datos del evento y lee el monto después de la etiqueta, y avisa si el total no coincide con los artículos.
+  Preguntas 192 a 196.
+
+```comprobar
+usa: condicionesDelInvitado en src/app/(app)/fiestas/nueva/alergias/page.tsx
+usa: consumoValido en src/app/(app)/empresa/menus/tragos/page.tsx
+usa: step="any" en src/app/(app)/empresa/insumos/nuevo/page.tsx
+usa: montoTrasEtiqueta en src/lib/parse-budget-text.ts
+prueba: src/__tests__/cierre-de-ronda-18-11.test.ts
+```
+
 ## 18/11/2026 - Los menores que manda la Presentación LED se ven en el presupuesto
 
 - **Qué pasaba:** la LED pasa los menores como adolescentes y el campo "Niños y Adolescentes" sólo leía niños: decía 0 con 10
