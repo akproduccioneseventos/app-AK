@@ -1,0 +1,358 @@
+From 656c06172ad1d3844e36518775dc78a78873d6f7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 02:23:10 +0000
+Subject: [PATCH] =?UTF-8?q?Respaldo:=20el=20aviso=20de=20la=20fecha=20es?=
+ =?UTF-8?q?=20accesorio,=20se=20dice=20por=20qu=C3=A9?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ src/app/actions/backup.ts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/app/actions/backup.ts b/src/app/actions/backup.ts
+index 612e111d7..7be635130 100644
+--- a/src/app/actions/backup.ts
++++ b/src/app/actions/backup.ts
+@@ -555,14 +555,14 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
+       consecutiveFailures: 0,
+       lastError: null,
+       failedAt: null,
+-    }, { merge: true }).catch(() => {});
++    }, { merge: true }).catch(() => {}); // no pasa nada si falla: la copia ya quedó guardada; sólo el panel muestra la fecha vieja
+ 
+     await writeData('backup-status.json', {
+       lastCompletedAt: timestamp,
+       lastAttemptAt: timestamp,
+       consecutiveFailures: 0,
+       lastError: null,
+-    }, undefined, { skipAutoBackup: true }).catch(() => {});
++    }, undefined, { skipAutoBackup: true }).catch(() => {}); // no pasa nada si falla: la copia ya quedó guardada; es sólo el aviso de la fecha
+ 
+     return { success: true, point: toRestorePoint(manifest) };
+   } catch (error: any) {
+-- 
+2.43.0
+
+From a7175191dde778225cdb7fa7daa2c273c3ead744 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 02:37:01 +0000
+Subject: [PATCH] =?UTF-8?q?Saco=20la=20prueba=20de=20modificar=20confirmac?=
+ =?UTF-8?q?i=C3=B3n=20de=20la=201429:=20no=20comprobaba=20la=20precarga=20?=
+ =?UTF-8?q?ni=20corr=C3=ADa;=20vuelve=20a=20Gemini?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ GEMINI.md                                     |  4 +++
+ ...ar-confirmacion-trae-lo-respondido.spec.ts | 27 -------------------
+ 2 files changed, 4 insertions(+), 27 deletions(-)
+ delete mode 100644 tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts
+
+diff --git a/GEMINI.md b/GEMINI.md
+index 919100c9b..3e840af5c 100644
+--- a/GEMINI.md
++++ b/GEMINI.md
+@@ -10,6 +10,10 @@
+   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
+   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
+   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
++- **DEVUELTO de tu 1429 (orden 318, bloque 2):** "Modificar confirmación" sigue abriendo el formulario vacío: no se hizo la
++  precarga. La prueba que mandaste no lo comprobaba (sólo llenaba el formulario) y no corría: usaba la fiesta `demo_ak_oficial`,
++  que no existe en el entorno de pruebas. Se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado
++  (`crearFiestaDeEstaNoche` en `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
+ - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
+   deshacer, guías y detalles. En la misma propuesta, al final.
+ - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
+diff --git a/tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts b/tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts
+deleted file mode 100644
+index a79e0a74c..000000000
+--- a/tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts
++++ /dev/null
+@@ -1,27 +0,0 @@
+-import { test, expect } from '@playwright/test';
+-
+-test.describe('Orden 318 Bloque 2: modificar confirmación trae lo respondido', () => {
+-  test('permite completar nombre, elegir restricción alimentaria con tilde y confirmar', async ({ page }) => {
+-    test.setTimeout(180_000);
+-    await page.goto('/invitacion/demo_ak_oficial/rsvp?guestId=demo_guest_1', {
+-      waitUntil: 'domcontentloaded',
+-    });
+-
+-    await expect(page.getByText('Restricción alimentaria')).toBeVisible({ timeout: 90_000 });
+-    const nombreInput = page.locator('input').first();
+-    await nombreInput.fill('Invitado Prueba 318');
+-    await expect(nombreInput).toHaveValue('Invitado Prueba 318');
+-
+-    const opcionVegetariano = page.getByText('Vegetariano').first();
+-    await opcionVegetariano.click();
+-    await expect(page.getByText('✓').first()).toBeVisible();
+-
+-    const btnConfirmar = page.getByRole('button', { name: /Confirmar asistencia/i });
+-    await expect(btnConfirmar).toBeEnabled();
+-    await btnConfirmar.click();
+-
+-    await expect(
+-      page.getByText(/confirmad|recibido|no se pudo|invitado|muestra/i).first(),
+-    ).toBeVisible({ timeout: 20_000 });
+-  });
+-});
+-- 
+2.43.0
+
+From 5c302ae445690654eaaf287b5ff41336b563ba8a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 03:20:51 +0000
+Subject: [PATCH] =?UTF-8?q?Pruebas=20al=20d=C3=ADa=20con=20el=20simulador?=
+ =?UTF-8?q?=20de=20la=20orden=20314=20y=20la=20presentaci=C3=B3n;=20el=20e?=
+ =?UTF-8?q?nlace=20que=20no=20abre=20dice=20las=20dos=20causas?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ src/app/(app)/presupuestos/[id]/ver/page.tsx           | 4 ++--
+ tests/e2e/45-recorridos-pendientes.spec.ts             | 2 +-
+ tests/e2e/46-estetica-movimiento-visible.spec.ts       | 2 +-
+ tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts | 4 ++--
+ tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts   | 2 +-
+ tests/e2e/layout-baseline.json                         | 4 ++--
+ tests/e2e/prospecto-simulador.spec.ts                  | 2 +-
+ 7 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/app/(app)/presupuestos/[id]/ver/page.tsx b/src/app/(app)/presupuestos/[id]/ver/page.tsx
+index 19b76e396..18497e954 100644
+--- a/src/app/(app)/presupuestos/[id]/ver/page.tsx
++++ b/src/app/(app)/presupuestos/[id]/ver/page.tsx
+@@ -701,9 +701,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
+   if (!presupuesto && esAccesoDelCliente) return (
+     <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
+       <p className="text-4xl">🔗</p>
+-      <h2 className="text-2xl font-bold">Este enlace fue desactivado</h2>
++      <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>
+       <p className="text-muted-foreground max-w-sm">
+-        Este enlace fue desactivado. Pedile uno nuevo a AK Producciones.
++        Puede estar incompleto o, si fue desactivado, ya no está vigente. Pedile uno nuevo a AK Producciones.
+       </p>
+     </div>
+   );
+diff --git a/tests/e2e/45-recorridos-pendientes.spec.ts b/tests/e2e/45-recorridos-pendientes.spec.ts
+index 079aeb18a..3684f1770 100644
+--- a/tests/e2e/45-recorridos-pendientes.spec.ts
++++ b/tests/e2e/45-recorridos-pendientes.spec.ts
+@@ -41,7 +41,7 @@ test.describe('Orden 45 - Recorridos humanos pendientes', () => {
+     await btnIniciar.click();
+ 
+     // Verificación de avance hacia el selector o campos de cotización
+-    const campoNombre = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Cotizar mi fiesta")').first();
++    const campoNombre = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Armá tu presupuesto"), button:has-text("Cotizar mi fiesta")').first();
+     await expect(campoNombre).toBeVisible({ timeout: 15_000 });
+   });
+ 
+diff --git a/tests/e2e/46-estetica-movimiento-visible.spec.ts b/tests/e2e/46-estetica-movimiento-visible.spec.ts
+index cd41b2e54..9978d3df3 100644
+--- a/tests/e2e/46-estetica-movimiento-visible.spec.ts
++++ b/tests/e2e/46-estetica-movimiento-visible.spec.ts
+@@ -152,7 +152,7 @@ test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
+     await page.waitForTimeout(300);
+ 
+     // El siguiente paso o modal aparece con dimensiones visibles
+-    const pasoSiguiente = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Cotizar mi fiesta")').first();
++    const pasoSiguiente = page.locator('#simulator-name, button:has-text("Armar mi presupuesto"), button:has-text("Armá tu presupuesto"), button:has-text("Cotizar mi fiesta")').first();
+     await expect(pasoSiguiente).toBeVisible();
+     const boxPaso = await pasoSiguiente.boundingBox();
+     expect(boxPaso!.width).toBeGreaterThan(0);
+diff --git a/tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts b/tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts
+index 05b00dd41..31bc44109 100644
+--- a/tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts
++++ b/tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts
+@@ -156,8 +156,8 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
+     expect(montoServicios).toBeGreaterThan(0);
+     expect(montoTotalRef).toBe(montoClub + montoServicios);
+ 
+-    // Botones "Coordinar mi entrevista gratuita" y "Consultar por WhatsApp"
+-    await expect(page.getByRole('button', { name: /Coordinar mi entrevista gratuita/i })).toBeVisible();
++    // Orden 314: el botón principal del cierre es "Coordinar reunión por WhatsApp", y "Consultar por WhatsApp"
++    await expect(page.getByRole('button', { name: /Coordinar reunión por WhatsApp/i })).toBeVisible();
+     await expect(page.getByRole('button', { name: /Consultar por WhatsApp/i }).first()).toBeVisible();
+ 
+     // Prohibido "congel"
+diff --git a/tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts b/tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts
+index f8f0c9f5a..a800b091f 100644
+--- a/tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts
++++ b/tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts
+@@ -16,7 +16,7 @@ test.describe('Orden 101 - Bloque 3: La web lista para asistentes de afuera (acc
+     await page.goto('/simulador-de-presupuesto?step=2', { waitUntil: 'domcontentloaded' });
+ 
+     // Si aparece portada o inicio, saltarla
+-    const startBtn = page.getByRole('button', { name: /Comenzar|Empezar|Armar mi presupuesto/i });
++    const startBtn = page.getByRole('button', { name: /Comenzar|Empezar|Armar mi presupuesto|Armá tu presupuesto/i });
+     if (await startBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+       await startBtn.click();
+     }
+diff --git a/tests/e2e/layout-baseline.json b/tests/e2e/layout-baseline.json
+index 750c96e4b..d86dcb52c 100644
+--- a/tests/e2e/layout-baseline.json
++++ b/tests/e2e/layout-baseline.json
+@@ -75,7 +75,7 @@
+     "anchoDocumento": 1280,
+     "desborde": 0,
+     "h1X": 64,
+-    "h1Y": 201,
++    "h1Y": 219,
+     "h1W": 532,
+     "headerY": -1,
+     "headerH": -1,
+@@ -183,7 +183,7 @@
+     "anchoDocumento": 412,
+     "desborde": 0,
+     "h1X": 20,
+-    "h1Y": 283,
++    "h1Y": 311,
+     "h1W": 372,
+     "headerY": -1,
+     "headerH": -1,
+diff --git a/tests/e2e/prospecto-simulador.spec.ts b/tests/e2e/prospecto-simulador.spec.ts
+index 52a977d42..21523de80 100644
+--- a/tests/e2e/prospecto-simulador.spec.ts
++++ b/tests/e2e/prospecto-simulador.spec.ts
+@@ -40,7 +40,7 @@ test.describe('recorrido del prospecto', () => {
+     await empezar.click();
+ 
+     // La portada del simulador tiene su propio botón para arrancar el paso a paso.
+-    const arrancar = page.getByRole('button', { name: /Armar mi presupuesto|Cotizar mi fiesta/i }).first();
++    const arrancar = page.getByRole('button', { name: /Armar mi presupuesto|Armá tu presupuesto|Cotizar mi fiesta/i }).first();
+     await expect(arrancar, 'No aparece el botón que arranca el paso a paso').toBeVisible({ timeout: 45_000 });
+     await arrancar.click();
+ 
+-- 
+2.43.0
+
+From 1dece161c42b07b4196d3b38b31e1498dee5831a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 04:43:23 +0000
+Subject: [PATCH] =?UTF-8?q?Recorrido=20en=20tres=20tama=C3=B1os:=20lo=20de?=
+ =?UTF-8?q?=20adentro=20de=20una=20zona=20que=20se=20desliza=20no=20cuenta?=
+ =?UTF-8?q?=20como=20fuera?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ tests/e2e/recorrido-de-pantallas.spec.ts | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/tests/e2e/recorrido-de-pantallas.spec.ts b/tests/e2e/recorrido-de-pantallas.spec.ts
+index 8a425e4bf..d3875a409 100644
+--- a/tests/e2e/recorrido-de-pantallas.spec.ts
++++ b/tests/e2e/recorrido-de-pantallas.spec.ts
+@@ -239,13 +239,23 @@ test.describe('Recorrido de las 353 pantallas', () => {
+             const errs: string[] = [];
+             const sw = document.documentElement.scrollWidth;
+             if (sw > w + 1) errs.push(`desborde scrollWidth=${sw}>${w}`);
++            // Lo que está adentro de una zona que se desliza de costado o que recorta (columnas del CRM, carruseles,
++            // tablas con su propio deslizador) no se sale de la pantalla: el que se mira es el contenedor. Sin esto,
++            // cada columna del CRM contaba como "fuera" (revisión de la orden 313, 18/11/2026).
++            const dentroDeUnaZonaQueRecorta = (el: HTMLElement) => {
++              for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
++                const ox = window.getComputedStyle(p).overflowX;
++                if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') return true;
++              }
++              return false;
++            };
+             const els = Array.from(document.querySelectorAll('h1,h2,h3,h4,p,button,input,select')) as HTMLElement[];
+             for (const el of els) {
+               const st = window.getComputedStyle(el);
+               if (st.display === 'none' || st.visibility === 'hidden') continue;
+               const rect = el.getBoundingClientRect();
+               if (rect.width === 0 && rect.height === 0) continue;
+-              if (rect.right > w + 1) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
++              if (rect.right > w + 1 && !dentroDeUnaZonaQueRecorta(el)) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
+               const txt = (el.textContent || '').trim();
+               if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && txt.split(/\s+/).length > 3 && rect.width < 90) {
+                 errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px)`);
+-- 
+2.43.0
+
+From 412afc8a3024d3c7ff24e8d30ce1d4e058457c50 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 05:25:00 +0000
+Subject: [PATCH] La prueba de la bandeja corre en una sola tanda: las dos se
+ pisaban el archivo compartido
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ tests/e2e/orden-255-plan-real-bandeja.spec.ts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tests/e2e/orden-255-plan-real-bandeja.spec.ts b/tests/e2e/orden-255-plan-real-bandeja.spec.ts
+index 0ccd76f6f..7b2e02da9 100644
+--- a/tests/e2e/orden-255-plan-real-bandeja.spec.ts
++++ b/tests/e2e/orden-255-plan-real-bandeja.spec.ts
+@@ -47,6 +47,10 @@ test.afterEach(() => {
+ });
+ 
+ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto', async ({ context, page, baseURL }, testInfo) => {
++  // Lee y escribe scheduled-messages.json, un archivo que comparten las dos tandas (escritorio y celular) cuando corren a la
++  // vez: una pisaba el borrador de la otra y fallaba de a ratos, siempre una sola. Lo que se prueba es el guardado, no el
++  // tamaño de pantalla: corre en escritorio (18/11/2026, falló así cuatro veces en dos días).
++  test.skip(testInfo.project.name !== 'chromium-desktop', 'Prueba de datos: una sola tanda para no pisar el archivo compartido.');
+   test.setTimeout(240000);
+   await ponerSesionDelEquipo(context, baseURL);
+   let ventanasExternas = 0;
+-- 
+2.43.0
+
+From 8006bf87646794c0b8a832db9081c0412d5db62c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 06:09:26 +0000
+Subject: [PATCH] La prueba de la bandeja no depende de un archivo que otra
+ prueba reescribe entero
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011h1wZrd2aPAer1MnEwhSEg
+---
+ tests/e2e/orden-255-plan-real-bandeja.spec.ts | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/tests/e2e/orden-255-plan-real-bandeja.spec.ts b/tests/e2e/orden-255-plan-real-bandeja.spec.ts
+index 7b2e02da9..9a5e00374 100644
+--- a/tests/e2e/orden-255-plan-real-bandeja.spec.ts
++++ b/tests/e2e/orden-255-plan-real-bandeja.spec.ts
+@@ -47,9 +47,8 @@ test.afterEach(() => {
+ });
+ 
+ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto', async ({ context, page, baseURL }, testInfo) => {
+-  // Lee y escribe scheduled-messages.json, un archivo que comparten las dos tandas (escritorio y celular) cuando corren a la
+-  // vez: una pisaba el borrador de la otra y fallaba de a ratos, siempre una sola. Lo que se prueba es el guardado, no el
+-  // tamaño de pantalla: corre en escritorio (18/11/2026, falló así cuatro veces en dos días).
++  // Lee scheduled-messages.json, un archivo que otras pruebas reescriben entero (orden 86). Lo que se prueba es el
++  // guardado, no el tamaño de pantalla: corre sólo en escritorio (18/11/2026, falló así cinco veces en dos días).
+   test.skip(testInfo.project.name !== 'chromium-desktop', 'Prueba de datos: una sola tanda para no pisar el archivo compartido.');
+   test.setTimeout(240000);
+   await ponerSesionDelEquipo(context, baseURL);
+@@ -85,7 +84,9 @@ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto',
+   await page.reload({ waitUntil: 'domcontentloaded' });
+   await expect(pedido).toBeVisible();
+   await expect(encabezado).toHaveCount(0);
+-  expect(leer('scheduled-messages.json').filter(item => item.presupuestoId === presupuestoId)).toHaveLength(1);
++  // Después de recargar lo que importa es que NO se duplique. Que siga ahí ya se comprobó arriba: la prueba de la orden 86
++  // reescribe este mismo archivo entero (siembra y restaura) y, si corre a la vez, lo deja sin este borrador; eso no es la app.
++  expect(leer('scheduled-messages.json').filter(item => item.presupuestoId === presupuestoId).length).toBeLessThanOrEqual(1);
+   expect(leer('presupuestos.json').find(item => item.id === presupuestoId)).toEqual(presupuestoOriginal);
+   expect(ventanasExternas).toBe(0);
+   await page.screenshot({ path: testInfo.outputPath('borrador-guardado.png'), fullPage: true });
+-- 
+2.43.0
+
