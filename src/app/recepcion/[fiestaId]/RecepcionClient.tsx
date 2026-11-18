@@ -3,7 +3,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Invitado } from '@/types/invitado';
-import { checkInGuest } from '@/app/actions/fiesta/invitados.actions';
+import { checkInGuest, undoCheckInGuest } from '@/app/actions/fiesta/invitados.actions';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -96,6 +96,25 @@ export default function RecepcionClient({
       });
       setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
       toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+    } finally {
+      setIsCheckingIn(null);
+    }
+  };
+
+  const handleUndoCheckIn = async (guestId: string) => {
+    if (isCheckingIn) return;
+    setIsCheckingIn(guestId);
+    try {
+      const res = await conTopeDeEspera(undoCheckInGuest(fiestaId, guestId));
+      if (res.success && res.invitado) {
+        const updated = res.invitado;
+        setInvitados(prev => prev.map(inv => inv.id === guestId ? updated : inv));
+        toast({ title: 'Ingreso deshecho', description: 'El invitado volvió a estado pendiente.' });
+      } else {
+        toast({ title: 'No se pudo deshacer', description: res.error || 'Probá de nuevo.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'No se pudo deshacer', description: 'Revisá la conexión y probá de nuevo.', variant: 'destructive' });
     } finally {
       setIsCheckingIn(null);
     }
@@ -197,9 +216,21 @@ export default function RecepcionClient({
 
                   <div>
                     {inv.checkedIn ? (
-                      <div className={`flex flex-col items-center justify-center p-2 rounded-lg ${nightMode ? 'text-emerald-400 bg-emerald-900/30' : 'text-green-600 bg-green-100'}`}>
-                        <CheckCircle2 className="w-8 h-8" />
-                        <span className="text-[10px] font-black uppercase mt-1">Presente</span>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className={`flex flex-col items-center justify-center p-2 rounded-lg ${nightMode ? 'text-emerald-400 bg-emerald-900/30' : 'text-green-600 bg-green-100'}`}>
+                          <CheckCircle2 className="w-8 h-8" />
+                          <span className="text-[10px] font-black uppercase mt-1">Presente</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isCheckingIn === inv.id}
+                          onClick={() => handleUndoCheckIn(inv.id)}
+                          className="h-7 px-2 text-[11px]"
+                        >
+                          Deshacer
+                        </Button>
                       </div>
                     ) : (
                       <Button

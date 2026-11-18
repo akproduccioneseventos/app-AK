@@ -16567,3 +16567,10 @@ prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
 - **Bloque 4 (F9/F10/F11):** `tipoCelebracion` inicial en `''` en `src/lib/fiesta-defaults.ts`; `CrmLeadCard.tsx` envía `leadPhone` y `presupuestos/nuevo/crear/page.tsx` lo carga en `clienteContacto`; `presupuestos/[id]/ver/page.tsx` muestra `"Este enlace fue desactivado. Pedile uno nuevo a AK Producciones"`.
 - **Bloque 5 (O13):** en `evento/social/[fiestaId]/page.tsx`, con 0 canciones muestra `"Todavía no hay canciones para votar"`.
 - **Pruebas y evidencia:** `la-hora-del-evento-no-se-inventa.test.ts`, `crear-presupuesto-desde-prospecto-trae-el-telefono.test.ts`, `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts` y `docs/evidencias/permiso-firma-de-archivos.md`.
+
+## 18/11/2026 - Orden 319 (Auditoría integral: check-in, empleados, multiagente y salones)
+
+- **Bloque 1 (N27: Empleados):** `saveEmpleado` en `src/app/actions/empleados.ts` ahora revalida `/empleados` y `/empleados/${empleadoId}/editar` tras `mutateDataItem` para evitar lecturas cacheadas al recargar.
+- **Bloque 2 (N20 / N29):** agregada `undoCheckInGuest` en `src/app/actions/fiesta/invitados.actions.ts` y botón `"Deshacer"` en `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`; renombrado `"Cerrar fiesta con retroalimentación"` a `"Generar balance de cierre"` en `src/app/(app)/multiagente/acciones/page.tsx`.
+- **Responsive 313:** corregida grilla de `/control-tower` (`md:grid-cols-2 xl:grid-cols-5`) para evitar desborde a 820 px.
+- **Pruebas:** `src/__tests__/el-check-in-se-puede-deshacer.test.ts`, `tests/firebase/editar-empleado-se-guarda.test.ts` y `tests/e2e/el-salon-nuevo-se-crea.spec.ts`.

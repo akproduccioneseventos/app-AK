@@ -413,6 +413,36 @@ export async function checkInGuest(
   return soloLoDelInvitado(result, invitadoActualizado);
 }
 
+/**
+ * Deshace el check-in de un invitado marcado por error (Orden 319 N20).
+ */
+export async function undoCheckInGuest(
+  fiestaId: string,
+  guestId: string,
+): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    await requireFiestaWriteAccess(fiestaId);
+  } catch (e: any) {
+    return { success: false, error: e.message || 'No autorizado para modificar este evento.' };
+  }
+  let invitadoActualizado: Invitado | undefined;
+  let found = false;
+  const result = await updateFiestaData(fiestaId, (data) => {
+    const invitados = (data.invitados || []).map((inv) => {
+      if (inv.id === guestId) {
+        found = true;
+        invitadoActualizado = { ...inv, checkedIn: false, checkInTimestamp: undefined };
+        return invitadoActualizado;
+      }
+      return inv;
+    });
+    if (!found) return data;
+    return { ...data, invitados };
+  });
+  if (!found) return { success: false, error: 'Invitado no encontrado.' };
+  return soloLoDelInvitado(result, invitadoActualizado);
+}
+
 // ─── Public RSVP (invitation page) ───────────────────────────────────────────
 
 export async function submitPublicRsvp(

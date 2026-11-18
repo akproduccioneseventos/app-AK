@@ -119,7 +119,7 @@ export default async function ControlTowerPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <Button asChild className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href="/control-tower/post-fiesta">Post-fiesta</Link></Button>
         <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/control-tower/comercial">Seguimientos</Link></Button>
         <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/control-tower/preparacion">Preparación</Link></Button>
