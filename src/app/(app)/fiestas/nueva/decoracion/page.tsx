@@ -1459,7 +1459,7 @@ function DecoracionYDisenoEventoContent() {
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {decoracionData.fotosIdeasCliente.map((fotoUrl, fIdx) => (
                     <div key={fIdx} className="relative aspect-square rounded-xl overflow-hidden border border-purple-200 bg-white shadow-sm">
                       <NextImage src={fotoUrl} alt={`Referencia cliente ${fIdx + 1}`} layout="fill" objectFit="cover" />
