@@ -239,13 +239,23 @@ test.describe('Recorrido de las 353 pantallas', () => {
             const errs: string[] = [];
             const sw = document.documentElement.scrollWidth;
             if (sw > w + 1) errs.push(`desborde scrollWidth=${sw}>${w}`);
+            // Lo que está adentro de una zona que se desliza de costado o que recorta (columnas del CRM, carruseles,
+            // tablas con su propio deslizador) no se sale de la pantalla: el que se mira es el contenedor. Sin esto,
+            // cada columna del CRM contaba como "fuera" (revisión de la orden 313, 18/11/2026).
+            const dentroDeUnaZonaQueRecorta = (el: HTMLElement) => {
+              for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+                const ox = window.getComputedStyle(p).overflowX;
+                if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') return true;
+              }
+              return false;
+            };
             const els = Array.from(document.querySelectorAll('h1,h2,h3,h4,p,button,input,select')) as HTMLElement[];
             for (const el of els) {
               const st = window.getComputedStyle(el);
               if (st.display === 'none' || st.visibility === 'hidden') continue;
               const rect = el.getBoundingClientRect();
               if (rect.width === 0 && rect.height === 0) continue;
-              if (rect.right > w + 1) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
+              if (rect.right > w + 1 && !dentroDeUnaZonaQueRecorta(el)) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
               const txt = (el.textContent || '').trim();
               if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && txt.split(/\s+/).length > 3 && rect.width < 90) {
                 errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px)`);
