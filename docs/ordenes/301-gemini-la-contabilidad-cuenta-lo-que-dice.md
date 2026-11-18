@@ -38,7 +38,7 @@ Sale de la auditoría de contabilidad, simulador y presupuestos (13/11/2026).
 - Reporte de presupuestos: el total se separa en **"Aceptados"** y **"Pendientes"**, y cada pantalla dice si el monto es
   **"con ajuste anual"** o **"sin ajuste"**.
 
-## Bloque 2 — Poner al día pide la fecha real del cobro (P1)
+## Bloque 2 — Poner al día pide la fecha real del cobro (P1) — YA LO HIZO CLAUDE (18/11/2026)
 
 Cada cobro marcado pide **fecha en que se cobró** (obligatoria, no puede ser futura) y **medio** (transferencia, efectivo,
 Mercado Pago, tarjeta); `aplicarPonerAlDia` (`src/app/actions/poner-al-dia.ts`) guarda esa fecha y ese medio, nunca la de
@@ -79,7 +79,9 @@ tablero, del panel contable y de "Poner al día".
 ```comprobar
 no-usa: Suma de todas las facturas generadas en src/app/(app)/empresa/contabilidad/page.tsx
 prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
-prueba: tests/firebase/poner-al-dia-guarda-la-fecha-real.test.ts
+usa: detalleCobros en src/app/actions/poner-al-dia.ts
+usa: detalleCobros en src/app/(app)/empresa/contabilidad/poner-al-dia/page.tsx
+prueba: src/__tests__/poner-al-dia-aplica-solo-lo-que-arma-el-servidor.test.ts
 prueba: src/__tests__/el-crm-avanza-con-la-venta.test.ts
 prueba: src/__tests__/el-presupuesto-muestra-el-ajuste.test.ts
 prueba: src/__tests__/el-contrato-no-tiene-huecos.test.ts

@@ -59,8 +59,10 @@ it('sin permiso de contabilidad no lee ni aplica nada', async () => {
   expect(addPago).not.toHaveBeenCalled();
 });
 
+const conFecha = { detalleCobros: { p1: { fecha: '2026-09-15', metodoPago: 'Efectivo' as const } } };
+
 it('anota el cobro por el saldo de ahora y con referencia que no se duplica', async () => {
-  const r = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'] });
+  const r = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'], ...conFecha });
   expect(r).toMatchObject({ success: true, hechos: 1 });
   expect(addPago).toHaveBeenCalledTimes(1);
   expect(addPago.mock.calls[0][0]).toBe('p1');
@@ -78,8 +80,23 @@ it('ignora lo que la pantalla manda y ya no está en la lista', async () => {
 
 it('si el cobro no se guarda, la respuesta lo dice', async () => {
   addPago.mockResolvedValueOnce({ success: false, error: 'base caída' } as any);
-  const r = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'] });
+  const r = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'], ...conFecha });
   expect(r.success).toBe(false);
   expect(r.hechos).toBe(0);
   expect(r.fallas[0].error).toBe('base caída');
 });
+
+// Orden 301, bloque 2: el cobro va con la fecha y el medio en que se cobró, nunca con la fecha de la fiesta.
+it('el cobro se anota con la fecha y el medio elegidos, no con la fecha de la fiesta', async () => {
+  await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'], ...conFecha });
+  expect(addPago.mock.calls[0][1]).toMatchObject({ fecha: '2026-09-15', metodoPago: 'Efectivo' });
+});
+
+it('sin fecha de cobro, o con una fecha futura, no se anota nada y se dice por qué', async () => {
+  const sinFecha = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'] });
+  expect(sinFecha.fallas[0].error).toMatch(/fecha en que se cobró/);
+  const futura = await aplicarPonerAlDia({ ...vacio, cobrar: ['p1'], detalleCobros: { p1: { fecha: '2026-12-01', metodoPago: 'Efectivo' } } });
+  expect(futura.fallas[0].error).toMatch(/futura/);
+  expect(addPago).not.toHaveBeenCalled();
+});
+

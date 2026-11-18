@@ -16532,3 +16532,13 @@ usa: fiestaData.menuAsignadoId en src/app/(app)/fiestas/nueva/catering/lista-com
 prueba: src/__tests__/el-asistente-dice-si-escribe.test.ts
 ```
 
+- **18/11/2026 — Lo de plata que seguía pendiente desde el 13/11 (orden 301) y la revisión de la 1429.** "Poner al día" pide
+  la fecha real del cobro (no futura) y el medio, y confirma "Vas a registrar N cobros por $X"; antes anotaba la fecha de la
+  fiesta y "Otro". "Ventas Totales" pasa a "Ventas comprometidas" (suma facturas y presupuestos aceptados), "Cobros
+  Pendientes" del flujo de caja a "Ingresos esperados", y sin costos el ratio dice "Sin datos suficientes".
+
+```comprobar
+usa: detalleCobros en src/app/actions/poner-al-dia.ts
+prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
+```
+

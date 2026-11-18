@@ -8,7 +8,7 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { armarPonerAlDia, type PonerAlDia } from '@/lib/contabilidad/poner-al-dia';
 import { addPagoToPresupuesto, archivePresupuesto } from '@/app/actions/presupuestos';
 import { archiveFiesta, suspenderFiestaAction } from '@/app/actions/fiesta/fiesta.actions';
-import type { Presupuesto } from '@/types/presupuesto';
+import type { MetodoPago, Presupuesto } from '@/types/presupuesto';
 
 /**
  * "Poner al día" (pedido del dueño, 9/10/2026). Es plata: sólo contabilidad. La lista la arma
@@ -37,10 +37,17 @@ export async function getPonerAlDia(): Promise<{ success: true; datos: PonerAlDi
 
 export interface SeleccionPonerAlDia {
   cobrar: string[];
+  /**
+   * Fecha real del cobro (AAAA-MM-DD, no futura) y medio, por presupuesto. Obligatorio para cada cobro marcado: antes se
+   * anotaba con la fecha de la fiesta y "Otro", y el flujo de caja de ese mes quedaba corrido (orden 301, bloque 2).
+   */
+  detalleCobros?: Record<string, { fecha: string; metodoPago: MetodoPago }>;
   cancelar: string[];
   archivarCopias: string[];
   archivarPruebas: string[];
 }
+
+const METODOS: MetodoPago[] = ['Efectivo', 'Transferencia Bancaria', 'MercadoPago', 'Cheque', 'Tarjeta', 'Otro'];
 
 export interface ResultadoPonerAlDia {
   success: boolean;
@@ -61,11 +68,26 @@ export async function aplicarPonerAlDia(sel: SeleccionPonerAlDia): Promise<Resul
   const fallas: ResultadoPonerAlDia['fallas'] = [];
   let hechos = 0;
 
+  const hoy = hoyEnUruguay();
   for (const c of datos.cobros.filter((x) => sel.cobrar.includes(x.presupuestoId))) {
+    const detalle = sel.detalleCobros?.[c.presupuestoId];
+    const fechaCobro = String(detalle?.fecha || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaCobro)) {
+      fallas.push({ que: `Cobro de ${c.cliente}`, error: 'Falta la fecha en que se cobró.' });
+      continue;
+    }
+    if (fechaCobro > hoy) {
+      fallas.push({ que: `Cobro de ${c.cliente}`, error: 'La fecha del cobro no puede ser futura.' });
+      continue;
+    }
+    if (!detalle?.metodoPago || !METODOS.includes(detalle.metodoPago)) {
+      fallas.push({ que: `Cobro de ${c.cliente}`, error: 'Falta el medio de pago.' });
+      continue;
+    }
     const res = await addPagoToPresupuesto(c.presupuestoId, {
-      fecha: c.fecha,
+      fecha: fechaCobro,
       monto: c.saldo,
-      metodoPago: 'Otro',
+      metodoPago: detalle.metodoPago,
       estadoPago: 'confirmado',
       // Con este prefijo un segundo toque no lo anota dos veces.
       referencia: `AK_SYNC:poner-al-dia:${c.presupuestoId}`,
