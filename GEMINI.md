@@ -12,7 +12,9 @@
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
 - **Tu 1429 (órdenes 310 a 318) está revisada y casi lista, pero NO se publicó todavía (18/11).** Claude le agregó arreglos
   (contrato sin buscar al cliente por nombre, pruebas al día con el simulador nuevo, el recorrido sin contar las zonas que se
-  deslizan) en la rama `claude/juntar-1429`. **Seguí desde esa rama, no desde la tuya.** Lo que la frena es tu propio control
+  deslizan). **Esos arreglos están en `docs/parches/`**: en tu rama `gemini/ordenes-309-310`, primero `git merge origin/main`,
+  después `git am docs/parches/juntar-1429.patch` y `git apply docs/parches/juntar-1429-contrato.diff`, y
+  `npm run editor:empaquetar`. Lo que la frena es tu propio control
   de tres tamaños (orden 313): marca estas pantallas con texto partido palabra por palabra o que se sale. Arreglalas (sin
   esconder con overflow ni achicar letras), en la misma rama:
   `/empresa/menus` (celular y tablet), `/empresa/presentacion-led/configuracion` (celular), `/empresa/servicios` (tablet),
