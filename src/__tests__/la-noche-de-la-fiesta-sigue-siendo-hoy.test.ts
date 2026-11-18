@@ -74,12 +74,17 @@ describe('La noche de la fiesta sigue siendo hoy (12/10 22:30 en Uruguay)', () =
 
 describe('Las pantallas con ?fiestaId= lo leen de la dirección', () => {
   const base = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva');
-  const leen = ['servicios-contratados', 'centro-total', 'mission-control', 'centro'];
-  it.each(leen)('%s mira fiestaId y pide esa fiesta', (d) => {
-    const src = fs.readFileSync(path.join(base, d, 'page.tsx'), 'utf8');
+  it('servicios-contratados mira fiestaId y pide esa fiesta', () => {
+    const src = fs.readFileSync(path.join(base, 'servicios-contratados', 'page.tsx'), 'utf8');
     expect(src).toMatch(/fiestaId/);
     expect(src).toMatch(/getFiestaById\(/);
     expect(src).toMatch(/earchParams/);
+  });
+  // Las redirecciones al centro van directo con el id de la dirección (18/11/2026: leer la fiesta las colgaba).
+  it.each(['centro-total', 'mission-control', 'centro'])('%s lleva al centro de la fiesta de la dirección', (d) => {
+    const src = fs.readFileSync(path.join(base, d, 'page.tsx'), 'utf8');
+    expect(src).toMatch(/earchParams/);
+    expect(src).toMatch(/redirect\(`\/fiestas\/\$\{encodeURIComponent\(fiestaId\)\}\/centro`\)/);
   });
 });
 
