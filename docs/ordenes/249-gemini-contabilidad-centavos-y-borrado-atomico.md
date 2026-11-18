@@ -109,6 +109,8 @@ cambiar ninguna comprobación**.
 
 ```comprobar
 usa: deleteInvoiceAction en src/app/(app)/invoices/page.tsx
+usa: Esa factura ya no existe en src/app/actions/invoices.ts
+usa: tiene cobros o contrato firmado en src/app/actions/presupuestos.ts
 usa: armarResumenParaElContador en src/lib/contabilidad/mandar-resumen-al-contador.ts
 no-usa: Math.round en src/lib/contabilidad/resumen-para-el-contador.ts
 prueba: src/__tests__/la-factura-no-se-borra-mientras-se-cobra.test.ts

@@ -142,11 +142,14 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
       setPresupuesto(fetchedPresupuesto);
       const pAny = fetchedPresupuesto as any;
-      const matched = allCustomers.find((c: Customer) =>
-        (c.id && (pAny.clienteId === c.id || pAny.customerId === c.id)) ||
-        (c.name && fetchedPresupuesto.clienteNombre && c.name.trim().toLowerCase() === fetchedPresupuesto.clienteNombre.trim().toLowerCase()) ||
-        (c.phone && fetchedPresupuesto.clienteContacto && c.phone.replace(/\D/g, '') === fetchedPresupuesto.clienteContacto.replace(/\D/g, ''))
-      );
+      // El cliente se busca por su id, o por el teléfono si es UNO solo. Nunca por el nombre: con dos clientes que se llaman
+      // igual, el contrato salía con la cédula y el domicilio de otra persona (revisión de la 1429, 18/11/2026).
+      const porId = allCustomers.find((c: Customer) => c.id && (pAny.clienteId === c.id || pAny.customerId === c.id));
+      const telefono = (fetchedPresupuesto.clienteContacto || '').replace(/\D/g, '');
+      const porTelefono = telefono.length >= 8
+        ? allCustomers.filter((c: Customer) => c.phone && c.phone.replace(/\D/g, '') === telefono)
+        : [];
+      const matched = porId || (porTelefono.length === 1 ? porTelefono[0] : undefined);
       setCustomer(matched || null);
       setLogoUrl(templateSettings.logoUrl || null);
       setCompanyName(companyInfo?.companyName || 'AK Producciones Eventos');
