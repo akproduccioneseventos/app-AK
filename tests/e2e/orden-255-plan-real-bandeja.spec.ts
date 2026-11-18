@@ -47,6 +47,10 @@ test.afterEach(() => {
 });
 
 test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto', async ({ context, page, baseURL }, testInfo) => {
+  // Lee y escribe scheduled-messages.json, un archivo que comparten las dos tandas (escritorio y celular) cuando corren a la
+  // vez: una pisaba el borrador de la otra y fallaba de a ratos, siempre una sola. Lo que se prueba es el guardado, no el
+  // tamaño de pantalla: corre en escritorio (18/11/2026, falló así cuatro veces en dos días).
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Prueba de datos: una sola tanda para no pisar el archivo compartido.');
   test.setTimeout(240000);
   await ponerSesionDelEquipo(context, baseURL);
   let ventanasExternas = 0;
