@@ -21,6 +21,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta, getDatosFiestasParaAlertas } from '@/app/actions/alertas.actions';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
@@ -80,11 +81,29 @@ export default function AlertasPage() {
   const fetchAlertas = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, fiestasInfo] = await Promise.all([
+      const [data, fiestasInfo, kpiRes] = await Promise.all([
         getAlertasGlobalesConLeidas(),
         getDatosFiestasParaAlertas(),
+        getDashboardKpiData().catch(() => null),
       ]);
-      setAlertas(data);
+      const idsYa = new Set(data.map((a) => a.id));
+      const extrasPanel = (kpiRes?.success && kpiRes.data?.alerts ? kpiRes.data.alerts : [])
+        .filter((a) => a?.id && !idsYa.has(a.id))
+        .map((a) => ({
+          id: a.id,
+          reglaId: a.type || 'panel_kpi',
+          reglaNombre: a.title || 'Plata y agenda',
+          categoria: 'Plata y agenda',
+          titulo: a.title,
+          mensaje: a.description,
+          tipo: a.severity === 'high' ? 'urgente' : a.severity === 'medium' ? 'atencion' : 'recordatorio',
+          fiestaId: '',
+          fiestaNombre: 'Plata y agenda',
+          enlace: a.href || '/admin',
+          rutaDestino: a.href || '/admin',
+          leida: false,
+        } as unknown as AlertaAutomatica));
+      setAlertas([...data, ...extrasPanel]);
       setDatosFiestas(fiestasInfo);
       if ((data as any)?.lecturaIncompleta) {
         toast({

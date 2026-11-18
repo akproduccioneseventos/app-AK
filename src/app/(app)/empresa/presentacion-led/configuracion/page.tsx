@@ -211,7 +211,7 @@ export default function PresentacionLedConfiguracionPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur-sm border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur-sm border-b border-white/10 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link href="/empresa" className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors">
             <ArrowLeft className="h-5 w-5" />
