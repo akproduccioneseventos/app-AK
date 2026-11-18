@@ -1859,3 +1859,19 @@ Pruebas funcionales del auditor, 17/11/2026: el contrato decía "a las 03:00" si
 
 Pruebas funcionales del auditor, 17/11/2026: "Modificar confirmación" abría el formulario en blanco.
 
+### 176. Un estado que muestra la pantalla ("activado", "desactivado"), ¿sale de la misma regla que aplica el código?
+
+Auditoría integral del 17/11/2026: Ajustes decía "Modo operativo: desactivado" y el asistente creaba prospectos.
+
+### 177. Una pantalla que promete sumar algo de otra ("se suman solos"), ¿lo lee de verdad?
+
+Auditoría integral del 17/11/2026: el menú asignado a la fiesta no llegaba a la lista de compras.
+
+### 178. Un total de plata, ¿deja afuera lo archivado?
+
+Auditoría integral del 17/11/2026: "Propuestas activas" del CRM sumaba un presupuesto archivado.
+
+### 179. Un guardado que dice "listo", ¿sigue ahí al recargar?
+
+Auditoría integral del 17/11/2026: editar un empleado y dar de alta un salón no quedaban, sin aviso.
+

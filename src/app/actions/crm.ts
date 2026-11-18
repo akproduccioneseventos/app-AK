@@ -902,7 +902,7 @@ export async function getCrmKpiData() {
 
     const activeLeads = leads.filter(l => !terminadas.has(l.currentStageId ?? ''));
     const pipelineValue = (presupuestos || [])
-        .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
+        .filter(p => !(p as { archived?: boolean }).archived && activeLeads.some(l => l.presupuestoId === p.id))
         .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
     const wonCount = leads.filter(l => ganadoras.has(l.currentStageId ?? '')).length;
@@ -940,7 +940,7 @@ export async function getCrmBoardData(): Promise<{
 
         const activeLeads = leads.filter(lead => !terminadas.has(lead.currentStageId ?? ''));
         const pipelineValue = (presupuestos || [])
-            .filter(presupuesto => activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
+            .filter(presupuesto => !(presupuesto as { archived?: boolean }).archived && activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
             .reduce((sum, presupuesto) => sum + (Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0), 0);
         const wonLeads = leads.filter(lead => ganadoras.has(lead.currentStageId ?? '')).length;
         const lostLeads = leads.filter(lead => perdedoras.has(lead.currentStageId ?? '')).length;
