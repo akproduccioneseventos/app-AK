@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { aplicarPonerAlDia, getPonerAlDia, type ResultadoPonerAlDia } from '@/app/actions/poner-al-dia';
 import type { PonerAlDia } from '@/lib/contabilidad/poner-al-dia';
+import type { MetodoPago } from '@/types/presupuesto';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const pesos = (n: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(n);
 const fecha = (f: string) => (f ? f.split('-').reverse().join('/') : '—');
@@ -22,6 +24,7 @@ export default function PonerAlDiaPage() {
   const [datos, setDatos] = useState<PonerAlDia | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cobrar, setCobrar] = useState<Set<string>>(new Set());
+  const [detalleCobros, setDetalleCobros] = useState<Record<string, { fecha: string; metodoPago: MetodoPago }>>({});
   const [cancelar, setCancelar] = useState<Set<string>>(new Set());
   const [copias, setCopias] = useState<Set<string>>(new Set());
   const [pruebas, setPruebas] = useState<Set<string>>(new Set());
@@ -62,10 +65,21 @@ export default function PonerAlDiaPage() {
   };
 
   const aplicar = async () => {
+    const marcados = (datos?.cobros || []).filter((c) => cobrar.has(c.presupuestoId));
+    const sinFecha = marcados.filter((c) => !detalleCobros[c.presupuestoId]?.fecha);
+    if (sinFecha.length > 0) {
+      toast({ title: 'Falta la fecha del cobro', description: `Poné en qué fecha se cobró: ${sinFecha.map((c) => c.cliente).join(', ')}.`, variant: 'destructive' });
+      return;
+    }
+    if (marcados.length > 0) {
+      const suma = marcados.reduce((s, c) => s + c.saldo, 0);
+      if (!window.confirm(`Vas a registrar ${marcados.length} cobro(s) por ${pesos(suma)}. ¿Confirmás?`)) return;
+    }
     setAplicando(true);
     try {
       const r = await aplicarPonerAlDia({
         cobrar: [...cobrar],
+        detalleCobros,
         cancelar: [...cancelar],
         archivarCopias: [...copias],
         archivarPruebas: [...pruebas],
@@ -124,15 +138,45 @@ export default function PonerAlDiaPage() {
       <Card>
         <CardHeader>
           <CardTitle>Fiestas que ya pasaron y figuran sin cobrar ({datos.cobros.length})</CardTitle>
-          <CardDescription>Se registra un cobro confirmado por el saldo, con la fecha de la fiesta.</CardDescription>
+          <CardDescription>Se registra un cobro confirmado por el saldo, con la fecha en que se cobró y el medio.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {datos.cobros.length === 0 && <p className="text-sm text-slate-500">No hay ninguna.</p>}
           {datos.cobros.map((c) => (
-            <Fila key={c.presupuestoId} marcado={cobrar.has(c.presupuestoId)} onChange={() => alternar(cobrar, setCobrar, c.presupuestoId)}>
+            <div key={c.presupuestoId}>
+            <Fila marcado={cobrar.has(c.presupuestoId)} onChange={() => alternar(cobrar, setCobrar, c.presupuestoId)}>
               <b>{c.cliente}</b> · {fecha(c.fecha)} · saldo <b>{pesos(c.saldo)}</b>
               <span className="text-slate-500"> (total {pesos(c.total)}, cobrado {pesos(c.cobrado)})</span>
             </Fila>
+              {cobrar.has(c.presupuestoId) && (
+                <div className="ml-11 -mt-1 mb-1 flex flex-wrap items-center gap-2">
+                  <label className="text-xs text-slate-600">
+                    Se cobró el{' '}
+                    <input
+                      type="date"
+                      aria-label={`Fecha en que se cobró a ${c.cliente}`}
+                      max={hoyEnUruguay()}
+                      value={detalleCobros[c.presupuestoId]?.fecha || ''}
+                      onChange={(e) => setDetalleCobros((d) => ({ ...d, [c.presupuestoId]: { metodoPago: d[c.presupuestoId]?.metodoPago || 'Transferencia Bancaria', fecha: e.target.value } }))}
+                      className="rounded border px-1 py-0.5"
+                    />
+                  </label>
+                  <select
+                    aria-label={`Medio de pago de ${c.cliente}`}
+                    value={detalleCobros[c.presupuestoId]?.metodoPago || 'Transferencia Bancaria'}
+                    onChange={(e) => setDetalleCobros((d) => ({ ...d, [c.presupuestoId]: { fecha: d[c.presupuestoId]?.fecha || '', metodoPago: e.target.value as MetodoPago } }))}
+                    className="rounded border px-1 py-0.5 text-xs"
+                  >
+                    <option value="Transferencia Bancaria">Transferencia</option>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="MercadoPago">Mercado Pago</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+              )}
+            </div>
           ))}
         </CardContent>
       </Card>

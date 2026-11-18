@@ -113,10 +113,10 @@ export default function FlujoCajaProyectadoPage() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Cobros Pendientes" value={formatCurrency(stats.totalIncome)} icon={TrendingUp} description="Ingresos por entrar" />
+        <KpiCard title="Ingresos esperados" value={formatCurrency(stats.totalIncome)} icon={TrendingUp} description="Lo que se espera cobrar en los próximos meses (orden 301)" />
         <KpiCard title="Costos Proyectados" value={formatCurrency(stats.totalExpenses)} icon={TrendingDown} description="Gastos en camino" />
         <KpiCard title="Balance Neto" value={formatCurrency(stats.netBalance)} icon={DollarSign} className={cn(stats.netBalance >= 0 ? "border-emerald-100" : "border-rose-100")} />
-        <KpiCard title="Ratio de Cobertura" value={stats.coverageRatio.toFixed(2)} icon={ShieldCheck} description="Ingreso / Egreso" />
+        <KpiCard title="Ratio de Cobertura" value={stats.totalExpenses > 0 ? stats.coverageRatio.toFixed(2) : 'Sin datos suficientes'} icon={ShieldCheck} description="Ingreso / Egreso" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
