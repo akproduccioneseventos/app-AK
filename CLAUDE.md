@@ -1299,6 +1299,15 @@ anotaba los cobros con la fecha de la fiesta, rótulos del panel que decían otr
 **Qué se hace distinto:** al juntar cada informe nuevo se corre `npm run ordenes?` y lo de plata que siga en FALTA se programa
 en la misma tanda, aunque esté en una orden de Gemini (error 41).
 
+### 57. Declarar escaneos "cubiertos por una prueba" para no escribirlos
+
+**Pasó el 18 de noviembre de 2026.** Las once preguntas de ese día (180 a 190) quedaron como "las cubre una prueba" y
+ninguna tenía escaneo automático. El dueño: *"los escaneos tienen que ir automáticamente, no sé por qué no lo has hecho"*.
+
+**Qué se hace distinto:** toda pregunta nueva lleva su escaneo en `scripts/las-formas-que-mienten.mjs` si la forma se puede
+buscar con una expresión; la lista de "no se puede escanear" es sólo para lo que de verdad no se puede (un comportamiento,
+no un texto). Y el escaneo se prueba con un caso que tiene que dar positivo.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1493,6 +1502,10 @@ matafuego.
 
 
 ## CÓMO SE TRABAJA: resultados, no relato
+
+**Orden del dueño, 18 de noviembre de 2026:** *"no me hagas textos enormes repitiendo cosas; sé más concreto; que te quede
+como regla"*. **Cada respuesta: máximo cinco renglones**, sin repetir lo ya dicho, sin listas de lo que se hizo paso a paso.
+Lo que cambia para el negocio y, si hace falta, una decisión suya. Nada más.
 
 **Orden del dueño, 3 de septiembre de 2026.** Palabras suyas: *"estoy medio cansado con el
 proceso, puro texto, quiero resultados"*, *"terminá de una vez y no hables tanto"*.

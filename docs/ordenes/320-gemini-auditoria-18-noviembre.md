@@ -73,7 +73,13 @@ hasta 10 (nombre, etapa, fecha de la fiesta). **Sólo lee.** Que la vean los per
 - **C18-02:** `src/app/recursos-multi-evento/page.tsx` cuenta las fiestas **suspendidas** como próximas y en "Fechas con
   Múltiples Eventos". Excluirlas de próximos, coincidencias y disponibilidad (mismo criterio que usa la lista de fiestas para
   no mostrarlas); un filtro "Ver suspendidas" si hace falta mirarlas. Buscá en `src/` las demás listas de "próximos" y
-  conflictos de personal o stock que no filtren suspendidas, y aplicá lo mismo.
+  conflictos de personal o stock que no filtren suspendidas, y aplicá lo mismo. **Claude ya buscó:** leen todas las
+  fiestas (`getAllFiestas()` o `getFiestas(true)`), hablan de próximas o futuras y no miran `esFiestaSuspendida`
+  (`src/lib/fiesta/revisar-fiestas.ts`): `src/app/actions/assistant.ts`, `control-tower.ts`, `analytics.ts`,
+  `smart-automations.ts`, `alertas.actions.ts`, `src/app/recursos-multi-evento/page.tsx`,
+  `src/app/(app)/empresa/salones/club-uruguay/page.tsx`, `src/app/(app)/customers/page.tsx` y
+  `src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`. Revisá cada uno: si cuenta trabajo futuro, que deje afuera las
+  suspendidas; si es historial o plata ya cobrada (`analytics.ts`), queda como está y lo anotás.
 - **M1 Galería** (`/empresa/galeria`, pestaña "Por tipo de fiesta"): seis fotos con tipo "General" no aparecen en el grupo
   General (aparecen en "Todas"). Agrupar por el mismo valor normalizado que muestra la etiqueta, y que la suma de los grupos
   dé el total.
