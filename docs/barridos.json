@@ -739,7 +739,7 @@
     },
     "185": {
       "fecha": "2026-11-18",
-      "resultado": "Arreglos dentro de un bloque que no corre: lista de compras (menú, bebidas y postres fuera del if del presupuesto, con prueba que abre la pantalla)."
+      "resultado": "Arreglos dentro de un bloque que no corre: lista de compras (menú, bebidas y postres fuera del if del presupuesto, con prueba del caso sin presupuesto)."
     },
     "186": {
       "fecha": "2026-11-18",

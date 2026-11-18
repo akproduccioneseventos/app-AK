@@ -136,7 +136,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   182: 'Total y detalle: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (cobrosDelRecibo).',
   183: 'Número del contrato: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts ($10.000 y 30 días contra la plantilla).',
   184: 'Marcadores por pantalla: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (anexo sin huecos).',
-  185: 'Arreglo que no corre en el caso: src/__tests__/compras-con-menu-y-sin-presupuesto.test.tsx (abre la pantalla).',
+  185: 'Arreglo que no corre en el caso: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts (caso sin presupuesto).',
   186: 'Recorte del asistente: comprobar de la orden 320 (buscarProspecto) y su prueba con 16 prospectos.',
   163: 'Cuotas con otra base que el precio: e2e el-simulador-no-muestra-el-ajuste (orden 316 bloque 1).',
   164: 'Cola local contada como envío: prueba del buzón de la orden 316 bloque 2.',

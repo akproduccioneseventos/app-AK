@@ -22,11 +22,11 @@ prueba: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts
 
 - **Qué pasaba:** el arreglo del 17/11 sumaba el menú asignado, pero adentro del bloque que sólo corre con presupuesto; el
   auditor lo probó sin presupuesto y siguió vacía (N26). La prueba buscaba el nombre del campo y daba verde.
-- **Qué se hizo:** el menú asignado, las bebidas y los postres se suman fuera de ese bloque. La prueba nueva abre la
-  pantalla con una fiesta sin presupuesto y mira que aparezca el ingrediente. Pregunta 185.
+- **Qué se hizo:** el menú asignado, las bebidas y los postres se suman fuera de ese bloque. La cuenta vive en
+  `compras-del-menu-asignado.ts` y su prueba usa el caso exacto: fiesta sin presupuesto, el ingrediente aparece. Pregunta 185.
 
 ```comprobar
-prueba: src/__tests__/compras-con-menu-y-sin-presupuesto.test.tsx
+prueba: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts
 ```
 
 ## 13/11/2026 - "Poner al día" ya no trae los cobros marcados

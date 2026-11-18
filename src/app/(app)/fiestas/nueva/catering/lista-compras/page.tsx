@@ -30,6 +30,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
+import { comprasDelMenuAsignado } from '@/lib/compras/compras-del-menu-asignado';
 import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
 interface ShoppingListItem {
@@ -191,30 +192,10 @@ function ListaDeComprasContent() {
       const menuAsignado = fiestaData.menuAsignadoId
           ? allMenus.find(m => m.id === fiestaData.menuAsignadoId)
           : undefined;
-      if (menuAsignado) {
-          const yaContados = platosYaContados;
-          for (const plato of menuAsignado.items || []) {
-              if (yaContados.has(plato.id)) continue;
-              if (!plato.ingredients?.length) {
-                  sinIngredientes.push(plato.name);
-                  continue;
-              }
-              for (const ing of plato.ingredients) {
-                  const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
-                  if (qtyPerPerson <= 0) continue;
-                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
-                  rawList.push({
-                      nombre: ing.name,
-                      cantidadNecesaria: qtyPerPerson * totalInvitados,
-                      unit: ing.unit,
-                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
-                      proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
-                      origen: `Menú asignado: ${plato.name}`,
-                      origenId: ing.origenId,
-                  });
-              }
-          }
-      }
+      // Fuera del bloque del presupuesto: corre también sin presupuesto (auditoría del 18/11/2026, N26).
+      const delMenu = comprasDelMenuAsignado(menuAsignado, platosYaContados, totalInvitados, catalogoInsumos);
+      rawList.push(...delMenu.compras);
+      sinIngredientes.push(...delMenu.sinIngredientes);
 
       setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
 
