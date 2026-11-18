@@ -104,3 +104,27 @@ describe('el recibo detalla los mismos cobros que suma', () => {
     expect(cobrosDelRecibo(null, [factura])).toEqual([expect.objectContaining({ amount: 300, invoiceNumber: 'F1' })]);
   });
 });
+
+describe('el sueldo cargado a mano entra en la ganancia aunque no haya presupuesto (C18-01)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { calcularGananciaDeEvento } = require('@/lib/costos/ganancia-evento');
+  it('fiesta sin presupuesto ni sincronización: el coordinador de $1 suma $1 de personal', () => {
+    const g = calcularGananciaDeEvento({ costosItems: [], others: {} }, [], [], [{ rolId: 'coord', eventSalary: 1 }], []);
+    expect(g.personalEstimado).toBe(1);
+    expect(g.costoReal).toBe(1);
+  });
+  it('si lo sincronizado es mayor, manda lo sincronizado', () => {
+    const g = calcularGananciaDeEvento({ costosItems: [], others: { totalPersonalCost: 5000 } }, [], [], [{ rolId: 'coord', eventSalary: 1 }], []);
+    expect(g.personalEstimado).toBe(5000);
+  });
+});
+
+describe('el gasto del mantenimiento queda en el día que se eligió', () => {
+  it('se guarda al mediodía de Uruguay y se ve el mismo día', () => {
+    const fuente = fs.readFileSync(path.resolve(__dirname, '../app/actions/activos-fijos.ts'), 'utf8');
+    expect(fuente).toContain('fecha: `${datos.fecha}T12:00:00-03:00`');
+    const guardada = '2026-11-18T12:00:00-03:00';
+    const vista = new Date(guardada).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Montevideo' });
+    expect(vista).toBe('18/11/2026');
+  });
+});

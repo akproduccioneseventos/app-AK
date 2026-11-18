@@ -1497,3 +1497,6 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 320 → pregunta 184
 - Orden 320 → pregunta 185
 - Orden 320 → pregunta 186
+- Orden 320 → pregunta 187
+- Orden 320 → pregunta 188
+- Orden 320 → pregunta 189

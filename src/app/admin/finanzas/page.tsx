@@ -36,7 +36,7 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoClien
   // La cuenta oficial de ganancia: lo pagado donde hay pagos, lo estimado donde no, con los bloques
   // automaticos (catering, bebidas, reposteria, sueldos) y sin la merma duplicada. Antes aca se usaba
   // "los pagos o los renglones manuales", y el mismo mes no coincidia con Analiticas.
-  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente).costoReal;
+  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal;
 }
 
 function calcularIngresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {

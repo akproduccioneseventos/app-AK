@@ -15,6 +15,8 @@ import { getFiestaById, updateGestionCostosFiestaActual, agregarPagoProveedorFie
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { syncAllEventCosts } from '@/app/actions/fiesta/costos.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getRoles } from '@/app/actions/roles';
+import type { Rol } from '@/types/rol';
 import type { PagoCliente } from '@/types/presupuesto';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
@@ -56,6 +58,7 @@ function GestionCostosRentabilidadContent() {
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   // Cobros al cliente: de acá sale la comisión real de Mercado Pago (28/09/2026).
   const [cobrosCliente, setCobrosCliente] = useState<PagoCliente[]>([]);
+  const [rolesPersonal, setRolesPersonal] = useState<Rol[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -78,6 +81,8 @@ function GestionCostosRentabilidadContent() {
       setFiesta(fiestaData);
       setGestionCostos(fiestaData.gestionCostos || defaultGestionCostos);
       setPagosProveedores(fiestaData.pagosProveedores || []);
+      // El personal asignado entra en la ganancia aunque la fiesta no tenga presupuesto (auditoría del 18/11/2026, C18-01).
+      setRolesPersonal(await getRoles().catch(() => []));
       if (fiestaData.presupuestoId) {
         // Si no se puede leer el presupuesto, la ganancia se muestra sin la comisión
         // y la tarjeta avisa que faltan cobros sin comisión informada.
@@ -171,8 +176,9 @@ function GestionCostosRentabilidadContent() {
     // Ademas ahora la ganancia se muestra contra lo que se gasto DE VERDAD donde
     // hay pagos cargados. Antes se mostraba siempre contra lo estimado: si el
     // evento se iba de gasto, el numero seguia viendose lindo.
-    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores, cobrosCliente);
+    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores, cobrosCliente, fiesta?.personalAsignado ?? [], rolesPersonal);
     return {
+      personalEstimado: g.personalEstimado,
       projectedCost: g.costoReal,
       costoEstimado: g.costoEstimado,
       realExpenses: g.pagadoAProveedores,
@@ -183,7 +189,7 @@ function GestionCostosRentabilidadContent() {
       recargosCobrados: g.recargosCobrados,
       cobrosSinComisionInformada: g.cobrosSinComisionInformada,
     };
-  }, [gestionCostos, pagosProveedores, cobrosCliente]);
+  }, [gestionCostos, pagosProveedores, cobrosCliente, fiesta, rolesPersonal]);
 
   const costItemsForSelect = useMemo(() => {
       const automatic = [
@@ -304,7 +310,7 @@ function GestionCostosRentabilidadContent() {
                                       {/* PERSONAL */}
                                       <TableRow className="border-slate-50">
                                           <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><UserCheck className="w-5 h-5 text-primary"/><p className="font-bold text-slate-700">Personal (Sueldos + Aportes)</p></div></TableCell>
-                                          <TableCell className="text-right pr-8 font-black">{formatCurrency(gestionCostos.others?.totalPersonalCost || 0)}</TableCell>
+                                          <TableCell className="text-right pr-8 font-black">{formatCurrency(stats.personalEstimado)}</TableCell>
                                       </TableRow>
                                       {/* PROVEEDORES PRESUPUESTO */}
                                       {(gestionCostos.others?.totalProveedorCost ?? 0) > 0 && (

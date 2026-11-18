@@ -1906,3 +1906,18 @@ reportado era sin presupuesto. Su prueba buscaba el nombre del campo y daba verd
 ### 186. Un asistente que trabaja con un recorte de los datos, ¿tiene cómo buscar el resto?
 
 Auditoría del 18/11/2026 (A18-04): el Vendedor veía 12 de 16 prospectos y no podía encontrar uno recién creado.
+
+### 187. Un costo que se carga en una pantalla, ¿lo ve la cuenta enseguida, o sólo después de "sincronizar"?
+
+Continuación de la auditoría del 18/11/2026 (C18-01): el sueldo cargado en Personal no entraba en la ganancia de una fiesta
+sin presupuesto, porque la cuenta leía un total que sólo armaba la sincronización, y la sincronización exige presupuesto.
+
+### 188. Una fiesta suspendida, ¿queda afuera de próximos, conflictos y disponibilidad?
+
+Continuación de la auditoría del 18/11/2026 (C18-02): Recursos Multi-Evento contaba dos fiestas suspendidas como próximas.
+
+### 189. Un proceso de varios pasos, ¿dice "listo" aunque un paso haya fallado?
+
+Continuación de la auditoría del 18/11/2026 (E2/E3): el modo automático del editor decía "completado con éxito" con el Video
+de Vida y las Redes fallados.
+

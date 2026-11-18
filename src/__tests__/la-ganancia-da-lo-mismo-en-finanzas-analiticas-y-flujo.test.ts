@@ -25,7 +25,8 @@ const fiesta: any = {
     others: { totalCateringCost: 5000, totalBebidasCost: 2000, totalReposteriaCost: 0, totalPersonalCost: 3000 },
   },
   pagosProveedores: [{ id: 'pp1', costoAsociadoId: 'c1', monto: 1200 }],
-  // un sueldo cargado a mano: la cuenta vieja lo sumaba aparte, la oficial lo toma de gestionCostos
+  // un sueldo cargado a mano: desde el 18/11/2026 (C18-01) la cuenta oficial también lo mira, y toma el mayor entre lo
+  // sincronizado y lo asignado con sus aportes (9999 + 10% = 10999), igual en todas las pantallas.
   personalAsignado: [{ rolId: 'r1', eventSalary: 9999 }],
 };
 
@@ -49,11 +50,11 @@ import { getAnalyticsData } from '@/app/actions/analytics';
 import { getCashFlowProjection } from '@/app/actions/dashboard';
 
 describe('una misma fiesta, un mismo numero', () => {
-  const oficial = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores);
+  const oficial = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado, [{ id: 'r1', porcentajeAportesPatronales: 10 }]);
 
   it('la cuenta oficial: pagado donde hay pagos + bloques automaticos, sin la merma duplicada', () => {
-    expect(oficial.costoReal).toBe(1200 + 5000 + 2000 + 3000);
-    expect(oficial.sinRendir).toBe(10000);
+    expect(oficial.costoReal).toBe(1200 + 5000 + 2000 + 10999);
+    expect(oficial.sinRendir).toBe(5000 + 2000 + 10999);
   });
 
   it('Analiticas: el costo del mes es el de la cuenta oficial (en el mes y en el tipo de evento)', async () => {
@@ -73,7 +74,7 @@ describe('una misma fiesta, un mismo numero', () => {
 
   it('Finanzas usa la misma funcion y no su propia suma', () => {
     const fuente = fs.readFileSync(path.join(__dirname, '..', 'app', 'admin', 'finanzas', 'page.tsx'), 'utf8');
-    expect(fuente).toContain('calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente).costoReal');
+    expect(fuente).toContain('calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal');
     expect(fuente).not.toContain('montoEstimado ?? 0');
   });
 });

@@ -14,6 +14,10 @@ N20, N21, N24, N30, N31, N33, N34 (319).
 - **A18-02:** el anexo del recibo y el editor completan `{{HITO_30}}`, `{{HITO_50}}`, `{{FECHA_SALDO_TOTAL}}` y
   `{{FECHA_FIRMA_TEXTO}}` (`src/lib/contratos/hitos.ts`).
 - **A18-03:** el detalle del recibo sale de los mismos cobros que el total (`src/lib/budget/cobros-del-recibo.ts`).
+- **C18-01 (continuación del informe):** el sueldo cargado a mano en Personal entra en la ganancia aunque la fiesta no tenga
+  presupuesto ni se haya sincronizado (`calcularGananciaDeEvento` recibe `fiesta.personalAsignado` en todas las pantallas).
+- **Mantenimiento:** el gasto automático queda en el día elegido (mediodía de Uruguay), no el día anterior.
+- **M3:** "Política de Señas" ya lleva a `/settings/budget-display` (vino en tu 1429).
 - **N26:** la lista de compras suma el menú asignado aunque la fiesta no tenga presupuesto
   (`catering/lista-compras/page.tsx`); también bebidas y postres, que estaban adentro del mismo bloque.
 
@@ -62,6 +66,51 @@ hasta 10 (nombre, etapa, fecha de la fiesta). **Sólo lee.** Que la vean los per
 - **Mientras el despertador no corra** (`settings/tareas-automaticas`), ninguna tarea dice "Al día": "Sin ejecutar" (esto
   completa N3 de la 319).
 
+## Bloque 5 — Continuación del informe (18/11): fiestas suspendidas, galería y avisos del portal
+
+- **C18-02:** `src/app/recursos-multi-evento/page.tsx` cuenta las fiestas **suspendidas** como próximas y en "Fechas con
+  Múltiples Eventos". Excluirlas de próximos, coincidencias y disponibilidad (mismo criterio que usa la lista de fiestas para
+  no mostrarlas); un filtro "Ver suspendidas" si hace falta mirarlas. Buscá en `src/` las demás listas de "próximos" y
+  conflictos de personal o stock que no filtren suspendidas, y aplicá lo mismo.
+- **M1 Galería** (`/empresa/galeria`, pestaña "Por tipo de fiesta"): seis fotos con tipo "General" no aparecen en el grupo
+  General (aparecen en "Todas"). Agrupar por el mismo valor normalizado que muestra la etiqueta, y que la suma de los grupos
+  dé el total.
+- **M2 Estilo de fotos** (`/settings/estilo-fotos`): el "Antes/Después" cambia degradados, no fotos. Poner fotos de ejemplo
+  reales (regla del dueño: si no hay foto, va una de ejemplo del tema), el mismo encuadre antes y después.
+- **Avisos de pago del portal:** el aviso que informa el cliente desde su portal (`clientPaymentNotifications` de la fiesta,
+  `submitClientPayment` en `src/app/actions/fiesta/portal.actions.ts` ~línea 474) sólo se ve en el plan de pagos de esa fiesta.
+  Que `/pagos-rapidos` muestre arriba "Pagos informados por clientes" (los `estado: 'pendiente'` de todas las fiestas) con el
+  enlace a `/fiestas/nueva/plan-pagos?fiestaId=…`, donde ya se aprueban. **No agregues un botón de aprobar en otro lado:**
+  aprobar sigue donde está. Pide el permiso de plata que ya pide Pagos rápidos.
+
+## Bloque 6 — AK Editor (`herramientas/ak-editor/`): que cada botón diga la verdad
+
+Lo probó con material inventado (sin red ni datos reales). Prioridad en este orden:
+
+1. **E20:** "Volver al original" borra también los ajustes que el dueño ya tenía en el `.xmp` (Exposure2012, Contrast2012…).
+   Antes de procesar, guardar copia del `.xmp` original; volver al original restaura esa copia, no borra por nombre.
+2. **E1:** Video de Vida falla con `'str' object has no attribute 'get'`: `app.py` (~880/893) pasa a `exportar_video_de_vida`
+   el diccionario entero de `ordenar_fotos_vida` y no la lista `fotos_ordenadas`.
+3. **E2/E3:** el modo automático dice "completado con éxito" aunque Vida o Redes fallen (Redes llama
+   `generar_videos_redes(carpeta_origen=…, nombre_evento=…)` con nombres que no existen y el error se traga con `print`).
+   Cada paso que falla queda como falla en el resumen; "Se generaron 0 videos" no es éxito.
+4. **E4:** el MP4 sale desincronizado: la cámara lenta (`setpts=1.4*PTS`) estira la imagen y no el audio, y un clip mudo
+   borra el audio de esa parte. Estirar el audio igual (`atempo`) o cortarlo a la duración, y poner silencio al clip mudo.
+5. **E5:** `GET /api/fotos/estado` se rompe al pasar una fecha a JSON y la pantalla queda en "Procesando 1/10" para siempre.
+6. **E6:** `cv2` sin importar en `app.py` ~línea 78 (vista comparativa).
+7. **E17:** el modo Boda no hace la pantalla partida ni respeta las carpetas `el/`, `ella/`, `juntos/`; la pantalla no le
+   pasa el modo a `ordenar_fotos_vida`. Que haga lo que dice o que la opción diga lo que hace.
+8. **E18:** foto con orientación EXIF 6 sale girada dos veces. Fijar la versión de OpenCV en `requirements.txt` y rotar una sola vez.
+9. **E8 y E9:** validar el nombre del evento (sin `../`, no vacío) y escuchar en `127.0.0.1` (`app.py` ~línea 1877), no en
+   `0.0.0.0`: el programa no pide clave.
+10. **E7, E11, E12, E13, E19, E21, E23:** archivo roto avisado en Revisión; "Aprender estilo" con ruta vacía no es `ok`; las
+    transiciones elegidas se aplican en el MP4; el desplegable ofrece sólo plantillas que existen (y las 11 que existen se
+    pueden elegir); el texto de cierre no se corta; con música no se corta la última foto ni el cierre; foto sin fecha va a
+    "sin fecha"; el `.zip` temporal se borra.
+11. **E15:** el modo automático tiene botón y explicación en la pantalla, o no se ofrece.
+
+Después de tocar el editor: `npm run editor:empaquetar` (el ZIP que se descarga tiene que ser el nuevo).
+
 ## Barrido en toda la app
 
 - **Pregunta 180 (A18-05: un respaldo que inventa candidatos o datos de ejemplo cuando falta lo real):** buscar en `src/`
@@ -70,6 +119,11 @@ hasta 10 (nombre, etapa, fecha de la fiesta). **Sólo lee.** Que la vean los per
 - **Pregunta 181 (A18-06: ordenar horas como texto en eventos de noche):** `localeCompare` sobre campos `hora`/`horaInicio`.
 - **Pregunta 182 (A18-03: total y detalle de fuentes distintas):** en recibos, estados de cuenta y reportes, cada total
   tiene que salir de la misma lista que el detalle que muestra al lado.
+- **Pregunta 187 (C18-01: un costo cargado en una pantalla que la cuenta sólo ve después de "sincronizar"):** buscar en
+  `src/` totales guardados (`total…Cost`, `totalPagado`) que se muestren sin recalcular desde el dato. Plata: me lo listás.
+- **Pregunta 188 (C18-02: una fiesta suspendida contada como activa):** toda lista de próximos, conflictos o disponibilidad.
+- **Pregunta 189 (E2/E3: un proceso de varios pasos que dice "listo" si un paso falló):** en el editor y en las tareas
+  automáticas de la app (`src/lib/cron`, `src/app/api/cron`).
 - Lo de plata, cobros, comida y permisos que encuentres **no lo arregles**: listalo en la propuesta.
 
 ## Pruebas que pide
@@ -89,4 +143,7 @@ usa: sorteoCandidatos en src/app/actions/fiesta/screen-mode.actions.ts
 no-usa: 'Mesa 1' en src/app/evento/control-pantalla/[fiestaId]/page.tsx
 usa: buscarProspecto en src/lib/assistant/tool-registry.ts
 no-usa: las 4 tareas en src/app/(app)/settings/tareas-automaticas/page.tsx
+no-usa: "0.0.0.0" en herramientas/ak-editor/app.py
+usa: clientPaymentNotifications en src/app/(app)/pagos-rapidos/page.tsx
+usa: suspendid en src/app/recursos-multi-evento/page.tsx
 ```

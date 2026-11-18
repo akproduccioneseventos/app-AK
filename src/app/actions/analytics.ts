@@ -157,7 +157,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       // merma de bebidas duplicada. Antes se sumaban solo los renglones manuales y los sueldos
       // salian de eventSalary a mano, asi que el mismo mes daba otro numero. (12/10/2026)
       const linkedPresupuesto = presupuestosData.find(p => p.id === fiesta.presupuestoId);
-      entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente).costoReal;
+      entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente, fiesta.personalAsignado, rolesData).costoReal;
     });
 
     const monthlyProfitability: MonthlyProfitabilityData[] = Array.from(monthlyMap.entries()).map(
@@ -277,7 +277,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       const tipo = linkedPresupuesto?.eventoTipo || fiesta.configuracion?.tipoCelebracion || 'Otro';
       const entry = eventTypeMap.get(tipo);
       // Misma cuenta oficial que el resto (ver arriba).
-      if (entry) entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente).costoReal;
+      if (entry) entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, linkedPresupuesto?.pagosCliente, fiesta.personalAsignado, rolesData).costoReal;
     });
 
     const eventTypeProfitability: EventTypeProfitabilityData[] = Array.from(

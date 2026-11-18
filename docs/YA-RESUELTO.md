@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - El sueldo cargado a mano entra en la ganancia, y el gasto de mantenimiento queda en su día
+
+- **Qué pasaba:** en una fiesta sin presupuesto, un coordinador de $1 aparecía en Personal y en el recibo, pero la ganancia
+  y el consolidado decían $0 de personal (C18-01): la cuenta leía el total que arma "Sincronizar", y sincronizar pide
+  presupuesto. Y un mantenimiento del 18/11 dejaba su gasto el 17/11 (fecha sin hora leída en hora de Greenwich).
+- **Qué se hizo:** todas las llamadas a `calcularGananciaDeEvento` le pasan `fiesta.personalAsignado` (y los puestos, para
+  los aportes, donde ya estaban cargados); la cuenta toma el mayor entre lo sincronizado y lo asignado, como ya hacía el
+  reporte. **Por qué el mayor:** lo sincronizado sale de lo mismo, y si difieren es porque se cargó algo después. El gasto
+  del mantenimiento se guarda al mediodía de Uruguay y la lista de gastos muestra en hora de Uruguay. Preguntas 187 a 189.
+
+```comprobar
+usa: personalAsignado en src/app/actions/analytics.ts
+usa: personalEstimado en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: T12:00:00-03:00 en src/app/actions/activos-fijos.ts
+prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+```
+
 ## 18/11/2026 - El plan de pagos, el contrato y el recibo dicen lo mismo
 
 - **Qué pasaba:** el plan del contrato guardaba $5.000 por trimestre y el saldo 15 días antes, y la cláusula 3 que firma el
