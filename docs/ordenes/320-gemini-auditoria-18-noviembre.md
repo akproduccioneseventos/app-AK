@@ -51,7 +51,7 @@ línea"), que vive sólo en la memoria del panel.
 `src/app/(app)/fiestas/nueva/itinerario/page.tsx` ~líneas 340 y 366 ordenan con `a.hora.localeCompare(b.hora)`: Torta 01:00 y
 Cierre 04:00 pasan delante de Llegada 18:00. Lo mismo en `orden-de-evento/page.tsx` ~línea 133.
 
-- Función nueva `ordenarPorHoraDelEvento(items, horaInicio)` en `src/lib/fiesta/orden-del-cronograma.ts`: minutos desde el
+- **YA EXISTE (la hizo Claude el 18/11, y ya la usa la hoja del evento):** `ordenarPorHoraDelEvento(items, horaInicio)` en `src/lib/fiesta/orden-del-cronograma.ts`, con su prueba `el-cronograma-cruza-la-medianoche.test.ts`. No la rehagas: minutos desde el
   inicio, `(min - inicio + 1440) % 1440`. El inicio es `fiesta.configuracion.horaInicio` (`src/types/fiesta.ts` ~línea 154);
   sin hora de inicio, el primer momento cargado.
 - Usarla en **todos** los lugares que ordenan el programa: itinerario, orden de evento, vista del cliente en el portal,

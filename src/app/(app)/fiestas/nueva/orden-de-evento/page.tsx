@@ -1,5 +1,6 @@
 'use client';
 
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { condicionesDelInvitado } from '@/lib/catering/condiciones-del-invitado';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -130,8 +131,10 @@ function OrdenDeEventoContenido() {
   }
 
   const { configuracion } = fiesta;
-  const cronograma = Array.isArray(fiesta.programa) ? [...fiesta.programa] : [];
-  cronograma.sort((a: any, b: any) => (a.hora || '').localeCompare(b.hora || ''));
+  const cronograma = ordenarPorHoraDelEvento(
+    Array.isArray(fiesta.programa) ? fiesta.programa : [],
+    configuracion?.horaInicio,
+  );
 
   const personalAsignado = fiesta.personalAsignado || [];
   const empleadosMap = new Map(empleados.map((e) => [e.id, e.nombre]));

@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
+
+- **Qué pasaba:** la hoja del evento ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada (A18-06).
+- **Qué se hizo:** `ordenarPorHoraDelEvento` cuenta los minutos desde `configuracion.horaInicio`; lo sin hora va al final.
+  El resto de las pantallas (itinerario, portal, pantalla gigante, PDF) la usan en la orden 320, bloque 2.
+
+```comprobar
+usa: ordenarPorHoraDelEvento en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
+prueba: src/__tests__/el-cronograma-cruza-la-medianoche.test.ts
+```
+
 ## 18/11/2026 - Cierre de ronda: celíaco, afinador, insumo 1,5 kg e importador
 
 - **Qué pasaba:** el celíaco marcado aparte no llegaba al reporte ni a la copia para cocina (R18-01); el afinador de la barra
