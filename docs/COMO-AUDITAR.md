@@ -1875,3 +1875,34 @@ Auditoría integral del 17/11/2026: "Propuestas activas" del CRM sumaba un presu
 
 Auditoría integral del 17/11/2026: editar un empleado y dar de alta un salón no quedaban, sin aviso.
 
+### 180. Cuando falta lo real, ¿la función inventa datos de ejemplo y sigue como si nada?
+
+Auditoría del 18/11/2026 (A18-05): sin lista guardada, el control remoto del sorteo elegía entre "Mesa 1"…"Mesa 6" y la
+pantalla anunciaba un ganador que nunca fue candidato.
+
+### 181. ¿Se ordenan horas como texto en algo que pasa de noche?
+
+Auditoría del 18/11/2026 (A18-06): el cronograma ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada.
+
+### 182. Un total y el detalle que se muestra al lado, ¿salen de la misma lista?
+
+Auditoría del 18/11/2026 (A18-03): el recibo sumaba los cobros del presupuesto y detallaba sólo los de las facturas:
+"$40.410 abonados" junto a "No se han registrado pagos".
+
+### 183. Un número que dice el contrato (mínimo, plazo, porcentaje), ¿el código usa el mismo?
+
+Auditoría del 18/11/2026 (A18-01): el plan guardaba $5.000 y 15 días; la cláusula 3 que firma el cliente dice $10.000 y 30.
+
+### 184. Un documento que se arma en más de una pantalla, ¿completa los mismos datos en todas?
+
+Auditoría del 18/11/2026 (A18-02): el editor del contrato calculaba las fechas de la cláusula 3 y el anexo del recibo no:
+salía impreso con `{{HITO_30}}`.
+
+### 185. Un arreglo, ¿corre en el caso exacto que se reportó, o quedó adentro de un bloque que ahí no entra?
+
+Auditoría del 18/11/2026 (N26): el menú asignado se sumaba a las compras, pero adentro del `if (presupuesto)`, y el caso
+reportado era sin presupuesto. Su prueba buscaba el nombre del campo y daba verde.
+
+### 186. Un asistente que trabaja con un recorte de los datos, ¿tiene cómo buscar el resto?
+
+Auditoría del 18/11/2026 (A18-04): el Vendedor veía 12 de 16 prospectos y no podía encontrar uno recién creado.

@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - El plan de pagos, el contrato y el recibo dicen lo mismo
+
+- **Qué pasaba:** el plan del contrato guardaba $5.000 por trimestre y el saldo 15 días antes, y la cláusula 3 que firma el
+  cliente dice $10.000 y 30 días (A18-01). El anexo del recibo salía con `{{HITO_30}}`, `{{HITO_50}}` y
+  `{{FECHA_SALDO_TOTAL}}` escritos (A18-02). El recibo mostraba "$40.410 abonados" y "No se han registrado pagos" (A18-03).
+- **Qué se hizo:** el plan sigue la cláusula 3 al pie de la letra: $10.000 por trimestre, 30% al primer tercio, 50% a la
+  mitad y el total 30 días antes (`planPagos.ts`). **Por qué así:** manda el contrato que se firma, no el número que tenía
+  el código. Las fechas de la cláusula salen de un solo lugar (`src/lib/contratos/hitos.ts`) y se completan también en un
+  texto guardado con huecos, salvo que el cliente ya haya firmado en el portal. El detalle del recibo sale de los mismos
+  cobros que el total (`cobros-del-recibo.ts`). Los planes ya guardados no se tocan: se regeneran desde el contrato.
+
+```comprobar
+usa: PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+usa: reemplazosDeFechasDelContrato en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+usa: cobrosDelRecibo en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+prueba: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts
+```
+
+## 18/11/2026 - La lista de compras con menú y sin presupuesto
+
+- **Qué pasaba:** el arreglo del 17/11 sumaba el menú asignado, pero adentro del bloque que sólo corre con presupuesto; el
+  auditor lo probó sin presupuesto y siguió vacía (N26). La prueba buscaba el nombre del campo y daba verde.
+- **Qué se hizo:** el menú asignado, las bebidas y los postres se suman fuera de ese bloque. La prueba nueva abre la
+  pantalla con una fiesta sin presupuesto y mira que aparezca el ingrediente. Pregunta 185.
+
+```comprobar
+prueba: src/__tests__/compras-con-menu-y-sin-presupuesto.test.tsx
+```
+
 ## 13/11/2026 - "Poner al día" ya no trae los cobros marcados
 
 - **Qué pasaba:** la pantalla abría con las 7 fiestas pasadas marcadas como cobradas; un toque en "Aplicar" registraba

@@ -136,6 +136,12 @@ function ListaDeComprasContent() {
           return totalInvitados;
       };
 
+      // Los platos que no tienen receta y los que ya se sumaron. Van afuera del bloque del presupuesto: una fiesta con
+      // menú asignado y SIN presupuesto también compra, y sus bebidas y postres también (auditoría del 18/11/2026,
+      // N26 seguía: "sin presupuesto, compras vacías").
+      const sinIngredientes: string[] = [];
+      const platosYaContados = new Set<string>();
+
       // 1. PROCESAR PLATOS DEL PRESUPUESTO
       if (presupuestoData) {
           const budgetDishes = presupuestoData.itemsPresupuestados.filter(item =>
@@ -145,7 +151,7 @@ function ListaDeComprasContent() {
           );
 
           const allDishesInCatalog = allMenus.flatMap(m => m.items);
-          const sinIngredientes: string[] = [];
+          budgetDishes.forEach(b => platosYaContados.add(b.idServicioCatalogo));
 
           budgetDishes.forEach(budgetItem => {
               const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
@@ -177,97 +183,98 @@ function ListaDeComprasContent() {
               }
           });
 
-          // 1b. EL MENÚ ASIGNADO A LA FIESTA (Catering → asignar menú). La pantalla de catering promete que sus
-          // ingredientes se suman solos, y la lista sólo miraba los platos del presupuesto (auditoría integral 17/11/2026,
-          // N26: menú asignado y "NO HAY INGREDIENTES"). Se suman los platos del menú que el presupuesto no trae ya.
-          const menuAsignado = fiestaData.menuAsignadoId
-              ? allMenus.find(m => m.id === fiestaData.menuAsignadoId)
-              : undefined;
-          if (menuAsignado) {
-              const yaContados = new Set(budgetDishes.map(b => b.idServicioCatalogo));
-              for (const plato of menuAsignado.items || []) {
-                  if (yaContados.has(plato.id)) continue;
-                  if (!plato.ingredients?.length) {
-                      sinIngredientes.push(plato.name);
-                      continue;
-                  }
-                  for (const ing of plato.ingredients) {
-                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
-                      if (qtyPerPerson <= 0) continue;
-                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
-                      rawList.push({
-                          nombre: ing.name,
-                          cantidadNecesaria: qtyPerPerson * totalInvitados,
-                          unit: ing.unit,
-                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
-                          proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
-                          origen: `Menú asignado: ${plato.name}`,
-                          origenId: ing.origenId,
-                      });
-                  }
+      }
+
+      // 1b. EL MENÚ ASIGNADO A LA FIESTA (Catering → asignar menú). La pantalla de catering promete que sus
+      // ingredientes se suman solos, y la lista sólo miraba los platos del presupuesto (auditoría integral 17/11/2026,
+      // N26: menú asignado y "NO HAY INGREDIENTES"). Se suman los platos del menú que el presupuesto no trae ya.
+      const menuAsignado = fiestaData.menuAsignadoId
+          ? allMenus.find(m => m.id === fiestaData.menuAsignadoId)
+          : undefined;
+      if (menuAsignado) {
+          const yaContados = platosYaContados;
+          for (const plato of menuAsignado.items || []) {
+              if (yaContados.has(plato.id)) continue;
+              if (!plato.ingredients?.length) {
+                  sinIngredientes.push(plato.name);
+                  continue;
+              }
+              for (const ing of plato.ingredients) {
+                  const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
+                  if (qtyPerPerson <= 0) continue;
+                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
+                  rawList.push({
+                      nombre: ing.name,
+                      cantidadNecesaria: qtyPerPerson * totalInvitados,
+                      unit: ing.unit,
+                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
+                      proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
+                      origen: `Menú asignado: ${plato.name}`,
+                      origenId: ing.origenId,
+                  });
               }
           }
+      }
 
-          setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
+      setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
 
-          // 2. PROCESAR BEBIDAS (Todas las categorías activadas)
-          if (fiestaData.bebidas?.categorias) {
-              fiestaData.bebidas.categorias.filter(c => c.activada).forEach(cat => {
-                  cat.items?.forEach(item => {
-                      // Si la cantidad quedó en cero es porque no se pide: antes se
-                      // compraba una unidad igual.
-                      if (Number(item.cantidadNecesaria) === 0) return;
-                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
-                      rawList.push({
-                          nombre: item.nombre,
-                          cantidadNecesaria: item.cantidadNecesaria || 1,
-                          unit: item.unidadCantidad || 'Unidad',
-                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
-                          proveedor: item.proveedorHabitual || catalogInsumo?.proveedor || 'Proveedor Bebidas',
-                          origen: `Bebidas: ${cat.nombreDisplay}`,
-                          origenId: item.origenId,
-                          isOrder: true
-                      });
-                  });
-                  cat.recetas?.forEach((receta: any) => {
-                      const factorEscala = totalInvitados / (receta.porcionesBase || 1);
-                      receta.ingredientes?.forEach((ing: any) => {
-                          const totalNeeded = (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
-                          if (totalNeeded > 0) {
-                              const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
-                              rawList.push({
-                                  nombre: ing.nombre,
-                                  cantidadNecesaria: totalNeeded,
-                                  unit: ing.unidad || 'Unidad',
-                                  costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario || 0,
-                                  proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
-                                  origen: `Bebidas (Receta): ${receta.nombre}`,
-                                  origenId: ing.id,
-                              });
-                          }
-                      });
+      // 2. PROCESAR BEBIDAS (Todas las categorías activadas)
+      if (fiestaData.bebidas?.categorias) {
+          fiestaData.bebidas.categorias.filter(c => c.activada).forEach(cat => {
+              cat.items?.forEach(item => {
+                  // Si la cantidad quedó en cero es porque no se pide: antes se
+                  // compraba una unidad igual.
+                  if (Number(item.cantidadNecesaria) === 0) return;
+                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                  rawList.push({
+                      nombre: item.nombre,
+                      cantidadNecesaria: item.cantidadNecesaria || 1,
+                      unit: item.unidadCantidad || 'Unidad',
+                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                      proveedor: item.proveedorHabitual || catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                      origen: `Bebidas: ${cat.nombreDisplay}`,
+                      origenId: item.origenId,
+                      isOrder: true
                   });
               });
-          } else {
-              const hasBarra = presupuestoData.itemsPresupuestados.some(item =>
-                  item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
-              );
-              if (hasBarra) {
-                  const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
-                  barraTemplate?.items.forEach(item => {
-                      const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
-                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
-                      rawList.push({
-                          nombre: item.nombre,
-                          cantidadNecesaria: totalNeeded,
-                          unit: item.unidadCantidad || 'L',
-                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
-                          proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
-                          origen: 'Barra de Tragos',
-                          origenId: item.origenId,
-                      });
+              cat.recetas?.forEach((receta: any) => {
+                  const factorEscala = totalInvitados / (receta.porcionesBase || 1);
+                  receta.ingredientes?.forEach((ing: any) => {
+                      const totalNeeded = (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
+                      if (totalNeeded > 0) {
+                          const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
+                          rawList.push({
+                              nombre: ing.nombre,
+                              cantidadNecesaria: totalNeeded,
+                              unit: ing.unidad || 'Unidad',
+                              costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario || 0,
+                              proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                              origen: `Bebidas (Receta): ${receta.nombre}`,
+                              origenId: ing.id,
+                          });
+                      }
                   });
-              }
+              });
+          });
+      } else if (presupuestoData) {
+          const hasBarra = presupuestoData.itemsPresupuestados.some(item =>
+              item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
+          );
+          if (hasBarra) {
+              const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
+              barraTemplate?.items.forEach(item => {
+                  const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
+                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                  rawList.push({
+                      nombre: item.nombre,
+                      cantidadNecesaria: totalNeeded,
+                      unit: item.unidadCantidad || 'L',
+                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                      proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                      origen: 'Barra de Tragos',
+                      origenId: item.origenId,
+                  });
+              });
           }
       }
 

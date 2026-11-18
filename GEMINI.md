@@ -19,6 +19,9 @@
   precarga. La prueba que mandaste no lo comprobaba y no corría (usaba `demo_ak_oficial`, que no existe en el entorno de
   pruebas); se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado (`crearFiestaDeEstaNoche` en
   `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
+- **Nuevo: orden 320** (auditoría del 18/11): el sorteo del control remoto que inventa "Mesa 2" (P1), el cronograma que
+  cruza la medianoche, el Vendedor que no encuentra un prospecto y cantidades escritas a mano. Lo de plata (plan de pagos,
+  anexo y recibo) y la lista de compras sin presupuesto ya los arregló Claude: no los toques. En la misma propuesta, al final.
 - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
   deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
