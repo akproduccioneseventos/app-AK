@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 18/11/2026 - Orden 319 (Auditoría integral: check-in, empleados, multiagente y salones)
+
+- **Bloque 1 (N27: Empleados):** `saveEmpleado` en `src/app/actions/empleados.ts` ahora revalida `/empleados` y `/empleados/${empleadoId}/editar` tras `mutateDataItem` para evitar lecturas cacheadas al recargar.
+- **Bloque 2 (N20 / N29):** agregada `undoCheckInGuest` en `src/app/actions/fiesta/invitados.actions.ts` y botón `"Deshacer"` en `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`; renombrado `"Cerrar fiesta con retroalimentación"` a `"Generar balance de cierre"` en `src/app/(app)/multiagente/acciones/page.tsx`.
+- **Responsive 313:** corregida grilla de `/control-tower` (`md:grid-cols-2 xl:grid-cols-5`) para evitar desborde a 820 px.
+- **Pruebas:** `src/__tests__/el-check-in-se-puede-deshacer.test.ts`, `tests/firebase/editar-empleado-se-guarda.test.ts` y `tests/e2e/el-salon-nuevo-se-crea.spec.ts`.
+
+```comprobar
+usa: undoCheckInGuest en src/app/recepcion/[fiestaId]/RecepcionClient.tsx
+prueba: src/__tests__/el-check-in-se-puede-deshacer.test.ts
+```
+
 ## 13/11/2026 - "Poner al día" ya no trae los cobros marcados
 
 - **Qué pasaba:** la pantalla abría con las 7 fiestas pasadas marcadas como cobradas; un toque en "Aplicar" registraba

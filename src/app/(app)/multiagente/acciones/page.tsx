@@ -98,12 +98,12 @@ export default function MultiagenteAccionesPage() {
         </Card>
 
         <Card className="rounded-3xl border-red-100 bg-white shadow-sm">
-          <CardHeader><CardTitle className="flex items-center gap-2"><PartyPopper className="h-5 w-5 text-red-600" /> Cerrar fiesta con retroalimentación</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><PartyPopper className="h-5 w-5 text-red-600" /> Generar balance de cierre</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <Input value={fiestaId} onChange={e => setFiestaId(e.target.value)} placeholder="ID de la fiesta" className="rounded-2xl" />
             <Textarea value={closeNotes} onChange={e => setCloseNotes(e.target.value)} placeholder="Notas finales: qué salió bien, qué falló, qué repetir" className="rounded-2xl" />
             <Button disabled={loading || !fiestaId.trim()} onClick={() => runAction(() => cerrarFiestaConRetroalimentacion({ fiestaId, notasFinales: closeNotes }), 'Fiesta cerrada: resumen guardado y enviado al agente general.')} className="rounded-2xl bg-red-600 hover:bg-red-700">
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PartyPopper className="mr-2 h-4 w-4" />} Cerrar fiesta
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PartyPopper className="mr-2 h-4 w-4" />} Generar balance de cierre
             </Button>
           </CardContent>
         </Card>

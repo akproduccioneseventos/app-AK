@@ -189,6 +189,13 @@ export async function saveEmpleado(
     });
   }
   const devuelto = empleadoToSave as Empleado;
+  try {
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/empleados');
+    revalidatePath(`/empleados/${empleadoId}/editar`);
+  } catch {
+    // En tests Jest fuera de Next runtime puede no aplicar revalidatePath
+  }
   return {
     success: true,
     id: empleadoId,
