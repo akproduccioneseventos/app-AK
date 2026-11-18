@@ -751,7 +751,7 @@
     },
     "188": {
       "fecha": "2026-11-18",
-      "resultado": "Suspendidas como activas: recursos-multi-evento → orden 320 bloque 5; el resto lo lista Gemini en el barrido."
+      "resultado": "Suspendidas como activas: 9 archivos leen todas las fiestas, hablan de próximas y no miran esFiestaSuspendida (lista en la orden 320 bloque 5); getFiestas() ya las deja afuera."
     },
     "189": {
       "fecha": "2026-11-18",
@@ -759,7 +759,7 @@
     },
     "190": {
       "fecha": "2026-11-18",
-      "resultado": "Períodos al revés: reporte de ganancias (arreglado en pantalla y servidor); el resto de las pantallas con desde/hasta → orden 320 barrido."
+      "resultado": "Períodos al revés: sólo el reporte de ganancias genera o exporta con desde/hasta (arreglado); los otros dos usos de fechas son cuentas regresivas públicas, no rangos."
     }
   },
   "hallazgos": {
