@@ -764,6 +764,26 @@
     "191": {
       "fecha": "2026-11-18",
       "resultado": "Menores en dos campos: sólo el paso 1 del presupuesto mostraba uno (arreglado); el escaneo busca value={formData.invitadosNinos."
+    },
+    "192": {
+      "fecha": "2026-11-18",
+      "resultado": "Dieta en dos campos: alergias, orden de evento y confirmación del portal (arreglados con condicionesDelInvitado); las vistas de un solo invitado (RSVP, credencial, puerta) muestran su dieta y no arman listas para cocina."
+    },
+    "193": {
+      "fecha": "2026-11-18",
+      "resultado": "Cálculos con negativos: el afinador de la barra (arreglado); el resto de los cálculos de costo ya rechaza negativos al guardar."
+    },
+    "194": {
+      "fecha": "2026-11-18",
+      "resultado": "Alta contra edición: insumos (arreglado, step any en los dos); activos fijos usa enteros en los dos (equipos por unidad)."
+    },
+    "195": {
+      "fecha": "2026-11-18",
+      "resultado": "Datos como conceptos: el importador de texto (arreglado); no hay otro importador de presupuestos."
+    },
+    "196": {
+      "fecha": "2026-11-18",
+      "resultado": "Montos tras etiqueta: el total del importador (arreglado en sus dos lecturas)."
     }
   },
   "hallazgos": {
@@ -1165,7 +1185,7 @@
     },
     "orden-320": {
       "fecha": "2026-11-18",
-      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b. Simulador y LED (13:17): R18-03 arreglado por Claude."
+      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b. Simulador y LED (13:17): R18-03 arreglado por Claude. Cierre de ronda (13:49): R18-01, 02, 04, 05 y 06 arreglados por Claude; los 15 días sin publicar → orden 320 bloque 4."
     },
     "orden-321": {
       "fecha": "2026-11-18",

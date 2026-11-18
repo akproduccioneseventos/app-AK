@@ -10,7 +10,7 @@ Leé `docs/ANTES-DE-ENTREGAR.md` antes de decir "terminé".
 
 - 382 `page.tsx` en `src/app`: 118 públicas (portal, evento, invitación, landings) y 264 del equipo.
 - **41 sólo redirigen** a otra dirección. 9 no las abre nadie. 20 sólo se llegan desde "Más".
-- **Meta: 200 o menos**, sin perder ninguna función: lo que se junta pasa a ser una pestaña o una sección de otra pantalla,
+- **Meta: 180 o menos** (el dueño, 18/11: *"se puede bajar hasta menos de 200"*), sin perder ninguna función: lo que se junta pasa a ser una pestaña o una sección de otra pantalla,
   no se borra lo que hace. Contá antes y después (`find src/app -name page.tsx | wc -l`) y poné los dos números en la
   propuesta.
 
@@ -102,8 +102,9 @@ el catálogo de 47 módulos en `src/app/(app)/fiestas/nueva/page.tsx` ~líneas 7
 - **Una sola reunión**: `reunion-organizacion` → pestaña de `reuniones`.
 - **Un solo cronograma**: `fiestas/[id]/timeline` (sin enlaces, guarda lo mismo que lee el itinerario) → redirección a
   `itinerario`.
-- **Impresos de mesa en una**: `carteleria`, `menu-mesa`, `numeros-mesa` y `carta-tragos` → "Impresos", con cuatro
-  pestañas.
+- **La papelería sale** (el dueño, 18/11: *"la edición de los menús, ninguno quedó bien; la papelería no va a funcionar"*):
+  `carteleria`, `menu-mesa`, `numeros-mesa` y `carta-tragos` (editores de impresos de mesa y de la carta de tragos de 15x10)
+  pasan a redirección al planificador y salen del catálogo. **En su lugar, el menú digital** (bloque 7).
 - **Lo del invitado en una**: `modulo-invitado`, `pagina-web`, `social-fiesta-pro` (y su `cierre-final`) → "Invitados en
   línea".
 - **Portal del cliente**: `portal-cliente/experiencia-mundial` y `portal-cliente/cierre-final` → secciones de
@@ -122,18 +123,38 @@ el catálogo de 47 módulos en `src/app/(app)/fiestas/nueva/page.tsx` ~líneas 7
 - **Post-evento**: `referidoPor` y `referidosGenerados` (`post-evento/page.tsx` ~121-162) los escribe y no los lee nadie. O
   los muestra el CRM en la ficha del cliente, o salen.
 
+## Bloque 7 — Menú digital en vez de papel, y la presentación de ventas en un solo lugar
+
+- **Menú de la noche en el teléfono del invitado.** En la app del invitado (`src/app/evento/hub/[fiestaId]/page.tsx`, la
+  misma a la que lleva el QR de la mesa) una sección "Menú de la noche" que se arma sola con el menú asignado a la fiesta
+  (`fiesta.menuAsignadoId` → platos) y la carta de tragos de la barra (lo que ya muestra `/evento/barra/[fiestaId]`). Las
+  dietas especiales del invitado (`condicionesDelInvitado` en `src/lib/catering/condiciones-del-invitado.ts`) se marcan en
+  su plato. **Sin precios.** Si el plato no tiene descripción, una frase corta escrita por la IA una vez y guardada en el
+  plato (no en cada visita). Sin menú asignado, la sección no aparece.
+- **"Buscá tu mesa"** (`/evento/mi-mesa/[fiestaId]`) queda: es el reemplazo digital de la papelería de mesas. Que el hub la
+  muestre al lado del menú.
+- **La presentación de ventas en un solo lugar:** `presentacion-led` queda como la única. `catalogo`, `catalogo/[tipo]`,
+  `galeria-led`, `presentacion-led/portafolio` (y `portafolio/fiesta/[id]`), `tecnologia` y `marketing/demo-tecnologia` eran
+  guías y catálogos para armar esa presentación: lo que tengan que la presentación no tenga, pasa adentro como sección; las
+  direcciones redirigen a `presentacion-led`. Antes, recorré la presentación de punta a punta (datos, menú, servicios,
+  regalos, cierre, "Generar presupuesto manual") y anotá en la propuesta si algo no anda.
+- **Lo manual que ya hace la IA:** al juntar pantallas, si una es un formulario para escribir a mano algo que la app ya
+  genera sola (textos de marketing, guiones, plantillas de posteos), queda la automática y la manual sale. Listá en la
+  propuesta cuáles sacaste.
+
 ## Qué tiene que comprobar la prueba
 
 - `src/__tests__/ningun-enlace-lleva-a-una-pagina-que-no-existe.test.ts` en verde (cada enlace a una página que se fue
   tiene que llevar a su redirección o a la pantalla nueva).
 - `npm run mapa:generar` y `src/__tests__/mapa-de-la-app-al-dia.test.ts` en verde.
-- Una prueba nueva que cuente los `page.tsx` y falle si pasan de 200, y otra que recorra las direcciones viejas de los
+- Una prueba nueva que cuente los `page.tsx` y falle si pasan de 180, y otra que recorra las direcciones viejas de los
   bloques 1, 3, 4 y 5 y mire que cada una termina en la pantalla nueva (no en 404).
 - Las pruebas de navegador de las pantallas que se juntan, en los tres tamaños.
 - Actualizá `docs/MANUAL-DE-LA-APP.md` (el porqué de cada junta) y `docs/QUE-HAY-EN-LA-APP.md`.
 
 ```comprobar
-archivo: src/__tests__/la-app-no-pasa-de-200-pantallas.test.ts
+archivo: src/__tests__/la-app-no-pasa-de-180-pantallas.test.ts
+usa: menuAsignadoId en src/app/evento/hub/[fiestaId]/page.tsx
 usa: redirects en next.config.js
 no-usa: '/mas' en src/lib/navegacion/mapa.ts
 usa: videoFrameTemplate en src/app/actions/buzon.ts

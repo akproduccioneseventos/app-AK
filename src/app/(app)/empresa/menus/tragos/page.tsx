@@ -288,7 +288,11 @@ export default function TragosMasterPage() {
     }, 0);
   }, [items, selectedInsumo]);
 
-  const realPerPerson = eventPeople > 0 ? (consumedUnits * unitSizeLiters) / eventPeople : 0;
+  // Con botellas o litros negativos (o vacíos) no se calcula ni se aplica nada: antes daba un consumo negativo y un costo
+  // sugerido que se podía aplicar al catálogo (auditoría del 18/11/2026, R18-02).
+  const consumoValido = Number.isFinite(consumedUnits) && consumedUnits >= 0
+    && Number.isFinite(unitSizeLiters) && unitSizeLiters > 0 && eventPeople > 0;
+  const realPerPerson = consumoValido ? (consumedUnits * unitSizeLiters) / eventPeople : 0;
   const unitCost = selectedInsumo?.valorUnitarioEstimado || 0;
   const realCostPerPerson = realPerPerson * unitCost;
   const theoreticalCostPerPerson = theoreticalPerPerson * unitCost;
@@ -306,10 +310,10 @@ export default function TragosMasterPage() {
   );
 
   const currentBarraCost = barraService?.valorUnitarioEstimado || 0;
-  const suggestedBarraCost = Math.max(0, currentBarraCost + deltaCostPerPerson);
+  const suggestedBarraCost = consumoValido ? Math.max(0, currentBarraCost + deltaCostPerPerson) : currentBarraCost;
 
   const applySuggestedCost = async () => {
-    if (!barraService) return;
+    if (!barraService || !consumoValido) return;
     const result = await saveServicioEmpresa({
       ...barraService,
       valorUnitarioEstimado: suggestedBarraCost,
@@ -745,7 +749,10 @@ export default function TragosMasterPage() {
                   <>
                     <p>Servicio detectado: <strong>{barraService.nombre}</strong></p>
                     <p>Costo base actual: <strong>{formatCurrency(currentBarraCost)}</strong></p>
-                    <Button className="mt-3" onClick={applySuggestedCost}>Aplicar costo sugerido</Button>
+                    {!consumoValido && (
+                      <p role="alert" className="mt-2 text-xs font-medium text-destructive">Las botellas tienen que ser 0 o más y los litros por botella, más de 0.</p>
+                    )}
+                    <Button className="mt-3" onClick={applySuggestedCost} disabled={!consumoValido}>Aplicar costo sugerido</Button>
                   </>
                 ) : (
                   <p className="text-muted-foreground">No se encontró un servicio “Barra de Tragos” en el catálogo de servicios.</p>

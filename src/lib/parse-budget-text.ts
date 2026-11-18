@@ -82,12 +82,30 @@ function shouldSkipLine(line: string): boolean {
   return false;
 }
 
+/**
+ * El monto que viene DESPUÉS de la etiqueta ("TOTAL: $2.500", "TOTAL:2500", "Total a pagar: 2 500").
+ * Antes se buscaba el primer número suelto de la línea, y el espacio antes del "$" se leía como un monto vacío: "TOTAL:
+ * $2.500" daba $0 (auditoría del 18/11/2026, R18-06).
+ */
+function montoTrasEtiqueta(line: string): number {
+  const despues = line.includes(':') ? line.slice(line.indexOf(':') + 1) : line;
+  const m = despues.match(/(\d[\d.,\s]*[kK]?)/);
+  return m ? cleanNumber(m[1].trim()) : 0;
+}
+
+/** Líneas de personas ("Adultos: 40", "Niños: 10"): son datos del evento, nunca conceptos que se cobran (R18-05). */
+const LINEA_DE_PERSONAS = /^(invitados|adultos|mayores|ni[nñ]os|menores|adolescentes)\s*:\s*(\d+)\s*$/i;
+
 export interface ParsedBudget {
   clienteNombre: string;
   eventoFecha: string; // ISO string, may be approximate
   eventoFechaRaw: string; // original text
   eventoTipo: string;
   invitadosCantidad: number;
+  /** Lo que dice el texto en "Adultos:", "Niños:" y "Adolescentes:", si lo dice. */
+  invitadosAdultos?: number;
+  invitadosNinos?: number;
+  invitadosAdolescentes?: number;
   salonFiestas: string;
   items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[];
   totalDeclarado: number; // Total as stated in the text
@@ -278,9 +296,22 @@ export function parseBudgetText(text: string): ParsedBudget {
     currentImporte = 0;
   };
 
+  const personasDeclaradas: { invitados?: number; adultos?: number; ninos?: number; adolescentes?: number } = {};
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const lower = line.toLowerCase().trim();
+
+    const personas = line.match(LINEA_DE_PERSONAS);
+    if (personas) {
+      const clave = personas[1].toLowerCase();
+      const n = Number(personas[2]) || 0;
+      if (clave === 'invitados') personasDeclaradas.invitados = n;
+      else if (clave === 'adultos' || clave === 'mayores') personasDeclaradas.adultos = n;
+      else if (clave === 'adolescentes') personasDeclaradas.adolescentes = n;
+      else personasDeclaradas.ninos = (personasDeclaradas.ninos ?? 0) + n;
+      continue;
+    }
 
     // Always skip pure metadata/header/footer labels
     if (shouldSkipLine(line)) continue;
@@ -330,8 +361,8 @@ export function parseBudgetText(text: string): ParsedBudget {
         lower.includes('total del presupuesto') ||
         lower.match(/^total a pagar\s*:/)
       ) {
-        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
-        if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
+        totalDeclarado = montoTrasEtiqueta(line);
+        if (!totalDeclarado) warnings.push(`No se pudo leer el total de la línea "${line}". Revisá el importe antes de guardar.`);
         continue;
       }
 
@@ -389,8 +420,8 @@ export function parseBudgetText(text: string): ParsedBudget {
 
       if (isDocumentTotalLine) {
         flushItem();
-        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
-        if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
+        totalDeclarado = montoTrasEtiqueta(line);
+        if (!totalDeclarado) warnings.push(`No se pudo leer el total de la línea "${line}". Revisá el importe antes de guardar.`);
         inItems = false;
         continue;
       }
@@ -486,7 +517,17 @@ export function parseBudgetText(text: string): ParsedBudget {
   const invCandidates = items
     .filter(it => it.cantidad >= 50 && it.cantidad <= 500)
     .map(it => it.cantidad);
-  const invitadosCantidad = invCandidates.length > 0 ? Math.max(...invCandidates) : 0;
+  const discriminados = (personasDeclaradas.adultos ?? 0) + (personasDeclaradas.ninos ?? 0) + (personasDeclaradas.adolescentes ?? 0);
+  // Manda lo que dice el texto; si no lo dice, se infiere de las cantidades de los artículos como antes.
+  const invitadosCantidad = personasDeclaradas.invitados
+    ?? (discriminados > 0 ? discriminados : (invCandidates.length > 0 ? Math.max(...invCandidates) : 0));
+  if (personasDeclaradas.invitados && discriminados > 0 && discriminados !== personasDeclaradas.invitados) {
+    warnings.push(`El texto dice ${personasDeclaradas.invitados} invitados y suma ${discriminados} entre adultos y menores. Revisá antes de guardar.`);
+  }
+  const sumaDeArticulos = items.filter(it => !it.esRegalo).reduce((acc, it) => acc + (Number(it.precioUnitario) || 0) * (Number(it.cantidad) || 0), 0);
+  if (totalDeclarado > 0 && Math.abs(sumaDeArticulos - totalDeclarado) > 0.5) {
+    warnings.push(`El total del texto (${totalDeclarado}) no coincide con la suma de los artículos (${sumaDeArticulos}). Puede haber un descuento: revisalo.`);
+  }
 
   if (!clienteNombre) warnings.push('No se encontró el nombre del cliente en el texto. Se usará "Cliente" como nombre provisional.');
   if (!eventoFecha) warnings.push(`Fecha del evento "${eventoFechaRaw}" no pudo parsearse automáticamente. Revisá y ajustá manualmente.`);
@@ -503,6 +544,9 @@ export function parseBudgetText(text: string): ParsedBudget {
     eventoFechaRaw,
     eventoTipo,
     invitadosCantidad,
+    invitadosAdultos: personasDeclaradas.adultos,
+    invitadosNinos: personasDeclaradas.ninos,
+    invitadosAdolescentes: personasDeclaradas.adolescentes,
     salonFiestas,
     items,
     totalDeclarado,

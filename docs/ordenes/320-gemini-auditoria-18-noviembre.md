@@ -21,6 +21,9 @@ N20, N21, N24, N30, N31, N33, N34 (319).
   título del resumen dice el período que se calculó, no el que está elegido en los filtros.
 - **R18-03 (simulador y LED):** el campo "Niños y Adolescentes" del presupuesto manual muestra los menores que manda la
   LED (antes decía 0 con 10 en el presupuesto).
+- **Cierre de ronda (13:49):** el celíaco entra al reporte y a la copia para cocina; el afinador de la barra no calcula ni
+  aplica con negativos; el alta del insumo acepta 1,5 kg; el importador no convierte "Adultos/Niños" en conceptos y lee bien
+  "TOTAL: $2.500".
 - **M3:** "Política de Señas" ya lleva a `/settings/budget-display` (vino en tu 1429).
 - **N26:** la lista de compras suma el menú asignado aunque la fiesta no tenga presupuesto
   (`catering/lista-compras/page.tsx`); también bebidas y postres, que estaban adentro del mismo bloque.
@@ -70,6 +73,9 @@ hasta 10 (nombre, etapa, fecha de la fiesta). **Sólo lee.** Que la vean los per
 - `src/app/(app)/settings/page.tsx` ~línea 185 y `settings/tareas-automaticas/page.tsx` ~línea 143 dicen "las 4 tareas" y
   la pantalla lista 11. Contar la lista de verdad.
 - Conexiones dice 13 y lista 14; agentes dice 5 y muestra 7: buscar esos textos y que salgan de `length`.
+- **Presencia digital** (`src/lib/presencia-digital/revision-diaria.ts` ~líneas 42-58): sin un post con fecha pone
+  `daysWithoutPost: 15` fijo y la pantalla dice "Hace 15 días que no publicás". Sin historial: "Sin datos todavía", no un
+  número inventado.
 - **Mientras el despertador no corra** (`settings/tareas-automaticas`), ninguna tarea dice "Al día": "Sin ejecutar" (esto
   completa N3 de la 319).
 
