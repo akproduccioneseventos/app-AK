@@ -10,6 +10,10 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
+- **DEVUELTO de tu 1429 (orden 318, bloque 2):** "Modificar confirmación" sigue abriendo el formulario vacío: no se hizo la
+  precarga. La prueba que mandaste no lo comprobaba (sólo llenaba el formulario) y no corría: usaba la fiesta `demo_ak_oficial`,
+  que no existe en el entorno de pruebas. Se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado
+  (`crearFiestaDeEstaNoche` en `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
 - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
   deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
