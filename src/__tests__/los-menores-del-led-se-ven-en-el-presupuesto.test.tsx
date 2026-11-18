@@ -23,7 +23,7 @@ function montar(inicial: any) {
 }
 
 it('50 adultos y 10 menores desde LED: el campo dice 10, el total 60; cambiarlo a 12 da 62 sin escondidos', async () => {
-  const m = montar({ invitadosAdultos: 50, invitadosNinos: 0, invitadosAdolescentes: 10, invitadosCantidad: 60, serviciosSeleccionados: new Map() });
+  const m = montar({ invitadosAdultos: 50, invitadosNinos: 0, invitadosAdolescentes: 10, invitadosCantidad: 60, eventoTipo: 'Cumpleaños infantil', clienteNombre: 'PRUEBA', serviciosSeleccionados: new Map() });
   await act(async () => m.setFormData((p: any) => p));
   const campo = m.host.querySelector('#invitadosNinos') as HTMLInputElement;
   expect(campo.value).toBe('10');
