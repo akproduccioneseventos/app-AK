@@ -700,6 +700,22 @@
     "175": {
       "fecha": "2026-11-17",
       "resultado": "Formularios de modificar vacíos: RSVP → orden 318 bloque 2; el resto carga lo guardado."
+    },
+    "176": {
+      "fecha": "2026-11-17",
+      "resultado": "Estados vs regla del código: sólo el asistente (arreglado)."
+    },
+    "177": {
+      "fecha": "2026-11-17",
+      "resultado": "Promesas de sumar solo: lista de compras (arreglado); compras de las guías → orden 319."
+    },
+    "178": {
+      "fecha": "2026-11-17",
+      "resultado": "Totales con archivados: sólo Propuestas activas del CRM (arreglado); dashboard y analytics ya usan getPresupuestos()."
+    },
+    "179": {
+      "fecha": "2026-11-17",
+      "resultado": "Guardados que no quedan: empleados y salones → orden 319 (medir primero)."
     }
   },
   "hallazgos": {
@@ -1094,6 +1110,10 @@
     "orden-318": {
       "fecha": "2026-11-17",
       "resultado": "Pruebas funcionales del auditor: plata, subida y textos rotos arreglados por Claude; el resto → orden 318."
+    },
+    "orden-319": {
+      "fecha": "2026-11-17",
+      "resultado": "Auditoría integral: N1, N26, N32 y O15 arreglados por Claude; el resto → orden 319."
     }
   }
 }

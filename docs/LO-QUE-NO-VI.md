@@ -1486,3 +1486,7 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 318 → pregunta 173
 - Orden 318 → pregunta 174
 - Orden 318 → pregunta 175
+- Orden 319 → pregunta 176
+- Orden 319 → pregunta 177
+- Orden 319 → pregunta 178
+- Orden 319 → pregunta 179
