@@ -404,7 +404,7 @@ export async function getCashFlowProjection() {
       // de cada bloque (catering, bebidas, reposteria, sueldos con aportes) que todavia no tiene ningun
       // pago cargado, sin la merma de bebidas duplicada. Antes usaba los renglones manuales y los
       // sueldos a mano, y el mismo mes no daba lo mismo que Finanzas y Analiticas. (12/10/2026)
-      monthEntry.expenses += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).sinRendir;
+      monthEntry.expenses += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado, roles).sinRendir;
     });
 
     projectionMonths.forEach(m => {

@@ -41,7 +41,7 @@ export function calcularAvisoMargenHistorico(
 
   // Filtrar fiestas parecidas que tengan gastos reales cargados
   const parecidas = fiestasHistoricas.filter((fiesta) => {
-    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores);
+    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado);
     if (!ganancia.hayGastoCargado || ganancia.costoEstimado <= 0) return false;
 
     // Coincidencia de tipo si se especificó
@@ -91,7 +91,7 @@ export function calcularAvisoMargenHistorico(
   let sumaReal = 0;
 
   for (const fiesta of muestra) {
-    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores);
+    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado);
     sumaEstimada += ganancia.costoEstimado;
     sumaReal += ganancia.costoReal;
   }

@@ -32,19 +32,31 @@ export function calcularMesesLimite(mesesHastaEvento: number): number {
 
 /**
  * Genera el plan completo de pagos dado fecha del evento y total del contrato.
- * Las cuotas son trimestrales desde hoy hasta el evento, con una cuota clave
- * del 30% en la fecha límite calculada dinámicamente.
+ *
+ * El plan sigue la CLÁUSULA 3 del contrato que firma el cliente
+ * (`docs/contratos/contrato-base-2026-10-01.txt`), y no al revés:
+ * - un mínimo de $10.000 en cada período de tres meses desde la firma;
+ * - el 30% al cumplirse el primer tercio del tiempo entre la firma y la fiesta;
+ * - el 50% a la mitad de ese tiempo;
+ * - el total, treinta días antes del evento.
+ * Antes el plan guardaba $5.000 y el saldo a 15 días mientras el contrato decía $10.000 y 30 días: el cliente firmaba
+ * una cosa y el portal le cobraba otra (auditoría del 18/11/2026, A18-01).
  *
  * IMPORTANTE: `totalContrato` debe ser el total del contrato **sin** el ajuste
  * anual del 15% (es decir, el precio vigente a la fecha de firma, antes de
- * cualquier actualización enero a enero). Las cuotas y el monto objetivo del
- * 30% quedan fijos al momento de generar el plan y no se recalculan cuando se
- * aplica el ajuste anual pactado en la Cláusula 2 del contrato.
+ * cualquier actualización enero a enero). Las cuotas y los objetivos quedan
+ * fijos al momento de generar el plan y no se recalculan cuando se aplica el
+ * ajuste anual pactado en la Cláusula 2 del contrato.
  */
+export const PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO = 10000;
+export const DIAS_SALDO_ANTES_DEL_EVENTO = 30;
+
+const UN_DIA = 24 * 60 * 60 * 1000;
+
 export function generarPlanPagos(
   fechaEvento: string,
   totalContrato: number,
-  pagoMinimoTrimestral = 5000,
+  pagoMinimoTrimestral = PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO,
   porcentajeMinimo = 30,
 ): PlanPagos {
   const hoy = new Date();
@@ -56,130 +68,124 @@ export function generarPlanPagos(
   const totalContratoSeguro = Math.max(0, roundMoney(totalContrato));
   const pagoMinimoSeguro = Math.max(0, roundMoney(pagoMinimoTrimestral));
   const porcentajeMinimoSeguro = Math.min(100, Math.max(0, porcentajeMinimo));
-  const mesesHastaEvento = diferenciaMeses(hoy, evento);
-  const mesesLimite = calcularMesesLimite(mesesHastaEvento);
+  const porcentajeMitad = Math.max(50, porcentajeMinimoSeguro);
 
-  const fechaLimiteCalculada = new Date(evento);
-  fechaLimiteCalculada.setMonth(fechaLimiteCalculada.getMonth() - mesesLimite);
-  const fechaSaldoFinal = new Date(evento.getTime() - 15 * 24 * 60 * 60 * 1000);
-  const claveDate = fechaLimiteCalculada > hoy
-    ? fechaLimiteCalculada
-    : new Date(hoy.getTime() + 24 * 60 * 60 * 1000);
+  const diasHastaEvento = Math.max(0, Math.floor((evento.getTime() - hoy.getTime()) / UN_DIA));
+  const manana = new Date(hoy.getTime() + UN_DIA);
+  const enDias = (dias: number) => {
+    const fecha = new Date(hoy.getTime() + dias * UN_DIA);
+    return fecha > hoy ? fecha : manana;
+  };
+
+  // Cláusula 3 c) y d): el primer tercio y la mitad del tiempo entre la firma y la fiesta.
+  const claveDate = enDias(Math.floor(diasHastaEvento / 3));
+  const mitadDate = enDias(Math.floor(diasHastaEvento / 2));
+  // Cláusula 3 f): el total, treinta días antes del evento.
+  const fechaSaldoFinal = new Date(evento.getTime() - DIAS_SALDO_ANTES_DEL_EVENTO * UN_DIA);
+  const saldoFinalDate = fechaSaldoFinal > hoy ? fechaSaldoFinal : new Date(hoy.getTime() + 2 * UN_DIA);
 
   const montoObjetivo30 = Math.min(
     totalContratoSeguro,
     roundMoney(totalContratoSeguro * (porcentajeMinimoSeguro / 100)),
   );
+  const montoObjetivo50 = Math.min(
+    totalContratoSeguro,
+    roundMoney(totalContratoSeguro * (porcentajeMitad / 100)),
+  );
 
-  const cuotas: CuotaPlanPagoContrato[] = [];
+  type Paso =
+    | { tipo: 'trimestral'; fecha: Date }
+    | { tipo: 'clave'; fecha: Date }
+    | { tipo: 'mitad'; fecha: Date }
+    | { tipo: 'saldo'; fecha: Date };
 
-  let cursor = new Date(hoy);
+  const pasos: Paso[] = [];
+  // Cláusula 3 b): un mínimo en cada período de tres meses, hasta el saldo final.
+  const cursor = new Date(hoy);
   cursor.setMonth(cursor.getMonth() + 3);
-  cursor.setDate(1);
-
-  let index = 1;
-  let accumulatedTarget = 0;
-
-  // Cuotas anteriores al hito porcentual.
-  while (
-    cursor < claveDate &&
-    cursor < fechaSaldoFinal &&
-    accumulatedTarget < totalContratoSeguro
-  ) {
-    const montoCuota = Math.min(
-      pagoMinimoSeguro,
-      totalContratoSeguro - accumulatedTarget,
-    );
-    cuotas.push({
-      id: `cuota_${index}`,
-      descripcion: `Pago mínimo trimestral #${index}`,
-      fechaVencimiento: cursor.toISOString(),
-      montoMinimo: montoCuota,
-      esCuotaClave: false,
-      estado: 'pendiente',
-      pagosAplicados: [],
-      montoAcumulado: 0,
-    });
-    accumulatedTarget += montoCuota;
-    index++;
-
-    cursor = new Date(cursor);
+  while (cursor.getTime() < saldoFinalDate.getTime() - 15 * UN_DIA) {
+    pasos.push({ tipo: 'trimestral', fecha: new Date(cursor) });
     cursor.setMonth(cursor.getMonth() + 3);
   }
-
-  // La cuota clave completa el objetivo acumulado, no vuelve a cobrarlo.
-  const targetClave = Math.min(
-    totalContratoSeguro - accumulatedTarget,
-    Math.max(0, montoObjetivo30 - accumulatedTarget),
-  );
-  
-  cuotas.push({
-    id: `cuota_clave`,
-    descripcion: `Cuota clave ${porcentajeMinimoSeguro}% — ${formatDateISO(claveDate)}`,
-    fechaVencimiento: claveDate.toISOString(),
-    montoMinimo: targetClave,
-    montoObjetivo: montoObjetivo30,
-    esCuotaClave: true,
-    estado: 'pendiente',
-    pagosAplicados: [],
-    montoAcumulado: 0,
-  });
-  accumulatedTarget += targetClave;
-
-  // Add post-clave trimestral cuotas until 15 days before the event
-  let cursorPost = new Date(claveDate);
-  cursorPost.setMonth(cursorPost.getMonth() + 3);
-  cursorPost.setDate(1);
-
-  let postIndex = 1;
-  while (cursorPost < fechaSaldoFinal && accumulatedTarget < totalContratoSeguro) {
-    const diffDays = (fechaSaldoFinal.getTime() - cursorPost.getTime()) / (1000 * 60 * 60 * 24);
-    if (diffDays < 15) break;
-
-    const montoCuota = Math.min(
-      pagoMinimoSeguro,
-      totalContratoSeguro - accumulatedTarget,
-    );
-    cuotas.push({
-      id: `cuota_post_${postIndex}`,
-      descripcion: `Pago mínimo trimestral post-clave #${postIndex}`,
-      fechaVencimiento: cursorPost.toISOString(),
-      montoMinimo: montoCuota,
-      esCuotaClave: false,
-      estado: 'pendiente',
-      pagosAplicados: [],
-      montoAcumulado: 0,
-    });
-    accumulatedTarget += montoCuota;
-    postIndex++;
-
-    cursorPost = new Date(cursorPost);
-    cursorPost.setMonth(cursorPost.getMonth() + 3);
+  pasos.push({ tipo: 'clave', fecha: claveDate });
+  if (mitadDate.getTime() > claveDate.getTime() && mitadDate.getTime() < saldoFinalDate.getTime()) {
+    pasos.push({ tipo: 'mitad', fecha: mitadDate });
   }
+  pasos.push({ tipo: 'saldo', fecha: saldoFinalDate });
+  const orden = { trimestral: 0, clave: 1, mitad: 2, saldo: 3 } as const;
+  pasos.sort((a, b) => a.fecha.getTime() - b.fecha.getTime() || orden[a.tipo] - orden[b.tipo]);
 
-  // Add Saldo Final 15 days before the event
-  const targetSaldoFinal = Math.max(0, totalContratoSeguro - accumulatedTarget);
-  const saldoFinalDate = fechaSaldoFinal > hoy ? fechaSaldoFinal : new Date(hoy.getTime() + 48 * 60 * 60 * 1000);
-
-  cuotas.push({
-    id: `cuota_saldo_final`,
-    descripcion: `Saldo Final (15 días antes del evento)`,
-    fechaVencimiento: saldoFinalDate.toISOString(),
-    montoMinimo: targetSaldoFinal,
-    esCuotaClave: false,
-    estado: 'pendiente',
-    pagosAplicados: [],
-    montoAcumulado: 0,
-  });
-
-  // Sort cuotas chronologically
-  cuotas.sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime());
+  const cuotas: CuotaPlanPagoContrato[] = [];
+  let acumulado = 0;
+  let indice = 1;
+  for (const paso of pasos) {
+    const falta = Math.max(0, totalContratoSeguro - acumulado);
+    if (paso.tipo === 'trimestral') {
+      if (falta <= 0) continue;
+      const monto = Math.min(pagoMinimoSeguro, falta);
+      if (monto <= 0) continue;
+      cuotas.push({
+        id: `cuota_${indice}`,
+        descripcion: `Pago mínimo trimestral #${indice}`,
+        fechaVencimiento: paso.fecha.toISOString(),
+        montoMinimo: monto,
+        esCuotaClave: false,
+        estado: 'pendiente',
+        pagosAplicados: [],
+        montoAcumulado: 0,
+      });
+      acumulado += monto;
+      indice++;
+    } else if (paso.tipo === 'clave') {
+      // La cuota clave completa el objetivo acumulado, no vuelve a cobrarlo.
+      const monto = Math.min(falta, Math.max(0, montoObjetivo30 - acumulado));
+      cuotas.push({
+        id: 'cuota_clave',
+        descripcion: `Cuota clave ${porcentajeMinimoSeguro}% — ${formatDateISO(paso.fecha)}`,
+        fechaVencimiento: paso.fecha.toISOString(),
+        montoMinimo: monto,
+        montoObjetivo: montoObjetivo30,
+        esCuotaClave: true,
+        estado: 'pendiente',
+        pagosAplicados: [],
+        montoAcumulado: 0,
+      });
+      acumulado += monto;
+    } else if (paso.tipo === 'mitad') {
+      const monto = Math.min(falta, Math.max(0, montoObjetivo50 - acumulado));
+      if (monto <= 0) continue;
+      cuotas.push({
+        id: 'cuota_mitad',
+        descripcion: `${porcentajeMitad}% a la mitad del plazo — ${formatDateISO(paso.fecha)}`,
+        fechaVencimiento: paso.fecha.toISOString(),
+        montoMinimo: monto,
+        montoObjetivo: montoObjetivo50,
+        esCuotaClave: false,
+        estado: 'pendiente',
+        pagosAplicados: [],
+        montoAcumulado: 0,
+      });
+      acumulado += monto;
+    } else {
+      cuotas.push({
+        id: 'cuota_saldo_final',
+        descripcion: `Saldo Final (${DIAS_SALDO_ANTES_DEL_EVENTO} días antes del evento)`,
+        fechaVencimiento: paso.fecha.toISOString(),
+        montoMinimo: falta,
+        esCuotaClave: false,
+        estado: 'pendiente',
+        pagosAplicados: [],
+        montoAcumulado: 0,
+      });
+      acumulado += falta;
+    }
+  }
 
   return {
     activo: true,
     pagoMinimoTrimestral: pagoMinimoSeguro,
     porcentajeMinimoAntesFecha: porcentajeMinimoSeguro,
-    mesesLimiteAntesFecha: mesesLimite,
+    mesesLimiteAntesFecha: diferenciaMeses(claveDate, evento),
     fechaLimite30Porciento: claveDate.toISOString(),
     montoObjetivo30Porciento: montoObjetivo30,
     cuotas,

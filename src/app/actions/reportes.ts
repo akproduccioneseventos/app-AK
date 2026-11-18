@@ -79,6 +79,15 @@ export async function getProfitAndLossData(
     if (!auth.success) return { success: false, error: auth.error || 'No autorizado.' };
 
     const { from, to } = range;
+    // Período imposible: no se calcula ni se exporta un reporte en cero (auditoría del 18/11/2026, C18-03).
+    const desdeMs = new Date(from as any).getTime();
+    const hastaMs = new Date(to as any).getTime();
+    if (Number.isNaN(desdeMs) || Number.isNaN(hastaMs)) {
+      return { success: false, error: 'Elegí las dos fechas del período.' };
+    }
+    if (desdeMs > hastaMs) {
+      return { success: false, error: 'La fecha de inicio es posterior a la de fin.' };
+    }
     const [allInvoices, presupuestos, fiestas, roles, gastosGenerales] = await Promise.all([
       getInvoices(),
       getPresupuestos(),

@@ -704,6 +704,10 @@ el ingrediente. Y cuando el resultado sólo se ve abriendo la pantalla —que se
 imprima, que cambie el fondo—, la comprobación va acompañada de **una prueba de navegador que
 mire ese resultado**, no de un nombre buscado en el código.
 
+**Y otra vez el 18 de noviembre de 2026 (N26):** el arreglo del menú en la lista de compras quedó adentro del bloque que sólo
+corre con presupuesto, y su prueba buscaba `menuAsignadoId` en el archivo. El auditor lo volvió a encontrar roto. **La prueba
+de un arreglo reproduce el caso exacto del informe** (acá: sin presupuesto), abriendo la pantalla.
+
 **La pregunta antes de escribir una línea de `comprobar`:** *¿esto podría dar verde con la
 función apagada?* Si la respuesta es que sí, está mal escrita.
 

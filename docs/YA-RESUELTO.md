@@ -11,6 +11,63 @@
 ```comprobar
 usa: undoCheckInGuest en src/app/recepcion/[fiestaId]/RecepcionClient.tsx
 prueba: src/__tests__/el-check-in-se-puede-deshacer.test.ts
+## 18/11/2026 - El reporte de ganancias no acepta un período al revés
+
+- **Qué pasaba:** con inicio 19/11 y fin 18/11, el reporte daba $0 en todo y se podía bajar como un período sin actividad
+  (C18-03). Y al cambiar una fecha sin regenerar, el título del resumen mostraba el período nuevo con los números viejos.
+- **Qué se hizo:** la pantalla y el servidor rechazan el inicio después del fin, con el motivo junto al filtro; el título
+  dice el período que se calculó. Pregunta 190.
+
+```comprobar
+usa: posterior a la de fin en src/app/actions/reportes.ts
+usa: rangoDelReporte?.from en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+prueba: src/__tests__/un-solo-numero-de-plata.test.ts
+```
+
+## 18/11/2026 - El sueldo cargado a mano entra en la ganancia, y el gasto de mantenimiento queda en su día
+
+- **Qué pasaba:** en una fiesta sin presupuesto, un coordinador de $1 aparecía en Personal y en el recibo, pero la ganancia
+  y el consolidado decían $0 de personal (C18-01): la cuenta leía el total que arma "Sincronizar", y sincronizar pide
+  presupuesto. Y un mantenimiento del 18/11 dejaba su gasto el 17/11 (fecha sin hora leída en hora de Greenwich).
+- **Qué se hizo:** todas las llamadas a `calcularGananciaDeEvento` le pasan `fiesta.personalAsignado` (y los puestos, para
+  los aportes, donde ya estaban cargados); la cuenta toma el mayor entre lo sincronizado y lo asignado, como ya hacía el
+  reporte. **Por qué el mayor:** lo sincronizado sale de lo mismo, y si difieren es porque se cargó algo después. El gasto
+  del mantenimiento se guarda al mediodía de Uruguay y la lista de gastos muestra en hora de Uruguay. Preguntas 187 a 189.
+
+```comprobar
+usa: personalAsignado en src/app/actions/analytics.ts
+usa: personalEstimado en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: T12:00:00-03:00 en src/app/actions/activos-fijos.ts
+prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+```
+
+## 18/11/2026 - El plan de pagos, el contrato y el recibo dicen lo mismo
+
+- **Qué pasaba:** el plan del contrato guardaba $5.000 por trimestre y el saldo 15 días antes, y la cláusula 3 que firma el
+  cliente dice $10.000 y 30 días (A18-01). El anexo del recibo salía con `{{HITO_30}}`, `{{HITO_50}}` y
+  `{{FECHA_SALDO_TOTAL}}` escritos (A18-02). El recibo mostraba "$40.410 abonados" y "No se han registrado pagos" (A18-03).
+- **Qué se hizo:** el plan sigue la cláusula 3 al pie de la letra: $10.000 por trimestre, 30% al primer tercio, 50% a la
+  mitad y el total 30 días antes (`planPagos.ts`). **Por qué así:** manda el contrato que se firma, no el número que tenía
+  el código. Las fechas de la cláusula salen de un solo lugar (`src/lib/contratos/hitos.ts`) y se completan también en un
+  texto guardado con huecos, salvo que el cliente ya haya firmado en el portal. El detalle del recibo sale de los mismos
+  cobros que el total (`cobros-del-recibo.ts`). Los planes ya guardados no se tocan: se regeneran desde el contrato.
+
+```comprobar
+usa: PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+usa: reemplazosDeFechasDelContrato en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+usa: cobrosDelRecibo en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+prueba: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts
+```
+
+## 18/11/2026 - La lista de compras con menú y sin presupuesto
+
+- **Qué pasaba:** el arreglo del 17/11 sumaba el menú asignado, pero adentro del bloque que sólo corre con presupuesto; el
+  auditor lo probó sin presupuesto y siguió vacía (N26). La prueba buscaba el nombre del campo y daba verde.
+- **Qué se hizo:** el menú asignado, las bebidas y los postres se suman fuera de ese bloque. La cuenta vive en
+  `compras-del-menu-asignado.ts` y su prueba usa el caso exacto: fiesta sin presupuesto, el ingrediente aparece. Pregunta 185.
+
+```comprobar
+prueba: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts
 ```
 
 ## 13/11/2026 - "Poner al día" ya no trae los cobros marcados

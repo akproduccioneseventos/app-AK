@@ -30,5 +30,7 @@ export async function getComparativaDeGanancias(): Promise<{
   const cobrosPorPresupuesto = new Map(
     presupuestos.map((presupuesto) => [presupuesto.id, presupuesto.pagosCliente ?? []]),
   );
-  return { ok: true, comparativa: compararGanancias(fiestas, cobrosPorPresupuesto) };
+  const { leerRolesInterno } = await import('@/lib/roles/leer-roles-interno');
+  const roles = await leerRolesInterno().catch(() => []);
+  return { ok: true, comparativa: compararGanancias(fiestas, cobrosPorPresupuesto, roles) };
 }

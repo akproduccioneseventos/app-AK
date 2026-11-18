@@ -716,6 +716,50 @@
     "179": {
       "fecha": "2026-11-17",
       "resultado": "Guardados que no quedan: empleados y salones → orden 319 (medir primero)."
+    },
+    "180": {
+      "fecha": "2026-11-18",
+      "resultado": "Respaldos inventados: sólo el sorteo del control remoto (Mesa 1…6) → orden 320 bloque 1."
+    },
+    "181": {
+      "fecha": "2026-11-18",
+      "resultado": "Horas como texto: itinerario y orden de evento → orden 320 bloque 2; fiesta.actions ordena fiestas del día por hora de inicio (no es un programa que cruce la medianoche)."
+    },
+    "182": {
+      "fecha": "2026-11-18",
+      "resultado": "Total y detalle: recibo (arreglado, cobros-del-recibo.ts); estado de cuenta y poner al día ya usan pagosCliente para los dos."
+    },
+    "183": {
+      "fecha": "2026-11-18",
+      "resultado": "Números del contrato: plan de pagos (arreglado: $10.000, 30 días, 30% al tercio, 50% a la mitad); recargo y penalidad ya salen del 30% del contrato."
+    },
+    "184": {
+      "fecha": "2026-11-18",
+      "resultado": "Marcadores por pantalla: recibo (arreglado con hitos.ts); cancelación usa su propio texto sin hitos; editor de plantillas valida con marcadores.ts."
+    },
+    "185": {
+      "fecha": "2026-11-18",
+      "resultado": "Arreglos dentro de un bloque que no corre: lista de compras (menú, bebidas y postres fuera del if del presupuesto, con prueba del caso sin presupuesto)."
+    },
+    "186": {
+      "fecha": "2026-11-18",
+      "resultado": "Recortes del asistente: prospectos (12) → orden 320 bloque 3; el resto del contexto ya trae totales."
+    },
+    "187": {
+      "fecha": "2026-11-18",
+      "resultado": "Totales guardados vs dato: personal en la ganancia (arreglado en todas las llamadas a calcularGananciaDeEvento); reportes ya usaba el mayor; resto → orden 320 barrido."
+    },
+    "188": {
+      "fecha": "2026-11-18",
+      "resultado": "Suspendidas como activas: recursos-multi-evento → orden 320 bloque 5; el resto lo lista Gemini en el barrido."
+    },
+    "189": {
+      "fecha": "2026-11-18",
+      "resultado": "Éxitos con pasos fallados: modo automático del editor → orden 320 bloque 6; tareas automáticas ya marcan fallo (tareas-no-marcan-exito-al-fallar)."
+    },
+    "190": {
+      "fecha": "2026-11-18",
+      "resultado": "Períodos al revés: reporte de ganancias (arreglado en pantalla y servidor); el resto de las pantallas con desde/hasta → orden 320 barrido."
     }
   },
   "hallazgos": {
@@ -1114,6 +1158,10 @@
     "orden-319": {
       "fecha": "2026-11-17",
       "resultado": "Auditoría integral: N1, N26, N32 y O15 arreglados por Claude; el resto → orden 319."
+    },
+    "orden-320": {
+      "fecha": "2026-11-18",
+      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b."
     }
   }
 }

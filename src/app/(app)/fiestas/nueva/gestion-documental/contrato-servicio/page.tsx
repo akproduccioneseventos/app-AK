@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { conSinonimos } from '@/lib/contratos/marcadores';
+import { calcularHitosDeContrato, completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
 import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -27,7 +28,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { generarPlanPagos } from '@/lib/planPagos';
+import { generarPlanPagos, PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO } from '@/lib/planPagos';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
@@ -44,37 +45,6 @@ const formatDate = (dateString?: string) => {
 };
 
 const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'setiembre', 'octubre', 'noviembre', 'diciembre'];
-function formatFechaEnEspanol(d: Date): string {
-  return `${d.getDate()} de ${MESES_ES[d.getMonth()]} de ${d.getFullYear()}`;
-}
-
-function calcularHitosDeContrato(fechaEventoStr?: string, fechaFirmaStr?: string) {
-  let hito30 = '';
-  let hito50 = '';
-  let fechaSaldoTotal = '';
-
-  if (!fechaEventoStr) return { hito30, hito50, fechaSaldoTotal };
-  const eventoDate = new Date(fechaEventoStr);
-  if (isNaN(eventoDate.getTime())) return { hito30, hito50, fechaSaldoTotal };
-
-  const dSaldo = new Date(eventoDate.getFullYear(), eventoDate.getMonth(), eventoDate.getDate() - 30, 12, 0, 0);
-  fechaSaldoTotal = formatFechaEnEspanol(dSaldo);
-
-  const firmaDate = fechaFirmaStr ? new Date(fechaFirmaStr) : new Date();
-  if (!isNaN(firmaDate.getTime())) {
-    const diffDias = Math.round((eventoDate.getTime() - firmaDate.getTime()) / (24 * 60 * 60 * 1000));
-    if (diffDias > 0) {
-      const d30 = new Date(firmaDate.getFullYear(), firmaDate.getMonth(), firmaDate.getDate() + Math.floor(diffDias / 3), 12, 0, 0);
-      hito30 = formatFechaEnEspanol(d30);
-      const d50 = new Date(firmaDate.getFullYear(), firmaDate.getMonth(), firmaDate.getDate() + Math.floor(diffDias / 2), 12, 0, 0);
-      hito50 = formatFechaEnEspanol(d50);
-    }
-  }
-
-  return { hito30, hito50, fechaSaldoTotal };
-}
 
 function ContratoServicioContent() {
   const { toast } = useToast();
@@ -100,7 +70,7 @@ function ContratoServicioContent() {
   const [error, setError] = useState<string | null>(null);
 
   // Plan de pagos state
-  const [pagoMinimoTrimestral, setPagoMinimoTrimestral] = useState(5000);
+  const [pagoMinimoTrimestral, setPagoMinimoTrimestral] = useState(PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO);
   const [porcentajeMinimo, setPorcentajeMinimo] = useState(30);
   const [planGenerado, setPlanGenerado] = useState<PlanPagos | null>(null);
   const [isSavingPlan, setIsSavingPlan] = useState(false);
@@ -179,8 +149,19 @@ function ContratoServicioContent() {
           setPresupuesto(presupuestoData);
 
           if (fiestaData.contratoServicioTexto && persistedType === 'servicios') {
-              setContractText(fiestaData.contratoServicioTexto);
-              setTextoGuardado(fiestaData.contratoServicioTexto);
+              // Un texto guardado con huecos de fechas (`{{HITO_30}}`, `{{FECHA_SALDO_TOTAL}}`…) se completa al abrirlo
+              // y queda como cambio sin guardar, para que el equipo lo guarde. Si el cliente ya firmó en el portal, el
+              // texto no se toca: es lo que firmó (auditoría del 18/11/2026, A18-02).
+              const guardado = fiestaData.contratoServicioTexto;
+              const completo = fiestaData.firmaDigitalConstancia
+                ? guardado
+                : completarMarcadoresPendientes(guardado, conSinonimos(reemplazosDeFechasDelContrato(
+                    fiestaData.configuracion.fechaEvento,
+                    fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp,
+                    today,
+                  )));
+              setContractText(completo);
+              setTextoGuardado(guardado);
           } else {
               const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
               let text = selectedTemplate?.template || '';
@@ -619,7 +600,7 @@ function ContratoServicioContent() {
                     <div className="grid sm:grid-cols-3 gap-2 text-xs">
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Meses hasta el evento</p>
-                        <p className="font-bold text-slate-800">{planGenerado.mesesLimiteAntesFecha} meses antes de la fecha clave</p>
+                        <p className="font-bold text-slate-800">la fecha clave cae {planGenerado.mesesLimiteAntesFecha} meses antes del evento</p>
                       </div>
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Fecha límite {porcentajeMinimo}%</p>
