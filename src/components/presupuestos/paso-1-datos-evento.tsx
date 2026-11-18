@@ -22,12 +22,21 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
   const [isDateOccupied, setIsDateOccupied] = useState(false);
 
   useEffect(() => {
-    // Update total guest count whenever adults or ninos change
-    const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
+    // El total cuenta adultos, niños y adolescentes. La Presentación LED manda los menores como adolescentes, y este
+    // paso sólo miraba niños: el campo decía 0 con 10 menores en el presupuesto (auditoría del 18/11/2026, R18-03).
+    const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
     if (formData.invitadosCantidad !== total) {
       setFormData(prev => ({...prev, invitadosCantidad: total}));
     }
-  }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosCantidad, setFormData]);
+  }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosAdolescentes, formData.invitadosCantidad, setFormData]);
+
+  // El campo "Niños y Adolescentes" muestra los dos juntos; al cambiarlo queda una sola cifra, sin menores escondidos.
+  const menores = (formData.invitadosNinos ?? null) === null && (formData.invitadosAdolescentes ?? null) === null
+    ? null
+    : (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
+  const cambiarMenores = (valor: number | null) => {
+    setFormData(prev => ({ ...prev, invitadosNinos: valor, invitadosAdolescentes: 0 }));
+  };
 
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -232,8 +241,8 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
             type="number"
             step="1"
             placeholder="Ej: 10"
-            value={formData.invitadosNinos ?? ''}
-            onChange={(e) => handleChange('invitadosNinos', e.target.value === '' ? null : Number(e.target.value))}
+            value={menores ?? ''}
+            onChange={(e) => cambiarMenores(e.target.value === '' ? null : Number(e.target.value))}
             min="0"
             className="text-base p-3"
           />

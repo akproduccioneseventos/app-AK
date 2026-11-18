@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - Los menores que manda la Presentación LED se ven en el presupuesto
+
+- **Qué pasaba:** la LED pasa los menores como adolescentes y el campo "Niños y Adolescentes" sólo leía niños: decía 0 con 10
+  menús de menores en el presupuesto, y el total del paso 1 los dejaba afuera (R18-03).
+- **Qué se hizo:** el campo muestra niños + adolescentes; al cambiarlo queda una sola cifra, sin menores escondidos, y el
+  total suma los tres. La fecha corrida un día de la LED es el problema de fechas ya conocido.
+
+```comprobar
+prueba: src/__tests__/los-menores-del-led-se-ven-en-el-presupuesto.test.tsx
+```
+
 ## 18/11/2026 - El asistente ve todos los prospectos
 
 - **Qué pasaba:** el contexto del asistente traía 12 prospectos; con 16, el Vendedor no encontraba uno recién creado (A18-04).
