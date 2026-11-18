@@ -138,6 +138,13 @@ const FORMAS = [
     comoSeArregla: 'Dar una herramienta que busque en todo el CRM (buscarProspecto), o explicar en el contexto que hay más.',
   },
   {
+    pregunta: 191,
+    nombre: 'El campo de menores que muestra sólo niños',
+    porque: 'La LED pasaba 10 menores como adolescentes y el presupuesto manual mostraba 0 (auditoría 18/11/2026, R18-03).',
+    buscar: /value=\{formData\.invitadosNinos\b/g,
+    comoSeArregla: 'Mostrar niños + adolescentes y, al cambiar, guardar una sola cifra (paso-1-datos-evento.tsx).',
+  },
+  {
     pregunta: 187,
     nombre: 'La ganancia calculada sin el personal asignado',
     porque: 'Un sueldo cargado a mano en una fiesta sin presupuesto no entraba en la ganancia: la cuenta no recibía fiesta.personalAsignado (auditoría 18/11/2026, C18-01).',

@@ -19,6 +19,8 @@ N20, N21, N24, N30, N31, N33, N34 (319).
 - **Mantenimiento:** el gasto automático queda en el día elegido (mediodía de Uruguay), no el día anterior.
 - **C18-03 (novedades de las 11:46):** el reporte de ganancias rechaza un período con el inicio después del fin, y el
   título del resumen dice el período que se calculó, no el que está elegido en los filtros.
+- **R18-03 (simulador y LED):** el campo "Niños y Adolescentes" del presupuesto manual muestra los menores que manda la
+  LED (antes decía 0 con 10 en el presupuesto).
 - **M3:** "Política de Señas" ya lleva a `/settings/budget-display` (vino en tu 1429).
 - **N26:** la lista de compras suma el menú asignado aunque la fiesta no tenga presupuesto
   (`catering/lista-compras/page.tsx`); también bebidas y postres, que estaban adentro del mismo bloque.

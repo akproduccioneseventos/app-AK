@@ -19,6 +19,9 @@
   precarga. La prueba que mandaste no lo comprobaba y no corría (usaba `demo_ak_oficial`, que no existe en el entorno de
   pruebas); se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado (`crearFiestaDeEstaNoche` en
   `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
+- **Nuevo: orden 321 (pedido del dueño, la más importante después de cerrar 318-320):** reorganizar y achicar la app,
+  de 382 páginas a 200 o menos, en seis áreas (Hoy, Ventas y Marketing con WhatsApp, Fiestas, Plata, Empresa y Personal,
+  Ajustes), sin perder funciones. Lo que toca plata sólo se mueve; si hay que tocar cómo guarda, lo anotás y lo hace Claude.
 - **Nuevo: orden 320** (auditoría del 18/11): el sorteo del control remoto que inventa "Mesa 2" (P1), el cronograma que
   cruza la medianoche, el Vendedor que no encuentra un prospecto y cantidades escritas a mano. Y de la continuación: fiestas suspendidas
   contadas como próximas, la galería por tipo, las fotos de ejemplo de Estilo, los avisos de pago del portal en Pagos rápidos

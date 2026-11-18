@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - Los menores que manda la Presentación LED se ven en el presupuesto
+
+- **Qué pasaba:** la LED pasa los menores como adolescentes y el campo "Niños y Adolescentes" sólo leía niños: decía 0 con 10
+  menús de menores en el presupuesto, y el total del paso 1 los dejaba afuera (R18-03).
+- **Qué se hizo:** el campo muestra niños + adolescentes; al cambiarlo queda una sola cifra, sin menores escondidos, y el
+  total suma los tres. La fecha corrida un día de la LED es el problema de fechas ya conocido.
+
+```comprobar
+prueba: src/__tests__/los-menores-del-led-se-ven-en-el-presupuesto.test.tsx
+```
+
 ## 18/11/2026 - El asistente ve todos los prospectos
 
 - **Qué pasaba:** el contexto del asistente traía 12 prospectos; con 16, el Vendedor no encontraba uno recién creado (A18-04).
@@ -21,6 +32,8 @@ prueba: src/__tests__/el-vendedor-ve-todos-los-prospectos.test.ts
 ```comprobar
 usa: undoCheckInGuest en src/app/recepcion/[fiestaId]/RecepcionClient.tsx
 prueba: src/__tests__/el-check-in-se-puede-deshacer.test.ts
+```
+
 ## 18/11/2026 - El reporte de ganancias no acepta un período al revés
 
 - **Qué pasaba:** con inicio 19/11 y fin 18/11, el reporte daba $0 en todo y se podía bajar como un período sin actividad

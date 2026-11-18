@@ -1926,3 +1926,8 @@ de Vida y las Redes fallados.
 
 Novedades del auditor del 18/11/2026 a las 11:46 (C18-03): el reporte de ganancias del 19/11 al 18/11 daba $0 y se podía
 bajar como si fuera un período sin actividad.
+
+### 191. Un dato que vive en dos campos (niños y adolescentes), ¿el formulario muestra y cambia los dos?
+
+Auditoría del simulador y la LED, 18/11/2026 (R18-03): la LED pasaba los menores como adolescentes y el presupuesto manual
+mostraba 0 en "Niños y Adolescentes", que sólo leía niños.

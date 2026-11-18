@@ -760,6 +760,10 @@
     "190": {
       "fecha": "2026-11-18",
       "resultado": "Períodos al revés: sólo el reporte de ganancias genera o exporta con desde/hasta (arreglado); los otros dos usos de fechas son cuentas regresivas públicas, no rangos."
+    },
+    "191": {
+      "fecha": "2026-11-18",
+      "resultado": "Menores en dos campos: sólo el paso 1 del presupuesto mostraba uno (arreglado); el escaneo busca value={formData.invitadosNinos."
     }
   },
   "hallazgos": {
@@ -1161,7 +1165,11 @@
     },
     "orden-320": {
       "fecha": "2026-11-18",
-      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b."
+      "resultado": "Auditoría del 18/11: A18-01, A18-02, A18-03 y N26 arreglados por Claude; A18-04, A18-05, A18-06 y cantidades escritas a mano → orden 320. Continuación: C18-01 y fecha del mantenimiento arreglados por Claude; C18-02, M1, M2, avisos del portal y el editor (E1-E23) → orden 320 bloques 5 y 6. Novedades 11:46: C18-03 arreglado por Claude; C18-04 → orden 320 bloque 5b. Simulador y LED (13:17): R18-03 arreglado por Claude."
+    },
+    "orden-321": {
+      "fecha": "2026-11-18",
+      "resultado": "Revisión de la app por pedido del dueño: 382 páginas (41 redirecciones, 9 sin enlaces, 20 sólo desde Más); buzón que dice guardar el marco y no lo guarda (pregunta 179) → orden 321 bloque 6."
     }
   }
 }
