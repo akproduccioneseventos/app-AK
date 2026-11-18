@@ -1308,6 +1308,12 @@ ninguna tenía escaneo automático. El dueño: *"los escaneos tienen que ir auto
 buscar con una expresión; la lista de "no se puede escanear" es sólo para lo que de verdad no se puede (un comportamiento,
 no un texto). Y el escaneo se prueba con un caso que tiene que dar positivo.
 
+### 58. Tomar por dato de la corrida un cambio que una orden hizo a propósito
+
+**Pasó el 18 de noviembre de 2026.** Al juntar la 1429 vi una cédula vacía en `src/data/empleados.json` y la volví a la de la
+principal pensando que la había borrado una prueba. La había sacado la orden 311 (datos personales fuera del repositorio); lo
+frenó su prueba en la puerta. **Antes de devolver un archivo de datos, `git log -1 -- <archivo>` en la rama que lo trae.**
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
