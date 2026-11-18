@@ -555,14 +555,14 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
       consecutiveFailures: 0,
       lastError: null,
       failedAt: null,
-    }, { merge: true }).catch(() => {});
+    }, { merge: true }).catch(() => {}); // no pasa nada si falla: la copia ya quedó guardada; sólo el panel muestra la fecha vieja
 
     await writeData('backup-status.json', {
       lastCompletedAt: timestamp,
       lastAttemptAt: timestamp,
       consecutiveFailures: 0,
       lastError: null,
-    }, undefined, { skipAutoBackup: true }).catch(() => {});
+    }, undefined, { skipAutoBackup: true }).catch(() => {}); // no pasa nada si falla: la copia ya quedó guardada; es sólo el aviso de la fecha
 
     return { success: true, point: toRestorePoint(manifest) };
   } catch (error: any) {
