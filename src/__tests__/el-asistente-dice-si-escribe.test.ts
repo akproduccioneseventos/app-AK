@@ -17,11 +17,11 @@ describe('El estado del asistente dice lo mismo que hace', () => {
 
   it('sin configurar: escribe, y la pantalla dice activo', async () => {
     delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
-    expect((await getAssistantOperationalStatus()).writeActionsEnabled).toBe(true);
+    expect(await getAssistantOperationalStatus()).toMatchObject({ writeActionsEnabled: true });
   });
 
   it('apagado a propósito: la pantalla dice desactivado', async () => {
     process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'false';
-    expect((await getAssistantOperationalStatus()).writeActionsEnabled).toBe(false);
+    expect(await getAssistantOperationalStatus()).toMatchObject({ writeActionsEnabled: false });
   });
 });
