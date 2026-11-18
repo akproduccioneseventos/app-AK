@@ -235,6 +235,11 @@ test.describe('Recorrido de las 353 pantallas', () => {
         // Check 2b: Auditoría visual en 3 tamaños (Orden 313: scrollWidth, palabra por palabra, contraste y símbolos)
         for (const tam of TAMANOS_AUDITORIA) {
           await page.setViewportSize({ width: tam.width, height: tam.height });
+          // Se mide con la pantalla ya acomodada al tamaño nuevo: medido en el mismo instante, el menú lateral todavía se
+          // estaba abriendo (con su animación) y sus textos quedaban de 61 px. Marcaba el panel y el ingreso como rotos sin
+          // estarlo (18/11/2026: medido medio segundo después, cero textos partidos).
+          await page.waitForTimeout(700);
+          await page.evaluate(() => new Promise((listo) => requestAnimationFrame(() => requestAnimationFrame(() => listo(null)))));
           const fallasTam = await page.evaluate((w) => {
             const errs: string[] = [];
             const sw = document.documentElement.scrollWidth;
