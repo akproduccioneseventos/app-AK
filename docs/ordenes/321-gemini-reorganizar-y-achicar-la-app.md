@@ -134,7 +134,7 @@ el catálogo de 47 módulos en `src/app/(app)/fiestas/nueva/page.tsx` ~líneas 7
 
 ```comprobar
 archivo: src/__tests__/la-app-no-pasa-de-200-pantallas.test.ts
-usa: redirects en next.config.ts
+usa: redirects en next.config.js
 no-usa: '/mas' en src/lib/navegacion/mapa.ts
 usa: videoFrameTemplate en src/app/actions/buzon.ts
 prueba: src/__tests__/las-direcciones-viejas-siguen-andando.test.ts
