@@ -110,6 +110,36 @@ repitió: *"siempre diferenciando los mensajes de anuncios de los personales; lo
   apagado, tampoco anda este.
 - Cada mensaje que manda el asistente queda en la conversación del prospecto como `sale` y marcado como del asistente.
 
+## Bloque 5 — El mismo asistente en la web, Instagram y Messenger, y al final a WhatsApp
+
+**Pedido del dueño (19/11/2026):** *"que en Messenger, en la página web y en Instagram conteste todo automático y a lo último
+redirija al WhatsApp, porque yo solamente contesto el WhatsApp… siempre que el usuario elija si quiere un humano o un robot,
+porque a veces a la gente el robot le cae mal"*.
+
+- **Un solo cerebro para los cuatro canales:** lo que contesta vive en `src/lib/whatsapp/asistente-de-prospectos.ts` (bloque
+  4) y lo usan:
+  - el chat de la web (`AsistenteVirtual`, `src/components/public/AsistenteVirtual.tsx`, que hoy llama a
+    `chatWithVirtualAssistant`, `src/app/actions/asistente-virtual.ts`);
+  - los mensajes directos de Instagram y Messenger (`evaluarRespuestaAutomatica`, `src/lib/mensajes/bandeja-unica.ts:201`);
+  - WhatsApp (bloque 4).
+
+  Mismas reglas en los cuatro: dice que es un asistente, mira la fecha, manda el simulador, precio de la lista y nunca reserva
+  ni cobra. **No se escriben cuatro asistentes distintos.**
+- **La elección, al principio y en cualquier momento:** el primer mensaje ofrece **"Seguí vos"** o **"Quiero una persona"**
+  (botones en la web, respuestas rápidas en Instagram y Messenger). Escribir "persona", "humano" o algo parecido en
+  cualquier momento hace lo mismo.
+- **"Quiero una persona" fuera de WhatsApp = pasar a WhatsApp con todo listo:** el asistente contesta *"¡Dale! Te escribe una
+  persona del equipo por WhatsApp: tocá acá"* con el enlace de WhatsApp (`buildWhatsAppLink`) y un texto ya escrito que lleva
+  **lo que contó** (fecha, invitados, tipo de fiesta) y la marca `(ref AK-…)` del bloque 1. Así entra al CRM por la puerta 3
+  y el dueño no le vuelve a preguntar lo mismo.
+- **Al terminar con el asistente**, cuando ya tiene presupuesto o fecha, también lo invita a seguir por WhatsApp con el mismo
+  enlace armado.
+- **Comentarios públicos en publicaciones:** el asistente **nunca** dice precios ni fechas en público. Contesta *"¡Te
+  escribimos por privado!"* y sigue por mensaje directo (eso ya lo hace `evaluarRespuestaAutomatica` con sus interruptores:
+  no se cambia).
+- Interruptor por canal en Ajustes (web, Instagram, Messenger, WhatsApp), apagados de entrada. Los de Instagram y Messenger
+  que ya existen se reusan.
+
 ## Qué NO tocar
 
 - La regla del número personal: **lo que no pasa por una de las tres puertas no se guarda ni se contesta**.
@@ -131,6 +161,9 @@ repitió: *"siempre diferenciando los mensajes de anuncios de los personales; lo
   vuelve a contestar** en esa charla; con la fecha ocupada dice que está ocupada; con el calendario sin leer **no** dice
   "libre"; si pide reservar o pagar, pasa a persona y **no** cambia nada del presupuesto ni de la seña. Un número personal
   que escribe no recibe **ninguna** respuesta.
+- **Bloque 5:** el chat de la web y un mensaje de Instagram (simulado) reciben la misma primera respuesta que WhatsApp; con
+  "Quiero una persona" reciben el enlace de WhatsApp con la fecha y los invitados que contaron **y** la marca `ref AK-`;
+  un comentario público que pregunta el precio **no** recibe un precio.
 
 ```comprobar
 archivo: src/lib/whatsapp/quien-es-prospecto.ts
@@ -142,4 +175,6 @@ usa: ref AK- en src/lib/commercial/contact.ts
 archivo: src/lib/whatsapp/asistente-de-prospectos.ts
 usa: checkDateAvailability en src/lib/whatsapp/asistente-de-prospectos.ts
 usa: Quiero una persona en src/app/api/whatsapp/webhook/route.ts
+usa: asistente-de-prospectos en src/app/actions/asistente-virtual.ts
+usa: asistente-de-prospectos en src/lib/mensajes/bandeja-unica.ts
 ```
