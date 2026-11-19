@@ -620,6 +620,8 @@ def cargar_fotos(origen: str, modo: str = "xv") -> Dict[str, Any]:
                 elif "ella" in rel.split(os.sep) or "novia" in rel:
                     fotos_ella.append(ruta_completa)
 
+    fotos_el_set = set(fotos_el)
+    fotos_ella_set = set(fotos_ella)
     fotos_info: List[Dict[str, Any]] = []
     for r in archivos_fotos:
         nom = os.path.basename(r)
@@ -628,6 +630,7 @@ def cargar_fotos(origen: str, modo: str = "xv") -> Dict[str, Any]:
         if nom.lower().endswith((".jpg", ".jpeg")):
             ori = leer_exif_jpeg(r).get("orientacion", 1)
 
+        rol_boda = "el" if r in fotos_el_set else ("ella" if r in fotos_ella_set else None)
         fotos_info.append({
             "ruta": r,
             "nombre": nom,
@@ -635,6 +638,7 @@ def cargar_fotos(origen: str, modo: str = "xv") -> Dict[str, Any]:
             "fecha_str": fecha_dt.strftime("%Y-%m-%d %H:%M:%S") if fecha_dt else None,
             "origen_fecha": origen_fecha,
             "orientacion": ori,
+            "rol_boda": rol_boda,
             "es_duplicada": False,
         })
 
@@ -739,26 +743,44 @@ def ordenar_fotos_vida(
         for c in nombres_caps:
             capitulos[c] = []
 
-        # Distribución para boda
-        total = len(con_fecha)
-        if total > 0:
-            p1 = max(1, total // 4)
-            p2 = max(p1 + 1, total // 2)
-            p3 = max(p2 + 1, (total * 3) // 4)
-
-            for idx, f in enumerate(con_fecha):
-                if idx < p1:
-                    cap = "Él"
-                elif idx < p2:
-                    cap = "Ella"
-                elif idx < p3:
-                    cap = "Cuando nos conocimos"
-                elif idx < total - 1:
-                    cap = "Juntos"
+        # Distribución para boda: priorizar carpetas explícitas de Él / Ella si existen
+        tiene_roles = any(f.get("rol_boda") in ("el", "ella") for f in con_fecha)
+        if tiene_roles:
+            restantes = []
+            for f in con_fecha:
+                if f.get("rol_boda") == "el":
+                    f["capitulo"] = "Él"
+                    capitulos["Él"].append(f)
+                elif f.get("rol_boda") == "ella":
+                    f["capitulo"] = "Ella"
+                    capitulos["Ella"].append(f)
                 else:
-                    cap = "Hoy"
+                    restantes.append(f)
+            tot_rest = len(restantes)
+            for idx, f in enumerate(restantes):
+                cap = "Cuando nos conocimos" if idx < tot_rest // 3 else ("Juntos" if idx < tot_rest - 1 else "Hoy")
                 f["capitulo"] = cap
                 capitulos[cap].append(f)
+        else:
+            total = len(con_fecha)
+            if total > 0:
+                p1 = max(1, total // 4)
+                p2 = max(p1 + 1, total // 2)
+                p3 = max(p2 + 1, (total * 3) // 4)
+
+                for idx, f in enumerate(con_fecha):
+                    if idx < p1:
+                        cap = "Él"
+                    elif idx < p2:
+                        cap = "Ella"
+                    elif idx < p3:
+                        cap = "Cuando nos conocimos"
+                    elif idx < total - 1:
+                        cap = "Juntos"
+                    else:
+                        cap = "Hoy"
+                    f["capitulo"] = cap
+                    capitulos[cap].append(f)
     else:
         # Modo XV años
         nombres_caps = ["Bebé", "Primeros pasos", "Infancia", "Escuela", "Hoy"]
@@ -1065,7 +1087,8 @@ def exportar_video_de_vida(
             if not ruta_foto or not os.path.exists(ruta_foto):
                 continue
 
-            img_raw = cv2.imread(ruta_foto)
+            # Leer sin auto-rotación de OpenCV para que corregir_orientacion rote una sola vez
+            img_raw = cv2.imread(ruta_foto, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
             if img_raw is None:
                 continue
 
@@ -1120,7 +1143,10 @@ def exportar_video_de_vida(
             cap.release()
             duracion_seg = (cuadros / fps_real) if fps_real > 0 else 6.0
             st_fade = max(0.0, duracion_seg - 1.0)
-            filtro_audio = f"afade=t=in:ss=0:d=1,afade=t=out:st={st_fade:.2f}:d=1"
+            filtro_audio = (
+                f"afade=t=in:ss=0:d=1,apad,atrim=0:{duracion_seg:.2f},"
+                f"afade=t=out:st={st_fade:.2f}:d=1"
+            )
 
             cmd = [
                 "ffmpeg", "-y",
@@ -1129,7 +1155,7 @@ def exportar_video_de_vida(
                 "-c:v", "copy",
                 "-c:a", "aac",
                 "-af", filtro_audio,
-                "-shortest",
+                "-t", f"{duracion_seg:.2f}",
                 ruta_salida_mp4,
             ]
             res = subprocess.run(cmd, capture_output=True, check=False)

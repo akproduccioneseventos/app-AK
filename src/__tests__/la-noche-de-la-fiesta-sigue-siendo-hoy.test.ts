@@ -80,11 +80,12 @@ describe('Las pantallas con ?fiestaId= lo leen de la dirección', () => {
     expect(src).toMatch(/getFiestaById\(/);
     expect(src).toMatch(/earchParams/);
   });
-  // Las redirecciones al centro van directo con el id de la dirección (18/11/2026: leer la fiesta las colgaba).
-  it.each(['centro-total', 'mission-control', 'centro'])('%s lleva al centro de la fiesta de la dirección', (d) => {
-    const src = fs.readFileSync(path.join(base, d, 'page.tsx'), 'utf8');
-    expect(src).toMatch(/earchParams/);
-    expect(src).toMatch(/redirect\(`\/fiestas\/\$\{encodeURIComponent\(fiestaId\)\}\/centro`\)/);
+  // Las redirecciones al centro van directo desde next.config.js con el id de la dirección (Orden 321).
+  it.each(['centro-total', 'mission-control', 'centro'])('%s redirige al centro de la fiesta desde next.config.js', (d) => {
+    const nextConfig = fs.readFileSync(path.join(process.cwd(), 'next.config.js'), 'utf8');
+    expect(nextConfig).toContain(`'${d}'`);
+    expect(nextConfig).toContain('source: `/fiestas/nueva/${viejo}`');
+    expect(nextConfig).toContain("destination: '/fiestas/:id/centro'");
   });
 });
 

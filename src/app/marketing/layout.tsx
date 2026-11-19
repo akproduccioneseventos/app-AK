@@ -17,7 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
       <div className="w-full">
-        <BarraDeLaCasa casaId="marketing" />
+        <BarraDeLaCasa casaId="vender" />
         {children}
       </div>
     </AuthGuard>

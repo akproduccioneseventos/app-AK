@@ -23,9 +23,11 @@ describe('la lista de presupuestos no dice "vacía" si no pudo leer', () => {
     await expect(getPresupuestos()).rejects.toThrow(/No se pudieron leer los presupuestos/);
   });
 
-  it('el chat con Sofía pasa la cantidad de invitados al simulador manual', () => {
-    const codigo = fs.readFileSync(path.join(process.cwd(), 'src/app/simulador-ak/page.tsx'), 'utf8');
-    expect(codigo).toMatch(/&guests=\$\{/);
+  it('el ingreso al simulador pasa la cantidad de invitados al simulador manual', () => {
+    const hero = fs.readFileSync(path.join(process.cwd(), 'src/components/landing/HeroSection.tsx'), 'utf8');
+    const portafolio = fs.readFileSync(path.join(process.cwd(), 'src/app/presentacion-led/portafolio/portafolio-led-client.tsx'), 'utf8');
+    expect(hero).toMatch(/&guests=\$\{/);
+    expect(portafolio).toMatch(/&guests=\$\{/);
     const destino = fs.readFileSync(path.join(process.cwd(), 'src/app/simulador-de-presupuesto/page.tsx'), 'utf8');
     expect(destino).toMatch(/searchParams\.get\('guests'\)/);
   });

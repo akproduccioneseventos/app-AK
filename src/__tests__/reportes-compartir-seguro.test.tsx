@@ -31,14 +31,14 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => ({ get: (k: string) => (k === 'fiestaId' ? 'fiesta-qa-130' : null) }),
 }));
 
-import Clientes from '@/app/(app)/customers/reporte/page';
-import Proveedores from '@/app/(app)/proveedores/reporte/page';
-import Activos from '@/app/(app)/empresa/activos-fijos/reporte/page';
-import Insumos from '@/app/(app)/empresa/insumos/reporte/page';
-import Servicios from '@/app/(app)/empresa/servicios/reporte/page';
-import Menus from '@/app/(app)/empresa/menus/reporte/page';
-import Presupuestos from '@/app/(app)/presupuestos/reporte/page';
-import ReporteFiesta from '@/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page';
+import Clientes from '@/components/panels/customers--reporte';
+import Proveedores from '@/components/panels/proveedores--reporte';
+import Activos from '@/components/panels/activos-fijos--reporte';
+import Insumos from '@/components/panels/insumos--reporte';
+import Servicios from '@/components/panels/servicios--reporte';
+import Menus from '@/components/panels/menus--reporte';
+import Presupuestos from '@/components/panels/presupuestos--reporte';
+import ReporteFiesta from '@/components/panels/costos--reporte';
 
 const paginas: Array<[string, React.ComponentType]> = [
   ['/customers/reporte', Clientes],

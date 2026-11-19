@@ -445,9 +445,67 @@ export async function undoCheckInGuest(
 
 // ─── Public RSVP (invitation page) ───────────────────────────────────────────
 
+/**
+ * Carga únicamente los datos de RSVP del invitado identificado por `guestId` + `token`
+ * para pre-cargar el formulario al entrar desde "Modificar confirmación".
+ * Nunca devuelve el listado completo de invitados ni datos de terceros.
+ */
+export async function getPublicRsvpGuest(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string,
+): Promise<PublicRsvpGuestPrefill | null> {
+  if (!fiestaId || !guestId || !guestAccessToken) return null;
+
+  await enforcePublicRateLimit({
+    scope: 'public-rsvp-prefill',
+    identity: `${fiestaId}:${guestId}`,
+    limit: 20,
+    windowMs: 5 * 60 * 1000,
+  });
+
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+  if (!fiesta) return null;
+
+  const guest = (fiesta.invitados || []).find((inv) => inv.id === guestId);
+  if (!guest || !hasPublicGuestAccess(guest, guestId, guestAccessToken)) {
+    return null;
+  }
+
+  return {
+    id: guest.id,
+    nombre: guest.nombre,
+    contacto: guest.contacto,
+    asistencia: guest.rsvp === 'Rechazado' ? 'Rechazado' : 'Confirmado',
+    partySize: getGuestPartySize(guest),
+    companionNames: Array.isArray(guest.companionNames) ? guest.companionNames : [],
+    dietaryRestriction: guest.dietaryRestriction ?? 'Ninguna',
+    alergiasEspecificas: guest.alergiasEspecificas,
+    cancionesDJ: Array.isArray(guest.cancionesDJ) ? guest.cancionesDJ : [],
+    mensaje: guest.mensaje,
+    requiereAccesibilidad: Boolean(guest.requiereAccesibilidad),
+  };
+}
+
+export interface PublicRsvpGuestPrefill {
+  id: string;
+  nombre: string;
+  contacto?: string;
+  asistencia: 'Confirmado' | 'Rechazado';
+  partySize: number;
+  companionNames: string[];
+  dietaryRestriction: DietaryRestriction;
+  alergiasEspecificas?: string;
+  cancionesDJ: string[];
+  mensaje?: string;
+  requiereAccesibilidad: boolean;
+}
+
 export async function submitPublicRsvp(
   fiestaId: string,
   submission: {
+    guestId?: string;
+    guestAccessToken?: string;
     nombre: string;
     contacto?: string;
     asistencia: 'Confirmado' | 'Rechazado' | 'Tal vez';
@@ -504,14 +562,26 @@ export async function submitPublicRsvp(
 
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
-    const existingIndex = currentInvitados.findIndex(
-      inv => normalizeGuestName(inv.nombre) === normalizeGuestName(nombre)
-    );
+    const tokenIndex =
+      submission.guestId && submission.guestAccessToken
+        ? currentInvitados.findIndex(
+            (inv) =>
+              inv.id === submission.guestId &&
+              hasPublicGuestAccess(inv, submission.guestId!, submission.guestAccessToken!),
+          )
+        : -1;
+    const existingIndex =
+      tokenIndex > -1
+        ? tokenIndex
+        : currentInvitados.findIndex(
+            (inv) => normalizeGuestName(inv.nombre) === normalizeGuestName(nombre),
+          );
 
     if (existingIndex > -1) {
       const existing = currentInvitados[existingIndex];
+      const updatingOwnRecord = tokenIndex > -1;
       const effectivePartySize = getGuestPartySize({
-        partySize: partySize ?? existing.partySize,
+        partySize: updatingOwnRecord ? (partySize ?? 1) : (partySize ?? existing.partySize),
       });
       const effectiveKidsCount = getGuestKidsCount({
         partySize: effectivePartySize,
@@ -522,16 +592,19 @@ export async function submitPublicRsvp(
         ...existing,
         // Stamp a token if the existing invitado doesn't have one yet
         guestAccessToken: existing.guestAccessToken ?? randomUUID(),
+        nombre: updatingOwnRecord ? nombre : existing.nombre,
         rsvp: rsvpStatus,
-        contacto: contacto ?? existing.contacto,
+        contacto: updatingOwnRecord ? contacto : (contacto ?? existing.contacto),
         partySize: effectivePartySize,
         kidsCount: effectiveKidsCount,
         categoria: effectiveKidsCount >= effectivePartySize ? 'Niño/Adolescente' : 'Adulto',
-        companionNames: companionNames ?? existing.companionNames,
+        companionNames: updatingOwnRecord ? (companionNames ?? []) : (companionNames ?? existing.companionNames),
         dietaryRestriction: dietary,
-        alergiasEspecificas: alergiasEspecificas ?? existing.alergiasEspecificas,
-        cancionesDJ: cancionesDJ.length > 0 ? cancionesDJ : existing.cancionesDJ,
-        mensaje: mensaje ?? existing.mensaje,
+        alergiasEspecificas: updatingOwnRecord ? alergiasEspecificas : (alergiasEspecificas ?? existing.alergiasEspecificas),
+        cancionesDJ: updatingOwnRecord
+          ? cancionesDJ
+          : (cancionesDJ.length > 0 ? cancionesDJ : existing.cancionesDJ),
+        mensaje: updatingOwnRecord ? mensaje : (mensaje ?? existing.mensaje),
         requiereAccesibilidad: submission.requiereAccesibilidad ?? existing.requiereAccesibilidad,
         isCeliac: dietary === 'Celiaco',
       };

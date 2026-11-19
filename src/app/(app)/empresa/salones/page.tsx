@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/salones--club-uruguay'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/salones--experiencia-visual'));
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -576,7 +581,7 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
 
 // ─────────────────── Main Page ───────────────────
 
-export default function SalonesPage() {
+function SalonesPageInner() {
   const { toast } = useToast();
   const [salones, setSalones] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -846,3 +851,16 @@ export default function SalonesPage() {
   );
 }
 
+
+
+export default function SalonesPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"salones","label":"Salones"},{"id":"club-uruguay","label":"Club Uruguay"},{"id":"experiencia","label":"Experiencia visual"}]}
+        renderDefault={() => <SalonesPageInner />}
+        renderTab={(tab) => { if (tab === 'club-uruguay') return <__AkPanel1 />; if (tab === 'experiencia') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

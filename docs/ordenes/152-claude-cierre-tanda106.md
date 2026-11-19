@@ -74,7 +74,8 @@ La prueba indicada abajo es PROPUESTA: no existe ni se ejecuto en esta tanda.
 No basta encontrar el archivo o un import: adjuntar el resultado observable.
 
 ```comprobar
-archivo: src/app/(app)/empresa/configurador-reunion/page.tsx
-usa: handleSaveBudget en src/app/(app)/empresa/configurador-reunion/page.tsx
-prueba: src/__tests__/el-asistente-flotante-no-tapa-guardar.test.tsx
+# En Orden 321 la pantalla empresa/configurador-reunion se retiró y redirige en next.config.js a settings?seccion=contratos&sub=templates--reuniones
+archivo: src/components/settings/panels/templates--reuniones.tsx
+usa: /empresa/configurador-reunion en next.config.js
+usa: savePresupuesto en src/app/(app)/presupuestos/nuevo/crear/page.tsx
 ```

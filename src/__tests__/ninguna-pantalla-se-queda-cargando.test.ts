@@ -27,8 +27,7 @@ describe('Orden 72 - Bloque 1: Ninguna pantalla se queda cargando para siempre',
     'src/app/(app)/fiestas/nueva/regalos/page.tsx',
     'src/app/(app)/fiestas/nueva/musica/page.tsx',
     'src/app/(app)/fiestas/nueva/itinerario/page.tsx',
-    'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx',
-    'src/app/(app)/fiestas/[id]/timeline/page.tsx',
+    'src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx',
     'src/app/evento/logistica/[fiestaId]/page.tsx',
     'src/app/(app)/fiestas/nueva/tareas/client.tsx',
   ];
@@ -42,8 +41,8 @@ describe('Orden 72 - Bloque 1: Ninguna pantalla se queda cargando para siempre',
       const rawContent = fs.readFileSync(fullPath, 'utf8');
       const cleanContent = stripComments(rawContent);
 
-      // Si maneja estado de carga (setIsLoading o setLoading)
-      if (cleanContent.includes('setIsLoading') || cleanContent.includes('setLoading')) {
+      // Si maneja estado de carga (setIsLoading, setLoading o setCargando)
+      if (cleanContent.includes('setIsLoading') || cleanContent.includes('setLoading') || cleanContent.includes('setCargando')) {
         // Buscar bloques if (!fiestaId...) { ... } o if (!id...) { ... } que hagan return
         const guardRegex = /if\s*\(\s*!(?:fiestaId|id|params\.fiestaId)\s*\)\s*\{([^}]+)\}/g;
         let match;
@@ -54,7 +53,10 @@ describe('Orden 72 - Bloque 1: Ninguna pantalla se queda cargando para siempre',
           // y no los renders principales de componentes React como 'return <...' o 'return (...'
           const esRenderJsx = /return\s*[\(<]/.test(guardBody);
           if (guardBody.includes('return') && !esRenderJsx) {
-            const apagaCarga = guardBody.includes('setIsLoading(false)') || guardBody.includes('setLoading(false)');
+            const apagaCarga =
+              guardBody.includes('setIsLoading(false)') ||
+              guardBody.includes('setLoading(false)') ||
+              guardBody.includes('setCargando(false)');
             if (!apagaCarga) {
               archivosConFalla.push(`${relPath} -> guard sin apagar carga: ${match[0].replace(/\s+/g, ' ').trim()}`);
             }

@@ -10,8 +10,7 @@ import path from 'path';
  * lleva puestas, salta aca y no seis meses despues.
  */
 const navegacion =
-  fs.readFileSync(path.join(process.cwd(), 'src/components/main-nav.tsx'), 'utf-8') +
-  fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/mas/page.tsx'), 'utf-8');
+  fs.readFileSync(path.join(process.cwd(), 'src/components/main-nav.tsx'), 'utf-8');
 
 describe('el menu lateral enlaza las pantallas que existen', () => {
   it.each([

@@ -35,7 +35,7 @@ import {
   launchGame,
   clearActiveGame,
   startSorteoSpinOnScreen,
-  triggerSorteoWinner,
+  sortearGanadorEnServidor,
   getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { getSocialPosts, moderateSocialPost } from '@/app/actions/social-gallery';
@@ -68,6 +68,7 @@ export default function ControlPantallaPage() {
   const [ledMarqueeText, setLedMarqueeText] = useState('');
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
   const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
+  const [sorteoCandidatos, setSorteoCandidatos] = useState<string[]>([]);
 
   // Últimas fotos
   const [ultimasFotos, setUltimasFotos] = useState<SocialGalleryPost[]>([]);
@@ -120,6 +121,9 @@ export default function ControlPantallaPage() {
       if (estado.ledMarqueeText !== undefined) setLedMarqueeText(estado.ledMarqueeText);
       setActiveGame(estado.activeGame ?? null);
       setActiveSorteoWinner(estado.activeSorteoWinner ?? null);
+      if (estado.sorteoCandidatos !== undefined) {
+        setSorteoCandidatos(estado.sorteoCandidatos);
+      }
     } catch {
       if (!silencioso) {
         setErrorMessage('No llegó a la pantalla. Probá de nuevo');
@@ -284,7 +288,31 @@ export default function ControlPantallaPage() {
     setSorteoSpinning(true);
 
     try {
-      // 1. Inicia giro de la ruleta en la pantalla
+      // 1. Prioriza candidatos guardados por el panel; si no hay, prueba muro y autores de fotos
+      let candidatos: string[] = [...sorteoCandidatos];
+
+      if (candidatos.length === 0) {
+        try {
+          const partRes = await getMuroParticipantesForSorteo(fiestaId);
+          if (partRes.success && partRes.participantes && partRes.participantes.length > 0) {
+            candidatos = partRes.participantes;
+          }
+        } catch {
+          // continúa al siguiente respaldo
+        }
+      }
+
+      if (candidatos.length === 0 && ultimasFotos.length > 0) {
+        candidatos = Array.from(new Set(ultimasFotos.map((f) => f.authorName).filter(Boolean)));
+      }
+
+      if (candidatos.length === 0) {
+        setErrorMessage('Cargá los participantes del sorteo primero');
+        setSorteoSpinning(false);
+        return;
+      }
+
+      // 2. Inicia giro de la ruleta en la pantalla
       const resGiro = await startSorteoSpinOnScreen(fiestaId);
       if (!resGiro.success) {
         setErrorMessage('No llegó a la pantalla. Probá de nuevo');
@@ -294,38 +322,15 @@ export default function ControlPantallaPage() {
 
       mostrarFeedback('¡Girando ruleta en pantalla! 🎡');
 
-      // 2. Obtiene participantes reales o fallback
-      let candidatos: string[] = [];
-      try {
-        const partRes = await getMuroParticipantesForSorteo(fiestaId);
-        if (partRes.success && partRes.participantes && partRes.participantes.length > 0) {
-          candidatos = partRes.participantes;
-        }
-      } catch {
-        // fallback
-      }
-
-      if (candidatos.length === 0) {
-        if (ultimasFotos.length > 0) {
-          candidatos = Array.from(new Set(ultimasFotos.map((f) => f.authorName).filter(Boolean)));
-        }
-      }
-
-      if (candidatos.length === 0) {
-        candidatos = ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4', 'Mesa 5', 'Mesa 6'];
-      }
-
-      const ganadorElegido = candidatos[Math.floor(Math.random() * candidatos.length)];
-
-      // 3. Tras 4 segundos de suspense, revela el ganador en pantalla
+      // 3. Tras 4 segundos de suspense, resuelve y revela el ganador desde el servidor
       setTimeout(async () => {
         try {
-          const resGanador = await triggerSorteoWinner(fiestaId, ganadorElegido);
-          if (!resGanador.success) {
-            setErrorMessage('No llegó a la pantalla. Probá de nuevo');
+          const resGanador = await sortearGanadorEnServidor(fiestaId, { candidatos });
+          if (!resGanador.success || !resGanador.winner) {
+            setErrorMessage(resGanador.error || 'No llegó a la pantalla. Probá de nuevo');
           } else {
-            setActiveSorteoWinner(ganadorElegido);
-            mostrarFeedback(`¡Ganador: ${ganadorElegido}! 🏆`);
+            setActiveSorteoWinner(resGanador.winner);
+            mostrarFeedback(`¡Ganador: ${resGanador.winner}! 🏆`);
           }
         } catch {
           setErrorMessage('No llegó a la pantalla. Probá de nuevo');

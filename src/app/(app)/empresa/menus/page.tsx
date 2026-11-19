@@ -1,4 +1,10 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/menus--catalogo'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/menus--reporte'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/menus--tragos'));
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -39,7 +45,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function GestionMenusPage() {
+function GestionMenusPageInner() {
   const { toast } = useToast();
 
   // Menus State
@@ -433,5 +439,18 @@ export default function GestionMenusPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+
+export default function GestionMenusPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"menus","label":"Menús"},{"id":"catalogo","label":"Catálogo"},{"id":"reporte","label":"Reporte"},{"id":"tragos","label":"Tragos"}]}
+        renderDefault={() => <GestionMenusPageInner />}
+        renderTab={(tab) => { if (tab === 'catalogo') return <__AkPanel1 />; if (tab === 'reporte') return <__AkPanel2 />; if (tab === 'tragos') return <__AkPanel3 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

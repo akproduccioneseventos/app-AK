@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/presupuestos--reporte'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/presupuestos--importar'));
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -378,10 +383,23 @@ function PresupuestoDashboardContent() {
     );
 }
 
-export default function NuevoPresupuestoPage() {
+function NuevoPresupuestoPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <PresupuestoDashboardContent />
         </Suspense>
     )
+}
+
+
+export default function NuevoPresupuestoPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"presupuestos","label":"Presupuestos"},{"id":"reporte","label":"Reporte"},{"id":"importar","label":"Importar"}]}
+        renderDefault={() => <NuevoPresupuestoPageInner />}
+        renderTab={(tab) => { if (tab === 'reporte') return <__AkPanel1 />; if (tab === 'importar') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

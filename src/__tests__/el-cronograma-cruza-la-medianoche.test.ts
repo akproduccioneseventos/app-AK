@@ -20,10 +20,14 @@ describe('el cronograma cruza la medianoche (A18-06)', () => {
     expect(ordenarPorHoraDelEvento(mediodia, '12:00').map((p) => p.n)).toEqual(['a', 'b', 'c']);
   });
 
-  it('la hoja del evento ya no ordena las horas como texto', () => {
+  it('la hoja del evento y el itinerario ya no ordenan las horas como texto', () => {
     const fs = require('fs');
-    const pagina = fs.readFileSync('src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx', 'utf8');
-    expect(pagina).toContain('ordenarPorHoraDelEvento(');
-    expect(pagina).not.toMatch(/\.hora \|\| ''\)\.localeCompare/);
+    const hoja = fs.readFileSync('src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx', 'utf8');
+    expect(hoja).toContain('ordenarPorHoraDelEvento(');
+    expect(hoja).not.toMatch(/\.hora \|\| ''\)\.localeCompare/);
+
+    const itinerario = fs.readFileSync('src/app/(app)/fiestas/nueva/itinerario/page.tsx', 'utf8');
+    expect(itinerario).toContain('ordenarPorHoraDelEvento(');
+    expect(itinerario).not.toMatch(/\.hora\.localeCompare/);
   });
 });

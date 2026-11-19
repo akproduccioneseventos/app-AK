@@ -21,11 +21,11 @@ describe('public commercial contact integrity', () => {
     'src/components/public/PublicNavbar.tsx',
     'src/components/public/CallToActionBanner.tsx',
     'src/components/public/ServiceMenu.tsx',
-    'src/app/landing/xv-anos/page.tsx',
-    'src/app/landing/bodas/page.tsx',
+    'src/app/quinceaneras/page.tsx',
+    'src/app/bodas/page.tsx',
     'src/app/landing/eventos/page.tsx',
     'src/app/landing/[slug]/page.tsx',
-    'src/app/catalogo/[tipo]/page.tsx',
+    'src/app/presentacion-led/page.tsx',
   ])('does not send prospects to the old sample number in %s', (file) => {
     expect(read(file)).not.toContain('59899123456');
   });

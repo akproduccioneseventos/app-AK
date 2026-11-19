@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MultiAgentWidget } from '@/components/multiagent/multiagent-widget';
 import {
   getBandejaAsistenteAction,
@@ -34,7 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
-export default function AsistenteBandejaPage() {
+function AsistenteBandejaInner() {
   const { toast } = useToast();
   const [areaFiltro, setAreaFiltro] = useState<AsistenteArea | 'todas'>('todas');
   const [propuestas, setPropuestas] = useState<AsistentePropuesta[]>([]);
@@ -425,5 +427,84 @@ export default function AsistenteBandejaPage() {
       {/* Widget MultiAgente para interactuar por voz o texto */}
       <MultiAgentWidget />
     </div>
+  );
+}
+
+const EquipoPanel = dynamic(() => import('@/components/asistente/panels/equipo'));
+const MemoriaPanel = dynamic(() => import('@/components/asistente/panels/memoria'));
+const AccionesPanel = dynamic(() => import('@/components/asistente/panels/acciones'));
+const ContablePanel = dynamic(() => import('@/components/asistente/panels/contable'));
+const FiestasPanel = dynamic(() => import('@/components/asistente/panels/fiestas'));
+
+function AsistenteHubContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') || 'bandeja';
+  const agente = searchParams.get('agente') || 'general';
+
+  const setTab = (nextTab: string, nextAgente = agente) => {
+    const q = new URLSearchParams({ tab: nextTab });
+    if (nextTab === 'equipo' && nextAgente !== 'general') q.set('agente', nextAgente);
+    router.replace(`/asistente?${q.toString()}`);
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-4 px-4 pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { id: 'bandeja', label: 'Chat y bandeja' },
+            { id: 'equipo', label: 'Equipo' },
+            { id: 'memoria', label: 'Memoria' },
+            { id: 'acciones', label: 'Acciones' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-xl px-3.5 py-2 text-sm font-bold transition-colors ${
+                tab === t.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {tab === 'equipo' && (
+          <div className="flex gap-1.5">
+            {[
+              { id: 'general', label: 'Todos los agentes' },
+              { id: 'contable', label: 'Agente Contable' },
+              { id: 'fiestas', label: 'Agente Fiestas' },
+            ].map((ag) => (
+              <button
+                key={ag.id}
+                type="button"
+                onClick={() => setTab('equipo', ag.id)}
+                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                  agente === ag.id ? 'bg-primary text-primary-foreground' : 'border border-slate-200 bg-white text-slate-600'
+                }`}
+              >
+                {ag.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {tab === 'bandeja' && <AsistenteBandejaInner />}
+      {tab === 'equipo' && agente === 'general' && <EquipoPanel />}
+      {tab === 'equipo' && agente === 'contable' && <ContablePanel />}
+      {tab === 'equipo' && agente === 'fiestas' && <FiestasPanel />}
+      {tab === 'memoria' && <MemoriaPanel />}
+      {tab === 'acciones' && <AccionesPanel />}
+    </div>
+  );
+}
+
+export default function AsistenteHubPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando asistente…</div>}>
+      <AsistenteHubContent />
+    </Suspense>
   );
 }

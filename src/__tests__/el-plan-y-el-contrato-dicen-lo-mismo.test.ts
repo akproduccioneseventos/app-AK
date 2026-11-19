@@ -70,8 +70,8 @@ describe('el anexo del contrato no sale con huecos', () => {
     expect(h.fechaSaldoTotal).toBe('2 de mayo de 2027');
     expect(h.hito30).not.toBe('');
     const raiz = path.resolve(__dirname, '..');
-    const recibo = fs.readFileSync(path.join(raiz, 'app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx'), 'utf8');
-    const contrato = fs.readFileSync(path.join(raiz, 'app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx'), 'utf8');
+    const recibo = fs.readFileSync(path.join(raiz, 'components/panels/doc--recibo-pago.tsx'), 'utf8');
+    const contrato = fs.readFileSync(path.join(raiz, 'components/panels/doc--contrato-servicio.tsx'), 'utf8');
     expect(recibo).toContain('reemplazosDeFechasDelContrato(');
     expect(contrato).not.toMatch(/function calcularHitosDeContrato/);
   });

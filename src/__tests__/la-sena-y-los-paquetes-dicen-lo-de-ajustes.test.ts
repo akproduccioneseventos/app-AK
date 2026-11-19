@@ -123,10 +123,11 @@ describe('La seña y los paquetes dicen lo de ajustes (Orden 277)', () => {
     expect(codigoResumen).not.toContain('20% del total');
   });
 
-  it('el catálogo no dice "Se requiere el 30 % del total"', () => {
-    const catalogoPath = path.join(process.cwd(), 'src/app/catalogo/[tipo]/page.tsx');
-    const codigoCatalogo = fs.readFileSync(catalogoPath, 'utf8');
+  it('la presentación comercial (destino de /catalogo) no dice "Se requiere el 30 % del total"', () => {
+    const slidePath = path.join(process.cwd(), 'src/app/presentacion-led/slides/formas-de-pago-slide.tsx');
+    const codigoSlide = fs.readFileSync(slidePath, 'utf8');
 
-    expect(codigoCatalogo).not.toContain('Se requiere el 30 % del total');
+    expect(codigoSlide).not.toContain('Se requiere el 30 % del total');
+    expect(codigoSlide).toContain('bookingDepositAmount');
   });
 });

@@ -25,7 +25,7 @@ it('un plato que ya trae el presupuesto no se compra dos veces', () => {
 });
 
 it('la pantalla lo llama fuera del bloque del presupuesto', () => {
-  const fuente = fs.readFileSync(path.resolve(__dirname, '../app/(app)/fiestas/nueva/catering/lista-compras/page.tsx'), 'utf8');
+  const fuente = fs.readFileSync(path.resolve(__dirname, '../components/panels/catering--lista-compras.tsx'), 'utf8');
   const llamada = fuente.split('\n').find(l => l.includes('comprasDelMenuAsignado('));
   // Seis espacios: el nivel del cuerpo de la carga, no el de adentro del `if (presupuestoData)`.
   expect(llamada).toMatch(/^ {6}const delMenu = comprasDelMenuAsignado\(/);

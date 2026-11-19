@@ -16,7 +16,7 @@ jest.mock('@/app/actions/google-workspace', () => ({
 }));
 jest.mock('@/app/actions/google-workspace-extended', () => ({ notifyGuestsWithCalendarLinks: jest.fn() }));
 
-import GoogleWorkspaceSettingsPage from '@/app/(app)/settings/google-workspace/page';
+import GoogleWorkspaceSettingsPage from '@/components/settings/panels/google-workspace';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });

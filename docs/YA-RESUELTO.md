@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Orden 318 Bloque 2 (devuelto), Orden 320, pantallas rotas y Orden 321
+
+- **Modificar confirmación RSVP:** Al entrar desde "Modificar confirmación", `rsvp/page.tsx` pre-carga los datos previos del invitado mediante `getPublicRsvpGuest` (solo leyendo ese invitado con `guestId` + `token`) y actualiza ese mismo registro al guardar. Probado E2E en `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts`.
+- **Orden 320 (Bloques 1–6):**
+  - Sorteo en vivo con `sorteoCandidatos` persistido y elección del ganador en servidor con `crypto.randomInt` (`sortearGanadorEnServidor`), sin fallback inventado `'Mesa 1..6'` en `control-pantalla`.
+  - Itinerario ordena con `ordenarPorHoraDelEvento` respetando eventos que cruzan la medianoche.
+  - Herramienta `buscarProspecto` de solo lectura en `tool-registry.ts` busca en todo el CRM por nombre o teléfono (hasta 10 resultados).
+  - Conteos dinámicos en `settings` y `tareas-automaticas`, estado `"Sin ejecutar"` en el despertador sin correr, y `"Sin datos todavía"` en `revision-diaria.ts` cuando no hay publicaciones con fecha real.
+  - `recursos-multi-evento` excluye fiestas suspendidas (`esFiestaSuspendida`); `/empresa/galeria` normaliza `"General"`; `/settings/estilo-fotos` usa fotos reales en lugar de gradientes; `/pagos-rapidos` muestra avisos pendientes de `clientPaymentNotifications`; `/evento/muro-en-vivo` no superpone estados vacíos y marca `"Finalizado"` en trivias terminadas.
+  - `herramientas/ak-editor`: respaldo `.ak_backup` del `.xmp` original para restaurar en `volver_al_original`, `fotos_ordenadas` en `app.py`, `ok: False` y `errores` ante 0 videos o fallos de Redes/Wfolio, sincronización de audio con `apad`+`atrim`, serialización JSON con `default=str`, `import cv2` en `app.py`, carpetas Él/Ella en modo Boda, lectura sin doble rotación EXIF (`IMREAD_IGNORE_ORIENTATION`), sanitización de nombre de evento, escucha en `127.0.0.1` y reempaquetado con `npm run editor:empaquetar`.
+- **Orden 321 (Reorganización de 382 a 180 pantallas):**
+  - Redirecciones movidas a `next.config.js` (`redirects()`), menú consolidado en 6 áreas en `src/lib/navegacion/mapa.ts` sin `/mas`, `/settings` consolidado en 7 secciones, asistentes/WhatsApp/ganancias/fiestas/portal-cliente consolidados por pestañas con `TabHostShell`/`FiestaHubShell`, y "Menú de la noche" (sin precios, con dietas del invitado y link a "Buscá tu mesa") agregado en `/evento/hub/[fiestaId]`.
+  - **Comparativa de editores de presupuesto (sin fusionar, Orden 321 Bloque 3):** `presupuestos/[id]/edit/page.tsx` recarga y guarda directamente sobre un presupuesto existente mediante `updatePresupuesto(updatedData)` + `recalculatePresupuestoFromCatalog`, mientras `presupuestos/nuevo/crear/page.tsx` unifica creación (`savePresupuesto(..., { source: 'manual', leadId, operationId })`) y edición (`updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId })` con `conTopeDeEspera`). No se unificaron por tocar guardado de dinero.
+
 ## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
 
 - **Qué pasaba:** la hoja del evento ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada (A18-06).

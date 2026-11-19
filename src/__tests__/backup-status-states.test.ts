@@ -4,7 +4,7 @@ import { resolveBackupUIState, type BackupUIState } from '@/lib/backup/backup-ui
 import type { AutoBackupStatus } from '@/app/actions/backup';
 
 describe('Cartel de respaldos - Cuatro estados explicitos sin falsos positivos verdes', () => {
-  const pageFilePath = path.join(process.cwd(), 'src/app/(app)/settings/backup/page.tsx');
+  const pageFilePath = path.join(process.cwd(), 'src/components/settings/panels/backup.tsx');
   const pageSource = fs.readFileSync(pageFilePath, 'utf8');
 
   it('el codigo real de la pagina contiene los 4 estados y nunca pone en verde el estado desconocido', () => {

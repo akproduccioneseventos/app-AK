@@ -1,592 +1,285 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  setAjustesPublicarSoloAction,
-  setAjustesPublicarSolo,
-  getAjustesPublicarSoloAction,
-} from '@/app/actions/presencia-digital';
-import {
-  Bell,
-  Bot,
-  Building,
-  Calendar,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  Cpu,
-  Database,
+  Building2,
+  Coins,
   FileSignature,
-  FileText,
-  Globe,
-  HardDriveDownload,
-  Image,
-  Link as LinkIcon,
-  Loader2,
-  Megaphone,
-  MessageCircle,
-  Package,
-  Palette,
-  Search,
-  Settings as SettingsIcon,
   Share2,
-  Shield,
-  ShieldCheck,
-  Tag,
-  Ticket,
-  ToggleRight,
-  TrendingUp,
-  UserCog,
+  Bot,
   Users,
-  Video,
-  Wand2,
-  X,
-  Zap,
+  Settings as SettingsIcon,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface SettingItem {
-  title: string;
-  description: string;
-  href: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+type PanelComponent = React.ComponentType<any>;
+
+function lazyPanel(loader: () => Promise<{ default: PanelComponent }>) {
+  return dynamic(loader, {
+    loading: () => (
+      <div className="flex items-center justify-center py-16 text-slate-500">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        <span>Cargando sección…</span>
+      </div>
+    ),
+  });
 }
 
-interface SettingSection {
+const PANELS: Record<string, PanelComponent> = {
+  company: lazyPanel(() => import('@/components/settings/panels/company')),
+  datos: lazyPanel(() => import('@/components/settings/panels/datos')),
+  account: lazyPanel(() => import('@/components/settings/panels/account')),
+  'contenido-publico': lazyPanel(() => import('@/components/settings/panels/contenido-publico')),
+  'estilo-fotos': lazyPanel(() => import('@/components/settings/panels/estilo-fotos')),
+  'biblioteca-visual-ak': lazyPanel(() => import('@/components/settings/panels/biblioteca-visual-ak')),
+
+  'budget-display': lazyPanel(() => import('@/components/settings/panels/budget-display')),
+  promos: lazyPanel(() => import('@/components/settings/panels/promos')),
+  cupones: lazyPanel(() => import('@/components/settings/panels/cupones')),
+  'ajuste-precios': lazyPanel(() => import('@/components/settings/panels/ajuste-precios')),
+  'catalogo-servicios': lazyPanel(() => import('@/components/settings/panels/catalogo-servicios')),
+
+  contratos: lazyPanel(() => import('@/components/settings/panels/contratos')),
+  'contratos--clausulas': lazyPanel(() => import('@/components/settings/panels/contratos--clausulas')),
+  templates: lazyPanel(() => import('@/components/settings/panels/templates')),
+  'templates--layouts': lazyPanel(() => import('@/components/settings/panels/templates--layouts')),
+  'templates--reuniones': lazyPanel(() => import('@/components/settings/panels/templates--reuniones')),
+  'templates--carga-operativa': lazyPanel(() => import('@/components/settings/panels/templates--carga-operativa')),
+  'templates--invitaciones': lazyPanel(() => import('@/components/settings/panels/templates--invitaciones')),
+  'task-templates': lazyPanel(() => import('@/components/settings/panels/task-templates')),
+
+  whatsapp: lazyPanel(() => import('@/components/settings/panels/whatsapp')),
+  'whatsapp-business': lazyPanel(() => import('@/components/settings/panels/whatsapp-business')),
+  'whatsapp-templates': lazyPanel(() => import('@/components/settings/panels/whatsapp-templates')),
+  'social-connections': lazyPanel(() => import('@/components/settings/panels/social-connections')),
+  'google-workspace': lazyPanel(() => import('@/components/settings/panels/google-workspace')),
+  sincronizaciones: lazyPanel(() => import('@/components/settings/panels/sincronizaciones')),
+
+  'ai-assistant': lazyPanel(() => import('@/components/settings/panels/ai-assistant')),
+  asistente: lazyPanel(() => import('@/components/settings/panels/asistente')),
+  'asistentes-contextuales': lazyPanel(() => import('@/components/settings/panels/asistentes-contextuales')),
+  'agentes-autonomos': lazyPanel(() => import('@/components/settings/panels/agentes-autonomos')),
+  'tareas-automaticas': lazyPanel(() => import('@/components/settings/panels/tareas-automaticas')),
+
+  'accesos-personal': lazyPanel(() => import('@/components/settings/panels/accesos-personal')),
+  notifications: lazyPanel(() => import('@/components/settings/panels/notifications')),
+
+  backup: lazyPanel(() => import('@/components/settings/panels/backup')),
+  'backup-final': lazyPanel(() => import('@/components/settings/panels/backup-final')),
+  'instalar-app': lazyPanel(() => import('@/components/settings/panels/instalar-app')),
+  'videos-de-ayuda': lazyPanel(() => import('@/components/settings/panels/videos-de-ayuda')),
+  feedback: lazyPanel(() => import('@/components/settings/panels/feedback')),
+  'feature-flags': lazyPanel(() => import('@/components/settings/panels/feature-flags')),
+};
+
+interface SeccionDef {
   id: string;
   label: string;
-  emoji: string;
-  color: string;
-  bgColor: string;
-  isAdvanced?: boolean;
-  items: SettingItem[];
+  icon: React.ComponentType<{ className?: string }>;
+  items: { id: string; label: string }[];
 }
 
-const SECTIONS: SettingSection[] = [
+const SECCIONES: SeccionDef[] = [
   {
-    id: 'empresa-y-presupuesto',
-    label: 'Empresa y presupuesto',
-    emoji: '🏢',
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-50 border-amber-200',
+    id: 'empresa',
+    label: 'Empresa',
+    icon: Building2,
     items: [
-      {
-        title: 'Información de la Empresa',
-        description: 'Datos fiscales, contacto, nombre comercial y logotipo.',
-        href: '/settings/company',
-        icon: Building,
-      },
-      {
-        title: 'Configuración de Presupuestos y Simulador',
-        description: 'Textos, presentación, paquetes y reglas comerciales del presupuesto.',
-        href: '/settings/budget-display',
-        icon: Wand2,
-      },
-      {
-        title: 'Ajuste Anual de Precios',
-        description: 'Ajuste masivo de precios y costos del catálogo general.',
-        href: '/settings/ajuste-precios',
-        icon: TrendingUp,
-      },
-      {
-        title: 'Creador & Auditor de Anuncios IA',
-        description: 'Generador de campañas con neuroventas y optimizador de anuncios.',
-        href: '/empresa/creador-anuncios',
-        icon: Megaphone,
-      },
+      { id: 'company', label: 'Datos de empresa' },
+      { id: 'datos', label: 'Datos legales y cobro' },
+      { id: 'account', label: 'Mi cuenta' },
+      { id: 'contenido-publico', label: 'Contenido público' },
+      { id: 'estilo-fotos', label: 'Estilo de fotos' },
+      { id: 'biblioteca-visual-ak', label: 'Biblioteca visual AK' },
     ],
   },
   {
-    id: 'sena-y-promociones',
-    label: 'Seña y promociones',
-    emoji: '🏷️',
-    color: 'text-emerald-700',
-    bgColor: 'bg-emerald-50 border-emerald-200',
+    id: 'ventas',
+    label: 'Ventas',
+    icon: Coins,
     items: [
-      {
-        title: 'Política de Señas y Reservas',
-        description: 'Porcentajes de seña para confirmar la fiesta, cuotas y facilidades de pago.',
-        href: '/settings/budget-display',
-        icon: Tag,
-      },
-      {
-        title: 'Promociones de Temporada',
-        description: 'Descuentos por seña anticipada, combos especiales y promociones activas.',
-        href: '/settings/promos',
-        icon: Tag,
-      },
-      {
-        title: 'Cupones y Descuentos',
-        description: 'Códigos promocionales de seña y descuento, vigencia y límite de usos.',
-        href: '/settings/cupones',
-        icon: Ticket,
-      },
+      { id: 'budget-display', label: 'Señas y reserva' },
+      { id: 'promos', label: 'Promociones' },
+      { id: 'cupones', label: 'Cupones' },
+      { id: 'ajuste-precios', label: 'Ajuste de precios' },
+      { id: 'catalogo-servicios', label: 'Catálogo de servicios' },
     ],
   },
   {
-    id: 'whatsapp-y-conexiones',
-    label: 'WhatsApp y conexiones',
-    emoji: '💬',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50 border-green-200',
+    id: 'contratos',
+    label: 'Contratos y plantillas',
+    icon: FileSignature,
     items: [
-      {
-        title: 'Integración WhatsApp',
-        description: 'Modo manual o automático, recordatorios y estado de conexión.',
-        href: '/settings/whatsapp',
-        icon: MessageCircle,
-      },
-      {
-        title: 'Plantillas de Mensajes',
-        description: 'Mensajes para presupuestos, contratos y confirmaciones.',
-        href: '/settings/whatsapp-templates',
-        icon: MessageCircle,
-      },
-      {
-        title: 'WhatsApp Business Bot',
-        description: 'Atención automática conectada a CRM y marketing.',
-        href: '/settings/whatsapp-business',
-        icon: Bot,
-      },
-      {
-        title: 'Centro de Sincronizaciones y Conexiones',
-        description: 'Estado de conexión con Google, WhatsApp, Meta, Mercado Pago y redes.',
-        href: '/settings/sincronizaciones',
-        icon: Zap,
-      },
-      {
-        title: 'Google Workspace',
-        description: 'Sincronización de eventos y correos con tu cuenta Google.',
-        href: '/settings/google-workspace',
-        icon: Calendar,
-      },
-      {
-        title: 'Cuentas Sociales',
-        description: 'Gestionar perfiles de Instagram, TikTok y Facebook de la productora. Publicar solo.',
-        href: '/settings/social-connections',
-        icon: Share2,
-      },
+      { id: 'contratos', label: 'Plantilla de contrato' },
+      { id: 'contratos--clausulas', label: 'Cláusulas legales' },
+      { id: 'templates', label: 'Plantillas de email' },
+      { id: 'templates--layouts', label: 'Diseños de salón' },
+      { id: 'templates--reuniones', label: 'Reuniones' },
+      { id: 'templates--carga-operativa', label: 'Carga operativa' },
+      { id: 'templates--invitaciones', label: 'Invitaciones' },
+      { id: 'task-templates', label: 'Listas de tareas' },
     ],
   },
   {
-    id: 'tareas-automaticas',
-    label: 'Tareas automáticas',
-    emoji: '⚡',
-    color: 'text-yellow-700',
-    bgColor: 'bg-yellow-50 border-yellow-200',
+    id: 'conexiones',
+    label: 'WhatsApp, redes y Google',
+    icon: Share2,
     items: [
-      {
-        title: 'Tareas Automáticas',
-        description: 'Estado real de las 4 tareas que corren solas (blog, redes, posteos, cuotas).',
-        href: '/settings/tareas-automaticas',
-        icon: Zap,
-      },
-      {
-        title: 'Agentes Autónomos',
-        description: 'Control, pausado y rastro de actividad de los agentes inteligentes.',
-        href: '/settings/agentes-autonomos',
-        icon: Bot,
-      },
+      { id: 'sincronizaciones', label: 'Conexiones' },
+      { id: 'whatsapp', label: 'WhatsApp Web' },
+      { id: 'whatsapp-business', label: 'WhatsApp Business' },
+      { id: 'whatsapp-templates', label: 'Plantillas WhatsApp' },
+      { id: 'social-connections', label: 'Redes sociales' },
+      { id: 'google-workspace', label: 'Google Workspace' },
     ],
   },
   {
-    id: 'contrato',
-    label: 'Contrato',
-    emoji: '📝',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-50 border-blue-200',
+    id: 'asistente',
+    label: 'Asistente y automático',
+    icon: Bot,
     items: [
-      {
-        title: 'Cláusulas de Contrato Legal',
-        description: 'Cláusulas legales, cancelaciones y condiciones del servicio para clientes.',
-        href: '/settings/contratos/clausulas',
-        icon: FileSignature,
-      },
-      {
-        title: 'Plantilla de Contrato Legal',
-        description: 'Texto base del contrato formal con etiquetas dinámicas.',
-        href: '/settings/contratos',
-        icon: FileText,
-      },
-      {
-        title: 'Gestión de Plantillas',
-        description: 'Plantillas reutilizables de tareas, contratos y presupuestos.',
-        href: '/settings/templates',
-        icon: Palette,
-      },
+      { id: 'ai-assistant', label: 'IA y consumo' },
+      { id: 'asistente', label: 'Ajustes del asistente' },
+      { id: 'asistentes-contextuales', label: 'Asistentes por pantalla' },
+      { id: 'agentes-autonomos', label: 'Agentes autónomos' },
+      { id: 'tareas-automaticas', label: 'Tareas automáticas' },
     ],
   },
   {
-    id: 'asistente-ia',
-    label: 'Asistente IA',
-    emoji: '🤖',
-    color: 'text-indigo-700',
-    bgColor: 'bg-indigo-50 border-indigo-200',
+    id: 'equipo',
+    label: 'Equipo',
+    icon: Users,
     items: [
-      {
-        title: 'Asistente IA',
-        description: 'Personalidad, instrucciones y comportamiento del asistente inteligente.',
-        href: '/settings/ai-assistant',
-        icon: Bot,
-      },
-      {
-        title: 'Asistentes Contextuales',
-        description: 'Personalización de avatares y nombres de los asistentes por pantalla.',
-        href: '/settings/asistentes-contextuales',
-        icon: Palette,
-      },
+      { id: 'accesos-personal', label: 'Accesos del personal' },
+      { id: 'notifications', label: 'Notificaciones' },
     ],
   },
   {
-    id: 'seguridad-y-usuarios',
-    label: 'Seguridad y usuarios',
-    emoji: '🛡️',
-    color: 'text-rose-700',
-    bgColor: 'bg-rose-50 border-rose-200',
+    id: 'sistema',
+    label: 'Sistema',
+    icon: SettingsIcon,
     items: [
-      {
-        title: 'Seguridad y Cuenta',
-        description: 'Clave de acceso, recuperación y opciones de seguridad personal.',
-        href: '/settings/account',
-        icon: ShieldCheck,
-      },
-      {
-        title: 'Cuentas Staff y Permisos',
-        description: 'Registrar colaboradores y definir roles y permisos del sistema.',
-        href: '/admin/usuarios',
-        icon: Users,
-      },
-      {
-        title: 'Accesos para Colaboradores',
-        description: 'Accesos rápidos para secretaria, personal y colaboradores.',
-        href: '/settings/accesos-personal',
-        icon: UserCog,
-      },
-      {
-        title: 'Notificaciones y Avisos',
-        description: 'Alertas sonoras y avisos de cobros y eventos.',
-        href: '/settings/notifications',
-        icon: Bell,
-      },
-    ],
-  },
-  {
-    id: 'estilo-de-fotos',
-    label: 'Estilo de fotos',
-    emoji: '🎨',
-    color: 'text-cyan-700',
-    bgColor: 'bg-cyan-50 border-cyan-200',
-    items: [
-      {
-        title: 'Estilo de fotos AK',
-        description: 'Calibración de color, luz y suavizado automático para las fotos de invitados.',
-        href: '/settings/estilo-fotos',
-        icon: Palette,
-      },
-      {
-        title: 'Galería Pública',
-        description: 'Fotos y videos visibles en la web.',
-        href: '/empresa/galeria',
-        icon: Image,
-      },
-      {
-        title: 'Videos de Ayuda por Pantalla',
-        description: 'Explicaciones en video de YouTube para el invitado, el cliente y simulador.',
-        href: '/settings/videos-de-ayuda',
-        icon: Video,
-      },
-    ],
-  },
-  {
-    id: 'avanzado',
-    label: 'Avanzado',
-    emoji: '⚙️',
-    color: 'text-slate-700',
-    bgColor: 'bg-slate-100 border-slate-300',
-    isAdvanced: true,
-    items: [
-      {
-        title: 'Laboratorio Experimental',
-        description: 'Activar o pausar funciones experimentales (feature flags).',
-        href: '/settings/feature-flags',
-        icon: ToggleRight,
-      },
-      {
-        title: 'Mapa Tecnológico',
-        description: 'Diagrama visual de componentes, conexiones e infraestructura.',
-        href: '/settings/mapa-tecnologico-ak',
-        icon: Cpu,
-      },
-      {
-        title: 'Administración de Datos',
-        description: 'Gestión delicada de datos de CRM, presupuestos y planificador.',
-        href: '/settings/datos',
-        icon: Database,
-      },
-      {
-        title: 'Auditoría',
-        description: 'Registro de actividad y cambios del sistema.',
-        href: '/auditoria',
-        icon: Shield,
-      },
-      {
-        title: 'Backup y Restauración',
-        description: 'Descargar o restaurar respaldos de datos.',
-        href: '/settings/backup',
-        icon: HardDriveDownload,
-      },
+      { id: 'backup', label: 'Respaldo' },
+      { id: 'backup-final', label: 'Respaldo completo' },
+      { id: 'instalar-app', label: 'Instalar app' },
+      { id: 'videos-de-ayuda', label: 'Videos de ayuda' },
+      { id: 'feedback', label: 'Sugerencias' },
+      { id: 'feature-flags', label: 'Opciones avanzadas' },
     ],
   },
 ];
 
-function normalizar(texto: string): string {
-  return texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
+function SettingsHubContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const seccionParam = searchParams.get('seccion') || 'empresa';
+  const subParam = searchParams.get('sub') || '';
 
-export default function SettingsPage() {
-  const { toast } = useToast();
-  const [query, setQuery] = useState('');
-  const [avanzadoAbierto, setAvanzadoAbierto] = useState(false);
-  const [publicarSolo, setPublicarSolo] = useState(true);
-  const [cargandoPublicarSolo, setCargandoPublicarSolo] = useState(false);
+  const seccionActiva = useMemo(
+    () => SECCIONES.find((s) => s.id === seccionParam) ?? SECCIONES[0],
+    [seccionParam],
+  );
 
-  useEffect(() => {
-    let montado = true;
-    getAjustesPublicarSoloAction()
-      .then((res) => {
-        if (montado && res.success && res.data) {
-          setPublicarSolo(res.data.activo !== false);
-        } else if (montado) {
-          toast({ title: 'No se pudo leer si se publica solo', description: 'Recargá la pantalla para ver el estado real.', variant: 'destructive' });
-        }
-      })
-      .catch(() => {
-        if (montado) toast({ title: 'No se pudo leer si se publica solo', description: 'Recargá la pantalla para ver el estado real.', variant: 'destructive' });
-      });
-    return () => {
-      montado = false;
-    };
-  }, [toast]);
+  const subActiva = useMemo(() => {
+    const match = seccionActiva.items.find((i) => i.id === subParam);
+    return match ? match.id : seccionActiva.items[0].id;
+  }, [seccionActiva, subParam]);
 
-  const handleTogglePublicarSolo = async (activo: boolean) => {
-    setCargandoPublicarSolo(true);
-    try {
-      const res = await setAjustesPublicarSolo(activo);
-      if (res.success) {
-        setPublicarSolo(activo);
-        toast({
-          title: 'Ajustes guardados',
-          description: activo ? 'Publicar solo activado.' : 'Publicar solo desactivado.',
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'No se pudo guardar',
-          description: res.error || 'No tenés permisos para cambiar esta configuración.',
-        });
-      }
-    } catch (e: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: e?.message || 'Error al cambiar ajuste.',
-      });
-    } finally {
-      setCargandoPublicarSolo(false);
-    }
+  const navigate = (seccion: string, sub: string) => {
+    router.replace(`/settings?seccion=${encodeURIComponent(seccion)}&sub=${encodeURIComponent(sub)}`);
   };
 
-  const { seccionesRegulares, seccionAvanzada } = useMemo(() => {
-    const raw = query.trim();
-    const term = normalizar(raw);
-
-    if (!term) {
-      return {
-        seccionesRegulares: SECTIONS.filter((s) => !s.isAdvanced),
-        seccionAvanzada: SECTIONS.find((s) => s.isAdvanced) || null,
-      };
-    }
-
-    const filtradas = SECTIONS.map((section) => {
-      const labelMatches = normalizar(section.label).includes(term);
-      const items = section.items.filter((item) => {
-        if (labelMatches) return true;
-        const text = normalizar(`${item.title} ${item.description} ${item.href}`);
-        return text.includes(term);
-      });
-      return { ...section, items: labelMatches ? section.items : items };
-    }).filter((section) => section.items.length > 0);
-
-    return {
-      seccionesRegulares: filtradas.filter((s) => !s.isAdvanced),
-      seccionAvanzada: filtradas.find((s) => s.isAdvanced) || null,
-    };
-  }, [query]);
-
-  const hayResultados = seccionesRegulares.length > 0 || seccionAvanzada !== null;
+  const ActivePanel = PANELS[subActiva] ?? PANELS.company;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-16">
-      <div className="flex items-center gap-3 border-b pb-6">
-        <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-indigo-600 shrink-0">
-          <SettingsIcon className="w-7 h-7" />
-        </div>
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-headline">Ajustes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Toda la configuración de la productora en una sola pantalla, simple y sin vueltas.
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Ajustes</h1>
+          <p className="text-sm text-slate-500">
+            Toda la configuración de AK Producciones organizada en 7 áreas.
           </p>
         </div>
-      </div>
-
-      {/* Buscador en tiempo real (Orden 283) */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <Input
-          data-testid="buscador-ajustes"
-          aria-label="Buscar configuración"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="¿qué querés cambiar?"
-          className="pl-10 pr-10 h-12 rounded-2xl border-slate-200 text-sm sm:text-base font-medium shadow-sm bg-white focus-visible:ring-indigo-500"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery('')}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 min-h-[32px] min-w-[32px] flex items-center justify-center rounded-full"
-            aria-label="Limpiar búsqueda"
+        {seccionActiva.id === 'equipo' && (
+          <Link
+            href="/admin/usuarios"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
           >
-            <X className="w-4 h-4" />
-          </button>
+            Usuarios y permisos <ExternalLink className="h-3.5 w-3.5" />
+          </Link>
         )}
       </div>
 
-      {!hayResultados ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
-          No se encontró ninguna opción para "{query}". Probá con otra palabra o limpiá el buscador.
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {/* Secciones regulares */}
-          {seccionesRegulares.map((section) => (
-            <div key={section.id} data-testid={`seccion-${section.id}`} className="space-y-3">
-              <div className={cn('inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-black', section.bgColor, section.color)}>
-                <span>{section.emoji}</span>
-                <span>{section.label}</span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {section.items.map((item) => (
-                  <Link key={item.href} href={item.href} className="group block h-full">
-                    <div className="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 bg-white hover:border-indigo-400 hover:shadow-md transition-all duration-200 h-full min-h-[44px]">
-                      <div className={cn('p-2.5 rounded-xl shrink-0 mt-0.5 transition-transform duration-200 group-hover:scale-105', section.bgColor)}>
-                        <item.icon className={cn('w-5 h-5', section.color)} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors">
-                            {item.title}
-                          </span>
-                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 shrink-0 transition-colors" />
-                        </div>
-                        <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed line-clamp-2">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {section.id === 'whatsapp-y-conexiones' && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border border-green-200 bg-green-50/60 shadow-sm mt-3">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <Share2 className="w-4 h-4 text-green-700" />
-                      <span className="font-bold text-sm text-slate-900">Publicar solo</span>
-                    </div>
-                    <p className="text-xs text-slate-600 max-w-xl">
-                      Publica automáticamente en redes los borradores aprobados con más de 12 horas y permisos en regla.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 self-end sm:self-auto">
-                    {cargandoPublicarSolo && <Loader2 className="w-4 h-4 animate-spin text-green-600" />}
-                    <Switch
-                      id="switch-publicar-solo"
-                      data-testid="switch-publicar-solo"
-                      checked={publicarSolo}
-                      disabled={cargandoPublicarSolo}
-                      onCheckedChange={handleTogglePublicarSolo}
-                      aria-label="Publicar solo"
-                    />
-                  </div>
-                </div>
+      {/* 7 secciones principales */}
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+        {SECCIONES.map((sec) => {
+          const Icon = sec.icon;
+          const active = sec.id === seccionActiva.id;
+          return (
+            <button
+              key={sec.id}
+              type="button"
+              onClick={() => navigate(sec.id, sec.items[0].id)}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-bold transition-colors',
+                active
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200',
               )}
-            </div>
-          ))}
-
-          {/* Sección Avanzado plegada por defecto (Orden 283) */}
-          {seccionAvanzada && (
-            <div
-              key={seccionAvanzada.id}
-              data-testid={`seccion-${seccionAvanzada.id}`}
-              className="border-t border-slate-200 pt-6 space-y-3"
             >
-              <div className="flex items-center justify-between">
-                <div className={cn('inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-black', seccionAvanzada.bgColor, seccionAvanzada.color)}>
-                  <span>{seccionAvanzada.emoji}</span>
-                  <span>{seccionAvanzada.label}</span>
-                </div>
-                {!query && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setAvanzadoAbierto(!avanzadoAbierto)}
-                    className="text-xs font-bold text-slate-500 hover:text-slate-800 gap-1.5 rounded-xl min-h-[44px]"
-                  >
-                    <span>{avanzadoAbierto ? 'Plegar opciones avanzadas' : 'Desplegar opciones avanzadas'}</span>
-                    {avanzadoAbierto ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </Button>
-                )}
-              </div>
+              <Icon className="h-4 w-4 shrink-0" />
+              <span>{sec.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-              {(avanzadoAbierto || Boolean(query)) && (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pt-1">
-                  {seccionAvanzada.items.map((item) => (
-                    <Link key={item.href} href={item.href} className="group block h-full">
-                      <div className="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-400 hover:shadow-md transition-all duration-200 h-full min-h-[44px]">
-                        <div className={cn('p-2.5 rounded-xl shrink-0 mt-0.5 transition-transform duration-200 group-hover:scale-105', seccionAvanzada.bgColor)}>
-                          <item.icon className={cn('w-5 h-5', seccionAvanzada.color)} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-sm text-slate-900 group-hover:text-slate-700 transition-colors">
-                              {item.title}
-                            </span>
-                            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 transition-colors" />
-                          </div>
-                          <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed line-clamp-2">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+      {/* Pestañas dentro de la sección */}
+      <div className="flex flex-wrap gap-1.5">
+        {seccionActiva.items.map((item) => {
+          const active = item.id === subActiva;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => navigate(seccionActiva.id, item.id)}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                active
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
               )}
-            </div>
-          )}
-        </div>
-      )}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Contenido de la sub-sección */}
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-2 sm:p-4">
+        <ActivePanel />
+      </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-24 text-slate-500">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          <span>Cargando ajustes…</span>
+        </div>
+      }
+    >
+      <SettingsHubContent />
+    </Suspense>
   );
 }

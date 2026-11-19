@@ -56,12 +56,12 @@ async function montar() {
   };
 }
 
-describe('El menú muestra sólo lo que se puede usar según perfil (Orden 284)', () => {
+describe('El menú muestra sólo lo que se puede usar según perfil (Orden 321)', () => {
   beforeEach(() => {
     getMisPermisosMock.mockReset();
   });
 
-  it('secretaria: ve Fiestas, Vender, Plata, Recursos y Más, pero no ve Ajustes', async () => {
+  it('secretaria: ve Hoy, Ventas y Marketing, Fiestas, Plata y Empresa y Personal, pero no ve Ajustes', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.secretaria,
     });
@@ -72,18 +72,18 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 284)'
     });
 
     const text = host.textContent || '';
+    expect(text).toContain('Hoy');
+    expect(text).toContain('Ventas y Marketing');
     expect(text).toContain('Fiestas');
-    expect(text).toContain('Vender');
     expect(text).toContain('Plata');
-    expect(text).toContain('Recursos');
-    expect(text).toContain('Más');
+    expect(text).toContain('Empresa y Personal');
 
     expect(text).not.toContain('Ajustes');
 
     cerrar();
   });
 
-  it('operador: ve Inicio, Fiestas y Más, pero nada de Plata ni Vender', async () => {
+  it('operador: ve Hoy y Fiestas, pero nada de Plata, Ventas y Marketing, Empresa y Personal ni Ajustes', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.operador,
     });
@@ -94,19 +94,18 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 284)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Inicio');
+    expect(text).toContain('Hoy');
     expect(text).toContain('Fiestas');
-    expect(text).toContain('Más');
 
     expect(text).not.toContain('Plata');
-    expect(text).not.toContain('Vender');
-    expect(text).not.toContain('Recursos');
+    expect(text).not.toContain('Ventas y Marketing');
+    expect(text).not.toContain('Empresa y Personal');
     expect(text).not.toContain('Ajustes');
 
     cerrar();
   });
 
-  it('dueño: ve las 7 casas habilitadas del menú (Orden 284)', async () => {
+  it('dueño: ve las 6 casas habilitadas del menú (Orden 321) sin duplicar Ajustes', async () => {
     getMisPermisosMock.mockResolvedValue({
       permisos: PERMISOS_POR_PERFIL.dueno,
     });
@@ -117,14 +116,13 @@ describe('El menú muestra sólo lo que se puede usar según perfil (Orden 284)'
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Inicio');
+    expect(text).toContain('Hoy');
+    expect(text).toContain('Ventas y Marketing');
     expect(text).toContain('Fiestas');
-    expect(text).toContain('Vender');
     expect(text).toContain('Plata');
-    expect(text).toContain('Marketing');
-    expect(text).toContain('Recursos');
+    expect(text).toContain('Empresa y Personal');
     expect(text).toContain('Ajustes');
-    expect(text).toContain('Más');
+    expect(text.match(/Ajustes/g)?.length).toBe(1);
 
     cerrar();
   });

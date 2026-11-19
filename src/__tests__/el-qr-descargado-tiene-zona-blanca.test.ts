@@ -14,7 +14,7 @@ const ARCHIVOS = [
   'src/app/(app)/fiestas/nueva/invitados/page.tsx',
   'src/components/invitacion/edit/ControlPanel.tsx',
   'src/components/invitacion/edit/SeccionRedesSociales.tsx',
-  'src/app/(app)/fiestas/nueva/pagina-web/page.tsx',
+  'src/components/fiestas/panels/pagina-web.tsx',
 ];
 
 describe('el QR descargado tiene zona blanca', () => {

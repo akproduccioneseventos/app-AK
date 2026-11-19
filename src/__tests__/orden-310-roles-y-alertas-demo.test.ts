@@ -45,7 +45,7 @@ describe('Orden 310: /empleados/roles y alertas de errores humanos excluyen DEMO
 
   it('la pantalla /empleados/roles oculta Eliminar cuando esSesionDeSoloLectura es true', () => {
     const src = readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/empleados/roles/page.tsx'),
+      path.join(process.cwd(), 'src/components/panels/empleados--roles.tsx'),
       'utf8',
     );
     expect(src).toContain('esSesionDeSoloLectura');

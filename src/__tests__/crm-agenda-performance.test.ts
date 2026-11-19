@@ -5,7 +5,7 @@ const read = (relativePath: string) => readFileSync(join(process.cwd(), relative
 
 describe('CRM agenda performance', () => {
   it('uses lightweight agenda and selector projections', () => {
-    const agendaPage = read('src/app/(app)/contabilidad/crm/agenda/page.tsx');
+    const agendaPage = read('src/components/panels/crm--agenda.tsx');
     const meetingDialog = read('src/components/crm/ScheduleNewMeetingDialog.tsx');
 
     expect(agendaPage).toContain('getCrmAgendaEntries()');

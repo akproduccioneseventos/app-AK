@@ -330,6 +330,80 @@ export async function executeCrearCliente(input: CrearClienteInput): Promise<Too
   };
 }
 
+// ── buscarProspecto ──────────────────────────────────────────────────────────
+
+function normalizarTextoBusqueda(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function normalizarTelefonoBusqueda(valor: string): string {
+  return valor.replace(/[^\d]/g, '');
+}
+
+export async function executeBuscarProspecto(input: {
+  consulta: string;
+}): Promise<ToolResult> {
+  const consulta = input.consulta?.trim();
+  if (!consulta) {
+    return {
+      success: false,
+      error: 'Ingresá un nombre o teléfono para buscar.',
+      message: 'Decime el nombre o teléfono del prospecto que querés buscar.',
+    };
+  }
+
+  const { getCrmLeadsForDashboard } = await import('@/app/actions/crm');
+  const leads = await getCrmLeadsForDashboard();
+  const qTexto = normalizarTextoBusqueda(consulta);
+  const qTel = normalizarTelefonoBusqueda(consulta);
+
+  const coincidencias = leads
+    .filter((lead) => {
+      const nombre = normalizarTextoBusqueda(lead.name || '');
+      if (nombre.includes(qTexto)) return true;
+      if (qTel.length >= 3) {
+        const tel = normalizarTelefonoBusqueda(lead.phone || '');
+        if (tel.includes(qTel)) return true;
+      }
+      return false;
+    })
+    .slice(0, 10)
+    .map((lead) => ({
+      id: lead.id,
+      name: lead.name,
+      phone: lead.phone,
+      stage: (lead as any).stage ?? (lead as any).stageId,
+      eventDate: lead.eventDate,
+      partyType: lead.partyType,
+    }));
+
+  if (coincidencias.length === 0) {
+    return {
+      success: true,
+      data: { prospectos: [], totalEncontrados: 0, href: ASSISTANT_ROUTES.crm },
+      message: `No encontré ningún prospecto en el CRM que coincida con "${consulta}".`,
+    };
+  }
+
+  const resumen = coincidencias
+    .map((p) => `- ${p.name}${p.phone ? ` (${p.phone})` : ''}${p.eventDate ? ` — ${p.eventDate}` : ''}`)
+    .join('\n');
+
+  return {
+    success: true,
+    data: {
+      prospectos: coincidencias,
+      totalEncontrados: coincidencias.length,
+      href: ASSISTANT_ROUTES.crm,
+    },
+    message: `Encontré ${coincidencias.length} prospecto(s) en el CRM:\n${resumen}`,
+  };
+}
+
 // ── crearProspecto ───────────────────────────────────────────────────────────
 
 export async function executeCrearProspecto(input: CrearProspectoInput): Promise<ToolResult> {

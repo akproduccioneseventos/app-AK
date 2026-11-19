@@ -56,7 +56,7 @@ test('dos creaciones deliberadas (intentos distintos, misma carga) dan dos plant
 });
 
 test('la pantalla manda el intento al guardar y lo termina solo con exito', () => {
-  const src = fs.readFileSync('src/app/(app)/settings/templates/invitaciones/page.tsx', 'utf8');
+  const src = fs.readFileSync('src/components/settings/panels/templates--invitaciones.tsx', 'utf8');
   expect(src).toMatch(/saveInvitationTemplate\(newTemplateData, \{ idIntento \}\)/);
   expect(src).toMatch(/obtenerIntento\(alcanceIntento/);
   expect(src.indexOf('terminarIntento(alcanceIntento)')).toBeGreaterThan(src.indexOf('saveInvitationTemplate(newTemplateData'));

@@ -1,24 +1,22 @@
 import { obtenerGruposMenuPorPerfil } from '@/components/main-nav';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 
-describe('El menú lee del mapa (Orden 284)', () => {
-  it('con perfil dueño, el menú tiene las 7 casas más "Más"', () => {
+describe('El menú lee del mapa (Orden 321)', () => {
+  it('con perfil dueño, el menú tiene las 6 casas oficiales sin /mas', () => {
     const gruposDueno = obtenerGruposMenuPorPerfil({ role: 'admin', perfil: 'dueno' });
     const titulos = gruposDueno.flatMap((g) => g.items.map((i) => i.title));
 
     expect(titulos).toEqual([
-      'Inicio',
+      'Hoy',
+      'Ventas y Marketing',
       'Fiestas',
-      'Vender',
       'Plata',
-      'Marketing',
-      'Recursos',
+      'Empresa y Personal',
       'Ajustes',
-      'Más',
     ]);
   });
 
-  it('con perfil secretaria no aparece Plata si no le corresponde contabilidad (mismo puede)', () => {
+  it('con perfil secretaria no aparece Ajustes y Plata depende de PERMISOS.CONTABILIDAD', () => {
     const userSecretaria = { role: 'user', perfil: 'secretaria' };
     const puedeContabilidadSecretaria = puede(userSecretaria, PERMISOS.CONTABILIDAD);
 
@@ -32,7 +30,7 @@ describe('El menú lee del mapa (Orden 284)', () => {
     expect(titulosSecretaria.includes('Ajustes')).toBe(false);
   });
 
-  it('con perfil operador no aparece Plata', () => {
+  it('con perfil operador no aparece Plata, Ventas y Marketing, Empresa y Personal ni Ajustes', () => {
     const userOperador = { role: 'user', perfil: 'operador' };
     const puedeContabilidadOperador = puede(userOperador, PERMISOS.CONTABILIDAD);
 
@@ -41,8 +39,10 @@ describe('El menú lee del mapa (Orden 284)', () => {
 
     expect(puedeContabilidadOperador).toBe(false);
     expect(titulosOperador.includes('Plata')).toBe(false);
-    expect(titulosOperador.includes('Vender')).toBe(false);
+    expect(titulosOperador.includes('Ventas y Marketing')).toBe(false);
+    expect(titulosOperador.includes('Empresa y Personal')).toBe(false);
     expect(titulosOperador.includes('Ajustes')).toBe(false);
+    expect(titulosOperador.includes('Hoy')).toBe(true);
     expect(titulosOperador.includes('Fiestas')).toBe(true);
   });
 });

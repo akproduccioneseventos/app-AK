@@ -18,12 +18,11 @@ describe('internal operations integrity', () => {
   });
 
   it('does not present a fabricated revenue projection in the executive dashboard', () => {
-    const dashboard = read('src/app/(app)/empresa/dashboard/page.tsx');
+    const miDia = read('src/app/(app)/mi-dia/page.tsx');
 
-    expect(dashboard).not.toContain('activeEventsCount * 2500');
-    expect(dashboard).toContain('Eventos con Fecha');
-    expect(dashboard).toContain('No pudimos cargar el panel');
-    expect(dashboard).toContain('Reintentar');
+    expect(miDia).not.toContain('activeEventsCount * 2500');
+    expect(miDia).toContain('No pudimos cargar las fiestas ahora.');
+    expect(miDia).toContain('Reintentar');
   });
 
   it('shows a real event-selection state instead of an endless loader', () => {
@@ -32,7 +31,7 @@ describe('internal operations integrity', () => {
       read('src/app/(app)/fiestas/nueva/catering/page.tsx'),
       read('src/app/(app)/fiestas/nueva/invitados/page.tsx'),
       read('src/app/(app)/fiestas/nueva/personal/page.tsx'),
-      read('src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx'),
+      read('src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx'),
     ];
 
     expect(component).toContain('href="/eventos"');

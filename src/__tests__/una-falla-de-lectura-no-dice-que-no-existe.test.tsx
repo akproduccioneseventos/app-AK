@@ -35,6 +35,7 @@ jest.mock('@/lib/fiesta/leer-fiestas', () => ({
 }));
 
 jest.mock('next/navigation', () => ({
+  usePathname: () => '/fiestas/nueva/invitados',
   useParams: () => ({ id: 'qa-test-fiesta', fiestaId: 'qa-test-fiesta' }),
   useSearchParams: () => ({
     get: (key: string) => (key === 'fiestaId' ? 'qa-test-fiesta' : null),

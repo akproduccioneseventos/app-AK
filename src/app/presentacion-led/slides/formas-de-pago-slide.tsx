@@ -4,13 +4,24 @@ import { motion } from 'framer-motion';
 import { SlideLayout } from '../components/slide-layout';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { sharedPaymentMethods } from '@/data/event-catalogs/shared';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 
 interface FormasDePagoSlideProps {
   tipoFiesta: string;
+  bookingDepositAmount?: number;
 }
 
-export function FormasDePagoSlide({ tipoFiesta }: FormasDePagoSlideProps) {
+export function FormasDePagoSlide({
+  tipoFiesta,
+  bookingDepositAmount = DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+}: FormasDePagoSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
+  const senaFormateada = new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(bookingDepositAmount);
 
   return (
     <SlideLayout overflowScroll>
@@ -69,8 +80,9 @@ export function FormasDePagoSlide({ tipoFiesta }: FormasDePagoSlideProps) {
             Seña para reservar tu fecha
           </p>
           <p className="text-white/60 text-sm">
-            Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas
-            según lo acordado.
+            Para reservar la fecha se abona una seña de {senaFormateada}. El saldo se abona en
+            cuotas según lo acordado. En caso de cancelación rige una penalidad del 30% del
+            presupuesto vigente.
           </p>
         </motion.div>
       </div>

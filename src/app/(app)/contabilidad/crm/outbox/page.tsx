@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +37,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-export default function OutboxPage() {
+function OutboxInner() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<ScheduledMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -464,6 +466,45 @@ export default function OutboxPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+const ConversacionesPanel = dynamic(() => import('@/components/whatsapp/WhatsAppConversationsPanel'));
+
+function OutboxHubContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') || 'bandeja';
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-4 px-4 pt-4">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+        {[
+          { id: 'bandeja', label: 'Bandeja de salida' },
+          { id: 'conversaciones', label: 'Conversaciones' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => router.replace(`/contabilidad/crm/outbox?tab=${t.id}`)}
+            className={`rounded-xl px-3.5 py-2 text-sm font-bold transition-colors ${
+              tab === t.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'conversaciones' ? <ConversacionesPanel /> : <OutboxInner />}
+    </div>
+  );
+}
+
+export default function OutboxPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando WhatsApp…</div>}>
+      <OutboxHubContent />
+    </Suspense>
   );
 }
 

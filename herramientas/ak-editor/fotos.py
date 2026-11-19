@@ -585,6 +585,12 @@ def actualizar_o_crear_xmp(
     NUNCA modifica ni borra el archivo original de imagen.
     """
     ruta_xmp = resolver_ruta_xmp(ruta_foto)
+    ruta_backup = ruta_xmp + ".ak_backup"
+    if os.path.exists(ruta_xmp) and not os.path.exists(ruta_backup):
+        try:
+            shutil.copy2(ruta_xmp, ruta_backup)
+        except Exception:
+            pass
 
     # Raíz y namespaces
     root = None
@@ -907,8 +913,15 @@ def simular_edicion_foto(
 
 
 def volver_al_original(ruta_foto: str) -> bool:
-    """Saca los ajustes de revelado del archivo .xmp de la foto."""
+    """Restaura el archivo .xmp original si existe respaldo o saca los ajustes de revelado."""
     ruta_xmp = resolver_ruta_xmp(ruta_foto)
+    ruta_backup = ruta_xmp + ".ak_backup"
+    if os.path.exists(ruta_backup):
+        try:
+            shutil.copy2(ruta_backup, ruta_xmp)
+            return True
+        except Exception:
+            pass
     if not os.path.exists(ruta_xmp):
         return False
     try:
