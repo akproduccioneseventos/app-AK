@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Comparación con VeamosLasFotos: lo que sí y lo que no (orden 323)
+
+- **Qué se decidió:** el dueño pidió ser mejor que VeamosLasFotos en todo. Entran el armador único de invitación, fondos,
+  invitación viva en la fiesta, transiciones, moderación completa, trivia con IA, las más queridas, el marco, y tres
+  funciones nuevas con interruptor apagado (en vivo desde el celular, libro de firmas en audio y video, imprimir desde el
+  celular). **No entran:** white label, revendedores, "Evento Crush" (citas) y el QR genérico (un enlace público nombra
+  su fiesta).
+
+```comprobar
+archivo: docs/ordenes/323-gemini-mejor-que-veamoslasfotos.md
+```
+
 ## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
 
 - **Qué pasaba:** la hoja del evento ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada (A18-06).

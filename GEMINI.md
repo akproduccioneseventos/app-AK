@@ -8,6 +8,10 @@
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
   todas. Claude devolvió cinco pantallas que borraste y se usan (Entrar, decoración y moodboard del portal, simulador y
   Sofía): no las vuelvas a sacar.
+- **DESPUÉS de la 322, en la misma propuesta: orden 323 (`docs/ordenes/323-gemini-mejor-que-veamoslasfotos.md`).** Pedido del
+  dueño: ser mejor que VeamosLasFotos. Un solo armador de invitación con el celular al lado, biblioteca de fondos, la
+  invitación viva el día de la fiesta, transiciones, moderación completa, trivia con IA, y tres funciones nuevas **con
+  interruptor apagado de entrada** (en vivo desde el celular, libro de firmas en audio y video, imprimir desde el celular).
 - **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
