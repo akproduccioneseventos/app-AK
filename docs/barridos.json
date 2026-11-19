@@ -784,6 +784,10 @@
     "196": {
       "fecha": "2026-11-18",
       "resultado": "Montos tras etiqueta: el total del importador (arreglado en sus dos lecturas)."
+    },
+    "197": {
+      "fecha": "2026-11-19",
+      "resultado": "Pantallas públicas borradas en la 1443: cinco eran funciones (Entrar, decoración, moodboard, simulador, Sofía) y volvieron; el resto (catálogos, tecnología, control-tower, papelería) las sacó el dueño. Redirecciones: dos tapaban pantallas y se arreglaron; el control las recorre todas."
     }
   },
   "hallazgos": {
@@ -1190,6 +1194,10 @@
     "orden-321": {
       "fecha": "2026-11-18",
       "resultado": "Revisión de la app por pedido del dueño: 382 páginas (41 redirecciones, 9 sin enlaces, 20 sólo desde Más); buzón que dice guardar el marco y no lo guarda (pregunta 179) → orden 321 bloque 6."
+    },
+    "orden-322": {
+      "fecha": "2026-11-19",
+      "resultado": "Barrido de todas las pantallas borradas fuera del panel interno contra sus redirecciones (ver orden 322)."
     }
   }
 }
