@@ -22,6 +22,9 @@
   redes con todas las conversaciones de todas las redes, una solapa de Comentarios, y que conteste y dé me gusta solo (las
   quejas se ocultan, nunca se borran; nunca un precio en público). También: una publicación sale en todas las redes
   conectadas, y entran las reseñas de Google y los comentarios de YouTube y Threads.
+- **AL FINAL, después de la 326: orden 327 (`docs/ordenes/327-gemini-lo-mejor-de-las-otras-plataformas.md`).** Comentá una
+  palabra clave y te llega el simulador por privado (una sola vez por comentario), mirar cuentas de la competencia, agradecer
+  y guardar las menciones en historias, y la página `/enlaces` para la biografía de Instagram.
 - **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
