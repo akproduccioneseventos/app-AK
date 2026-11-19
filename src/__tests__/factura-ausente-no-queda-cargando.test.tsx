@@ -1,10 +1,13 @@
 /** @jest-environment jsdom */
+import fs from 'node:fs';
+import path from 'node:path';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import ViewInvoicePage from '@/app/(app)/invoices/[id]/page';
-import CartaTragosPage from '@/app/(app)/fiestas/nueva/carta-tragos/page';
+import GestionDocumentalPage from '@/app/(app)/fiestas/nueva/gestion-documental/page';
 import InvitadosPage from '@/app/(app)/fiestas/nueva/invitados/page';
-import PantallasTotemPage from '@/app/(app)/fiestas/nueva/pantallas-totem/page';
+import PantallasTotemPage from '@/components/panels/fiesta--pantallas-totem';
+import TragosMasterPage from '@/components/panels/menus--tragos';
 
 const mockInvoice = jest.fn();
 const mockSettings = jest.fn();
@@ -18,7 +21,13 @@ const stableRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 const stableToast = { toast: mockToast };
 const stableSearchParams = new URLSearchParams('fiestaId=qa-fiesta-ausente');
 
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
+}));
+
 jest.mock('next/navigation', () => ({
+  usePathname: () => '/fiestas/nueva/invitados',
   useParams: () => ({ id: 'qa-factura-ausente' }),
   useSearchParams: () => stableSearchParams,
   useRouter: () => stableRouter,
@@ -60,6 +69,22 @@ jest.mock('@/app/actions/fiesta-actual', () => ({
 
 jest.mock('@/app/actions/carta-tragos-master.actions', () => ({
   getCartaTragosMaster: (...args: unknown[]) => mockGetCartaTragosMaster(...args),
+  saveCartaTragosMaster: jest.fn(async () => ({ success: true })),
+}));
+
+jest.mock('@/app/actions/insumos', () => ({
+  getInsumos: jest.fn(async () => []),
+  saveInsumo: jest.fn(async () => ({ success: true })),
+}));
+
+jest.mock('@/app/actions/servicios-empresa', () => ({
+  getServiciosEmpresa: jest.fn(async () => []),
+  saveServicioEmpresa: jest.fn(async () => ({ success: true })),
+}));
+
+jest.mock('@/app/actions/sesion', () => ({
+  getMisPermisos: jest.fn(async () => ({ permisos: [] })),
+  esSesionDeSoloLectura: jest.fn(async () => false),
 }));
 
 jest.mock('html2canvas', () => jest.fn());
@@ -106,10 +131,14 @@ describe('Pantallas no quedan cargando para siempre ante dato ausente o falla (O
     expect(container.textContent).toContain('Factura no encontrada');
   });
 
-  test('carta de tragos: con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {
+  test('gestión documental (reemplazo con getFiestaParaPantalla tras consolidar carta-tragos en Orden 321): con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {
+    const nextConfig = fs.readFileSync(path.join(process.cwd(), 'next.config.js'), 'utf8');
+    expect(nextConfig).toContain("source: '/fiestas/nueva/carta-tragos'");
+    expect(nextConfig).toContain("destination: '/fiestas/nueva'");
+
     mockGetFiestaParaPantalla.mockRejectedValueOnce(new Error('FALLO_RED'));
     await act(async () => {
-      root.render(<CartaTragosPage />);
+      root.render(<GestionDocumentalPage />);
       await Promise.resolve();
     });
 
@@ -120,12 +149,22 @@ describe('Pantallas no quedan cargando para siempre ante dato ausente o falla (O
     await act(async () => {
       root.unmount();
       root = createRoot(container);
-      root.render(<CartaTragosPage />);
+      root.render(<GestionDocumentalPage />);
       await Promise.resolve();
     });
 
     expect(container.querySelector('.animate-spin')).toBeNull();
     expect(container.textContent).toContain('Fiesta no encontrada');
+  });
+
+  test('panel maestro de tragos: con carga rechazada deja de girar', async () => {
+    mockGetCartaTragosMaster.mockRejectedValueOnce(new Error('FALLO_RED'));
+    await act(async () => {
+      root.render(<TragosMasterPage />);
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('.animate-spin')).toBeNull();
   });
 
   test('gestión de invitados: con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {

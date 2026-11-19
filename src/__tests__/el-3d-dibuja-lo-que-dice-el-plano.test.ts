@@ -160,7 +160,7 @@ describe('El 3D dibuja lo que dice el plano', () => {
       'utf8'
     );
     const layoutPageSrc = fs.readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/invitados/layout/page.tsx'),
+      path.join(process.cwd(), 'src/components/panels/invitados--layout.tsx'),
       'utf8'
     );
 

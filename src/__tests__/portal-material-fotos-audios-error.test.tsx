@@ -28,7 +28,7 @@ jest.mock('@/components/album/TuVideoDeLaFiestaModal', () => ({
   TuVideoDeLaFiestaModal: () => null,
 }));
 
-import Page from '@/app/portal-cliente/[id]/fotos-video/page';
+import Page from '@/components/panels/portal--fotos-video';
 
 beforeAll(() => {
   Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true });

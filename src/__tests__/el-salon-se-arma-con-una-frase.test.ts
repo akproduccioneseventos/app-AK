@@ -23,20 +23,21 @@ jest.mock('@/lib/ai/consumo-servidor', () => ({
 }));
 
 describe('Orden 106 — El salón se arma con una frase y vista mágica', () => {
-  const configuradorPath = path.join(
-    process.cwd(),
-    'src/app/(app)/empresa/configurador-reunion/page.tsx'
-  );
+  test('el configurador de reunión retirado en Orden 321 redirige a plantillas de reuniones y su acción sigue activa', () => {
+    const nextConfig = fs.readFileSync(path.join(process.cwd(), 'next.config.js'), 'utf8');
+    const templatesReuniones = path.join(
+      process.cwd(),
+      'src/components/settings/panels/templates--reuniones.tsx'
+    );
+    const decoracionActions = fs.readFileSync(
+      path.join(process.cwd(), 'src/app/actions/fiesta/decoracion.actions.ts'),
+      'utf8'
+    );
 
-  test('el configurador de reunión existe y contiene los elementos solicitados (frase, recorrer, salón decorado, asistente)', () => {
-    expect(fs.existsSync(configuradorPath)).toBe(true);
-    const content = fs.readFileSync(configuradorPath, 'utf8');
-
-    expect(content).toContain('Armar con una frase');
-    expect(content).toContain('Ver salón decorado');
-    expect(content).toContain('Recorrer');
-    expect(content).toContain('Asistente');
-    expect(content).toContain('Imagen de referencia generada con IA');
+    expect(nextConfig).toContain("'/empresa/configurador-reunion'");
+    expect(nextConfig).toContain('/settings?seccion=contratos&sub=templates--reuniones');
+    expect(fs.existsSync(templatesReuniones)).toBe(true);
+    expect(decoracionActions).toContain('export async function generarVisualizacionSalonReunion');
   });
 
   test('generarVisualizacionSalonReunion devuelve dos imágenes de referencia', async () => {

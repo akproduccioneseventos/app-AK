@@ -220,7 +220,7 @@
         "src/app/api/marketing",
         "src/app/api/v1",
         "src/app/(app)/empresa/resenas-google",
-        "src/app/(app)/empresa/page.tsx"
+        "src/components/panels/empresa--marketing.tsx"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {

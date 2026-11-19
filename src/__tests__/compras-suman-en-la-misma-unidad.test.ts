@@ -156,10 +156,9 @@ describe('consolidarCompras suma en la misma unidad', () => {
   });
 });
 
-describe('Las dos pantallas usan consolidarCompras', () => {
+describe('La pantalla de lista de compras usa consolidarCompras', () => {
   const PANTALLAS = [
-    'src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx',
-    'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx',
+    'src/components/panels/catering--lista-compras.tsx',
   ];
   it.each(PANTALLAS)('%s la llama', ruta => {
     const fuente = fs.readFileSync(path.join(process.cwd(), ruta), 'utf8');

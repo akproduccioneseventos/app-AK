@@ -7,7 +7,7 @@ import {
 } from '@/lib/backup/backup-health';
 
 describe('Orden 286 — Bloque 1: Control de backup mira si anda', () => {
-  const pagePath = path.join(process.cwd(), 'src/app/(app)/settings/backup-final/page.tsx');
+  const pagePath = path.join(process.cwd(), 'src/components/settings/panels/backup-final.tsx');
   const pageSource = fs.readFileSync(pagePath, 'utf8');
 
   it('la pantalla /settings/backup-final separa en "Qué cubre el respaldo" y "Cómo viene el respaldo", y usa getBackupStatus', () => {
@@ -69,7 +69,7 @@ describe('Orden 286 — Bloque 1: Control de backup mira si anda', () => {
     const rutaDatos = '/settings/datos';
     expect(rutaDatos).toBe('/settings/datos');
     const datosSource = fs.readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/settings/datos/page.tsx'),
+      path.join(process.cwd(), 'src/components/settings/panels/datos.tsx'),
       'utf8',
     );
     expect(datosSource).toContain('Para confirmar, escribí la palabra ELIMINAR:');

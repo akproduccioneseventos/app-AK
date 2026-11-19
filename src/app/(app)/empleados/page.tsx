@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/empleados--roles'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/empleados--reporte'));
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
@@ -59,7 +64,7 @@ interface PartiesDialogState {
   summaryEmail: string;
 }
 
-export default function EmpleadosPage() {
+function EmpleadosPageInner() {
   const { toast } = useToast();
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
@@ -718,5 +723,18 @@ export default function EmpleadosPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+
+export default function EmpleadosPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"lista","label":"Personal"},{"id":"roles","label":"Roles"},{"id":"reporte","label":"Reporte"}]}
+        renderDefault={() => <EmpleadosPageInner />}
+        renderTab={(tab) => { if (tab === 'roles') return <__AkPanel1 />; if (tab === 'reporte') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

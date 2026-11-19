@@ -43,16 +43,16 @@ describe('Codex 1367: seis defectos', () => {
     expect(src.indexOf('setAvisoCocinaEnviado(true)')).toBeGreaterThan(src.indexOf('if (res.success)'));
   });
 
-  it('(3) el enlace de WhatsApp usa el texto aprobado y el servidor guarda el corregido', () => {
-    const page = leer('src/app/(app)/centro-de-control/page.tsx');
-    expect(page).toMatch(/textoAprobado/);
-    expect(page).toMatch(/encodeURIComponent\(textoAprobado\)/);
+  it('(3) el enlace de WhatsApp codifica el texto y el servidor guarda el corregido', () => {
+    const page = leer('src/app/(app)/contabilidad/crm/outbox/page.tsx');
+    expect(page).toMatch(/updateScheduledMessageText\(/);
+    expect(page).toMatch(/encodeURIComponent\(msg\.messageText\)/);
     const act = leer('src/app/actions/centro-de-control.ts');
     expect(act).toMatch(/updateScheduledMessageText\(id, textoFinal!\)/);
   });
 
   it('(4) tras crear las 3 versiones el estado local toma las propuestas guardadas', () => {
-    const src = leer('src/app/(app)/fiestas/nueva/pagina-web/page.tsx');
+    const src = leer('src/components/fiestas/panels/pagina-web.tsx');
     expect(src).toMatch(/propuestasDeWeb: res\.propuestas \?\? prev\.propuestasDeWeb/);
   });
 });

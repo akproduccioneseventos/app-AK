@@ -32,6 +32,7 @@ import { armarHojaDeCocina, type HojaDeCocina } from '@/lib/catering/hoja-de-coc
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 function OrdenDeEventoContenido() {
   const searchParams = useSearchParams();
@@ -117,6 +118,10 @@ function OrdenDeEventoContenido() {
     );
   }
 
+  if (!fiestaId) {
+    return <EventSelectionRequired moduleName="la Orden de Evento" />;
+  }
+
   if (error || !fiesta) {
     return (
       <div className="p-8 text-center text-destructive">
@@ -192,7 +197,7 @@ function OrdenDeEventoContenido() {
       {/* DOCUMENTO OPERATIVO EN UNA HOJA */}
       <div className="bg-white border rounded-xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
         {/* Cabecera */}
-        <div className="border-b pb-4">
+        <header className="cabecera-documento border-b pb-4">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -237,7 +242,7 @@ function OrdenDeEventoContenido() {
               </span>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* 1. Cronograma */}
         <div>

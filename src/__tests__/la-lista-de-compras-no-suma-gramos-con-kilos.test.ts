@@ -54,12 +54,12 @@ describe('La lista de compras no suma gramos con kilos', () => {
  * Y que este enganchado de verdad: las dos pantallas que arman la lista tienen que
  * juntar los renglones con la unidad adentro, no por nombre y proveedor nomas.
  */
-describe('Las dos pantallas de compras usan la clave con unidad', () => {
+describe('Las pantallas de compras usan la clave con unidad', () => {
   const fs = require('fs');
   const path = require('path');
   const PANTALLAS = [
-    'src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx',
-    'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx',
+    'src/components/panels/catering--lista-compras.tsx',
+    'src/lib/compras/consolidar-compras.ts',
   ];
 
   it.each(PANTALLAS)('%s junta los renglones con claveDeConsolidado', (pantalla) => {

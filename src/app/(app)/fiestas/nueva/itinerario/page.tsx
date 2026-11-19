@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/pdf--itinerario'));
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
@@ -16,6 +20,7 @@ import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import type { TipoEvento } from '@/types/presupuesto';
 import { sugerirPlantillaPorTipo, ordenarPlantillasPorTipo } from '@/lib/itinerario/sugerir-plantilla';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
@@ -337,7 +342,7 @@ function ItinerarioContent() {
     if (currentItem.id) {
       setPrograma(prev => prev.map(p => p.id === newItem.id ? newItem : p));
     } else {
-      setPrograma(prev => [...prev, newItem].sort((a,b) => a.hora.localeCompare(b.hora)));
+      setPrograma(prev => ordenarPorHoraDelEvento([...prev, newItem], fiestaInfo.inicio));
     }
     setIsEditModalOpen(false);
     setCurrentItem(null);
@@ -363,7 +368,7 @@ function ItinerarioContent() {
           const noChocan = sugeridos.filter(
             s => !horasExistentes.has(s.hora) && !titulosExistentes.has(s.titulo.toLowerCase().trim())
           );
-          return [...prev, ...noChocan].sort((a, b) => a.hora.localeCompare(b.hora));
+          return ordenarPorHoraDelEvento([...prev, ...noChocan], fiestaInfo.inicio);
         });
         toast({ title: "Cronograma Generado", description: "Se incorporaron las sugerencias respetando los momentos que ya tenías cargados." });
       } else {
@@ -648,10 +653,23 @@ function ItinerarioContent() {
   );
 }
 
-export default function ItinerarioPage() {
+function ItinerarioPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>}>
             <ItinerarioContent />
         </Suspense>
     );
+}
+
+
+export default function ItinerarioPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"itinerario","label":"Itinerario"},{"id":"pdf","label":"Imprimir / PDF"}]}
+        renderDefault={() => <ItinerarioPageInner />}
+        renderTab={(tab) => { if (tab === 'pdf') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

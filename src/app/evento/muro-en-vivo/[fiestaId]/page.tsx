@@ -598,11 +598,8 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Empty state */}
-          {/* 'dedicaciones' NO va en esta lista: su bloque esta desactivado mas
-              abajo, asi que sin esto la pantalla del salon quedaba en blanco
-              cada vez que la rotacion llegaba a esa diapositiva. */}
-          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta', 'cronograma', 'patrocinador'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {/* Empty state (solo en slide de mural; otros slides muestran su propio estado vacío) */}
+          {isLoaded && settings.privateDedicationsMode !== true && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length === 0 && settings.enabled !== false && (
             <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
@@ -2166,6 +2163,9 @@ function GameSlide({
     return (
       <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${meta.bg}`}>
         <div className="w-full max-w-5xl px-12 text-center">
+          <div className="mb-4 inline-flex items-center rounded-full border border-emerald-300/40 bg-emerald-500/20 px-5 py-1.5 text-sm font-black uppercase tracking-[0.25em] text-emerald-200">
+            Finalizado
+          </div>
           <motion.h1 className="text-[6vw] font-black leading-tight text-white mb-12 drop-shadow-lg">
             {porMesa ? 'Podio por Mesa 🏆' : 'Los mejores de la trivia 🏆'}
           </motion.h1>

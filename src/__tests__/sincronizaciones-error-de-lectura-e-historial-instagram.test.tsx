@@ -20,7 +20,7 @@ jest.mock('@/app/actions/conexiones-estado.actions', () => ({
 }));
 jest.mock('@/app/actions/social-history', () => ({ sincronizarHistorialRedesAction: jest.fn() }));
 
-import SincronizacionesPage from '@/app/(app)/settings/sincronizaciones/page';
+import SincronizacionesPage from '@/components/settings/panels/sincronizaciones';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });

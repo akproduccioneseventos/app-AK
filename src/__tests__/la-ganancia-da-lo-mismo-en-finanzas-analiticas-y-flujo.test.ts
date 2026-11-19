@@ -73,7 +73,7 @@ describe('una misma fiesta, un mismo numero', () => {
   });
 
   it('Finanzas usa la misma funcion y no su propia suma', () => {
-    const fuente = fs.readFileSync(path.join(__dirname, '..', 'app', 'admin', 'finanzas', 'page.tsx'), 'utf8');
+    const fuente = fs.readFileSync(path.join(__dirname, '..', 'components', 'contabilidad', 'panels', 'finanzas.tsx'), 'utf8');
     expect(fuente).toContain('calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal');
     expect(fuente).not.toContain('montoEstimado ?? 0');
   });

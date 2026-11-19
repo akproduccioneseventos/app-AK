@@ -30,25 +30,22 @@ describe('Orden 73 Bloque 3: Las mesas se cuentan una sola vez', () => {
     expect(total).toBe(3); // Mesa Principal, Mesa 1, Mesa Dulce
   });
 
-  test('las pantallas de cartelería y números de mesa usan la misma función en src/lib/mesas/contar-mesas', () => {
-    const carteleriaPath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/carteleria/page.tsx');
-    const numerosMesaPath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/numeros-mesa/page.tsx');
+  test('las rutas viejas de cartelería y números de mesa redirigen en next.config.js y el conteo vive en contar-mesas', () => {
+    const nextConfig = fs.readFileSync(path.join(process.cwd(), 'next.config.js'), 'utf8');
+    expect(nextConfig).toContain("source: '/fiestas/nueva/carteleria'");
+    expect(nextConfig).toContain("source: '/fiestas/nueva/numeros-mesa'");
 
-    const carteleriaContent = fs.readFileSync(carteleriaPath, 'utf8');
-    const numerosMesaContent = fs.readFileSync(numerosMesaPath, 'utf8');
-
-    expect(carteleriaContent).toContain("from '@/lib/mesas/contar-mesas'");
-    expect(numerosMesaContent).toContain("from '@/lib/mesas/contar-mesas'");
+    const contarMesasContent = fs.readFileSync(path.join(process.cwd(), 'src/lib/mesas/contar-mesas.ts'), 'utf8');
+    expect(contarMesasContent).toContain('export function filterTableElements');
+    expect(contarMesasContent).toContain('export function contarMesasDeSalon');
   });
 
-  test('la pantalla de números de mesa no se queda cargando para siempre ante una falla', () => {
-    const numerosMesaPath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/numeros-mesa/page.tsx');
-    const content = fs.readFileSync(numerosMesaPath, 'utf8');
+  test('las pantallas activas de fiesta usan EmptyStateModulo y manejan error sin spinner infinito', () => {
+    const barraPath = path.join(process.cwd(), 'src/components/panels/fiesta--barra-tecnologica.tsx');
+    const content = fs.readFileSync(barraPath, 'utf8');
 
-    // No debe bloquear con spinner infinito en (isLoading || !fiesta)
     expect(content).not.toMatch(/if\s*\(\s*isLoading\s*\|\|\s*!fiesta\s*\)/);
-    // Debe manejar EmptyStateModulo y mostrar error
+    expect(content).toContain('if (error)');
     expect(content).toContain('EmptyStateModulo');
-    expect(content).toContain('error || !fiesta');
   });
 });

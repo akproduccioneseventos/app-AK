@@ -59,7 +59,7 @@ describe('el cierre de barra', () => {
     const guardar = acciones.slice(acciones.indexOf('export async function guardarCierreDeBarra'));
     expect(guardar.slice(0, guardar.indexOf('\n}\n'))).toMatch(/await requireEventPermission\(fiestaId, PERMISO_DE_LA_BARRA\);/);
     expect(acciones).toMatch(/cantidadDisponible: Math\.max\(0, available \+ ajustes\[index\]\.ajuste\)/);
-    const panel = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx'), 'utf8');
+    const panel = fs.readFileSync(path.join(process.cwd(), 'src/components/panels/fiesta--barra-tecnologica.tsx'), 'utf8');
     expect(panel).toMatch(/<CierreDeBarra fiestaId=\{fiestaId\} \/>/);
   });
 });

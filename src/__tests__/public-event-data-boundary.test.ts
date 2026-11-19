@@ -7,16 +7,16 @@ function read(relativePath: string) {
 
 describe('public event data boundary', () => {
   it('does not select or serialize an administrative event from generic public links', () => {
-    const genericEventPage = read('src/app/evento/page.tsx');
-    const legacyEventPage = read('src/app/evento/actual/page.tsx');
+    const nextConfig = read('next.config.js');
 
-    expect(genericEventPage).not.toContain('getFiestas');
-    expect(legacyEventPage).not.toContain('getFiestaById');
-    expect(legacyEventPage).toContain('/invitacion/');
+    expect(nextConfig).toContain("source: '/evento'");
+    expect(nextConfig).toContain("destination: '/eventos'");
+    expect(nextConfig).toContain("source: '/evento/actual'");
+    expect(nextConfig).toContain("destination: '/invitacion/:fiestaId'");
   });
 
   it.each([
-    'src/app/proveedor/[id]/page.tsx',
+    'src/app/proveedor/acceso/[token]/page.tsx',
     'src/app/evento/mi-mesa/[fiestaId]/page.tsx',
     'src/app/evento/logistica/[fiestaId]/page.tsx',
     'src/app/evento/en-vivo/[fiestaId]/invitados/page.tsx',

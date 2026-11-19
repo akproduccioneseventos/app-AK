@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/pdf--musica'));
 
 import { useState, type FormEvent, useEffect, useCallback, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -451,7 +455,7 @@ function MusicaContent() {
   );
 }
 
-export default function MusicaFiestaPage() {
+function MusicaFiestaPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>}>
             <MusicaContent />
@@ -459,3 +463,16 @@ export default function MusicaFiestaPage() {
     );
 }
 
+
+
+export default function MusicaFiestaPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"musica","label":"Música"},{"id":"pdf","label":"Imprimir / PDF"}]}
+        renderDefault={() => <MusicaFiestaPageInner />}
+        renderTab={(tab) => { if (tab === 'pdf') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

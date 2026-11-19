@@ -12,7 +12,7 @@ function existePagina(ruta: string): boolean {
   return fs.existsSync(p1) || fs.existsSync(p2);
 }
 
-describe('El mapa de la app es uno solo (Orden 284)', () => {
+describe('El mapa de la app es uno solo (Orden 321)', () => {
   it('toda ruta de CASAS existe como page.tsx', () => {
     for (const casa of CASAS) {
       expect(existePagina(casa.inicio)).toBe(true);
@@ -41,22 +41,22 @@ describe('El mapa de la app es uno solo (Orden 284)', () => {
     }
   });
 
-  it('toda ruta de NO_SE_ENLAZAN existe y no está enlazada en main-nav.tsx, empresa/page.tsx ni settings/page.tsx', () => {
+  it('toda ruta de NO_SE_ENLAZAN existe (page.tsx o redirect) y no está enlazada en main-nav.tsx ni settings/page.tsx', () => {
     const mainNav = fs.readFileSync(path.join(RAIZ, 'src/components/main-nav.tsx'), 'utf-8');
-    const empresaPage = fs.readFileSync(path.join(RAIZ, 'src/app/(app)/empresa/page.tsx'), 'utf-8');
     const settingsPage = fs.readFileSync(path.join(RAIZ, 'src/app/(app)/settings/page.tsx'), 'utf-8');
+    const nextConfig = fs.readFileSync(path.join(RAIZ, 'next.config.js'), 'utf-8');
 
     const archivosAControlar = [
       { nombre: 'main-nav.tsx', contenido: mainNav },
-      { nombre: 'empresa/page.tsx', contenido: empresaPage },
       { nombre: 'settings/page.tsx', contenido: settingsPage },
     ];
 
     for (const item of NO_SE_ENLAZAN) {
-      // 1. Debe existir como página real en el disco
-      expect(existePagina(item.ruta)).toBe(true);
+      // 1. Debe seguir existiendo como página real en el disco o como redirect en next.config.js
+      const existe = existePagina(item.ruta) || nextConfig.includes(`'${item.ruta}'`);
+      expect(existe).toBe(true);
 
-      // 2. Ninguno de los 3 archivos debe enlazarla
+      // 2. Ninguno de los archivos del menú/ajustes debe enlazarla
       for (const archivo of archivosAControlar) {
         const regexEnlace = new RegExp(`href\\s*[:=]\\s*['"\`]${item.ruta}['"\`]`, 'i');
         const estaEnlazada = regexEnlace.test(archivo.contenido);
@@ -69,7 +69,6 @@ describe('El mapa de la app es uno solo (Orden 284)', () => {
   });
 
   it('el permiso de cada pestaña que hoy está en el menú coincide con la referencia histórica', () => {
-    // Mapa de permisos históricos de rutas extraído de main-nav.tsx
     const PERMISOS_REFERENCIA: Record<string, any> = {
       '/contabilidad/crm': PERMISOS.CRM,
       '/presupuestos/nuevo': PERMISOS.CRM,
@@ -78,12 +77,12 @@ describe('El mapa de la app es uno solo (Orden 284)', () => {
       '/empresa/contabilidad': PERMISOS.CONTABILIDAD,
       '/invoices': PERMISOS.CONTABILIDAD,
       '/aprobaciones': PERMISOS.CONTABILIDAD,
-      '/empresa/dashboard': PERMISOS.GANANCIAS,
+      '/empresa/contabilidad/reportes': PERMISOS.GANANCIAS,
       '/empresa/menus': PERMISOS.INSUMOS,
-      '/compras': PERMISOS.INSUMOS,
+      '/empresa/insumos': PERMISOS.INSUMOS,
       '/proveedores': PERMISOS.INSUMOS,
       '/empleados': PERMISOS.ADMINISTRACION,
-      '/marketing': PERMISOS.CRM,
+      '/empresa/presencia-digital': PERMISOS.CRM,
       '/contabilidad/crm/outbox': PERMISOS.CRM,
       '/settings': PERMISOS.ADMINISTRACION,
       '/admin/usuarios': PERMISOS.ADMINISTRACION,

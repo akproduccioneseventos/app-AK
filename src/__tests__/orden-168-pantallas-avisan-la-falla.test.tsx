@@ -21,6 +21,7 @@ jest.mock('next/link', () => ({
 
 let mockSearchParams = new URLSearchParams();
 jest.mock('next/navigation', () => ({
+  usePathname: () => '/mi-dia',
   useSearchParams: () => mockSearchParams,
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), refresh: jest.fn() }),
   redirect: jest.fn(),
@@ -76,7 +77,7 @@ jest.mock('@/lib/automatico/parte-manana', () => ({
 // Componentes a probar
 import VideoVidaHubPage from '@/app/video-vida/page';
 import MiDiaPage from '@/app/(app)/mi-dia/page';
-import CargaOperativaPdfPage from '@/app/(app)/fiestas/nueva/carga-operativa/pdf/page';
+import CargaOperativaPdfPage from '@/components/panels/pdf--carga-operativa';
 import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
 
 beforeEach(() => {

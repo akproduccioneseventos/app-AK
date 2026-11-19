@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { hoyEnUruguay } from '@/lib/utils';
 import {
   executeAgendarCita,
+  executeBuscarProspecto,
   executeCrearPresupuesto,
   executeCrearCliente,
   executeCrearProspecto,
@@ -178,6 +179,19 @@ export const crearClienteTool: AKTool<z.infer<typeof crearClienteSchema>> = {
   descripcion: 'Registra un nuevo cliente en el sistema.',
   schema: crearClienteSchema,
   execute: executeCrearCliente,
+  successMsg: (r) => r.message,
+  errorMsg: (r) => r.message,
+};
+
+const buscarProspectoSchema = z.object({
+  consulta: z.string().min(1).describe('Nombre o teléfono del prospecto a buscar en todo el CRM'),
+});
+
+export const buscarProspectoTool: AKTool<z.infer<typeof buscarProspectoSchema>> = {
+  nombre: 'buscarProspecto',
+  descripcion: 'Busca prospectos en todo el CRM por nombre o teléfono (solo lectura, hasta 10 resultados).',
+  schema: buscarProspectoSchema,
+  execute: executeBuscarProspecto,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -375,6 +389,7 @@ export const navegarASeccionTool: AKTool<z.infer<typeof navegarSchema>> = {
 export const TOOL_REGISTRY: ReadonlyArray<AKTool<any>> = [
   crearPresupuestoTool,
   crearClienteTool,
+  buscarProspectoTool,
   crearProspectoTool,
   agendarCitaTool,
   registrarPagoTool,

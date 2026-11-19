@@ -241,10 +241,12 @@ for (const archivo of deCodigo) {
   // A) lo escrito que nadie llama
   if (!loLlamaElSistema(archivo)) {
     const exportados = nombresQueExporta(texto);
+    const rutaRelativa = archivo.replace(/^src/, '').replace(/\.(tsx?|jsx?)$/, '');
+    const importadoPorRuta = quienLoNombra(rutaRelativa, archivo, null).length > 0;
     const huerfanos = exportados.filter(
       (n) => quienLoNombra(n, archivo, null).length === 0
     );
-    if (exportados.length > 0 && huerfanos.length === exportados.length) {
+    if (exportados.length > 0 && huerfanos.length === exportados.length && !importadoPorRuta) {
       avisar(
         'frena',
         archivo,

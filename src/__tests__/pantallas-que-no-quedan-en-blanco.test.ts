@@ -14,14 +14,13 @@ describe('pantallas que no pueden quedar en blanco', () => {
   it('el muro en vivo muestra algo cuando la rotacion llega a dedicatorias', () => {
     const fuente = leer('src/app/evento/muro-en-vivo/[fiestaId]/page.tsx');
 
-    // El bloque de dedicatorias esta desactivado a proposito (los saludos van
-    // en otro modulo). Si se lo excluye ademas del estado vacio, la pantalla
-    // del salon queda negra hasta que la rotacion pase de largo.
-    const listaDeExcluidos = fuente.match(
-      /!\[[^\]]*\]\.includes\(activeScreenItem\?\.type \?\? ''\)/
-    );
-    expect(listaDeExcluidos).not.toBeNull();
-    expect(listaDeExcluidos?.[0]).not.toContain("'dedicaciones'");
+    // En Orden 320/321, 'dedicaciones' tiene su propia diapositiva con estado vacío
+    // y el EmptyWallState general quedó restringido exclusivamente al slide de mural,
+    // evitando que quede en blanco o que se superpongan estados vacíos.
+    expect(fuente).toContain("activeScreenItem?.type === 'dedicaciones'");
+    expect(fuente).toContain('Las dedicatorias de los invitados aparecerán aquí');
+    expect(fuente).toMatch(/\(!activeScreenItem \|\| activeScreenItem\.type === 'mural'\)/);
+    expect(fuente).toContain("['mural', 'dedicaciones', 'chat'].includes(activeScreenItem.type)");
   });
 
   it('el muro en vivo avisa cuando esta apagado para esa fiesta', () => {

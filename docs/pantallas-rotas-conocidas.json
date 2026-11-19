@@ -1,16 +1,4 @@
 {
-  "medido": "2026-11-18",
-  "porque": "El recorrido en tres tamaños (orden 313) encontró pantallas viejas con texto partido palabra por palabra o que se salen en celular o tablet. No las rompió la entrega 1429: ya estaban así. Quedan anotadas para que Gemini las arregle (GEMINI.md) y no frenan otras publicaciones; esta lista sólo se achica.",
-  "rotas": [
-    "/empresa/menus",
-    "/empresa/presentacion-led/configuracion",
-    "/empresa/servicios",
-    "/fiestas/nueva/decoracion",
-    "/settings/biblioteca-visual-ak",
-    "/settings/catalogo-servicios",
-    "/settings/contratos/clausulas",
-    "/settings/estilo-fotos",
-    "/settings/feature-flags",
-    "/control-tower"
-  ]
+  "nota": "Lista vacía tras consolidación de Orden 321 y verificación de pantallas restantes.",
+  "rotas": []
 }

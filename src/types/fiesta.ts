@@ -877,6 +877,7 @@ export interface SocialGallerySettings {
   photoFrame?: boolean;
   momentosActivos?: { id: string; nombre: string; emoji: string; timestamp: string }[];
   sorteoParticipantesRedes?: { nombre: string; timestamp: string; platform?: 'instagram' | 'facebook' | 'tiktok' }[];
+  sorteoCandidatos?: string[];
   sorteoGanadores?: string[];
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;

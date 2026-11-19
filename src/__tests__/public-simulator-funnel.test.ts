@@ -10,8 +10,8 @@ describe('public simulator sales funnel', () => {
     path.join(process.cwd(), 'src/app/actions/armado-rapido.ts'),
     'utf8',
   );
-  const assistantSource = fs.readFileSync(
-    path.join(process.cwd(), 'src/app/simulador-ak/page.tsx'),
+  const nextConfigSource = fs.readFileSync(
+    path.join(process.cwd(), 'next.config.js'),
     'utf8',
   );
   const pdfSource = fs.readFileSync(
@@ -19,10 +19,11 @@ describe('public simulator sales funnel', () => {
     'utf8',
   );
 
-  it('uses a five-step public funnel with a separate commercial entry', () => {
+  it('uses a five-step public funnel with a separate commercial entry and redirects /simulador-ak', () => {
     expect(source).toContain("const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición']");
     expect(source).toContain('const [hasStarted, setHasStarted] = useState(false)');
     expect(source).toContain('Paso {step} de 5');
+    expect(nextConfigSource).toContain("source: '/simulador-ak', destination: '/simulador-de-presupuesto'");
   });
 
   it('captures the lead before the final budget is generated', () => {
@@ -35,13 +36,11 @@ describe('public simulator sales funnel', () => {
 
   it('downloads a generated PDF without sending the guest to the admin view', () => {
     expect(source).toContain("import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf'");
+    expect(source).toContain('handleDownloadBudgetPdf');
     expect(source).toContain('await downloadSimulatorBudgetPdf({');
     expect(pdfSource).toContain('const { jsPDF } = await import("jspdf")');
     expect(pdfSource).toContain('pdf.save(`presupuesto-ak-${input.documentId}.pdf`)');
     expect(source).not.toContain('imprimir=1&cliente=1&direct=1');
-    expect(assistantSource).toContain("const { jsPDF } = await import('jspdf')");
-    expect(assistantSource).toContain('handleDownloadBudgetPdf');
-    expect(assistantSource).not.toContain('imprimir=1&cliente=1&direct=1');
   });
 
   it('persists service deletion to the backend and checks removable rules', () => {
@@ -55,10 +54,11 @@ describe('public simulator sales funnel', () => {
     expect(source).toContain('budgetSettings?.serviciosAdicionalesVisibles !== null');
   });
 
-  it('invalidates and resaves the assistant budget when its priced selection changes', () => {
-    expect(assistantSource).toContain('const changesBudget = [');
-    expect(assistantSource).toContain('setGeneratedAt(null)');
-    expect(assistantSource).toContain("[...selectedServices, ...selectedEntradas].sort().join(',')");
+  it('invalidates or resyncs the simulator budget when its priced selection changes', () => {
+    expect(source).toContain('setGeneratedPresupuestoId(null)');
+    expect(source).toContain('selectedPaqueteId,');
+    expect(source).toContain('excludedPackageServiceIds,');
+    expect(source).toContain('formData.serviciosSeleccionados,');
   });
   it('keeps Club Uruguay outside the AK services total', () => {
     const persistenceSource = fs.readFileSync(
@@ -68,9 +68,9 @@ describe('public simulator sales funnel', () => {
 
     expect(persistenceSource).not.toContain('syntheticServices');
     expect(persistenceSource).not.toContain("id: 'serv_salon_club_uruguay'");
-    expect(assistantSource).not.toContain("id: 'serv_salon_club_uruguay'");
-    expect(assistantSource).toContain('clubUruguayCosto={clubUruguayDetails?.precioActual ?? 0}');
-    expect(assistantSource).toContain('*Total servicios AK:*');
+    expect(pdfSource).toContain("item.id === 'serv_salon_club_uruguay'");
+    expect(source).toContain('NO se suma en el total de este presupuesto de AK Producciones');
+    expect(source).toContain('clubUruguayDetails.costo + stats.totalFinal');
   });
 
 });

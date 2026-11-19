@@ -345,7 +345,7 @@ export default function ClientDecoracionPage() {
                 Tablero de Inspiración
               </h2>
               <Button asChild variant="outline" size="sm" className="border-white/30 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white focus-visible:ring-purple-400 text-xs">
-                <Link href={`/portal/${fiestaId}/moodboard`}>Ver tablero completo</Link>
+                <Link href={`/portal?fiestaId=${fiestaId}`}>Ver tablero completo</Link>
               </Button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">

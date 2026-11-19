@@ -15,7 +15,7 @@ import { comoEstaElRespaldo, type EstadoRespaldo } from '@/lib/respaldos/como-es
 import type { AutoBackupStatus } from '@/app/actions/backup';
 
 describe('Orden 59 - Bloque A: El cartel de respaldos no miente', () => {
-  const pageFilePath = path.join(process.cwd(), 'src/app/(app)/settings/backup/page.tsx');
+  const pageFilePath = path.join(process.cwd(), 'src/components/settings/panels/backup.tsx');
   const pageSource = fs.readFileSync(pageFilePath, 'utf8');
 
   describe('Inspección de la pantalla real', () => {

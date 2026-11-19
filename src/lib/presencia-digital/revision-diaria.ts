@@ -39,22 +39,23 @@ export async function buildDigitalPresenceDailyReview(params: {
     };
   }
 
-  // 2. Calcular días sin publicar por plataforma
+  // 2. Calcular días sin publicar por plataforma (solo si hay publicaciones con fecha real)
   const platformsToCheck: PlatformName[] = ['Instagram', 'Facebook', 'TikTok', 'YouTube'];
   const inactivePlatforms: Array<{ platform: PlatformName; daysWithoutPost: number }> = [];
+  const hasAnyDatedPost = publishedPosts.some((p) => Boolean(p.publishDate));
 
-  for (const platform of platformsToCheck) {
-    const lastPost = publishedPosts
-      .filter((p) => p.platform === platform && p.publishDate)
-      .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())[0];
+  if (hasAnyDatedPost) {
+    for (const platform of platformsToCheck) {
+      const lastPost = publishedPosts
+        .filter((p) => p.platform === platform && p.publishDate)
+        .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())[0];
 
-    if (lastPost && lastPost.publishDate) {
-      const diffDays = Math.floor((now.getTime() - new Date(lastPost.publishDate).getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays >= 3) {
-        inactivePlatforms.push({ platform, daysWithoutPost: diffDays });
+      if (lastPost && lastPost.publishDate) {
+        const diffDays = Math.floor((now.getTime() - new Date(lastPost.publishDate).getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 3) {
+          inactivePlatforms.push({ platform, daysWithoutPost: diffDays });
+        }
       }
-    } else {
-      inactivePlatforms.push({ platform, daysWithoutPost: 15 });
     }
   }
 
@@ -107,8 +108,10 @@ export async function buildDigitalPresenceDailyReview(params: {
   }
 
   // 5. Armar resumen conciso en lenguaje rioplatense
-  let summaryText = 'Todo en orden en las redes principales.';
-  if (inactivePlatforms.length > 0) {
+  let summaryText = !hasAnyDatedPost
+    ? 'Sin datos todavía — aún no hay publicaciones con fecha registrada.'
+    : 'Todo en orden en las redes principales.';
+  if (hasAnyDatedPost && inactivePlatforms.length > 0) {
     const nombres = inactivePlatforms.map((p) => `${p.platform} (${p.daysWithoutPost} días)`).join(', ');
     summaryText = `Hay redes sin movimiento reciente: ${nombres}. Conviene publicar para mantener el alcance.`;
   }

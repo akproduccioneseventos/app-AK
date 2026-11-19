@@ -1,6 +1,7 @@
 'use server';
 
 import path from 'path';
+import { randomInt } from 'crypto';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
@@ -211,6 +212,7 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
   activeGame?: ActiveGameData | null;
   activeSorteoWinner?: string | null;
   sorteoSpinStartedAt?: string | null;
+  sorteoCandidatos?: string[];
 }> {
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -232,6 +234,7 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
       activeGame: settings.activeGame || null,
       activeSorteoWinner: settings.activeSorteoWinner || null,
       sorteoSpinStartedAt: settings.sorteoSpinStartedAt || null,
+      sorteoCandidatos: settings.sorteoCandidatos ?? [],
     };
   } catch (error: any) {
     const msg = error.message || 'Error de acceso';
@@ -495,18 +498,74 @@ export async function startSorteoSpinOnScreen(
   }
 }
 
+/** Lanza un sorteo eligiendo el ganador en el servidor con crypto.randomInt */
+export async function sortearGanadorEnServidor(
+  fiestaId: string,
+  opciones?: { premio?: string; candidatos?: string[] },
+): Promise<{ success: boolean; winner?: string; error?: string }> {
+  await requireAppSession();
+  const MAX_SORTEO_HISTORY = 50;
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+
+    const normalizeCandidatos = (list?: string[]) =>
+      Array.isArray(list)
+        ? list.map((c) => c.trim()).filter(Boolean)
+        : [];
+
+    const fromInput = normalizeCandidatos(opciones?.candidatos);
+    const fromSaved = normalizeCandidatos(settings.sorteoCandidatos);
+    const pool = fromInput.length > 0 ? fromInput : fromSaved;
+
+    if (pool.length === 0) {
+      return {
+        success: false,
+        error: 'Cargá los participantes del sorteo primero.',
+      };
+    }
+
+    const winner = pool[randomInt(0, pool.length)];
+    const previousWinners = settings.sorteoGanadores ?? [];
+    const updatedWinners = [...previousWinners, winner].slice(-MAX_SORTEO_HISTORY);
+
+    const guardado = await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        ...(fromInput.length > 0 ? { sorteoCandidatos: fromInput } : {}),
+        activeSorteoWinner: winner,
+        activeSorteoTimestamp: new Date().toISOString(),
+        sorteoGanadores: updatedWinners,
+        ...(opciones?.premio !== undefined ? { sorteoPremio: opciones.premio } : {}),
+      },
+    });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al lanzar sorteo.' };
+    }
+    return { success: true, winner };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al lanzar sorteo.' };
+  }
+}
+
 /** Transfiere la ruleta del sorteo a la pantalla gigante (modo estático, sin girar) */
 export async function transferSorteoToScreen(
-  fiestaId: string
+  fiestaId: string,
+  candidatos?: string[],
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const cleanedCandidatos = Array.isArray(candidatos)
+      ? candidatos.map((c) => c.trim()).filter(Boolean)
+      : undefined;
     const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
+        ...(cleanedCandidatos !== undefined ? { sorteoCandidatos: cleanedCandidatos } : {}),
         sorteoOnScreen: true,
         activeSorteoWinner: undefined,
         sorteoSpinStartedAt: undefined,

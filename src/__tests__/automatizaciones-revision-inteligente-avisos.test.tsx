@@ -11,7 +11,6 @@ jest.mock('@/app/actions/crm', () => ({ getCrmLeads: jest.fn(async () => []) }))
 jest.mock('@/app/actions/notifications', () => ({ getNotifications: jest.fn(async () => []) }));
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: (...args: any[]) => mockAviso(...args) }));
 jest.mock('@/lib/multiagent/memory-store', () => ({ saveAgentLearning: jest.fn(async () => undefined) }));
-import SmartAutomationsPage from '@/app/control-tower/automatizaciones/page';
 import { runSmartAutomations } from '@/app/actions/smart-automations';
 
 const fiesta = (id: string) => ({
@@ -22,33 +21,20 @@ const fiesta = (id: string) => ({
   tareas: [{ id: 'tarea-qa129', texto: 'Confirmar horario', completada: false, fechaLimite: new Date().toISOString() }],
 });
 
-beforeAll(() => Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }));
-afterAll(() => Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'));
-
 beforeEach(() => {
   jest.clearAllMocks();
   mockFiestas.mockResolvedValue([]);
   mockAviso.mockResolvedValue({ success: true, notification: { id: 'aviso-qa129' }, isDuplicate: false });
 });
 
-async function usarBoton() {
-  const host = document.body.appendChild(document.createElement('div'));
-  const root = createRoot(host);
-  await act(async () => { root.render(<SmartAutomationsPage />); });
-  const boton = Array.from(host.querySelectorAll('button')).find(b => b.textContent?.includes('Ejecutar revisión inteligente'));
-  if (!boton) throw new Error('Boton real no encontrado');
-  await act(async () => { boton.click(); });
-  return { host, cerrar: () => { act(() => root.unmount()); host.remove(); } };
-}
-
+// En Orden 321 se consolidó /control-tower/automatizaciones en /mi-dia (next.config.js);
+// los contratos de revisión inteligente se verifican directo sobre runSmartAutomations().
 test('control: cero fiestas leidas de verdad permite revision completa con cero avisos', async () => {
-  const { host, cerrar } = await usarBoton();
-  try {
-    expect(host.textContent).toContain('Revisión completa. Avisos creados: 0');
-    expect(host.querySelector('[role=alert]')).toBeNull();
-  } finally {
-    cerrar();
-  }
+  const result = await runSmartAutomations();
+  expect(result.created).toBe(0);
+  expect(result.fallidos).toBe(0);
+  expect(result.fuentesQueFallaron).toEqual([]);
+  expect(result.partial).toBeUndefined();
 });
 
 test.each([
@@ -57,48 +43,37 @@ test.each([
 ])('control: aviso %s no es un error ni se cuenta como creado', async (_caso, response) => {
   mockFiestas.mockResolvedValue([fiesta('qa129-unica')]);
   mockAviso.mockResolvedValue(response);
-  const { host, cerrar } = await usarBoton();
-  try {
-    expect(host.textContent).toContain('Revisión completa. Avisos creados: 0');
-    expect(host.textContent).toContain('Detectado');
-    expect(host.querySelector('[role=alert]')).toBeNull();
-  } finally {
-    cerrar();
-  }
+  const result = await runSmartAutomations();
+  expect(result.created).toBe(0);
+  expect(result.fallidos).toBe(0);
+  expect(result.results).toHaveLength(1);
+  expect(result.results[0].created).toBe(false);
+  expect(result.partial).toBeUndefined();
 });
 
-test('control: una tarea pendiente crea y muestra un aviso real en el doble', async () => {
+test('control: una tarea pendiente crea y muestra un aviso real', async () => {
   mockFiestas.mockResolvedValue([fiesta('qa129-unica')]);
-  const { host, cerrar } = await usarBoton();
-  try {
-    expect(host.textContent).toContain('Revisión completa. Avisos creados: 1');
-    expect(mockAviso).toHaveBeenCalledTimes(1);
-  } finally {
-    cerrar();
-  }
+  const result = await runSmartAutomations();
+  expect(result.created).toBe(1);
+  expect(result.fallidos).toBe(0);
+  expect(mockAviso).toHaveBeenCalledTimes(1);
 });
 
-test('si no se pudieron leer las fiestas, el boton no anuncia revision completa vacia', async () => {
+test('si no se pudieron leer las fiestas, informa fuente fallida y marca resultado parcial', async () => {
   mockFiestas.mockRejectedValue(new Error('QA129 lectura de fiestas caida'));
-  const { host, cerrar } = await usarBoton();
-  try {
-    expect(host.textContent).not.toContain('Revisión completa.');
-    expect(host.querySelector('[role=alert]')).not.toBeNull();
-  } finally {
-    cerrar();
-  }
+  const result = await runSmartAutomations();
+  expect(result.fuentesQueFallaron).toContain('fiestas');
+  expect(result.partial).toBe(true);
 });
 
-test('si no se pudo guardar un aviso, el boton lo distingue de silenciado o duplicado', async () => {
+test('si no se pudo guardar un aviso, lo distingue de silenciado o duplicado', async () => {
   mockFiestas.mockResolvedValue([fiesta('qa129-unica')]);
   mockAviso.mockResolvedValue({ success: false, error: 'QA129 no se pudo guardar el aviso' });
-  const { host, cerrar } = await usarBoton();
-  try {
-    expect(host.textContent).not.toContain('Revisión completa.');
-    expect(host.querySelector('[role=alert]')).not.toBeNull();
-  } finally {
-    cerrar();
-  }
+  const result = await runSmartAutomations();
+  expect(result.created).toBe(0);
+  expect(result.fallidos).toBe(1);
+  expect(result.warning).toContain('no se pudieron guardar');
+  expect(result.partial).toBe(true);
 });
 
 test('un lote con un aviso creado y otro fallido conserva el creado pero informa el fallo parcial', async () => {

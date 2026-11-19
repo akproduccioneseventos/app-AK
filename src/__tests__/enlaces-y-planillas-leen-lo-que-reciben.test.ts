@@ -28,13 +28,13 @@ describe('enlaces: el destino lee el dato que le mandan', () => {
     expect(post).toContain('/fiestas/nueva?fiestaId=${fiestaId}');
     expect(post).toContain('reporte?fiestaId=${fiestaId}');
     expect(post).not.toMatch(/\?id=\$\{fiestaId\}/);
-    const control = leer('src/app/(app)/fiestas/[id]/entretenimiento/control/page.tsx');
+    const control = leer('src/components/panels/fiesta--entretenimiento-control.tsx');
     expect(control).toContain('/fiestas/nueva/entretenimiento?fiestaId=${fiestaId}');
     expect(control).not.toMatch(/\?id=\$\{fiestaId\}/);
     // y las pantallas de destino leen exactamente ese nombre
     for (const destino of [
       'src/app/(app)/fiestas/nueva/page.tsx',
-      'src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx',
+      'src/components/panels/costos--reporte.tsx',
       'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx',
     ]) expect(leer(destino)).toContain("searchParams.get('fiestaId')");
   });
@@ -49,7 +49,7 @@ describe('enlaces: el destino lee el dato que le mandan', () => {
     expect(central).toContain("searchParams.get('fiestaId')");
     expect(central).toContain("searchParams.get('leadId')");
     expect(leer('src/app/(app)/contabilidad/crm/page.tsx')).toContain("searchParams.get('leadId')");
-    expect(leer('src/app/(app)/contabilidad/crm/agenda/page.tsx')).toContain("get('date')");
+    expect(leer('src/components/panels/crm--agenda.tsx')).toContain("get('date')");
   });
 });
 

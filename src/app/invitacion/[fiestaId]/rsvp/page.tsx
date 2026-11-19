@@ -1,10 +1,10 @@
 'use client';
 
 import { Suspense, useEffect, useState, useCallback, type FormEvent } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download, MapPin, CalendarDays, Instagram, MessageCircle, ExternalLink } from 'lucide-react';
 import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
-import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
+import { getPublicRsvpGuest, submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { DietaryRestriction, Invitado } from '@/types/fiesta';
 import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
@@ -49,7 +49,10 @@ function mensajeParaElInvitado(error: unknown, porDefecto: string) {
 
 function RsvpFormContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
+  const guestIdParam = searchParams.get('guestId') || '';
+  const guestTokenParam = searchParams.get('token') || '';
   const { toast } = useToast();
 
   const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
@@ -77,15 +80,38 @@ function RsvpFormContent() {
       return;
     }
     try {
-      const data = await getPublicGuestEvent(fiestaId);
+      const [data, prefill] = await Promise.all([
+        getPublicGuestEvent(fiestaId),
+        guestIdParam && guestTokenParam
+          ? getPublicRsvpGuest(fiestaId, guestIdParam, guestTokenParam)
+          : Promise.resolve(null),
+      ]);
       if (!data) throw new Error('Evento no encontrado.');
       setFiesta(data);
+      if (prefill) {
+        setNombre(prefill.nombre);
+        setContacto(prefill.contacto ?? '');
+        setAsistencia(prefill.asistencia);
+        setPartySize(prefill.partySize);
+        setCompanionNames(
+          Array.from({ length: Math.max(0, prefill.partySize - 1) }, (_, idx) => prefill.companionNames[idx] ?? ''),
+        );
+        setDietary(prefill.dietaryRestriction);
+        setAlergiasEspecificas(prefill.alergiasEspecificas ?? '');
+        setMensaje(prefill.mensaje ?? '');
+        setRequiereAccesibilidad(prefill.requiereAccesibilidad);
+        setSongs([
+          prefill.cancionesDJ[0] ?? '',
+          prefill.cancionesDJ[1] ?? '',
+          prefill.cancionesDJ[2] ?? '',
+        ]);
+      }
     } catch (e: any) {
       setError(mensajeParaElInvitado(e, 'No se pudo cargar el evento.'));
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId]);
+  }, [fiestaId, guestIdParam, guestTokenParam]);
 
   useEffect(() => {
     loadFiesta();
@@ -113,6 +139,8 @@ function RsvpFormContent() {
     setIsSubmitting(true);
     try {
       const result = await conTopeDeEspera(submitPublicRsvp(fiestaId, {
+        guestId: guestIdParam || undefined,
+        guestAccessToken: guestTokenParam || undefined,
         nombre: nombre.trim(),
         contacto: contacto.trim() || undefined,
         asistencia,
