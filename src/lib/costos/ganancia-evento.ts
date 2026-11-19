@@ -83,6 +83,12 @@ export interface GananciaDeEvento {
   comisionesMercadoPago: number;
   recargosCobrados: number;
   cobrosSinComisionInformada: number;
+  /**
+   * Lo que se estima de personal (sueldos + aportes): el mayor entre lo sincronizado y lo asignado en Personal.
+   * Antes la pantalla mostraba sólo lo sincronizado, y la sincronización exige presupuesto: un sueldo cargado en una
+   * fiesta sin presupuesto quedaba en $0 (auditoría del 18/11/2026, C18-01).
+   */
+  personalEstimado: number;
 }
 
 function aNumero(valor: unknown): number {
@@ -228,6 +234,7 @@ export function calcularGananciaDeEvento(
   const gananciaReal = ingreso + recargosCobrados - costoReal;
 
   return {
+    personalEstimado: Math.max(Math.max(0, aNumero(others?.totalPersonalCost)), personalCalculado),
     ingreso,
     costoEstimado,
     costoReal,

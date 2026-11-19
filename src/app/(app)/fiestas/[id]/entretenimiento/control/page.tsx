@@ -15,6 +15,7 @@ import {
   type CapturaRegistrada,
   type ResumenNocheEntretenimiento,
 } from '@/lib/entretenimiento/resumen-noche';
+import { calcularPuestaAPuntoEstaciones } from '@/lib/entretenimiento/calculo-estaciones';
 import { Button } from '@/components/ui/button';
 
 export default function ControlEntretenimientoPage() {
@@ -24,6 +25,7 @@ export default function ControlEntretenimientoPage() {
 
   const [nombreEvento, setNombreEvento] = useState('Fiesta');
   const [estaciones, setEstaciones] = useState<EstadoEstacionOperador[]>([]);
+  const [puestaAPunto, setPuestaAPunto] = useState<number | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [resumen, setResumen] = useState<ResumenNocheEntretenimiento | null>(null);
   const [sePudoContar, setSePudoContar] = useState(true);
@@ -36,8 +38,18 @@ export default function ControlEntretenimientoPage() {
         const f = res.fiesta;
         setNombreEvento(f.configuracion?.nombreEvento || 'Fiesta');
 
-        // Construir listado de estaciones
+        // Construir listado de 8 estaciones (mismo catálogo que la configuración)
         const lista: EstadoEstacionOperador[] = [
+          {
+            id: 'fotocabina',
+            nombre: 'Fotocabina Clásica',
+            tipo: 'fotocabina',
+            activa: f.others?.entretenimiento?.modules?.fotocabina?.enabled !== false,
+            estadoOperativo: 'idle',
+            totalCapturas: 0,
+            rutaOperador: `/evento/fotocabina/${fiestaId}?role=operator`,
+            rutaPantalla: `/evento/fotocabina/${fiestaId}?role=display`,
+          },
           {
             id: 'plataforma360',
             nombre: 'Plataforma 360',
@@ -156,6 +168,9 @@ export default function ControlEntretenimientoPage() {
           setResumen(null);
         }
 
+        const calculo = calcularPuestaAPuntoEstaciones(f, res.data);
+        setPuestaAPunto(calculo.overallScore);
+
         setEstaciones(lista);
       }
     } finally {
@@ -235,6 +250,7 @@ export default function ControlEntretenimientoPage() {
           fiestaId={fiestaId}
           nombreEvento={nombreEvento}
           estaciones={estaciones}
+          puestaAPunto={puestaAPunto}
           onRefresh={cargarDatos}
           isLoading={isLoading}
         />

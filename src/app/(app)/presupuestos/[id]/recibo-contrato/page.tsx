@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+import { horaEventoOConfirmar } from '@/lib/fechas/hora-evento';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -22,7 +23,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
+import type { Customer } from '@/types/customer';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getCustomers } from '@/app/actions/customers';
 import { getInvoiceTemplateSettings, getCompanyInfo, getContractSettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-template';
@@ -111,6 +114,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('AK Producciones Eventos');
   const [companyAddress, setCompanyAddress] = useState('Gaboto 3390, Salto, Uruguay');
@@ -123,11 +127,12 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, companyInfo, contractSettingsData] = await Promise.all([
+      const [fetchedPresupuesto, templateSettings, companyInfo, contractSettingsData, allCustomers] = await Promise.all([
         getPresupuestoById(presupuestoId),
         getInvoiceTemplateSettings(),
         getCompanyInfo(),
         getContractSettings(),
+        getCustomers().catch(() => []),
       ]);
 
       if (!fetchedPresupuesto) {
@@ -136,6 +141,16 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       }
 
       setPresupuesto(fetchedPresupuesto);
+      const pAny = fetchedPresupuesto as any;
+      // El cliente se busca por su id, o por el teléfono si es UNO solo. Nunca por el nombre: con dos clientes que se llaman
+      // igual, el contrato salía con la cédula y el domicilio de otra persona (revisión de la 1429, 18/11/2026).
+      const porId = allCustomers.find((c: Customer) => c.id && (pAny.clienteId === c.id || pAny.customerId === c.id));
+      const telefono = (fetchedPresupuesto.clienteContacto || '').replace(/\D/g, '');
+      const porTelefono = telefono.length >= 8
+        ? allCustomers.filter((c: Customer) => c.phone && c.phone.replace(/\D/g, '') === telefono)
+        : [];
+      const matched = porId || (porTelefono.length === 1 ? porTelefono[0] : undefined);
+      setCustomer(matched || null);
       setLogoUrl(templateSettings.logoUrl || null);
       setCompanyName(companyInfo?.companyName || 'AK Producciones Eventos');
       setCompanyAddress(companyInfo?.companyAddress || 'Gaboto 3390, Salto, Uruguay');
@@ -175,11 +190,34 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const montoSenia = pagos.find(isConfirmedClientPayment)?.monto ?? 0;
   const presupuestoWithClientFields = presupuesto as (Presupuesto & { clienteCi?: string; clienteDomicilio?: string }) | null;
   const overriddenNombre = searchParams.get('nombre') || presupuesto?.clienteNombre || '';
-  const overriddenTelefono = searchParams.get('telefono') || presupuesto?.clienteContacto || '';
-  const overriddenCi = searchParams.get('ci') || presupuestoWithClientFields?.clienteCi || '___________________';
-  const overriddenDomicilio = searchParams.get('domicilio') || presupuestoWithClientFields?.clienteDomicilio || '___________________';
+  const finalCi = searchParams.get('ci')
+    || presupuestoWithClientFields?.clienteCi
+    || (presupuesto as any)?.ci
+    || customer?.ci
+    || customer?.taxId
+    || '';
+  const finalDomicilio = searchParams.get('domicilio')
+    || presupuestoWithClientFields?.clienteDomicilio
+    || (presupuesto as any)?.domicilio
+    || customer?.address
+    || (customer as any)?.domicilio
+    || '';
+  const finalTelefono = searchParams.get('telefono')
+    || (presupuesto as any)?.clienteTelefono
+    || customer?.phone
+    || (customer as any)?.telefono
+    || presupuesto?.clienteContacto
+    || '';
+
+  const overriddenCi = finalCi || '___________________';
+  const overriddenDomicilio = finalDomicilio || '___________________';
+  const overriddenTelefono = finalTelefono || '___________________';
   const overriddenSalon = searchParams.get('salon') || presupuesto?.salonFiestas || '___________________';
   const overriddenFecha = searchParams.get('fecha') || presupuesto?.eventoFecha || '';
+  const fechaFirmaContrato = searchParams.get('fechaFirma')
+    || presupuesto?.fechaFirmaContrato
+    || presupuesto?.timestamp
+    || undefined;
   const seniaParam = searchParams.get('senia');
   const hasValidSeniaParam = Boolean(seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0);
   const overriddenMontoSenia = hasValidSeniaParam
@@ -188,7 +226,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const isClubUruguayDoc = searchParams.get('club') === 'uruguay';
   const hasDeposit = overriddenMontoSenia > 0;
   const eventDateSource = overriddenFecha || presupuesto?.eventoFecha;
-  const eventStartTimeRaw = presupuesto?.eventoHoraInicio || extractTimeFromDate(eventDateSource);
+  const eventStartTimeRaw = horaEventoOConfirmar(presupuesto?.eventoHoraInicio);
   const eventStartTime = (eventStartTimeRaw ?? '').trim();
   const canGenerateContract = Boolean(overriddenFecha);
   const effectiveTotalPagado = hasValidSeniaParam ? overriddenMontoSenia : totalPagado;
@@ -208,6 +246,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
     return fillContractTemplate({
       ciudadFecha,
+      fechaFirma: fechaFirmaContrato,
       clienteNombre: overriddenNombre,
       clienteDomicilio: overriddenDomicilio,
       clienteCi: overriddenCi,
@@ -218,7 +257,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       salon: overriddenSalon,
       montoSena: montoSenaStr,
     });
-  }, [presupuesto, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
+  }, [presupuesto, fechaFirmaContrato, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
 
   const { contractIntro, contractClauses } = useMemo(() => {
     if (!presupuesto || !contractSettings) return { contractIntro: '', contractClauses: [] as { title: string; content: string }[] };
@@ -231,6 +270,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
     const result = buildContractFromSettings(contractSettings, {
       ciudadFecha,
+      fechaFirma: fechaFirmaContrato,
       clienteNombre: overriddenNombre,
       clienteDomicilio: overriddenDomicilio,
       clienteCi: overriddenCi,
@@ -246,7 +286,25 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       contractIntro: result.intro,
       contractClauses: result.clauses,
     };
-  }, [presupuesto, contractSettings, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
+  }, [presupuesto, contractSettings, fechaFirmaContrato, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
+
+  const datosFaltantesContrato = useMemo(() => {
+    const faltantes: string[] = [];
+    if (!finalCi.trim()) faltantes.push('Cédula de identidad del cliente');
+    if (!finalDomicilio.trim()) faltantes.push('Domicilio del cliente');
+    if (!finalTelefono.trim()) faltantes.push('Teléfono del cliente');
+
+    const introYClausulas = [contractIntro, ...contractClauses.map(c => c.content)].join(' ');
+    const tieneHito30ConFecha = !introYClausulas.includes('al primer tercio del plazo') && /primer tercio[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(introYClausulas);
+    const tieneHito50ConFecha = !introYClausulas.includes('a la mitad del plazo') && /mitad de ese tiempo[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(introYClausulas);
+    const tieneFechaSaldo = !introYClausulas.includes('30 días antes del evento') && /treinta \(30\) días antes del evento[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(introYClausulas);
+
+    if (!tieneHito30ConFecha) faltantes.push('Fecha del hito de pago 30% (primer tercio sin fecha)');
+    if (!tieneHito50ConFecha) faltantes.push('Fecha del hito de pago 50% (mitad de plazo sin fecha)');
+    if (!tieneFechaSaldo) faltantes.push('Fecha del saldo final (30 días antes)');
+
+    return faltantes;
+  }, [finalCi, finalDomicilio, finalTelefono, contractIntro, contractClauses]);
 
   const handlePrint = () => window.print();
 
@@ -508,6 +566,26 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       ══════════════════════════════════════════════════════════════ */}
       {showContrato && (
       <div className="print:break-before-page">
+        {datosFaltantesContrato.length > 0 && (
+          <div className="max-w-2xl mx-auto my-6 px-4 print:hidden">
+            <div className="rounded-2xl border-2 border-red-500 bg-red-50 p-4 text-red-900 shadow-md flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-black text-sm uppercase tracking-tight text-red-800">
+                  Faltan datos obligatorios antes de imprimir:
+                </p>
+                <ul className="list-disc list-inside text-xs font-bold space-y-0.5 text-red-700">
+                  {datosFaltantesContrato.map((dato, i) => (
+                    <li key={i}>{dato}</li>
+                  ))}
+                </ul>
+                <p className="text-[11px] text-red-600 pt-1">
+                  Completá los datos del cliente o la fecha del evento para que el contrato salga completo.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="max-w-2xl mx-auto py-8 px-4 print:p-0 print:py-0 print:max-w-none">
           <div className="bg-white rounded-3xl print:rounded-none shadow-2xl print:shadow-none overflow-hidden">
 
@@ -546,7 +624,15 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
               {/* Intro paragraph */}
               <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
-                {contractIntro}
+                {contractIntro.split(/(_{3,})/g).map((part, idx) =>
+                  /^_{3,}$/.test(part) ? (
+                    <span key={idx} className="text-red-600 bg-red-100 font-bold px-1 rounded print:text-inherit print:bg-transparent print:p-0 print:font-normal">
+                      [Falta dato: {part}]
+                    </span>
+                  ) : (
+                    part
+                  )
+                )}
               </p>
               <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
                 Fecha y hora del evento: <strong>{formatDate(overriddenFecha)}{eventStartTime ? ` a las ${eventStartTime}` : ''}</strong>.
@@ -560,7 +646,19 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                       {clause.title}
                     </h3>
                     <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 text-justify">
-                      {clause.content}
+                      {clause.content.split(/(al primer tercio del plazo|a la mitad del plazo|_{3,})/g).map((part, pIdx) =>
+                        part === 'al primer tercio del plazo' || part === 'a la mitad del plazo' ? (
+                          <span key={pIdx} className="text-red-600 bg-red-100 font-bold px-1 rounded print:text-inherit print:bg-transparent print:p-0 print:font-normal">
+                            [Sin fecha: {part}]
+                          </span>
+                        ) : /^_{3,}$/.test(part) ? (
+                          <span key={pIdx} className="text-red-600 bg-red-100 font-bold px-1 rounded print:text-inherit print:bg-transparent print:p-0 print:font-normal">
+                            [Falta dato: {part}]
+                          </span>
+                        ) : (
+                          part
+                        )
+                      )}
                     </p>
                   </div>
                 ))}

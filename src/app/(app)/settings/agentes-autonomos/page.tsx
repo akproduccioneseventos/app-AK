@@ -101,7 +101,7 @@ export default function AgentesAutonomosPage() {
       if (res.success) {
         toast({
           title: 'Ronda de agentes completada',
-          description: `Los 5 agentes completaron su ciclo de revisión.`,
+          description: `Los ${agentes.length} agentes completaron su ciclo de revisión.`,
         });
         await loadData();
       } else {
@@ -162,7 +162,7 @@ export default function AgentesAutonomosPage() {
 
       {/* Lista de Agentes Autónomos */}
       <div className="space-y-4">
-        <h2 className="text-lg font-black text-slate-900 tracking-tight">Los 5 Agentes del Sistema</h2>
+        <h2 className="text-lg font-black text-slate-900 tracking-tight">Los {agentes.length} Agentes del Sistema</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {agentes.map((agente) => (
             <Card key={agente.id} className="border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">

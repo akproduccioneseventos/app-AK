@@ -66,7 +66,7 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
   });
 
   test('Paso 6 con Club Uruguay muestra desglose de 3 renglones, suma correcta, botones nuevos y sin congel', async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(420_000); // con la tanda entera corriendo pasó los 180 s dos veces (18/11/2026); sola, un minuto
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
     // Entrar al simulador
@@ -156,8 +156,8 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     expect(montoServicios).toBeGreaterThan(0);
     expect(montoTotalRef).toBe(montoClub + montoServicios);
 
-    // Botones "Coordinar mi entrevista gratuita" y "Consultar por WhatsApp"
-    await expect(page.getByRole('button', { name: /Coordinar mi entrevista gratuita/i })).toBeVisible();
+    // Orden 314: el botón principal del cierre es "Coordinar reunión por WhatsApp", y "Consultar por WhatsApp"
+    await expect(page.getByRole('button', { name: /Coordinar reunión por WhatsApp/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Consultar por WhatsApp/i }).first()).toBeVisible();
 
     // Prohibido "congel"

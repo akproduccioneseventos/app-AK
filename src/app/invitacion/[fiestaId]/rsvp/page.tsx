@@ -520,15 +520,16 @@ function RsvpFormContent() {
                         className={cn(
                           'flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition-all',
                           dietary === opt.value
-                            ? 'border-primary bg-primary/5'
+                            ? 'border-primary bg-primary/15 shadow-sm'
                             : 'border-slate-200 hover:border-slate-300'
                         )}
                       >
                         <RadioGroupItem id={`diet-${opt.value}`} value={opt.value} className="sr-only" />
                         <span className="text-xl">{opt.emoji}</span>
-                        <span className={cn('text-sm font-medium', dietary === opt.value ? 'text-primary' : 'text-slate-600')}>
+                        <span className={cn('text-sm font-medium', dietary === opt.value ? 'text-primary font-bold' : 'text-slate-600')}>
                           {opt.label}
                         </span>
+                        {dietary === opt.value && <span className="ml-auto text-sm font-black text-primary" aria-hidden="true">✓</span>}
                       </label>
                     ))}
                   </RadioGroup>

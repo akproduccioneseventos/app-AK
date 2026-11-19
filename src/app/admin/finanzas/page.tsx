@@ -36,7 +36,7 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoClien
   // La cuenta oficial de ganancia: lo pagado donde hay pagos, lo estimado donde no, con los bloques
   // automaticos (catering, bebidas, reposteria, sueldos) y sin la merma duplicada. Antes aca se usaba
   // "los pagos o los renglones manuales", y el mismo mes no coincidia con Analiticas.
-  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente).costoReal;
+  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal;
 }
 
 function calcularIngresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {
@@ -141,6 +141,10 @@ export default function FinanzasPage() {
               <p className="text-xs text-amber-700 font-medium">Por cobrar</p>
             </div>
             <p className="text-xl font-bold text-amber-700">{formatCurrency(porCobrar)}</p>
+            <p className="text-[11px] text-amber-700/80 mt-0.5">sólo de las fiestas cargadas</p>
+            <Link href="/contabilidad" className="text-[11px] font-semibold text-amber-800 underline mt-1 inline-block">
+              Ver todo lo que se debe
+            </Link>
           </CardContent>
         </Card>
         <Card className={gananciaCobrado >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}>

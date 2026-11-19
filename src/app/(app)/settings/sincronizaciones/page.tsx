@@ -172,7 +172,7 @@ export default function SincronizacionesPage() {
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">¿Qué está conectado?</h1>
             </div>
             <p className="text-sm text-slate-500 mt-0.5">
-              Estado real y transparente de las 13 integraciones y plataformas externas.
+              Estado real y transparente de las {lista.length} integraciones y plataformas externas.
             </p>
           </div>
         </div>

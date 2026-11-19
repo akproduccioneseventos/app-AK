@@ -9,6 +9,8 @@ import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign, Copy, Tra
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus, saveMenu, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { getCateringDishImage } from '@/lib/catering/menu-images';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
@@ -74,10 +76,22 @@ export default function CatalogoPlatosPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.INSUMOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const menusData = await getMenus();
       setAllMenus(Array.isArray(menusData) ? menusData : []);
     } catch (error) {
@@ -384,29 +398,33 @@ export default function CatalogoPlatosPage() {
                                                     <Copy className="w-4 h-4 mr-2" />
                                                     Duplicar Menú
                                                 </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <AlertDialog>
-                                                  <AlertDialogTrigger asChild>
-                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                                                        <Trash2 className="w-4 h-4 mr-2" />
-                                                        Eliminar Plato
-                                                    </DropdownMenuItem>
-                                                  </AlertDialogTrigger>
-                                                  <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                      <AlertDialogTitle>¿Eliminar este plato?</AlertDialogTitle>
-                                                      <AlertDialogDescription>
-                                                        Se eliminará "{plato.name}" del menú "{plato.menuName}". Esta acción no se puede deshacer.
-                                                      </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => handleDeleteDish(plato.menuId, plato.id, plato.name)} className="bg-destructive hover:bg-destructive/90">
-                                                        Eliminar Plato
-                                                      </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                  </AlertDialogContent>
-                                                </AlertDialog>
+                                                {puedeBorrar && (
+                                                  <>
+                                                    <DropdownMenuSeparator />
+                                                    <AlertDialog>
+                                                      <AlertDialogTrigger asChild>
+                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                                            <Trash2 className="w-4 h-4 mr-2" />
+                                                            Eliminar Plato
+                                                        </DropdownMenuItem>
+                                                      </AlertDialogTrigger>
+                                                      <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                          <AlertDialogTitle>¿Eliminar este plato?</AlertDialogTitle>
+                                                          <AlertDialogDescription>
+                                                            Se eliminará "{plato.name}" del menú "{plato.menuName}". Esta acción no se puede deshacer.
+                                                          </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                          <AlertDialogAction onClick={() => handleDeleteDish(plato.menuId, plato.id, plato.name)} className="bg-destructive hover:bg-destructive/90">
+                                                            Eliminar Plato
+                                                          </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                      </AlertDialogContent>
+                                                    </AlertDialog>
+                                                  </>
+                                                )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                       </div>

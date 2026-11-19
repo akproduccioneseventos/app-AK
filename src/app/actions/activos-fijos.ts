@@ -221,7 +221,9 @@ export async function registrarMantenimientoDeEquipo(
     try {
       const resGasto = await saveGastoGeneral({
         concepto: `Mantenimiento: ${activoConMantenimiento.nombre || 'Equipo'} - ${datos.nota.trim()}`,
-        fecha: datos.fecha,
+        // Mediodía de Uruguay, no medianoche de Greenwich: con `2026-11-18` a secas el gasto se mostraba y se filtraba
+        // como del 17 (auditoría del 18/11/2026, mantenimiento de la familia N22).
+        fecha: `${datos.fecha}T12:00:00-03:00`,
         categoria: 'Reparaciones y Mantenimiento',
         monto: costoNum,
         notas: `Registrado automáticamente desde Activos Fijos (${equipoId})`,

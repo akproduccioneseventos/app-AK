@@ -11,7 +11,7 @@ import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { useSearchParams } from 'next/navigation';
-import { defaultPrograma } from '@/lib/fiesta-defaults';
+import { defaultPrograma, getDefaultPrograma } from '@/lib/fiesta-defaults';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
@@ -146,7 +146,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
   // igual que hace la Vista Cliente de la pantalla de itinerario.
   const displayPrograma = (fiesta.programa && fiesta.programa.length > 0)
     ? fiesta.programa.filter(item => item.visibleParaCliente !== false)
-    : defaultPrograma;
+    : getDefaultPrograma(fiesta.configuracion?.horaFin);
 
   return (
     <div className="bg-gradient-to-b from-slate-100 to-slate-200 print:bg-white py-6 print:py-0 font-sans">

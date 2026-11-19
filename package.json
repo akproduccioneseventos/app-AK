@@ -52,6 +52,8 @@
     "limpiar:corrida": "node scripts/limpiar-corrida.mjs",
     "ordenes?": "node scripts/ordenes-cumplidas.mjs",
     "recorrido:todo": "node scripts/recorrido-de-pantallas.mjs --todo",
+    "cierre?": "node scripts/lista-de-cierre.mjs",
+    "cierre:todo": "node scripts/recorrido-de-pantallas.mjs --todo && node scripts/lista-de-cierre.mjs --actualizar",
     "falta?": "node scripts/que-falta.mjs",
     "codex?": "node scripts/codex-limpio.mjs",
     "otravez": "node scripts/run-playwright-production.mjs --last-failed",

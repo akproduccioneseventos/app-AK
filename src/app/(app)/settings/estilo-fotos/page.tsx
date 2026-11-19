@@ -232,7 +232,7 @@ export default function EstiloFotosAKPage() {
       {/* Estado y última actualización */}
       <Card className="border-zinc-800 bg-zinc-900/60 backdrop-blur">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-base font-semibold text-zinc-200">
               Estado del Estilo en Estaciones
             </CardTitle>
@@ -261,7 +261,7 @@ export default function EstiloFotosAKPage() {
 
       {/* 3 Fotos de ejemplo Antes / Después */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-lg font-bold text-white">Fotos de ejemplo Antes / Después</h2>
             <p className="text-xs text-zinc-400">
@@ -282,7 +282,7 @@ export default function EstiloFotosAKPage() {
                     esDespues ? ej.gradienteDespues : ej.gradienteAntes
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Badge variant="secondary" className="bg-black/60 text-white backdrop-blur">
                       {ej.badge}
                     </Badge>
@@ -342,7 +342,7 @@ export default function EstiloFotosAKPage() {
       {/* Formulario para cargar o actualizar estilo-ak.json */}
       <Card className="border-zinc-800 bg-zinc-900/60">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-500" />
               <CardTitle className="text-lg font-bold text-white">
@@ -378,7 +378,7 @@ export default function EstiloFotosAKPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <Label htmlFor="editor-json" className="text-xs font-semibold text-zinc-300">
                 Parámetros JSON de calibración
               </Label>

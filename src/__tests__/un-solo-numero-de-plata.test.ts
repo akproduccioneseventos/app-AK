@@ -382,3 +382,12 @@ describe('Orden 251 — Un solo número de plata en toda la app', () => {
     });
   });
 });
+
+describe('un período al revés no da un reporte en cero (auditoría del 18/11/2026, C18-03)', () => {
+  it('inicio posterior al fin: no se calcula y dice por qué', async () => {
+    const r = await getProfitAndLossData({ from: new Date('2026-11-19T00:00:00'), to: new Date('2026-11-18T23:59:59') });
+    expect(r.success).toBe(false);
+    expect(r.data).toBeUndefined();
+    expect(r.error).toMatch(/posterior/);
+  });
+});

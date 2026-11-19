@@ -27,6 +27,7 @@ import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfoPublica } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import { enlacePublicoDelPresupuesto } from '@/lib/presupuestos/enlace-publico';
+import { horaEventoOConfirmar } from '@/lib/fechas/hora-evento';
 import Image from 'next/image';
 import html2canvas from 'html2canvas';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
@@ -327,7 +328,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         pdf.setTextColor(100);
         pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
       }
-      pdf.save(`presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`);
+      const filename = `presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`;
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } else {
+        pdf.save(filename);
+      }
       toast({
         title: 'Descarga exitosa',
         description: 'El archivo PDF de tu presupuesto se ha descargado correctamente.',
@@ -357,7 +373,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const eventStartTime = useMemo(() => {
     if (!presupuesto) return '';
-    return (presupuesto.eventoHoraInicio || extractTimeFromDate(presupuesto.eventoFecha)).trim();
+    return horaEventoOConfirmar(presupuesto.eventoHoraInicio);
   }, [presupuesto]);
   const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
   const currentYear = new Date().getFullYear();
@@ -687,7 +703,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       <p className="text-4xl">🔗</p>
       <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>
       <p className="text-muted-foreground max-w-sm">
-        Puede estar incompleto o ya no estar vigente. Escribinos y te mandamos uno nuevo.
+        Puede estar incompleto o, si fue desactivado, ya no está vigente. Pedile uno nuevo a AK Producciones.
       </p>
     </div>
   );

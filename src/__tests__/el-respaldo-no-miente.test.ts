@@ -51,7 +51,11 @@ jest.mock('@/lib/firebase/server', () => {
   const docRef = (nombre: string) => ({
     id: nombre,
     get: async () => ({ exists: false, data: () => undefined }),
-    set: async (datos: any) => { (global as any).__MANIFIESTOS__.push(datos); },
+    set: async (datos: any) => {
+      if (nombre.startsWith('backup-')) {
+        (global as any).__MANIFIESTOS__.push(datos);
+      }
+    },
     collection: () => ({ ...chunks, doc: (id: string) => ({ id }) }),
   });
   const dbAdmin = {

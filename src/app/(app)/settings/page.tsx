@@ -111,7 +111,7 @@ const SECTIONS: SettingSection[] = [
       {
         title: 'Política de Señas y Reservas',
         description: 'Porcentajes de seña para confirmar la fiesta, cuotas y facilidades de pago.',
-        href: '/settings/promos',
+        href: '/settings/budget-display',
         icon: Tag,
       },
       {

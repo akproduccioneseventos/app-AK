@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { conSinonimos } from '@/lib/contratos/marcadores';
+import { calcularHitosDeContrato, completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
 import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -27,7 +28,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { generarPlanPagos } from '@/lib/planPagos';
+import { generarPlanPagos, PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO } from '@/lib/planPagos';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
@@ -69,7 +70,7 @@ function ContratoServicioContent() {
   const [error, setError] = useState<string | null>(null);
 
   // Plan de pagos state
-  const [pagoMinimoTrimestral, setPagoMinimoTrimestral] = useState(5000);
+  const [pagoMinimoTrimestral, setPagoMinimoTrimestral] = useState(PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO);
   const [porcentajeMinimo, setPorcentajeMinimo] = useState(30);
   const [planGenerado, setPlanGenerado] = useState<PlanPagos | null>(null);
   const [isSavingPlan, setIsSavingPlan] = useState(false);
@@ -148,8 +149,19 @@ function ContratoServicioContent() {
           setPresupuesto(presupuestoData);
 
           if (fiestaData.contratoServicioTexto && persistedType === 'servicios') {
-              setContractText(fiestaData.contratoServicioTexto);
-              setTextoGuardado(fiestaData.contratoServicioTexto);
+              // Un texto guardado con huecos de fechas (`{{HITO_30}}`, `{{FECHA_SALDO_TOTAL}}`…) se completa al abrirlo
+              // y queda como cambio sin guardar, para que el equipo lo guarde. Si el cliente ya firmó en el portal, el
+              // texto no se toca: es lo que firmó (auditoría del 18/11/2026, A18-02).
+              const guardado = fiestaData.contratoServicioTexto;
+              const completo = fiestaData.firmaDigitalConstancia
+                ? guardado
+                : completarMarcadoresPendientes(guardado, conSinonimos(reemplazosDeFechasDelContrato(
+                    fiestaData.configuracion.fechaEvento,
+                    fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp,
+                    today,
+                  )));
+              setContractText(completo);
+              setTextoGuardado(guardado);
           } else {
               const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
               let text = selectedTemplate?.template || '';
@@ -169,20 +181,30 @@ function ContratoServicioContent() {
                 }
               }
 
+              const hitos = calcularHitosDeContrato(
+                fiestaData.configuracion.fechaEvento,
+                fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp
+              );
+
               const replacements: Record<string, string> = {
                   '{{FECHA_HOY}}': today,
+                  '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
+                  '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
                   '{{EMPRESA_NOMBRE}}': companyData.companyName,
                   '{{EMPRESA_RUT}}': companyData.companyTaxId,
                   '{{EMPRESA_DIRECCION}}': companyData.companyAddress,
                   '{{EMPRESA_EMAIL}}': companyData.companyContact,
                   '{{CLIENTE_NOMBRE}}': clienteData?.name || clienteData?.companyName || '________________________',
-                  '{{CLIENTE_DIRECCION}}': clienteData?.address || '________________________',
-                  '{{CLIENTE_CI}}': clienteData?.taxId || '_______________________',
-                  '{{CLIENTE_TELEFONO}}': clienteData?.phone || '_______________________',
+                  '{{CLIENTE_DIRECCION}}': clienteData?.address || (clienteData as any)?.domicilio || (presupuestoData as any)?.clienteDomicilio || '________________________',
+                  '{{CLIENTE_CI}}': clienteData?.ci || clienteData?.taxId || (presupuestoData as any)?.clienteCi || (presupuestoData as any)?.ci || '_______________________',
+                  '{{CLIENTE_TELEFONO}}': clienteData?.phone || (clienteData as any)?.telefono || presupuestoData?.clienteContacto || '_______________________',
                   '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
                   '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
                   '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
                   '{{SENIA}}': seniaValue,
+                  '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
+                  '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
+                  '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
                   '{{MOTIVO_CANCELACION}}': '________________________',
                   '{{NUEVA_FECHA}}': '________________________',
                   '{{PENALIZACION_PORCENTAJE}}': '30%',
@@ -220,20 +242,30 @@ function ContratoServicioContent() {
       } catch {}
     }
     let text = selectedTemplate.template;
+    const hitos = calcularHitosDeContrato(
+      fiesta.configuracion.fechaEvento,
+      fiesta.contratoDatos?.fechaFirmaContrato || presupuesto?.timestamp
+    );
+
     const replacements: Record<string, string> = {
       '{{FECHA_HOY}}': today,
+      '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
+      '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
       '{{EMPRESA_NOMBRE}}': companyInfo.companyName,
       '{{EMPRESA_RUT}}': companyInfo.companyTaxId,
       '{{EMPRESA_DIRECCION}}': companyInfo.companyAddress,
       '{{EMPRESA_EMAIL}}': companyInfo.companyContact,
       '{{CLIENTE_NOMBRE}}': cliente?.name || cliente?.companyName || '________________________',
-      '{{CLIENTE_DIRECCION}}': cliente?.address || '________________________',
-      '{{CLIENTE_CI}}': cliente?.taxId || '_______________________',
-      '{{CLIENTE_TELEFONO}}': cliente?.phone || '_______________________',
+      '{{CLIENTE_DIRECCION}}': cliente?.address || (cliente as any)?.domicilio || (presupuesto as any)?.clienteDomicilio || '________________________',
+      '{{CLIENTE_CI}}': cliente?.ci || cliente?.taxId || (presupuesto as any)?.clienteCi || (presupuesto as any)?.ci || '_______________________',
+      '{{CLIENTE_TELEFONO}}': cliente?.phone || (cliente as any)?.telefono || presupuesto?.clienteContacto || '_______________________',
       '{{EVENTO_FECHA}}': formatDate(fiesta.configuracion.fechaEvento),
       '{{EVENTO_SALON}}': fiesta.configuracion.nombreLugar || '____________',
       '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado),
       '{{SENIA}}': seniaValue,
+      '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
+      '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
+      '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
       '{{MOTIVO_CANCELACION}}': '________________________',
       '{{NUEVA_FECHA}}': '________________________',
       '{{PENALIZACION_PORCENTAJE}}': '30%',
@@ -254,6 +286,28 @@ function ContratoServicioContent() {
     () => Array.from(new Set(contractText.match(/\{\{[^}]+\}\}/g) ?? [])),
     [contractText],
   );
+
+  const datosFaltantesContrato = useMemo(() => {
+    const faltantes: string[] = [];
+    const ciVal = (cliente?.ci || cliente?.taxId || (presupuesto as any)?.clienteCi || (presupuesto as any)?.ci || '').trim();
+    if (!ciVal) faltantes.push('Cédula de identidad del cliente');
+    const domVal = (cliente?.address || (cliente as any)?.domicilio || (presupuesto as any)?.clienteDomicilio || '').trim();
+    if (!domVal) faltantes.push('Domicilio del cliente');
+    const telVal = (cliente?.phone || (cliente as any)?.telefono || presupuesto?.clienteContacto || '').trim();
+    if (!telVal) faltantes.push('Teléfono del cliente');
+
+    if (contractText.includes('al primer tercio del plazo') || !/primer tercio[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del hito de pago 30% (primer tercio sin fecha)');
+    }
+    if (contractText.includes('a la mitad del plazo') || !/mitad de ese tiempo[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del hito de pago 50% (mitad de plazo sin fecha)');
+    }
+    if (contractText.includes('30 días antes del evento') || !/treinta \(30\) días antes del evento[^;.]*(\d{1,2} de [a-z]+ de \d{4})/i.test(contractText)) {
+      faltantes.push('Fecha del saldo final (30 días antes)');
+    }
+
+    return faltantes;
+  }, [cliente, presupuesto, contractText]);
 
   // Cambiar de plantilla reescribe el contrato entero. Antes lo hacia sin
   // preguntar y se llevaba puestas las clausulas escritas a mano.
@@ -467,6 +521,19 @@ function ContratoServicioContent() {
                   </div>
                 </div>
               )}
+              {datosFaltantesContrato.length > 0 && (
+                <div className="mt-3 rounded-lg border-2 border-red-500 bg-red-50 p-3 flex gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-bold text-red-900 uppercase tracking-tight">Faltan datos obligatorios antes de imprimir:</p>
+                    <ul className="list-disc list-inside text-red-800 mt-1 font-semibold space-y-0.5">
+                      {datosFaltantesContrato.map((d, i) => (
+                        <li key={i}>{d}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <Select value={selectedType} onValueChange={handleCambiarTipo}>
@@ -533,7 +600,7 @@ function ContratoServicioContent() {
                     <div className="grid sm:grid-cols-3 gap-2 text-xs">
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Meses hasta el evento</p>
-                        <p className="font-bold text-slate-800">{planGenerado.mesesLimiteAntesFecha} meses antes de la fecha clave</p>
+                        <p className="font-bold text-slate-800">la fecha clave cae {planGenerado.mesesLimiteAntesFecha} meses antes del evento</p>
                       </div>
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Fecha límite {porcentajeMinimo}%</p>

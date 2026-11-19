@@ -188,7 +188,7 @@ export function MenuAdultoSlide({
             <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg">
               Elegí el Menú Principal
             </h1>
-            <p className="text-white/60 text-sm mt-1">Seleccioná el plato principal del evento</p>
+            <p className="text-white/60 text-sm mt-1">Seleccioná el plato principal del evento ({menus.length} opciones principales)</p>
           </div>
         </motion.div>
 

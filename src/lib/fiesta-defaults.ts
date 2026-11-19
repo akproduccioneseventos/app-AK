@@ -72,6 +72,11 @@ export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_13', hora: '05:00', titulo: 'Final de la Fiesta', descripcion: 'Cierre del evento.', icono: 'Clock' },
 ];
 
+export function getDefaultPrograma(horaFin?: string): ProgramaEventoItem[] {
+  const fin = horaFin && /^\d{2}:\d{2}$/.test(horaFin.trim()) ? horaFin.trim() : '05:00';
+  return defaultPrograma.map(item => item.id === 'prog_13' ? { ...item, hora: fin } : item);
+}
+
 export const defaultBebidaItems: BebidaCalculable[] = [
   { id: 'cerveza', nombre: 'Cerveza Corona', emoji: '🍺', cantidadPorPersona: 5, unidad: 'unidades', clienteLleva: false, visible: true, color: 'amber' },
   { id: 'refresco', nombre: 'Agua / Gaseosa', emoji: '🥤', cantidadPorPersona: 1.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'sky' },
@@ -497,7 +502,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
   configuracion: {
     nombreEvento: 'Nuevo Evento',
-    tipoCelebracion: 'Boda',
+    tipoCelebracion: '',
     fechaEvento: '',
     horaInicio: '21:00',
     horaFin: '04:00',

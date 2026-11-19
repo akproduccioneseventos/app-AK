@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronRight, MonitorPlay, ShieldCheck, Sparkles } from 'lucide-react';
+import { ChevronRight, MonitorPlay, Sparkles } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import type { CompanyInfo } from '@/types/settings';
@@ -129,10 +129,6 @@ export function PortadaSlide({
               Empezar propuesta
               <ChevronRight className="h-6 w-6" />
             </button>
-            <span className="inline-flex items-center gap-2 text-sm font-bold text-white/60">
-              <ShieldCheck className="h-4 w-4 text-emerald-300" />
-              Pensado para vender en vivo, sin aspecto de catalogo interno
-            </span>
           </motion.div>
         </div>
 

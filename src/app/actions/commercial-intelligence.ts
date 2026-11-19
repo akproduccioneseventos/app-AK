@@ -1,5 +1,6 @@
 'use server';
 import { diasHastaEnUruguay } from '@/lib/utils';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 import { getCrmLeads } from '@/app/actions/crm';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -141,6 +142,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
 
   for (const pres of presupuestos as any[]) {
     if (pres.estado !== 'Enviado') continue;
+    if (esFiestaDemo({ id: pres.fiestaId || pres.id, estado: pres.estado })) continue;
     const created = toDate(pres.timestamp || pres.createdAt);
     const age = created ? daysSince(created) : 0;
     if (age >= 2) {
@@ -254,6 +256,11 @@ export async function registerQuinceaneraPartyLead(data: {
     const nombre = data.nombre?.trim();
     if (!nombre) {
       return { success: false, error: 'Por favor completá tu nombre.' };
+    }
+
+    // La demo no genera prospectos comerciales reales
+    if (esFiestaDemo({ id: data.fiestaId, estado: data.nombreFiesta } as any)) {
+      return { success: true };
     }
 
     // Si la respuesta no es de interés de fiesta, solo devolvemos éxito sin crear prospecto comercial invasivo

@@ -16,7 +16,7 @@ test.describe('Orden 101 - Bloque 3: La web lista para asistentes de afuera (acc
     await page.goto('/simulador-de-presupuesto?step=2', { waitUntil: 'domcontentloaded' });
 
     // Si aparece portada o inicio, saltarla
-    const startBtn = page.getByRole('button', { name: /Comenzar|Empezar|Armar mi presupuesto/i });
+    const startBtn = page.getByRole('button', { name: /Comenzar|Empezar|Armar mi presupuesto|Armá tu presupuesto/i });
     if (await startBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await startBtn.click();
     }

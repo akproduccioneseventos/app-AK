@@ -17,6 +17,7 @@
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { puede, PERMISOS, perfilDe } from '@/lib/auth/perfiles';
 import { hoyEnUruguay } from '@/lib/utils';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 /** Tope de caracteres de todo lo que cambia con los datos del día (sin el manual ni el mapa). */
 export const TOPE_DATOS_EN_TIEMPO_REAL = 8000;
@@ -59,10 +60,17 @@ export function armarContextoDelNegocio(
     bloques.push(`SUELDOS (solo dueño):\n${datos.sueldosResumen.trim()}`);
   }
   if (usuario && puede(usuario, PERMISOS.CRM) && Array.isArray(datos.prospectos)) {
-    const filas = datos.prospectos.slice(0, 12).map((p: any) =>
+    // Antes se mostraban 12 y el asistente no encontraba el 13 aunque estuviera en el CRM (auditoría del 18/11/2026,
+    // A18-04). Ahora van con detalle los 12 más nuevos, y del resto al menos el nombre, para que lo pueda encontrar.
+    const todos = [...datos.prospectos].sort((a: any, b: any) =>
+      String(b.createdAt || b.fechaCreacion || '').localeCompare(String(a.createdAt || a.fechaCreacion || '')));
+    const conDetalle = todos.slice(0, 12);
+    const filas = conDetalle.map((p: any) =>
       `• ${p.name || p.nombre || 'Prospecto'} | ${p.stageId || p.currentStageId || 'sin etapa'} | próximo contacto: ${p.followUpDate || 'sin fecha'}`,
     );
-    bloques.push(`PROSPECTOS CRM:\n${filas.join('\n') || 'Sin prospectos cargados.'}`);
+    const otros = todos.slice(12, 300).map((p: any) => p.name || p.nombre).filter(Boolean);
+    const resto = otros.length ? `\nOtros ${todos.length - 12} prospectos (sólo el nombre; el detalle está en Prospectos): ${otros.join(', ')}` : '';
+    bloques.push(`PROSPECTOS CRM (${todos.length} en total):\n${filas.join('\n') || 'Sin prospectos cargados.'}${resto}`);
   }
 
   return bloques.filter(Boolean).join('\n\n');
@@ -109,6 +117,7 @@ export function nombreDeFiesta(fiesta: any): string {
 /** Una fiesta suspendida, cancelada o archivada no entra en ninguna cuenta. */
 export function esFiestaViva(fiesta: any): boolean {
   if (!fiesta || fiesta.archived === true || fiesta.archivada === true) return false;
+  if (esFiestaDemo(fiesta)) return false;
   return !/(suspend|cancel|archiv)/i.test(String(fiesta.estado || ''));
 }
 

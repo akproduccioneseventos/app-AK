@@ -2,7 +2,7 @@
 import { volverAlPortal } from '@/lib/portal/volver-al-portal';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -160,6 +160,22 @@ export default function ClientContractPage() {
         setIsSaving(false);
     }
   };
+
+  const datosFaltantesContrato = useMemo(() => {
+    if (!fiesta?.contratoServicioTexto) return [];
+    const text = fiesta.contratoServicioTexto;
+    const faltantes: string[] = [];
+    if (/\{\{CLIENTE_CI\}\}|C\.I\.\s*_{3,}/i.test(text)) faltantes.push('Cédula de identidad del cliente');
+    if (/\{\{CLIENTE_DOMICILIO\}\}|\{\{CLIENTE_DIRECCION\}\}|domicilio\s*(?:en)?\s*_{3,}/i.test(text)) faltantes.push('Domicilio del cliente');
+    if (/\{\{CLIENTE_TELEFONO\}\}|teléfono\s*_{3,}/i.test(text)) faltantes.push('Teléfono del cliente');
+    if (text.includes('al primer tercio del plazo') || /\{\{HITO_30\}\}/i.test(text)) {
+      faltantes.push('Fecha del hito 30% (sin fecha programada)');
+    }
+    if (text.includes('a la mitad del plazo') || /\{\{HITO_50\}\}/i.test(text)) {
+      faltantes.push('Fecha del hito 50% (sin fecha programada)');
+    }
+    return faltantes;
+  }, [fiesta?.contratoServicioTexto]);
 
   if (isLoading) {
     return <div className="flex h-screen flex-col items-center justify-center gap-4" role="status" aria-live="polite"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-sm font-medium text-slate-600">Estamos preparando tu contrato.</p></div>;
@@ -505,6 +521,19 @@ export default function ClientContractPage() {
                                 <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Firma Física Requerida</h3>
                                 <p className="text-sm text-amber-700 mt-1">Este contrato debe ser firmado físicamente. Por favor descárguelo o imprímalo, fírmelo y entréguelo al organizador. Una vez escaneado y registrado por el administrador, su validez aparecerá reflejada en este portal.</p>
                             </div>
+                            {datosFaltantesContrato.length > 0 && (
+                                <div className="w-full text-left p-3.5 bg-red-50 border-2 border-red-500 rounded-2xl text-red-900 space-y-1 print:hidden">
+                                    <p className="text-xs font-black uppercase tracking-tight text-red-800 flex items-center gap-1.5">
+                                        <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                                        Atención: faltan datos obligatorios antes de imprimir
+                                    </p>
+                                    <ul className="list-disc list-inside text-xs text-red-700 font-bold space-y-0.5 pl-1">
+                                        {datosFaltantesContrato.map((d: string, i: number) => (
+                                            <li key={i}>{d}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             <Button onClick={() => window.print()} size="lg" className="w-full h-auto min-h-14 py-3 whitespace-normal text-center leading-tight text-sm sm:text-base rounded-2xl font-black shadow-xl">
                                 IMPRIMIR / DESCARGAR CONTRATO (PDF)
                             </Button>
@@ -522,6 +551,19 @@ export default function ClientContractPage() {
                                 <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Falta el contrato en papel</h3>
                                 <p className="text-sm text-amber-700 mt-1">Imprimí el contrato, firmalo y entregáselo al organizador.</p>
                             </div>
+                            {datosFaltantesContrato.length > 0 && (
+                                <div className="w-full text-left p-3.5 bg-red-50 border-2 border-red-500 rounded-2xl text-red-900 space-y-1 print:hidden">
+                                    <p className="text-xs font-black uppercase tracking-tight text-red-800 flex items-center gap-1.5">
+                                        <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                                        Atención: faltan datos obligatorios antes de imprimir
+                                    </p>
+                                    <ul className="list-disc list-inside text-xs text-red-700 font-bold space-y-0.5 pl-1">
+                                        {datosFaltantesContrato.map((d: string, i: number) => (
+                                            <li key={i}>{d}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             <Button onClick={() => window.print()} size="lg" className="w-full h-auto min-h-14 py-3 whitespace-normal text-center leading-tight text-sm sm:text-base rounded-2xl font-black shadow-xl">
                                 IMPRIMIR / DESCARGAR CONTRATO (PDF)
                             </Button>

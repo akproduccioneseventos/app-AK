@@ -367,7 +367,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     {onHire && <Button onClick={onHire} size="sm" className="h-8 bg-green-600 hover:bg-green-700 px-2"><CheckCircle className="w-4 h-4"/></Button>}
                 </div>
             ) : (
-                <Button asChild variant="outline" size="sm" className="h-8 text-[10px] gap-1 w-full"><Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} className="flex-grow">
+                <Button asChild variant="outline" size="sm" className="h-8 text-[10px] gap-1 w-full"><Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}&leadPhone=${encodeURIComponent(lead.phone || '')}`} className="flex-grow">
                         <FilePlus2 className="w-3 h-3" /> CREAR PRESUPUESTO
                     </Link></Button>
             )}

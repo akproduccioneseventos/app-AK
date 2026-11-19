@@ -1,3 +1,5 @@
+import { diasHastaEnUruguay } from '@/lib/utils';
+
 const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/;
 
 export function parseEventDate(value?: string): Date | null {
@@ -18,6 +20,9 @@ export function parseEventDate(value?: string): Date | null {
 }
 
 export function getDaysUntilEvent(value?: string, now = new Date()): number | null {
+  if (!value) return null;
+  const dias = diasHastaEnUruguay(value, now);
+  if (dias !== null) return dias;
   const eventDate = parseEventDate(value);
   if (!eventDate) return null;
 

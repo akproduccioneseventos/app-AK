@@ -68,8 +68,10 @@ test.beforeEach(async ({ context, baseURL }, testInfo) => {
 for (const ruta of ['centro-total', 'centro', 'mission-control']) {
   test(`/fiestas/nueva/${ruta}?fiestaId=B lleva al Centro de la fiesta B, no a la A`, async ({ page }) => {
     test.setTimeout(120_000);
-    await page.goto(`/fiestas/nueva/${ruta}?fiestaId=${ID_B}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(new RegExp(`/fiestas/${ID_B}/centro`), { timeout: 60_000 });
+    await page.goto(`/fiestas/nueva/${ruta}?fiestaId=${ID_B}`, { waitUntil: 'commit' });
+    // Se mira a dónde lleva, no que el centro termine de cargar: esa pantalla es pesada y con la máquina cargada pasaba
+    // el minuto (falló tres veces así el 18/11/2026 con la redirección ya inmediata).
+    await page.waitForURL(new RegExp(`/fiestas/${ID_B}/centro`), { timeout: 60_000, waitUntil: 'commit' });
     expect(page.url()).toContain(`/fiestas/${ID_B}/centro`);
     expect(page.url()).not.toContain(ID_A);
   });

@@ -159,11 +159,12 @@ describe('Orden 290 - Bloque 2: La invitación no muestra secciones vacías ni r
     });
 
     const texto = container.textContent || '';
-    // Aparece una sola vez
-    const coincidencias = texto.match(/AK está preparando esta sección/g) || [];
+    // Aparece una sola vez con texto claro de lo que va a encontrar
+    const coincidencias = texto.match(/Muy pronto vas a encontrar acá el cronograma/g) || [];
     expect(coincidencias).toHaveLength(1);
 
-    // No debe haber texto sin tilde
+    // No debe haber texto de desarrollo ni sin tilde
+    expect(texto).not.toContain('AK está preparando esta sección');
     expect(texto).not.toContain('AK esta preparando esta seccion');
   });
 });

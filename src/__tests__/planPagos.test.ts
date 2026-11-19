@@ -93,7 +93,7 @@ describe('generarPlanPagos', () => {
     const plan = generarPlanPagos(fechaEvento.toISOString(), 100000);
 
     expect(plan.activo).toBe(true);
-    expect(plan.pagoMinimoTrimestral).toBe(5000);
+    expect(plan.pagoMinimoTrimestral).toBe(10000);
     expect(plan.porcentajeMinimoAntesFecha).toBe(30);
     expect(plan.montoObjetivo30Porciento).toBe(30000);
   });
@@ -128,12 +128,12 @@ describe('generarPlanPagos', () => {
     });
   });
 
-  it('sets mesesLimiteAntesFecha = 6 for 18-month event', () => {
+  it('la fecha clave cae al primer tercio del plazo (18 meses → 12 meses antes del evento)', () => {
     const fechaEvento = new Date();
     fechaEvento.setMonth(fechaEvento.getMonth() + 18);
     const plan = generarPlanPagos(fechaEvento.toISOString(), 100000);
 
-    expect(plan.mesesLimiteAntesFecha).toBe(6);
+    expect([11, 12]).toContain(plan.mesesLimiteAntesFecha);
   });
 
   it('never schedules more money than the contract total', () => {

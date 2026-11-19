@@ -96,6 +96,8 @@ export function compararGanancias(
   fiestas: FiestaEnPlanificacion[],
   /** Cobros al cliente por presupuesto, para descontar la comisión de Mercado Pago. */
   cobrosPorPresupuesto?: ReadonlyMap<string, PagoCliente[]>,
+  /** Los puestos, para sumar los aportes del personal asignado (auditoría del 18/11/2026, C18-01). */
+  roles?: Array<{ id: string; porcentajeAportesPatronales?: number }>,
 ): Comparativa {
   const conGanancia: FiestaConGanancia[] = (fiestas ?? [])
     .map((fiesta) => {
@@ -103,6 +105,8 @@ export function compararGanancias(
         fiesta?.gestionCostos,
         fiesta?.pagosProveedores,
         fiesta?.presupuestoId ? cobrosPorPresupuesto?.get(fiesta.presupuestoId) : undefined,
+        fiesta?.personalAsignado,
+        roles,
       );
       return {
         id: String(fiesta?.id ?? ''),

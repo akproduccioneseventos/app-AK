@@ -1875,3 +1875,81 @@ Auditoría integral del 17/11/2026: "Propuestas activas" del CRM sumaba un presu
 
 Auditoría integral del 17/11/2026: editar un empleado y dar de alta un salón no quedaban, sin aviso.
 
+### 180. Cuando falta lo real, ¿la función inventa datos de ejemplo y sigue como si nada?
+
+Auditoría del 18/11/2026 (A18-05): sin lista guardada, el control remoto del sorteo elegía entre "Mesa 1"…"Mesa 6" y la
+pantalla anunciaba un ganador que nunca fue candidato.
+
+### 181. ¿Se ordenan horas como texto en algo que pasa de noche?
+
+Auditoría del 18/11/2026 (A18-06): el cronograma ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada.
+
+### 182. Un total y el detalle que se muestra al lado, ¿salen de la misma lista?
+
+Auditoría del 18/11/2026 (A18-03): el recibo sumaba los cobros del presupuesto y detallaba sólo los de las facturas:
+"$40.410 abonados" junto a "No se han registrado pagos".
+
+### 183. Un número que dice el contrato (mínimo, plazo, porcentaje), ¿el código usa el mismo?
+
+Auditoría del 18/11/2026 (A18-01): el plan guardaba $5.000 y 15 días; la cláusula 3 que firma el cliente dice $10.000 y 30.
+
+### 184. Un documento que se arma en más de una pantalla, ¿completa los mismos datos en todas?
+
+Auditoría del 18/11/2026 (A18-02): el editor del contrato calculaba las fechas de la cláusula 3 y el anexo del recibo no:
+salía impreso con `{{HITO_30}}`.
+
+### 185. Un arreglo, ¿corre en el caso exacto que se reportó, o quedó adentro de un bloque que ahí no entra?
+
+Auditoría del 18/11/2026 (N26): el menú asignado se sumaba a las compras, pero adentro del `if (presupuesto)`, y el caso
+reportado era sin presupuesto. Su prueba buscaba el nombre del campo y daba verde.
+
+### 186. Un asistente que trabaja con un recorte de los datos, ¿tiene cómo buscar el resto?
+
+Auditoría del 18/11/2026 (A18-04): el Vendedor veía 12 de 16 prospectos y no podía encontrar uno recién creado.
+
+### 187. Un costo que se carga en una pantalla, ¿lo ve la cuenta enseguida, o sólo después de "sincronizar"?
+
+Continuación de la auditoría del 18/11/2026 (C18-01): el sueldo cargado en Personal no entraba en la ganancia de una fiesta
+sin presupuesto, porque la cuenta leía un total que sólo armaba la sincronización, y la sincronización exige presupuesto.
+
+### 188. Una fiesta suspendida, ¿queda afuera de próximos, conflictos y disponibilidad?
+
+Continuación de la auditoría del 18/11/2026 (C18-02): Recursos Multi-Evento contaba dos fiestas suspendidas como próximas.
+
+### 189. Un proceso de varios pasos, ¿dice "listo" aunque un paso haya fallado?
+
+Continuación de la auditoría del 18/11/2026 (E2/E3): el modo automático del editor decía "completado con éxito" con el Video
+de Vida y las Redes fallados.
+
+
+### 190. Un período "desde/hasta", ¿rechaza el inicio después del fin, o calcula un cero que parece real?
+
+Novedades del auditor del 18/11/2026 a las 11:46 (C18-03): el reporte de ganancias del 19/11 al 18/11 daba $0 y se podía
+bajar como si fuera un período sin actividad.
+
+### 191. Un dato que vive en dos campos (niños y adolescentes), ¿el formulario muestra y cambia los dos?
+
+Auditoría del simulador y la LED, 18/11/2026 (R18-03): la LED pasaba los menores como adolescentes y el presupuesto manual
+mostraba 0 en "Niños y Adolescentes", que sólo leía niños.
+
+### 192. Una condición que se guarda en dos campos (la dieta y "celíaco"), ¿cada lista y cada copia mira los dos?
+
+Cierre de ronda del 18/11/2026 (R18-01): el celíaco marcado aparte contaba en el contador y no estaba en el reporte ni en la
+copia para cocina; "Vegano + celíaco" salía sólo vegano.
+
+### 193. Un cálculo con datos imposibles (negativos, vacíos), ¿se frena, o muestra un resultado y deja aplicarlo?
+
+Cierre de ronda del 18/11/2026 (R18-02): el afinador de la barra daba un costo sugerido con litros negativos y dejaba
+"Aplicar".
+
+### 194. El alta y la edición del mismo dato, ¿aceptan los mismos valores?
+
+Cierre de ronda del 18/11/2026 (R18-04): el alta de un insumo no aceptaba 1,5 kg y la edición sí.
+
+### 195. Al importar un texto, ¿un dato del evento (personas, fecha) puede terminar como un concepto que se cobra?
+
+Cierre de ronda del 18/11/2026 (R18-05): "Adultos: 40" y "Niños: 10" se importaban como artículos de $40 y $10.
+
+### 196. Un monto que sigue a una etiqueta, ¿se lee después de la etiqueta, o se toma el primer número suelto?
+
+Cierre de ronda del 18/11/2026 (R18-06): "TOTAL: $2.500" daba $0 y "TOTAL:2500" daba $2.500.

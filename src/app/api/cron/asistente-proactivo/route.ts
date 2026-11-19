@@ -19,6 +19,7 @@ import {
 } from '@/lib/asistente/propuestas-service';
 import { readDataConDetalle } from '@/lib/data-service';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
@@ -55,7 +56,8 @@ export async function GET(request: Request) {
   // Si no se puede leer la base, la tarea NO corre ni se marca como corrida: con listas vacias
   // por defecto "no encontraba nada" y quedaba anotada como hecha (se reintenta en la proxima).
   try {
-    fiestas = await leerFiestasCrudas(false);
+    const rawFiestas = await leerFiestasCrudas(false);
+    fiestas = (rawFiestas || []).filter((f) => !esFiestaDemo(f));
     const pres = await readDataConDetalle<Presupuesto[]>('presupuestos.json', []);
     const sals = await readDataConDetalle<Salon[]>('salones.json', []);
     if (pres.huboFalla || sals.huboFalla) {

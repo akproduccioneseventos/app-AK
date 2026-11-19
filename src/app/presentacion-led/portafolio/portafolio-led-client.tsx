@@ -284,18 +284,18 @@ export function PortafolioLedClient() {
             className="relative z-10"
           >
             <SectionEyebrow>Catalogo interactivo AK</SectionEyebrow>
-            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-foreground sm:text-6xl xl:text-7xl">
+            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl xl:text-7xl">
               Tu fiesta completa se puede ver antes de contratarla.
             </h1>
-            <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-slate-300 sm:text-lg">
               Explora bodas, XV y celebraciones con fotos AK, servicios concretos y un recorrido claro por todo lo que se organiza antes, durante y despues del evento.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {phaseLabels.map((phase) => (
-                <div key={phase} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-                  <span className="text-3xl font-black text-foreground">{serviceCounts[phase]}</span>
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{phase}</p>
+                <div key={phase} className="rounded-xl border border-white/15 bg-slate-900/90 p-4 shadow-sm">
+                  <span className="text-3xl font-black text-white">{serviceCounts[phase]}</span>
+                  <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-slate-200">{phase}</p>
                 </div>
               ))}
             </div>
@@ -351,7 +351,7 @@ export function PortafolioLedClient() {
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.82)_0%,rgba(15,23,42,0.48)_42%,rgba(220,38,38,0.18)_100%)]" />
                   </div>
 
-                  <div className={cn('relative z-10 grid h-full gap-4 p-5 text-white sm:p-7', isSmallDevice ? 'grid-cols-1 content-between' : 'grid-cols-[1.1fr_0.9fr] items-end')}>
+                  <div className={cn('relative z-10 grid h-full gap-4 p-5 text-white sm:p-7', isSmallDevice ? 'grid-cols-1 content-between' : 'grid-cols-1 content-between sm:grid-cols-[1.1fr_0.9fr] sm:items-end')}>
                     <div className="max-w-2xl">
                       <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] backdrop-blur">
                         <Play className="h-3 w-3" />
@@ -365,7 +365,7 @@ export function PortafolioLedClient() {
                       </p>
                     </div>
 
-                    <div className={cn('grid gap-3', isSmallDevice ? 'grid-cols-1' : 'grid-cols-2')}>
+                    <div className={cn('grid gap-3', isSmallDevice ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2')}>
                       {TECHNOLOGY_STEPS.slice(0, isSmallDevice ? 3 : 4).map((step) => (
                         <div key={step.id} className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
                           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">{step.eyebrow}</p>

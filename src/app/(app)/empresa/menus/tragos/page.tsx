@@ -36,6 +36,8 @@ import { getCartaTragosMaster, saveCartaTragosMaster } from '@/app/actions/carta
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const formatCurrency = (amount?: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(amount || 0));
@@ -70,6 +72,7 @@ export default function TragosMasterPage() {
 
   const [cartaPreview, setCartaPreview] = useState<CartaTragosData>(defaultCartaTragosData);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const [eventPeople, setEventPeople] = useState(100);
   const [selectedInsumoId, setSelectedInsumoId] = useState('');
@@ -79,6 +82,17 @@ export default function TragosMasterPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.INSUMOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const [master, allInsumos, allServicios] = await Promise.all([
         getCartaTragosMaster(),
         getInsumos(),
@@ -274,7 +288,11 @@ export default function TragosMasterPage() {
     }, 0);
   }, [items, selectedInsumo]);
 
-  const realPerPerson = eventPeople > 0 ? (consumedUnits * unitSizeLiters) / eventPeople : 0;
+  // Con botellas o litros negativos (o vacíos) no se calcula ni se aplica nada: antes daba un consumo negativo y un costo
+  // sugerido que se podía aplicar al catálogo (auditoría del 18/11/2026, R18-02).
+  const consumoValido = Number.isFinite(consumedUnits) && consumedUnits >= 0
+    && Number.isFinite(unitSizeLiters) && unitSizeLiters > 0 && eventPeople > 0;
+  const realPerPerson = consumoValido ? (consumedUnits * unitSizeLiters) / eventPeople : 0;
   const unitCost = selectedInsumo?.valorUnitarioEstimado || 0;
   const realCostPerPerson = realPerPerson * unitCost;
   const theoreticalCostPerPerson = theoreticalPerPerson * unitCost;
@@ -292,10 +310,10 @@ export default function TragosMasterPage() {
   );
 
   const currentBarraCost = barraService?.valorUnitarioEstimado || 0;
-  const suggestedBarraCost = Math.max(0, currentBarraCost + deltaCostPerPerson);
+  const suggestedBarraCost = consumoValido ? Math.max(0, currentBarraCost + deltaCostPerPerson) : currentBarraCost;
 
   const applySuggestedCost = async () => {
-    if (!barraService) return;
+    if (!barraService || !consumoValido) return;
     const result = await saveServicioEmpresa({
       ...barraService,
       valorUnitarioEstimado: suggestedBarraCost,
@@ -385,12 +403,14 @@ export default function TragosMasterPage() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label>Acciones</Label>
-                    <Button variant="destructive" onClick={() => removeItem(item.id)}>
-                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                    </Button>
-                  </div>
+                  {puedeBorrar && (
+                    <div className="space-y-1">
+                      <Label>Acciones</Label>
+                      <Button variant="destructive" onClick={() => removeItem(item.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
@@ -534,11 +554,13 @@ export default function TragosMasterPage() {
                               onChange={(e) => updateRecipeIngredient(item.id, index, { unidad: e.target.value })}
                             />
                           </div>
-                          <div className="col-span-2">
-                            <Button variant="ghost" onClick={() => removeRecipeIngredient(item.id, index)}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          {puedeBorrar && (
+                            <div className="col-span-2">
+                              <Button variant="ghost" onClick={() => removeRecipeIngredient(item.id, index)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         );
                       })}
@@ -727,7 +749,10 @@ export default function TragosMasterPage() {
                   <>
                     <p>Servicio detectado: <strong>{barraService.nombre}</strong></p>
                     <p>Costo base actual: <strong>{formatCurrency(currentBarraCost)}</strong></p>
-                    <Button className="mt-3" onClick={applySuggestedCost}>Aplicar costo sugerido</Button>
+                    {!consumoValido && (
+                      <p role="alert" className="mt-2 text-xs font-medium text-destructive">Las botellas tienen que ser 0 o más y los litros por botella, más de 0.</p>
+                    )}
+                    <Button className="mt-3" onClick={applySuggestedCost} disabled={!consumoValido}>Aplicar costo sugerido</Button>
                   </>
                 ) : (
                   <p className="text-muted-foreground">No se encontró un servicio “Barra de Tragos” en el catálogo de servicios.</p>

@@ -1166,6 +1166,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     title: `${config.nombreHomenajeada || 'Fiesta'}${secondName ? ` & ${secondName}` : ''}`,
     startDate: config.fechaEvento,
     startTime: config.horaEvento,
+    endTime: (config as any).horaFin || '05:00',
     location: [config.nombreSalon, config.direccionSalon].filter(Boolean).join(' - '),
     details: `Invitacion digital de ${config.nombreHomenajeada || 'la fiesta'}.`,
   });
@@ -1507,7 +1508,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       el: (
         <Section key="seccion-en-preparacion" className="text-center max-w-lg mx-auto" typography={config.typography}>
           <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
-            AK está preparando esta sección para que se vea perfecta cuando el organizador la active.
+            Muy pronto vas a encontrar acá el cronograma, la ubicación y todos los detalles de la fiesta.
           </p>
         </Section>
       ),

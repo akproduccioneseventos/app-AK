@@ -32,8 +32,9 @@ export function buildGoogleCalendarUrl(input: CalendarEventInput): string | null
   const startStr = `${year}${pad(month)}${pad(day)}T${pad(hours)}${pad(minutes)}00`;
 
   let endUtc: number;
-  if (input.endTime) {
-    const endParts = parseTimeParts(input.endTime);
+  const effectiveEndTime = input.endTime || (!input.durationHours ? '05:00' : null);
+  if (effectiveEndTime) {
+    const endParts = parseTimeParts(effectiveEndTime);
     const startUtc = Date.UTC(year, month - 1, day, hours, minutes);
     let candidateEndUtc = Date.UTC(year, month - 1, day, endParts.hours, endParts.minutes);
     if (candidateEndUtc <= startUtc) {

@@ -218,6 +218,16 @@ export default function PresentacionLedPage() {
 
   useEffect(() => {
     load();
+    const timer = window.setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          setLoadError((err) => err || 'La carga tardó más de lo esperado. Revisá la señal y reintentá.');
+          return false;
+        }
+        return prev;
+      });
+    }, 15_000);
+    return () => window.clearTimeout(timer);
   }, [load]);
 
   // Reintento automatico cada 10 segundos si falló la carga o no hay datos
@@ -248,7 +258,7 @@ export default function PresentacionLedPage() {
         return {
           id: item.id,
           name: item.name,
-          description: item.notes || menu.description,
+          description: item.notes || '',
           imageUrl: item.imageUrl,
           featured: item.isFeatured || menu.featured,
           items: [item],

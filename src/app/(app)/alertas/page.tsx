@@ -21,6 +21,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta, getDatosFiestasParaAlertas } from '@/app/actions/alertas.actions';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
@@ -80,11 +81,29 @@ export default function AlertasPage() {
   const fetchAlertas = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, fiestasInfo] = await Promise.all([
+      const [data, fiestasInfo, kpiRes] = await Promise.all([
         getAlertasGlobalesConLeidas(),
         getDatosFiestasParaAlertas(),
+        getDashboardKpiData().catch(() => null),
       ]);
-      setAlertas(data);
+      const idsYa = new Set(data.map((a) => a.id));
+      const extrasPanel = (kpiRes?.success && kpiRes.data?.alerts ? kpiRes.data.alerts : [])
+        .filter((a) => a?.id && !idsYa.has(a.id))
+        .map((a) => ({
+          id: a.id,
+          reglaId: a.type || 'panel_kpi',
+          reglaNombre: a.title || 'Plata y agenda',
+          categoria: 'Plata y agenda',
+          titulo: a.title,
+          mensaje: a.description,
+          tipo: a.severity === 'high' ? 'urgente' : a.severity === 'medium' ? 'atencion' : 'recordatorio',
+          fiestaId: '',
+          fiestaNombre: 'Plata y agenda',
+          enlace: a.href || '/admin',
+          rutaDestino: a.href || '/admin',
+          leida: false,
+        } as unknown as AlertaAutomatica));
+      setAlertas([...data, ...extrasPanel]);
       setDatosFiestas(fiestasInfo);
       if ((data as any)?.lecturaIncompleta) {
         toast({
@@ -430,7 +449,7 @@ export default function AlertasPage() {
                       <div
                         key={alerta.id}
                         className={cn(
-                          'flex items-start gap-3 px-5 py-4 transition-colors bg-red-50/20 dark:bg-red-950/10',
+                          'flex flex-wrap lg:flex-nowrap items-start gap-3 px-5 py-4 transition-colors bg-red-50/20 dark:bg-red-950/10',
                           alerta.leida ? 'opacity-50' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20',
                         )}
                       >
@@ -444,7 +463,7 @@ export default function AlertasPage() {
                             {alerta.mensaje}
                           </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 basis-full lg:basis-auto">
                           {alerta.accionUrl && (
                             <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
                               <Link href={alerta.accionUrl}>
@@ -484,7 +503,7 @@ export default function AlertasPage() {
                       <div
                         key={alerta.id}
                         className={cn(
-                          'flex items-start gap-3 px-5 py-3.5 transition-colors',
+                          'flex flex-wrap lg:flex-nowrap items-start gap-3 px-5 py-3.5 transition-colors',
                           alerta.leida ? 'opacity-50' : 'hover:bg-muted/30',
                         )}
                       >
@@ -498,7 +517,7 @@ export default function AlertasPage() {
                             {alerta.mensaje}
                           </p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 basis-full lg:basis-auto">
                           {alerta.tipo === 'recordatorio' && (
                             datosFiestas[alerta.fiestaId]?.telefono?.trim() ? (
                               <Button

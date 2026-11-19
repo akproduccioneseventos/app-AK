@@ -229,7 +229,7 @@ export default function LogisticaPage() {
             <CardContent className="pt-6 text-center space-y-2">
               <Info className="w-8 h-8 mx-auto text-slate-500" />
               <p className="text-sm text-slate-400">
-                AK todavia no cargo instrucciones especiales para este evento. Usa el nombre del salon, la fecha y el contacto principal de la invitacion.
+                Las instrucciones de llegada, estacionamiento y accesos se confirmarán más cerca de la fecha del evento. Consultá el salón y la fecha en tu invitación.
               </p>
             </CardContent>
           </Card>

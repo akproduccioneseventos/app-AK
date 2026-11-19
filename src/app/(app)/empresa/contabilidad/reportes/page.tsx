@@ -81,6 +81,12 @@ function ReportesContabilidadContent() {
       toast({ title: 'Fechas requeridas', description: 'Por favor selecciona un rango de fechas.', variant: 'destructive' });
       return;
     }
+    // Un período al revés daba un reporte en cero que se podía bajar como si fuera real (auditoría del 18/11/2026, C18-03).
+    if (from.getTime() > to.getTime()) {
+      setReportData(null);
+      setError('La fecha de inicio es posterior a la de fin. Corregí el período y volvé a generar el reporte.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setReportData(null);
@@ -246,7 +252,7 @@ function ReportesContabilidadContent() {
               <div>
                 <CardTitle>Resumen del Periodo</CardTitle>
                 <CardDescription>
-                  Desde {startDate?.toLocaleDateString('es-ES')} hasta {endDate?.toLocaleDateString('es-ES')}
+                  Desde {rangoDelReporte?.from.toLocaleDateString('es-ES')} hasta {rangoDelReporte?.to.toLocaleDateString('es-ES')}
                 </CardDescription>
               </div>
               <div className="flex flex-wrap items-center gap-2 print:hidden">

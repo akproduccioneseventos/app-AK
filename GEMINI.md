@@ -10,17 +10,23 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
-- **Tu 1429 (órdenes 310 a 318) está revisada y casi lista, pero NO se publicó todavía (18/11).** Claude le agregó arreglos
-  (contrato sin buscar al cliente por nombre, pruebas al día con el simulador nuevo, el recorrido sin contar las zonas que se
-  deslizan). **Esos arreglos están en `docs/parches/`**: en tu rama `gemini/ordenes-309-310`, primero `git merge origin/main`,
-  después `git am docs/parches/juntar-1429.patch` y `git apply docs/parches/juntar-1429-contrato.diff`, y
-  `npm run editor:empaquetar`. Lo que la frena es tu propio control
-  de tres tamaños (orden 313): marca estas pantallas con texto partido palabra por palabra o que se sale. Arreglalas (sin
-  esconder con overflow ni achicar letras), en la misma rama:
-  `/empresa/menus` (celular y tablet), `/empresa/presentacion-led/configuracion` (celular), `/empresa/servicios` (tablet),
-  `/fiestas/nueva/decoracion` (tablet), `/settings/biblioteca-visual-ak` (tablet), `/settings/catalogo-servicios` (los tres),
-  `/settings/contratos/clausulas` (celular), `/settings/estilo-fotos` (tablet), `/settings/feature-flags` (celular y tablet),
-  `/control-tower` (tablet: se sale, 933 > 820). Después corré `npm run "publicar?"` y dejá la propuesta abierta.
+- **Tu 1429 (órdenes 310 a 318) quedó publicada (18/11), con arreglos de Claude.** Lo que sigue, en una propuesta nueva
+  desde `origin/main`: (1) las pantallas de `docs/pantallas-rotas-conocidas.json`, que tu control de tres tamaños marca con
+  texto partido palabra por palabra o que se sale (sin esconder con overflow ni achicar letras); sacá cada una de la lista
+  cuando quede bien; (2) lo DEVUELTO de "modificar confirmación" (abajo). Los parches de `docs/parches/` ya están aplicados:
+  no los apliques de nuevo.
+- **DEVUELTO de tu 1429 (orden 318, bloque 2):** "Modificar confirmación" sigue abriendo el formulario vacío: no se hizo la
+  precarga. La prueba que mandaste no lo comprobaba y no corría (usaba `demo_ak_oficial`, que no existe en el entorno de
+  pruebas); se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado (`crearFiestaDeEstaNoche` en
+  `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
+- **Nuevo: orden 321 (pedido del dueño, la más importante después de cerrar 318-320):** reorganizar y achicar la app,
+  de 382 páginas a 180 o menos, sin papelería (menú digital en el teléfono del invitado), en seis áreas (Hoy, Ventas y Marketing con WhatsApp, Fiestas, Plata, Empresa y Personal,
+  Ajustes), sin perder funciones. Lo que toca plata sólo se mueve; si hay que tocar cómo guarda, lo anotás y lo hace Claude.
+- **Nuevo: orden 320** (auditoría del 18/11): el sorteo del control remoto que inventa "Mesa 2" (P1), el cronograma que
+  cruza la medianoche, el Vendedor que no encuentra un prospecto y cantidades escritas a mano. Y de la continuación: fiestas suspendidas
+  contadas como próximas, la galería por tipo, las fotos de ejemplo de Estilo, los avisos de pago del portal en Pagos rápidos
+  y el **AK Editor** (bloque 6: primero que "Volver al original" no borre los ajustes del dueño). Lo de plata (plan de pagos,
+  anexo y recibo) y la lista de compras sin presupuesto ya los arregló Claude: no los toques. En la misma propuesta, al final.
 - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
   deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,

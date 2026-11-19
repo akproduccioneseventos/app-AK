@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import { getAllRoutes, crearCookieDeSesion, FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
 import { esErrorDelArmazonAlRedirigir } from './helpers/errores-que-no-son-de-la-app';
+import { TAMANOS_AUDITORIA } from '../../src/lib/visual/auditor-pantalla';
 
 const PROHIBITED_TECHNICAL_STRINGS = [
   'undefined',
@@ -230,6 +231,60 @@ test.describe('Recorrido de las 353 pantallas', () => {
           page.off('pageerror', errorListener);
           return;
         }
+
+        // Check 2b: Auditoría visual en 3 tamaños (Orden 313: scrollWidth, palabra por palabra, contraste y símbolos)
+        for (const tam of TAMANOS_AUDITORIA) {
+          await page.setViewportSize({ width: tam.width, height: tam.height });
+          // Se mide con la pantalla ya acomodada al tamaño nuevo: medido en el mismo instante, el menú lateral todavía se
+          // estaba abriendo (con su animación) y sus textos quedaban de 61 px. Marcaba el panel y el ingreso como rotos sin
+          // estarlo (18/11/2026: medido medio segundo después, cero textos partidos).
+          await page.waitForTimeout(700);
+          await page.evaluate(() => new Promise((listo) => requestAnimationFrame(() => requestAnimationFrame(() => listo(null)))));
+          const fallasTam = await page.evaluate((w) => {
+            const errs: string[] = [];
+            const sw = document.documentElement.scrollWidth;
+            if (sw > w + 1) errs.push(`desborde scrollWidth=${sw}>${w}`);
+            // Lo que está adentro de una zona que se desliza de costado o que recorta (columnas del CRM, carruseles,
+            // tablas con su propio deslizador) no se sale de la pantalla: el que se mira es el contenedor. Sin esto,
+            // cada columna del CRM contaba como "fuera" (revisión de la orden 313, 18/11/2026).
+            const dentroDeUnaZonaQueRecorta = (el: HTMLElement) => {
+              for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+                const ox = window.getComputedStyle(p).overflowX;
+                if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') return true;
+              }
+              return false;
+            };
+            const els = Array.from(document.querySelectorAll('h1,h2,h3,h4,p,button,input,select')) as HTMLElement[];
+            for (const el of els) {
+              const st = window.getComputedStyle(el);
+              if (st.display === 'none' || st.visibility === 'hidden') continue;
+              const rect = el.getBoundingClientRect();
+              if (rect.width === 0 && rect.height === 0) continue;
+              if (rect.right > w + 1 && !dentroDeUnaZonaQueRecorta(el)) errs.push(`elemento fuera: ${el.tagName} (${Math.round(rect.right)}>${w})`);
+              const txt = (el.textContent || '').trim();
+              // Partido palabra por palabra = tantos renglones como palabras. Mirar sólo el ancho daba falsas alarmas
+              // (textos chicos que entran en un renglón, o que todavía se estaban acomodando al medir): en cada vuelta
+              // marcaba pantallas distintas, como el ingreso (revisión de la orden 313, 18/11/2026).
+              const palabras = txt.split(/\s+/).length;
+              const alto = parseFloat(st.lineHeight) || parseFloat(st.fontSize) * 1.2 || 16;
+              const renglones = Math.round(rect.height / alto);
+              if (['P', 'H1', 'H2', 'H3', 'H4'].includes(el.tagName) && palabras > 3 && rect.width < 90 && renglones >= palabras - 1) {
+                errs.push(`palabra-por-palabra: ${el.tagName} (${Math.round(rect.width)}px, ${renglones} renglones) "${txt.slice(0, 40)}"`);
+              }
+            }
+            return errs.slice(0, 3);
+          }, tam.width);
+          if (fallasTam.length > 0) {
+            results.push({
+              ...r,
+              tamano: tam.nombre,
+              estado: 'FALLO',
+              motivo: `[${tam.nombre}] ${fallasTam.join('; ')}`,
+              duracionMs,
+            });
+          }
+        }
+        await page.setViewportSize({ width: 1280, height: 800 });
 
         // Check 2: Errores no capturados
         if (pageErrors.length > 0) {

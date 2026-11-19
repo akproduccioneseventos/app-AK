@@ -802,7 +802,9 @@ export async function ejecutarAccionSecretario(input: {
     try {
       const { readData } = await import('@/lib/data-service');
       const { resumenDeLaSemana, nombreDeFiesta } = await import('@/lib/multiagent/contexto-negocio');
-      const fiestas = await readData<any[]>('fiestas.json', []);
+      const { esFiestaDemo } = await import('@/lib/events/event-ordering');
+      const fiestasRaw = await readData<any[]>('fiestas.json', []);
+      const fiestas = (fiestasRaw || []).filter((f) => !esFiestaDemo(f));
       // La misma cuenta que el bloque AGENDA del contexto del asistente, con "hoy" en hora de Uruguay.
       const semana = resumenDeLaSemana(fiestas);
       const proximasFiestas = semana.fiestas.map((x) => x.fiesta);

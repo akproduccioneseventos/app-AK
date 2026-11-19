@@ -199,7 +199,7 @@ function AuditoriaContent() {
               <ArrowRight className="h-4 w-4 mr-2" /> Cliente
             </Button>
           </Link>
-          <Link href="/invitacion/fiesta_muestra_auditor/invitado/inv_1?token=token-muestra-1" target="_blank">
+          <Link href="/invitacion/demo_ak_oficial/invitado/demo_guest_1" target="_blank">
             <Button size="sm" variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-100">
               <ArrowRight className="h-4 w-4 mr-2" /> Invitado
             </Button>

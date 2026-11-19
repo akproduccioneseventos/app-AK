@@ -37,6 +37,7 @@ export interface TableroControlEstacionesProps {
   fiestaId: string;
   nombreEvento: string;
   estaciones: EstadoEstacionOperador[];
+  puestaAPunto?: number;
   onRefresh?: () => void;
   isLoading?: boolean;
 }
@@ -45,6 +46,7 @@ export function TableroControlEstaciones({
   fiestaId,
   nombreEvento,
   estaciones,
+  puestaAPunto,
   onRefresh,
   isLoading = false,
 }: TableroControlEstacionesProps) {
@@ -81,7 +83,11 @@ export function TableroControlEstaciones({
               {conFalla.length === 0 ? (
                 <>
                   <CheckCircle2 className="h-7 w-7 text-emerald-400" />
-                  <span className="text-xl font-bold text-white">Todo en orden</span>
+                  <span className="text-xl font-bold text-white">
+                    {puestaAPunto != null && puestaAPunto < 100
+                      ? `${puestaAPunto}% puesta a punto`
+                      : 'Todo en orden'}
+                  </span>
                 </>
               ) : (
                 <>

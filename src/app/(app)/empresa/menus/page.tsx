@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, Percent, GlassWater, Save, Search, CakeSlice, Candy, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getInsumos } from '@/app/actions/insumos';
 import type { FullMenu } from '@/types/catering';
@@ -57,10 +59,22 @@ export default function GestionMenusPage() {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [targetCategory, setTargetCategory] = useState<{ catId: string } | null>(null);
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.INSUMOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const [menuData, reposteriaData, insumosData] = await Promise.all([
         getMenus(),
         getReposteriaMasterTemplate(),
@@ -290,7 +304,9 @@ export default function GestionMenusPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem('mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    {puedeBorrar && (
+                                        <Button variant="ghost" size="icon" onClick={() => removeItem('mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -322,7 +338,9 @@ export default function GestionMenusPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem('candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    {puedeBorrar && (
+                                        <Button variant="ghost" size="icon" onClick={() => removeItem('candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -388,6 +406,7 @@ export default function GestionMenusPage() {
                         {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                     </Button>
                     <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-primary hover:bg-white"><Link href={`/empresa/menus/${menu.id}/editar`}><Edit className="w-4 h-4"/></Link></Button>
+                    {puedeBorrar && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-destructive hover:bg-red-50" disabled={!!processingId}>
@@ -399,6 +418,7 @@ export default function GestionMenusPage() {
                             <AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteMenu(menu.id, menu.name)} className="rounded-xl bg-destructive">Eliminar</AlertDialogAction></AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                    )}
                     </CardFooter>
                 </Card>
                 ))}

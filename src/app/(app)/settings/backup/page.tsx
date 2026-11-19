@@ -264,6 +264,14 @@ export default function BackupPage() {
         }
 
         if (estado === 'vencido') {
+          const tieneCopiaBuenaReciente = Boolean(
+            backupStatus?.lastSuccessfulBackup &&
+            Date.now() - new Date(backupStatus.lastSuccessfulBackup).getTime() <= 24 * 60 * 60 * 1000
+          );
+          const fechaUltimaBuenaFmt = backupStatus?.lastSuccessfulBackup
+            ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
+            : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún';
+
           return (
             <Card className="shadow-md overflow-hidden border-red-300 bg-gradient-to-r from-red-50 to-white" data-testid="card-backup-stale">
               <CardHeader className="pb-3">
@@ -273,11 +281,13 @@ export default function BackupPage() {
                     Estado de Respaldo
                   </CardTitle>
                   <Badge className="bg-red-600 text-white border-none">
-                    ATENCIÓN: SIN RESPALDO RECIENTE
+                    {tieneCopiaBuenaReciente ? 'ATENCIÓN: REVISAR INTENTOS' : 'ATENCIÓN: SIN RESPALDO RECIENTE'}
                   </Badge>
                 </div>
                 <CardDescription className="text-red-700">
-                  ⚠️ Hace más de 24 horas que no se completa un respaldo automático exitoso. Te recomendamos generar uno manual.
+                  {tieneCopiaBuenaReciente
+                    ? `⚠️ Los últimos intentos automáticos tuvieron fallas, pero tu última copia buena es del ${fechaUltimaBuenaFmt}. Te recomendamos generar un punto manual si hiciste cambios recientes.`
+                    : '⚠️ Hace más de 24 horas que no se completa un respaldo automático exitoso. Te recomendamos generar uno manual.'}
                 </CardDescription>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
@@ -287,9 +297,7 @@ export default function BackupPage() {
                   <div className="rounded-xl border border-red-300 bg-red-50/70 p-3">
                     <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
                     <p className="text-sm font-semibold text-red-800 font-bold">
-                      {backupStatus?.lastSuccessfulBackup
-                        ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
-                        : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún'}
+                      {fechaUltimaBuenaFmt}
                     </p>
                   </div>
                 </div>

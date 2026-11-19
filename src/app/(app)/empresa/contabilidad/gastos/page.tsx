@@ -29,7 +29,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-const formatDate = (date: string) => new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+// Una fecha sin hora (`2026-11-18`, gastos viejos de mantenimiento) es ese día en Uruguay, no la medianoche de Greenwich.
+const formatDate = (date: string) => new Date(/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T12:00:00-03:00` : date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Montevideo' });
 
 export default function GastosGeneralesPage() {
   const { toast } = useToast();

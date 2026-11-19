@@ -264,6 +264,7 @@ function CrearPresupuestoContent() {
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
+                    const leadPhone = searchParams.get('leadPhone');
                     const serviciosParams = searchParams.getAll('servicios');
                     const serviciosParam = searchParams.get('servicios');
                     let entradasParams = searchParams.getAll('entradas');
@@ -284,7 +285,7 @@ function CrearPresupuestoContent() {
                     const tipoParam = searchParams.get('tipoFiesta');
                     const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
                     const salonParam = searchParams.get('salon');
-                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam || entradasParams.length > 0);
+                    const hasPlannerParams = Boolean(leadName || leadPhone || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam || entradasParams.length > 0);
 
                     if (hasPlannerParams) {
                         const baseForm: PresupuestoFormData = {
@@ -292,6 +293,7 @@ function CrearPresupuestoContent() {
                             serviciosSeleccionados: new Map(),
                         };
                         if (leadName) baseForm.clienteNombre = safeDecodeParam(leadName);
+                        if (leadPhone) baseForm.clienteContacto = safeDecodeParam(leadPhone);
                         if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
                         if (fechaParam) {
                             const parsedDate = new Date(fechaParam);
@@ -357,8 +359,12 @@ function CrearPresupuestoContent() {
                         }
 
                         setFormData(baseForm);
-                    } else if (leadName) {
-                        setFormData(prev => ({ ...prev, clienteNombre: safeDecodeParam(leadName) }));
+                    } else if (leadName || leadPhone) {
+                        setFormData(prev => ({
+                            ...prev,
+                            ...(leadName ? { clienteNombre: safeDecodeParam(leadName) } : {}),
+                            ...(leadPhone ? { clienteContacto: safeDecodeParam(leadPhone) } : {}),
+                        }));
                     }
 
                     // Viene de la ficha de una fiesta: se adelantan cliente, fecha e invitados que ya
@@ -401,6 +407,13 @@ function CrearPresupuestoContent() {
         if (paso === 1) {
              if (!formData.clienteNombre.trim()) {
                  toast({ title: "Requerido", description: "Por favor, completa el nombre del cliente para continuar.", variant: "destructive" });
+                 return;
+             }
+             const invalido = [formData.invitadosAdultos, formData.invitadosAdolescentes, formData.invitadosNinos].some(
+                 (v) => v !== null && v !== undefined && (!Number.isInteger(v) || v < 0),
+             );
+             if (invalido) {
+                 toast({ title: "Cantidad inválida", description: "Las cantidades de invitados deben ser números enteros mayores o iguales a 0.", variant: "destructive" });
                  return;
              }
         }

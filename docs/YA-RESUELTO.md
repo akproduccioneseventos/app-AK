@@ -1,5 +1,127 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
+
+- **Qué pasaba:** la hoja del evento ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada (A18-06).
+- **Qué se hizo:** `ordenarPorHoraDelEvento` cuenta los minutos desde `configuracion.horaInicio`; lo sin hora va al final.
+  El resto de las pantallas (itinerario, portal, pantalla gigante, PDF) la usan en la orden 320, bloque 2.
+
+```comprobar
+usa: ordenarPorHoraDelEvento en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
+prueba: src/__tests__/el-cronograma-cruza-la-medianoche.test.ts
+```
+
+## 18/11/2026 - Cierre de ronda: celíaco, afinador, insumo 1,5 kg e importador
+
+- **Qué pasaba:** el celíaco marcado aparte no llegaba al reporte ni a la copia para cocina (R18-01); el afinador de la barra
+  sugería un costo con litros negativos y dejaba aplicarlo (R18-02); el alta del insumo rechazaba 1,5 kg (R18-04); el
+  importador cobraba "Adultos: 40" y "Niños: 10" como conceptos (R18-05) y leía "TOTAL: $2.500" como $0 (R18-06).
+- **Qué se hizo:** `condicionesDelInvitado` junta la dieta y el celíaco en alergias, orden de evento y el portal; el
+  afinador no calcula ni aplica sin datos válidos; alta y edición del insumo aceptan decimales; el importador toma las
+  personas como datos del evento y lee el monto después de la etiqueta, y avisa si el total no coincide con los artículos.
+  Preguntas 192 a 196.
+
+```comprobar
+usa: condicionesDelInvitado en src/app/(app)/fiestas/nueva/alergias/page.tsx
+usa: consumoValido en src/app/(app)/empresa/menus/tragos/page.tsx
+usa: step="any" en src/app/(app)/empresa/insumos/nuevo/page.tsx
+usa: montoTrasEtiqueta en src/lib/parse-budget-text.ts
+prueba: src/__tests__/cierre-de-ronda-18-11.test.ts
+```
+
+## 18/11/2026 - Los menores que manda la Presentación LED se ven en el presupuesto
+
+- **Qué pasaba:** la LED pasa los menores como adolescentes y el campo "Niños y Adolescentes" sólo leía niños: decía 0 con 10
+  menús de menores en el presupuesto, y el total del paso 1 los dejaba afuera (R18-03).
+- **Qué se hizo:** el campo muestra niños + adolescentes; al cambiarlo queda una sola cifra, sin menores escondidos, y el
+  total suma los tres. La fecha corrida un día de la LED es el problema de fechas ya conocido.
+
+```comprobar
+prueba: src/__tests__/los-menores-del-led-se-ven-en-el-presupuesto.test.tsx
+```
+
+## 18/11/2026 - El asistente ve todos los prospectos
+
+- **Qué pasaba:** el contexto del asistente traía 12 prospectos; con 16, el Vendedor no encontraba uno recién creado (A18-04).
+- **Qué se hizo:** van con detalle los 12 más nuevos y del resto el nombre, con el total. La herramienta de búsqueda sigue en la
+  orden 320. Pregunta 186, ahora con escaneo automático.
+
+```comprobar
+prueba: src/__tests__/el-vendedor-ve-todos-los-prospectos.test.ts
+```
+
+
+## 18/11/2026 - Orden 319 (Auditoría integral: check-in, empleados, multiagente y salones)
+
+- **Bloque 1 (N27: Empleados):** `saveEmpleado` en `src/app/actions/empleados.ts` ahora revalida `/empleados` y `/empleados/${empleadoId}/editar` tras `mutateDataItem` para evitar lecturas cacheadas al recargar.
+- **Bloque 2 (N20 / N29):** agregada `undoCheckInGuest` en `src/app/actions/fiesta/invitados.actions.ts` y botón `"Deshacer"` en `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`; renombrado `"Cerrar fiesta con retroalimentación"` a `"Generar balance de cierre"` en `src/app/(app)/multiagente/acciones/page.tsx`.
+- **Responsive 313:** corregida grilla de `/control-tower` (`md:grid-cols-2 xl:grid-cols-5`) para evitar desborde a 820 px.
+- **Pruebas:** `src/__tests__/el-check-in-se-puede-deshacer.test.ts`, `tests/firebase/editar-empleado-se-guarda.test.ts` y `tests/e2e/el-salon-nuevo-se-crea.spec.ts`.
+
+```comprobar
+usa: undoCheckInGuest en src/app/recepcion/[fiestaId]/RecepcionClient.tsx
+prueba: src/__tests__/el-check-in-se-puede-deshacer.test.ts
+```
+
+## 18/11/2026 - El reporte de ganancias no acepta un período al revés
+
+- **Qué pasaba:** con inicio 19/11 y fin 18/11, el reporte daba $0 en todo y se podía bajar como un período sin actividad
+  (C18-03). Y al cambiar una fecha sin regenerar, el título del resumen mostraba el período nuevo con los números viejos.
+- **Qué se hizo:** la pantalla y el servidor rechazan el inicio después del fin, con el motivo junto al filtro; el título
+  dice el período que se calculó. Pregunta 190.
+
+```comprobar
+usa: posterior a la de fin en src/app/actions/reportes.ts
+usa: rangoDelReporte?.from en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+prueba: src/__tests__/un-solo-numero-de-plata.test.ts
+```
+
+## 18/11/2026 - El sueldo cargado a mano entra en la ganancia, y el gasto de mantenimiento queda en su día
+
+- **Qué pasaba:** en una fiesta sin presupuesto, un coordinador de $1 aparecía en Personal y en el recibo, pero la ganancia
+  y el consolidado decían $0 de personal (C18-01): la cuenta leía el total que arma "Sincronizar", y sincronizar pide
+  presupuesto. Y un mantenimiento del 18/11 dejaba su gasto el 17/11 (fecha sin hora leída en hora de Greenwich).
+- **Qué se hizo:** todas las llamadas a `calcularGananciaDeEvento` le pasan `fiesta.personalAsignado` (y los puestos, para
+  los aportes, donde ya estaban cargados); la cuenta toma el mayor entre lo sincronizado y lo asignado, como ya hacía el
+  reporte. **Por qué el mayor:** lo sincronizado sale de lo mismo, y si difieren es porque se cargó algo después. El gasto
+  del mantenimiento se guarda al mediodía de Uruguay y la lista de gastos muestra en hora de Uruguay. Preguntas 187 a 189.
+
+```comprobar
+usa: personalAsignado en src/app/actions/analytics.ts
+usa: personalEstimado en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: T12:00:00-03:00 en src/app/actions/activos-fijos.ts
+prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+```
+
+## 18/11/2026 - El plan de pagos, el contrato y el recibo dicen lo mismo
+
+- **Qué pasaba:** el plan del contrato guardaba $5.000 por trimestre y el saldo 15 días antes, y la cláusula 3 que firma el
+  cliente dice $10.000 y 30 días (A18-01). El anexo del recibo salía con `{{HITO_30}}`, `{{HITO_50}}` y
+  `{{FECHA_SALDO_TOTAL}}` escritos (A18-02). El recibo mostraba "$40.410 abonados" y "No se han registrado pagos" (A18-03).
+- **Qué se hizo:** el plan sigue la cláusula 3 al pie de la letra: $10.000 por trimestre, 30% al primer tercio, 50% a la
+  mitad y el total 30 días antes (`planPagos.ts`). **Por qué así:** manda el contrato que se firma, no el número que tenía
+  el código. Las fechas de la cláusula salen de un solo lugar (`src/lib/contratos/hitos.ts`) y se completan también en un
+  texto guardado con huecos, salvo que el cliente ya haya firmado en el portal. El detalle del recibo sale de los mismos
+  cobros que el total (`cobros-del-recibo.ts`). Los planes ya guardados no se tocan: se regeneran desde el contrato.
+
+```comprobar
+usa: PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+usa: reemplazosDeFechasDelContrato en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+usa: cobrosDelRecibo en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+prueba: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts
+```
+
+## 18/11/2026 - La lista de compras con menú y sin presupuesto
+
+- **Qué pasaba:** el arreglo del 17/11 sumaba el menú asignado, pero adentro del bloque que sólo corre con presupuesto; el
+  auditor lo probó sin presupuesto y siguió vacía (N26). La prueba buscaba el nombre del campo y daba verde.
+- **Qué se hizo:** el menú asignado, las bebidas y los postres se suman fuera de ese bloque. La cuenta vive en
+  `compras-del-menu-asignado.ts` y su prueba usa el caso exacto: fiesta sin presupuesto, el ingrediente aparece. Pregunta 185.
+
+```comprobar
+prueba: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts
+```
+
 ## 13/11/2026 - "Poner al día" ya no trae los cobros marcados
 
 - **Qué pasaba:** la pantalla abría con las 7 fiestas pasadas marcadas como cobradas; un toque en "Aplicar" registraba
@@ -16520,6 +16642,31 @@ usa: firebaseStorageDownloadTokens: fichaDeDescarga en src/lib/firebase/storage.
 usa: totalAmount > 0 && totalPaid > 0 en src/app/actions/invoices.ts
 ```
 
+## 16/11/2026 - Orden 310 (Bloques 2, 4, 5, 6, 7 y 8)
+
+- **Bloque 2 (DEMO separada):** `esFiestaDemo` aplicada en `alertas-errores-humanos.ts`, `commercial-intelligence.ts`, `multiagent.ts`, `mi-dia/page.tsx`, `parte-manana.ts`, `asistente-proactivo/route.ts` y `motor-agentes.ts`. En `eventos/page.tsx` se muestra aparte como `"Fiesta de muestra"`, y el tablero + configuración de estaciones leen del mismo cálculo (`src/lib/entretenimiento/calculo-estaciones.ts`).
+- **Bloque 4 (Conteos dinámicos):** `sincronizarDescripcionMenu` (`src/lib/catering/sincronizar-menu.ts`) y los slides LED (`entradas-slide.tsx`, `menu-adulto-slide.tsx`) calculan las cantidades desde la lista real.
+- **Bloque 5 (Textos internos fuera):** se quitó `"Firebase"` en `post-fiesta/[fiestaId]/page.tsx`, la nota de venta interna en `portada-slide.tsx`, y `"AK está preparando esta sección"` en invitación y logística.
+- **Bloque 6 (Documentos):** el contrato toma datos del cliente/presupuesto y fechas de hitos avisando en rojo si faltan antes de imprimir; el simulador descarga el PDF por Blob URL sin pestaña en blanco; y el fin de fiesta usa `horaFin` (con fallback `'05:00'`).
+- **Bloque 7 (Respaldos):** `readPresupuestosEnPartes` lee en lotes de 50 documentos para evitar timeouts y `getBackupStatus` / `settings/backup/page.tsx` miran la fecha real de la última copia buena.
+- **Bloque 8 (Auditor):** se oculta `"Eliminar"` para `esSesionDeSoloLectura()` / sin permisos en recetas (`tragos`, `menus`, `catalogo`) y personal (`empleados`, `roles`, `fiestas/nueva/personal`).
+- *(Bloques 1 y 3 —contar fiestas en Firestore real y borrar registros `PRUEBA` en la base— quedan pendientes de conexión directa con credenciales de Firebase Admin en la PC del dueño).*
+
+## 17/11/2026 - Órdenes 312, 313, 314, 315, 316 y 317
+
+- **Orden 313 (Lista de cierre visual):** `src/lib/visual/auditor-pantalla.ts` audita en 3 tamaños (`390x844`, `820x1180`, `1440x1000`) desborde (`scrollWidth`), texto palabra por palabra, contraste y símbolos rotos; integrado en `tests/e2e/recorrido-de-pantallas.spec.ts`, `scripts/lista-de-cierre.mjs`, `npm run "cierre?"`, `npm run cierre:todo` y `src/__tests__/la-lista-de-cierre-ve-lo-que-ve-el-auditor.test.ts`.
+- **Orden 312 (Responsive y simulador):** quitada la estrella rota en `simulador-de-presupuesto/page.tsx` y sumado el patrón a `scripts/check-acentos.mjs`; `/simulador-ak` responsive a 390 px con `min-w-0` y WhatsApp elevado; contraste corregido en LED config y Portafolio LED; cabecera común `src/components/ui/page-header-responsive.tsx`; fecha de tarjeta de Eventos con `parseEventDate`.
+- **Orden 314 (Simulador vende valor):** botón `"Armá tu presupuesto"` único en portada; `"reunión"` en lugar de `"oficina"`/`"entrevista"` (`SimulatorMeetingScheduler.tsx`, `EntrevistaGratuitaModal.tsx` y resumen); botones de personalización en el resumen (`Sacá servicios que no querés`, `Agregá servicios`, `Cambiá de paquete`); reloj en `localStorage` persistente al recargar y con cartel al llegar a `0:00`.
+- **Orden 315 y 316 (Muro, Buzón, RSVP, Auditoría, LED):** `crypto.subtle` protegido en `evento/social/[fiestaId]/page.tsx`; 3 estados claros en `evento/buzon/[fiestaId]/page.tsx` (`Recibido`, `Guardado en tu teléfono...`, `No se pudo: ...`); tilde y fondo marcado en restricciones de RSVP; enlace `demo_guest_1` en `auditoria/page.tsx`; tope de 15s con Reintentar en `presentacion-led/page.tsx`; validación de enteros >= 0 en cliente y servidor de presupuestos.
+- **Orden 317 (Alertas y tableros):** `getAlertasGlobalesConLeidas` suma las alertas de `getDashboardKpiData()` ("Plata y agenda") para unificar Centro de Alertas y contador del menú; `/admin` muestra `"4 de N"`; rótulos explícitos en `/analytics` y `/admin/finanzas` con enlace al Panel Contable; pruebas `el-centro-de-alertas-cuenta-lo-del-panel.test.ts` y `tests/e2e/el-tablero-dice-que-cuenta.spec.ts`.
+
+## 17/11/2026 - Orden 318 (Pruebas funcionales del auditor)
+
+- **Bloque 1 (F4: Hora del evento y cuenta regresiva):** creada `horaEventoOConfirmar` (`src/lib/fechas/hora-evento.ts`) para `recibo-contrato/page.tsx` y `ver/page.tsx` (sin inventar `03:00` desde `T03:00Z`); `getDaysUntilEvent` (`src/lib/public-experience/event-date.ts`) ahora delega en `diasHastaEnUruguay` (`src/lib/utils.ts`).
+- **Bloque 3 (F6/F7: Panel de fiesta):** `hasDocs` en `fiestas/nueva/page.tsx` exige contrato generado/firmado; botón fijo cambiado a `"Modo en vivo"`.
+- **Bloque 4 (F9/F10/F11):** `tipoCelebracion` inicial en `''` en `src/lib/fiesta-defaults.ts`; `CrmLeadCard.tsx` envía `leadPhone` y `presupuestos/nuevo/crear/page.tsx` lo carga en `clienteContacto`; `presupuestos/[id]/ver/page.tsx` muestra `"Este enlace fue desactivado. Pedile uno nuevo a AK Producciones"`.
+- **Bloque 5 (O13):** en `evento/social/[fiestaId]/page.tsx`, con 0 canciones muestra `"Todavía no hay canciones para votar"`.
+- **Pruebas y evidencia:** `la-hora-del-evento-no-se-inventa.test.ts`, `crear-presupuesto-desde-prospecto-trae-el-telefono.test.ts`, `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts` y `docs/evidencias/permiso-firma-de-archivos.md`.
 - **18/11/2026 — Auditoría integral, lo de plata y comida.** El costo de cada servicio copiado del presupuesto a la fiesta es el
   costo base del catálogo, no el precio de venta (sin costo cargado queda en $0 con el aviso). "Propuestas activas" del CRM
   ya no suma presupuestos archivados. La lista de compras suma el menú asignado a la fiesta. Ajustes → IA dice "activo"
@@ -16535,7 +16682,8 @@ prueba: src/__tests__/el-asistente-dice-si-escribe.test.ts
 - **18/11/2026 — Lo de plata que seguía pendiente desde el 13/11 (orden 301) y la revisión de la 1429.** "Poner al día" pide
   la fecha real del cobro (no futura) y el medio, y confirma "Vas a registrar N cobros por $X"; antes anotaba la fecha de la
   fiesta y "Otro". "Ventas Totales" pasa a "Ventas comprometidas" (suma facturas y presupuestos aceptados), "Cobros
-  Pendientes" del flujo de caja a "Ingresos esperados", y sin costos el ratio dice "Sin datos suficientes".
+  Pendientes" del flujo de caja a "Ingresos esperados", y sin costos el ratio dice "Sin datos suficientes". El contrato de la
+  1429 buscaba al cliente por el nombre: ahora por id o por un teléfono que no se repita.
 
 ```comprobar
 usa: detalleCobros en src/app/actions/poner-al-dia.ts

@@ -7,6 +7,7 @@ import {
   defaultGuestExperienceSettings,
   defaultModulosContratados,
   defaultPrograma,
+  getDefaultPrograma,
 } from '@/lib/fiesta-defaults';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
@@ -246,7 +247,7 @@ export async function activateUltimateEventSystem(fiestaId: string) {
       recapEnabled: true,
       updatedAt: now,
     },
-    programa: fiesta.programa?.length ? fiesta.programa : defaultPrograma,
+    programa: fiesta.programa?.length ? fiesta.programa : getDefaultPrograma(fiesta.configuracion?.horaFin),
     tareas: mergeTasks(fiesta.tareas),
     others: {
       ...(fiesta.others || {}),

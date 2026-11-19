@@ -3,6 +3,7 @@
  * (28/09/2026): la acción junta los cobros de cada presupuesto con su fiesta.
  */
 jest.mock('@/lib/auth/require-session', () => ({ requirePermiso: jest.fn(async () => ({ ok: true })) }));
+jest.mock('@/lib/roles/leer-roles-interno', () => ({ leerRolesInterno: jest.fn(async () => []) }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestas: jest.fn(async () => [{
     id: 'f1',

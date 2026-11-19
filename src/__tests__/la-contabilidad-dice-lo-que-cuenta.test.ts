@@ -3,6 +3,7 @@
  * - "Ventas totales" sumaba presupuestos aceptados además de facturas: ahora "Ventas comprometidas".
  * - "Cobros pendientes" del flujo de caja era una proyección: ahora "Ingresos esperados".
  * - Sin costos, el ratio de cobertura daba 0.00: ahora "Sin datos suficientes".
+ * Y el cliente del contrato no se busca por nombre (revisión de la 1429): con dos homónimos salía la cédula de otro.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,4 +26,9 @@ describe('La contabilidad dice lo que cuenta', () => {
     expect(fuente).toMatch(/stats\.totalExpenses > 0 \? stats\.coverageRatio\.toFixed\(2\) : 'Sin datos suficientes'/);
   });
 
+  it('el contrato no busca al cliente por el nombre', () => {
+    const fuente = leer('src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx');
+    expect(fuente).not.toMatch(/c\.name\.trim\(\)\.toLowerCase\(\) === fetchedPresupuesto\.clienteNombre/);
+    expect(fuente).toMatch(/porTelefono\.length === 1/);
+  });
 });

@@ -5,18 +5,20 @@ import { requireAppSession } from '@/lib/auth/require-session';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { getPresupuestos } from './presupuestos';
 import { detectarErroresHumanos, type AlertaErrorHumano, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 const DESCARTES_FILE = 'alertas-descartadas.json';
 
 export async function getAlertasErroresHumanos(): Promise<AlertaErrorHumano[]> {
   await requireAppSession();
   try {
-    const [fiestas, presupuestos, descartes] = await Promise.all([
+    const [fiestasRaw, presupuestos, descartes] = await Promise.all([
       getFiestas(false),
       getPresupuestos(true),
       readData<DescarteAlerta[]>(DESCARTES_FILE, []),
     ]);
 
+    const fiestas = (Array.isArray(fiestasRaw) ? fiestasRaw : []).filter((f) => !esFiestaDemo(f));
     return detectarErroresHumanos(fiestas, presupuestos, descartes);
   } catch (error) {
     console.error('Error al detectar errores humanos:', error);

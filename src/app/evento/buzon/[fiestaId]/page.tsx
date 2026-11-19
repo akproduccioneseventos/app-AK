@@ -1137,8 +1137,8 @@ export default function GuestBuzonPage() {
         resetVideoUpload();
         resetPhotoUpload();
         toast({
-          title: '¡Mensaje guardado!',
-          description: 'Tu saludo se ha guardado en el Buzón de Recuerdos.',
+          title: 'Recibido',
+          description: 'Tu recuerdo quedó guardado en el Buzón de Recuerdos.',
         });
         setTimeout(() => {
           setShowCelebration(false);
@@ -1152,7 +1152,7 @@ export default function GuestBuzonPage() {
 
       if (decision === 'permanent') {
         toast({
-          title: 'Error al enviar saludo',
+          title: `No se pudo: ${errMessage || 'el mensaje fue rechazado'}`,
           description: errMessage || 'El mensaje no se pudo publicar.',
           variant: 'destructive',
         });
@@ -1176,17 +1176,13 @@ export default function GuestBuzonPage() {
             },
             accessToken: snapshotAccessToken,
           });
-          setShowCelebration(true);
           resetAudioRecording();
           resetVideoUpload();
           resetPhotoUpload();
           toast({
-            title: '¡Saludo guardado en el equipo!',
+            title: 'Guardado en tu teléfono, se manda cuando haya señal',
             description: 'Tu mensaje quedó guardado sin conexión y se subirá automáticamente al volver la señal.',
           });
-          setTimeout(() => {
-            setShowCelebration(false);
-          }, 5000);
           return;
         } catch (offlineErr: any) {
           console.error('[Buzon] Error al guardar offline:', offlineErr);
@@ -1205,7 +1201,7 @@ export default function GuestBuzonPage() {
       }
 
       toast({
-        title: 'Error al enviar saludo',
+        title: `No se pudo: ${errMessage || 'sin conexión con el servidor'}`,
         description: errMessage || 'No se pudo conectar con el servidor ni guardar en el equipo.',
         variant: 'destructive',
       });

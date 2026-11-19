@@ -1,5 +1,7 @@
 'use client';
 
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
+import { condicionesDelInvitado } from '@/lib/catering/condiciones-del-invitado';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -129,8 +131,10 @@ function OrdenDeEventoContenido() {
   }
 
   const { configuracion } = fiesta;
-  const cronograma = Array.isArray(fiesta.programa) ? [...fiesta.programa] : [];
-  cronograma.sort((a: any, b: any) => (a.hora || '').localeCompare(b.hora || ''));
+  const cronograma = ordenarPorHoraDelEvento(
+    Array.isArray(fiesta.programa) ? fiesta.programa : [],
+    configuracion?.horaInicio,
+  );
 
   const personalAsignado = fiesta.personalAsignado || [];
   const empleadosMap = new Map(empleados.map((e) => [e.id, e.nombre]));
@@ -157,8 +161,7 @@ function OrdenDeEventoContenido() {
   const confirmadosConAlergia = (fiesta.invitados || []).filter(
     (inv) =>
       inv.rsvp === 'Confirmado' &&
-      ((inv.dietaryRestriction && inv.dietaryRestriction !== 'Ninguna') ||
-        inv.alergiasEspecificas),
+      (condicionesDelInvitado(inv).length > 0 || inv.alergiasEspecificas),
   );
 
   return (
@@ -328,7 +331,7 @@ function OrdenDeEventoContenido() {
                 <div key={inv.id} className="border p-2 rounded bg-red-50/40 border-red-100">
                   <span className="font-semibold block">{inv.nombre}</span>
                   <span className="text-xs text-red-700">
-                    {inv.dietaryRestriction || 'Especial'}
+                    {condicionesDelInvitado(inv).join(' + ') || 'Especial'}
                     {inv.alergiasEspecificas ? ` (${inv.alergiasEspecificas})` : ''}
                   </span>
                 </div>

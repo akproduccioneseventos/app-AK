@@ -170,7 +170,7 @@ export function EntrevistaGratuitaModal({ isOpen, onClose }: EntrevistaGratuitaM
             </button>
 
             <p className="text-center text-xs text-zinc-500 pt-2">
-              Sin compromiso ni costos ocultos. Te esperamos en nuestra oficina en Salto.
+              Sin compromiso ni costos ocultos. Coordinamos dónde: en el salón, por videollamada o donde te quede cómodo.
             </p>
           </form>
         ) : (

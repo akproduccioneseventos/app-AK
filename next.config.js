@@ -140,6 +140,14 @@ const nextConfig = {
         destination: '/public/blog',
         permanent: true,
       },
+      // Los tableros viejos de la fiesta van directo a su centro desde el servidor, sin cargar la pantalla del equipo
+      // (18/11/2026: con la máquina cargada la redirección dentro de la página tardaba más de un minuto).
+      ...['centro-total', 'centro', 'mission-control'].map((viejo) => ({
+        source: `/fiestas/nueva/${viejo}`,
+        has: [{ type: 'query', key: 'fiestaId', value: '(?<id>[A-Za-z0-9_-]{1,120})' }],
+        destination: '/fiestas/:id/centro',
+        permanent: false,
+      })),
       {
         source: '/blog/:slug',
         destination: '/public/blog/:slug',

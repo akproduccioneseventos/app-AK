@@ -8,10 +8,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Loader2, CheckCircle2, Clock, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { conSinonimos } from '@/lib/contratos/marcadores';
+import { completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
-import type { Invoice, Payment } from '@/types/invoice';
+import type { Invoice } from '@/types/invoice';
 import type { CompanyInfo } from '@/types/settings';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
@@ -21,6 +22,7 @@ import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate, getBud
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { cobrosDelRecibo } from '@/lib/budget/cobros-del-recibo';
 
 /** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
 const sanitizeImageUrl = (url: string | null | undefined): string | null => {
@@ -161,6 +163,18 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
       if (includeContrato) {
         const masterTemplate = await getContractTemplate();
         let text = fiestaData.contratoServicioTexto || masterTemplate;
+        // El anexo salía con `{{HITO_30}}`, `{{HITO_50}}` y `{{FECHA_SALDO_TOTAL}}` escritos en el papel: el recibo no
+        // calculaba las fechas de la cláusula 3 (auditoría del 18/11/2026, A18-02). Se completan siempre, también en un
+        // texto guardado que haya quedado con huecos; un contrato firmado en el portal no se toca.
+        const todayAnexo = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const fechasDelContrato = conSinonimos(reemplazosDeFechasDelContrato(
+          fiestaData.configuracion.fechaEvento,
+          fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp,
+          todayAnexo,
+        ));
+        if (fiestaData.contratoServicioTexto && !fiestaData.firmaDigitalConstancia) {
+          text = completarMarcadoresPendientes(text, fechasDelContrato);
+        }
         if (!fiestaData.contratoServicioTexto) {
           const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
           let seniaValue = '__________________________';
@@ -184,6 +198,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
             '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
             '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
             '{{SENIA}}': seniaValue,
+            ...fechasDelContrato,
           };
           Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
             text = text.replaceAll(key, val);
@@ -275,14 +290,8 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText, salonContractText, ajusteAnualPorcentaje } = data;
   const logoUrl = sanitizeImageUrl(rawLogoUrl);
 
-  // Aggregate all payments from all invoices, sorted by date
-  const allPayments: (Payment & { invoiceNumber: string })[] = [];
-  invoices.forEach((inv) => {
-    (inv.payments || []).forEach((p) => {
-      allPayments.push({ ...p, invoiceNumber: inv.invoiceNumber });
-    });
-  });
-  allPayments.sort((a, b) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime());
+  // El detalle sale de la misma fuente que el total (auditoría del 18/11/2026, A18-03).
+  const allPayments = cobrosDelRecibo(presupuesto, invoices);
 
   // El recibo no sumaba el ajuste anual por inflacion, y el estado de cuenta si.
   // Con un evento agendado para el ano siguiente, el cliente veia un saldo en el

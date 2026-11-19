@@ -727,9 +727,13 @@ export default function SocialEventPage() {
       formData.append('accessToken', stationAccessToken);
     }
     if (uploadFile.type.startsWith('image/')) {
-      if (crypto.subtle) {
-        const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
-        formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+      try {
+        if (typeof crypto !== 'undefined' && crypto.subtle) {
+          const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
+          formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+        }
+      } catch {
+        // Si crypto.subtle falla o no está disponible, se sube igual sin la huella
       }
 
       // Medir nitidez y brillo en el celular del invitado
@@ -1308,7 +1312,7 @@ export default function SocialEventPage() {
                     if (!activeSong) {
                       return (
                         <motion.div key="empty" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute inset-0 grid place-items-center">
-                          <EmptyState icon={Music2} title="¡Ya votaste todo!" text="Pedí una nueva canción arriba." />
+                          <EmptyState icon={Music2} title={songs.length === 0 ? "Todavía no hay canciones para votar" : "¡Ya votaste todo!"} text="Pedí una nueva canción arriba." />
                         </motion.div>
                       );
                     }

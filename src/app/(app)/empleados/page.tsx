@@ -14,6 +14,8 @@ import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/acti
 import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -76,6 +78,7 @@ export default function EmpleadosPage() {
   // Con alguien que trabajó en treinta eventos, la tabla del historial no
   // terminaba más. Se filtra por año.
   const [filtroAnioHistorial, setFiltroAnioHistorial] = useState<string>('todos');
+  const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const anioDeFiesta = (fiesta: FiestaEnPlanificacion) => {
     const fecha = new Date(fiesta.configuracion?.fechaEvento || '');
@@ -100,6 +103,17 @@ export default function EmpleadosPage() {
     setIsLoading(true);
     setError(null);
     try {
+      try {
+        const [perms, soloLectura] = await Promise.all([
+          getMisPermisos(),
+          esSesionDeSoloLectura(),
+        ]);
+        const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION) || perms.permisos.includes(PERMISOS.SUELDOS);
+        setPuedeBorrar(tieneAdmin && !soloLectura);
+      } catch {
+        setPuedeBorrar(false);
+      }
+
       const [empleadosData, rolesData, settings] = await Promise.all([
         getEmpleados(),
         getRoles(),
@@ -485,6 +499,7 @@ export default function EmpleadosPage() {
                           <Button asChild variant="outline" size="icon" className="h-8 w-8" aria-label={`Editar ${empleado.nombre}`}><Link href={`/empleados/${empleado.id}/editar`}>
                               <Edit className="w-4 h-4" />
                             </Link></Button>
+                          {puedeBorrar && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" size="icon" className="h-8 w-8" aria-label={`Eliminar ${empleado.nombre}`} disabled={deletingId === empleado.id}>
@@ -507,6 +522,7 @@ export default function EmpleadosPage() {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

@@ -2,6 +2,7 @@ import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 export type CategoriaErrorHumano =
   | 'plata_papeles'
@@ -61,6 +62,8 @@ export function detectarErroresHumanos(
   const descartadasSet = new Set(descartes.map((d) => d.alertaId));
   const alertas: AlertaErrorHumano[] = [];
 
+  const fiestasOperativas = (fiestas || []).filter((f) => !esFiestaDemo(f));
+
   const presupuestosMap = new Map<string, Presupuesto>();
   for (const p of presupuestos) {
     if (p.id) presupuestosMap.set(p.id, p);
@@ -70,7 +73,7 @@ export function detectarErroresHumanos(
   const personalPorFecha = new Map<string, Array<{ empleadoNombre: string; fiestaId: string; fiestaNombre: string }>>();
   const salonPorFecha = new Map<string, Array<{ salon: string; fiestaId: string; fiestaNombre: string }>>();
 
-  for (const fiesta of fiestas) {
+  for (const fiesta of fiestasOperativas) {
     const estado = (fiesta.estado || '').toLowerCase();
     if (estado.includes('cancel') || estado.includes('archiv')) continue;
 
