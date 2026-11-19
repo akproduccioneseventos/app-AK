@@ -11,7 +11,7 @@ describe('client portal authentication boundary', () => {
     'utf8',
   );
   const socialControlPage = fs.readFileSync(
-    path.join(process.cwd(), 'src/app/portal-cliente/[id]/muro-social/page.tsx'),
+    path.join(process.cwd(), 'src/components/panels/portal--muro-social.tsx'),
     'utf8',
   );
 

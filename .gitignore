@@ -197,3 +197,7 @@ __pycache__/
 herramientas/ak-editor/.venv/
 herramientas/ak-editor/venv/
 *.sqlite
+
+# La fiesta de muestra del auditor la crea la app al entrar (al-entrar-a-la-app.ts): es dato de la corrida (19/11/2026).
+data/fiestas.json
+src/data/fiestas.json

@@ -30,7 +30,7 @@ jest.mock('@/components/social-media/SocialHistoryPanel', () => ({
 jest.mock('@/components/social-media/SocialMediaCalendar', () => ({ SocialMediaCalendar: () => null }));
 
 async function pintar() {
-  const Page = require('@/app/(app)/empresa/redes-sociales/page').default;
+  const Page = require('@/components/panels/empresa--redes-sociales').default;
   const host = document.body.appendChild(document.createElement('div'));
   const root = createRoot(host);
   await act(async () => { root.render(<Page />); });

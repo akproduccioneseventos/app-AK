@@ -1,5 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import { FiestaHubShell } from '@/components/fiestas/FiestaHubShell';
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -1552,10 +1554,22 @@ function ClientPortalConfigContent() {
   );
 }
 
+const PortalExpPanel = dynamic(() => import('@/components/fiestas/panels/portal-cliente--experiencia-mundial'));
+const PortalCierrePanel = dynamic(() => import('@/components/fiestas/panels/portal-cliente--cierre-final'));
+
 export default function ClientPortalPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <ClientPortalConfigContent />
+            <FiestaHubShell
+              basePath="/fiestas/nueva/portal-cliente"
+              tabs={[
+                { id: 'config', label: 'Portal del cliente' },
+                { id: 'experiencia', label: 'Experiencia digital' },
+                { id: 'cierre', label: 'Vista final' },
+              ]}
+              renderDefault={() => <ClientPortalConfigContent />}
+              renderTab={(tab) => (tab === 'experiencia' ? <PortalExpPanel /> : <PortalCierrePanel />)}
+            />
         </Suspense>
     )
 }

@@ -1,4 +1,12 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/crm--agenda'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/crm--atraccion-fiestas'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/crm--ciclo-comercial'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/crm--marketing-ads'));
+const __AkPanel5 = __akDynamic(() => import('@/components/panels/crm--comercial-360'));
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
@@ -95,7 +103,7 @@ type QuickFilter =
   | 'birthday_60'
   | 'birthday_90';
 
-export default function CrmPage() {
+function CrmPageInner() {
   const {
     stages,
     leads,
@@ -589,5 +597,18 @@ export default function CrmPage() {
             <ScheduleMeetingDialog isOpen={isMeetingModalOpen} onOpenChange={setIsMeetingModalOpen} leadName={leadForMeeting.name} meetingType={meetingType} onSubmit={handleMeetingSubmit} onClose={() => setLeadForMeeting(null)} />
         )}
       </div>
+  );
+}
+
+
+export default function CrmPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"crm","label":"Prospectos"},{"id":"agenda","label":"Agenda"},{"id":"atraccion","label":"Atracción de fiestas"},{"id":"ciclo","label":"Ciclo comercial"},{"id":"ads","label":"Anuncios"},{"id":"comercial-360","label":"Comercial 360"}]}
+        renderDefault={() => <CrmPageInner />}
+        renderTab={(tab) => { if (tab === 'agenda') return <__AkPanel1 />; if (tab === 'atraccion') return <__AkPanel2 />; if (tab === 'ciclo') return <__AkPanel3 />; if (tab === 'ads') return <__AkPanel4 />; if (tab === 'comercial-360') return <__AkPanel5 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

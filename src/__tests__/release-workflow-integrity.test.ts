@@ -28,12 +28,13 @@ describe('release workflow integrity', () => {
 
   it('sends the guest gift shortcut to the real invitation section', () => {
     const guestPage = read('src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx');
-    const legacyGuestPage = read('src/app/invitado/[fiestaId]/[invitadoId]/page.tsx');
+    const nextConfig = read('next.config.js');
     const invitation = read('src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx');
     expect(guestPage).toContain('`${invitacionUrl}#regalos`');
     expect(invitation).toContain('id="regalos"');
     expect(guestPage).not.toContain('/portal-cliente/${fiestaId}/regalos');
-    expect(legacyGuestPage).toContain('/portal-invitado/${encodeURIComponent(fiestaId)}');
+    expect(nextConfig).toContain("source: '/invitado/:fiestaId/:guestId'");
+    expect(nextConfig).toContain("destination: '/portal-invitado/:fiestaId/:guestId'");
   });
 
   it('checks persistence results before confirming financial saves', () => {

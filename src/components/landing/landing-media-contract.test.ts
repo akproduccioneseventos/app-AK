@@ -72,7 +72,7 @@ describe("public landing media contracts", () => {
       titulo: "Kebab gourmet para eventos",
       servicio: "Catering",
     });
-    expect(read("src/app/landing/bodas/page.tsx")).not.toContain(
+    expect(read("src/app/bodas/page.tsx")).not.toContain(
       "boda-decoracion-dorada-01.jpeg",
     );
   });

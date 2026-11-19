@@ -1,5 +1,9 @@
 
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/carga-historicos'));
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -38,7 +42,7 @@ import { Separator } from '@/components/ui/separator';
 const formatCurrency = (amount: number) => 
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 
-export default function FiestasHistoricasPage() {
+function FiestasHistoricasPageInner() {
   const { toast } = useToast();
   const [historicos, setHistoricos] = useState<FiestaHistorica[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -266,5 +270,18 @@ export default function FiestasHistoricasPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+
+export default function FiestasHistoricasPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"historicas","label":"Histórico de fiestas"},{"id":"cargar","label":"Cargar históricos"}]}
+        renderDefault={() => <FiestasHistoricasPageInner />}
+        renderTab={(tab) => { if (tab === 'cargar') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

@@ -56,9 +56,11 @@ No tocar cuentas/datos/cargos/mensajes reales ni fusionar documentos solos.
 Bloque de navegacion, no certificado de aceptacion:
 
 ```comprobar
+# En Orden 321 la pantalla centro-de-control se retiró y redirige en next.config.js a /mi-dia; la lógica sigue activa en centro-de-control.ts
 archivo: src/app/actions/centro-de-control.ts
-usa: aprobarItemOK en src/app/(app)/centro-de-control/page.tsx
-usa: darOrdenPorVozOTexto en src/app/(app)/centro-de-control/page.tsx
+usa: /centro-de-control en next.config.js
+usa: aprobarItemOK en src/__tests__/orden-241-centro-de-control-no-miente.test.ts
+usa: darOrdenPorVozOTexto en src/__tests__/orden-241-centro-de-control-no-miente.test.ts
 usa: getReglaParaTarea en src/lib/agentes/motor-agentes.ts
 prueba: docs/evidencias/697-centro-control-sonda.cjs
 prueba: docs/evidencias/698-reglas-y-web-sonda.cjs

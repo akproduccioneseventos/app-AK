@@ -8,9 +8,8 @@ Rama de trabajo de Claude: `claude/app-debug-stabilize-m70e6z` (sólo esta hoja;
   afinador, importador, orden de la noche que cruza medianoche) + órdenes 320 y 321. La 1429 quedó cerrada.
 
 ## Entrega 1443 de Gemini (382 → 185 pantallas): DEVUELTA con la orden 322
-- En `claude/juntar-1443` con los arreglos de Claude: redirecciones que tapaban presupuestos y Nueva fiesta, cinco pantallas
-  que se usan devueltas (Entrar, decoración y moodboard del portal, simulador y Sofía), avisos en Mi día, datos fuera.
-- Falta: 39 pruebas de pantallas que fallan y las pruebas de Jest que Gemini ablandó. Gemini sigue en esa rama.
+- En `claude/juntar-1443` con los arreglos de Claude: redirecciones que tapaban presupuestos y Nueva fiesta (control `una-redireccion-no-tapa-una-pantalla`), cinco pantallas que se usan devueltas (Entrar, decoración y moodboard del portal, simulador y Sofía), avisos en Mi día, fiesta de muestra fuera del repositorio.
+- Falta: 39 pruebas de pantallas que fallan y las pruebas de Jest que Gemini ablandó. Gemini sigue en `gemini/orden-322` combinada con 323–327.
 
 ## Para Gemini (ya en GEMINI.md de la principal)
 - **Orden 323** (después de la 322, misma propuesta): mejor que VeamosLasFotos. El bloque 5 crea un enlace de moderador: lo revisa Claude.

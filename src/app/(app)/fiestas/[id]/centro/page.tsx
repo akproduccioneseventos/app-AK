@@ -327,7 +327,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
               </h2>
             </div>
             <Link
-              href={`/fiestas/${encodeURIComponent(params.id)}/ak-100`}
+              href={`/fiestas/${encodeURIComponent(params.id)}/centro`}
               className="text-xs font-bold text-red-300 hover:text-red-200 underline"
             >
               Ver detalle AK-100

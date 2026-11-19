@@ -11,7 +11,7 @@ import path from 'path';
 import { createRoot } from 'react-dom/client';
 
 jest.mock('next/link', () => ({ __esModule: true, default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a> }));
-jest.mock('next/navigation', () => ({ usePathname: () => '/empresa/configurador-reunion' }));
+jest.mock('next/navigation', () => ({ usePathname: () => '/presupuestos/nuevo/crear' }));
 jest.mock('@/hooks/use-es-vista-del-cliente', () => ({ useEsVistaDelCliente: () => false }));
 
 import { ContextualAssistantIndicator } from '@/components/assistant/contextual-assistant-indicator';
@@ -93,8 +93,13 @@ test('sin ningún control en el camino, la tarjeta queda donde la dejó el equip
   cerrar();
 });
 
-test('el botón Generar Presupuesto Formal de la pantalla llama a handleSaveBudget y guarda una sola vez', () => {
-  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/empresa/configurador-reunion/page.tsx'), 'utf8');
-  expect(fuente).toMatch(/onClick=\{handleSaveBudget\}[\s\S]{0,500}Generar Presupuesto Formal/);
-  expect(fuente).toMatch(/if \(guardadoEnCurso\.current\) return;/);
+test('el botón de guardar presupuesto de la pantalla llama a handleSave y guarda una sola vez (configurador retirado redirige en next.config.js)', () => {
+  const nextConfig = fs.readFileSync(path.join(process.cwd(), 'next.config.js'), 'utf8');
+  expect(nextConfig).toContain("'/empresa/configurador-reunion'");
+  expect(nextConfig).toContain('/settings?seccion=contratos&sub=templates--reuniones');
+  expect(fs.existsSync(path.join(process.cwd(), 'src/components/settings/panels/templates--reuniones.tsx'))).toBe(true);
+
+  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/presupuestos/nuevo/crear/page.tsx'), 'utf8');
+  expect(fuente).toMatch(/onClick=\{handleSave\}[\s\S]{0,500}Finalizar y Generar/);
+  expect(fuente).toMatch(/if \(savingRef\.current\) return;/);
 });

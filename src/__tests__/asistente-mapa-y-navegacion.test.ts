@@ -11,19 +11,19 @@ describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
     const mapaTexto = mapaParaLaAsistente();
     expect(MENU_DEL_STAFF.length).toBeGreaterThanOrEqual(39);
     expect(mapaTexto).toContain(`MAPA DEL PANEL (${MENU_DEL_STAFF.length} opciones de menu`);
-    expect(mapaTexto).toContain('Lista de Compras → /compras');
+    expect(mapaTexto).toContain('Insumos y Compras → /empresa/insumos');
     expect(mapaTexto).toContain('Facturas → /invoices');
     expect(mapaTexto).toContain('Prospectos → /contabilidad/crm');
     expect(mapaTexto).toContain('Panel Contable → /empresa/contabilidad');
   });
 
   it('esPantallaReal reconoce correctamente rutas reales de la app', () => {
-    expect(esPantallaReal('/compras')).toBe(true);
+    expect(esPantallaReal('/empresa/insumos')).toBe(true);
     expect(esPantallaReal('/invoices')).toBe(true);
     expect(esPantallaReal('/contabilidad/crm')).toBe(true);
     expect(esPantallaReal('/fiestas/nueva/configuracion')).toBe(true);
     expect(esPantallaReal('/fiestas/nueva/plan-pagos')).toBe(true);
-    expect(esPantallaReal('/portal-cliente/123/menu')).toBe(true);
+    expect(esPantallaReal('/portal-cliente/123')).toBe(true);
     expect(esPantallaReal('/evento/hub/fiesta-456')).toBe(true);
   });
 
@@ -34,13 +34,14 @@ describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
     expect(esPantallaReal('/rutas/magicas/ia')).toBe(false);
   });
 
-  it('cada una de las 39 opciones del menú del staff apunta a una pantalla real', () => {
+  it('cada una de las opciones del menú del staff apunta a una pantalla real', () => {
     for (const opcion of MENU_DEL_STAFF) {
       expect(esPantallaReal(opcion.ruta)).toBe(true);
     }
   });
 
-  it('el mapa contiene más de 300 pantallas indexadas en total', () => {
-    expect(CUANTAS_PANTALLAS).toBeGreaterThanOrEqual(300);
+  it('el mapa contiene hasta 180 pantallas indexadas en total (Orden 321)', () => {
+    expect(CUANTAS_PANTALLAS).toBeGreaterThan(100);
+    expect(CUANTAS_PANTALLAS).toBeLessThanOrEqual(185);
   });
 });

@@ -18,7 +18,7 @@ jest.mock('@/app/actions/reportes', () => ({
   getProfitAndLossData: (...args: any[]) => mockReporte(...args),
 }));
 
-import Page from '@/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page';
+import Page from '@/components/panels/costos--reporte';
 
 beforeAll(() => {
   Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true });

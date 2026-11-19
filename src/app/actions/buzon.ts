@@ -423,6 +423,7 @@ export async function updateBuzonFrameTemplate(fiestaId: string, template: strin
       ...fiesta,
       buzonConfig: {
         ...fiesta.buzonConfig,
+        videoFrameTemplate: template,
         customText: typeof customText === 'string'
           ? customText.trim().slice(0, 80)
           : fiesta.buzonConfig?.customText || '',

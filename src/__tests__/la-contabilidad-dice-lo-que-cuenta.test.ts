@@ -11,12 +11,13 @@ import path from 'node:path';
 const leer = (rel: string) => fs.readFileSync(path.join(process.cwd(), rel), 'utf8');
 
 describe('La contabilidad dice lo que cuenta', () => {
-  it('el panel y el tablero dicen "Ventas comprometidas", no "Ventas Totales"', () => {
-    for (const archivo of ['src/app/(app)/admin/page.tsx', 'src/app/(app)/empresa/contabilidad/page.tsx']) {
+  it('el tablero de contabilidad dice "Ventas comprometidas", no "Ventas Totales"', () => {
+    for (const archivo of ['src/app/(app)/empresa/contabilidad/page.tsx']) {
       const fuente = leer(archivo);
       expect(fuente).toContain('title="Ventas comprometidas"');
       expect(fuente).not.toContain('title="Ventas Totales"');
     }
+    expect(leer('src/components/contabilidad/panels/finanzas.tsx')).not.toContain('Ventas Totales');
   });
 
   it('el flujo de caja dice "Ingresos esperados" y no muestra un ratio sin costos', () => {

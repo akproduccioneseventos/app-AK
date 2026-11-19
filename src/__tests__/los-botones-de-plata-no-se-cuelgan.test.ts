@@ -72,9 +72,9 @@ describe('Los botones de mutación y plata no se cuelgan', () => {
     expect(leer('src/app/(app)/invoices/new/page.tsx')).toContain('conTopeDeEspera(saveInvoice(');
   });
 
-  it('cobrar contra un presupuesto y guardarlo desde el configurador tienen tope de espera', () => {
+  it('cobrar contra un presupuesto y guardarlo tienen tope de espera', () => {
     expect(leer('src/app/(app)/presupuestos/[id]/ver/page.tsx')).toContain('conTopeDeEspera(addPagoToPresupuesto(');
-    expect(leer('src/app/(app)/empresa/configurador-reunion/page.tsx')).toContain('conTopeDeEspera(savePresupuesto(');
+    expect(leer('src/app/(app)/presupuestos/nuevo/crear/page.tsx')).toContain('conTopeDeEspera(savePresupuesto(');
   });
 
   /**

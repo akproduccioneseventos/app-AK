@@ -119,8 +119,9 @@ export const CUANTAS_PANTALLAS = TODAS_LAS_PANTALLAS.length;
 
 /** Una ruta sirve para navegar si existe como pantalla de la app. */
 export function esPantallaReal(ruta: string): boolean {
-  if (TODAS_LAS_PANTALLAS.includes(ruta)) return true;
-  const partes = ruta.split('/').filter(Boolean);
+  const sinQuery = ruta.split('?')[0].split('#')[0] || '/';
+  if (TODAS_LAS_PANTALLAS.includes(sinQuery)) return true;
+  const partes = sinQuery.split('/').filter(Boolean);
   return TODAS_LAS_PANTALLAS.some(p => {
     const suyas = p.split('/').filter(Boolean);
     if (suyas.length !== partes.length) return false;

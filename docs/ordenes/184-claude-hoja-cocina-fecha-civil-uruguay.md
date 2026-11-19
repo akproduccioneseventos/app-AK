@@ -53,8 +53,8 @@ fecha ausente sin modificar los datos. El E2E existe y fue ejecutado; aun falla
 enUruguay. No dar por hecho el arreglo porque exista el archivo de prueba.
 
 ```comprobar
-archivo: src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
-usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
-no-usa: new Date(hoja.fecha).toLocaleDateString en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+archivo: src/components/panels/catering--hoja-de-cocina.tsx
+usa: armarHojaDeCocina en src/components/panels/catering--hoja-de-cocina.tsx
+no-usa: new Date(hoja.fecha).toLocaleDateString en src/components/panels/catering--hoja-de-cocina.tsx
 prueba: tests/e2e/143-cocina-fecha-local.spec.ts
 ```

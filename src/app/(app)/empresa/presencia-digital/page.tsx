@@ -3,6 +3,7 @@ import { getSocialPosts } from '@/app/actions/social-media';
 import { PresenciaDigitalClient } from './presencia-digital-client';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { PresenciaDigitalHubWrapper } from '@/components/panels/PresenciaDigitalHubWrapper';
 
 export const metadata = {
   title: 'Centro de Presencia Digital',
@@ -19,6 +20,7 @@ export default async function PresenciaDigitalPage() {
   const data = dashboardRes.data;
 
   return (
+    <PresenciaDigitalHubWrapper>
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 space-y-6">
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
@@ -74,5 +76,6 @@ export default async function PresenciaDigitalPage() {
         <div className="text-center py-12 text-slate-500">Cargando métricas...</div>
       )}
     </div>
+    </PresenciaDigitalHubWrapper>
   );
 }

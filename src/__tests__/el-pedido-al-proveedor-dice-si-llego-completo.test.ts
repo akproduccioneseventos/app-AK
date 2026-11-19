@@ -62,7 +62,7 @@ describe('el seguimiento del pedido', () => {
   });
 
   it('la lista de compras anota el pedido al mandarlo y muestra lo que llegó', () => {
-    const pantalla = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx'), 'utf8');
+    const pantalla = fs.readFileSync(path.join(process.cwd(), 'src/components/panels/catering--lista-compras.tsx'), 'utf8');
     expect(pantalla).toMatch(/anotarPedidoEnviado\(providerId, providerName, items\)/);
     expect(pantalla).toMatch(/<RecepcionDelPedido/);
   });

@@ -8,7 +8,7 @@ para no volver a construir algo que ya está ni prometer algo que la app no hace
 Van juntos a propósito. Dos manuales separados se despegan en un mes, y el que
 queda viejo hace más daño que no tener ninguno.
 
-**Tamaño de la app hoy: 382 pantallas y 42 opciones de menú.** Esos dos números
+**Tamaño de la app hoy: 185 pantallas y 39 opciones de menú.** Esos dos números
 no se escriben a mano: los cuenta el control automático, y si no coinciden con
 la app de verdad, se pone en rojo.
 
@@ -42,7 +42,7 @@ ruta que nombra este manual siga estando.
 | Para qué | Dónde |
 |---|---|
 | Tu día de trabajo: tareas, turnos y repaso | `/mi-dia` |
-| Avisos y alertas urgentes del negocio | `/alertas` |
+| Avisos y alertas urgentes del negocio | `/mi-dia?tab=alertas` |
 | Cambios presupuestarios y pedidos a aprobar | `/aprobaciones` |
 | Asistente de inteligencia artificial (Sofía) | `/asistente` |
 
@@ -67,10 +67,10 @@ ruta que nombra este manual siga estando.
 | Plan de pagos de esa fiesta | `/fiestas/nueva/plan-pagos` |
 | Rentabilidad de esa fiesta | `/fiestas/nueva/gestion-costos-rentabilidad` |
 | Contratos, recibos y cambios firmados | `/fiestas/nueva/gestion-documental` |
-| Centro de operaciones, la noche de la fiesta | `/fiestas/nueva/en-vivo` |
+| Centro de operaciones, la noche de la fiesta | `/fiestas/nueva/muro-social?tab=en-vivo` |
 | Configurar el portal del cliente | `/fiestas/nueva/portal-cliente` |
 | Portal para los proveedores | `/fiestas/nueva/proveedores-portal` |
-| Muro social de todos los eventos | `/empresa/red-social-eventos` |
+| Muro social de todos los eventos | `/empresa/presencia-digital?tab=social-eventos` |
 
 ### 💼 3. Vender — prospectos, presupuestos y clientes
 
@@ -79,9 +79,9 @@ ruta que nombra este manual siga estando.
 | Pipeline comercial y seguimiento de prospectos | `/contabilidad/crm` |
 | Armar un nuevo presupuesto | `/presupuestos/nuevo` |
 | Directorio completo de clientes | `/customers` |
-| Agenda de reuniones comerciales | `/contabilidad/crm/agenda` |
+| Agenda de reuniones comerciales | `/contabilidad/crm?tab=agenda` |
 | WhatsApp preparados del día para enviar con un toque | `/contabilidad/crm/outbox` |
-| Simulador inteligente de presupuesto con IA | `/simulador-ak` |
+| Simulador inteligente de presupuesto con IA | `/simulador-de-presupuesto` |
 
 **Etapas del prospecto:** Nuevo → Contactado → Entrevista agendada → Presupuesto
 enviado → En negociación → Ganado o Perdido. Un prospecto sin etapa o sin próxima
@@ -97,8 +97,8 @@ acción es un prospecto perdido.
 | Control y registro de gastos | `/empresa/contabilidad/gastos` |
 | Flujo de caja proyectado | `/empresa/contabilidad/flujo-caja` |
 | Reporte de ganancias y balance del negocio | `/empresa/contabilidad/reportes` |
-| Comparativa de ganancias por fiesta | `/comparativa-ganancias` |
-| Métricas globales y evolución comercial | `/empresa/dashboard` |
+| Comparativa de ganancias por fiesta | `/empresa/contabilidad/reportes?tab=comparativa` |
+| Métricas globales y evolución comercial | `/mi-dia` |
 
 **Cómo se arma la plata de una fiesta, en orden:** el presupuesto suma los
 servicios elegidos → se aplica el descuento → se aplica el ajuste anual del 15%
@@ -109,22 +109,22 @@ se acordó nada) → el saldo es el total menos lo que ya se cobró.
 
 | Para qué | Dónde |
 |---|---|
-| Resumen de campañas y wizard de contenidos | `/marketing` |
+| Resumen de campañas y wizard de contenidos | `/empresa/presencia-digital?tab=marketing` |
 | Bandeja de comentarios y mensajes de redes | `/empresa/presencia-digital` |
-| Publicaciones y planificador de redes sociales | `/empresa/redes-sociales` |
-| Reseñas y calificaciones de Google Maps | `/empresa/resenas-google` |
-| Anuncios pagos en Meta Ads | `/contabilidad/crm/marketing-ads` |
+| Publicaciones y planificador de redes sociales | `/empresa/presencia-digital?tab=redes` |
+| Reseñas y calificaciones de Google Maps | `/empresa/presencia-digital?tab=resenas` |
+| Anuncios pagos en Meta Ads | `/contabilidad/crm?tab=ads` |
 | Galería pública y catálogo web | `/empresa/galeria` |
 | Editor de landing page y portada pública | `/empresa/landing-editor` |
-| Muro general de fotos de la comunidad | `/empresa/red-social-eventos` |
+| Muro general de fotos de la comunidad | `/empresa/presencia-digital?tab=social-eventos` |
 
 ### 📦 6. Recursos — insumos, personal y salones
 
 | Para qué | Dónde |
 |---|---|
 | Catálogo maestro de platos y recetas | `/empresa/menus` |
-| Carta de coctelería y tragos | `/empresa/menus/tragos` |
-| Lista de compras y stock necesario | `/compras` |
+| Carta de coctelería y tragos | `/empresa/menus?tab=tragos` |
+| Lista de compras y stock necesario | `/empresa/insumos?tab=compras` |
 | Control de insumos y depósito central | `/empresa/insumos` |
 | Salones y locaciones habilitadas | `/empresa/salones` |
 | Catálogo de servicios comercializables | `/empresa/servicios` |
@@ -138,14 +138,14 @@ se acordó nada) → el saldo es el total menos lo que ya se cobró.
 |---|---|
 | Ajustes generales del sistema | `/settings` |
 | Usuarios, roles y permisos de acceso | `/admin/usuarios` |
-| Tareas automáticas en segundo plano | `/settings/tareas-automaticas` |
-| Conexiones con servicios externos | `/settings/sincronizaciones` |
-| Configuración de WhatsApp comercial | `/settings/whatsapp` |
-| Cláusulas contractuales | `/settings/contratos/clausulas` |
-| Seguridad y cuentas del equipo | `/settings/account` |
-| Promociones y políticas de seña | `/settings/promos` |
-| Ajustes del asistente de IA | `/settings/ai-assistant` |
-| Mapa tecnológico AK | `/settings/mapa-tecnologico-ak` |
+| Tareas automáticas en segundo plano | `/settings?seccion=asistente&sub=tareas-automaticas` |
+| Conexiones con servicios externos | `/settings?seccion=conexiones&sub=sincronizaciones` |
+| Configuración de WhatsApp comercial | `/settings?seccion=conexiones&sub=whatsapp` |
+| Cláusulas contractuales | `/settings?seccion=contratos&sub=contratos--clausulas` |
+| Seguridad y cuentas del equipo | `/settings?seccion=empresa&sub=account` |
+| Promociones y políticas de seña | `/settings?seccion=ventas&sub=promos` |
+| Ajustes del asistente de IA | `/settings?seccion=asistente&sub=ai-assistant` |
+| Mapa tecnológico AK | `/settings` |
 
 ## Lo que ve el cliente
 
@@ -155,12 +155,12 @@ llamar por teléfono.
 | Para qué | Dónde |
 |---|---|
 | Su panel | `/portal-cliente/:id` |
-| Menús de su fiesta | `/portal-cliente/:id/menu` |
-| Música y lista de temas | `/portal-cliente/:id/musica` |
-| Confirmar invitados | `/portal-cliente/:id/confirmar-invitados` |
-| Fotos y videos | `/portal-cliente/:id/fotos-video` |
-| Muro social | `/portal-cliente/:id/muro-social` |
-| Preguntas frecuentes | `/portal-cliente/:id/faq` |
+| Menús de su fiesta | `/portal-cliente/:id?tab=menu` |
+| Música y lista de temas | `/portal-cliente/:id?tab=musica` |
+| Confirmar invitados | `/portal-cliente/:id?tab=confirmar-invitados` |
+| Fotos y videos | `/portal-cliente/:id?tab=fotos-video` |
+| Muro social | `/portal-cliente/:id?tab=muro-social` |
+| Preguntas frecuentes | `/portal-cliente/:id?tab=faq` |
 
 ## Lo que ve el invitado
 
@@ -179,17 +179,17 @@ llamar por teléfono.
 | Muro en vivo, en la pantalla grande | `/evento/muro-en-vivo/:fiestaId` |
 | Galería oficial de la fiesta | `/evento/galeria/:fiestaId` |
 | Buzón de saludos | `/evento/buzon/:fiestaId` |
-| Álbum, después de la fiesta | `/album/:fiestaId` |
+| Álbum, después de la fiesta | `/evento/album/:fiestaId` |
 
 ## Las páginas que traen clientes nuevos
 
 `/` es la portada. Después están las de cada tipo de fiesta: `/bodas`,
-`/quinceaneras`, `/cumpleanos`, más `/catalogo`, `/experiencia-ak` y el
+`/quinceaneras`, `/cumpleanos`, más `/presentacion-led`, `/experiencia-ak` y el
 `/simulador-de-presupuesto`. El blog vive en `/public/blog`.
 
 ## Lo que corre solo, sin que nadie apriete nada
 
-Son cuatro tareas, y en `/settings/tareas-automaticas` se ve cuándo pasó cada una
+Son cuatro tareas, y en `/settings?seccion=asistente&sub=tareas-automaticas` se ve cuándo pasó cada una
 por última vez:
 
 1. **Notas del blog** — 3 notas juntas, una vez por semana.
@@ -340,6 +340,13 @@ puede cambiar monto ni fecha.
   cuidar; encender es salir a gastar. El tope **niega** en vez de aconsejar, y cuenta lo
   comprometido hasta fin de mes y no lo ya gastado — contando sólo lo gastado, el desastre
   se descubre el día 28.
+
+- **Por qué se redujo la app de 382 a 180 pantallas (Orden 321):** El dueño pidió
+  simplicidad sin perder funciones ni tocar la lógica de plata ni los QR en `/evento/*`.
+  Las redirecciones que tenían archivo propio pasaron a `next.config.js` (`redirects()`),
+  los 45 ajustes entraron en 7 secciones de `/settings`, el menú quedó en 6 áreas (sin la pantalla Más),
+  las pantallas repetidas de hoy/asistente/ganancias/presentación/fiesta pasaron a pestañas
+  en su pantalla principal, y todas las URLs anteriores siguen funcionando por redirección.
 
 ---
 

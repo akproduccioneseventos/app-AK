@@ -1,5 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import { FiestaHubShell } from '@/components/fiestas/FiestaHubShell';
 import { analyzeEventPlan } from '@/ai/flows/analyze-event-plan-flow';
 import { calculateReadinessScore } from '@/lib/readiness-score';
 
@@ -454,10 +456,22 @@ function GestionReunionesContent() {
   );
 }
 
+const ReunionOrgPanel = dynamic(() => import('@/components/fiestas/panels/reunion-organizacion'));
+const ReunionImprimirPanel = dynamic(() => import('@/components/panels/reuniones--imprimir'));
+
 export default function GestionReunionesPageWrapper() {
   return (
     <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-        <GestionReunionesContent />
+      <FiestaHubShell
+        basePath="/fiestas/nueva/reuniones"
+        tabs={[
+          { id: 'reuniones', label: 'Minutas y acuerdos' },
+          { id: 'organizacion', label: 'Reunión de organización' },
+          { id: 'imprimir', label: 'Imprimir' },
+        ]}
+        renderDefault={() => <GestionReunionesContent />}
+        renderTab={(tab) => (tab === 'organizacion' ? <ReunionOrgPanel /> : <ReunionImprimirPanel />)}
+      />
     </Suspense>
   )
 }

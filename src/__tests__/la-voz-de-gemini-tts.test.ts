@@ -123,8 +123,12 @@ describe('Los dos interruptores', () => {
     expect(tramo).not.toContain('reproducirConNavegador');
   });
 
-  it('el parte de la mañana y la reunión hablan por el reproductor, no por su cuenta', () => {
-    for (const archivo of ['src/components/mi-dia/ParteDeLaMananaPlayer.tsx', 'src/app/(app)/empresa/configurador-reunion/page.tsx']) {
+  it('el parte de la mañana y los reproductores hablan por el reproductor, no por su cuenta', () => {
+    for (const archivo of [
+      'src/components/mi-dia/ParteDeLaMananaPlayer.tsx',
+      'src/components/multiagent/multiagent-widget.tsx',
+      'src/components/settings/panels/asistente.tsx',
+    ]) {
       const fuente = fs.readFileSync(path.join(process.cwd(), archivo), 'utf8');
       expect(fuente).toContain('reproducirVozReal(');
       expect(fuente).not.toContain('new SpeechSynthesisUtterance');
