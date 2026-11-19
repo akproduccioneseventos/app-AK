@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Los mensajes de prospectos van al CRM; lo personal no (orden 325)
+
+- **Qué se decidió:** WhatsApp, Instagram y Facebook de prospectos entran al CRM con su conversación, y el asistente les
+  contesta solo, avisando que es un asistente y ofreciendo una persona. **Sólo tres puertas** (anuncio, prospecto ya
+  cargado, botón de la web). Lo demás del número personal del dueño no se guarda ni se contesta.
+
+```comprobar
+archivo: docs/ordenes/325-gemini-todos-los-mensajes-al-crm.md
+```
+
 ## 19/11/2026 - Gemini 4 Hydrogen para lo difícil, y si se acaba lo gratis sigue el modelo gratis
 
 - **Qué se decidió:** el dueño eligió *"Hidrógeno y después se termina y pasa a gratis"*. Lo profundo, Sofía y marketing

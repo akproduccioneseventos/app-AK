@@ -15,6 +15,9 @@
 - **AL FINAL, en la misma propuesta: orden 324 (`docs/ordenes/324-gemini-decisiones-rapidas-con-ia.md`).** La API de
   Gemini Decisions para revisar solo el muro, elegir las mejores fotos del álbum y revisar los comprobantes del portal.
   Lo de comprobantes es plata: sólo avisa, nunca aprueba; lo revisa Claude.
+- **AL FINAL, en la misma propuesta: orden 325 (`docs/ordenes/325-gemini-todos-los-mensajes-al-crm.md`).** Los WhatsApp y
+  mensajes de redes de prospectos llegan al CRM con su conversación, la IA trabaja ahí, y el asistente contesta solo a los
+  prospectos de las tres puertas. **Lo personal no se guarda ni se contesta.** Toca quién ve qué: lo revisa Claude.
 - **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
