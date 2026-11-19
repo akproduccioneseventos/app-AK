@@ -1,25 +1,26 @@
-# Estado actual — 16 de noviembre de 2026
+# Estado actual — 19 de noviembre de 2026 (tarde)
 
-Rama de trabajo de Claude: `claude/juntar-1426` (entrega 1426 de Gemini + arreglos), en una copia aparte.
+Rama de trabajo de Claude: `claude/app-debug-stabilize-m70e6z` (sólo esta hoja; se junta con la próxima tanda).
 
-## En curso
-- **PR 1426 de Gemini** (órdenes 309 blog con tendencias + parte de la 310 + huella de Play Store): revisada, plata y
-  permisos bien. Claude le agregó: `.gitattributes` (el ZIP del editor armado en Windows salía con otros fines de línea y
-  frenaba la puerta tres veces), ZIP reempaquetado y `GEMINI.md` con lo que falta de la 310. **Falta:** puerta en verde,
-  subir `claude/juntar-1426`, propuesta y fusión con `expectedHeadSha`; cerrar la 1426.
-  Si la copia se perdió: rama nueva desde `origin/gemini/ordenes-309-310`, repetir esos tres cambios.
+## Publicado
+- **#1441** (19/11): entrega 1429 de Gemini (órdenes 310-318) + arreglos de Claude de las auditorías del 18/11 (plan de
+  pagos según cláusula 3, anexo y recibo, ganancia con personal, compras sin presupuesto, celíaco, menores del LED,
+  afinador, importador, orden de la noche que cruza medianoche) + órdenes 320 y 321. La 1429 quedó cerrada.
 
-## Para Gemini (en GEMINI.md al fusionar lo de arriba)
-- **Orden 310, lo que falta:** bloque 1 URGENTE (el auditor vio 2 fiestas en Eventos donde el 12/11 había 59: contar en
-  la base y en los respaldos, sin borrar ni restaurar, y anotar los ids que faltan); `esFiestaDemo` en 4 archivos más;
-  bloques 3 a 8 (PRUEBA en CRM, catálogo 25/22, textos internos, contrato y PDF, respaldo por tiempo, borrar visible).
-- Borrar las 2 fiestas de Lorena (si tienen pago, no) y desplegar el despertador.
-- Play Store: la huella ya está; armar el paquete y dejarlo en prueba interna.
+## Entrega 1443 de Gemini (382 → 185 pantallas): DEVUELTA con la orden 322
+- En `claude/juntar-1443` con los arreglos de Claude: redirecciones que tapaban presupuestos y Nueva fiesta, cinco pantallas
+  que se usan devueltas (Entrar, decoración y moodboard del portal, simulador y Sofía), avisos en Mi día, datos fuera.
+- Falta: 39 pruebas de pantallas que fallan y las pruebas de Jest que Gemini ablandó. Gemini sigue en esa rama.
 
-## Publicado hoy
-- 1423: entrega grande 1406 (menú 7 casas, Aftershoot, textos sin promesas, video) + orden 309.
-- 1424: orden 310 y preguntas 148-152 con su barrido. 1425: instrucciones de Play Store.
+## Para Gemini (ya en GEMINI.md de la principal)
+- Lo DEVUELTO de la 318 (precarga de "modificar confirmación") y `docs/pantallas-rotas-conocidas.json`.
+- **Orden 319, 320** (sorteo, cronograma con `ordenarPorHoraDelEvento` que ya existe, Vendedor, AK Editor, etc.).
+- **Orden 321, la grande:** achicar de 382 a 180 páginas o menos, seis áreas, sin papelería (menú digital en el hub).
+- Todo en UNA propuesta.
+
+## Para Claude, cuando llegue la próxima entrega
+- Revisar con lupa lo que toque plata en la 321 (sólo se mueve, no cambia cómo guarda).
+- Datos de `src/data/`: antes de devolver uno, `git log -1 -- <archivo>` (error 58).
 
 ## Ojo
-- La puerta con todas las pruebas de navegador falla de a una prueba distinta por carga de la máquina; si la misma prueba
-  pasa sola, se corre la puerta otra vez (repite sólo lo que falló).
+- Con todas las pruebas de navegador, alguna falla sola por carga; si la app no cambió, la puerta repite sólo esa.

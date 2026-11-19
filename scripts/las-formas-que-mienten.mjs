@@ -190,6 +190,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   182: 'Total y detalle: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (cobrosDelRecibo).',
   184: 'Marcadores por pantalla: src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts (anexo sin huecos).',
   185: 'Arreglo que no corre en el caso: src/__tests__/compras-con-menu-y-sin-presupuesto.test.ts (caso sin presupuesto).',
+  197: 'Pantalla borrada que usaba un cliente: src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts y la prueba de direcciones viejas de la orden 322.',
   193: 'Cálculo con negativos: comprobar de YA-RESUELTO (consumoValido en el afinador de tragos).',
   194: 'Alta contra edición: comprobar de YA-RESUELTO (step any en el alta y la edición del insumo).',
   195: 'Datos como conceptos: src/__tests__/cierre-de-ronda-18-11.test.ts (Adultos y Niños no son artículos).',
