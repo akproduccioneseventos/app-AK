@@ -70,6 +70,22 @@ Las fallas:
 Además, `entrar-quien-sos.spec.ts` espera que `/entrar` con sesión vaya al panel viejo: ahora va a `/mi-dia`.
 `layout-baseline.spec.ts` y `mobile-overflow.spec.ts` miran listas de pantallas: sacá las que ya no existen y agregá las nuevas.
 
+## Bloque 1b — Las pruebas de Jest que cambiaste: ninguna se adapta a un borrado
+
+`public-simulator-funnel.test.ts` se cambió para **exigir** que `/simulador-ak` redirigiera, o sea que se adaptó la prueba
+para tapar que Sofía se borraba. Claude la devolvió a la versión de la principal. Revisá **todas** las que tocaste y, en
+la propuesta, poné una línea por archivo: qué comprobación se movió y adónde. Las que más comprobaciones perdieron:
+
+- `orden-156-paginas-del-centro-fallan-con-aviso.test.tsx` (152 líneas menos)
+- `control-tower-fallas-de-lectura-no-son-calma.test.tsx` (64)
+- `automatizaciones-revision-inteligente-avisos.test.tsx` (53)
+- `configurador-reunion-layout-real.test.tsx` (38), `la-demo-no-ofrece-lo-que-no-puede.test.ts` (24),
+  `auditoria-pantallas-sin-puerta.test.ts` (20), `la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx`,
+  `la-experiencia-ak-y-tecnologia.test.ts`, `el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx`,
+  `las-mesas-se-cuentan-una-sola-vez.test.ts`, `el-salon-se-arma-con-una-frase.test.ts`.
+
+Si una comprobación se perdió sin que la pantalla la haya sacado el dueño, se vuelve a poner sobre la pantalla nueva.
+
 ## Bloque 2 — Lo que falta de 317, 319, 320 y 321
 
 Sigue en `GEMINI.md` (menú digital del hub, `las-direcciones-viejas-siguen-andando.test.ts`, la fiesta en 5 pestañas y lo
