@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Decisiones rápidas con IA (orden 324): sí al gasto, con tope y sin aprobar pagos
+
+- **Qué se decidió:** el dueño dijo *"quiero tener lo mejor"* sobre la API de Gemini Decisions. Va en tres lugares: revisar
+  al instante lo que suben al muro, ordenar el álbum por calidad y revisar los comprobantes del portal. Pasa por el tope de
+  gasto de IA; si la IA no contesta, todo sigue como antes. **En los comprobantes sólo avisa: aprobar un pago es de una
+  persona.**
+
+```comprobar
+archivo: docs/ordenes/324-gemini-decisiones-rapidas-con-ia.md
+```
+
 ## 19/11/2026 - Comparación con VeamosLasFotos: lo que sí y lo que no (orden 323)
 
 - **Qué se decidió:** el dueño pidió ser mejor que VeamosLasFotos en todo. Entran el armador único de invitación, fondos,

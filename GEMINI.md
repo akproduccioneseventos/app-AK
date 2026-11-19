@@ -12,6 +12,9 @@
   dueño: ser mejor que VeamosLasFotos. Un solo armador de invitación con el celular al lado, biblioteca de fondos, la
   invitación viva el día de la fiesta, transiciones, moderación completa, trivia con IA, y tres funciones nuevas **con
   interruptor apagado de entrada** (en vivo desde el celular, libro de firmas en audio y video, imprimir desde el celular).
+- **AL FINAL, en la misma propuesta: orden 324 (`docs/ordenes/324-gemini-decisiones-rapidas-con-ia.md`).** La API de
+  Gemini Decisions para revisar solo el muro, elegir las mejores fotos del álbum y revisar los comprobantes del portal.
+  Lo de comprobantes es plata: sólo avisa, nunca aprueba; lo revisa Claude.
 - **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena

@@ -1510,3 +1510,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 320 → pregunta 196
 - Orden 322 → pregunta 197
 - Orden 323 → no es un defecto
+- Orden 324 → no es un defecto
