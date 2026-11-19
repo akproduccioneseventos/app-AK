@@ -1554,6 +1554,10 @@ lo que hice?* Si es lo segundo, no se manda.
   **Y dos más (bloques 6 y 7):** el que escribe sin anuncio pero pregunta por una fiesta entra si la IA está segura (si duda,
   le pregunta al dueño y no contesta), y las charlas viejas del WhatsApp se rescatan: lo personal se descarta sin guardar y a
   cada prospecto sin atender le queda un mensaje preparado que manda el dueño. **El número de la empresa no va al repositorio.**
+  **Centro de redes (orden 326):** todas las conversaciones juntas, una solapa de comentarios, y la app contesta y da me gusta
+  sola a los comentarios positivos y a las preguntas (en público nunca un precio); las quejas se ocultan solas y se avisa.
+  **Una publicación sale en todas las redes conectadas**, con el texto acomodado a cada una, y los comentarios de Google (reseñas),
+  YouTube y Threads también entran: las reseñas buenas se agradecen solas; las malas las contesta el dueño con la respuesta lista.
 
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
