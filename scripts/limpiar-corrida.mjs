@@ -30,6 +30,9 @@ const ESCRITOS_POR_LA_CORRIDA = [
   'data/playbook-aplicaciones.json',
   'src/data/playbook-aplicaciones.json',
   'src/data/parte-manana-cache.json',
+  // La fiesta de muestra del auditor: la crea la app al entrar y se coló commiteada en la entrega 1443 (19/11/2026).
+  'data/fiestas.json',
+  'src/data/fiestas.json',
   'src/data/ai-usage.json',
   'src/data/social-history.json',
   'src/data/prospectos.json',
