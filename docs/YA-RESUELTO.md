@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Una redirección no tapa una pantalla que existe (entrega 1443)
+
+- **Qué pasaba:** la orden 321 agregó `/presupuestos/:id → /ver` y `/fiestas/:id → /centro`. Next mira las redirecciones
+  antes que las pantallas, así que `/presupuestos/nuevo` (donde quedó la lista de presupuestos) y `/fiestas/nueva` (crear
+  una fiesta) se iban a una página inexistente.
+- **Qué se hizo:** las dos redirecciones excluyen los nombres fijos (`nuevo`, `importar`, `reporte`; `nueva`, `revisar`).
+  Y un control recorre cada redirección contra cada pantalla real.
+
+```comprobar
+usa: (?!nuevo$ en next.config.js
+usa: (?!nueva$ en next.config.js
+prueba: src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts
+```
+
 ## 19/11/2026 - Orden 318 Bloque 2 (devuelto), Orden 320, pantallas rotas y Orden 321
 
 - **Modificar confirmación RSVP:** Al entrar desde "Modificar confirmación", `rsvp/page.tsx` pre-carga los datos previos del invitado mediante `getPublicRsvpGuest` (solo leyendo ese invitado con `guestId` + `token`) y actualiza ese mismo registro al guardar. Probado E2E en `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts`.

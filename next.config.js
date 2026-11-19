@@ -267,7 +267,8 @@ const nextConfig = {
         permanent: false,
       })),
       { source: '/presupuestos', destination: '/presupuestos/nuevo', permanent: false },
-      { source: '/presupuestos/:id', destination: '/presupuestos/:id/ver', permanent: false },
+      // Sin "nuevo", "importar" ni "reporte": son pantallas o tienen su propia redirección (la lista vive en /presupuestos/nuevo).
+      { source: '/presupuestos/:id((?!nuevo$|importar$|reporte$)[^/]+)', destination: '/presupuestos/:id/ver', permanent: false },
       { source: '/presupuestos/:id/editar', destination: '/presupuestos/:id/edit', permanent: false },
       { source: '/repaso-diario', destination: '/mi-dia', permanent: false },
       { source: '/settings/templates/contrato', destination: '/settings/contratos', permanent: false },
@@ -351,7 +352,8 @@ const nextConfig = {
       { source: '/marketing/demo-tecnologia', destination: '/presentacion-led', permanent: false },
       // ── Orden 321 Bloque 5: Fiestas consolidadas ──
       { source: '/fiestas/revisar', destination: '/eventos', permanent: false },
-      { source: '/fiestas/:id', destination: '/fiestas/:id/centro', permanent: false },
+      // Sin "nueva" ni "revisar": "nueva" es el planificador; si se tapa, no se puede crear una fiesta.
+      { source: '/fiestas/:id((?!nueva$|revisar$)[^/]+)', destination: '/fiestas/:id/centro', permanent: false },
       { source: '/fiestas/:id/ak-100', destination: '/fiestas/:id/centro', permanent: false },
       { source: '/fiestas/:id/cierre-mundial', destination: '/fiestas/:id/centro', permanent: false },
       { source: '/fiestas/:id/experiencia-tecnologica-ak', destination: '/fiestas/:id/centro', permanent: false },
