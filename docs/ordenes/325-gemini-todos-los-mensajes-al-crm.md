@@ -140,6 +140,46 @@ porque a veces a la gente el robot le cae mal"*.
 - Interruptor por canal en Ajustes (web, Instagram, Messenger, WhatsApp), apagados de entrada. Los de Instagram y Messenger
   que ya existen se reusan.
 
+## Bloque 6 — La cuarta puerta: el que escribe sin anuncio pero pregunta por una fiesta
+
+**Pedido del dueño (19/11/2026):** *"hay gente que viene sin publicidad, viene por otras cosas… aprovechar lo que viene que no
+es por publicidad"*. **El número de la empresa no se escribe en el repositorio** (es público): va en Ajustes → WhatsApp.
+
+- Puerta 4 en `esProspectoDeWhatsApp`: el **primer mensaje** de un número desconocido (no está en el CRM, no es cliente con
+  fiesta, no está en "Números personales" ni en los contactos sincronizados del bloque 7) se le pasa a la IA con
+  `decidir` (`src/lib/ai/decisiones.ts`, orden 324) y una sola pregunta: `consulta_de_evento` (sí/no: ¿pregunta por una
+  fiesta, un salón, una fecha, un precio o un servicio de eventos?), más `seguridad` (nota 1 a 3).
+- **Si la IA está segura (sí y nota 3):** entra al CRM como prospecto con origen "llegó solo" y lo atiende el asistente del
+  bloque 4, con el mismo primer mensaje que avisa que es un asistente.
+- **Si no está segura (sí con nota 1 o 2):** entra al CRM marcado "¿es prospecto?", **el asistente no contesta**, y al dueño
+  le llega el aviso con un toque para "Es prospecto" (lo atiende el asistente desde ahí) o "Es personal" (se borra lo
+  guardado y el número pasa a "Números personales").
+- **Si es no:** no se guarda nada.
+- Si la IA no contesta o no hay cupo, se hace lo de hoy: no se guarda ni se contesta.
+
+## Bloque 7 — Aprovechar lo que ya está en el WhatsApp: los prospectos que nunca se atendieron
+
+**Pedido del dueño (19/11/2026):** *"¿se podría escanear todo mi WhatsApp? Tengo muchos prospectos que se comunicaron y por no
+tener este sistema no los atendí"*.
+
+- **Cómo se trae la historia:** al conectar el número con la modalidad de Meta que deja usar la aplicación WhatsApp Business
+  y la conexión de la app al mismo tiempo, Meta ofrece sincronizar los contactos y los últimos meses de charlas. **Antes de
+  programar, confirmá en la documentación de Meta cuántos meses y en qué formato llegan**, y anotalo en la propuesta. Si esa
+  sincronización no está disponible, el plan B es la pantalla de abajo con **"Exportar chat"** de WhatsApp: el dueño
+  exporta, sube el archivo y la app lo lee (formato `.txt` o `.zip` que arma WhatsApp).
+- **Pantalla nueva en el CRM: "Rescatar charlas viejas".** Por cada charla traída, la IA (`decidir`) contesta `tipo`
+  (opción: prospecto / cliente con fiesta / proveedor / personal), `quedo_sin_respuesta` (sí/no) y `que_pedia` (fecha,
+  invitados, tipo de fiesta, si los dijo).
+  - **Personal y proveedor:** se descartan en el momento y **no se guarda ni una línea**.
+  - **Cliente con fiesta:** no entra al CRM; si quedó sin respuesta, aviso al dueño.
+  - **Prospecto:** entra al CRM con origen "rescatado", lo que pedía, y si su fecha ya pasó o sigue libre
+    (`checkDateAvailability`). **Primero los que quedaron sin respuesta y con la fecha por delante.**
+- **Para cada rescatado, un mensaje preparado** ("¡Hola! Te escribo de AK Producciones, perdón la demora…", con el enlace al
+  simulador armado con lo que pidió). **No sale solo**: es gente que escribió hace tiempo, así que lo manda el dueño con un
+  toque ("Abrir en WhatsApp"), o elige "Mandar a todos los de fecha libre" y confirma la lista antes.
+- Los contactos sincronizados se usan sólo para saber quién es conocido (puerta 4): **no se guardan nombres ni números de
+  quien no es prospecto.**
+
 ## Qué NO tocar
 
 - La regla del número personal: **lo que no pasa por una de las tres puertas no se guarda ni se contesta**.
@@ -164,6 +204,10 @@ porque a veces a la gente el robot le cae mal"*.
 - **Bloque 5:** el chat de la web y un mensaje de Instagram (simulado) reciben la misma primera respuesta que WhatsApp; con
   "Quiero una persona" reciben el enlace de WhatsApp con la fecha y los invitados que contaron **y** la marca `ref AK-`;
   un comentario público que pregunta el precio **no** recibe un precio.
+- **Bloque 6:** con la IA simulada, "Hola, ¿tienen fecha para un 15 en marzo?" de un número desconocido entra y recibe el
+  primer mensaje; "Che, ¿venís el domingo?" no se guarda; una nota 2 queda en "¿es prospecto?" **sin respuesta**.
+- **Bloque 7:** con un archivo exportado de prueba que trae una charla de familia y una de un prospecto sin responder, sólo el
+  prospecto aparece en el CRM, con su mensaje preparado **sin enviar**; de la de familia no queda nada guardado.
 
 ```comprobar
 archivo: src/lib/whatsapp/quien-es-prospecto.ts
@@ -177,4 +221,6 @@ usa: checkDateAvailability en src/lib/whatsapp/asistente-de-prospectos.ts
 usa: Quiero una persona en src/app/api/whatsapp/webhook/route.ts
 usa: asistente-de-prospectos en src/app/actions/asistente-virtual.ts
 usa: asistente-de-prospectos en src/lib/mensajes/bandeja-unica.ts
+usa: consulta_de_evento en src/lib/whatsapp/quien-es-prospecto.ts
+usa: quedo_sin_respuesta en src/app/(app)/contabilidad/crm/page.tsx
 ```
