@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - El centro de redes contesta y da me gusta solo (orden 326)
+
+- **Qué se decidió:** todas las conversaciones de todas las redes en una lista, una solapa de comentarios, y me gusta y
+  respuesta automática a positivos y preguntas. Las quejas se ocultan, no se borran, y se le avisa al dueño. No se da me
+  gusta a publicaciones de otras cuentas porque las redes no lo permiten desde otra aplicación.
+
+```comprobar
+archivo: docs/ordenes/326-gemini-el-centro-de-redes-contesta-todo.md
+```
+
 ## 19/11/2026 - Los mensajes de prospectos van al CRM; lo personal no (orden 325)
 
 - **Qué se decidió:** WhatsApp, Instagram y Facebook de prospectos entran al CRM con su conversación, y el asistente les

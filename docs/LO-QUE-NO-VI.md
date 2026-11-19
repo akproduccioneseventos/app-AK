@@ -1512,3 +1512,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 323 → no es un defecto
 - Orden 324 → no es un defecto
 - Orden 325 → no es un defecto
+- Orden 326 → no es un defecto
