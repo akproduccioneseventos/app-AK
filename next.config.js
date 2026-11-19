@@ -337,7 +337,6 @@ const nextConfig = {
       { source: '/multiagente/acciones', destination: '/asistente?tab=acciones', permanent: false },
       { source: '/multiagente/contable', destination: '/asistente?tab=equipo&agente=contable', permanent: false },
       { source: '/multiagente/fiestas', destination: '/asistente?tab=equipo&agente=fiestas', permanent: false },
-      { source: '/simulador-ak', destination: '/simulador-de-presupuesto', permanent: false },
       { source: '/comparativa-ganancias', destination: '/empresa/contabilidad/reportes?tab=comparativa', permanent: false },
       { source: '/admin/finanzas', destination: '/empresa/contabilidad/reportes?tab=tablero', permanent: false },
       { source: '/catalogo', destination: '/presentacion-led', permanent: false },
@@ -371,7 +370,6 @@ const nextConfig = {
       { source: '/fiestas/nueva/portal-cliente/experiencia-mundial', destination: '/fiestas/nueva/portal-cliente?tab=experiencia', permanent: false },
       { source: '/fiestas/nueva/portal-cliente/cierre-final', destination: '/fiestas/nueva/portal-cliente?tab=cierre', permanent: false },
       // ── Orden 321: Consolidaciones finales para <= 180 páginas ──
-      { source: '/simulador', destination: '/simulador-de-presupuesto', permanent: false },
       { source: '/alertas', destination: '/mi-dia?tab=alertas', permanent: false },
       { source: '/admin/ventas', destination: '/contabilidad/crm', permanent: false },
       { source: '/admin/carga-historicos', destination: '/contabilidad/fiestas-historicas?tab=cargar', permanent: false },

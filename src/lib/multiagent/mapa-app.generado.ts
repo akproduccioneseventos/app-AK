@@ -300,7 +300,9 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/proveedores/new",
     "/recepcion/:fiestaId",
     "/recursos-multi-evento",
-    "/settings"
+    "/settings",
+    "/simulador",
+    "/simulador-ak"
   ],
   "invitado": [
     "/evento/:id/video-recuerdo",

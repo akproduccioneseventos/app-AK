@@ -5,14 +5,18 @@
 - **Qué pasaba:** al achicar la app, `/entrar` (el "¿quién sos?" de la web) pasó a redirigir al panel interno, y la
   decoración y el tablero de ideas del portal del cliente se borraron (sus componentes quedaron sin que nadie los usara).
   El aviso de instalar la app y el de notificaciones vivían en el panel viejo, que ahora va a Mi día.
-- **Qué se hizo:** las tres pantallas volvieron tal cual estaban (Entrar con sesión ahora va a Mi día), sin sus
+- **También el simulador:** `/simulador` (elegir simulador o asistente) y `/simulador-ak` (Sofía, escrita entera en esa
+  página) se habían borrado y redirigían al simulador común: la asistente de venta desaparecía. Volvieron (pregunta 197).
+- **Qué se hizo:** las pantallas volvieron tal cual estaban (Entrar con sesión ahora va a Mi día), sin sus
   redirecciones; los dos avisos se montan en Mi día; se borró el código suelto de pantallas internas que sí salieron. El
-  tope de pantallas queda en 183 hasta que la próxima vuelta las junte sin perderlas.
+  tope de pantallas queda en 185 hasta que la próxima vuelta las junte sin perderlas.
 
 ```comprobar
 archivo: src/app/entrar/page.tsx
 archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
 archivo: src/app/portal/[fiestaId]/moodboard/page.tsx
+archivo: src/app/simulador-ak/page.tsx
+archivo: src/app/simulador/page.tsx
 usa: PwaInstallPrompt en src/app/(app)/mi-dia/page.tsx
 usa: PushNotificationPrompt en src/app/(app)/mi-dia/page.tsx
 ```

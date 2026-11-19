@@ -1953,3 +1953,8 @@ Cierre de ronda del 18/11/2026 (R18-05): "Adultos: 40" y "Niños: 10" se importa
 ### 196. Un monto que sigue a una etiqueta, ¿se lee después de la etiqueta, o se toma el primer número suelto?
 
 Cierre de ronda del 18/11/2026 (R18-06): "TOTAL: $2.500" daba $0 y "TOTAL:2500" daba $2.500.
+
+### 197. Al borrar o redirigir una pantalla, ¿la usaba un cliente, un invitado o un prospecto? ¿Y la redirección tapa otra?
+
+Entrega 1443 del 19/11/2026: al achicar la app se borraron "Entrar", la decoración y el moodboard del portal, el simulador
+y la asistente Sofía, y dos redirecciones con comodín tapaban la lista de presupuestos y "Nueva fiesta".

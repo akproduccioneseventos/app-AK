@@ -17,9 +17,9 @@ function contarPaginas(dir: string): number {
 describe('Orden 321: La app no pasa de 180 pantallas', () => {
   it('src/app tiene 180 o menos archivos page.tsx', () => {
     const total = contarPaginas(path.join(process.cwd(), 'src', 'app'));
-    // 183 y no 180: Claude devolvió Entrar, y la decoración y el tablero de ideas del portal del cliente (19/11/2026),
+    // 185 y no 180: Claude devolvió Entrar, la decoración y el tablero de ideas del portal, y el simulador con su asistente (19/11/2026),
     // que la 1443 había borrado y eran funciones que usa el cliente. La meta de achicar sigue: la próxima vuelta las junta.
-    expect(total).toBeLessThanOrEqual(183);
+    expect(total).toBeLessThanOrEqual(185);
   });
 
   it('usa redirects en next.config.js y no usa /mas en mapa.ts', () => {

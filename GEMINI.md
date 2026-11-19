@@ -4,12 +4,16 @@
 
 **Actualizado el 19/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas) quedó publicada, con dos arreglos de Claude:**
+- **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
+  pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
+  todas. Claude devolvió cinco pantallas que borraste y se usan (Entrar, decoración y moodboard del portal, simulador y
+  Sofía): no las vuelvas a sacar.
+- **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
   `una-redireccion-no-tapa-una-pantalla.test.ts`. (2) `data/fiestas.json` y `src/data/fiestas.json` (la fiesta de muestra
   que crea la app al entrar) no van al repositorio: quedaron ignorados.
-- **LO QUE FALTA, en una propuesta nueva desde `origin/main` (es lo primero, antes que nada nuevo):**
+- **LO QUE FALTA, en la misma propuesta de la 322, sobre `claude/juntar-1443`:**
   1. **321, bloque 7: el menú digital** en `src/app/evento/hub/[fiestaId]/page.tsx` (con `menuAsignadoId`). La papelería
      ya salió: sin esto, el invitado se queda sin menú.
   2. **321: la prueba `src/__tests__/las-direcciones-viejas-siguen-andando.test.ts`** (cada página borrada redirige a una
@@ -20,7 +24,7 @@
      `getDashboardKpiData` en alertas y "últimos 12 meses" en analíticas.
   5. **Achicar sin perder:** Claude devolvió `/entrar`, y la decoración y el moodboard del portal (`/portal/[fiestaId]/`),
      que la 1443 había borrado: son del cliente. Si querés juntarlas, que sean pestañas del portal con su función entera,
-     nunca una redirección a la portada. El tope quedó en 183.
+     nunca una redirección a la portada. El tope quedó en 185 (con el simulador y Sofía).
   6. Las líneas `comprobar` de las órdenes 311, 317, 319 y 320 que apuntan a pantallas que pasaste a paneles: actualizá la
      ruta al panel nuevo (sin cambiar lo que comprueban).
 
