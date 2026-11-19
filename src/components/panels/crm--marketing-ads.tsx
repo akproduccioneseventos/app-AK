@@ -28,14 +28,25 @@ type PanelData = Awaited<ReturnType<typeof getMarketingAdsPanelData>>;
 
 export default function MarketingAdsPage() {
   const [data, setData] = useState<PanelData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     getMarketingAdsPanelData()
       .then((res) => { if (active) setData(res); })
-      .catch(() => {});
+      .catch((e: unknown) => {
+        if (active) setError(e instanceof Error ? e.message : 'No se pudo cargar la publicidad.');
+      });
     return () => { active = false; };
   }, []);
+
+  if (!data && error) {
+    return (
+      <div className="flex items-center justify-center p-16 text-center text-red-600">
+        <span>No se pudo cargar la publicidad y las métricas: {error}. Recargá la página para reintentar.</span>
+      </div>
+    );
+  }
 
   if (!data) {
     return (
