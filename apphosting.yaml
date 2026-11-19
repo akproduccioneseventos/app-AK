@@ -94,17 +94,23 @@ env:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_PRO
-    value: "googleai/gemini-3.8-flash"
+    # Gemini 4 Hydrogen (pedido del dueño, 19/11/2026). Si se termina su parte gratis, Google contesta "sin cupo" y la
+    # app sigue sola con gemini-flash-latest y gemini-3.8-flash (getGeminiFallbackCandidates en src/ai/genkit.ts).
+    value: "googleai/gemini-4-hydrogen"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_MARKETING
-    value: "googleai/gemini-3.8-flash"
+    # Gemini 4 Hydrogen (pedido del dueño, 19/11/2026). Si se termina su parte gratis, Google contesta "sin cupo" y la
+    # app sigue sola con gemini-flash-latest y gemini-3.8-flash (getGeminiFallbackCandidates en src/ai/genkit.ts).
+    value: "googleai/gemini-4-hydrogen"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_COMMERCIAL
-    value: "googleai/gemini-3.8-flash"
+    # Gemini 4 Hydrogen (pedido del dueño, 19/11/2026). Si se termina su parte gratis, Google contesta "sin cupo" y la
+    # app sigue sola con gemini-flash-latest y gemini-3.8-flash (getGeminiFallbackCandidates en src/ai/genkit.ts).
+    value: "googleai/gemini-4-hydrogen"
     availability:
       - BUILD
       - RUNTIME

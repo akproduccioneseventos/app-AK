@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Gemini 4 Hydrogen para lo difícil, y si se acaba lo gratis sigue el modelo gratis
+
+- **Qué se decidió:** el dueño eligió *"Hidrógeno y después se termina y pasa a gratis"*. Lo profundo, Sofía y marketing
+  (`GEMINI_MODEL_PRO`, `_COMMERCIAL`, `_MARKETING` en `apphosting.yaml`) usan `googleai/gemini-4-hydrogen`. Cuando se
+  termina su parte gratis, Google contesta "sin cupo" (429) y la app sigue sola con `gemini-flash-latest` y
+  `gemini-3.8-flash`. Lo rápido sigue en 3.8 Flash. **Neon, Argon y Carbon no**: no tienen parte gratis.
+
+```comprobar
+usa: gemini-4-hydrogen en apphosting.yaml
+prueba: src/__tests__/hydrogen-y-despues-gratis.test.ts
+```
+
 ## 19/11/2026 - Decisiones rápidas con IA (orden 324): sí al gasto, con tope y sin aprobar pagos
 
 - **Qué se decidió:** el dueño dijo *"quiero tener lo mejor"* sobre la API de Gemini Decisions. Va en tres lugares: revisar
