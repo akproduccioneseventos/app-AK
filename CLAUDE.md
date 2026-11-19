@@ -1544,6 +1544,13 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **WhatsApp de prospectos al CRM y el asistente que contesta (19 de noviembre de 2026).** Palabras suyas: *"todos los mensajes
+  deberían llegar al CRM… siempre diferenciando los de anuncios de los personales; los demás no"*. Entran al CRM y los atiende el
+  asistente sólo los de **tres puertas**: anuncio, alguien que ya es prospecto (hizo el simulador) y el botón de la web con su marca.
+  Lo demás (familia, amigos, proveedores, clientes con fiesta y la lista de números personales) **no se guarda ni se contesta**.
+  El asistente dice que es un asistente, ofrece pasar a una persona, mira la fecha y manda el simulador; **nunca** reserva, cobra
+  ni da por aceptado. Orden 325.
+
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
 - **El repositorio queda público hasta terminar la app (16 de noviembre de 2026).** Palabras suyas: *"cuando se termine la app va a pasar toda privada y solo yo voy a ver todos los datos con mi acceso"*. No se le vuelve a pedir que lo pase a privado; mientras tanto, los datos reales de personas no viajan en el repositorio (orden 311, bloque 1).
