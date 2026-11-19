@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - La 1443 había borrado tres pantallas que usa el cliente: volvieron
+
+- **Qué pasaba:** al achicar la app, `/entrar` (el "¿quién sos?" de la web) pasó a redirigir al panel interno, y la
+  decoración y el tablero de ideas del portal del cliente se borraron (sus componentes quedaron sin que nadie los usara).
+  El aviso de instalar la app y el de notificaciones vivían en el panel viejo, que ahora va a Mi día.
+- **Qué se hizo:** las tres pantallas volvieron tal cual estaban (Entrar con sesión ahora va a Mi día), sin sus
+  redirecciones; los dos avisos se montan en Mi día; se borró el código suelto de pantallas internas que sí salieron. El
+  tope de pantallas queda en 183 hasta que la próxima vuelta las junte sin perderlas.
+
+```comprobar
+archivo: src/app/entrar/page.tsx
+archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
+archivo: src/app/portal/[fiestaId]/moodboard/page.tsx
+usa: PwaInstallPrompt en src/app/(app)/mi-dia/page.tsx
+usa: PushNotificationPrompt en src/app/(app)/mi-dia/page.tsx
+```
+
 ## 19/11/2026 - Una redirección no tapa una pantalla que existe (entrega 1443)
 
 - **Qué pasaba:** la orden 321 agregó `/presupuestos/:id → /ver` y `/fiestas/:id → /centro`. Next mira las redirecciones

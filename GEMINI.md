@@ -18,7 +18,10 @@
   4. **320:** sacar "las 4 tareas" de `settings/tareas-automaticas` y que `recursos-multi-evento` no cuente las fiestas
      suspendidas (`suspendid`). **319:** "Generar balance de cierre" en el panel de acciones del asistente. **317:**
      `getDashboardKpiData` en alertas y "últimos 12 meses" en analíticas.
-  5. Las líneas `comprobar` de las órdenes 311, 317, 319 y 320 que apuntan a pantallas que pasaste a paneles: actualizá la
+  5. **Achicar sin perder:** Claude devolvió `/entrar`, y la decoración y el moodboard del portal (`/portal/[fiestaId]/`),
+     que la 1443 había borrado: son del cliente. Si querés juntarlas, que sean pestañas del portal con su función entera,
+     nunca una redirección a la portada. El tope quedó en 183.
+  6. Las líneas `comprobar` de las órdenes 311, 317, 319 y 320 que apuntan a pantallas que pasaste a paneles: actualizá la
      ruta al panel nuevo (sin cambiar lo que comprueban).
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).

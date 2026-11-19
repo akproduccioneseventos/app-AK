@@ -273,11 +273,8 @@ const nextConfig = {
       { source: '/repaso-diario', destination: '/mi-dia', permanent: false },
       { source: '/settings/templates/contrato', destination: '/settings/contratos', permanent: false },
       { source: '/admin/asistente-ak', destination: '/asistente', permanent: false },
-      { source: '/entrar', destination: '/mi-dia', permanent: false },
       { source: '/marketing/checklist', destination: '/marketing', permanent: false },
       { source: '/marketing/plantillas', destination: '/marketing', permanent: false },
-      { source: '/portal/:fiestaId/decoracion', destination: '/portal?fiestaId=:fiestaId', permanent: false },
-      { source: '/portal/:fiestaId/moodboard', destination: '/portal?fiestaId=:fiestaId', permanent: false },
       { source: '/portal-cliente/:id/decoracion', destination: '/portal?fiestaId=:id', permanent: false },
       // ── Orden 321 Bloque 4: Ajustes unificados en /settings?seccion=...&sub=... ──
       { source: '/settings/company', destination: '/settings?seccion=empresa&sub=company', permanent: false },
