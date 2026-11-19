@@ -6,6 +6,9 @@
 
 ## Novedades del 31 de octubre al 12 de noviembre de 2026 (publicado)
 
+- **IA con Gemini 4 Hydrogen** (19/11): Sofía, marketing y lo profundo usan Hydrogen; si se termina su parte gratis, la app
+  sigue sola con el modelo gratis de siempre.
+
 - **Plan de pagos igual al contrato** (18/11): $10.000 por trimestre, 30% al tercio, 50% a la mitad, saldo 30 días antes; el
   recibo detalla los cobros que suma y su anexo sale sin huecos. El sueldo cargado en Personal entra en la ganancia aunque no haya presupuesto. Con menú y sin presupuesto, la lista de compras ya trae todo.
 
