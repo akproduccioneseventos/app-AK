@@ -58,6 +58,50 @@ Las reglas, que salen de decisiones del dueño (12/11 y 19/11):
   (`getAjustesRespuestasComentarios`, `comments-backfill.ts:39`). El de me gusta, prendido.
 - Cada acción queda registrada en el comentario (`meGustaAt`, `respondidoAt`, `ocultoAt`), así el despertador no la repite.
 
+## Bloque 3b — Todas las redes de la presencia digital, no sólo Facebook e Instagram
+
+**Pedido del dueño (19/11/2026):** *"comentarios en Google, Pinterest, todo automático en mi presencia digital"*. Hoy
+`syncCommentsFromNetworks` trae sólo Facebook e Instagram. Sumar, con las mismas reglas del bloque 3, **cada red hasta donde
+su API lo permita**. Antes de programar cada una, **confirmá en su documentación oficial qué deja hacer**, y anotalo en la
+propuesta:
+
+- **Google (reseñas de la ficha del negocio):**
+  - Las **positivas** (4 y 5 estrellas) se agradecen solas, con el nombre de la persona y sin repetir el mismo texto.
+  - Las **negativas** (1 a 3) **no se contestan solas**, porque una reseña de Google no se puede ocultar: la IA prepara la
+    respuesta y al dueño le llega el aviso con "Publicar respuesta" a un toque.
+  - Sin precios ni promesas.
+- **YouTube:** contestar comentarios; el me gusta, si la API no lo deja, no se inventa.
+- **Threads:** contestar respuestas a las publicaciones de AK.
+- **Pinterest y X:** si la API no deja leer o contestar comentarios (en X puede pedir un plan pago), **no se paga nada**: la
+  red aparece en la solapa Comentarios con *"Esta red no deja contestar desde otra aplicación"*.
+- **TikTok:** igual que Pinterest y X, según lo que permita su API para empresas.
+- Todo entra a la misma solapa Comentarios, con el ícono de la red, y lo hace el mismo despertador
+  (`src/app/api/cron/metricas-de-redes/route.ts`).
+
+## Bloque 4 — Una publicación, y sale en todas las redes
+
+**Pedido del dueño (19/11/2026):** *"las publicaciones las hago iguales en todas las redes; quisiera hacer una y que se publique
+en todas: Pinterest, Google, redes, todo"*.
+
+- **Ya existe el motor:** `publishPostInternal` (`src/lib/presencia-digital/publicador.ts:131`) recorre `selectedPlatforms` y
+  publica en Facebook, Instagram, TikTok, YouTube, Google (ficha del negocio), Pinterest, Threads y X. **No se rehace.**
+- **Lo que falta:** en `src/components/social-media/NewPostDialog.tsx:73` vienen marcadas de entrada sólo Instagram y
+  Facebook. Que vengan marcadas **todas las redes conectadas** (`isConnected` en las conexiones), y que se puedan destildar.
+  Las no conectadas aparecen apagadas con "Conectar" al lado.
+- **Cada red con lo suyo, solo:** la IA (Gemini 4 Hydrogen) arma, a partir de un solo texto, la versión de cada red:
+  - X, corto;
+  - Instagram y TikTok, con hashtags;
+  - Google, sin hashtags y con el botón "Consultar";
+  - Pinterest, con título y el enlace a la web.
+
+  Se muestran las versiones antes de publicar, para cambiar la que quiera. **Mismas reglas de siempre: sin precios, sin
+  promesas, sin "garantía".**
+- **Si una red pide algo que falta** (Instagram y Pinterest sin imagen, TikTok y YouTube sin video), esa red queda tildada en
+  gris con el motivo en una línea, y las demás se publican igual. Al terminar: *"Publicado en 5 de 7. Instagram: falta la
+  foto"*, nunca "listo" si alguna falló.
+- Los borradores automáticos (los que se publican solos a las 12 horas, decisión del 12/11) también salen en todas las
+  conectadas.
+
 ## Qué NO tocar
 
 - La regla de que una queja no se contesta sola, y la de no borrar nunca solo.
@@ -73,11 +117,19 @@ Las reglas, que salen de decisiones del dueño (12/11 y 19/11):
   precio** y un mensaje directo; un insulto queda **oculto, sin me gusta ni respuesta**, y llega el aviso; correr el
   despertador dos veces **no** da dos me gusta.
 - Con el interruptor de me gusta apagado, no se llama a la API de me gusta.
+- **Bloque 3b:** una reseña de Google de 5 estrellas (simulada) se contesta sola; una de 2 estrellas **no** se contesta y deja
+  la respuesta preparada con el aviso al dueño.
+- **Bloque 4:** con cuatro redes conectadas, la publicación nueva viene con las cuatro tildadas; sin imagen, Instagram queda en
+  gris con su motivo y las otras tres se publican (con la red simulada), y el cartel dice "3 de 4", no "listo".
 
 ```comprobar
 usa: Comentarios en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
 usa: /likes en src/lib/social-media/comments-backfill.ts
 usa: meGustaAt en src/lib/social-media/comments-backfill.ts
 usa: conversacion en src/lib/mensajes/bandeja-unica.ts
+no-usa: useState<SocialPlatform[]>(['Instagram', 'Facebook']) en src/components/social-media/NewPostDialog.tsx
+usa: isConnected en src/components/social-media/NewPostDialog.tsx
+usa: Google en src/lib/social-media/comments-backfill.ts
+usa: YouTube en src/lib/social-media/comments-backfill.ts
 prueba: tests/e2e/el-centro-de-redes-tiene-cinco-solapas.spec.ts
 ```

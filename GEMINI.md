@@ -20,7 +20,8 @@
   prospectos de las tres puertas. **Lo personal no se guarda ni se contesta.** Toca quién ve qué: lo revisa Claude.
 - **AL FINAL, después de la 325: orden 326 (`docs/ordenes/326-gemini-el-centro-de-redes-contesta-todo.md`).** El centro de
   redes con todas las conversaciones de todas las redes, una solapa de Comentarios, y que conteste y dé me gusta solo (las
-  quejas se ocultan, nunca se borran; nunca un precio en público).
+  quejas se ocultan, nunca se borran; nunca un precio en público). También: una publicación sale en todas las redes
+  conectadas, y entran las reseñas de Google y los comentarios de YouTube y Threads.
 - **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
   (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
   (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
