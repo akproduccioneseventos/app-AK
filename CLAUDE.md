@@ -1558,6 +1558,8 @@ lo que hice?* Si es lo segundo, no se manda.
   sola a los comentarios positivos y a las preguntas (en público nunca un precio); las quejas se ocultan solas y se avisa.
   **Una publicación sale en todas las redes conectadas**, con el texto acomodado a cada una, y los comentarios de Google (reseñas),
   YouTube y Threads también entran: las reseñas buenas se agradecen solas; las malas las contesta el dueño con la respuesta lista.
+  **Lo de otras plataformas (orden 327, "Todo"):** palabra clave en un comentario → simulador por privado, mirar la competencia,
+  agradecer y guardar las menciones en historias (compartirlas solo, apagado) y la página `/enlaces` para la biografía.
 
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 

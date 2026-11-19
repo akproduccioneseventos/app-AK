@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 19/11/2026 - Lo mejor de las otras plataformas de redes (orden 327)
+
+- **Qué se decidió:** el dueño aprobó las cuatro ideas tomadas de ManyChat, Metricool, Later y Linktree: palabra clave en un
+  comentario → el simulador por privado (una sola respuesta privada por comentario, como permite Meta), mirar hasta 10 cuentas
+  de la competencia sin interactuar con ellas, agradecer y guardar las menciones en historias (compartirlas sola queda
+  apagado), y la página `/enlaces` con los clics contados. Nunca un precio en público.
+
+```comprobar
+archivo: docs/ordenes/327-gemini-lo-mejor-de-las-otras-plataformas.md
+```
+
 ## 19/11/2026 - El centro de redes contesta y da me gusta solo (orden 326)
 
 - **Qué se decidió:** todas las conversaciones de todas las redes en una lista, una solapa de comentarios, y me gusta y
