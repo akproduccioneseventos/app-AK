@@ -2,7 +2,31 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 18/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 19/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+
+- **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
+  pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
+  todas. Claude devolvió cinco pantallas que borraste y se usan (Entrar, decoración y moodboard del portal, simulador y
+  Sofía): no las vuelvas a sacar.
+- **Tu 1443 (318 bloque 2, 320, 321: de 382 a 180 pantallas), con los arreglos de Claude que ya tiene `claude/juntar-1443`:**
+  (1) `/presupuestos/:id` y `/fiestas/:id` en `next.config.js` tapaban `/presupuestos/nuevo` (la lista) y `/fiestas/nueva`
+  (crear fiesta): Next mira las redirecciones antes que las pantallas. Ahora excluyen los nombres fijos y lo frena
+  `una-redireccion-no-tapa-una-pantalla.test.ts`. (2) `data/fiestas.json` y `src/data/fiestas.json` (la fiesta de muestra
+  que crea la app al entrar) no van al repositorio: quedaron ignorados.
+- **LO QUE FALTA, en la misma propuesta de la 322, sobre `claude/juntar-1443`:**
+  1. **321, bloque 7: el menú digital** en `src/app/evento/hub/[fiestaId]/page.tsx` (con `menuAsignadoId`). La papelería
+     ya salió: sin esto, el invitado se queda sin menú.
+  2. **321: la prueba `src/__tests__/las-direcciones-viejas-siguen-andando.test.ts`** (cada página borrada redirige a una
+     que existe; abrir 10 direcciones viejas en el navegador y ver que llegan). Es la que habría frenado el error de arriba.
+  3. **321, bloque 5:** la fiesta de 83 a unas 35 pantallas, en las 5 pestañas.
+  4. **320:** sacar "las 4 tareas" de `settings/tareas-automaticas` y que `recursos-multi-evento` no cuente las fiestas
+     suspendidas (`suspendid`). **319:** "Generar balance de cierre" en el panel de acciones del asistente. **317:**
+     `getDashboardKpiData` en alertas y "últimos 12 meses" en analíticas.
+  5. **Achicar sin perder:** Claude devolvió `/entrar`, y la decoración y el moodboard del portal (`/portal/[fiestaId]/`),
+     que la 1443 había borrado: son del cliente. Si querés juntarlas, que sean pestañas del portal con su función entera,
+     nunca una redirección a la portada. El tope quedó en 185 (con el simulador y Sofía).
+  6. Las líneas `comprobar` de las órdenes 311, 317, 319 y 320 que apuntan a pantallas que pasaste a paneles: actualizá la
+     ruta al panel nuevo (sin cambiar lo que comprueban).
 
 - **Tu 1406 quedó publicada** (Claude reempaquetó el editor y adaptó la prueba del menú a las 7 casas).
 - **Play Store (16/11, el dueño ya creó su cuenta de desarrollador):** en su computadora, seguí `docs/GUIAS-PLAY-STORE-Y-PC.md`
@@ -10,23 +34,6 @@
   SHA-256 de "Firma de aplicaciones" en `public/.well-known/assetlinks.json` (en lugar de `REEMPLAZAR_HUELLA_PLAY`) y dejá
   el lanzamiento en **prueba interna**. Lo que pida datos o pagos del dueño (identidad, ficha de la tienda, envío a
   producción) se lo pedís a él en la pantalla; no inventes datos. Guardá la llave de firma fuera del repositorio.
-- **Tu 1429 (órdenes 310 a 318) quedó publicada (18/11), con arreglos de Claude.** Lo que sigue, en una propuesta nueva
-  desde `origin/main`: (1) las pantallas de `docs/pantallas-rotas-conocidas.json`, que tu control de tres tamaños marca con
-  texto partido palabra por palabra o que se sale (sin esconder con overflow ni achicar letras); sacá cada una de la lista
-  cuando quede bien; (2) lo DEVUELTO de "modificar confirmación" (abajo). Los parches de `docs/parches/` ya están aplicados:
-  no los apliques de nuevo.
-- **DEVUELTO de tu 1429 (orden 318, bloque 2):** "Modificar confirmación" sigue abriendo el formulario vacío: no se hizo la
-  precarga. La prueba que mandaste no lo comprobaba y no corría (usaba `demo_ak_oficial`, que no existe en el entorno de
-  pruebas); se sacó. Hacé la precarga y una prueba que cree su propia fiesta e invitado (`crearFiestaDeEstaNoche` en
-  `tests/e2e/helpers/fiesta-de-prueba.ts`) y mire que el nombre y la restricción ya vienen puestos.
-- **Nuevo: orden 321 (pedido del dueño, la más importante después de cerrar 318-320):** reorganizar y achicar la app,
-  de 382 páginas a 180 o menos, sin papelería (menú digital en el teléfono del invitado), en seis áreas (Hoy, Ventas y Marketing con WhatsApp, Fiestas, Plata, Empresa y Personal,
-  Ajustes), sin perder funciones. Lo que toca plata sólo se mueve; si hay que tocar cómo guarda, lo anotás y lo hace Claude.
-- **Nuevo: orden 320** (auditoría del 18/11): el sorteo del control remoto que inventa "Mesa 2" (P1), el cronograma que
-  cruza la medianoche, el Vendedor que no encuentra un prospecto y cantidades escritas a mano. Y de la continuación: fiestas suspendidas
-  contadas como próximas, la galería por tipo, las fotos de ejemplo de Estilo, los avisos de pago del portal en Pagos rápidos
-  y el **AK Editor** (bloque 6: primero que "Volver al original" no borre los ajustes del dueño). Lo de plata (plan de pagos,
-  anexo y recibo) y la lista de compras sin presupuesto ya los arregló Claude: no los toques. En la misma propuesta, al final.
 - **Nuevo: orden 319** (auditoría integral, 17/11): empleados que no se guardan (medir primero), salones, check-in sin
   deshacer, guías y detalles. En la misma propuesta, al final.
 - **Nuevo: orden 318** (pruebas funcionales del auditor, 17/11): hora del evento, modificar confirmación, panel de la fiesta,
