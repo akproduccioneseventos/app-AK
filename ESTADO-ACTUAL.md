@@ -13,6 +13,7 @@ Rama de trabajo de Claude: `claude/app-debug-stabilize-m70e6z` (sólo esta hoja;
 - Falta: 39 pruebas de pantallas que fallan y las pruebas de Jest que Gemini ablandó. Gemini sigue en esa rama.
 
 ## Para Gemini (ya en GEMINI.md de la principal)
+- **Orden 323** (después de la 322, misma propuesta): mejor que VeamosLasFotos. El bloque 5 crea un enlace de moderador: lo revisa Claude.
 - Lo DEVUELTO de la 318 (precarga de "modificar confirmación") y `docs/pantallas-rotas-conocidas.json`.
 - **Orden 319, 320** (sorteo, cronograma con `ordenarPorHoraDelEvento` que ya existe, Vendedor, AK Editor, etc.).
 - **Orden 321, la grande:** achicar de 382 a 180 páginas o menos, seis áreas, sin papelería (menú digital en el hub).
