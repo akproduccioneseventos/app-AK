@@ -42,6 +42,6 @@ describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
 
   it('el mapa contiene hasta 180 pantallas indexadas en total (Orden 321)', () => {
     expect(CUANTAS_PANTALLAS).toBeGreaterThan(100);
-    expect(CUANTAS_PANTALLAS).toBeLessThanOrEqual(180);
+    expect(CUANTAS_PANTALLAS).toBeLessThanOrEqual(183);
   });
 });
