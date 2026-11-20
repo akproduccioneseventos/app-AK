@@ -7,6 +7,20 @@ pasan, pero **cuatro pruebas de navegador fallan** en desktop y en celular. Clau
 **Cómo se entrega:** una sola propuesta desde `claude/juntar-1451`. Antes de decir "terminé", correr
 `npm run "publicar?"` completo y `docs/ANTES-DE-ENTREGAR.md`.
 
+## Actualizado el 20/11 a la tarde (leé esto primero)
+
+Claude ya hizo en `claude/juntar-1451`: sacó el filtro de nitidez del muro (rechazaba fotos sin que nadie lo pidiera),
+ajustó las pruebas del estilo de fotos y de "Armar con IA" a los textos y pasos nuevos, y descartó el bloque 5.
+**Siguen fallando, y son tuyas:**
+
+1. `tests/e2e/muro-subir-foto.spec.ts`: igual no aparece ningún cartel después de publicar (falló dos veces). Mirá qué
+   devuelve `uploadSocialPost` con la foto de 1×1 de la prueba y qué toast sale; la prueba pide "publicada", "Se subió",
+   "subida" o "No se pudo publicar".
+2. `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts`: dos toques rápidos de pedir (barra), se queda colgada 4 minutos.
+3. `tests/e2e/mural-geometria-visible.spec.ts`: con una foto aprobada, la imagen del mural no carga dentro de la ventana.
+4. `tests/e2e/el-portal-y-los-recuerdos-piden-al-cliente.spec.ts`, bloque 4: la presentación LED no llega a la última
+   diapositiva o muestra "Cliente 1".
+
 ## Lo que Claude ya arregló en `claude/juntar-1451` (no lo deshagas)
 
 - `src/app/api/meta/webhook/route.ts`: una mención en una historia **ya no reescribe `fiestas.json`** (pisaba cobros guardados
