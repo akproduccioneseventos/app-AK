@@ -28,6 +28,8 @@ import {
   rejectPagoCliente,
   getPresupuestosWithPendingPayments,
 } from '@/app/actions/presupuestos';
+import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import type { ClientPaymentNotification } from '@/types/fiesta';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -35,6 +37,7 @@ import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import Image from 'next/image';
 import { getBudgetPaymentSummary, getPaymentReceiptSnapshot } from '@/lib/budget/financial-guardrails';
+import { resumenRevisionComprobanteIA } from '@/lib/client-portal/payment-notifications';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 const formatCurrency = (amount?: number) => {
@@ -295,6 +298,11 @@ function PagosRapidosContent() {
   const { toast } = useToast();
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
   const [pendingPresupuestos, setPendingPresupuestos] = useState<Presupuesto[]>([]);
+  const [pendingAvisosCliente, setPendingAvisosCliente] = useState<Array<{
+    fiestaId: string;
+    fiestaNombre: string;
+    notificacion: ClientPaymentNotification;
+  }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -323,12 +331,13 @@ function PagosRapidosContent() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [allPresupuestos, socialConnections, companyInfo, pendientes, templateSettings] = await Promise.all([
+      const [allPresupuestos, socialConnections, companyInfo, pendientes, templateSettings, todasLasFiestas] = await Promise.all([
         getPresupuestos(),
         getSocialConnectionsPublicas(),
         getCompanyInfo(),
         getPresupuestosWithPendingPayments(),
         getInvoiceTemplateSettings(),
+        getAllFiestas().catch(() => []),
       ]);
 
       const activeStates = ['Aceptado', 'Facturado'];
@@ -340,6 +349,16 @@ function PagosRapidosContent() {
           .sort((a, b) => a.clienteNombre.localeCompare(b.clienteNombre))
       );
       setPendingPresupuestos(pendientes);
+      const avisosPendientes = (todasLasFiestas || []).flatMap((fiesta) =>
+        (fiesta.clientPaymentNotifications || [])
+          .filter((n) => !n.estado || n.estado === 'pendiente')
+          .map((notificacion) => ({
+            fiestaId: fiesta.id,
+            fiestaNombre: fiesta.configuracion?.nombreEvento || fiesta.configuracion?.nombreAgasajado || 'Evento',
+            notificacion,
+          })),
+      );
+      setPendingAvisosCliente(avisosPendientes);
 
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
@@ -367,10 +386,11 @@ function PagosRapidosContent() {
   }, [presupuestos, searchTerm]);
 
   const pendingPaymentsCount = useMemo(() => {
-    return pendingPresupuestos.reduce((count, p) =>
+    const dePresupuestos = pendingPresupuestos.reduce((count, p) =>
       count + (p.pagosCliente || []).filter(pago => pago.estadoPago === 'pendiente_confirmacion').length
     , 0);
-  }, [pendingPresupuestos]);
+    return dePresupuestos + pendingAvisosCliente.length;
+  }, [pendingPresupuestos, pendingAvisosCliente]);
 
   const getPresupuestoSummary = (p: Presupuesto) => {
     const summary = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
@@ -888,6 +908,72 @@ function PagosRapidosContent() {
                       ))}
                     </CardContent>
                   </Card>
+                );
+              })}
+              {pendingAvisosCliente.map(({ fiestaId, fiestaNombre, notificacion }) => {
+                const cartelIA = resumenRevisionComprobanteIA(notificacion.revisionIA);
+                return (
+                <Card key={`aviso-${fiestaId}-${notificacion.id}`} className="border-indigo-100 shadow-md rounded-2xl overflow-hidden">
+                  <CardHeader className="bg-indigo-50/50 p-4 pb-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <CardTitle className="text-sm font-black text-slate-800 break-words [overflow-wrap:anywhere]">
+                          {fiestaNombre}
+                        </CardTitle>
+                        <CardDescription className="text-[10px] font-medium uppercase tracking-tighter">
+                          Aviso de pago desde portal del cliente
+                        </CardDescription>
+                      </div>
+                      <Badge className="bg-indigo-100 text-indigo-700 text-[10px] font-bold shrink-0">
+                        Pendiente de revisión
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-black text-lg text-slate-800">{formatCurrency(notificacion.monto)}</p>
+                        <p className="text-xs text-slate-500">
+                          {formatDate(notificacion.timestamp)}{notificacion.comprobanteNombre ? ` · ${notificacion.comprobanteNombre}` : ''}
+                        </p>
+                      </div>
+                      <Link href={`/fiestas/nueva/plan-pagos?fiestaId=${fiestaId}`}>
+                        <Button size="sm" variant="outline" className="text-xs font-semibold">
+                          Revisar en Plan de Pagos
+                        </Button>
+                      </Link>
+                    </div>
+                    {cartelIA && (
+                      <div
+                        className={cn(
+                          'flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-xs font-semibold',
+                          cartelIA.nivel === 'ok'
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                            : cartelIA.nivel === 'atencion'
+                            ? 'bg-amber-50 border-amber-200 text-amber-800'
+                            : 'bg-rose-50 border-rose-200 text-rose-800',
+                        )}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          {cartelIA.nivel === 'ok' ? (
+                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                          ) : (
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                          )}
+                          {cartelIA.texto}
+                        </span>
+                        <Badge variant="outline" className="text-[10px] font-bold shrink-0 bg-white/70">
+                          {cartelIA.tipoLabel}
+                        </Badge>
+                      </div>
+                    )}
+                    {notificacion.notas && (
+                      <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+                        📝 {notificacion.notas}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
                 );
               })}
             </div>

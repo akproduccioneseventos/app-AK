@@ -34,6 +34,16 @@ import { ComprobacionEquipo } from './comprobacion-equipo';
 import { enlaceDeInvitadoDeMuestra } from '@/app/actions/fiesta/vista-de-muestra.actions';
 import { buildWfolioDelivery, getAlbumDeliveryStatus } from '@/lib/social-fiesta/wfolio-album-delivery';
 import { TarjetaEntregaAlbum } from './tarjeta-entrega-album';
+import { CentroTriviaPanel } from '@/components/centro/CentroTriviaPanel';
+import {
+  generarTriviaConIa,
+  confirmarTrivia,
+  saveTriviaGame,
+  revelarRespuestaTrivia,
+  terminarTrivia,
+} from '@/app/actions/games.actions';
+import { launchGame } from '@/app/actions/fiesta/screen-mode.actions';
+import { topTrivia } from '@/lib/games/juegos-en-vivo';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -327,7 +337,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
               </h2>
             </div>
             <Link
-              href={`/fiestas/${encodeURIComponent(params.id)}/ak-100`}
+              href={`/fiestas/${encodeURIComponent(params.id)}/centro`}
               className="text-xs font-bold text-red-300 hover:text-red-200 underline"
             >
               Ver detalle AK-100
@@ -375,6 +385,20 @@ export default async function CentroDeFiestaPage(props: PageProps) {
         </section>
 
         <ComprobacionEquipo fiestaId={params.id} />
+
+        <CentroTriviaPanel
+          fiestaId={params.id}
+          eventName={nombre}
+          initialTrivia={fiesta.triviaGame}
+          initialActiveGame={fiesta.socialGallerySettings?.activeGame}
+          initialRanking={topTrivia(fiesta)}
+          onGenerarConIa={generarTriviaConIa}
+          onConfirmarTrivia={confirmarTrivia}
+          onGuardarBorrador={saveTriviaGame}
+          onLanzarPregunta={launchGame}
+          onRevelarRespuesta={revelarRespuestaTrivia}
+          onTerminarTrivia={terminarTrivia}
+        />
 
         {bloques.map((bloque) => (
           <section key={bloque.titulo} className="space-y-3">

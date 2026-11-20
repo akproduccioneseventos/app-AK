@@ -7,6 +7,14 @@ export interface SocialComment {
   highlighted?: boolean;
 }
 
+export interface SocialPostIaRevision {
+  apropiado: boolean;
+  esDeLaFiesta: boolean;
+  calidad?: 1 | 2 | 3 | number;
+  motivo?: string;
+  revisadoAt?: string;
+}
+
 export interface SocialGalleryPost {
   id: string;
   fiestaId: string;
@@ -38,6 +46,7 @@ export interface SocialGalleryPost {
   imageHash?: string;
   drinkId?: string;
   drinkName?: string;
+  iaRevision?: SocialPostIaRevision;
 }
 
 export interface ChatMessage {

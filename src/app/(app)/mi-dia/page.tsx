@@ -24,6 +24,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getParteDeLaManana, parteParaQuienMira } from '@/lib/automatico/parte-manana';
 import { ParteDeLaMananaPlayer } from '@/components/mi-dia/ParteDeLaMananaPlayer';
+import { MiDiaHubWrapper } from '@/components/panels/MiDiaHubWrapper';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { PushNotificationPrompt } from '@/components/push-notification-prompt';
 
 export const metadata: Metadata = {
   title: 'Mi Día - AK Producciones',
@@ -202,7 +205,11 @@ export default async function MiDiaPage() {
 
 
   return (
+    <MiDiaHubWrapper>
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
+      {/* Volvieron del panel viejo (/admin, que ahora redirige acá): instalar la app y recibir avisos en el teléfono. */}
+      <PwaInstallPrompt />
+      <PushNotificationPrompt />
       {/* Encabezado sereno */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-6">
         <div>
@@ -392,5 +399,6 @@ export default async function MiDiaPage() {
         </section>
       )}
     </div>
+    </MiDiaHubWrapper>
   );
 }

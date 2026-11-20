@@ -72,13 +72,13 @@ describe('reemplazar el papel firmado', () => {
 });
 
 it('la fecha del recibo no se lee como medianoche de Greenwich', () => {
-  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/personal/recibos/page.tsx'), 'utf8');
+  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/components/panels/personal--recibos.tsx'), 'utf8');
   expect(fuente).not.toMatch(/new Date\(dateString\)/);
   expect(fuente).toMatch(/formatearFechaEvento\(dateString\)/);
 });
 
-describe('la pantalla /fiestas/nueva/personal/recibos usa el desglose que suma', () => {
-  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/personal/recibos/page.tsx'), 'utf8');
+describe('la pantalla /fiestas/nueva/personal?tab=recibos usa el desglose que suma', () => {
+  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/components/panels/personal--recibos.tsx'), 'utf8');
   it('lo calcula con la función probada, para el papel y para la pantalla', () => {
     expect(fuente).toMatch(/from '@\/lib\/personal\/desglose-recibo'/);
     expect((fuente.match(/calculateSalaryBreakdown\(/g) || []).length).toBeGreaterThanOrEqual(2);

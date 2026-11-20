@@ -11,6 +11,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { getAjustesRespuestasComentarios } from '@/lib/social-media/comments-backfill';
+import { atenderProspectoUnificado } from '@/lib/whatsapp/asistente-de-prospectos';
 
 export type CanalMensaje =
   | 'whatsapp'
@@ -85,27 +86,111 @@ export async function leerBandejaUnica(): Promise<MensajeBandeja[]> {
   }
 
   const bandeja: MensajeBandeja[] = [];
+  const idsExternosVistos = new Set<string>();
+  const textosWhatsappVistos = new Set<string>();
 
-  // 1. WhatsApp
+  const registrarIdVisto = (rawId?: unknown) => {
+    if (typeof rawId !== 'string' || !rawId.trim()) return;
+    const id = rawId.trim();
+    idsExternosVistos.add(id);
+    for (const prefix of ['meta_dm_', 'wa_', 'meta_comment_']) {
+      if (id.startsWith(prefix)) {
+        idsExternosVistos.add(id.slice(prefix.length));
+      }
+    }
+  };
+
+  // 0. Fuente única unificada: `lead.conversacion` en `crm-leads.json`
+  const canalesBandeja = new Set<CanalMensaje>([
+    'whatsapp',
+    'instagram_dm',
+    'messenger',
+    'instagram_comentario',
+    'facebook_comentario',
+  ]);
+
+  for (const lead of crmLeads || []) {
+    const telefonoLead = normalizarTelefono(lead.telefono || lead.phone || '');
+    const esCli =
+      (telefonoLead && telefonosClientes.has(telefonoLead)) ||
+      (lead.name && nombresClientes.has(lead.name.toLowerCase().trim()));
+    const conversacion = Array.isArray(lead.conversacion) ? lead.conversacion : [];
+
+    for (let idx = 0; idx < conversacion.length; idx++) {
+      const msg = conversacion[idx];
+      if (!msg || !canalesBandeja.has(msg.canal as CanalMensaje)) continue;
+      if (msg.direccion === 'sistema') continue;
+
+      registrarIdVisto(msg.idExterno);
+      registrarIdVisto(msg.meta?.mid);
+      registrarIdVisto(msg.meta?.messageId);
+      registrarIdVisto(msg.meta?.commentId);
+
+      if (msg.canal === 'whatsapp' && telefonoLead && msg.texto) {
+        textosWhatsappVistos.add(`${telefonoLead}|${String(msg.texto).trim()}`);
+      }
+
+      if (msg.direccion === 'saliente') continue;
+
+      const siguienteSaliente = conversacion
+        .slice(idx + 1)
+        .find((m: any) => m.direccion === 'saliente');
+      const contestadoPor =
+        msg.respondidoPor ||
+        siguienteSaliente?.respondidoPor ||
+        (lead.atiende === 'asistente' && siguienteSaliente ? 'asistente' : undefined);
+
+      bandeja.push({
+        id: msg.idExterno || msg.id,
+        canal: msg.canal as CanalMensaje,
+        autor: msg.autor || lead.name || telefonoLead || 'Contacto',
+        contacto: telefonoLead || String(msg.meta?.senderId || ''),
+        texto: msg.texto || '',
+        fecha: msg.fecha || lead.updatedAt || new Date().toISOString(),
+        esCliente: Boolean(esCli),
+        esProspecto: true,
+        estado: contestadoPor === 'asistente'
+          ? 'contestado_solo'
+          : (siguienteSaliente ? 'contestado_persona' : 'pendiente'),
+        tipoContestacion: contestadoPor === 'asistente'
+          ? 'solo'
+          : (siguienteSaliente ? 'persona' : 'ninguno'),
+        propuestaIA: '¡Hola! Gracias por comunicarte con AK Producciones. ¿En qué podemos ayudarte para tu fiesta?',
+        detalles: {
+          leadId: lead.id,
+          idExterno: msg.idExterno,
+          ...(msg.meta || {}),
+          ...(telefonoLead ? { phone: telefonoLead } : {}),
+        },
+      });
+    }
+  }
+
+  // 1. WhatsApp (respaldo legado si no está ya en `lead.conversacion`)
   const rawWhatsapp = Array.isArray(whatsappData)
     ? whatsappData
     : Object.values(whatsappData || {});
 
   for (const wa of rawWhatsapp) {
-    const telefono = normalizarTelefono(wa.phone || wa.targetPhone || wa.id || '');
+    const telefono = normalizarTelefono(wa.phone || wa.clientPhone || wa.targetPhone || wa.id || '');
     const esCli = telefonosClientes.has(telefono) || (wa.name && nombresClientes.has(wa.name.toLowerCase().trim()));
     const esProsp = telefonosProspectos.has(telefono);
 
     const ultimoMensaje = Array.isArray(wa.messages) && wa.messages.length > 0
       ? wa.messages[wa.messages.length - 1]
       : wa;
+    const textoWa = ultimoMensaje.text || ultimoMensaje.content || ultimoMensaje.messageText || wa.lastMessage || 'Conversación WhatsApp';
+    const providerId = ultimoMensaje.providerMessageId || ultimoMensaje.id;
+
+    if (providerId && idsExternosVistos.has(String(providerId))) continue;
+    if (telefono && textosWhatsappVistos.has(`${telefono}|${String(textoWa).trim()}`)) continue;
 
     bandeja.push({
       id: wa.id || `wa_${telefono}`,
       canal: 'whatsapp',
       autor: wa.name || wa.clientName || telefono || 'Contacto WhatsApp',
       contacto: telefono,
-      texto: ultimoMensaje.text || ultimoMensaje.messageText || wa.lastMessage || 'Conversación WhatsApp',
+      texto: textoWa,
       fecha: ultimoMensaje.timestamp || ultimoMensaje.createdAt || wa.updatedAt || new Date().toISOString(),
       esCliente: Boolean(esCli),
       esProspecto: Boolean(esProsp),
@@ -116,8 +201,14 @@ export async function leerBandejaUnica(): Promise<MensajeBandeja[]> {
     });
   }
 
-  // 2. Comentarios en redes (Instagram & Facebook)
+  // 2. Comentarios en redes (Instagram & Facebook, evitando duplicados ya en `conversacion`)
   for (const c of socialComments || []) {
+    if (
+      (c.id && idsExternosVistos.has(String(c.id))) ||
+      (c.networkCommentId && idsExternosVistos.has(String(c.networkCommentId)))
+    ) {
+      continue;
+    }
     const autorNom = c.authorName || c.userName || 'Usuario';
     const esCli = nombresClientes.has(autorNom.toLowerCase().trim());
 
@@ -137,8 +228,11 @@ export async function leerBandejaUnica(): Promise<MensajeBandeja[]> {
     });
   }
 
-  // 3. Mensajes directos (Instagram DM & Messenger)
+  // 3. Mensajes directos (Instagram DM & Messenger, evitando duplicados ya en `conversacion`)
   for (const dm of directMessages || []) {
+    if (dm.mid && idsExternosVistos.has(String(dm.mid))) {
+      continue;
+    }
     const esCli = dm.senderName ? nombresClientes.has(dm.senderName.toLowerCase().trim()) : false;
 
     bandeja.push({
@@ -204,8 +298,17 @@ export async function evaluarRespuestaAutomatica(params: {
   remitenteId: string;
   esCliente: boolean;
   vinoDeAnuncio?: boolean;
-}): Promise<{ respondeSolo: boolean; respuesta?: string; motivo?: string }> {
-  const { canal, texto, remitenteId, esCliente, vinoDeAnuncio } = params;
+  nombre?: string;
+}): Promise<{
+  respondeSolo: boolean;
+  respuesta?: string;
+  motivo?: string;
+  opciones?: string[];
+  whatsappUrl?: string;
+  budgetUrl?: string;
+  atiende?: 'asistente' | 'persona';
+}> {
+  const { canal, texto, remitenteId, esCliente, vinoDeAnuncio, nombre } = params;
   const textoMin = (texto || '').toLowerCase();
 
   // 1. Interruptores en Ajustes
@@ -245,7 +348,7 @@ export async function evaluarRespuestaAutomatica(params: {
     return { respondeSolo: false, motivo: 'queja_requiere_atencion_humana' };
   }
 
-  // 6. Tope diario de 3 respuestas por remitente
+  // 6. Tope diario de 3 respuestas por remitente en comentarios públicos
   const hoyStr = new Date().toISOString().split('T')[0];
   const registroTopes = await readData<Record<string, { fecha: string; count: number }>>(ARCHIVO_TOPES_RESPUESTAS, {});
   const userRecord = registroTopes[remitenteId] || { fecha: hoyStr, count: 0 };
@@ -257,20 +360,43 @@ export async function evaluarRespuestaAutomatica(params: {
 
   // 7. Armado de respuesta según el canal
   let respuestaGenerada = '';
+  let extraCampos: {
+    opciones?: string[];
+    whatsappUrl?: string;
+    budgetUrl?: string;
+    atiende?: 'asistente' | 'persona';
+  } = {};
 
   if (canal === 'instagram_comentario' || canal === 'facebook_comentario') {
-    const esPregunta = textoMin.includes('?') || /precio|cuánto|donde|cuándo|tienen|información|info|fecha/i.test(textoMin);
+    const esPregunta = textoMin.includes('?') || /precio|cuánto|cuanto|donde|dónde|cuándo|cuando|tienen|información|info|fecha|disponib|presupuesto/i.test(textoMin);
     const esElogio = /genial|hermos|excelente|felicitaciones|lindo|crack|amor|capo|bello/i.test(textoMin);
 
     if (esPregunta) {
-      respuestaGenerada = '¡Hola! Para conocer nuestras propuestas y armar tu presupuesto a medida, podés simular tu fiesta en akproducciones.uy o consultarnos por mensaje.';
+      // Comentarios públicos NUNCA dicen precios ni fechas: solo derivan por privado.
+      respuestaGenerada = '¡Hola! ¡Te escribimos por privado!';
     } else if (esElogio) {
       respuestaGenerada = '¡Muchas gracias por tu mensaje! ❤️ Nos alegra muchísimo que te guste nuestro trabajo.';
     } else {
       return { respondeSolo: false, motivo: 'comentario_sin_pregunta_ni_elogio' };
     }
   } else if (canal === 'instagram_dm' || canal === 'messenger') {
-    respuestaGenerada = '¡Hola! En AK Producciones organizamos fiestas en Salto con sonido, luces, pantallas y entretenimiento completo. Podés ver nuestras opciones y simular tu evento en akproducciones.uy/simulador. ¡En breve te escribimos por acá!';
+    const resultado = await atenderProspectoUnificado({
+      canal,
+      remitenteId,
+      texto,
+      nombre,
+      esCliente,
+    });
+    if (resultado.silenciado || !resultado.respuesta) {
+      return { respondeSolo: false, motivo: resultado.motivo || 'atiende_persona' };
+    }
+    respuestaGenerada = resultado.respuesta;
+    extraCampos = {
+      ...(resultado.opciones ? { opciones: resultado.opciones } : {}),
+      ...(resultado.whatsappUrl ? { whatsappUrl: resultado.whatsappUrl } : {}),
+      ...(resultado.budgetUrl ? { budgetUrl: resultado.budgetUrl } : {}),
+      atiende: resultado.atiende,
+    };
   } else if (canal === 'whatsapp') {
     respuestaGenerada = '¡Hola! Gracias por contactarte con AK Producciones. Recibimos tu consulta desde nuestro anuncio. Te pasamos el enlace al simulador para armar tu propuesta: akproducciones.uy/simulador.';
   }
@@ -286,6 +412,7 @@ export async function evaluarRespuestaAutomatica(params: {
   return {
     respondeSolo: true,
     respuesta: respuestaGenerada,
+    ...extraCampos,
   };
 }
 

@@ -20,7 +20,15 @@ import {
   createPostFromDailySuggestion,
   getNetworkAttributionReport,
   getWebsiteAnalyticsData,
+  getCompetenciaDashboardAction,
+  guardarCompetenciaCuentasAction,
+  sincronizarCompetenciaAhoraAction,
+  getStoryMentionsAction,
+  compartirMencionEnHistoriaAction,
+  type StoryMentionItem,
 } from '@/app/actions/presencia-digital';
+import type { CompetenciaEstado } from '@/lib/presencia-digital/competencia';
+import { publicarRespuestaResenaAction } from '@/app/actions/google-business-resenas';
 import { GoogleBusinessProfileWidget } from '@/components/google-business-profile';
 import {
   getSocialCommentsDashboardAction,
@@ -81,6 +89,9 @@ import {
   FolderDown,
   Video,
   UploadCloud,
+  Copy,
+  Heart,
+  Eye,
 } from 'lucide-react';
 import {
   subirVideosDeLaFiesta,
@@ -98,16 +109,40 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const { toast } = useToast();
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'hoy' | 'mensajes' | 'publicaciones' | 'resultados' | 'conexiones'>('hoy');
-  const [subTabResultados, setSubTabResultados] = useState<'posicionamiento' | 'atribucion' | 'ads' | 'google_ficha' | 'web' | 'directorios' | 'historial' | 'comentarios'>('posicionamiento');
+  const [activeTab, setActiveTab] = useState<'hoy' | 'mensajes' | 'publicaciones' | 'comentarios' | 'resultados' | 'conexiones'>('hoy');
+  const [subTabResultados, setSubTabResultados] = useState<'posicionamiento' | 'atribucion' | 'ads' | 'google_ficha' | 'web' | 'directorios' | 'historial' | 'competencia'>('posicionamiento');
   const [filtroPublicaciones, setFiltroPublicaciones] = useState<'todos' | 'listos' | 'con_error' | 'calendario'>('todos');
   const [bandejaMensajes, setBandejaMensajes] = useState<MensajeBandeja[]>([]);
   const [loadingBandeja, setLoadingBandeja] = useState<boolean>(false);
-  const [filtroCanalBandeja, setFiltroCanalBandeja] = useState<'todos' | 'sin_contestar' | 'whatsapp' | 'instagram' | 'facebook' | 'google'>('sin_contestar');
-  const [ajustesRespuestas, setAjustesRespuestas] = useState<{ comentarios: boolean; mensajesDirectos: boolean }>({
+  const [filtroCanalBandeja, setFiltroCanalBandeja] = useState<'todos' | 'sin_contestar' | 'whatsapp' | 'instagram' | 'facebook' | 'google' | 'tiktok'>('sin_contestar');
+  const [ajustesRespuestas, setAjustesRespuestas] = useState<{
+    comentarios: boolean;
+    mensajesDirectos: boolean;
+    meGusta: boolean;
+    ocultar: boolean;
+    palabrasClaveActivo: boolean;
+    compartirSoloHistorias: boolean;
+  }>({
     comentarios: true,
     mensajesDirectos: true,
+    meGusta: true,
+    ocultar: true,
+    palabrasClaveActivo: true,
+    compartirSoloHistorias: false,
   });
+  const [filtroRedComentarios, setFiltroRedComentarios] = useState<'todas' | CommentNetwork>('todas');
+  const [filtroEstadoComentarios, setFiltroEstadoComentarios] = useState<'todos' | 'contestado solo' | 'con me gusta' | 'oculto' | 'para vos'>('todos');
+  const [publishingGoogleReviewId, setPublishingGoogleReviewId] = useState<string | null>(null);
+
+  // Estado para Competencia (Orden 327 Bloque 2)
+  const [competenciaData, setCompetenciaData] = useState<CompetenciaEstado | null>(null);
+  const [loadingCompetencia, setLoadingCompetencia] = useState<boolean>(false);
+  const [syncingCompetencia, setSyncingCompetencia] = useState<boolean>(false);
+  const [nuevaCuentaCompetencia, setNuevaCuentaCompetencia] = useState<string>('');
+
+  // Estado para Menciones en Historias ("Para compartir", Orden 327 Bloque 3)
+  const [storyMentions, setStoryMentions] = useState<StoryMentionItem[]>([]);
+  const [loadingMentions, setLoadingMentions] = useState<boolean>(false);
 
   const cargarBandeja = useCallback(async () => {
     setLoadingBandeja(true);
@@ -131,8 +166,12 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     // no pasa nada si falla: se mantienen los ajustes por defecto y se notifica en pantalla
     getAjustesRespuestasComentarios().then((aj: any) => {
       setAjustesRespuestas({
-        comentarios: aj.comentarios,
-        mensajesDirectos: aj.mensajesDirectos,
+        comentarios: aj?.comentarios ?? true,
+        mensajesDirectos: aj?.mensajesDirectos ?? true,
+        meGusta: aj?.meGusta ?? true,
+        ocultar: aj?.ocultar ?? true,
+        palabrasClaveActivo: aj?.palabrasClaveActivo ?? true,
+        compartirSoloHistorias: aj?.compartirSoloHistorias ?? false,
       });
     }).catch((err) => {
       console.warn('[PresenciaDigital] Error al cargar ajustes:', err);
@@ -148,11 +187,12 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     const pedida = new URLSearchParams(window.location.search).get('tab');
     if (pedida) {
       if (pedida === 'hoy' || pedida === 'revision') setActiveTab('hoy');
-      else if (pedida === 'mensajes' || pedida === 'comentarios') setActiveTab('mensajes');
+      else if (pedida === 'mensajes') setActiveTab('mensajes');
+      else if (pedida === 'comentarios') setActiveTab('comentarios');
       else if (pedida === 'publicaciones' || pedida === 'calendario') {
         setActiveTab('publicaciones');
         if (pedida === 'calendario') setFiltroPublicaciones('calendario');
-      } else if (['posicionamiento', 'atribucion', 'ads', 'google_ficha', 'web', 'directorios', 'historial', 'resultados'].includes(pedida)) {
+      } else if (['posicionamiento', 'atribucion', 'ads', 'google_ficha', 'web', 'directorios', 'historial', 'competencia', 'resultados'].includes(pedida)) {
         setActiveTab('resultados');
         if (pedida !== 'resultados') setSubTabResultados(pedida as any);
       } else if (pedida === 'conexiones') {
@@ -343,10 +383,67 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, []);
 
   useEffect(() => {
-    if ((activeTab === 'mensajes' || (activeTab === 'resultados' && subTabResultados === 'comentarios')) && !commentsData) {
+    if ((activeTab === 'mensajes' || activeTab === 'comentarios') && !commentsData) {
       loadComments();
     }
-  }, [activeTab, subTabResultados, commentsData, loadComments]);
+  }, [activeTab, commentsData, loadComments]);
+
+  const loadCompetencia = useCallback(async () => {
+    setLoadingCompetencia(true);
+    try {
+      const res = await getCompetenciaDashboardAction();
+      if (res.success && res.data) {
+        setCompetenciaData(res.data);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingCompetencia(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'resultados' && subTabResultados === 'competencia' && !competenciaData) {
+      loadCompetencia();
+    }
+  }, [activeTab, subTabResultados, competenciaData, loadCompetencia]);
+
+  const loadStoryMentions = useCallback(async () => {
+    setLoadingMentions(true);
+    try {
+      const res = await getStoryMentionsAction();
+      if (res.success) {
+        setStoryMentions(res.mentions || []);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingMentions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'publicaciones') {
+      loadStoryMentions();
+    }
+  }, [activeTab, loadStoryMentions]);
+
+  const handlePublicarBorradorGoogle = async (reviewComment: SocialComment) => {
+    const texto = reviewComment.borradorRespuesta?.trim();
+    if (!texto) return;
+    setPublishingGoogleReviewId(reviewComment.id);
+    try {
+      const res = await publicarRespuestaResenaAction(reviewComment.networkCommentId, texto);
+      if (res.success) {
+        toast({ title: 'Respuesta publicada en Google' });
+        await loadComments();
+      } else {
+        toast({ variant: 'destructive', title: 'Google Business', description: res.errorCriollo || res.error || 'No se pudo publicar la respuesta.' });
+      }
+    } finally {
+      setPublishingGoogleReviewId(null);
+    }
+  };
 
   const handleSyncComments = async (full: boolean = false) => {
     setSyncingComments(true);
@@ -879,6 +976,18 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
+          data-testid="tab-comentarios"
+          onClick={() => setActiveTab('comentarios')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'comentarios'
+              ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20 font-black'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <MessageCircle className="w-4 h-4" /> Comentarios
+        </button>
+
+        <button
           data-testid="tab-resultados"
           onClick={() => setActiveTab('resultados')}
           className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
@@ -970,6 +1079,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                 { id: 'instagram', label: 'Instagram' },
                 { id: 'facebook', label: 'Facebook' },
                 { id: 'google', label: 'Google Maps' },
+                { id: 'tiktok', label: 'TikTok' },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -992,6 +1102,11 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                 <RefreshCw className={`w-4 h-4 ${loadingBandeja ? 'animate-spin' : ''}`} />
               </button>
             </div>
+
+            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-300 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>TikTok todavía no deja leer los mensajes desde otra aplicación.</span>
+            </div>
           </div>
 
           {/* Lista de mensajes */}
@@ -1013,15 +1128,21 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                   if (filtroCanalBandeja === 'instagram') return m.canal.includes('instagram');
                   if (filtroCanalBandeja === 'facebook') return m.canal.includes('facebook') || m.canal === 'messenger';
                   if (filtroCanalBandeja === 'google') return m.canal === 'google_review';
+                  if (filtroCanalBandeja === 'tiktok') return false;
                   return true;
                 })
-                .map((msg) => (
+                .map((msg) => {
+                  const atiendeQuien =
+                    msg.detalles?.atiende === 'persona' || msg.tipoContestacion === 'persona'
+                      ? 'persona'
+                      : 'asistente';
+                  return (
                   <div
                     key={msg.id}
                     className="p-4 md:p-5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-slate-700 transition space-y-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="px-2 py-0.5 bg-slate-800 text-slate-300 text-[11px] font-bold uppercase tracking-wider rounded-md">
                           {msg.canal.replace(/_/g, ' ')}
                         </span>
@@ -1029,6 +1150,13 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                         {msg.contacto && (
                           <span className="text-xs text-slate-400 hidden sm:inline">({msg.contacto})</span>
                         )}
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          atiendeQuien === 'asistente'
+                            ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
+                            : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                        }`}>
+                          Atiende: {atiendeQuien}
+                        </span>
                         {msg.esCliente && (
                           <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold rounded-full">
                             Cliente
@@ -1106,7 +1234,8 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
             </div>
           )}
         </div>
@@ -1153,6 +1282,26 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                     {plat.platform === 'Instagram'
                       ? 'Falta el permiso de mensajes de Instagram en la app de Meta. Conectalo en Ajustes sin costo adicional.'
                       : 'Falta configurar el Token de acceso o vincular la cuenta en Ajustes > Redes Sociales.'}
+                  </div>
+                )}
+
+                {plat.platform === 'Instagram' && (
+                  <div className="p-3 bg-purple-950/30 border border-purple-800/40 rounded-xl space-y-2">
+                    <p className="text-xs font-semibold text-purple-200">Poné este enlace en tu biografía</p>
+                    <div className="flex items-center justify-between gap-2 bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                      <code className="text-[11px] text-slate-300 truncate">/enlaces</code>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const url = typeof window !== 'undefined' ? `${window.location.origin}/enlaces` : '/enlaces';
+                          await navigator.clipboard?.writeText(url).catch(() => {});
+                          toast({ description: '¡Enlace /enlaces copiado!' });
+                        }}
+                        className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold rounded-md flex items-center gap-1 shrink-0 transition"
+                      >
+                        <Copy className="w-3 h-3" /> Copiar
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1411,7 +1560,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             { id: 'web', label: 'Tráfico Web' },
             { id: 'directorios', label: 'Directorios' },
             { id: 'ads', label: 'Publicidad' },
-            { id: 'comentarios', label: 'Comentarios' },
+            { id: 'competencia', label: 'Competencia' },
             { id: 'historial', label: 'Historial' },
           ].map((sub) => (
             <button
@@ -1434,38 +1583,296 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         <SeoPosicionamientoTab />
       )}
 
-      {/* PESTAÑA: COMENTARIOS DE REDES (Orden Comentarios de las Redes) */}
-      {activeTab === 'resultados' && subTabResultados === 'comentarios' && (
-        <div className="space-y-6">
-          {/* Header con botón de sincronización */}
-          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-rose-400" />
-                Comentarios de Facebook, Instagram y YouTube
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Moderación automática de insultos, rescate de testimonios para la web y atención de quejas legítimas.
-              </p>
+      {/* PESTAÑA: COMPETENCIA (Orden 327 Bloque 2) */}
+      {activeTab === 'resultados' && subTabResultados === 'competencia' && (
+        <div className="space-y-6" data-testid="subsolapa-competencia">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Target className="w-5 h-5 text-emerald-400" />
+                  Competencia en Instagram
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Seguimiento semanal de hasta 10 cuentas públicas de empresa o creador (sólo lectura, nunca se sigue ni se comenta).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  setSyncingCompetencia(true);
+                  try {
+                    const res = await sincronizarCompetenciaAhoraAction();
+                    if (res.success && res.data) {
+                      setCompetenciaData(res.data);
+                      toast({ description: 'Competencia actualizada.' });
+                    }
+                  } finally {
+                    setSyncingCompetencia(false);
+                  }
+                }}
+                disabled={syncingCompetencia}
+                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 disabled:opacity-50 self-start sm:self-auto"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncingCompetencia ? 'animate-spin' : ''}`} />
+                {syncingCompetencia ? 'Consultando...' : 'Actualizar ahora'}
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const username = nuevaCuentaCompetencia.trim().replace(/^@/, '');
+                if (!username) return;
+                const actuales = (competenciaData?.cuentas || []).map((c) => c.username);
+                if (actuales.length >= 10) {
+                  toast({ variant: 'destructive', description: 'Máximo 10 cuentas de la competencia.' });
+                  return;
+                }
+                const res = await guardarCompetenciaCuentasAction([...actuales, username]);
+                if (res.success && res.data) {
+                  setCompetenciaData(res.data);
+                  setNuevaCuentaCompetencia('');
+                  toast({ description: `@${username} agregada.` });
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-2"
+            >
+              <input
+                type="text"
+                value={nuevaCuentaCompetencia}
+                onChange={(e) => setNuevaCuentaCompetencia(e.target.value)}
+                placeholder="Usuario de Instagram (ej: competidor_uy)"
+                className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder:text-slate-500"
+              />
               <button
-                onClick={() => handleSyncComments(false)}
-                disabled={syncingComments}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5 disabled:opacity-50"
+                type="submit"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncingComments ? 'animate-spin' : ''}`} />
-                {syncingComments ? 'Buscando...' : 'Traer lo nuevo'}
+                Agregar cuenta
+              </button>
+            </form>
+          </div>
+
+          {loadingCompetencia ? (
+            <div className="text-center py-10 text-slate-400 text-xs">Cargando datos de competencia...</div>
+          ) : (
+            <div className="space-y-4">
+              {competenciaData?.resumenIA && (
+                <div className="p-4 bg-slate-900/90 border border-emerald-500/20 rounded-2xl space-y-1.5">
+                  <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" /> Resumen de IA (3 líneas)
+                  </div>
+                  <p className="text-xs text-slate-200 whitespace-pre-line leading-relaxed">
+                    {competenciaData.resumenIA}
+                  </p>
+                </div>
+              )}
+
+              {!competenciaData || competenciaData.cuentas.length === 0 ? (
+                <div className="p-8 text-center bg-slate-900/50 border border-slate-800 rounded-2xl text-xs text-slate-400">
+                  No hay cuentas de la competencia configuradas todavía. Agregá hasta 10 usuarios arriba para comparar seguidores y publicaciones.
+                </div>
+              ) : (
+                <>
+                  {/* Tabla en escritorio */}
+                  <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/90">
+                    <table className="w-full text-left text-xs text-slate-300">
+                      <thead className="bg-slate-900 text-slate-400 uppercase font-bold border-b border-slate-800">
+                        <tr>
+                          <th className="p-3.5">Cuenta</th>
+                          <th className="p-3.5 text-right">Seguidores</th>
+                          <th className="p-3.5 text-center">Tendencia semanal</th>
+                          <th className="p-3.5 text-right">Publicaciones</th>
+                          <th className="p-3.5">Estado</th>
+                          <th className="p-3.5 text-right">Quitar</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60 bg-slate-950">
+                        <tr className="bg-emerald-950/20">
+                          <td className="p-3.5 font-bold text-emerald-300">AK Producciones (vos)</td>
+                          <td className="p-3.5 text-right font-bold text-white">
+                            {kpis.totalFollowers === null ? '—' : kpis.totalFollowers.toLocaleString('es-UY')}
+                          </td>
+                          <td className="p-3.5 text-center text-emerald-400 font-bold">
+                            {kpis.followersWeeklyChange !== null ? (kpis.followersWeeklyChange >= 0 ? `▲ +${kpis.followersWeeklyChange}` : `▼ ${kpis.followersWeeklyChange}`) : '—'}
+                          </td>
+                          <td className="p-3.5 text-right text-slate-300">{posts.length}</td>
+                          <td className="p-3.5 text-emerald-400 text-[11px]">Tu cuenta</td>
+                          <td className="p-3.5 text-right">—</td>
+                        </tr>
+                        {competenciaData.cuentas.map((c) => (
+                          <tr key={c.username} className="hover:bg-slate-900/50">
+                            <td className="p-3.5 font-bold text-white">@{c.username}</td>
+                            <td className="p-3.5 text-right font-bold text-white">
+                              {c.error ? '—' : c.seguidores.toLocaleString('es-UY')}
+                            </td>
+                            <td className="p-3.5 text-center text-slate-400">
+                              {c.error ? '—' : '→ semanal'}
+                            </td>
+                            <td className="p-3.5 text-right">{c.error ? '—' : c.publicacionesCount}</td>
+                            <td className="p-3.5">
+                              {c.error ? (
+                                <span className="text-amber-300 text-[11px]">{c.error}</span>
+                              ) : (
+                                <span className="text-emerald-400 text-[11px]">Actualizado</span>
+                              )}
+                            </td>
+                            <td className="p-3.5 text-right">
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const restantes = competenciaData.cuentas
+                                    .filter((x) => x.username !== c.username)
+                                    .map((x) => x.username);
+                                  const res = await guardarCompetenciaCuentasAction(restantes);
+                                  if (res.success && res.data) setCompetenciaData(res.data);
+                                }}
+                                className="text-rose-400 hover:text-rose-300 text-[11px] font-bold"
+                              >
+                                Quitar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Tarjetas en celular */}
+                  <div className="md:hidden space-y-3">
+                    {competenciaData.cuentas.map((c) => (
+                      <div key={c.username} className="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white">@{c.username}</span>
+                          <span className="text-slate-400">→ semanal</span>
+                        </div>
+                        {c.error ? (
+                          <p className="text-amber-300 text-[11px]">{c.error}</p>
+                        ) : (
+                          <div className="flex justify-between text-slate-300">
+                            <span>Seguidores: <strong className="text-white">{c.seguidores.toLocaleString('es-UY')}</strong></span>
+                            <span>Posts: <strong className="text-white">{c.publicacionesCount}</strong></span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SOLAPA 6: COMENTARIOS (Orden 326 Bloque 2, 3 y 3b) */}
+      {activeTab === 'comentarios' && (
+        <div className="space-y-6" data-testid="solapa-comentarios">
+          {/* Header con botón de sincronización */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-rose-400" />
+                  Todos los Comentarios y Reseñas
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Facebook, Instagram, Google, YouTube, Threads y más. Contesta y da me gusta solo, oculta insultos y avisa quejas.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleSyncComments(false)}
+                  disabled={syncingComments}
+                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${syncingComments ? 'animate-spin' : ''}`} />
+                  {syncingComments ? 'Buscando...' : 'Traer lo nuevo'}
+                </button>
+                <button
+                  onClick={() => handleSyncComments(true)}
+                  disabled={syncingComments}
+                  className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Historial completo
+                </button>
+              </div>
+            </div>
+
+            {/* Interruptores de respuestas, me gusta, ocultar y palabras clave */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+              <button
+                type="button"
+                onClick={async () => {
+                  const nuevo = !ajustesRespuestas.comentarios;
+                  setAjustesRespuestas((p) => ({ ...p, comentarios: nuevo }));
+                  await setAjustesRespuestasComentarios({ comentarios: nuevo });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  ajustesRespuestas.comentarios
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+              >
+                Contestar solo: {ajustesRespuestas.comentarios ? 'Prendido' : 'Apagado'}
               </button>
               <button
-                onClick={() => handleSyncComments(true)}
-                disabled={syncingComments}
-                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5 disabled:opacity-50"
+                type="button"
+                onClick={async () => {
+                  const nuevo = !ajustesRespuestas.meGusta;
+                  setAjustesRespuestas((p) => ({ ...p, meGusta: nuevo }));
+                  await setAjustesRespuestasComentarios({ meGusta: nuevo });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  ajustesRespuestas.meGusta
+                    ? 'bg-pink-500/10 border-pink-500/30 text-pink-300'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                Historial completo
+                Me gusta solo: {ajustesRespuestas.meGusta ? 'Prendido' : 'Apagado'}
               </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const nuevo = !ajustesRespuestas.ocultar;
+                  setAjustesRespuestas((p) => ({ ...p, ocultar: nuevo }));
+                  await setAjustesRespuestasComentarios({ ocultar: nuevo });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  ajustesRespuestas.ocultar
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+              >
+                Ocultar insultos/quejas: {ajustesRespuestas.ocultar ? 'Prendido' : 'Apagado'}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const nuevo = !ajustesRespuestas.palabrasClaveActivo;
+                  setAjustesRespuestas((p) => ({ ...p, palabrasClaveActivo: nuevo }));
+                  await setAjustesRespuestasComentarios({ palabrasClaveActivo: nuevo });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  ajustesRespuestas.palabrasClaveActivo
+                    ? 'bg-purple-500/10 border-purple-500/30 text-purple-300'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+              >
+                Palabras clave: {ajustesRespuestas.palabrasClaveActivo ? 'Prendido' : 'Apagado'}
+              </button>
+            </div>
+
+            {/* Avisos honestos de capacidades por API */}
+            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-[11px] text-slate-300 space-y-1">
+              <p>
+                <span className="font-bold text-slate-200">Pinterest, X y TikTok:</span> Esta red no deja contestar desde otra aplicación.
+              </p>
+              <p>
+                <span className="font-bold text-slate-200">Instagram y YouTube:</span> No dejan dar me gusta a comentarios desde otra aplicación (solo Facebook). Tampoco se da me gusta a publicaciones de otras cuentas.
+              </p>
             </div>
           </div>
 
@@ -1490,6 +1897,188 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                 <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl">
                   <span className="text-xs font-semibold text-rose-400 uppercase">Quejas para Atender</span>
                   <p className="text-2xl font-black text-rose-400 mt-1">{commentsData.summaryCounts.complaints}</p>
+                </div>
+              </div>
+
+              {/* LISTADO UNIFICADO CON FILTROS POR RED Y ESTADO */}
+              <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {(['todas', 'Facebook', 'Instagram', 'Google', 'YouTube', 'Threads', 'TikTok', 'Pinterest', 'X'] as const).map((red) => (
+                      <button
+                        key={red}
+                        type="button"
+                        onClick={() => setFiltroRedComentarios(red)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                          filtroRedComentarios === red
+                            ? 'bg-rose-500 text-white font-bold'
+                            : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        {red === 'todas' ? 'Todas las redes' : red}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {(['todos', 'contestado solo', 'con me gusta', 'oculto', 'para vos'] as const).map((est) => (
+                      <button
+                        key={est}
+                        type="button"
+                        onClick={() => setFiltroEstadoComentarios(est)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                          filtroEstadoComentarios === est
+                            ? 'bg-emerald-500 text-slate-950 font-bold'
+                            : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        {est === 'todos' ? 'Todos los estados' : est}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {(filtroRedComentarios === 'Pinterest' || filtroRedComentarios === 'X' || filtroRedComentarios === 'TikTok') && (
+                  <div className="p-3 bg-amber-950/30 border border-amber-800/50 rounded-xl text-xs text-amber-200">
+                    {filtroRedComentarios}: Esta red no deja contestar desde otra aplicación.
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {commentsData.allComments
+                    .filter((c) => !c.isDeleted)
+                    .filter((c) => filtroRedComentarios === 'todas' || c.network === filtroRedComentarios)
+                    .filter((c) => {
+                      const estaOculto = Boolean(c.isAutoHidden || c.ocultoAt);
+                      const contestadoSolo = Boolean(c.respuestaAutomatica);
+                      const conMeGusta = Boolean(c.meGustaAt);
+                      const paraVos = Boolean(
+                        c.isLegitimateComplaint ||
+                        c.borradorRespuesta ||
+                        (!contestadoSolo && !estaOculto),
+                      );
+                      if (filtroEstadoComentarios === 'contestado solo') return contestadoSolo;
+                      if (filtroEstadoComentarios === 'con me gusta') return conMeGusta;
+                      if (filtroEstadoComentarios === 'oculto') return estaOculto;
+                      if (filtroEstadoComentarios === 'para vos') return paraVos;
+                      return true;
+                    })
+                    .map((c) => {
+                      const estaOculto = Boolean(c.isAutoHidden || c.ocultoAt);
+                      const contestadoSolo = Boolean(c.respuestaAutomatica);
+                      const conMeGusta = Boolean(c.meGustaAt);
+                      const paraVos = Boolean(
+                        c.isLegitimateComplaint ||
+                        (c.borradorRespuesta && !contestadoSolo) ||
+                        (!contestadoSolo && !estaOculto),
+                      );
+                      return (
+                        <div key={c.id} className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col md:flex-row gap-4 justify-between">
+                          <div className="flex gap-3 items-start max-w-2xl">
+                            {c.postMediaUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={c.postMediaUrl}
+                                alt={c.postTitle || c.network}
+                                className="w-12 h-12 rounded-lg object-cover border border-slate-800 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
+                                {c.network.slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2 text-xs">
+                                <span className="font-bold text-white">{c.authorName}</span>
+                                <span className="px-2 py-0.5 bg-slate-800 text-slate-300 rounded text-[10px] font-bold">
+                                  {c.network}
+                                </span>
+                                {typeof c.starRating === 'number' && (
+                                  <span className="text-amber-400 font-bold">{c.starRating}★</span>
+                                )}
+                                <span className="text-slate-500">
+                                  {new Date(c.createdAt).toLocaleDateString('es-UY')}
+                                </span>
+                              </div>
+                              {c.postTitle && (
+                                <p className="text-[11px] text-slate-400 truncate max-w-md">
+                                  En: {c.postTitle}
+                                </p>
+                              )}
+                              <p className="text-sm text-slate-200 whitespace-pre-wrap">&ldquo;{c.text}&rdquo;</p>
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {contestadoSolo && (
+                                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-full text-[10px] font-bold">
+                                    contestado solo
+                                  </span>
+                                )}
+                                {conMeGusta && (
+                                  <span className="px-2 py-0.5 bg-pink-500/10 text-pink-300 border border-pink-500/20 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                                    <Heart className="w-2.5 h-2.5" /> con me gusta
+                                  </span>
+                                )}
+                                {estaOculto && (
+                                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                                    <EyeOff className="w-2.5 h-2.5" /> oculto
+                                  </span>
+                                )}
+                                {paraVos && (
+                                  <span className="px-2 py-0.5 bg-rose-500/10 text-rose-300 border border-rose-500/20 rounded-full text-[10px] font-bold">
+                                    para vos
+                                  </span>
+                                )}
+                                {c.privadoEnviadoAt && (
+                                  <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-full text-[10px] font-bold">
+                                    privado enviado ({c.palabraClave || 'clave'})
+                                  </span>
+                                )}
+                              </div>
+                              {c.network === 'Google' && c.borradorRespuesta && !contestadoSolo && (
+                                <div className="mt-2 p-2.5 bg-slate-900 border border-amber-500/30 rounded-lg space-y-2">
+                                  <p className="text-[11px] font-bold text-amber-300">Borrador IA listo para vos:</p>
+                                  <p className="text-xs text-slate-200">{c.borradorRespuesta}</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => handlePublicarBorradorGoogle(c)}
+                                    disabled={publishingGoogleReviewId === c.id}
+                                    className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition disabled:opacity-50"
+                                  >
+                                    {publishingGoogleReviewId === c.id ? 'Publicando...' : 'Publicar respuesta'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 flex flex-wrap items-center gap-2 self-start">
+                            {c.permalink && (
+                              <a
+                                href={c.permalink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1"
+                              >
+                                Ver original <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                            {estaOculto ? (
+                              <button
+                                onClick={() => handleRestoreComment(c.id)}
+                                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition"
+                              >
+                                Volver a mostrarlo
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleHideComment(c.id)}
+                                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition"
+                              >
+                                <Eye className="w-3 h-3 inline mr-1" /> Ocultar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
@@ -2160,6 +2749,21 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                         </td>
                       </tr>
                     ))}
+                    <tr className="hover:bg-slate-900/50 bg-purple-950/10">
+                      <td className="p-3.5 font-bold text-purple-300 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-purple-400" />
+                        Biografía de Instagram
+                      </td>
+                      <td className="p-3.5 text-center font-semibold text-slate-200">
+                        {attributionReport.bioInstagramClics?.total ?? 0} clics
+                      </td>
+                      <td className="p-3.5 text-center text-slate-500">—</td>
+                      <td className="p-3.5 text-center text-slate-500">—</td>
+                      <td className="p-3.5 text-right text-slate-500">—</td>
+                      <td className="p-3.5 text-purple-300 font-medium">
+                        Clics en /enlaces
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -2247,7 +2851,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
 
       {/* PESTAÑA 3: PUBLICAR MULTIRED (Bloque 3) */}
       {activeTab === 'publicaciones' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="p-4 bg-blue-950/30 border border-blue-800/40 rounded-2xl text-xs text-blue-200 flex items-start gap-2.5">
             <ShieldAlert className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
             <div>
@@ -2255,6 +2859,77 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               y vos aprobás antes de que salga a las redes. Los estados de WhatsApp no se automatizan
               para proteger el número de AK.
             </div>
+          </div>
+
+          {/* Lista "Para compartir" (Menciones en historias - Orden 327 Bloque 3) */}
+          <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-pink-400" />
+                  Para compartir (menciones en historias)
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Cuando alguien te menciona en una historia de Instagram, se guarda acá para que decidas si compartirla.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const nuevo = !ajustesRespuestas.compartirSoloHistorias;
+                  setAjustesRespuestas((p) => ({ ...p, compartirSoloHistorias: nuevo }));
+                  await setAjustesRespuestasComentarios({ compartirSoloHistorias: nuevo });
+                  toast({ description: nuevo ? 'Compartir solo activado' : 'Compartir solo apagado' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition self-start sm:self-auto ${
+                  ajustesRespuestas.compartirSoloHistorias
+                    ? 'bg-pink-500/10 border-pink-500/30 text-pink-300'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+              >
+                Compartir solo: {ajustesRespuestas.compartirSoloHistorias ? 'Prendido' : 'Apagado'}
+              </button>
+            </div>
+
+            {loadingMentions ? (
+              <p className="text-xs text-slate-400">Cargando menciones...</p>
+            ) : storyMentions.length === 0 ? (
+              <p className="text-xs text-slate-400">Todavía no hay menciones en historias para compartir.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {storyMentions.map((m) => (
+                  <div key={m.id} className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <p className="text-xs font-bold text-white truncate">{m.senderName}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {m.fecha ? new Date(m.fecha).toLocaleDateString('es-UY') : ''}
+                      </p>
+                      {m.compartidoEnMiHistoria && (
+                        <span className="text-[10px] text-emerald-400 font-bold">✓ Compartida</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await compartirMencionEnHistoriaAction(m.id);
+                        if (res.success) {
+                          setStoryMentions((prev) =>
+                            prev.map((x) => (x.id === m.id ? { ...x, compartidoEnMiHistoria: true } : x)),
+                          );
+                          if (res.mediaUrl && typeof window !== 'undefined') {
+                            window.open(res.mediaUrl, '_blank');
+                          }
+                          toast({ description: 'Listo para compartir en tu historia.' });
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold rounded-lg shrink-0 transition"
+                    >
+                      Compartir en mi historia
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">

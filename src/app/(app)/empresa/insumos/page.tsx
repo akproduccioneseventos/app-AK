@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/compras'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/insumos--reporte'));
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
@@ -373,7 +378,7 @@ function InventarioInsumosContent() {
                               <div className="flex justify-between items-start">
                                 <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                                 <div className="flex gap-1">
-                                     <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/empresa/insumos/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
+                                     <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/empresa/insumos/${item.id}/editar`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                       <AlertDialog>
                                         <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
@@ -405,10 +410,23 @@ function InventarioInsumosContent() {
   );
 }
 
-export default function InventarioInsumosPage() {
+function InventarioInsumosPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <InventarioInsumosContent/>
         </Suspense>
     )
+}
+
+
+export default function InventarioInsumosPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"lista","label":"Insumos"},{"id":"compras","label":"Compras"},{"id":"reporte","label":"Reporte"}]}
+        renderDefault={() => <InventarioInsumosPageInner />}
+        renderTab={(tab) => { if (tab === 'compras') return <__AkPanel1 />; if (tab === 'reporte') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

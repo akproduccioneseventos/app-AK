@@ -5,13 +5,11 @@ const read = (relativePath: string) => readFileSync(join(process.cwd(), relative
 
 describe('action link integrity', () => {
   const guardedActionFiles = [
-    'src/app/(app)/contabilidad/crm/ciclo-comercial/page.tsx',
+    'src/components/panels/crm--ciclo-comercial.tsx',
     'src/app/(app)/empresa/galeria/page.tsx',
-    'src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx',
-    'src/app/(app)/fiestas/[id]/cierre-mundial/page.tsx',
-    'src/app/(app)/fiestas/nueva/centro-total/page.tsx',
+    'src/app/(app)/fiestas/[id]/centro/page.tsx',
     'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx',
-    'src/app/(app)/fiestas/nueva/pagina-web/page.tsx',
+    'src/components/fiestas/panels/pagina-web.tsx',
     'src/components/invitacion/templates/AllegriaTemplate.tsx',
     'src/components/invitacion/templates/GraziaTemplate.tsx',
   ];

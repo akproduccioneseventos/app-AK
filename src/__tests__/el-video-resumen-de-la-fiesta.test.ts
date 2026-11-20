@@ -22,7 +22,7 @@ describe('Órdenes 106 y 111 — El video resumen de la fiesta', () => {
   });
 
   test('Aparece en el portal del cliente como "Tu video de la fiesta" con Descargar y Compartir', () => {
-    const portalPath = path.join(process.cwd(), 'src/app/portal-cliente/[id]/fotos-video/page.tsx');
+    const portalPath = path.join(process.cwd(), 'src/components/panels/portal--fotos-video.tsx');
     expect(fs.existsSync(portalPath)).toBe(true);
     const content = fs.readFileSync(portalPath, 'utf8');
     expect(content).toContain('Tu video de la fiesta');

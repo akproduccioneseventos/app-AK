@@ -106,3 +106,17 @@ Planilla para completar por el dueño con 500 NEF de una fiesta real (no inventa
 - **Memoria RAM máxima (proceso)**: 128.75 MB
 - **Cortes revisados por el dueño**: sin revisar
 - **Compatibilidad con Filmora**: sin probar
+
+## Medición de corrida real — 2026-11-18 23:26:17
+- **Material analizado**: 132.0 s (7 archivos)
+- **Tiempo transcurrido**: 37.93 s
+- **Memoria RAM máxima (proceso)**: 128.79 MB
+- **Cortes revisados por el dueño**: sin revisar
+- **Compatibilidad con Filmora**: sin probar
+
+## Medición de corrida real — 2026-11-18 23:30:49
+- **Material analizado**: 132.0 s (7 archivos)
+- **Tiempo transcurrido**: 37.69 s
+- **Memoria RAM máxima (proceso)**: 129.54 MB
+- **Cortes revisados por el dueño**: sin revisar
+- **Compatibilidad con Filmora**: sin probar

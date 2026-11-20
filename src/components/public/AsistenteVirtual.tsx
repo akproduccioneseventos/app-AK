@@ -6,8 +6,12 @@ import { MessageSquare, X, Send, Bot, Loader2, Link as LinkIcon, Lock } from 'lu
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
-import { chatWithVirtualAssistant, type AssistantResponse } from '@/app/actions/asistente-virtual';
+import { chatWithVirtualAssistant } from '@/app/actions/asistente-virtual';
 import { mostrarAsistenteEn } from '@/lib/public-experience/donde-va-el-asistente';
+import {
+  MENSAJE_BIENVENIDA_PROSPECTO,
+  OPCIONES_BIENVENIDA_PROSPECTO,
+} from '@/lib/whatsapp/textos-prospecto';
 
 // Generar o recuperar sessionId (por simplicidad, un ID aleatorio por recarga/sesión)
 function getSessionId() {
@@ -26,6 +30,8 @@ interface Message {
   text: string;
   isBudgetLink?: boolean;
   budgetUrl?: string;
+  whatsappUrl?: string;
+  opciones?: string[];
 }
 
 export function AsistenteVirtual() {
@@ -59,7 +65,8 @@ export function AsistenteVirtual() {
             {
               id: 'welcome',
               role: 'assistant',
-              text: settings.assistantWelcomeMessage || '¡Hola! Soy el Asistente de AK. ¿En qué te puedo ayudar hoy?'
+              text: MENSAJE_BIENVENIDA_PROSPECTO,
+              opciones: [...OPCIONES_BIENVENIDA_PROSPECTO],
             }
           ]);
         }
@@ -83,10 +90,11 @@ export function AsistenteVirtual() {
 
   if (!hasFetchedSettings || !enabled || !isPublicRoute) return null;
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-    const userText = input.trim();
-    setInput('');
+  const handleSend = async (textoOpcional?: string) => {
+    const rawText = typeof textoOpcional === 'string' ? textoOpcional : input;
+    if (!rawText.trim() || isLoading) return;
+    const userText = rawText.trim();
+    if (typeof textoOpcional !== 'string') setInput('');
 
     const newUserMsg: Message = { id: Date.now().toString(), role: 'user', text: userText };
     const newHistory = [...messages, newUserMsg];
@@ -105,7 +113,9 @@ export function AsistenteVirtual() {
         role: m.role === 'assistant' ? 'model' : m.role
       })) as any[];
 
-      const res = await chatWithVirtualAssistant(getSessionId(), formattedHistory, userText);
+      const res = await chatWithVirtualAssistant(getSessionId(), formattedHistory, userText, {
+        bienvenidaYaMostrada: true,
+      });
 
       if (res.success) {
         const newAssistantMsgs: Message[] = [
@@ -114,7 +124,9 @@ export function AsistenteVirtual() {
             role: 'assistant',
             text: res.text || 'Sin respuesta',
             isBudgetLink: res.budgetGenerated,
-            budgetUrl: res.budgetUrl
+            budgetUrl: res.budgetUrl,
+            whatsappUrl: res.whatsappUrl,
+            opciones: res.opciones,
           }
         ];
 
@@ -226,6 +238,24 @@ export function AsistenteVirtual() {
                   >
                     <p className="whitespace-pre-wrap">{msg.text}</p>
 
+                    {msg.opciones && msg.opciones.length > 0 && idx === messages.length - 1 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {msg.opciones.map((opcion) => (
+                          <Button
+                            key={opcion}
+                            type="button"
+                            size="sm"
+                            variant={opcion.toLowerCase().includes('persona') ? 'outline' : 'default'}
+                            disabled={isLoading}
+                            onClick={() => handleSend(opcion)}
+                            className="h-8 text-xs"
+                          >
+                            {opcion}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
                     {msg.isBudgetLink && msg.budgetUrl && (
                       <div className="mt-3">
                         <Button
@@ -236,6 +266,21 @@ export function AsistenteVirtual() {
                           <a href={msg.budgetUrl} target="_blank" rel="noopener noreferrer">
                             <LinkIcon className="w-4 h-4" />
                             Ver mi presupuesto
+                          </a>
+                        </Button>
+                      </div>
+                    )}
+
+                    {msg.whatsappUrl && (
+                      <div className="mt-2">
+                        <Button
+                          asChild
+                          size="sm"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
+                        >
+                          <a href={msg.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                            <MessageSquare className="w-4 h-4" />
+                            Seguir por WhatsApp
                           </a>
                         </Button>
                       </div>

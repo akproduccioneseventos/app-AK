@@ -1,4 +1,16 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/portal--confirmar-invitados'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/portal--menu'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/portal--musica'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/portal--fotos-video'));
+const __AkPanel5 = __akDynamic(() => import('@/components/panels/portal--muro-social'));
+const __AkPanel6 = __akDynamic(() => import('@/components/panels/portal--videos-invitados'));
+const __AkPanel7 = __akDynamic(() => import('@/components/panels/portal--mensajes'));
+const __AkPanel8 = __akDynamic(() => import('@/components/panels/portal--faq'));
+const __AkPanel9 = __akDynamic(() => import('@/components/panels/portal--tu-web'));
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { contarPersonasDelPortal } from '@/lib/fiesta/guest-counts';
 
@@ -122,7 +134,7 @@ function rsvpIcon(rsvp: Invitado['rsvp']) {
 // ──────────────────────────────────────────────────────────────
 // Main Page
 // ──────────────────────────────────────────────────────────────
-export default function PortalClientePage() {
+function PortalClientePageInner() {
   const params   = useParams<{ id: string }>();
   const fiestaId = params.id;
   const { toast } = useToast();
@@ -703,7 +715,7 @@ export default function PortalClientePage() {
                 </p>
               </div>
             </div>
-            <Link href={`/portal-cliente/${fiestaId}/fotos-video`} className="w-full sm:w-auto shrink-0">
+            <Link href={`/portal-cliente/${fiestaId}?tab=fotos-video`} className="w-full sm:w-auto shrink-0">
               <Button className="h-11 w-full rounded-lg px-5 font-bold sm:w-auto">
                 Acceder a Recuerdos
               </Button>
@@ -1228,7 +1240,7 @@ export default function PortalClientePage() {
               ) : null}
               {!fiesta.videoVida?.photosUploaded && (
                 <Link
-                  href={`/portal-cliente/${fiestaId}/fotos-video`}
+                  href={`/portal-cliente/${fiestaId}?tab=fotos-video`}
                   className="flex items-center justify-between p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-sm hover:bg-amber-500/15 transition-colors"
                 >
                   <div className="flex items-center gap-2">
@@ -1240,7 +1252,7 @@ export default function PortalClientePage() {
               )}
               {!fiesta.musica?.sugerenciasInvitados && !fiesta.musica?.playlistFiesta && (
                 <Link
-                  href={`/portal-cliente/${fiestaId}/musica`}
+                  href={`/portal-cliente/${fiestaId}?tab=musica`}
                   className="flex items-center justify-between p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/10 text-sm hover:bg-blue-500/15 transition-colors"
                 >
                   <div className="flex items-center gap-2">
@@ -1306,7 +1318,7 @@ export default function PortalClientePage() {
                   </div>
                 )}
                 <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-xs uppercase tracking-wider mt-2">
-                  <Link href={`/portal/${fiesta.id}/decoracion`}>
+                  <Link href={`/portal?fiestaId=${fiesta.id}`}>
                     Ver propuesta completa: Así va a quedar tu fiesta
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Link>
@@ -1551,5 +1563,18 @@ function FinancialStat({ label, value, color }: { label: string; value: string; 
       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide mb-1">{label}</p>
       <p className={`text-lg font-black ${color}`}>{value}</p>
     </div>
+  );
+}
+
+
+export default function PortalClientePage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"inicio","label":"Resumen"},{"id":"confirmar-invitados","label":"Invitados"},{"id":"menu","label":"Menú"},{"id":"musica","label":"Música"},{"id":"fotos-video","label":"Fotos y video"},{"id":"muro-social","label":"Muro social"},{"id":"videos-invitados","label":"Videos de invitados"},{"id":"mensajes","label":"Mensajes"},{"id":"faq","label":"Ayuda"},{"id":"tu-web","label":"Tu web"}]}
+        renderDefault={() => <PortalClientePageInner />}
+        renderTab={(tab) => { if (tab === 'confirmar-invitados') return <__AkPanel1 />; if (tab === 'menu') return <__AkPanel2 />; if (tab === 'musica') return <__AkPanel3 />; if (tab === 'fotos-video') return <__AkPanel4 />; if (tab === 'muro-social') return <__AkPanel5 />; if (tab === 'videos-invitados') return <__AkPanel6 />; if (tab === 'mensajes') return <__AkPanel7 />; if (tab === 'faq') return <__AkPanel8 />; if (tab === 'tu-web') return <__AkPanel9 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

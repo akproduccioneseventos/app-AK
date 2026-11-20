@@ -85,6 +85,6 @@ usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
 prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
 usa: compraGuardadaDeCadaUna(antes, nuevas) en src/app/actions/fiesta/fiesta.actions.ts
 archivo: src/app/actions/fiesta/catering.actions.ts
-usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+usa: updateShoppingListStatus en src/components/panels/catering--lista-compras.tsx
 prueba: docs/evidencias/149-proveedor-consumidores.mjs
 ```

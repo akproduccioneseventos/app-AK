@@ -52,17 +52,22 @@ test.describe('Orden 303: Portal, recuerdos del cliente y catálogo', () => {
     await expect(page.getByText(/consumo de datos de Firebase/i)).toHaveCount(0);
   });
 
-  test('Bloque 4: el catálogo no muestra Cliente 1 y llega a la última diapositiva', async ({ page }) => {
-    await page.goto('/catalogo/bodas');
+  test('Bloque 4: la presentación LED no muestra Cliente 1 y llega a la última diapositiva', async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.goto('/presentacion-led', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Cargando presentaci/i)).toBeHidden({ timeout: 45_000 });
     await expect(page.getByText('Cliente 1')).toHaveCount(0);
 
     // Avanzar hasta llegar al cierre
-    for (let i = 0; i < 12; i++) {
-      const nextBtn = page.getByRole('button', { name: /Siguiente/i });
+    const ctaCierre = page.getByTestId('btn-generar-presupuesto-manual');
+    const nextBtn = page.getByTestId('btn-siguiente-slide');
+    for (let i = 0; i < 25; i++) {
+      if (await ctaCierre.isVisible().catch(() => false)) break;
       if ((await nextBtn.count()) === 0) break;
-      await nextBtn.first().click();
+      await nextBtn.click();
+      await page.waitForTimeout(200);
     }
 
-    await expect(page.getByRole('button', { name: 'Crear presupuesto', exact: true })).toBeVisible();
+    await expect(ctaCierre).toBeVisible({ timeout: 15_000 });
   });
 });

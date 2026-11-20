@@ -28,14 +28,16 @@ const PANTALLAS_AUTONOMAS: Array<{ ruta: string; titulo?: RegExp }> = [
   { ruta: '/evento/buzon/fiesta-demo' },
   { ruta: '/evento/en-vivo/fiesta-demo' },
   { ruta: '/experiencia', titulo: /Viví la experiencia/i },
-  { ruta: '/tecnologia', titulo: /tecnologías en tu fiesta/i },
-  { ruta: '/catalogo/bodas' },
+  { ruta: '/presentacion-led' },
 ];
 
 test.describe('Contraste por píxeles rasterizados (Orden 227)', () => {
   for (const { ruta, titulo } of PANTALLAS_AUTONOMAS) {
     test(`pantalla ${ruta} mantiene contraste legible mayor a 4.5:1`, async ({ page }) => {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      if (ruta === '/presentacion-led') {
+        await expect(page.getByText(/Cargando presentaci/i)).toBeHidden({ timeout: 45_000 });
+      }
       const heading = titulo
         ? page.getByRole('heading', { name: titulo }).first()
         : page.locator('h1, h2').first();
@@ -70,9 +72,9 @@ test.describe('Contraste por píxeles rasterizados (Orden 227)', () => {
     });
   }
 
-  test('pantalla del panel interno conserva contraste claro', async ({ page, context, baseURL }) => {
+  test('pantalla del panel interno (/empresa/presencia-digital) conserva contraste legible', async ({ page, context, baseURL }) => {
     await ponerSesionDelEquipo(context, baseURL);
-    await page.goto('/empresa', { waitUntil: 'domcontentloaded' });
+    await page.goto('/empresa/presencia-digital', { waitUntil: 'domcontentloaded' });
     const heading = page.locator('h1, h2').first();
     await expect(heading).toBeVisible({ timeout: 20000 });
 

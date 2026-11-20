@@ -22,6 +22,9 @@ const PUBLIC_ROUTES = new Set([
   // fotocabina como programa aparte. **No devuelve ningun dato de la fiesta**:
   // solo el nombre de la estacion, el icono y en que pantalla arranca.
   'manifest-estacion/route.ts',
+  // Contador público de clics de /enlaces (enlace de la biografía en redes).
+  // No expone datos internos: sólo registra el clic del botón tocado y redirige.
+  'enlaces/clic/route.ts',
 ]);
 
 function listRoutes(directory: string): string[] {

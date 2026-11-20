@@ -103,15 +103,15 @@ export const TIPO_EVENTO_LABELS: Record<InvitacionDigitalConfig['tipoEvento'], s
 export const PLANTILLA_INFO: Record<string, { nombre: string; descripcion: string; preview: string; categorias: string[] }> = {
   EleganteDorado: {
     nombre: 'Elegante Dorado',
-    descripcion: 'Tonos dorados y champagne, tipografía serif elegante, bordes ornamentales. Ideal para quinceañeras.',
+    descripcion: 'Tonos dorados y champagne, tipografía serif elegante, bordes ornamentales. Ideal para quinceañeras y bodas.',
     preview: '✨',
-    categorias: ['15', '18', 'boda'],
+    categorias: ['15', '18', 'boda', 'empresa', 'otro'],
   },
   ModernoMinimalista: {
     nombre: 'Moderno Minimalista',
-    descripcion: 'Diseño limpio, sans-serif, mucho espacio blanco, fotos grandes. Versátil para cualquier evento.',
+    descripcion: 'Diseño limpio, sans-serif, mucho espacio blanco, fotos grandes. Versátil para cualquier evento y empresas.',
     preview: '◻️',
-    categorias: ['18', 'cumpleanos', 'otro'],
+    categorias: ['18', 'cumpleanos', 'boda', 'otro', 'empresa'],
   },
   RomanticoFloral: {
     nombre: 'Romántico Floral',
@@ -123,6 +123,53 @@ export const PLANTILLA_INFO: Record<string, { nombre: string; descripcion: strin
     nombre: 'Fiesta Vibrante',
     descripcion: 'Colores vivos, gradientes, estilo juvenil. Ideal para 18 años y cumpleaños.',
     preview: '🎉',
-    categorias: ['18', 'cumpleanos', 'otro'],
+    categorias: ['18', 'cumpleanos', '15', 'otro'],
+  },
+  XV_NeonParty: {
+    nombre: 'XV Neón Party',
+    descripcion: 'Estilo nocturno con luces neón fucsia y cyan, ideal para fiestas de 15 y cumpleaños juveniles.',
+    preview: '⚡',
+    categorias: ['15', '18', 'cumpleanos'],
+  },
+  XV_PrincesaClasica: {
+    nombre: 'XV Princesa Clásica',
+    descripcion: 'Pétalos suaves, tipografía clásica en itálica y estética romántica.',
+    preview: '👑',
+    categorias: ['15', 'boda'],
+  },
+  XV_GlowInTheDark: {
+    nombre: 'XV Glow UV',
+    descripcion: 'Colores vibrantes fluorescentes sobre fondo oscuro para fiestas temáticas.',
+    preview: '🌟',
+    categorias: ['15', '18', 'cumpleanos'],
+  },
+  XV_MinimalChic: {
+    nombre: 'Minimal Chic',
+    descripcion: 'Tipografía liviana espaciada y estética editorial de revista.',
+    preview: '💎',
+    categorias: ['15', 'boda', 'empresa', 'otro'],
   },
 };
+
+export function mapTemplateToPlantillaId(
+  plantilla?: string
+): import('@/types/fiesta').InvitacionPlantillaId {
+  switch (plantilla) {
+    case 'XvModerna':
+      return 'XV_NeonParty';
+    case 'XvClasica':
+      return 'XV_PrincesaClasica';
+    case 'FiestaNoche':
+      return 'XV_GlowInTheDark';
+    case 'BodaMinimalista':
+    case 'Corporativo':
+      return 'ModernoMinimalista';
+    case 'BodaCampo':
+      return 'RomanticoFloral';
+    case 'Allegria':
+      return 'FiestaVibrante';
+    case 'Grazia':
+    default:
+      return 'EleganteDorado';
+  }
+}

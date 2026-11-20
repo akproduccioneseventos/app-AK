@@ -2,10 +2,9 @@ import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
 
 export type CasaId =
   | 'inicio'
-  | 'fiestas'
   | 'vender'
+  | 'fiestas'
   | 'plata'
-  | 'marketing'
   | 'recursos'
   | 'ajustes';
 
@@ -26,25 +25,25 @@ export interface Casa {
 }
 
 /**
- * El mapa oficial de las 7 casas de la aplicación (Orden 284).
+ * El mapa oficial de las 6 áreas de la aplicación (Orden 321).
  * Todo componente de navegación (menú lateral, barra móvil, buscador, pestañas)
  * lee exclusivamente de esta única fuente de verdad.
  */
 export const CASAS: Casa[] = [
   {
     id: 'inicio',
-    titulo: 'Inicio',
+    titulo: 'Hoy',
     icono: 'SunMedium',
     inicio: '/mi-dia',
     pestanas: [
       {
-        titulo: 'Hoy',
+        titulo: 'Mi día',
         ruta: '/mi-dia',
         palabras: ['hoy', 'mi dia', 'inicio', 'tareas', 'turnos', 'resumen'],
       },
       {
         titulo: 'Alertas',
-        ruta: '/alertas',
+        ruta: '/mi-dia?tab=alertas',
         palabras: ['alertas', 'avisos', 'urgente', 'notificaciones'],
       },
       {
@@ -57,6 +56,63 @@ export const CASAS: Casa[] = [
         titulo: 'Asistente',
         ruta: '/asistente',
         palabras: ['asistente', 'ia', 'sofia', 'ayuda', 'multiagente', 'chat'],
+      },
+    ],
+  },
+  {
+    id: 'vender',
+    titulo: 'Ventas y Marketing',
+    icono: 'KanbanSquare',
+    inicio: '/contabilidad/crm',
+    permiso: PERMISOS.CRM,
+    pestanas: [
+      {
+        titulo: 'Prospectos',
+        ruta: '/contabilidad/crm',
+        permiso: PERMISOS.CRM,
+        palabras: ['prospectos', 'leads', 'crm', 'ventas', 'seguimiento', 'pipeline'],
+      },
+      {
+        titulo: 'Presupuestos',
+        ruta: '/presupuestos/nuevo',
+        permiso: PERMISOS.CRM,
+        palabras: ['presupuestos', 'cotizaciones', 'nuevo presupuesto', 'precios', 'propuestas'],
+      },
+      {
+        titulo: 'Simulador',
+        ruta: '/simulador-ak',
+        permiso: PERMISOS.CRM,
+        palabras: ['simulador', 'ia cotizador', 'presupuesto automatico', 'estimacion'],
+      },
+      {
+        titulo: 'Clientes',
+        ruta: '/customers',
+        permiso: PERMISOS.CRM,
+        palabras: ['clientes', 'directorio', 'contactos', 'empresas', 'fichas'],
+      },
+      {
+        titulo: 'WhatsApp',
+        ruta: '/contabilidad/crm/outbox',
+        permiso: PERMISOS.CRM,
+        palabras: ['whatsapp', 'outbox', 'mensajes', 'conversaciones', 'comercial'],
+      },
+      {
+        titulo: 'Redes y presencia',
+        ruta: '/empresa/presencia-digital',
+        permiso: PERMISOS.CRM,
+        palabras: ['redes', 'presencia digital', 'reseñas', 'anuncios', 'marketing', 'instagram'],
+      },
+      {
+        titulo: 'Galería',
+        ruta: '/empresa/galeria',
+        permiso: PERMISOS.CRM,
+        palabras: ['galeria', 'fotos', 'catalogo web', 'imagenes', 'trabajos'],
+      },
+      {
+        titulo: 'Portada web',
+        ruta: '/empresa/landing-editor',
+        permiso: PERMISOS.ADMINISTRACION,
+        palabras: ['portada', 'landing', 'web publica', 'editor', 'sitio web'],
       },
     ],
   },
@@ -91,51 +147,6 @@ export const CASAS: Casa[] = [
         ruta: '/recursos-multi-evento',
         permiso: PERMISOS.ORGANIZACION,
         palabras: ['personal', 'dos fiestas', 'multi evento', 'recursos', 'solapamiento', 'doble'],
-      },
-    ],
-  },
-  {
-    id: 'vender',
-    titulo: 'Vender',
-    icono: 'KanbanSquare',
-    inicio: '/contabilidad/crm',
-    permiso: PERMISOS.CRM,
-    pestanas: [
-      {
-        titulo: 'Prospectos',
-        ruta: '/contabilidad/crm',
-        permiso: PERMISOS.CRM,
-        palabras: ['prospectos', 'leads', 'crm', 'ventas', 'seguimiento', 'pipeline'],
-      },
-      {
-        titulo: 'Presupuestos',
-        ruta: '/presupuestos/nuevo',
-        permiso: PERMISOS.CRM,
-        palabras: ['presupuestos', 'cotizaciones', 'nuevo presupuesto', 'precios', 'propuestas'],
-      },
-      {
-        titulo: 'Clientes',
-        ruta: '/customers',
-        permiso: PERMISOS.CRM,
-        palabras: ['clientes', 'directorio', 'contactos', 'empresas', 'fichas'],
-      },
-      {
-        titulo: 'Agenda',
-        ruta: '/contabilidad/crm/agenda',
-        permiso: PERMISOS.CRM,
-        palabras: ['agenda', 'llamadas', 'reuniones', 'visitas', 'citas'],
-      },
-      {
-        titulo: 'WhatsApp del día',
-        ruta: '/contabilidad/crm/outbox',
-        permiso: PERMISOS.CRM,
-        palabras: ['whatsapp', 'outbox', 'mensajes', 'comercial', 'envios', 'dia'],
-      },
-      {
-        titulo: 'Simulador',
-        ruta: '/simulador-ak',
-        permiso: PERMISOS.CRM,
-        palabras: ['simulador', 'ia cotizador', 'presupuesto automatico', 'estimacion'],
       },
     ],
   },
@@ -180,114 +191,40 @@ export const CASAS: Casa[] = [
         titulo: 'Ganancias',
         ruta: '/empresa/contabilidad/reportes',
         permiso: PERMISOS.GANANCIAS,
-        palabras: ['ganancias', 'reportes', 'rentabilidad', 'margen', 'utilidades'],
+        palabras: ['ganancias', 'reportes', 'rentabilidad', 'margen', 'utilidades', 'por fiesta'],
       },
       {
-        titulo: 'Por fiesta',
-        ruta: '/comparativa-ganancias',
-        permiso: PERMISOS.GANANCIAS,
-        palabras: ['por fiesta', 'comparativa', 'rentabilidad evento', 'margen evento'],
-      },
-      {
-        titulo: 'Métricas',
-        ruta: '/empresa/dashboard',
-        permiso: PERMISOS.GANANCIAS,
-        palabras: ['metricas', 'dashboard', 'graficas', 'kpis', 'numeros'],
-      },
-    ],
-  },
-  {
-    id: 'marketing',
-    titulo: 'Marketing',
-    icono: 'Target',
-    inicio: '/marketing',
-    permiso: PERMISOS.CRM,
-    pestanas: [
-      {
-        titulo: 'Resumen',
-        ruta: '/marketing',
-        permiso: PERMISOS.CRM,
-        palabras: ['resumen', 'marketing', 'campañas', 'estrategia', 'difusion'],
-      },
-      {
-        titulo: 'Comentarios y mensajes',
-        ruta: '/empresa/presencia-digital',
-        permiso: PERMISOS.CRM,
-        palabras: ['comentarios', 'mensajes', 'bandeja', 'redes', 'respuestas', 'meta', 'instagram', 'facebook'],
-      },
-      {
-        titulo: 'Publicaciones',
-        ruta: '/empresa/redes-sociales',
-        permiso: PERMISOS.CRM,
-        palabras: ['publicaciones', 'posts', 'instagram', 'facebook', 'tiktok', 'planificador'],
-      },
-      {
-        titulo: 'Reseñas',
-        ruta: '/empresa/resenas-google',
-        permiso: PERMISOS.CRM,
-        palabras: ['reseñas', 'opiniones', 'google maps', 'calificaciones', 'estrellas'],
-      },
-      {
-        titulo: 'Anuncios',
-        ruta: '/contabilidad/crm/marketing-ads',
-        permiso: PERMISOS.CRM,
-        palabras: ['anuncios', 'ads', 'meta ads', 'campañas', 'inversion', 'roi'],
-      },
-      {
-        titulo: 'Presencia en Google',
-        ruta: '/empresa/presencia-digital',
-        permiso: PERMISOS.CRM,
-        palabras: ['presencia en google', 'google', 'ficha', 'perfil', 'seo', 'posicionamiento'],
-      },
-      {
-        titulo: 'Galería',
-        ruta: '/empresa/galeria',
-        permiso: PERMISOS.CRM,
-        palabras: ['galeria', 'fotos', 'catalogo web', 'imagenes', 'trabajos'],
-      },
-      {
-        titulo: 'Portada',
-        ruta: '/empresa/landing-editor',
-        permiso: PERMISOS.ADMINISTRACION,
-        palabras: ['portada', 'landing', 'web publica', 'editor', 'sitio web'],
-      },
-      {
-        titulo: 'Muro general',
-        ruta: '/empresa/red-social-eventos',
-        palabras: ['muro general', 'muro social', 'fotos', 'invitados', 'comunidad'],
+        titulo: 'Poner al día',
+        ruta: '/empresa/contabilidad/poner-al-dia',
+        permiso: PERMISOS.CONTABILIDAD,
+        palabras: ['poner al dia', 'conciliacion', 'pendientes', 'revision'],
       },
     ],
   },
   {
     id: 'recursos',
-    titulo: 'Recursos',
+    titulo: 'Empresa y Personal',
     icono: 'Building2',
-    inicio: '/empresa',
+    inicio: '/empleados',
     permiso: PERMISOS.INSUMOS,
     pestanas: [
+      {
+        titulo: 'Personal',
+        ruta: '/empleados',
+        permiso: PERMISOS.ADMINISTRACION,
+        palabras: ['personal', 'empleados', 'nomina', 'staff', 'sueldos'],
+      },
       {
         titulo: 'Comida',
         ruta: '/empresa/menus',
         permiso: PERMISOS.INSUMOS,
-        palabras: ['comida', 'menus', 'catering', 'platos', 'gastronomia', 'recetas'],
+        palabras: ['comida', 'menus', 'tragos', 'catering', 'platos', 'gastronomia'],
       },
       {
-        titulo: 'Tragos',
-        ruta: '/empresa/menus/tragos',
-        permiso: PERMISOS.INSUMOS,
-        palabras: ['tragos', 'barra', 'cocteleria', 'bebidas', 'carta de tragos'],
-      },
-      {
-        titulo: 'Compras',
-        ruta: '/compras',
-        permiso: PERMISOS.INSUMOS,
-        palabras: ['compras', 'insumos', 'stock', 'pedidos', 'supermercado'],
-      },
-      {
-        titulo: 'Insumos',
+        titulo: 'Insumos y compras',
         ruta: '/empresa/insumos',
         permiso: PERMISOS.INSUMOS,
-        palabras: ['insumos', 'almacen', 'inventario', 'materia prima'],
+        palabras: ['insumos', 'compras', 'almacen', 'inventario', 'stock'],
       },
       {
         titulo: 'Salones',
@@ -304,12 +241,6 @@ export const CASAS: Casa[] = [
         ruta: '/proveedores',
         permiso: PERMISOS.INSUMOS,
         palabras: ['proveedores', 'tercerizados', 'contactos', 'empresas'],
-      },
-      {
-        titulo: 'Personal',
-        ruta: '/empleados',
-        permiso: PERMISOS.ADMINISTRACION,
-        palabras: ['personal', 'empleados', 'nomina', 'staff', 'sueldos'],
       },
       {
         titulo: 'Equipos',
@@ -329,7 +260,7 @@ export const CASAS: Casa[] = [
         titulo: 'Ajustes',
         ruta: '/settings',
         permiso: PERMISOS.ADMINISTRACION,
-        palabras: ['ajustes', 'configuracion', 'parametros', 'general', 'opciones'],
+        palabras: ['ajustes', 'configuracion', 'parametros', 'general', 'opciones', 'backup', 'whatsapp'],
       },
       {
         titulo: 'Usuarios',

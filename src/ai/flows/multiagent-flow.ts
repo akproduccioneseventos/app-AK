@@ -181,9 +181,9 @@ REGLAS DE ACCIÓN:
   "data": null
   (Solo lectura. Si en el contexto ya está el bloque PLATA, respondé con esas cifras y usá la acción solo si piden el detalle de todos los deudores. Si no hay bloque PLATA, el perfil del usuario no ve plata: decilo.)
 - Si el usuario te pide ir, navegar o te pregunta dónde se hace algo / dónde cargar datos (ej: "llevame a las compras", "¿dónde cargo la lista de compras?", "¿dónde veo las facturas?", "¿dónde están los gastos?"):
-  Respondé diciendo el nombre exacto de la opción del menú correspondiente (ej: "Lista de Compras" en /compras) y asigná la acción de navegación:
+  Respondé diciendo el nombre exacto de la opción del menú correspondiente (ej: "Insumos y Compras" en /empresa/insumos) y asigná la acción de navegación:
   "type": "navigate"
-  "data": { "path": "/compras" | "/invoices" | "/presupuestos/nuevo" | "/contabilidad/crm" | "/empresa/contabilidad" | "/empresa/contabilidad/gastos" | "/settings/google-workspace" | "/settings/sincronizaciones" }
+  "data": { "path": "/empresa/insumos?tab=compras" | "/invoices" | "/presupuestos/nuevo" | "/contabilidad/crm" | "/empresa/contabilidad" | "/empresa/contabilidad/gastos" | "/settings?seccion=conexiones&sub=google-workspace" | "/settings?seccion=conexiones&sub=sincronizaciones" }
 - Para consultas de datos normales, saludos o conversación normal:
   "type": "none"
   "data": null`.trim();

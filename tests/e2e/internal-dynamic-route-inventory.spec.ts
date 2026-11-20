@@ -196,11 +196,8 @@ test('every dynamic internal route responds with representative local data', asy
   test.setTimeout(30 * 60 * 1000);
 
   const routes = getDynamicInternalRoutes();
-  // 34 = las 33 de antes mas el Tablero de la noche
-  // (`/fiestas/[id]/entretenimiento/control`), desde donde el operador ve todas
-  // las estaciones juntas y cuantas capturas lleva cada una.
-  // 35 desde el 12/11/2026: la ficha de la fiesta `/fiestas/[id]` (entrega 1385, botones "Ver como el cliente").
-  expect(routes).toHaveLength(35);
+  // 18 rutas dinámicas internas vigentes tras la consolidación de Orden 321.
+  expect(routes).toHaveLength(18);
 
   await context.addCookies([
     {
@@ -259,8 +256,7 @@ test('representative dynamic screens hydrate without browser errors', async ({ p
     `/proveedores/${FIXTURE_IDS.proveedor}/edit`,
     `/invoices/${FIXTURE_IDS.invoice}`,
     `/presupuestos/${FIXTURE_IDS.presupuesto}/ver`,
-    `/fiestas/${FIXTURE_IDS.fiesta}/comando-total`,
-    `/fiestas/${FIXTURE_IDS.fiesta}/timeline`,
+    `/fiestas/${FIXTURE_IDS.fiesta}/centro`,
   ];
   const failures: string[] = [];
 

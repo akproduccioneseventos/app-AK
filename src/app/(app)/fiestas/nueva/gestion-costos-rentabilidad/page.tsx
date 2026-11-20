@@ -1,5 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import { FiestaHubShell } from '@/components/fiestas/FiestaHubShell';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
@@ -437,10 +439,22 @@ function GestionCostosRentabilidadContent() {
   );
 }
 
+const PlannerCostoPanel = dynamic(() => import('@/components/fiestas/panels/planner-costo-fiesta'));
+const CostosReportePanel = dynamic(() => import('@/components/panels/costos--reporte'));
+
 export default function GestionCostosPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <GestionCostosRentabilidadContent />
+            <FiestaHubShell
+              basePath="/fiestas/nueva/gestion-costos-rentabilidad"
+              tabs={[
+                { id: 'rentabilidad', label: 'Rentabilidad del evento' },
+                { id: 'planner', label: 'Planificador de costos' },
+                { id: 'reporte', label: 'Reporte' },
+              ]}
+              renderDefault={() => <GestionCostosRentabilidadContent />}
+              renderTab={(tab) => (tab === 'planner' ? <PlannerCostoPanel /> : <CostosReportePanel />)}
+            />
         </Suspense>
     )
 }

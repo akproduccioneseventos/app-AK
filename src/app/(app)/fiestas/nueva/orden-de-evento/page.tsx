@@ -29,9 +29,11 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { armarHojaDeCocina, type HojaDeCocina } from '@/lib/catering/hoja-de-cocina';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 function OrdenDeEventoContenido() {
   const searchParams = useSearchParams();
@@ -117,6 +119,10 @@ function OrdenDeEventoContenido() {
     );
   }
 
+  if (!fiestaId) {
+    return <EventSelectionRequired moduleName="la Orden de Evento" />;
+  }
+
   if (error || !fiesta) {
     return (
       <div className="p-8 text-center text-destructive">
@@ -192,7 +198,7 @@ function OrdenDeEventoContenido() {
       {/* DOCUMENTO OPERATIVO EN UNA HOJA */}
       <div className="bg-white border rounded-xl p-6 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
         {/* Cabecera */}
-        <div className="border-b pb-4">
+        <header className="cabecera-documento border-b pb-4">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -212,7 +218,7 @@ function OrdenDeEventoContenido() {
               <span className="text-xs text-muted-foreground block uppercase font-bold">Fecha</span>
               <span className="font-semibold flex items-center gap-1 mt-0.5">
                 <Calendar className="h-4 w-4 text-slate-500" />
-                {configuracion.fechaEvento || 'A definir'}
+                {configuracion.fechaEvento ? formatearFechaEvento(configuracion.fechaEvento) : 'A definir'}
               </span>
             </div>
             <div>
@@ -237,7 +243,7 @@ function OrdenDeEventoContenido() {
               </span>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* 1. Cronograma */}
         <div>

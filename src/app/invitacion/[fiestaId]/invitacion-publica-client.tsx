@@ -8,7 +8,7 @@ import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2, Instagram, Facebook, Volume2, VolumeX, Music, X, ChevronLeft, ChevronRight, Sparkles, HelpCircle, Hotel, CheckCircle2 } from 'lucide-react';
+import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2, Instagram, Facebook, Volume2, VolumeX, Music, X, ChevronLeft, ChevronRight, Sparkles, HelpCircle, Hotel, CheckCircle2, UtensilsCrossed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn, hoyEnUruguay } from '@/lib/utils';
@@ -16,6 +16,9 @@ import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
+import { EventParticles } from '@/components/invitacion/EventParticles';
+import { getFondoInvitacionById, getFuenteInvitacionById, type InvitacionConfigConEstilo } from '@/lib/invitacion/fondos-invitacion';
+import type { InvitacionAccesosVivos } from '@/lib/invitacion/accesos-vivos';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
@@ -27,6 +30,7 @@ interface Props {
   galeriaUrl?: string;
   isEditorMode?: boolean;
   onConfigChange?: (nextConfig: InvitacionDigitalConfig) => void;
+  accesosVivos?: InvitacionAccesosVivos;
 }
 
 // ─── Typography helpers ───────────────────────────────────────────────────────
@@ -100,8 +104,80 @@ export function getSectionOrder(
 }
 
 
+// ---------- ACCESOS EN VIVO (HOY / POST-EVENTO) ----------
+function AccesosEnVivoHoy({
+  fiestaId,
+  muroSocialActivo,
+  miMesaActivo,
+  menuDigitalActivo,
+  menuDigitalUrl,
+}: {
+  fiestaId: string;
+  muroSocialActivo: boolean;
+  miMesaActivo: boolean;
+  menuDigitalActivo: boolean;
+  menuDigitalUrl: string;
+}) {
+  if (!muroSocialActivo && !miMesaActivo && !menuDigitalActivo) return null;
+  const encodedId = encodeURIComponent(fiestaId);
+
+  return (
+    <div data-testid="invitacion-accesos-hoy" className="mt-5 max-w-xl mx-auto space-y-3">
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">
+        Accesos rápidos de la fiesta
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {muroSocialActivo && (
+          <a
+            href={`/evento/social/${encodedId}`}
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-transform hover:scale-105"
+            style={{ backgroundColor: 'var(--inv-primary)' }}
+          >
+            <Camera className="w-4 h-4" />
+            Subir fotos
+          </a>
+        )}
+        {miMesaActivo && (
+          <a
+            href={`/evento/mi-mesa/${encodedId}`}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold bg-white text-gray-800 shadow-sm transition-transform hover:scale-105"
+            style={{ borderColor: 'var(--inv-primary)' }}
+          >
+            <MapPin className="w-4 h-4" style={{ color: 'var(--inv-primary)' }} />
+            Buscar mi mesa
+          </a>
+        )}
+        {menuDigitalActivo && (
+          <a
+            href={menuDigitalUrl}
+            className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold bg-white text-gray-800 shadow-sm transition-transform hover:scale-105"
+            style={{ borderColor: 'var(--inv-primary)' }}
+          >
+            <UtensilsCrossed className="w-4 h-4" style={{ color: 'var(--inv-primary)' }} />
+            Menú digital
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ---------- COUNTDOWN ----------
-function Countdown({ fechaEvento, galeriaUrl, headingClassName }: { fechaEvento: string; galeriaUrl?: string; headingClassName?: string }) {
+function Countdown({
+  fechaEvento,
+  galeriaUrl,
+  headingClassName,
+  fiestaId,
+  portalSocialActivo,
+  accesosVivos,
+}: {
+  fechaEvento: string;
+  galeriaUrl?: string;
+  headingClassName?: string;
+  fiestaId: string;
+  portalSocialActivo?: boolean;
+  accesosVivos?: InvitacionAccesosVivos;
+}) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
   const [termino, setTermino] = useState(false);
 
@@ -109,6 +185,16 @@ function Countdown({ fechaEvento, galeriaUrl, headingClassName }: { fechaEvento:
   const fechaStr = (fechaEvento || '').slice(0, 10);
   const pasoPorFecha = Boolean(fechaStr && fechaStr < hoy);
   const esHoy = Boolean(fechaStr && fechaStr === hoy);
+  const encodedId = encodeURIComponent(fiestaId);
+
+  const muroSocialActivo = accesosVivos ? accesosVivos.muroSocialActivo : Boolean(portalSocialActivo);
+  const miMesaActivo = accesosVivos ? accesosVivos.miMesaActivo : true;
+  const menuDigitalActivo = accesosVivos ? accesosVivos.menuDigitalActivo : false;
+  const menuDigitalUrl = accesosVivos?.menuDigitalUrl || `/evento/hub/${encodedId}#menu-noche-title`;
+  const albumUrl = galeriaUrl || accesosVivos?.albumUrl || `/evento/album/${encodedId}`;
+  const albumActivo = accesosVivos ? accesosVivos.albumActivo : Boolean(galeriaUrl || portalSocialActivo);
+  const recapActivo = accesosVivos ? accesosVivos.recapActivo : true;
+  const recapUrl = accesosVivos?.recapUrl || `/invitacion/${encodedId}/recap`;
 
   useEffect(() => {
     if (pasoPorFecha || esHoy) return;
@@ -142,27 +228,35 @@ function Countdown({ fechaEvento, galeriaUrl, headingClassName }: { fechaEvento:
 
   if (pasoPorFecha || termino) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="invitacion-post-evento">
         <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
           Esta fiesta ya se realizó
         </h2>
         <p className="text-sm text-gray-600">
           Gracias por haber sido parte de este momento tan especial.
         </p>
-        {galeriaUrl && (
-          <div className="pt-2">
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+          {albumActivo && (
             <a
-              href={galeriaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={albumUrl}
               className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90"
               style={{ backgroundColor: 'var(--inv-primary)' }}
             >
               <Camera className="w-4 h-4" />
               Ver álbum de recuerdos
             </a>
-          </div>
-        )}
+          )}
+          {recapActivo && (
+            <a
+              href={recapUrl}
+              className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold bg-white text-gray-800 shadow-sm transition-opacity hover:opacity-90"
+              style={{ borderColor: 'var(--inv-primary)' }}
+            >
+              <Sparkles className="w-4 h-4" style={{ color: 'var(--inv-primary)' }} />
+              Ver recap del evento
+            </a>
+          )}
+        </div>
       </div>
     );
   }
@@ -173,6 +267,13 @@ function Countdown({ fechaEvento, galeriaUrl, headingClassName }: { fechaEvento:
         <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
           ¡Es hoy!
         </h2>
+        <AccesosEnVivoHoy
+          fiestaId={fiestaId}
+          muroSocialActivo={muroSocialActivo}
+          miMesaActivo={miMesaActivo}
+          menuDigitalActivo={menuDigitalActivo}
+          menuDigitalUrl={menuDigitalUrl}
+        />
       </div>
     );
   }
@@ -1125,8 +1226,18 @@ function EditableText({
 }
 
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange }: Props) {
-  const styles = getTemplateStyles(config.plantillaId);
+export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange, accesosVivos }: Props) {
+  const baseStyles = getTemplateStyles(config.plantillaId);
+  const configConEstilo = config as InvitacionConfigConEstilo;
+  const fondoActivo = getFondoInvitacionById(configConEstilo.fondoId);
+  const fuenteActiva = getFuenteInvitacionById(configConEstilo.fuenteId);
+  const styles = fuenteActiva
+    ? {
+        ...baseStyles,
+        fontHeading: fuenteActiva.headingClass,
+        fontBody: cn(baseStyles.fontBody, fuenteActiva.bodyClass),
+      }
+    : baseStyles;
   const tipoLabel = TIPO_EVENTO_LABELS[config.tipoEvento] || 'Evento Especial';
   const isBoda = config.tipoEvento === 'boda';
   const secondName = config.nombreHomenajeado2;
@@ -1134,10 +1245,20 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   const [splashDone, setSplashDone] = useState(isEditorMode);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [rsvpConfirmed, setRsvpConfirmed] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
 
   useEffect(() => {
     setHeroImageError(false);
-  }, [config.fotoPortada]);
+  }, [config.fotoPortada, configConEstilo.fondoId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1175,7 +1296,12 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   const hasGallery = config.galeriaFotos && config.galeriaFotos.length > 0;
   const hasCronograma = config.cronograma && config.cronograma.length > 0;
   const hasWhatsApp = !!config.whatsappNumero;
-  const hasSocialPortal = config.portalSocialActivo;
+  const hasSocialPortal = accesosVivos ? accesosVivos.muroSocialActivo : config.portalSocialActivo;
+  const hoy = hoyEnUruguay();
+  const fechaStr = (config.fechaEvento || '').slice(0, 10);
+  const esHoy = Boolean(fechaStr && fechaStr === hoy);
+  const pasoPorFecha = Boolean(fechaStr && fechaStr < hoy);
+  const contadorSeRenderiza = config.contadorActivo && !!config.fechaEvento && isSectionVisible('contador', config.sectionsConfig);
 
   const cssVars = {
     '--inv-primary': config.colorPrincipal,
@@ -1220,6 +1346,9 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         fechaEvento={config.fechaEvento}
         galeriaUrl={galeriaUrl}
         headingClassName={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)}
+        fiestaId={fiestaId}
+        portalSocialActivo={config.portalSocialActivo}
+        accesosVivos={accesosVivos}
       />
     </Section>
   ));
@@ -1535,21 +1664,41 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         transition={{ duration: 0.8 }}
         aria-hidden={!splashDone}
       >
-    <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
+    <div
+      className={cn('min-h-screen', styles.fontBody)}
+      style={cssVars}
+      data-fondo-id={fondoActivo?.id || ''}
+    >
       {/* ============= HERO / PORTADA ============= */}
       <section className="relative flex min-h-[92svh] items-end justify-center overflow-hidden">
-        {config.fotoPortada && !heroImageError ? (
+        {(config.fotoPortada || fondoActivo?.imagenUrl) && !heroImageError ? (
           <motion.img
-            src={config.fotoPortada}
+            src={config.fotoPortada || fondoActivo?.imagenUrl}
             alt="Portada de la invitación"
             className="absolute inset-0 w-full h-full object-cover"
             onError={() => setHeroImageError(true)}
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 24, ease: 'easeInOut', repeat: Infinity }}
+            animate={prefersReducedMotion ? undefined : { scale: [1, 1.06, 1] }}
+            transition={prefersReducedMotion ? undefined : { duration: 24, ease: 'easeInOut', repeat: Infinity }}
             decoding="async"
+          />
+        ) : fondoActivo ? (
+          <div
+            data-testid="invitacion-fondo-css"
+            className={cn(
+              'absolute inset-0',
+              fondoActivo.enMovimiento && !prefersReducedMotion && `ak-inv-bg-${fondoActivo.animacionTipo}`
+            )}
+            style={{ background: fondoActivo.cssBackground }}
           />
         ) : (
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${config.colorPrincipal}, ${config.colorSecundario})` }} />
+        )}
+        {fondoActivo?.particulasTipo && !prefersReducedMotion && (
+          <EventParticles
+            tipoCelebracion={fondoActivo.particulasTipo}
+            primaryColor={config.colorPrincipal}
+            count={10}
+          />
         )}
         <div className={cn('absolute inset-0 bg-gradient-to-t', styles.heroOverlay)} />
 
@@ -1620,6 +1769,20 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           </motion.div>
         </div>
       </section>
+
+      {/* ============= ACCESOS EN VIVO SI EL CONTADOR ESTÁ APAGADO ============= */}
+      {(esHoy || pasoPorFecha) && !contadorSeRenderiza && (
+        <Section key="accesos-en-vivo" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
+          <Countdown
+            fechaEvento={config.fechaEvento}
+            galeriaUrl={galeriaUrl}
+            headingClassName={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)}
+            fiestaId={fiestaId}
+            portalSocialActivo={config.portalSocialActivo}
+            accesosVivos={accesosVivos}
+          />
+        </Section>
+      )}
 
       {/* ============= ORDERED MIDDLE SECTIONS ============= */}
       {sectionEntries.map(({ id, el }) => (
@@ -1786,6 +1949,41 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        @keyframes akInvGradienteVivo {
+          0% { background-position: 0% 50%; filter: brightness(1); }
+          50% { background-position: 100% 50%; filter: brightness(1.08); }
+          100% { background-position: 0% 50%; filter: brightness(1); }
+        }
+        @keyframes akInvPulsoLuz {
+          0%, 100% { opacity: 0.92; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.03); }
+        }
+        .ak-inv-bg-degradado_suave,
+        .ak-inv-bg-aurora,
+        .ak-inv-bg-ondas {
+          background-size: 200% 200% !important;
+          animation: akInvGradienteVivo 14s ease-in-out infinite;
+        }
+        .ak-inv-bg-shimmer_dorado,
+        .ak-inv-bg-brillos,
+        .ak-inv-bg-destellos {
+          background-size: 160% 160% !important;
+          animation: akInvPulsoLuz 8s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ak-inv-bg-degradado_suave,
+          .ak-inv-bg-aurora,
+          .ak-inv-bg-ondas,
+          .ak-inv-bg-shimmer_dorado,
+          .ak-inv-bg-brillos,
+          .ak-inv-bg-destellos {
+            animation: none !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
     </div>
       </motion.div>
     </>

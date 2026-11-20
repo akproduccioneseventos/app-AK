@@ -67,7 +67,7 @@ test('aprobar el plan guarda un solo borrador manual y conserva el presupuesto',
   page.on('popup', () => { ventanasExternas++; });
   const presupuestoOriginal = leer('presupuestos.json').find(item => item.id === presupuestoId);
 
-  await page.goto('/centro-de-control', { waitUntil: 'domcontentloaded' });
+  await page.goto('/mi-dia?tab=centro', { waitUntil: 'domcontentloaded' });
   const pedido = page.getByPlaceholder(/Por ejemplo: "armale la web/);
   await expect(pedido).toBeVisible();
   await pedido.fill(`Prepara seguimiento del presupuesto del cliente "${nombre}"`);

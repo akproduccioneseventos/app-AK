@@ -67,7 +67,7 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
   });
 
   it('comercial-360 tiene el aviso claro de EJEMPLO ILUSTRATIVO para evitar confusiones de costos en capacitaciones', () => {
-    const comercialPath = path.join(RAIZ, 'src/app/(app)/contabilidad/comercial-360/page.tsx');
+    const comercialPath = path.join(RAIZ, 'src/components/panels/crm--comercial-360.tsx');
     expect(existsSync(comercialPath)).toBe(true);
 
     const content = readFileSync(comercialPath, 'utf8');

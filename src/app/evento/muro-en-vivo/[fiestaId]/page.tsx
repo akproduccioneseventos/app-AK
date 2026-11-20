@@ -25,6 +25,18 @@ import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { AK_INSTAGRAM_HANDLE } from '@/lib/public-contact';
+import {
+  getMotionVariantsParaTransicion,
+  getTransicionMuroClass,
+  normalizarTransicionMuro,
+} from '@/lib/social-fiesta/transiciones-muro';
+import { getActiveLiveStreamForScreen } from '@/app/actions/social-live-stream';
+import { isZonaDigitalFeatureEnabled } from '@/lib/zona-digital-adolescentes';
+import {
+  shouldDisplayLiveStreamOnScreen,
+  type LiveStreamRequest,
+} from '@/lib/social-fiesta/transmision-invitado';
+import { LiveStreamScreenReceiver } from '@/components/social-wall/LiveStreamScreenReceiver';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -102,6 +114,8 @@ export default function MuroEnVivoPage() {
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
+  const [rankingTrivia, setRankingTrivia] = useState<{ nombre: string; puntos: number }[]>([]);
+  const [activeLiveStream, setActiveLiveStream] = useState<LiveStreamRequest | null>(null);
   const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
   const [sorteoSpinActive, setSorteoSpinActive] = useState(false);
   const [sorteoSpinWheelAngle, setSorteoSpinWheelAngle] = useState(0);
@@ -267,6 +281,15 @@ export default function MuroEnVivoPage() {
         }
         const fMuro = (fiestaData as any)?.station?.fondoMuro || (fiestaData.socialGallerySettings as any)?.fondoMuro;
         if (fMuro) setFondoMuro(fMuro);
+        setRankingTrivia(fiestaData.rankingJuegos?.trivia ?? []);
+
+        if (isZonaDigitalFeatureEnabled(fiestaData.zonaDigitalAdolescentes, 'transmision_invitado')) {
+          getActiveLiveStreamForScreen(fiestaId)
+            .then((stream) => setActiveLiveStream(stream))
+            .catch(() => undefined);
+        } else {
+          setActiveLiveStream(null);
+        }
       }
       if (fiestaData?.socialGallerySettings) {
         setSettings((prev) => ({ ...prev, ...fiestaData.socialGallerySettings }));
@@ -598,11 +621,8 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Empty state */}
-          {/* 'dedicaciones' NO va en esta lista: su bloque esta desactivado mas
-              abajo, asi que sin esto la pantalla del salon quedaba en blanco
-              cada vez que la rotacion llegaba a esa diapositiva. */}
-          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta', 'cronograma', 'patrocinador'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {/* Empty state (solo en slide de mural; otros slides muestran su propio estado vacío) */}
+          {isLoaded && settings.privateDedicationsMode !== true && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length === 0 && settings.enabled !== false && (
             <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
@@ -672,18 +692,18 @@ export default function MuroEnVivoPage() {
           {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
             settings.currentLayout === 'masonry'
               ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
-              : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+              : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} eventName={eventName} />
           )}
 
           {/* Juego slide */}
           {isLoaded && activeScreenItem?.type === 'juego' && (
             activeGame
-              ? <GameSlide game={activeGame} posts={posts} qrUrl={qrUrl} settings={settings} />
+              ? <GameSlide game={activeGame} posts={posts} qrUrl={qrUrl} settings={settings} rankingTrivia={rankingTrivia} />
               : posts.length > 0 && settings.privateDedicationsMode !== true
                 ? (
                     settings.currentLayout === 'masonry'
                       ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
-                      : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+                      : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} eventName={eventName} />
                   )
                 : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
@@ -707,7 +727,7 @@ export default function MuroEnVivoPage() {
           {/* Redes slide */}
           {isLoaded && activeScreenItem?.type === 'redes' && (
             posts.length > 0 ? (
-              <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+              <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} eventName={eventName} />
             ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
@@ -853,6 +873,10 @@ export default function MuroEnVivoPage() {
             </div>
           )}
         </div>
+
+        {activeLiveStream && shouldDisplayLiveStreamOnScreen(activeLiveStream) && (
+          <LiveStreamScreenReceiver fiestaId={fiestaId} streamRequest={activeLiveStream} />
+        )}
 
         {/* ── Right side panel: poll or game overlay ── */}
         {hasSidePanel && isLoaded && (
@@ -1768,15 +1792,44 @@ const SLIDESHOW_DURATION_MS = 6000;
 function SlideshowLayout({
   posts,
   qrUrl = '',
-  settings = { enabled: true }
+  settings = { enabled: true },
+  eventName = '',
 }: {
   posts: SocialGalleryPost[];
   qrUrl?: string;
   settings?: any;
+  eventName?: string;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaLoaded, setMediaLoaded] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [beatPulse, setBeatPulse] = useState(1);
   const prevLengthRef = useRef(posts.length);
+
+  const transicion = normalizarTransicionMuro(settings?.transicion);
+  const transicionClass = getTransicionMuroClass(transicion);
+  const hasPhotoFrame = settings?.photoFrame === true;
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (transicion !== 'al_ritmo' || prefersReducedMotion) {
+      setBeatPulse(1);
+      return;
+    }
+    // Pulso rítmico sincronizado (~120 BPM) cuando está activa la transición "al_ritmo"
+    const interval = setInterval(() => {
+      setBeatPulse((prev) => (prev === 1 ? 1.03 : 1));
+    }, 500);
+    return () => clearInterval(interval);
+  }, [transicion, prefersReducedMotion]);
 
   const post = posts[currentIndex] ?? posts[0];
   const isVideo = post ? (post.mediaType === 'video' || isVideoUrl(post.imageUrl)) : false;
@@ -1907,9 +1960,18 @@ function SlideshowLayout({
 
   const isCinema = settings?.cinemaMode === true;
   const accentColor = settings?.accentColor || '#fbbf24';
+  const motionVariants = getMotionVariantsParaTransicion(transicion, {
+    index: currentIndex,
+    kenBurns: settings?.kenBurnsEffect !== false,
+    reducedMotion: prefersReducedMotion,
+    beatScale: beatPulse,
+  });
 
   return (
-    <div className={`absolute inset-0 flex items-center justify-center overflow-hidden bg-slate-950 ${isCinema ? 'p-0' : 'p-4 sm:p-6 md:p-8'}`}>
+    <div
+      data-transicion={transicion}
+      className={`absolute inset-0 flex items-center justify-center overflow-hidden bg-slate-950 ${transicionClass} ${isCinema ? 'p-0' : 'p-4 sm:p-6 md:p-8'}`}
+    >
       {!mediaLoaded && (
         <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950 text-sm text-white/60">
           Cargando publicación...
@@ -1927,67 +1989,88 @@ function SlideshowLayout({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/80" />
       </div>
 
-      {/* ── CONTENEDOR PRINCIPAL CON EFECTO KEN BURNS (Bloque 7: Movimiento suave) ── */}
-      <motion.div
-        key={post.id}
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{
-          opacity: 1,
-          scale: settings?.kenBurnsEffect !== false ? [1, 1.05] : 1,
-          x: settings?.kenBurnsEffect !== false ? [0, currentIndex % 2 === 0 ? 10 : -10] : 0,
-          y: settings?.kenBurnsEffect !== false ? [0, currentIndex % 3 === 0 ? 8 : -8] : 0,
-        }}
-        exit={{ opacity: 0 }}
-        transition={{
-          opacity: { duration: 0.7 },
-          scale: { duration: 7, ease: 'linear' },
-          x: { duration: 7, ease: 'linear' },
-          y: { duration: 7, ease: 'linear' },
-        }}
-        className="relative z-10 w-full h-full flex items-center justify-center"
-      >
-        <div
-          className={`relative max-w-full max-h-full flex items-center justify-center ${
-            isMission ? 'ring-4 ring-amber-400/90 shadow-[0_0_50px_rgba(251,191,36,0.5)] rounded-2xl' : ''
-          }`}
+      {/* ── CONTENEDOR PRINCIPAL CON TRANSICIÓN DINÁMICA (Bloque 4) + MARCO DEL EVENTO (Bloque 7) ── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`${post.id}-${transicion}`}
+          initial={motionVariants.initial as any}
+          animate={motionVariants.animate as any}
+          exit={motionVariants.exit as any}
+          className={`relative z-10 w-full h-full flex items-center justify-center ${transicionClass}`}
         >
-          {isMission && (
-            <div className="absolute top-4 inset-x-0 mx-auto max-w-md bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-2 px-6 rounded-full uppercase tracking-widest text-sm shadow-xl z-30">
-              ⭐ Misión Cumplida ⭐
-            </div>
-          )}
+          <div
+            className={`relative max-w-full max-h-full flex items-center justify-center ${
+              isMission ? 'ring-4 ring-amber-400/90 shadow-[0_0_50px_rgba(251,191,36,0.5)] rounded-2xl' : ''
+            } ${
+              transicion === 'polaroid' ? 'bg-white p-3 pb-10 sm:p-4 sm:pb-12 rounded-sm shadow-2xl' : ''
+            }`}
+          >
+            {isMission && (
+              <div className="absolute top-4 inset-x-0 mx-auto max-w-md bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-2 px-6 rounded-full uppercase tracking-widest text-sm shadow-xl z-30">
+                ⭐ Misión Cumplida ⭐
+              </div>
+            )}
 
-          {isVideo ? (
-            <video
-              src={post.imageUrl}
-              className={`max-h-[85vh] max-w-[94vw] object-contain rounded-2xl shadow-2xl border border-white/10 ${
-                isCinema ? 'max-h-[92vh] max-w-[96vw]' : ''
-              }`}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onPlay={() => setMediaLoaded(true)}
-              onLoadedData={() => setMediaLoaded(true)}
-              onEnded={advance}
-            />
-          ) : (
-            <div
-              className={`relative max-h-[85vh] max-w-[94vw] overflow-hidden rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] bg-black/40 ${
-                isCinema ? 'max-h-[92vh] max-w-[96vw]' : ''
-              }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            {isVideo ? (
+              <video
                 src={post.imageUrl}
-                alt={post.authorName || 'Foto de la fiesta'}
-                className="max-h-[85vh] max-w-[94vw] object-contain rounded-2xl"
-                onLoad={() => setMediaLoaded(true)}
+                className={`max-h-[85vh] max-w-[94vw] object-contain rounded-2xl shadow-2xl border border-white/10 ${
+                  isCinema ? 'max-h-[92vh] max-w-[96vw]' : ''
+                }`}
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                onPlay={() => setMediaLoaded(true)}
+                onLoadedData={() => setMediaLoaded(true)}
+                onEnded={advance}
               />
-            </div>
-          )}
-        </div>
-      </motion.div>
+            ) : (
+              <div
+                className={`relative max-h-[85vh] max-w-[94vw] overflow-hidden rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] bg-black/40 ${
+                  isCinema ? 'max-h-[92vh] max-w-[96vw]' : ''
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.imageUrl}
+                  alt={post.authorName || 'Foto de la fiesta'}
+                  className="max-h-[85vh] max-w-[94vw] object-contain rounded-2xl"
+                  onLoad={() => setMediaLoaded(true)}
+                />
+                {hasPhotoFrame && (
+                  <div
+                    data-testid="muro-photo-frame"
+                    className="pointer-events-none absolute inset-0 rounded-2xl border-4 flex flex-col justify-between p-3 sm:p-4"
+                    style={{ borderColor: accentColor }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      {settings?.brand?.logoUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={settings.brand.logoUrl}
+                          alt={eventName || 'Marca del evento'}
+                          className="h-8 sm:h-10 max-w-[120px] object-contain drop-shadow"
+                        />
+                      ) : (
+                        <span />
+                      )}
+                      {(eventName || settings?.brand?.companyName) && (
+                        <span
+                          className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest bg-black/65 text-white border backdrop-blur-sm"
+                          style={{ borderColor: accentColor }}
+                        >
+                          {eventName || settings?.brand?.companyName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* ── TEXTOS A 5 METROS Y MÁRGENES DE SEGURIDAD (Bloque 7) ── */}
       <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none p-8 sm:p-12 md:p-16 bg-gradient-to-t from-black/95 via-black/60 to-transparent">
@@ -2056,8 +2139,15 @@ function MasonryLayout({
     limit = 4;
   }
 
+  const transicion = normalizarTransicionMuro(settings?.transicion);
+  const transicionClass = getTransicionMuroClass(transicion);
+
   return (
-    <div className="absolute inset-0 overflow-hidden bg-black p-5" data-tamano-mosaico={tamano}>
+    <div
+      className={`absolute inset-0 overflow-hidden bg-black p-5 ${transicionClass}`}
+      data-tamano-mosaico={tamano}
+      data-transicion={transicion}
+    >
       <div className={`grid h-full ${gridColsClass} gap-3`}>
         {posts.slice(0, limit).map((post, index) => (
           <MasonryCard key={post.id} post={post} index={index} />
@@ -2138,12 +2228,14 @@ function GameSlide({
   game,
   posts,
   qrUrl = '',
-  settings = { enabled: true }
+  settings = { enabled: true },
+  rankingTrivia = [],
 }: {
   game: ActiveGameData;
   posts: SocialGalleryPost[];
   qrUrl?: string;
   settings?: any;
+  rankingTrivia?: { nombre: string; puntos: number }[];
 }) {
   const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
 
@@ -2158,14 +2250,18 @@ function GameSlide({
   }, [game.type, game.launchedAt, game.isFinished]);
 
   if (game.type === 'trivia' && game.isFinished) {
-    // Con mesas, podio por mesa; sin mesas, el top 5 de jugadores (lo deja `terminarTrivia`).
+    // Con mesas, podio por mesa; sin mesas, el top 5 de jugadores (lo deja `terminarTrivia` o `topTrivia`).
     const porMesa = (game.tableLeaderboard || []).length > 0;
+    const topIndividual = (game.topJugadores && game.topJugadores.length > 0) ? game.topJugadores : rankingTrivia;
     const filas: { clave: string; nombre: string; puntos: number }[] = porMesa
       ? (game.tableLeaderboard || []).slice(0, 5).map((t) => ({ clave: t.tableNumber, nombre: `Mesa ${t.tableNumber}`, puntos: t.score }))
-      : (game.topJugadores || []).slice(0, 5).map((j, i) => ({ clave: `${j.nombre}-${i}`, nombre: j.nombre, puntos: j.puntos }));
+      : topIndividual.slice(0, 5).map((j, i) => ({ clave: `${j.nombre}-${i}`, nombre: j.nombre, puntos: j.puntos }));
     return (
       <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${meta.bg}`}>
         <div className="w-full max-w-5xl px-12 text-center">
+          <div className="mb-4 inline-flex items-center rounded-full border border-emerald-300/40 bg-emerald-500/20 px-5 py-1.5 text-sm font-black uppercase tracking-[0.25em] text-emerald-200">
+            Finalizado
+          </div>
           <motion.h1 className="text-[6vw] font-black leading-tight text-white mb-12 drop-shadow-lg">
             {porMesa ? 'Podio por Mesa 🏆' : 'Los mejores de la trivia 🏆'}
           </motion.h1>
@@ -2307,6 +2403,21 @@ function GameSlide({
                 </motion.div>
               );
             })}
+          </div>
+        )}
+        {game.type === 'trivia' && rankingTrivia.length > 0 && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <span className="text-xs font-black uppercase tracking-widest text-yellow-300">
+              🏆 Top Trivia:
+            </span>
+            {rankingTrivia.slice(0, 5).map((j, idx) => (
+              <span
+                key={`${j.nombre}-${idx}`}
+                className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm"
+              >
+                {idx + 1}. {j.nombre} · {j.puntos} pts
+              </span>
+            ))}
           </div>
         )}
       </div>

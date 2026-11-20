@@ -9,7 +9,7 @@ jest.mock('@/app/actions/cupones', () => ({
   toggleCuponActivo: jest.fn(), deleteCupon: jest.fn(), getCuponStats: jest.fn(),
 }));
 
-import CuponesPage from '@/app/(app)/settings/cupones/page';
+import CuponesPage from '@/components/settings/panels/cupones';
 
 test.each([
   ['2026-10-08T02:59:59Z', 'Próximo'],

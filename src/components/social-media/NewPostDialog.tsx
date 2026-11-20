@@ -14,22 +14,35 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, Loader2, Sparkles, Wand2, Send, Link as LinkIcon, Lock, Image as ImageIcon } from 'lucide-react';
+import { PlusCircle, Loader2, Sparkles, Wand2, Send, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveSocialPost } from '@/app/actions/social-media';
+import {
+  saveSocialPost,
+  publicarPosteoAhoraAction,
+  adaptarTextoPorRedAction,
+} from '@/app/actions/social-media';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { SocialPost, SocialPlatform, PostStatus } from '@/types/social-media';
+import type { SocialConnection } from '@/types/settings';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { aFechaHoraLocal, aIsoUruguay } from '@/lib/fechas/fecha-local';
+import {
+  getFaltaMediaPorRed,
+  armarFeedbackPublicacionMultiRed,
+  adaptarTextoFallbackPorRed,
+  sanitizarTextoPublicacion,
+  type AdaptedPlatformVersion,
+} from '@/lib/social-media/adaptar-post-por-red';
+
+export { getFaltaMediaPorRed, armarFeedbackPublicacionMultiRed, adaptarTextoFallbackPorRed };
 
 interface NewPostDialogProps {
     onPostCreated: () => void;
@@ -37,6 +50,7 @@ interface NewPostDialogProps {
     postToDuplicate?: SocialPost | null;
     isOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
+    initialConnections?: SocialConnection[];
     children?: React.ReactNode;
 }
 
@@ -59,6 +73,7 @@ export function NewPostDialog({
     postToDuplicate,
     isOpen: controlledIsOpen,
     onOpenChange: setControlledIsOpen,
+    initialConnections,
     children
 }: NewPostDialogProps) {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -66,11 +81,28 @@ export function NewPostDialog({
     const setIsOpen = setControlledIsOpen ?? setInternalIsOpen;
 
     const [isSaving, setIsSaving] = useState(false);
+    const [isAdapting, setIsAdapting] = useState(false);
     const { toast } = useToast();
+
+    // Conexiones reales (Orden 326 Bloque 4)
+    const [connections, setConnections] = useState<SocialConnection[]>(initialConnections || []);
+    const connectedPlatformIds = useMemo(() => {
+        const set = new Set<SocialPlatform>();
+        for (const c of connections) {
+            if (c.isConnected) {
+                set.add(c.platform as SocialPlatform);
+            }
+        }
+        return set;
+    }, [connections]);
 
     // Form state
     const [platform, setPlatform] = useState<SocialPlatform | 'WhatsApp'>('Instagram');
-    const [selectedPlatforms, setSelectedPlatforms] = useState<SocialPlatform[]>(['Instagram', 'Facebook']);
+    const [selectedPlatforms, setSelectedPlatforms] = useState<SocialPlatform[]>(() =>
+        (initialConnections || [])
+            .filter((c) => c.isConnected)
+            .map((c) => c.platform as SocialPlatform)
+    );
     const [isGeneralCampaign, setIsGeneralCampaign] = useState(true);
     const [eventId, setEventId] = useState<string>('');
     const [publishDate, setPublishDate] = useState(() => aFechaHoraLocal());
@@ -81,6 +113,8 @@ export function NewPostDialog({
     const [status, setStatus] = useState<PostStatus>('Programado');
     const [promotionCost, setPromotionCost] = useState('');
     const [performanceLikes, setPerformanceLikes] = useState('');
+    const [adaptedVersions, setAdaptedVersions] = useState<Partial<Record<SocialPlatform, AdaptedPlatformVersion>>>({});
+    const [publishResultBanner, setPublishResultBanner] = useState<string | null>(null);
 
     const [sendToWhatsApp, setSendToWhatsApp] = useState(false);
 
@@ -90,10 +124,31 @@ export function NewPostDialog({
     const activePost = postToEdit || postToDuplicate;
     const isWhatsAppSelected = platform === 'WhatsApp';
 
-    const resetForm = useCallback(() => {
+    const hasImage = useMemo(() => {
+        if (mediaFile) return mediaFile.type.startsWith('image/');
+        if (activePost?.mediaType === 'image') return true;
+        if (mediaPreview && activePost?.mediaType !== 'video') return true;
+        return false;
+    }, [mediaFile, activePost, mediaPreview]);
+
+    const hasVideo = useMemo(() => {
+        if (mediaFile) return mediaFile.type.startsWith('video/');
+        return activePost?.mediaType === 'video';
+    }, [mediaFile, activePost]);
+
+    const resetForm = useCallback((connsToUse?: SocialConnection[]) => {
         const isDuplicating = !!postToDuplicate;
-        setPlatform(activePost?.platform || 'Instagram');
-        setSelectedPlatforms([activePost?.platform || 'Instagram']);
+        const connsList = connsToUse || connections;
+        const preSelected = connsList
+            .filter((c) => c.isConnected && ALL_PLATFORMS.some((p) => p.id === c.platform))
+            .map((c) => c.platform as SocialPlatform);
+
+        setPlatform(activePost?.platform || preSelected[0] || 'Instagram');
+        setSelectedPlatforms(
+            postToEdit && activePost?.platform
+                ? [activePost.platform]
+                : preSelected
+        );
         setIsGeneralCampaign(activePost?.isGeneralCampaign ?? true);
         setEventId(activePost?.eventId || '');
         setPublishDate(isDuplicating || !activePost?.publishDate ? aFechaHoraLocal() : aFechaHoraLocal(activePost.publishDate));
@@ -105,19 +160,28 @@ export function NewPostDialog({
         setPromotionCost(isDuplicating ? '' : (activePost?.promotionCost?.toString() || ''));
         setPerformanceLikes(isDuplicating ? '' : (activePost?.performance?.likes?.toString() || ''));
         setSendToWhatsApp(false);
-    }, [activePost, postToDuplicate]);
+        setAdaptedVersions({});
+        setPublishResultBanner(null);
+    }, [activePost, postToDuplicate, postToEdit, connections]);
 
     useEffect(() => {
         if (isOpen) {
-            resetForm();
             const fetchInitialData = async () => {
-                const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
+                const [actual, historial, conns] = await Promise.all([
+                    getFiestaActual().catch(() => null),
+                    getHistorialFiestas().catch(() => []),
+                    initialConnections ? Promise.resolve(initialConnections) : getSocialConnectionsPublicas().catch(() => []),
+                ]);
                 const all = [actual, ...(Array.isArray(historial) ? historial : [])].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
+                const validConns = Array.isArray(conns) ? conns : [];
+                setConnections(validConns);
+                resetForm(validConns);
             };
             fetchInitialData();
         }
-    }, [isOpen, resetForm]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -128,31 +192,120 @@ export function NewPostDialog({
     };
 
     const togglePlatform = (p: SocialPlatform) => {
+        if (!connectedPlatformIds.has(p)) return;
         setSelectedPlatforms(prev =>
             prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
         );
     };
 
     const selectAllPlatforms = () => {
-        if (selectedPlatforms.length === ALL_PLATFORMS.length) {
-            setSelectedPlatforms(['Instagram']);
+        const allConnected = ALL_PLATFORMS.filter(p => connectedPlatformIds.has(p.id)).map(p => p.id);
+        if (selectedPlatforms.length === allConnected.length && allConnected.length > 0) {
+            setSelectedPlatforms([]);
         } else {
-            setSelectedPlatforms(ALL_PLATFORMS.map(p => p.id));
+            setSelectedPlatforms(allConnected);
         }
+    };
+
+    const handleAdaptarPorRed = async () => {
+        if (!text.trim()) {
+            toast({ title: 'Escribí primero el texto base', variant: 'destructive' });
+            return;
+        }
+        const elegibles = selectedPlatforms.filter((p) => !getFaltaMediaPorRed(p, hasImage, hasVideo));
+        if (elegibles.length === 0) {
+            toast({ title: 'No hay redes elegibles seleccionadas', variant: 'destructive' });
+            return;
+        }
+        setIsAdapting(true);
+        try {
+            const res = await adaptarTextoPorRedAction({
+                textoBase: text,
+                plataformas: elegibles,
+                link,
+            });
+            if (res.success && res.versions) {
+                setAdaptedVersions((prev) => ({ ...prev, ...res.versions }));
+                toast({
+                    title: res.aiUsed ? 'Versiones adaptadas con IA' : 'Versiones adaptadas por red',
+                    description: 'Podés editar cada texto antes de publicar.',
+                });
+            } else {
+                const fallback: Partial<Record<SocialPlatform, AdaptedPlatformVersion>> = {};
+                for (const p of elegibles) {
+                    fallback[p] = adaptarTextoFallbackPorRed(text, p, link);
+                }
+                setAdaptedVersions((prev) => ({ ...prev, ...fallback }));
+            }
+        } catch {
+            const fallback: Partial<Record<SocialPlatform, AdaptedPlatformVersion>> = {};
+            for (const p of elegibles) {
+                fallback[p] = adaptarTextoFallbackPorRed(text, p, link);
+            }
+            setAdaptedVersions((prev) => ({ ...prev, ...fallback }));
+        } finally {
+            setIsAdapting(false);
+        }
+    };
+
+    const updateAdaptedVersion = (plat: SocialPlatform, patch: Partial<AdaptedPlatformVersion>) => {
+        setAdaptedVersions((prev) => {
+            const current = prev[plat] || adaptarTextoFallbackPorRed(text, plat, link);
+            return {
+                ...prev,
+                [plat]: {
+                    ...current,
+                    ...patch,
+                },
+            };
+        });
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
+        setPublishResultBanner(null);
 
-        const platformsToSave: SocialPlatform[] = postToEdit
+        const platformsRequested: SocialPlatform[] = postToEdit
             ? [platform as SocialPlatform]
-            : (selectedPlatforms.length > 0 ? selectedPlatforms : ['Instagram']);
+            : selectedPlatforms;
 
-        const crossPlatformGroupId = platformsToSave.length > 1 ? `grp_${Date.now()}` : undefined;
+        if (platformsRequested.length === 0) {
+            toast({
+                title: 'Seleccioná al menos una red conectada',
+                variant: 'destructive',
+            });
+            setIsSaving(false);
+            return;
+        }
+
+        const faltantesMedia: Array<{ platform: SocialPlatform; reason: string }> = [];
+        const elegibles: SocialPlatform[] = [];
+
+        for (const plat of platformsRequested) {
+            const faltaReason = !postToEdit ? getFaltaMediaPorRed(plat, hasImage, hasVideo) : null;
+            if (faltaReason) {
+                faltantesMedia.push({ platform: plat, reason: faltaReason });
+            } else {
+                elegibles.push(plat);
+            }
+        }
+
+        const crossPlatformGroupId = elegibles.length > 1 ? `grp_${Date.now()}` : undefined;
+        let exitosas = 0;
+        const fallos: Array<{ platform: SocialPlatform; reason: string }> = [...faltantesMedia];
 
         try {
-            for (const plat of platformsToSave) {
+            for (const plat of elegibles) {
+                const version = adaptedVersions[plat];
+                const rawText = version?.text || text;
+                const cleanText = sanitizarTextoPublicacion(
+                    plat === 'Pinterest' && version?.title && !rawText.startsWith(version.title)
+                        ? `${version.title}\n\n${rawText}`
+                        : rawText,
+                );
+                const finalLink = version?.link || link;
+
                 const formData = new FormData();
                 if (postToEdit) formData.append('id', postToEdit.id);
 
@@ -160,16 +313,16 @@ export function NewPostDialog({
                 formData.append('isGeneralCampaign', String(isGeneralCampaign));
                 if (!isGeneralCampaign && eventId) {
                     formData.append('eventId', eventId);
-                    formData.append('eventName', allEvents.find(e => e.id === eventId)?.configuracion.nombreEvento || 'Evento');
+                    formData.append('eventName', allEvents.find(ev => ev.id === eventId)?.configuracion.nombreEvento || 'Evento');
                 }
                 formData.append('publishDate', aIsoUruguay(publishDate));
-                formData.append('text', text);
-                if (link) formData.append('link', link);
+                formData.append('text', cleanText);
+                if (finalLink) formData.append('link', finalLink);
                 if (mediaFile) {
                     formData.append('mediaFile', mediaFile);
                 } else if (activePost?.mediaUrl) {
                      formData.append('existingMediaUrl', activePost.mediaUrl);
-                     if(activePost.mediaType) formData.append('existingMediaType', activePost.mediaType);
+                     if (activePost.mediaType) formData.append('existingMediaType', activePost.mediaType);
                 }
 
                 formData.append('status', status);
@@ -180,26 +333,55 @@ export function NewPostDialog({
 
                 const result = await saveSocialPost(formData);
                 if (!result.success) {
-                    throw new Error(result.error || `No se pudo guardar la publicación para ${plat}.`);
+                    fallos.push({ platform: plat, reason: result.error || 'No se pudo guardar' });
+                    continue;
                 }
+
+                if (status === 'Publicado' && result.post?.id) {
+                    const pubRes = await publicarPosteoAhoraAction(result.post.id);
+                    if (!pubRes.success) {
+                        fallos.push({ platform: plat, reason: pubRes.error || 'Error al publicar' });
+                        continue;
+                    }
+                }
+
+                exitosas++;
             }
 
-            toast({
-                title: postToEdit
-                    ? "Publicación Actualizada"
-                    : `¡Creadas publicaciones para ${platformsToSave.length} redes!`,
-                description: platformsToSave.join(', '),
+            const total = platformsRequested.length;
+            const mensajeFinal = armarFeedbackPublicacionMultiRed({
+                publicadas: exitosas,
+                total,
+                motivosFallo: fallos,
             });
 
-            if (platformsToSave.includes('WhatsApp') && sendToWhatsApp) {
-                const whatsAppText = encodeURIComponent(text);
-                const whatsAppUrl = `https://wa.me/?text=${whatsAppText}`;
-                window.open(whatsAppUrl, '_blank');
-                toast({ title: "Abriendo WhatsApp..." });
-            }
+            if (fallos.length > 0) {
+                setPublishResultBanner(mensajeFinal);
+                toast({
+                    title: mensajeFinal,
+                    variant: exitosas > 0 ? 'default' : 'destructive',
+                });
+                if (exitosas > 0) {
+                    onPostCreated();
+                }
+            } else {
+                toast({
+                    title: postToEdit
+                        ? "Publicación Actualizada"
+                        : `Publicado en ${exitosas} de ${total} redes`,
+                    description: elegibles.join(', '),
+                });
 
-            setIsOpen(false);
-            onPostCreated();
+                if (elegibles.includes('WhatsApp') && sendToWhatsApp) {
+                    const whatsAppText = encodeURIComponent(adaptedVersions.WhatsApp?.text || text);
+                    const whatsAppUrl = `https://wa.me/?text=${whatsAppText}`;
+                    window.open(whatsAppUrl, '_blank');
+                    toast({ title: "Abriendo WhatsApp..." });
+                }
+
+                setIsOpen(false);
+                onPostCreated();
+            }
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
@@ -212,6 +394,8 @@ export function NewPostDialog({
         <Button variant="default" onClick={() => setIsOpen(true)}><PlusCircle className="w-5 h-5 mr-2" />Crear Publicación</Button>
     );
 
+    const eligibleSelectedPlatforms = selectedPlatforms.filter((p) => !getFaltaMediaPorRed(p, hasImage, hasVideo));
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             {!children && <DialogTrigger asChild>{trigger}</DialogTrigger>}
@@ -221,17 +405,17 @@ export function NewPostDialog({
                     <DialogDescription>
                         {postToEdit
                             ? 'Editá los detalles del posteo.'
-                            : 'Escribí tu posteo una sola vez y seleccionalo para publicar en todas las redes que quieras.'}
+                            : 'Escribí tu posteo una sola vez y saldrá adaptado en todas las redes conectadas.'}
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
-                    {/* Selector Multi-Red o Individual */}
+                    {/* Selector Multi-Red conectado automáticamente (Orden 326 Bloque 4) */}
                     {!postToEdit ? (
                         <div className="space-y-2 rounded-xl border border-purple-100 bg-purple-50/50 p-3.5">
                             <div className="flex items-center justify-between">
                                 <Label className="font-black text-slate-900 text-sm">
-                                    Redes donde publicar ({selectedPlatforms.length} de {ALL_PLATFORMS.length})
+                                    Redes conectadas ({eligibleSelectedPlatforms.length} listas de {connectedPlatformIds.size} conectadas)
                                 </Label>
                                 <Button
                                     type="button"
@@ -240,29 +424,65 @@ export function NewPostDialog({
                                     className="text-xs h-7 text-purple-700 hover:text-purple-900 font-bold"
                                     onClick={selectAllPlatforms}
                                 >
-                                    {selectedPlatforms.length === ALL_PLATFORMS.length ? 'Deseleccionar todas' : '⚡ Seleccionar todas'}
+                                    {selectedPlatforms.length === connectedPlatformIds.size && connectedPlatformIds.size > 0
+                                        ? 'Deseleccionar todas'
+                                        : '⚡ Seleccionar conectadas'}
                                 </Button>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
                                 {ALL_PLATFORMS.map((plat) => {
-                                    const isSelected = selectedPlatforms.includes(plat.id);
+                                    const estaConectada = connectedPlatformIds.has(plat.id);
+                                    const faltaMedia = estaConectada ? getFaltaMediaPorRed(plat.id, hasImage, hasVideo) : null;
+                                    const isSelected = estaConectada && selectedPlatforms.includes(plat.id);
+
+                                    if (!estaConectada) {
+                                        return (
+                                            <div
+                                                key={plat.id}
+                                                className="flex items-center justify-between p-2 rounded-lg border border-slate-200 bg-slate-100/80 text-slate-400 text-xs"
+                                            >
+                                                <span className="font-medium">{plat.label}</span>
+                                                <Link
+                                                    href="/settings?tab=social-connections"
+                                                    className="text-[10px] font-bold px-2 py-0.5 rounded bg-white border border-slate-300 text-purple-700 hover:bg-purple-50"
+                                                >
+                                                    Conectar
+                                                </Link>
+                                            </div>
+                                        );
+                                    }
+
                                     return (
                                         <button
                                             key={plat.id}
                                             type="button"
                                             onClick={() => togglePlatform(plat.id)}
-                                            className={`flex items-center justify-between p-2 rounded-lg border text-left text-xs font-bold transition ${
-                                                isSelected
-                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
-                                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                            aria-pressed={isSelected}
+                                            className={`flex flex-col items-start justify-between p-2 rounded-lg border text-left text-xs transition ${
+                                                faltaMedia
+                                                    ? 'bg-slate-200 text-slate-500 border-slate-300'
+                                                    : isSelected
+                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-sm font-bold'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 font-bold'
                                             }`}
                                         >
-                                            <span>{plat.label}</span>
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                                                isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                                            }`}>
-                                                {isSelected ? '✓' : '+'}
-                                            </span>
+                                            <div className="w-full flex items-center justify-between gap-1">
+                                                <span className="font-bold">{plat.label}</span>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                                    faltaMedia
+                                                        ? 'bg-slate-300 text-slate-600'
+                                                        : isSelected
+                                                        ? 'bg-white/20 text-white'
+                                                        : 'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {faltaMedia ? '—' : isSelected ? '✓' : '+'}
+                                                </span>
+                                            </div>
+                                            {faltaMedia && (
+                                                <span className="text-[10px] text-slate-600 mt-0.5 leading-tight">
+                                                    {plat.label}: {faltaMedia}
+                                                </span>
+                                            )}
                                         </button>
                                     );
                                 })}
@@ -293,10 +513,81 @@ export function NewPostDialog({
                     {!isGeneralCampaign && (
                          <div className="space-y-1"><Label htmlFor="eventId">Vincular a Fiesta</Label><Select value={eventId} onValueChange={setEventId}><SelectTrigger><SelectValue placeholder="Seleccionar evento..."/></SelectTrigger><SelectContent>{allEvents.map(event => (<SelectItem key={event.id} value={event.id}>{event.configuracion.nombreEvento}</SelectItem>))}</SelectContent></Select></div>
                     )}
-                    <div className="space-y-1"><Label htmlFor="text">Texto de la Publicación</Label><Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={6} placeholder="Escribe tu post aquí..." required /></div>
+                    <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <Label htmlFor="text">Texto de la Publicación</Label>
+                            {!postToEdit && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleAdaptarPorRed}
+                                    disabled={isAdapting || !text.trim() || eligibleSelectedPlatforms.length === 0}
+                                    className="h-7 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                                >
+                                    {isAdapting ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Wand2 className="w-3.5 h-3.5 mr-1" />}
+                                    Adaptar con IA por red
+                                </Button>
+                            )}
+                        </div>
+                        <Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={5} placeholder="Escribí tu post aquí..." required />
+                    </div>
+
+                    {/* Versiones adaptadas editables antes de publicar (Orden 326 Bloque 4) */}
+                    {!postToEdit && Object.keys(adaptedVersions).length > 0 && (
+                        <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                                <Sparkles className="w-4 h-4 text-purple-600" />
+                                <span>Versiones adaptadas por red (editables antes de publicar)</span>
+                            </div>
+                            {eligibleSelectedPlatforms.map((plat) => {
+                                const ver = adaptedVersions[plat];
+                                if (!ver) return null;
+                                return (
+                                    <div key={plat} className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold text-slate-900">{plat}</span>
+                                            {plat === 'Google' && (
+                                                <span className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold">
+                                                    Botón: {ver.ctaLabel || 'Consultar'}
+                                                </span>
+                                            )}
+                                            {plat === 'X' && (
+                                                <span className="text-[10px] text-slate-500">
+                                                    {ver.text.length}/280
+                                                </span>
+                                            )}
+                                        </div>
+                                        {plat === 'Pinterest' && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                <Input
+                                                    value={ver.title || ''}
+                                                    onChange={(e) => updateAdaptedVersion(plat, { title: e.target.value })}
+                                                    placeholder="Título para Pinterest"
+                                                    className="h-8 text-xs"
+                                                />
+                                                <Input
+                                                    value={ver.link || ''}
+                                                    onChange={(e) => updateAdaptedVersion(plat, { link: e.target.value })}
+                                                    placeholder="Enlace web"
+                                                    className="h-8 text-xs"
+                                                />
+                                            </div>
+                                        )}
+                                        <Textarea
+                                            value={ver.text}
+                                            onChange={(e) => updateAdaptedVersion(plat, { text: e.target.value })}
+                                            rows={3}
+                                            className="text-xs"
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
+                        <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://akproducciones.uy" /></div>
                         <div className="space-y-1"><Label htmlFor="promotionCost">Inversión Publicitaria ($)</Label><Input id="promotionCost" type="number" min={0} value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0" /></div>
                     </div>
                      <div className="space-y-1">
@@ -322,25 +613,28 @@ export function NewPostDialog({
                             <Switch id="sendToWhatsApp" checked={sendToWhatsApp} onCheckedChange={setSendToWhatsApp} />
                             </div>
                         </div>
-                     ) : platform === 'Instagram' || platform === 'Facebook' ? (
-                         <div className="p-3 border rounded-lg bg-emerald-50/60 border-emerald-200 text-emerald-950">
-                            <p className="text-xs leading-relaxed"><span className="font-bold">Publicación automática:</span> {platform} se publicará de forma autónoma a la hora elegida usando la conexión configurada en Ajustes.</p>
-                        </div>
                      ) : (
-                         <div className="p-3 border rounded-lg bg-amber-50/60 border-amber-200 text-amber-950">
-                            <p className="text-xs leading-relaxed"><span className="font-bold">Listo para copiar:</span> Esta red no admite publicación automática desatendida. Te dejamos el texto y la foto listos para copiar y subir en 1 toque.</p>
+                         <div className="p-3 border rounded-lg bg-emerald-50/60 border-emerald-200 text-emerald-950">
+                            <p className="text-xs leading-relaxed"><span className="font-bold">Multi-red inteligente:</span> Se publicará en las redes conectadas que cumplan sus requisitos de foto o video. Las redes sin imagen o video quedan en gris sin frenar a las demás.</p>
+                        </div>
+                     )}
+
+                     {publishResultBanner && (
+                        <div role="status" className="p-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-950 text-xs font-semibold flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            <span>{publishResultBanner}</span>
                         </div>
                      )}
 
                      <Separator/>
                      <h4 className="font-medium text-sm text-muted-foreground">Rendimiento (Opcional)</h4>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1"><Label htmlFor="promotionCost">Costo Promoción ($)</Label><Input id="promotionCost" type="number" min={0} value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0.00" /></div>
+                        <div className="space-y-1"><Label htmlFor="promotionCostPerf">Costo Promoción ($)</Label><Input id="promotionCostPerf" type="number" min={0} value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0.00" /></div>
                         <div className="space-y-1"><Label htmlFor="likes">Likes / Reacciones</Label><Input id="likes" type="number" value={performanceLikes} onChange={e => setPerformanceLikes(e.target.value)} placeholder="0" /></div>
                     </div>
                     <DialogFooter className="pt-3">
                         <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSaving}>Cancelar</Button>
-                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{postToEdit ? 'Actualizar' : 'Crear'}</Button>
+                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{postToEdit ? 'Actualizar' : 'Publicar / Crear'}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

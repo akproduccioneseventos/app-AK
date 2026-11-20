@@ -59,17 +59,15 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
       pathname.startsWith('/invoices'),
   },
   {
-    title: 'Más',
-    href: '/mas',
+    title: 'Ajustes',
+    href: '/settings',
     icon: LayoutGrid,
     isActive: (pathname: string) =>
-      pathname.startsWith('/mas') ||
       pathname.startsWith('/settings') ||
-      pathname.startsWith('/empresa/menus') ||
-      pathname.startsWith('/compras') ||
-      pathname.startsWith('/marketing') ||
-      pathname.startsWith('/incidentes') ||
-      pathname.startsWith('/playbooks'),
+      pathname.startsWith('/empresa/') ||
+      pathname.startsWith('/empleados') ||
+      pathname.startsWith('/proveedores') ||
+      pathname.startsWith('/incidentes'),
   },
 ];
 

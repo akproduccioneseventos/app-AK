@@ -11,6 +11,7 @@ import { metadata as privacidadMetadata } from '@/app/privacidad/page';
 import { metadata as simMetadata } from '@/app/simulador-de-presupuesto/layout';
 import { metadata as simAkMetadata } from '@/app/simulador-ak/layout';
 import { metadata as blogListMetadata } from '@/app/public/blog/page';
+import { metadata as enlacesMetadata } from '@/app/enlaces/page';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import { blogPosts } from '@/data/blog-posts';
 import { CAMPAIGN_LANDING_MAP } from '@/lib/marketing/campaign-landings';
@@ -108,6 +109,13 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     return {
       title: String(blogListMetadata.title || ''),
       description: String(blogListMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/enlaces') {
+    return {
+      title: String(enlacesMetadata.title || ''),
+      description: String(enlacesMetadata.description || ''),
     };
   }
 

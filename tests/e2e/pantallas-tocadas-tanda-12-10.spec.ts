@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { borrarFiesta, crearFiestaDeEstaNoche, guardarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
@@ -9,9 +9,7 @@ import { borrarFiesta, crearFiestaDeEstaNoche, guardarFiesta, ponerSesionDelEqui
  * Comprueba RESULTADOS:
  *  - los atajos al Centro de Fiesta y "Servicios contratados" abren la fiesta PEDIDA
  *    (?fiestaId=B) y no la "actual" (A);
- *  - "Nueva incidencia" arranca vacía después de guardar una;
- *  - las pantallas de la torre de control muestran su contenido real y, si la lectura
- *    falla, avisan en vez de decir "todo tranquilo".
+ *  - "Nueva incidencia" arranca vacía después de guardar una.
  *
  * Las pantallas que prueba este archivo son:
  *   /fiestas/nueva/centro-total
@@ -19,10 +17,6 @@ import { borrarFiesta, crearFiestaDeEstaNoche, guardarFiesta, ponerSesionDelEqui
  *   /fiestas/nueva/mission-control
  *   /fiestas/nueva/servicios-contratados
  *   /incidentes
- *   /control-tower/automatizaciones
- *   /control-tower/comercial
- *   /control-tower/post-fiesta
- *   /control-tower/preparacion
  */
 
 const SUFIJO = Date.now();
@@ -108,51 +102,4 @@ test('/incidentes: después de guardar una incidencia, "Nueva incidencia" abre c
   const dialogo2 = page.getByRole('dialog');
   await expect(dialogo2.getByPlaceholder('Título del incidente')).toHaveValue('');
   await expect(dialogo2.getByPlaceholder('Describí el incidente...')).toHaveValue('');
-});
-
-const TORRE: Array<{ ruta: string; titulo: RegExp }> = [
-  { ruta: '/control-tower/automatizaciones', titulo: /Automatizaciones inteligentes AK/ },
-  { ruta: '/control-tower/comercial', titulo: /Seguimientos comerciales/ },
-  { ruta: '/control-tower/post-fiesta', titulo: /Cierre, testimonios y marketing/ },
-  { ruta: '/control-tower/preparacion', titulo: /Preparación de fiestas/ },
-];
-
-for (const { ruta, titulo } of TORRE) {
-  test(`${ruta} muestra su contenido real y sin errores de página`, async ({ page }) => {
-    test.setTimeout(120_000);
-    const erroresJs: string[] = [];
-    page.on('pageerror', (e) => erroresJs.push(e.message));
-    await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: titulo })).toBeVisible({ timeout: 60_000 });
-    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
-    expect(page.url()).toContain(ruta);
-    expect(erroresJs).toEqual([]);
-  });
-}
-
-async function cortarLecturas(page: Page) {
-  // La primera acción es la del portero (AuthGuard): se deja pasar; se cortan las demás.
-  let idDelPortero: string | null = null;
-  await page.route('**/*', async (r) => {
-    const req = r.request();
-    const id = req.method() === 'POST' ? req.headers()['next-action'] : undefined;
-    if (id) {
-      if (idDelPortero === null) idDelPortero = id;
-      if (id !== idDelPortero) {
-        await r.abort('internetdisconnected');
-        return;
-      }
-    }
-    await r.continue();
-  });
-}
-
-test('/control-tower/comercial con la lectura caída avisa y NO dice "Todo tranquilo"', async ({ page }) => {
-  test.setTimeout(120_000);
-  await cortarLecturas(page);
-  await page.goto('/control-tower/comercial', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /Seguimientos comerciales/ })).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByRole('alert').first()).toBeVisible({ timeout: 30_000 });
-  await page.waitForTimeout(3_000);
-  await expect(page.getByText(/Todo tranquilo/)).toHaveCount(0);
 });

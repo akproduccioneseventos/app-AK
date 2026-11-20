@@ -41,7 +41,8 @@ export async function mutarComentarios(
 // Lo que decide la revision automatica: si otro ya reviso el comentario, no se pisa.
 const CLAVES_DE_REVISION: Array<keyof SocialComment> = [
   'sentiment', 'sentimentReason', 'isInsultOrSpam', 'isLegitimateComplaint', 'esPregunta',
-  'classifiedAt', 'isAutoHidden', 'autoHiddenReason', 'autoHiddenAt',
+  'classifiedAt', 'isAutoHidden', 'autoHiddenReason', 'autoHiddenAt', 'ocultoAt',
+  'borradorRespuesta', 'alertaDuenioEnviadaAt',
 ];
 
 /** Las claves que cambiaron entre `antes` y `despues`. */
@@ -75,6 +76,9 @@ export function aplicarParches(
       for (const clave of CLAVES_DE_REVISION) delete aplicable[clave];
     }
     if (actual.respuestaAutomatica) delete aplicable.respuestaAutomatica;
+    if (actual.respondidoAt) delete aplicable.respondidoAt;
+    if (actual.meGustaAt) delete aplicable.meGustaAt;
+    if (actual.privadoEnviadoAt) delete aplicable.privadoEnviadoAt;
     const indice = resultado.indexOf(actual);
     resultado[indice] = { ...actual, ...(aplicable as Partial<SocialComment>) };
   }

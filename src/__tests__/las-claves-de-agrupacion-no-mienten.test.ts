@@ -15,9 +15,9 @@ import { claveDeConsolidado, normalizarUnidad } from '@/lib/compras/unidades';
 describe('Orden 72 - Bloque 3: Las claves de agrupación no mienten', () => {
   const rootDir = process.cwd();
 
-  it('resumen-planificacion agrupa con consolidarCompras, que arma la clave con claveDeConsolidado', () => {
-    // Desde la orden 139 la cuenta vive en una sola funcion que usan las dos pantallas.
-    const pantalla = path.join(rootDir, 'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx');
+  it('lista-compras agrupa con consolidarCompras, que arma la clave con claveDeConsolidado', () => {
+    // Desde la orden 139 la cuenta vive en una sola funcion; resumen-planificacion se consolidó en Orden 321.
+    const pantalla = path.join(rootDir, 'src/components/panels/catering--lista-compras.tsx');
     const funcion = path.join(rootDir, 'src/lib/compras/consolidar-compras.ts');
     expect(fs.existsSync(pantalla)).toBe(true);
     expect(fs.readFileSync(pantalla, 'utf8')).toMatch(/consolidarCompras\(\s*crudos/);

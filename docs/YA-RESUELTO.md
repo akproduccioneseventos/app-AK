@@ -66,6 +66,55 @@ archivo: docs/ordenes/324-gemini-decisiones-rapidas-con-ia.md
 archivo: docs/ordenes/323-gemini-mejor-que-veamoslasfotos.md
 ```
 
+## 19/11/2026 - La 1443 había borrado tres pantallas que usa el cliente: volvieron
+
+- **Qué pasaba:** al achicar la app, `/entrar` (el "¿quién sos?" de la web) pasó a redirigir al panel interno, y la
+  decoración y el tablero de ideas del portal del cliente se borraron (sus componentes quedaron sin que nadie los usara).
+  El aviso de instalar la app y el de notificaciones vivían en el panel viejo, que ahora va a Mi día.
+- **También el simulador:** `/simulador` (elegir simulador o asistente) y `/simulador-ak` (Sofía, escrita entera en esa
+  página) se habían borrado y redirigían al simulador común: la asistente de venta desaparecía. Volvieron (pregunta 197).
+- **Qué se hizo:** las pantallas volvieron tal cual estaban (Entrar con sesión ahora va a Mi día), sin sus
+  redirecciones; los dos avisos se montan en Mi día; se borró el código suelto de pantallas internas que sí salieron. El
+  tope de pantallas queda en 185 hasta que la próxima vuelta las junte sin perderlas.
+
+```comprobar
+archivo: src/app/entrar/page.tsx
+archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
+archivo: src/app/portal/[fiestaId]/moodboard/page.tsx
+archivo: src/app/simulador-ak/page.tsx
+archivo: src/app/simulador/page.tsx
+usa: PwaInstallPrompt en src/app/(app)/mi-dia/page.tsx
+usa: PushNotificationPrompt en src/app/(app)/mi-dia/page.tsx
+```
+
+## 19/11/2026 - Una redirección no tapa una pantalla que existe (entrega 1443)
+
+- **Qué pasaba:** la orden 321 agregó `/presupuestos/:id → /ver` y `/fiestas/:id → /centro`. Next mira las redirecciones
+  antes que las pantallas, así que `/presupuestos/nuevo` (donde quedó la lista de presupuestos) y `/fiestas/nueva` (crear
+  una fiesta) se iban a una página inexistente.
+- **Qué se hizo:** las dos redirecciones excluyen los nombres fijos (`nuevo`, `importar`, `reporte`; `nueva`, `revisar`).
+  Y un control recorre cada redirección contra cada pantalla real.
+
+```comprobar
+usa: (?!nuevo$ en next.config.js
+usa: (?!nueva$ en next.config.js
+prueba: src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts
+```
+
+## 19/11/2026 - Orden 318 Bloque 2 (devuelto), Orden 320, pantallas rotas y Orden 321
+
+- **Modificar confirmación RSVP:** Al entrar desde "Modificar confirmación", `rsvp/page.tsx` pre-carga los datos previos del invitado mediante `getPublicRsvpGuest` (solo leyendo ese invitado con `guestId` + `token`) y actualiza ese mismo registro al guardar. Probado E2E en `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts`.
+- **Orden 320 (Bloques 1–6):**
+  - Sorteo en vivo con `sorteoCandidatos` persistido y elección del ganador en servidor con `crypto.randomInt` (`sortearGanadorEnServidor`), sin fallback inventado `'Mesa 1..6'` en `control-pantalla`.
+  - Itinerario ordena con `ordenarPorHoraDelEvento` respetando eventos que cruzan la medianoche.
+  - Herramienta `buscarProspecto` de solo lectura en `tool-registry.ts` busca en todo el CRM por nombre o teléfono (hasta 10 resultados).
+  - Conteos dinámicos en `settings` y `tareas-automaticas`, estado `"Sin ejecutar"` en el despertador sin correr, y `"Sin datos todavía"` en `revision-diaria.ts` cuando no hay publicaciones con fecha real.
+  - `recursos-multi-evento` excluye fiestas suspendidas (`esFiestaSuspendida`); `/empresa/galeria` normaliza `"General"`; `/settings/estilo-fotos` usa fotos reales en lugar de gradientes; `/pagos-rapidos` muestra avisos pendientes de `clientPaymentNotifications`; `/evento/muro-en-vivo` no superpone estados vacíos y marca `"Finalizado"` en trivias terminadas.
+  - `herramientas/ak-editor`: respaldo `.ak_backup` del `.xmp` original para restaurar en `volver_al_original`, `fotos_ordenadas` en `app.py`, `ok: False` y `errores` ante 0 videos o fallos de Redes/Wfolio, sincronización de audio con `apad`+`atrim`, serialización JSON con `default=str`, `import cv2` en `app.py`, carpetas Él/Ella en modo Boda, lectura sin doble rotación EXIF (`IMREAD_IGNORE_ORIENTATION`), sanitización de nombre de evento, escucha en `127.0.0.1` y reempaquetado con `npm run editor:empaquetar`.
+- **Orden 321 (Reorganización de 382 a 180 pantallas):**
+  - Redirecciones movidas a `next.config.js` (`redirects()`), menú consolidado en 6 áreas en `src/lib/navegacion/mapa.ts` sin `/mas`, `/settings` consolidado en 7 secciones, asistentes/WhatsApp/ganancias/fiestas/portal-cliente consolidados por pestañas con `TabHostShell`/`FiestaHubShell`, y "Menú de la noche" (sin precios, con dietas del invitado y link a "Buscá tu mesa") agregado en `/evento/hub/[fiestaId]`.
+  - **Comparativa de editores de presupuesto (sin fusionar, Orden 321 Bloque 3):** `presupuestos/[id]/edit/page.tsx` recarga y guarda directamente sobre un presupuesto existente mediante `updatePresupuesto(updatedData)` + `recalculatePresupuestoFromCatalog`, mientras `presupuestos/nuevo/crear/page.tsx` unifica creación (`savePresupuesto(..., { source: 'manual', leadId, operationId })`) y edición (`updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId })` con `conTopeDeEspera`). No se unificaron por tocar guardado de dinero.
+
 ## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
 
 - **Qué pasaba:** la hoja del evento ordenaba "01:00" antes de "18:00" y la torta quedaba antes de la llegada (A18-06).

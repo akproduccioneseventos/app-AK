@@ -1,18 +1,37 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/crm--agenda'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/crm--atraccion-fiestas'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/crm--ciclo-comercial'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/crm--marketing-ads'));
+const __AkPanel5 = __akDynamic(() => import('@/components/panels/crm--comercial-360'));
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter, SlidersHorizontal } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, CheckCircle2, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter, History, FileArchive, Upload, MessageCircle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { rescatarCharlasViejasAction } from '@/app/actions/rescatar-charlas';
+import type { ResultadoRescateCharlas } from '@/lib/whatsapp/rescatar-charlas';
 import {
   Accordion,
   AccordionContent,
@@ -95,7 +114,7 @@ type QuickFilter =
   | 'birthday_60'
   | 'birthday_90';
 
-export default function CrmPage() {
+function CrmPageInner() {
   const {
     stages,
     leads,
@@ -124,6 +143,46 @@ export default function CrmPage() {
   const [newFiestaId, setNewFiestaId] = useState<string | null>(null);
   const [isResettingCrm, setIsResettingCrm] = useState(false);
   const [puedeBorrar, setPuedeBorrar] = useState(false);
+
+  // Rescatar charlas viejas (Bloque 7, Orden 325)
+  const [isRescatarOpen, setIsRescatarOpen] = useState(false);
+  const [archivosRescate, setArchivosRescate] = useState<File[]>([]);
+  const [resultadoRescate, setResultadoRescate] = useState<ResultadoRescateCharlas | null>(null);
+  const [isRescatando, startRescateTransition] = useTransition();
+
+  const handleProcesarRescate = useCallback(() => {
+    if (archivosRescate.length === 0) {
+      toast({
+        title: 'Faltan archivos',
+        description: 'Elegí uno o más archivos .txt o .zip exportados desde WhatsApp.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    for (const file of archivosRescate) {
+      formData.append('archivos', file);
+    }
+
+    startRescateTransition(async () => {
+      const res = await rescatarCharlasViejasAction(formData);
+      if (res.success && res.data) {
+        setResultadoRescate(res.data);
+        toast({
+          title: 'Charlas procesadas',
+          description: `Se rescataron ${res.data.prospectosRescatados.length} prospectos al CRM.`,
+        });
+        await fetchData(true);
+      } else {
+        toast({
+          title: 'Error',
+          description: res.error || 'No se pudieron analizar los archivos.',
+          variant: 'destructive',
+        });
+      }
+    });
+  }, [archivosRescate, fetchData, toast]);
 
   useEffect(() => {
     let montado = true;
@@ -399,6 +458,15 @@ export default function CrmPage() {
                 Atracción por Fiesta
               </Link>
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto h-11"
+              onClick={() => setIsRescatarOpen(true)}
+            >
+              <History className="w-4 h-4 mr-2" />
+              Rescatar charlas viejas
+            </Button>
             <Button asChild variant="outline" className="w-full sm:w-auto h-11"><Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none"><Clock className="w-4 h-4 mr-2"/>Agenda</Link></Button>
             {stages.length > 0 ? (
               <AddLeadDialog stages={stages} onLeadAdded={() => fetchData(true)} defaultStageId={stages[0].id} />
@@ -588,6 +656,236 @@ export default function CrmPage() {
         {leadForMeeting && (
             <ScheduleMeetingDialog isOpen={isMeetingModalOpen} onOpenChange={setIsMeetingModalOpen} leadName={leadForMeeting.name} meetingType={meetingType} onSubmit={handleMeetingSubmit} onClose={() => setLeadForMeeting(null)} />
         )}
+
+        <Dialog open={isRescatarOpen} onOpenChange={setIsRescatarOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <History className="h-5 w-5 text-primary" />
+                Rescatar charlas viejas
+              </DialogTitle>
+              <DialogDescription>
+                Subí exportaciones de WhatsApp (.txt o .zip) para detectar prospectos que quedaron sin respuesta.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-5">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <FileArchive className="h-4 w-4 text-emerald-600" />
+                    Subir chats exportados de WhatsApp
+                  </CardTitle>
+                  <CardDescription>
+                    En tu celular: abrí el chat → Menú → Más → Exportar chat (Sin archivos) y subí el .txt o .zip acá.
+                    La IA descarta familia/proveedores, avisa si un cliente con fiesta quedó sin respuesta, y guarda solo prospectos.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="rounded-md border border-sky-200 bg-sky-50/70 p-3 text-xs text-sky-900">
+                    <strong>Sobre Meta (WhatsApp, Instagram y Facebook):</strong> WhatsApp Cloud API no permite leer historial previo a conectar el webhook, por eso las charlas viejas de WhatsApp entran por archivo exportado. Los mensajes nuevos de Instagram y Messenger entran directo por webhook al CRM.
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="archivos-whatsapp-crm">Archivos de WhatsApp (.txt o .zip)</Label>
+                    <Input
+                      id="archivos-whatsapp-crm"
+                      type="file"
+                      accept=".txt,.zip"
+                      multiple
+                      onChange={(e) => setArchivosRescate(Array.from(e.target.files || []))}
+                      disabled={isRescatando}
+                    />
+                    {archivosRescate.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {archivosRescate.length} {archivosRescate.length === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}:{' '}
+                        {archivosRescate.map((f) => f.name).join(', ')}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button type="button" onClick={handleProcesarRescate} disabled={isRescatando || archivosRescate.length === 0}>
+                    {isRescatando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    {isRescatando ? 'Analizando charlas...' : 'Analizar y rescatar prospectos'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {resultadoRescate && (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <Card className="p-3">
+                      <p className="text-xs text-muted-foreground">Prospectos al CRM</p>
+                      <p className="text-2xl font-bold text-emerald-700">{resultadoRescate.prospectosRescatados.length}</p>
+                    </Card>
+                    <Card className="p-3">
+                      <p className="text-xs text-muted-foreground">Clientes avisados</p>
+                      <p className="text-2xl font-bold text-amber-700">
+                        {resultadoRescate.clientesSinRespuesta.filter((c) => c.notificado).length}
+                      </p>
+                    </Card>
+                    <Card className="p-3">
+                      <p className="text-xs text-muted-foreground">Personales descartados</p>
+                      <p className="text-2xl font-bold text-slate-600">{resultadoRescate.descartadosPersonal}</p>
+                    </Card>
+                    <Card className="p-3">
+                      <p className="text-xs text-muted-foreground">Proveedores descartados</p>
+                      <p className="text-2xl font-bold text-slate-600">{resultadoRescate.descartadosProveedor}</p>
+                    </Card>
+                  </div>
+
+                  {resultadoRescate.clientesSinRespuesta.length > 0 && (
+                    <Card className="border-amber-300 bg-amber-50/40">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base text-amber-900">
+                          <AlertTriangle className="h-4 w-4" />
+                          Clientes con fiesta (no se agregaron al CRM)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {resultadoRescate.clientesSinRespuesta.map((cli, idx) => (
+                          <div key={`${cli.nombre}-${idx}`} className="rounded border bg-white p-3 text-sm">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-semibold">{cli.nombre}</span>
+                              <Badge variant={cli.notificado ? 'default' : 'secondary'}>
+                                {cli.notificado ? 'Aviso enviado al dueño' : 'Revisado'}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Pedido: {cli.quePedia} · Último mensaje: &ldquo;{cli.ultimoMensaje}&rdquo;
+                            </p>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        Prospectos rescatados (priorizados para responder a mano)
+                      </CardTitle>
+                      <CardDescription>
+                        Primero aparecen los que quedaron sin respuesta y traen fecha de evento. Ningún mensaje se envía solo.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {resultadoRescate.prospectosRescatados.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-4 text-center">
+                          No se detectaron nuevos prospectos para rescatar en estos archivos.
+                        </p>
+                      ) : (
+                        resultadoRescate.prospectosRescatados.map((item) => {
+                          const recordExtra = item as unknown as { quedo_sin_respuesta?: boolean; que_pedia?: string };
+                          const quedoSinRespuesta = Boolean(recordExtra.quedo_sin_respuesta ?? item.quedoSinRespuesta);
+                          const quePedia = recordExtra.que_pedia || item.quePedia;
+
+                          return (
+                            <div key={item.leadId} className="rounded-lg border p-4 space-y-3 bg-card">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-bold text-base">{item.nombre}</span>
+                                  {item.telefono && <Badge variant="outline">{item.telefono}</Badge>}
+                                  {quedoSinRespuesta && (
+                                    <Badge className="bg-rose-100 text-rose-800 border-rose-300">
+                                      Sin respuesta
+                                    </Badge>
+                                  )}
+                                  {item.fechaEvento && (
+                                    <Badge
+                                      variant="outline"
+                                      className={
+                                        item.fechaEstado === 'libre'
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                                          : item.fechaEstado === 'ocupada'
+                                            ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                            : ''
+                                      }
+                                    >
+                                      <CalendarDays className="mr-1 h-3 w-3" />
+                                      {item.fechaEvento} ·{' '}
+                                      {item.fechaEstado === 'libre'
+                                        ? 'Fecha libre'
+                                        : item.fechaEstado === 'ocupada'
+                                          ? 'Fecha ocupada'
+                                          : 'Por confirmar'}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setIsRescatarOpen(false);
+                                    setLeadAbiertoId(item.leadId);
+                                  }}
+                                >
+                                  Ver en CRM
+                                  <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+
+                              <div className="text-xs text-muted-foreground">
+                                Pedido detectado: <strong>{quePedia}</strong> · {item.mensajesGuardados} mensajes guardados en la conversación
+                                {item.fechasAlternativas && item.fechasAlternativas.length > 0 && (
+                                  <span> · Alternativas libres: {item.fechasAlternativas.join(', ')}</span>
+                                )}
+                              </div>
+
+                              <div className="rounded bg-muted/40 p-2.5 text-xs text-foreground">
+                                {item.mensajePreparado}
+                              </div>
+
+                              <div className="flex items-center justify-end gap-2">
+                                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
+                                  <a href={item.waUrl} target="_blank" rel="noopener noreferrer">
+                                    <MessageCircle className="mr-1.5 h-4 w-4" />
+                                    Abrir en WhatsApp
+                                  </a>
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {resultadoRescate.errores.length > 0 && (
+                    <Card className="border-amber-200">
+                      <CardHeader>
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-amber-600" />
+                          Observaciones de lectura
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-xs text-muted-foreground space-y-1">
+                        {resultadoRescate.errores.map((err, i) => (
+                          <p key={i}>• {err}</p>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
+  );
+}
+
+
+export default function CrmPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"crm","label":"Prospectos"},{"id":"agenda","label":"Agenda"},{"id":"atraccion","label":"Atracción de fiestas"},{"id":"ciclo","label":"Ciclo comercial"},{"id":"ads","label":"Anuncios"},{"id":"comercial-360","label":"Comercial 360"}]}
+        renderDefault={() => <CrmPageInner />}
+        renderTab={(tab) => { if (tab === 'agenda') return <__AkPanel1 />; if (tab === 'atraccion') return <__AkPanel2 />; if (tab === 'ciclo') return <__AkPanel3 />; if (tab === 'ads') return <__AkPanel4 />; if (tab === 'comercial-360') return <__AkPanel5 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

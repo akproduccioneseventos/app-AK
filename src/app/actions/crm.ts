@@ -35,10 +35,12 @@ import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 import { scheduleCrmMeetingInternal } from '@/lib/crm/crm-meeting';
 import { crmMutex } from '@/lib/crm/turno-crm';
+import { mergeConversacionMessages } from '@/lib/crm/conversacion';
 const LEADS_FILE = 'crm-leads.json';
 const CRM_LEADS_COLLECTION = 'prospectos';
 const STAGES_FILE = 'crm-stages.json';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
+const PRESUPUESTOS_FILE = 'presupuestos.json';
 const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
 
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
@@ -283,6 +285,9 @@ export async function addCrmLead(leadData: NewCrmLeadData, opciones?: { idIntent
 
   const newLead: CrmLead = {
     ...sanitizedData,
+    ...(sanitizedData.conversacion ? { conversacion: mergeConversacionMessages(undefined, sanitizedData.conversacion) } : {}),
+    ...(sanitizedData.atiende ? { atiende: sanitizedData.atiende } : {}),
+    ...(sanitizedData.esProspectoDudoso !== undefined ? { esProspectoDudoso: sanitizedData.esProspectoDudoso } : {}),
     id: idDeLaPantalla ?? `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: now,
     updatedAt: now,
@@ -438,16 +443,148 @@ export async function recordWhatsAppOpened(leadId: string, message: string): Pro
 
 export async function updateCrmLeadField(
     leadId: string,
-    fields: Partial<Pick<CrmLead, 'assignedTo' | 'notes' | 'followUpDate'>>
+    fields: Partial<Pick<CrmLead, 'assignedTo' | 'notes' | 'followUpDate' | 'conversacion' | 'atiende' | 'esProspectoDudoso'>>
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     const lead = await mutateCrmLeadDocument(leadId, (current) => ({
       ...current,
       ...fields,
+      ...(fields.conversacion !== undefined
+        ? { conversacion: mergeConversacionMessages(current.conversacion, fields.conversacion) }
+        : {}),
       updatedAt: new Date().toISOString(),
     }));
     return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };
+}
+
+async function leadTienePresupuestoContratado(lead: CrmLead): Promise<{ checked: boolean; contratado: boolean }> {
+  if (!lead.presupuestoId) return { checked: true, contratado: false };
+  try {
+    const presupuestos = await readData<any[]>(PRESUPUESTOS_FILE, []);
+    const vinculado = (presupuestos || []).find((p) => p?.id === lead.presupuestoId);
+    const contratado = vinculado?.estado === 'Aceptado' || vinculado?.estado === 'Facturado';
+    return { checked: true, contratado };
+  } catch {
+    return { checked: false, contratado: false };
+  }
+}
+
+export async function confirmarProspectoDudoso(
+  leadId: string,
+  esProspecto: boolean,
+): Promise<{ success: boolean; action?: 'confirmed' | 'removed'; lead?: CrmLead; error?: string }> {
+  const auth = await requirePermiso(PERMISOS.CRM);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  const lead = (leads || []).find((l) => l.id === leadId);
+  if (!lead) return { success: false, error: 'Prospecto no encontrado' };
+
+  const now = new Date().toISOString();
+
+  if (!esProspecto) {
+    const check = await leadTienePresupuestoContratado(lead);
+    if (!check.checked) {
+      return { success: false, error: 'No pudimos comprobar si este prospecto ya firmó. Probá de nuevo.' };
+    }
+    if (check.contratado) {
+      return { success: false, error: 'No se puede borrar: este prospecto tiene un presupuesto contratado.' };
+    }
+
+    if (lead.phone) {
+      const phoneToAdd = normalizeUruguayPhone(lead.phone) || lead.phone.trim();
+      const waConfig = await readData<Record<string, any>>('whatsapp-config.json', {});
+      const actuales: string[] = Array.isArray(waConfig?.numerosPersonales) ? waConfig.numerosPersonales : [];
+      const yaEsta = actuales.some((n) => (normalizeUruguayPhone(n) || String(n).trim()) === phoneToAdd);
+      if (!yaEsta && phoneToAdd) {
+        await writeData('whatsapp-config.json', {
+          ...waConfig,
+          numerosPersonales: [...actuales, phoneToAdd],
+        });
+      }
+    }
+
+    const deleted = await deleteCrmLeadDocument(leadId);
+    return deleted ? { success: true, action: 'removed' } : { success: false, error: 'Prospecto no encontrado' };
+  }
+
+  const updated = await mutateCrmLeadDocument(leadId, (current) => ({
+    ...current,
+    esProspectoDudoso: false,
+    updatedAt: now,
+    timeline: [
+      ...(current.timeline || []),
+      {
+        id: `tl_confirm_${Date.now()}`,
+        type: 'note_added',
+        timestamp: now,
+        description: 'Confirmado como prospecto en el CRM.',
+      },
+    ],
+  }));
+
+  return updated ? { success: true, action: 'confirmed', lead: updated } : { success: false, error: 'Prospecto no encontrado' };
+}
+
+export async function devolverCharlaAlAsistenteAction(
+  leadId: string,
+): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+  const auth = await requirePermiso(PERMISOS.CRM);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const now = new Date().toISOString();
+  const updated = await mutateCrmLeadDocument(leadId, (current) => {
+    const ultimoCanal = current.conversacion?.[current.conversacion.length - 1]?.canal || 'whatsapp';
+    const conversacionActualizada = mergeConversacionMessages(current.conversacion, [
+      {
+        id: `msg_handoff_${Date.now()}`,
+        canal: ultimoCanal,
+        direccion: 'sistema',
+        texto: 'La charla volvió al asistente virtual.',
+        fecha: now,
+      },
+    ]);
+    return {
+      ...current,
+      atiende: 'asistente',
+      ...(conversacionActualizada ? { conversacion: conversacionActualizada } : {}),
+      timeline: [
+        ...(current.timeline || []),
+        {
+          id: `tl_handoff_${Date.now()}`,
+          type: 'assistant_handoff',
+          timestamp: now,
+          description: 'Charla devuelta al asistente virtual.',
+        },
+      ],
+      updatedAt: now,
+    };
+  });
+
+  if (!updated) return { success: false, error: 'Prospecto no encontrado' };
+
+  try {
+    const { devolverCharlaAlAsistentePorClave } = await import('@/lib/whatsapp/asistente-de-prospectos');
+    if (updated.phone) {
+      await devolverCharlaAlAsistentePorClave('whatsapp', updated.phone).catch(() => {});
+    }
+    const senderIds = new Set<string>();
+    for (const msg of updated.conversacion || []) {
+      const sid = typeof msg.meta?.senderId === 'string' ? msg.meta.senderId : undefined;
+      if (sid && (msg.canal === 'instagram_dm' || msg.canal === 'messenger')) {
+        const key = `${msg.canal}:${sid}`;
+        if (!senderIds.has(key)) {
+          senderIds.add(key);
+          await devolverCharlaAlAsistentePorClave(msg.canal, sid).catch(() => {});
+        }
+      }
+    }
+  } catch {
+    // Si no está disponible el estado auxiliar, el lead ya quedó actualizado en el CRM
+  }
+
+  return { success: true, lead: updated };
 }
 
 export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {

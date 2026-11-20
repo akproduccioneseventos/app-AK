@@ -35,12 +35,20 @@ const CATEGORY_MAP: Record<string, TemplateCategoryFilter> = {
   'XV años': 'XV Años',
   'XV Años': 'XV Años',
   'xv años': 'XV Años',
+  '15': 'XV Años',
   'Boda': 'Boda',
   'boda': 'Boda',
   'Cumpleaños': 'Cumpleaños',
   'cumpleaños': 'Cumpleaños',
+  'cumpleanos': 'Cumpleaños',
+  '18': 'Cumpleaños',
   'Infantil': 'Infantil',
   'infantil': 'Infantil',
+  'Corporativo': 'General',
+  'corporativo': 'General',
+  'Empresa': 'General',
+  'empresa': 'General',
+  'otro': 'General',
 };
 
 const CATEGORY_TABS: { key: TemplateCategoryFilter; label: string }[] = [

@@ -3,7 +3,7 @@ import path from 'path';
 
 describe('La cola de la puerta no borra escaneos nuevos (Orden 195 / Codex 149)', () => {
   it('el scanner contiene sincronizarCola y re-lee la cola para no borrar escaneos que entraron mientras esperaba', () => {
-    const scannerPath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx');
+    const scannerPath = path.join(process.cwd(), 'src/components/panels/invitados--checkin-scanner.tsx');
     const codigo = fs.readFileSync(scannerPath, 'utf8');
 
     expect(codigo).toContain('sincronizarCola');

@@ -31,23 +31,17 @@ const TOLERANCIA = 2;
 const ACTUALIZAR_REFERENCIAS_FALTANTES = process.env.UPDATE_MISSING_LAYOUT_BASELINE === 'true';
 
 const TODAS_LAS_RUTAS = [
-  { ruta: '/admin', conSesion: true },
+  { ruta: '/mi-dia', conSesion: true },
+  { ruta: '/settings', conSesion: true },
+  { ruta: '/asistente', conSesion: true },
   { ruta: '/customers', conSesion: true },
-  // Ojo: `/presupuestos` es una redireccion con un cartel de "cargando", no una
-  // pantalla. Medirla daba una huella distinta segun si el navegador llegaba a
-  // saltar o no. La Central de Presupuestos de verdad vive en `/presupuestos/nuevo`.
   { ruta: '/presupuestos/nuevo', conSesion: true },
+  { ruta: '/contabilidad/crm', conSesion: true },
   { ruta: '/', conSesion: false },
   { ruta: '/simulador-de-presupuesto', conSesion: false },
-  { ruta: '/catalogo/bodas', conSesion: false },
-  // Cubren los tres modos de `ak-red-premium-surface`, que es donde viven los
-  // estilos globales mas agresivos: "live", "client" y "public".
-  // Ojo: la presentacion LED vive en `/presentacion-led`, no bajo `/empresa`.
-  // Antes se media `/empresa/presentacion-led`, que no existe, y la referencia
-  // guardaba una pantalla vacia: parecia cubierta y no cubria nada.
   { ruta: '/presentacion-led', conSesion: false },
+  { ruta: '/enlaces', conSesion: false },
   { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
-  { ruta: '/contabilidad/comercial-360', conSesion: true },
 ];
 const filtroRutas = new Set(
   (process.env.LAYOUT_BASELINE_ROUTES || '').split(',').map((route) => route.trim()).filter(Boolean),

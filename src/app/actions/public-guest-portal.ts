@@ -18,6 +18,7 @@ import { isGuestEntertainmentAvailable } from '@/lib/guest-portal/guest-entertai
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getSignedUrl } from '@/lib/firebase/storage';
+import { getMenusPublicos } from '@/app/actions/menus-catering';
 
 export interface PublicGuestEntertainmentLink {
   id: EntertainmentModuleId;
@@ -75,11 +76,29 @@ export async function getPublicGuestEvent(
   return fiesta ? buildPublicGuestEvent(fiesta) : null;
 }
 
+export interface PublicMenuNocheData {
+  menuNombre: string;
+  platos: Array<{
+    id: string;
+    nombre: string;
+    tipo: string;
+    alergenos: string[];
+  }>;
+  tragos: Array<{
+    id: string;
+    nombre: string;
+    categoria?: string;
+  }>;
+}
+
 export async function getPublicGuestPortalData(
   fiestaId: string,
   guestId: string,
   guestAccessToken: string,
-): Promise<(PublicGuestPortalData & { entertainmentLinks: PublicGuestEntertainmentLink[] }) | null> {
+): Promise<(PublicGuestPortalData & {
+  entertainmentLinks: PublicGuestEntertainmentLink[];
+  menuNoche?: PublicMenuNocheData;
+}) | null> {
   if (!guestAccessToken) return null;
   const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return null;
@@ -105,9 +124,44 @@ export async function getPublicGuestPortalData(
     }
   }
 
+  let menuNoche: PublicMenuNocheData | undefined = undefined;
+  if (fiesta.menuAsignadoId) {
+    try {
+      const publicMenus = await getMenusPublicos();
+      const matchedMenu = publicMenus.find((m) => m.id === fiesta.menuAsignadoId);
+      if (matchedMenu) {
+        const barraItemsRaw = Array.isArray((fiesta as any).barraTecnologica?.carta)
+          ? (fiesta as any).barraTecnologica.carta
+          : Array.isArray((fiesta as any).barraTecnologica?.tragos)
+            ? (fiesta as any).barraTecnologica.tragos
+            : [];
+        const tragos = barraItemsRaw
+          .filter((t: any) => t?.nombre || t?.name)
+          .map((t: any, idx: number) => ({
+            id: String(t.id || `trago-${idx}`),
+            nombre: String(t.nombre || t.name),
+            categoria: t.categoria || t.category || undefined,
+          }));
+        menuNoche = {
+          menuNombre: matchedMenu.name,
+          platos: (matchedMenu.items || []).map((item) => ({
+            id: item.id,
+            nombre: item.name,
+            tipo: item.type || 'Plato',
+            alergenos: item.allergenTags ?? [],
+          })),
+          tragos,
+        };
+      }
+    } catch {
+      // No bloquea la carga del hub si falla la lectura de menús
+    }
+  }
+
   return {
     ...portalData,
     ...(videoPersonal ? { videoPersonal } : {}),
+    ...(menuNoche ? { menuNoche } : {}),
     entertainmentLinks: buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken),
   };
 }

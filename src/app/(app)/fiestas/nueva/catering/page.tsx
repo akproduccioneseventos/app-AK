@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/catering--hoja-de-cocina'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/catering--lista-compras'));
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
@@ -370,10 +375,23 @@ function PlannerGastronomicoFiestaContent() {
   );
 }
 
-export default function PlannerGastronomicoFiestaPage() {
+function PlannerGastronomicoFiestaPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
             <PlannerGastronomicoFiestaContent />
         </Suspense>
     );
+}
+
+
+export default function PlannerGastronomicoFiestaPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"catering","label":"Catering y menú"},{"id":"cocina","label":"Hoja de cocina"},{"id":"compras","label":"Lista de compras"}]}
+        renderDefault={() => <PlannerGastronomicoFiestaPageInner />}
+        renderTab={(tab) => { if (tab === 'cocina') return <__AkPanel1 />; if (tab === 'compras') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }
