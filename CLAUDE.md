@@ -1572,8 +1572,9 @@ lo que hice?* Si es lo segundo, no se manda.
 
 - **Reconocimiento de caras propio en todo, además del de Wfolio (20 de noviembre de 2026).** Palabras suyas: *"nosotros tenemos
   que tener reconocimiento… todo tiene que tener reconocimiento para que el invitado se encuentre, o algo mejor"*. El índice se
-  arma solo, incluye al fotógrafo, y el invitado deja su selfie una vez y le llegan sus fotos (orden 330). Por WhatsApp no sale
-  solo hasta que él lo diga.
+  arma solo, incluye al fotógrafo, y el invitado deja su selfie una vez y le llegan sus fotos (orden 330). Botón "Buscarme"
+  siempre visible; el invitado o el cliente le ponen nombre a cada cara. **Por WhatsApp sale solo** ("todo lo automático, mucho
+  mejor"), una vez por tanda y sólo a invitados; como Meta cobra cada mensaje, el interruptor lo prende él.
 
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 

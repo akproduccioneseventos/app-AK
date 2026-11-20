@@ -2,6 +2,10 @@
 
 ## 20/11/2026 - Cada invitado encuentra sus fotos solo (orden 330)
 
+- **Ampliación (bloques 6 a 8):** botón "Buscarme" fijo en todas las pantallas del invitado; el invitado o el cliente le
+  ponen nombre a cada cara (con la lista de invitados, nombre exacto); y el WhatsApp con las fotos sale solo, una vez por
+  tanda, con interruptor apagado de entrada porque Meta cobra cada mensaje que inicia la empresa.
+
 - **Qué se decidió:** la búsqueda por cara de la app sigue siendo la propia (gratis, sin pagar por foto) y pasa a armarse sola,
   sin botón. Entran también las fotos del fotógrafo (con el mismo modelo, desde el AK Editor). Como Waldo, el invitado deja su
   selfie una vez y le llega un aviso al celular con sus fotos nuevas; por WhatsApp queda preparado, no sale solo. Se guardan
