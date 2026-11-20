@@ -1565,6 +1565,11 @@ lo que hice?* Si es lo segundo, no se manda.
   **Lo de otras plataformas (orden 327, "Todo"):** palabra clave en un comentario → simulador por privado, mirar la competencia,
   agradecer y guardar las menciones en historias (compartirlas solo, apagado) y la página `/enlaces` para la biografía.
 
+- **Todas las fotos de la fiesta a Wfolio y de ahí a las redes (20 de noviembre de 2026).** Palabras suyas: *"en Wfolio se
+  guardan todas las secciones fotográficas… y después de esas fotos hacé video y una publicación en las redes"*. Tiene plan de
+  imágenes infinito. Fotógrafo, fotocabina, 360 e invitados en el mismo álbum, en carpetas; video y borrador para redes solos,
+  sólo con permiso de promoción; el enlace al cliente lo manda él (orden 329).
+
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
 - **El repositorio queda público hasta terminar la app (16 de noviembre de 2026).** Palabras suyas: *"cuando se termine la app va a pasar toda privada y solo yo voy a ver todos los datos con mi acceso"*. No se le vuelve a pedir que lo pase a privado; mientras tanto, los datos reales de personas no viajan en el repositorio (orden 311, bloque 1).

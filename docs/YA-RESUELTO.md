@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/11/2026 - Todas las fotos de la fiesta a Wfolio y a las redes (orden 329)
+
+- **Qué se decidió:** además de las del fotógrafo (orden 281), la fotocabina, la 360 y las fotos de los invitados van al mismo
+  álbum de Wfolio en carpetas, desde el AK Editor (Wfolio no tiene API). Con esas fotos se arma solo el video y queda un
+  borrador para todas las redes, sólo si la fiesta dio permiso de promoción. El álbum es privado y el enlace lo manda el dueño.
+
+```comprobar
+archivo: docs/ordenes/329-gemini-todas-las-fotos-a-wfolio-y-a-las-redes.md
+```
+
+## 20/11/2026 - La entrega 1451 se devolvió con la orden 328
 ## 20/11/2026 - Revisión de la entrega 1451 (órdenes 322 a 327)
 
 - **Qué estaba mal:** al llegar una mención en una historia, el aviso de Meta leía todas las fiestas y escribía la lista
