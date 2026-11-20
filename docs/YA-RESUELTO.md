@@ -15,6 +15,21 @@
 prueba: src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts
 usa: AK_SOCIAL_LINKS en src/app/api/enlaces/clic/route.ts
 usa: hoyEnUruguay en src/lib/presencia-digital/enlaces-bio.ts
+## 20/11/2026 - La orden 328 la terminó Claude (pedido del dueño: "si es poco hacelo tú")
+
+- El muro rechazaba en el celular las fotos que medía movidas u oscuras ("Esta foto no está permitida"): nadie lo había
+  pedido y en una fiesta con poca luz rebota fotos buenas. Se sacó; la IA sólo ordena el álbum por calidad.
+- El estilo de fotos y "Armar con IA" andaban: Gemini cambió los títulos de las tarjetas y el armador pasó a tres pasos, y las
+  pruebas siguen a la pantalla nueva. La de la presentación pasó al repetirla.
+- **Descartado:** cambiar `/catalogo` por `/presentacion-led` en la lista para Google. La presentación no es una página
+  pública de venta (rompía cinco controles) y Google sigue solo el desvío.
+
+
+- **Qué pasó:** compila y Jest da verde, pero cuatro pantallas no hacen lo que dicen (subir al muro sin cartel, estilo de
+  fotos, "Armar con IA" y la presentación sin el botón de presupuesto). Los arreglos de Claude quedaron en `claude/juntar-1451`.
+
+```comprobar
+archivo: docs/ordenes/328-gemini-terminar-la-1451.md
 ```
 
 ## 19/11/2026 - Lo mejor de las otras plataformas de redes (orden 327)
