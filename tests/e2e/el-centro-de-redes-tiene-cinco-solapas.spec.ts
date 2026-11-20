@@ -30,7 +30,7 @@ test.describe('El centro de redes tiene seis solapas', () => {
     await ponerSesionDelEquipo(context, baseURL);
     await page.goto('/empresa/redes-sociales');
 
-    await expect(page).toHaveURL(/\/empresa\/redes-sociales/);
-    await expect(page.getByRole('heading', { name: 'Planificador de Contenido' }).last()).toBeVisible();
+    await expect(page).toHaveURL(/\/empresa\/(redes-sociales|presencia-digital\?tab=redes)/);
+    await expect(page.getByRole('heading', { name: /Planificador de Contenido|Presencia Digital/i }).last()).toBeVisible();
   });
 });

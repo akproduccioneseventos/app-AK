@@ -59,6 +59,7 @@ test('el salón 3D se dibuja y no se lleva puesta la pantalla', async ({ context
       ).toMatch(/El sal[oó]n en 3D no se pudo dibujar/i);
     }
   } finally {
+    await page.goto('about:blank').catch(() => {});
     borrarFiesta(fiesta.id);
   }
 });

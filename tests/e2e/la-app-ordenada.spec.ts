@@ -78,7 +78,7 @@ test.describe('La app ordenada (Orden 182)', () => {
     for (const puerta of CUATRO_PUERTAS_MARKETING) {
       const enlace = page.locator(`a[href="${puerta.destino}"]`).first();
       await expect(enlace, `Enlace a ${puerta.destino} debe existir`).toBeAttached({ timeout: 45_000 });
-      await expect(page.getByText(puerta.titulo)).toBeVisible();
+      await expect(page.getByText(puerta.titulo, { exact: true }).first()).toBeVisible();
 
       const res = await page.request.get(puerta.destino);
       expect(res.status(), `Pantalla ${puerta.destino} debe responder con éxito`).toBeLessThan(400);
