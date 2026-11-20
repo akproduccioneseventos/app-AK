@@ -9,17 +9,17 @@ test('El estilo de fotos se configura en ajustes', async ({ page, context }, tes
   await expect(encabezado).toBeVisible({ timeout: 20_000 });
   await expect(encabezado).toContainText('Estilo de fotos AK');
 
-  const tarjetaSalon = page.getByText(/Salón de Noche/i).first();
+  const tarjetaSalon = page.getByText(/Brindis y Coctelería en Salón/i).first();
   await expect(tarjetaSalon).toBeVisible({ timeout: 20_000 });
-  await expect(tarjetaSalon).toContainText(/Salón de Noche/i);
+  await expect(tarjetaSalon).toContainText(/Brindis y Coctelería en Salón/i);
 
-  const tarjetaTorta = page.getByText(/Torta y Velas/i).first();
+  const tarjetaTorta = page.getByText(/Barra y Colores de Evento/i).first();
   await expect(tarjetaTorta).toBeVisible({ timeout: 20_000 });
-  await expect(tarjetaTorta).toContainText(/Torta y Velas/i);
+  await expect(tarjetaTorta).toContainText(/Barra y Colores de Evento/i);
 
-  const tarjetaExterior = page.getByText(/Exterior de Día/i).first();
+  const tarjetaExterior = page.getByText(/Recepción al Aire Libre/i).first();
   await expect(tarjetaExterior).toBeVisible({ timeout: 20_000 });
-  await expect(tarjetaExterior).toContainText(/Exterior de Día/i);
+  await expect(tarjetaExterior).toContainText(/Recepción al Aire Libre/i);
 
   const botonGuardar = page.getByRole('button', { name: /guardar estilo/i }).first();
   await expect(botonGuardar).toBeVisible({ timeout: 20_000 });

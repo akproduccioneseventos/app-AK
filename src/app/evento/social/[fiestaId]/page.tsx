@@ -76,7 +76,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
-import { calcularNitidez } from '@/lib/album/elegir-las-mejores';
 import { enqueueOfflineAction } from '@/lib/offline/offline-action-queue';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import {
@@ -813,57 +812,6 @@ export default function SocialEventPage() {
         }
       } catch {
         // Si crypto.subtle falla o no está disponible, se sube igual sin la huella
-      }
-
-      // Medir nitidez y brillo en el celular del invitado
-      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-        try {
-          const calidadValida = await new Promise<boolean>((resolve) => {
-            const img = new Image();
-            const blobUrl = URL.createObjectURL(uploadFile);
-            img.onload = () => {
-              URL.revokeObjectURL(blobUrl);
-              const canvas = document.createElement('canvas');
-              const w = Math.min(80, img.width || 80);
-              const h = Math.min(80, img.height || 80);
-              canvas.width = w;
-              canvas.height = h;
-              const ctx = canvas.getContext('2d');
-              if (!ctx) return resolve(true);
-              ctx.drawImage(img, 0, 0, w, h);
-              const imgData = ctx.getImageData(0, 0, w, h);
-              const nitidez = calcularNitidez(imgData.data, w, h);
-
-              let brillo = 0;
-              for (let i = 0; i < imgData.data.length; i += 4) {
-                brillo += (imgData.data[i] * 0.299 + imgData.data[i + 1] * 0.587 + imgData.data[i + 2] * 0.114);
-              }
-              const brilloPromedio = brillo / (w * h);
-
-              if (nitidez < 4 || brilloPromedio < 12 || brilloPromedio > 248) {
-                return resolve(false);
-              }
-              resolve(true);
-            };
-            img.onerror = () => {
-              URL.revokeObjectURL(blobUrl);
-              resolve(true);
-            };
-            img.src = blobUrl;
-          });
-
-          if (!calidadValida) {
-            toast({
-              title: 'Esta foto no está permitida.',
-              description: 'Salió movida o muy oscura: probá de nuevo.',
-              variant: 'destructive',
-            });
-            setUploading(false);
-            return;
-          }
-        } catch {
-          // Si el navegador no soporta canvas, se continúa
-        }
       }
     }
     try {
