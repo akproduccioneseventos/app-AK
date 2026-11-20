@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/11/2026 - La entrega 1451 se devolvió con la orden 328
+
+- **Qué pasó:** compila y Jest da verde, pero cuatro pantallas no hacen lo que dicen (subir al muro sin cartel, estilo de
+  fotos, "Armar con IA" y la presentación sin el botón de presupuesto). Los arreglos de Claude quedaron en `claude/juntar-1451`.
+
+```comprobar
+archivo: docs/ordenes/328-gemini-terminar-la-1451.md
+```
+
 ## 19/11/2026 - Lo mejor de las otras plataformas de redes (orden 327)
 
 - **Qué se decidió:** el dueño aprobó las cuatro ideas tomadas de ManyChat, Metricool, Later y Linktree: palabra clave en un
