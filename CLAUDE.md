@@ -1570,6 +1570,11 @@ lo que hice?* Si es lo segundo, no se manda.
   imágenes infinito. Fotógrafo, fotocabina, 360 e invitados en el mismo álbum, en carpetas; video y borrador para redes solos,
   sólo con permiso de promoción; el enlace al cliente lo manda él (orden 329).
 
+- **Reconocimiento de caras propio en todo, además del de Wfolio (20 de noviembre de 2026).** Palabras suyas: *"nosotros tenemos
+  que tener reconocimiento… todo tiene que tener reconocimiento para que el invitado se encuentre, o algo mejor"*. El índice se
+  arma solo, incluye al fotógrafo, y el invitado deja su selfie una vez y le llegan sus fotos (orden 330). Por WhatsApp no sale
+  solo hasta que él lo diga.
+
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
 - **El repositorio queda público hasta terminar la app (16 de noviembre de 2026).** Palabras suyas: *"cuando se termine la app va a pasar toda privada y solo yo voy a ver todos los datos con mi acceso"*. No se le vuelve a pedir que lo pase a privado; mientras tanto, los datos reales de personas no viajan en el repositorio (orden 311, bloque 1).

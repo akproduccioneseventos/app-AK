@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/11/2026 - Cada invitado encuentra sus fotos solo (orden 330)
+
+- **Qué se decidió:** la búsqueda por cara de la app sigue siendo la propia (gratis, sin pagar por foto) y pasa a armarse sola,
+  sin botón. Entran también las fotos del fotógrafo (con el mismo modelo, desde el AK Editor). Como Waldo, el invitado deja su
+  selfie una vez y le llega un aviso al celular con sus fotos nuevas; por WhatsApp queda preparado, no sale solo. Se guardan
+  sólo los números de la cara, se borran a los 90 días y nunca viajan a otro navegador. Wfolio suma su propio reconocimiento
+  para el álbum final.
+
+```comprobar
+archivo: docs/ordenes/330-gemini-cada-invitado-encuentra-sus-fotos-solo.md
+```
+
 ## 20/11/2026 - Todas las fotos de la fiesta a Wfolio y a las redes (orden 329)
 
 - **Ampliación (bloque 4):** el editor arma el álbum entero: proyecto con nombre y fecha, carpetas sin vacías, portada con la
