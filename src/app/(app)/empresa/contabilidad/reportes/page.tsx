@@ -72,7 +72,7 @@ function ReportesContabilidadContent() {
         setEmailContador(email || null);
       })
       // no pasa nada si falla: sin el mail, el botón avisa que falta cargarlo y no manda nada.
-      .catch(() => {});
+      .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
   }, []);
 
   const handleGenerateReport = useCallback(async (customStart?: Date, customEnd?: Date) => {

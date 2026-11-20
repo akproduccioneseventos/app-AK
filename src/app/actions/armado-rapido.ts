@@ -139,7 +139,7 @@ export async function generateBudgetAndLeadFromSimulator(
       tipo: 'aviso',
       entidadRelacionadaId: result.presupuesto.id,
       rolDestino: 'admin',
-    }).catch(() => {}); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
+    }).catch((e) => console.warn('[armado-rapido] Paso secundario sin completar:', e)); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
 
     return {
       success: true,

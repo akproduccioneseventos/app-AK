@@ -41,9 +41,7 @@ export function WhatsAppProspectosCrmCard() {
           setAsistenteProspectosWhatsApp(Boolean(resAsistente.settings.asistenteProspectosWhatsApp));
         }
       })
-      .catch(() => {
-        // Si no tiene permiso o falla lectura, queda apagado por defecto
-      })
+      .catch((e) => console.warn('[WhatsAppProspectosCrmCard] Paso secundario sin completar:', e))
       .finally(() => {
         if (mounted) setLoading(false);
       });

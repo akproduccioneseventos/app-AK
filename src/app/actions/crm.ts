@@ -567,7 +567,7 @@ export async function devolverCharlaAlAsistenteAction(
   try {
     const { devolverCharlaAlAsistentePorClave } = await import('@/lib/whatsapp/asistente-de-prospectos');
     if (updated.phone) {
-      await devolverCharlaAlAsistentePorClave('whatsapp', updated.phone).catch(() => {});
+      await devolverCharlaAlAsistentePorClave('whatsapp', updated.phone).catch((e) => console.warn('[CRM] Paso secundario sin completar:', e));
     }
     const senderIds = new Set<string>();
     for (const msg of updated.conversacion || []) {
@@ -576,7 +576,7 @@ export async function devolverCharlaAlAsistenteAction(
         const key = `${msg.canal}:${sid}`;
         if (!senderIds.has(key)) {
           senderIds.add(key);
-          await devolverCharlaAlAsistentePorClave(msg.canal, sid).catch(() => {});
+          await devolverCharlaAlAsistentePorClave(msg.canal, sid).catch((e) => console.warn('[CRM] Paso secundario sin completar:', e));
         }
       }
     }

@@ -1294,7 +1294,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                         type="button"
                         onClick={async () => {
                           const url = typeof window !== 'undefined' ? `${window.location.origin}/enlaces` : '/enlaces';
-                          await navigator.clipboard?.writeText(url).catch(() => {});
+                          await navigator.clipboard?.writeText(url).catch((e) => console.warn('[Enlaces] No se pudo copiar:', e));
                           toast({ description: '¡Enlace /enlaces copiado!' });
                         }}
                         className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold rounded-md flex items-center gap-1 shrink-0 transition"

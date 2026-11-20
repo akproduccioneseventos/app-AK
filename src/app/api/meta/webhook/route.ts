@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
                     recipient: { id: senderId },
                     message: { text: "¡Gracias por compartirnos! 🙌" }
                   })
-                }).catch(() => {});
+                }).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
               }
             }
 
@@ -169,35 +169,8 @@ export async function POST(request: NextRequest) {
               ];
             });
 
-            // Check if user matches any party guest and note it in the party
-            if (senderName || senderId) {
-              const { readData } = await import('@/lib/data-service');
-              const fiestas = await readData<any[]>('fiestas.json', []).catch(() => []);
-              if (Array.isArray(fiestas)) {
-                let actualizado = false;
-                const targetName = (senderName || '').toLowerCase();
-                const nuevasFiestas = fiestas.map((fiesta) => {
-                  const invitados = fiesta.invitados || fiesta.listaInvitados || [];
-                  const invitadoEncontrado = invitados.find((inv: any) => {
-                    const nombreInv = (inv.nombre || inv.name || '').toLowerCase();
-                    return targetName && nombreInv && (nombreInv.includes(targetName) || targetName.includes(nombreInv));
-                  });
-                  if (invitadoEncontrado) {
-                    actualizado = true;
-                    const mencionesFiesta = fiesta.mencionesHistoria || [];
-                    return {
-                      ...fiesta,
-                      mencionesHistoria: [...mencionesFiesta, { url: storyUrl, senderName, fecha: new Date().toISOString() }]
-                    };
-                  }
-                  return fiesta;
-                });
-                if (actualizado) {
-                  // Save fiestas if needed via mutateGenericJsonArray or writeData
-                  await mutateGenericJsonArray<any>('fiestas.json', () => nuevasFiestas).catch(() => {});
-                }
-              }
-            }
+            // No se anota en la fiesta: reescribir fiestas.json desde un aviso de Meta pisaba cobros
+            // guardados al mismo tiempo, y el nombre parcial confundía invitados (revisión de la 1451).
           } catch (err) {
             console.warn('[Meta Webhook] Error procesando story_mention:', err);
           }
@@ -288,7 +261,7 @@ export async function POST(request: NextRequest) {
           leadId: lead.id,
           mensaje: dm.texto,
           canal: dm.canal,
-        })).catch(() => {});
+        })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
         crmActualizados++;
       } catch (err) {
         console.warn('[Meta Webhook] No se pudo guardar DM en el CRM:', err);
@@ -314,7 +287,7 @@ export async function POST(request: NextRequest) {
       }));
       if (paraAgregar.length === 0) return null;
       return [...paraAgregar, ...guardados];
-    }).catch(() => {});
+    }).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
 
     for (const c of incomingComments) {
       try {
@@ -350,7 +323,7 @@ export async function POST(request: NextRequest) {
           leadId: lead.id,
           mensaje: c.texto,
           canal: canalComentario,
-        })).catch(() => {});
+        })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
         crmActualizados++;
       } catch (err) {
         console.warn('[Meta Webhook] No se pudo guardar comentario en el CRM:', err);

@@ -217,7 +217,7 @@ ${messageText}`,
   } catch (error: any) {
     console.error('[chatWithVirtualAssistant] Error:', error);
     // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
-    await anotarFalloIA('asistente-virtual', error?.message || String(error)).catch(() => {});
+    await anotarFalloIA('asistente-virtual', error?.message || String(error)).catch((e) => console.warn('[asistente-virtual] Paso secundario sin completar:', e));
     return {
       success: false,
       error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
@@ -411,7 +411,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);
     // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
-    await anotarFalloIA('asistente-cliente', error?.message || String(error)).catch(() => {});
+    await anotarFalloIA('asistente-cliente', error?.message || String(error)).catch((e) => console.warn('[asistente-virtual] Paso secundario sin completar:', e));
     return {
       success: false,
       error: 'No se pudo conectar con el asistente en este momento.',
@@ -501,7 +501,7 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
   } catch (error: any) {
     console.error('[chatConAsistenteInvitado] Error:', error);
     // no pasa nada si falla: anotar el fallo es accesorio; la respuesta de respaldo sale igual (pregunta 133).
-    await anotarFalloIA('asistente-invitado', error?.message || String(error)).catch(() => {});
+    await anotarFalloIA('asistente-invitado', error?.message || String(error)).catch((e) => console.warn('[asistente-virtual] Paso secundario sin completar:', e));
     return {
       success: false,
       error: 'No pudimos responderte en este momento. ¡Que tengas una gran fiesta!',

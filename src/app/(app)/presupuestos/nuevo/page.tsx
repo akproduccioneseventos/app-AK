@@ -130,9 +130,7 @@ function PresupuestoDashboardContent() {
                 }
             // no pasa nada si falla: la corrección de fechas corre en segundo plano y la lista ya se mostró.
             })
-            .catch(() => {
-                // Silencioso en segundo plano
-            });
+            .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
     }, [fetchPresupuestos, toast]);
 
     const handleBudgetMutation = useCallback(async (id: string, action: 'archive' | 'delete') => {

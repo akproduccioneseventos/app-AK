@@ -1605,7 +1605,7 @@ function MuroSocialContent() {
                   if (win) {
                     const requestFs = () => {
                       // no pasa nada si falla: el navegador puede negar la pantalla completa y el muro igual se ve.
-                      win.document.documentElement.requestFullscreen?.().catch(() => {});
+                      win.document.documentElement.requestFullscreen?.().catch((e) => console.warn('[page] Paso secundario sin completar:', e));
                     };
                     if (win.document.readyState === 'complete') {
                       requestFs();

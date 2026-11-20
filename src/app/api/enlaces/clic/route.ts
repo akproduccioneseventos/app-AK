@@ -1,37 +1,26 @@
 import { NextResponse } from 'next/server';
 import { registrarClicEnlace } from '@/lib/presencia-digital/enlaces-bio';
+import { buildWhatsAppLink } from '@/lib/commercial/contact';
+import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 
-export async function GET(request: any) {
-  let urlStr = 'http://localhost/api/enlaces/clic';
-  try {
-    if (typeof request === 'string') {
-      urlStr = request;
-    } else if (request && typeof request === 'object') {
-      // Evitamos tocar request.url directamente si es un objeto Request no instanciado en test
-      const maybeUrl = (request as any).url;
-      if (typeof maybeUrl === 'string') {
-        urlStr = maybeUrl;
-      }
-    }
-  } catch {
-    // fallback
-  }
+// Sólo estos botones cuentan: un nombre inventado desde afuera no se guarda (revisión de la 1451).
+const DESTINOS: Record<string, () => string> = {
+  presupuesto: () => '/simulador-de-presupuesto?utm_source=instagram&utm_medium=bio',
+  fiestas: () => '/#landing-gallery',
+  // El WhatsApp de verdad, con la marca de origen para que entre al CRM (orden 325).
+  whatsapp: () => buildWhatsAppLink(undefined, undefined, 'AK-bio'),
+  redes: () => AK_SOCIAL_LINKS.instagram,
+};
 
+export async function GET(request: Request | string) {
+  const urlStr = typeof request === 'string' ? request : request?.url || 'http://localhost/api/enlaces/clic';
   const urlObj = new URL(urlStr);
-  const boton = urlObj.searchParams.get('d') || 'desconocido';
-
-  await registrarClicEnlace(boton);
-
-  let destino = '/';
-  if (boton === 'presupuesto') {
-    destino = '/simulador-de-presupuesto?utm_source=instagram&utm_medium=bio';
-  } else if (boton === 'fiestas') {
-    destino = '/#galeria-fiestas';
-  } else if (boton === 'whatsapp') {
-    destino = '/api/whatsapp/enviar?ref=AK-bio';
-  } else if (boton === 'redes') {
-    destino = 'https://instagram.com';
+  const boton = urlObj.searchParams.get('d') || '';
+  const destino = DESTINOS[boton];
+  if (!destino) {
+    return NextResponse.redirect(new URL('/enlaces', urlObj.origin));
   }
 
-  return NextResponse.redirect(new URL(destino, urlObj.origin));
+  await registrarClicEnlace(boton).catch((e) => console.warn('[enlaces] No se pudo contar el clic:', e));
+  return NextResponse.redirect(new URL(destino(), urlObj.origin));
 }

@@ -589,10 +589,10 @@ export default function MuroEnVivoPage() {
               onClick={() => {
                 // no pasa nada si falla: si el navegador no deja la pantalla completa, el muro se sigue viendo igual.
                 if (!document.fullscreenElement) {
-                  document.documentElement.requestFullscreen?.().catch(() => {});
+                  document.documentElement.requestFullscreen?.().catch((e) => console.warn('[page] Paso secundario sin completar:', e));
                 } else {
                   // no pasa nada si falla: la pantalla queda como estaba.
-                  document.exitFullscreen?.().catch(() => {});
+                  document.exitFullscreen?.().catch((e) => console.warn('[page] Paso secundario sin completar:', e));
                 }
               }}
               className="grid h-11 w-11 place-items-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"

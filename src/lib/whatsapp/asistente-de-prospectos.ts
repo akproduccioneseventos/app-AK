@@ -247,7 +247,7 @@ async function notificarEquipoHandoff(params: {
         },
       ],
       params.ahora,
-    ).catch(() => {});
+    ).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
   } catch {
     // no bloquea la atención al prospecto
   }
@@ -300,7 +300,7 @@ async function sincronizarEstadoEnCrmLead(
       ...patch,
       updatedAt: new Date().toISOString(),
     };
-    await writeData('crm-leads.json', leads).catch(() => {});
+    await writeData('crm-leads.json', leads).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
     return leads[idx].id;
   } catch {
     return undefined;
@@ -432,7 +432,7 @@ REGLAS INQUEBRANTABLES:
     return { respuesta: sanitizarRespuestaProspecto(raw) };
   } catch (err) {
     if (isRecoverableGeminiModelError(err)) {
-      await reserva.liberar().catch(() => {});
+      await reserva.liberar().catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
     }
     return { respuesta: fallback };
   }
@@ -591,7 +591,7 @@ export async function atenderProspectoUnificado(params: {
     if (estadoPrevio.atiende === 'persona' || crmPidePersona) {
       estadoPrevio.atiende = 'persona';
       estados[key] = { ...estadoPrevio, updatedAt: ahora.toISOString() };
-      await writeData(ESTADO_FILE, estados).catch(() => {});
+      await writeData(ESTADO_FILE, estados).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
       return {
         silenciado: true,
         motivo: 'atiende_persona',
@@ -631,7 +631,7 @@ export async function atenderProspectoUnificado(params: {
         updatedAt: ahora.toISOString(),
       };
       estados[key] = siguiente;
-      await writeData(ESTADO_FILE, estados).catch(() => {});
+      await writeData(ESTADO_FILE, estados).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
     };
 
     const pasarAPersona = async (motivoAviso: string): Promise<ResultadoAtencionProspecto> => {

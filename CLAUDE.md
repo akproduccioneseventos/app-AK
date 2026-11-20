@@ -2095,6 +2095,7 @@ con otra cara.
 | El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
 | El portal del cliente (decoración, ideas, mesas) se abría con sólo el enlace | `src/__tests__/el-portal-del-cliente-pide-sesion.test.ts` |
 | Los datos de corrida ignorados por git se acumulaban y rompían pruebas que estaban bien | `scripts/limpiar-corrida.mjs` borra también lo ignorado |
+| Una mención en una historia reescribía todas las fiestas, y el WhatsApp de `/enlaces` llevaba a una página que no existe | `src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts` |
 | Una redirección con comodín tapaba la lista de presupuestos y "Nueva fiesta" | `src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts` |
 
 ### Cómo se elige el matafuego

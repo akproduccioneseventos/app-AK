@@ -85,8 +85,10 @@ export default function AsistenteSettingsPage() {
       setBudgetSettingsCache(budgetCfg);
       setWebAssistantEnabled(Boolean(budgetCfg.virtualAssistantEnabled));
     }
-    if (ajustesRedes && typeof (ajustesRedes as any).mensajesDirectos === 'boolean') {
-      setMensajesDirectosRedes(Boolean((ajustesRedes as any).mensajesDirectos));
+    const mensajesDirectosGuardado =
+      ajustesRedes && 'mensajesDirectos' in ajustesRedes ? ajustesRedes.mensajesDirectos : undefined;
+    if (typeof mensajesDirectosGuardado === 'boolean') {
+      setMensajesDirectosRedes(mensajesDirectosGuardado);
     }
     if (res.success && res.settings) {
       setSettings(res.settings);
@@ -148,7 +150,7 @@ export default function AsistenteSettingsPage() {
         budgetError = budgetRes.error;
       }
     }
-    await setAjustesRespuestasAction({ mensajesDirectos: mensajesDirectosRedes }).catch(() => {});
+    await setAjustesRespuestasAction({ mensajesDirectos: mensajesDirectosRedes }).catch((e) => console.warn('[asistente] Paso secundario sin completar:', e));
 
     if (res.success) {
       if (budgetError) {

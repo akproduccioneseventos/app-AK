@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buildWhatsAppLink } from '@/lib/commercial/contact';
 
 const SITE_URL = 'https://akproducciones.uy';
 
@@ -23,7 +22,6 @@ export const metadata: Metadata = {
 };
 
 export default function EnlacesPage() {
-  const whatsappUrl = buildWhatsAppLink(undefined, undefined, 'AK-bio');
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-6">

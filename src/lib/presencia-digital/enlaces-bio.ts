@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { mutateGenericJsonArray, readGenericJsonFile } from '@/lib/generic-json-store';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export interface EnlaceClicRegistro {
   boton: string;
@@ -11,7 +12,7 @@ export interface EnlaceClicRegistro {
 const ENLACES_CLICS_FILE = 'marketing-enlaces-clics.json';
 
 export async function registrarClicEnlace(boton: string): Promise<void> {
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = hoyEnUruguay();
   await mutateGenericJsonArray<EnlaceClicRegistro>(ENLACES_CLICS_FILE, (lista) => {
     const arr = Array.isArray(lista) ? [...lista] : [];
     const idx = arr.findIndex((item) => item.boton === boton && item.fecha === hoy);

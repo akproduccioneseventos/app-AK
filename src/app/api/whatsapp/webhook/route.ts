@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
           leadId: lead.id,
           mensaje: messageText,
           canal: 'whatsapp',
-        })).catch(() => {});
+        })).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
 
         if (evaluacion.esDudoso) {
           const notifRes = await createNotification({
@@ -395,7 +395,7 @@ export async function POST(request: NextRequest) {
             return null;
           }
           return [...lista, messageId];
-        }).catch(() => {});
+        }).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
         if (yaRespondido) {
           return NextResponse.json({ status: 'ok', respondido: false, motivo: 'Mensaje duplicado ya atendido' }, { status: 200 });
         }
@@ -433,7 +433,7 @@ export async function POST(request: NextRequest) {
             autor: 'Asistente AK',
             respondidoPor: 'asistente',
           }),
-        }).catch(() => {});
+        }).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
       }
 
       if (body.From) {
@@ -470,7 +470,7 @@ export async function POST(request: NextRequest) {
           quePasa: `No se pudo enviar la respuesta automática al prospecto (${phone}).`,
           porQueImporta: 'El prospecto espera respuesta.',
           quePropone: `Contactar manualmente a ${clientName || phone}.`,
-        }]).catch(() => {});
+        }]).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
       }
 
       return NextResponse.json({

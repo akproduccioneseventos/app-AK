@@ -281,9 +281,9 @@ Devolvé ÚNICAMENTE JSON válido con esas 8 claves.`;
     };
   } catch (err) {
     if (isRecoverableGeminiModelError(err)) {
-      await reserva.liberar().catch(() => {});
+      await reserva.liberar().catch((e) => console.warn('[ia-prospecto] Paso secundario sin completar:', e));
     }
-    await anotarFalloIA('ia-crm-prospecto', err instanceof Error ? err.message : String(err)).catch(() => {});
+    await anotarFalloIA('ia-crm-prospecto', err instanceof Error ? err.message : String(err)).catch((e) => console.warn('[ia-prospecto] Paso secundario sin completar:', e));
     return fallbackResultado;
   }
 }

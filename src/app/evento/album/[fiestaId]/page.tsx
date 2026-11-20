@@ -122,8 +122,8 @@ export default function PublicAlbumPage() {
   useEffect(() => {
     // no pasa nada si falla: son el título de la fiesta y el botón de reseña; sin ellos el álbum
     // se ve igual y el botón no aparece (decisión del dueño: sin enlace, no se muestra).
-    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {}); // no pasa nada si falla: título
-    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {}); // no pasa nada si falla: botón de reseña
+    getPublicSocialEvent(fiestaId).then(setFiesta).catch((e) => console.warn('[page] Paso secundario sin completar:', e)); // no pasa nada si falla: título
+    getEnlaceDeResenaPublico().then(setEnlaceResena).catch((e) => console.warn('[page] Paso secundario sin completar:', e)); // no pasa nada si falla: botón de reseña
   }, [fiestaId]);
 
   const loadPosts = useCallback(async () => {
@@ -171,7 +171,7 @@ export default function PublicAlbumPage() {
         const porId = new Map(res.updatedPosts.map((u) => [u.id, u.iaRevision]));
         setPosts((prev) => prev.map((p) => (porId.has(p.id) ? { ...p, iaRevision: porId.get(p.id) } : p)));
       })
-      .catch(() => {});
+      .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
   }, [isLoading, fiestaId, posts]);
 
   // Orden 298: El video resumen del cliente se genera solo la primera vez que abre su álbum, sin botón.

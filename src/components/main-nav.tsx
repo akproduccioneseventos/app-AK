@@ -162,7 +162,7 @@ export function MainNav() {
         setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
       })
       // no pasa nada si falla: el contador de avisos urgentes queda en cero y el menú anda igual.
-      .catch(() => {});
+      .catch((e) => console.warn('[main-nav] Paso secundario sin completar:', e));
   }, []);
 
   useEffect(() => {

@@ -869,7 +869,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
             window.removeEventListener('click', unlockAudio);
             window.removeEventListener('touchstart', unlockAudio);
           })
-          .catch(() => {}); // no pasa nada si falla: el navegador no deja sonar hasta que el invitado toque, y se reintenta al tocar
+          .catch((e) => console.warn('[invitacion-publica-client] Paso secundario sin completar:', e)); // no pasa nada si falla: el navegador no deja sonar hasta que el invitado toque, y se reintenta al tocar
       }
     };
     if (splashDone && !playing) {

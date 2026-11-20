@@ -1003,7 +1003,7 @@ REGLAS:
     const res = await generateWithGeminiFallback({ prompt });
     const texto = (res.text || '').trim();
     if (!texto) return sanitizarTextoRespuesta(fallback);
-    await registrarConsumoIA('clasificacion-comentarios').catch(() => {});
+    await registrarConsumoIA('clasificacion-comentarios').catch((e) => console.warn('[comments-backfill] Paso secundario sin completar:', e));
     return sanitizarTextoRespuesta(texto);
   } catch {
     return sanitizarTextoRespuesta(fallback);

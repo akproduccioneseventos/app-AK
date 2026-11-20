@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/11/2026 - Revisión de la entrega 1451 (órdenes 322 a 327)
+
+- **Qué estaba mal:** al llegar una mención en una historia, el aviso de Meta leía todas las fiestas y escribía la lista
+  entera de vuelta (podía pisar un cobro guardado al mismo tiempo) y buscaba al invitado por un pedazo del nombre. Se sacó:
+  la mención se guarda en "Para compartir" y nadie leía lo anotado en la fiesta.
+- En `/enlaces`, el botón de WhatsApp llevaba a una ruta que no existe y "redes" a la portada de Instagram; la cuenta de clics
+  guardaba cualquier nombre mandado desde afuera y contaba el día en hora de Greenwich. Ahora: WhatsApp de verdad con la marca
+  `ref AK-bio`, el Instagram de AK, sólo los cuatro botones y el día de Uruguay.
+- 25 errores tirados a la basura (`.catch(() => {})`) en lo nuevo pasaron a dejar aviso, y el ajuste de mensajes directos del
+  asistente lee el campo con su tipo.
+
+```comprobar
+prueba: src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts
+usa: AK_SOCIAL_LINKS en src/app/api/enlaces/clic/route.ts
+usa: hoyEnUruguay en src/lib/presencia-digital/enlaces-bio.ts
+```
+
 ## 19/11/2026 - Lo mejor de las otras plataformas de redes (orden 327)
 
 - **Qué se decidió:** el dueño aprobó las cuatro ideas tomadas de ManyChat, Metricool, Later y Linktree: palabra clave en un
