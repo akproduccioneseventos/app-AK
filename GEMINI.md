@@ -4,7 +4,7 @@
 
 **Actualizado el 20/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **AHORA: orden 328 (`docs/ordenes/328-gemini-terminar-la-1451.md`).** Tu 1451 (órdenes 322 a 327) **todavía no se
+- **AHORA: orden 328 (`docs/ordenes/328-gemini-terminar-la-1451.md`), leé primero "Actualizado el 20/11 a la tarde".** Tu 1451 (órdenes 322 a 327) **todavía no se
   publicó**: cuatro pruebas de pantallas fallan (la peor: el invitado sube una foto al muro y no se entera de nada). Seguí en
   la rama **`claude/juntar-1451`**, que tiene tu entrega y los arreglos de Claude, y entregá **una sola propuesta** desde ahí.
   Lo de abajo (322 a 327) ya está hecho en esa rama: no lo rehagas.
