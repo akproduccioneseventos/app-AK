@@ -1,4 +1,4 @@
-# Orden 328 — Terminar la 1451 (HECHA por Claude el 20/11/2026): cuatro pantallas que no hacen lo que dicen (20/11/2026)
+# Orden 328 — Terminar la 1451: cuatro pantallas que no hacen lo que dicen (20/11/2026)
 
 **Tu entrega 1451 (órdenes 322 a 327) todavía no se publicó.** Compila, Jest da todo verde y casi todas las pruebas de pantallas
 pasan, pero **cuatro pruebas de navegador fallan** en desktop y en celular. Claude ya arregló lo suyo en la rama
@@ -6,6 +6,20 @@ pasan, pero **cuatro pruebas de navegador fallan** en desktop y en celular. Clau
 
 **Cómo se entrega:** una sola propuesta desde `claude/juntar-1451`. Antes de decir "terminé", correr
 `npm run "publicar?"` completo y `docs/ANTES-DE-ENTREGAR.md`.
+
+## Actualizado el 20/11 a la tarde (leé esto primero)
+
+Claude ya hizo en `claude/juntar-1451`: sacó el filtro de nitidez del muro (rechazaba fotos sin que nadie lo pidiera),
+ajustó las pruebas del estilo de fotos y de "Armar con IA" a los textos y pasos nuevos, y descartó el bloque 5.
+**Siguen fallando, y son tuyas:**
+
+1. `tests/e2e/muro-subir-foto.spec.ts`: igual no aparece ningún cartel después de publicar (falló dos veces). Mirá qué
+   devuelve `uploadSocialPost` con la foto de 1×1 de la prueba y qué toast sale; la prueba pide "publicada", "Se subió",
+   "subida" o "No se pudo publicar".
+2. `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts`: dos toques rápidos de pedir (barra), se queda colgada 4 minutos.
+3. `tests/e2e/mural-geometria-visible.spec.ts`: con una foto aprobada, la imagen del mural no carga dentro de la ventana.
+4. `tests/e2e/el-portal-y-los-recuerdos-piden-al-cliente.spec.ts`, bloque 4: la presentación LED no llega a la última
+   diapositiva o muestra "Cliente 1".
 
 ## Lo que Claude ya arregló en `claude/juntar-1451` (no lo deshagas)
 
@@ -45,7 +59,7 @@ pasan, pero **cuatro pruebas de navegador fallan** en desktop y en celular. Clau
   Presupuesto Manual" (`data-testid="btn-generar-presupuesto-manual"`). Desde la 321 el catálogo vive adentro de la
   presentación: el botón tiene que estar y llevar la entrada elegida a crear presupuesto.
 
-## Bloque 5 — Google todavía tiene el catálogo viejo (DESCARTADO por Claude el 20/11: la presentación no es página pública)
+## Bloque 5 — Google todavía tiene el catálogo viejo
 
 - `/catalogo` ahora redirige a `/presentacion-led` (`next.config.js`), pero sigue en `PAGINAS_PARA_GOOGLE`
   (`src/lib/seo/paginas-publicas.ts` ~línea 29 y ~72). Cambialo por `/presentacion-led` y ajustá las pruebas que lo nombran
@@ -67,6 +81,7 @@ prueba: tests/e2e/muro-subir-foto.spec.ts
 prueba: tests/e2e/el-estilo-de-fotos-se-configura-en-ajustes.spec.ts
 prueba: tests/e2e/la-ia-arma-la-web-del-evento.spec.ts
 prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
+usa: /presentacion-led en src/lib/seo/paginas-publicas.ts
+no-usa: '/catalogo', en src/lib/seo/paginas-publicas.ts
 usa: decidir en src/app/actions/social-gallery.ts
-usa: '/catalogo', en src/lib/seo/paginas-publicas.ts
 ```

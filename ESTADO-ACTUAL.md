@@ -3,7 +3,7 @@
 ## Publicado
 - **#1441** (19/11): entrega 1429 de Gemini (órdenes 310-318) + arreglos de Claude de las auditorías del 18/11.
 - **#1442 a #1452**: órdenes 322 a 328 y Gemini 4 Hydrogen.
-- **Entrega 1451 de Gemini (órdenes 322 a 327, incluye la 1443) + orden 328 terminada por Claude**, desde la rama
+- **SIN PUBLICAR: entrega 1451 + parte de la 328 hecha por Claude** (siguen cuatro pruebas, orden 328), en la rama
   `claude/juntar-1451`: de 382 a unas 185 pantallas, invitación en tres pasos, IA en muro/álbum/comprobantes, CRM con todas
   las redes y el asistente, centro de redes que contesta solo, `/enlaces`.
 - Claude arregló al revisar: el aviso de Meta reescribía `fiestas.json`; `/enlaces` llevaba el WhatsApp a una ruta que no

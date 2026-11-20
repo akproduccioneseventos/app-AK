@@ -15,7 +15,7 @@
 prueba: src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts
 usa: AK_SOCIAL_LINKS en src/app/api/enlaces/clic/route.ts
 usa: hoyEnUruguay en src/lib/presencia-digital/enlaces-bio.ts
-## 20/11/2026 - La orden 328 la terminó Claude (pedido del dueño: "si es poco hacelo tú")
+## 20/11/2026 - Orden 328: lo que hizo Claude (el resto volvió a Gemini)
 
 - El muro rechazaba en el celular las fotos que medía movidas u oscuras ("Esta foto no está permitida"): nadie lo había
   pedido y en una fiesta con poca luz rebota fotos buenas. Se sacó; la IA sólo ordena el álbum por calidad.
