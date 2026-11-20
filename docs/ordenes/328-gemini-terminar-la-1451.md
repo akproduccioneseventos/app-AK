@@ -68,4 +68,5 @@ prueba: tests/e2e/el-estilo-de-fotos-se-configura-en-ajustes.spec.ts
 prueba: tests/e2e/la-ia-arma-la-web-del-evento.spec.ts
 prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
 usa: decidir en src/app/actions/social-gallery.ts
+usa: '/catalogo', en src/lib/seo/paginas-publicas.ts
 ```
