@@ -9,6 +9,9 @@
   la rama **`claude/juntar-1451`**, que tiene tu entrega y los arreglos de Claude, y entregá **una sola propuesta** desde ahí.
   Lo de abajo (322 a 327) ya está hecho en esa rama: no lo rehagas.
 
+- **DESPUÉS de la 328, en la misma propuesta: orden 329 (`docs/ordenes/329-gemini-todas-las-fotos-a-wfolio-y-a-las-redes.md`).**
+  Las fotos de fotocabina, 360 e invitados van a Wfolio en carpetas, junto con las del fotógrafo, y de ahí sale solo el video
+  y el borrador para todas las redes (sólo con permiso de promoción).
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
   todas. Claude devolvió cinco pantallas que borraste y se usan (Entrar, decoración y moodboard del portal, simulador y
