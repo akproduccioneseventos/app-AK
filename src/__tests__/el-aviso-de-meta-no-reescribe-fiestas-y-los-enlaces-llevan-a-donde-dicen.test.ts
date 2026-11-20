@@ -25,7 +25,7 @@ describe('el aviso de Meta y la página de enlaces', () => {
   });
 
   it('el botón de WhatsApp lleva al WhatsApp de verdad con la marca de origen', async () => {
-    const res = await GET('http://localhost:3000/api/enlaces/clic?d=whatsapp');
+    const res = await GET(new Request('http://localhost:3000/api/enlaces/clic?d=whatsapp'));
     const destino = res.headers.get('location') || '';
     expect(destino).toMatch(/^https:\/\/wa\.me\//);
     expect(decodeURIComponent(destino)).toContain('ref AK-bio');
@@ -33,13 +33,13 @@ describe('el aviso de Meta y la página de enlaces', () => {
   });
 
   it('un botón inventado no se guarda y vuelve a la página de enlaces', async () => {
-    const res = await GET('http://localhost:3000/api/enlaces/clic?d=cualquier-cosa');
+    const res = await GET(new Request('http://localhost:3000/api/enlaces/clic?d=cualquier-cosa'));
     expect(res.headers.get('location')).toBe('http://localhost:3000/enlaces');
     expect(guardados).toEqual([]);
   });
 
   it('redes lleva al Instagram de AK, no a la portada de Instagram', async () => {
-    const res = await GET('http://localhost:3000/api/enlaces/clic?d=redes');
+    const res = await GET(new Request('http://localhost:3000/api/enlaces/clic?d=redes'));
     expect(res.headers.get('location')).toContain('instagram.com/akproduccionesfiestasyeventos');
   });
 });

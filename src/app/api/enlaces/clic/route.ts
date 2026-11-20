@@ -12,9 +12,8 @@ const DESTINOS: Record<string, () => string> = {
   redes: () => AK_SOCIAL_LINKS.instagram,
 };
 
-export async function GET(request: Request | string) {
-  const urlStr = typeof request === 'string' ? request : request?.url || 'http://localhost/api/enlaces/clic';
-  const urlObj = new URL(urlStr);
+export async function GET(request: Request) {
+  const urlObj = new URL(request.url);
   const boton = urlObj.searchParams.get('d') || '';
   const destino = DESTINOS[boton];
   if (!destino) {

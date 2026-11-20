@@ -77,7 +77,7 @@ describe('Orden 327 - Competencia y Enlaces Bio', () => {
   });
 
   it('registra clics en enlaces y el endpoint redirige correctamente', async () => {
-    const res = await handleEnlacesClic('http://localhost:3000/api/enlaces/clic?d=presupuesto');
+    const res = await handleEnlacesClic(new Request('http://localhost:3000/api/enlaces/clic?d=presupuesto'));
     expect(res.status).toBe(307);
     expect(res.headers.get('location')).toContain('/simulador-de-presupuesto');
 
