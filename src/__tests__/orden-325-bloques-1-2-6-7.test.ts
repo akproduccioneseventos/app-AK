@@ -587,4 +587,11 @@ describe('Orden 325 — Bloques 1, 2, 6 y 7', () => {
     );
     expect(crmPageSrc).toContain('Rescatar charlas viejas');
   });
+
+  it('rescatarCharlasViejasAction valida que se suba al menos un archivo', async () => {
+    const { rescatarCharlasViejasAction } = await import('@/app/actions/rescatar-charlas');
+    const res = await rescatarCharlasViejasAction(new FormData());
+    expect(res.success).toBe(false);
+    expect(res.error).toMatch(/archivo/i);
+  });
 });
