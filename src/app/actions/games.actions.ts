@@ -20,6 +20,106 @@ import {
   type QuienJuega,
 } from '@/lib/games/juegos-en-vivo';
 
+const FALLBACK_PARTY_TRIVIA_QUESTIONS: TriviaQuestion[] = [
+  {
+    id: 'q1',
+    question: '¿Cuál es el clásico tema que nunca puede faltar en el vals de una fiesta?',
+    options: [
+      { id: 'a', text: 'Danubio Azul', emoji: '🎻' },
+      { id: 'b', text: 'Cumbia tropical', emoji: '🥁' },
+      { id: 'c', text: 'Rock and roll', emoji: '🎸' },
+      { id: 'd', text: 'Reggaetón', emoji: '📻' },
+    ],
+    correctOptionId: 'a',
+    timeLimitSeconds: SEGUNDOS_PARA_RESPONDER,
+  },
+  {
+    id: 'q2',
+    question: '¿A qué hora suele servirse el tradicional postre o torta principal?',
+    options: [
+      { id: 'a', text: 'Al inicio', emoji: '🕒' },
+      { id: 'b', text: 'En la mitad de la noche', emoji: '🎂' },
+      { id: 'c', text: 'Antes del amanecer', emoji: '🌅' },
+      { id: 'd', text: 'En la recepción', emoji: '🍸' },
+    ],
+    correctOptionId: 'b',
+    timeLimitSeconds: SEGUNDOS_PARA_RESPONDER,
+  },
+  {
+    id: 'q3',
+    question: '¿Qué canción suele abrir la tanda de baile más prendida?',
+    options: [
+      { id: 'a', text: 'Música clásica', emoji: '🎼' },
+      { id: 'b', text: 'Cumbia retro o hits del momento', emoji: '💃' },
+      { id: 'c', text: 'Jazz instrumental', emoji: '🎷' },
+      { id: 'd', text: 'Tango tradicional', emoji: '🎩' },
+    ],
+    correctOptionId: 'b',
+    timeLimitSeconds: SEGUNDOS_PARA_RESPONDER,
+  },
+  {
+    id: 'q4',
+    question: '¿Qué bebida clásica suele brindar toda la mesa a la medianoche?',
+    options: [
+      { id: 'a', text: 'Champagne o Espumante', emoji: '🥂' },
+      { id: 'b', text: 'Agua mineral', emoji: '💧' },
+      { id: 'c', text: 'Café', emoji: '☕' },
+      { id: 'd', text: 'Té verde', emoji: '🍵' },
+    ],
+    correctOptionId: 'a',
+    timeLimitSeconds: SEGUNDOS_PARA_RESPONDER,
+  },
+  {
+    id: 'q5',
+    question: '¿Qué estación interactiva es la más concurrida para llevarse fotos impresas?',
+    options: [
+      { id: 'a', text: 'La Fotocabina AK', emoji: '📸' },
+      { id: 'b', text: 'El guardarropa', emoji: '🧥' },
+      { id: 'c', text: 'El estacionamiento', emoji: '🚗' },
+      { id: 'd', text: 'La cocina', emoji: '🍳' },
+    ],
+    correctOptionId: 'a',
+    timeLimitSeconds: SEGUNDOS_PARA_RESPONDER,
+  },
+];
+
+function sanitizeGeneratedTriviaQuestions(raw: unknown): TriviaQuestion[] {
+  if (!Array.isArray(raw)) return [];
+  const valid: TriviaQuestion[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const item = raw[i] as any;
+    if (!item || typeof item !== 'object') continue;
+    const questionText = typeof item.question === 'string' ? item.question.trim() : '';
+    if (!questionText || !Array.isArray(item.options) || item.options.length < 2) continue;
+
+    const options = item.options
+      .filter((opt: any) => opt && typeof opt.text === 'string' && opt.text.trim())
+      .map((opt: any, idx: number) => ({
+        id: typeof opt.id === 'string' && opt.id.trim() ? opt.id.trim() : String.fromCharCode(97 + idx),
+        text: opt.text.trim(),
+        ...(typeof opt.emoji === 'string' && opt.emoji.trim() ? { emoji: opt.emoji.trim() } : {}),
+      }));
+
+    if (options.length < 2) continue;
+    const correctOptionId =
+      typeof item.correctOptionId === 'string' && options.some((o: any) => o.id === item.correctOptionId)
+        ? item.correctOptionId
+        : options[0].id;
+
+    valid.push({
+      id: typeof item.id === 'string' && item.id.trim() ? item.id.trim() : `q${i + 1}`,
+      question: questionText,
+      options,
+      correctOptionId,
+      timeLimitSeconds:
+        typeof item.timeLimitSeconds === 'number' && item.timeLimitSeconds >= 5
+          ? item.timeLimitSeconds
+          : SEGUNDOS_PARA_RESPONDER,
+    });
+  }
+  return valid;
+}
+
 /**
  * No existe un \updateFiestaById\ parcial: la fiesta se guarda entera con
  * \saveFiesta\, asi que se parte de la fiesta ya leida y se reemplaza solo el
@@ -237,7 +337,6 @@ export async function terminarTrivia(fiestaId: string): Promise<{ success: boole
   }
 }
 
-
 /**
  * Genera automáticamente una trivia divertida de 5 preguntas usando IA Gemini.
  * Requiere presupuesto de IA y la confirmación posterior del equipo antes de jugar.
@@ -291,70 +390,17 @@ Respondé ÚNICAMENTE un array JSON con 5 objetos con el formato:
 
       const jsonMatch = response.text?.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
-        preguntas = JSON.parse(jsonMatch[0]);
+        preguntas = sanitizeGeneratedTriviaQuestions(JSON.parse(jsonMatch[0]));
       }
     } catch {
       // Fallback a preguntas de cultura general de fiestas
     }
 
     if (!preguntas || preguntas.length === 0) {
-      preguntas = [
-        {
-          id: 'q1',
-          question: '¿Cuál es el clásico tema que nunca puede faltar en el vals de una fiesta?',
-          options: [
-            { id: 'a', text: 'Danubio Azul', emoji: '🎻' },
-            { id: 'b', text: 'Cumbia tropical', emoji: '🥁' },
-            { id: 'c', text: 'Rock and roll', emoji: '🎸' },
-            { id: 'd', text: 'Reggaetón', emoji: '📻' },
-          ],
-          correctOptionId: 'a',
-        },
-        {
-          id: 'q2',
-          question: '¿A qué hora suele servirse el tradicional postre o torta principal?',
-          options: [
-            { id: 'a', text: 'Al inicio', emoji: '🕒' },
-            { id: 'b', text: 'En la mitad de la noche', emoji: '🎂' },
-            { id: 'c', text: 'Antes del amanecer', emoji: '🌅' },
-            { id: 'd', text: 'En la recepción', emoji: '🍸' },
-          ],
-          correctOptionId: 'b',
-        },
-        {
-          id: 'q3',
-          question: '¿Qué canción suele abrir la tanda de baile más prendida?',
-          options: [
-            { id: 'a', text: 'Música clásica', emoji: '🎼' },
-            { id: 'b', text: 'Cumbia retro o hits del momento', emoji: '💃' },
-            { id: 'c', text: 'Jazz instrumental', emoji: '🎷' },
-            { id: 'd', text: 'Tango tradicional', emoji: '🎩' },
-          ],
-          correctOptionId: 'b',
-        },
-        {
-          id: 'q4',
-          question: '¿Qué bebida clásica suele brindar toda la mesa a la medianoche?',
-          options: [
-            { id: 'a', text: 'Champagne o Espumante', emoji: '🥂' },
-            { id: 'b', text: 'Agua mineral', emoji: '💧' },
-            { id: 'c', text: 'Café', emoji: '☕' },
-            { id: 'd', text: 'Té verde', emoji: '🍵' },
-          ],
-          correctOptionId: 'a',
-        },
-        {
-          id: 'q5',
-          question: '¿Qué estación interactiva es la más concurrida para llevarse fotos impresas?',
-          options: [
-            { id: 'a', text: 'La Fotocabina AK', emoji: '📸' },
-            { id: 'b', text: 'El guardarropa', emoji: '🧥' },
-            { id: 'c', text: 'El estacionamiento', emoji: '🚗' },
-            { id: 'd', text: 'La cocina', emoji: '🍳' },
-          ],
-          correctOptionId: 'a',
-        },
-      ];
+      preguntas = FALLBACK_PARTY_TRIVIA_QUESTIONS.map((q) => ({
+        ...q,
+        options: q.options.map((o) => ({ ...o })),
+      }));
     }
 
     const nuevaTrivia: TriviaGame = {

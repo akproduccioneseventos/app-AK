@@ -17,10 +17,10 @@ const PESTANAS = [
 ];
 
 const CUATRO_PUERTAS_MARKETING = [
-  { titulo: 'Calendario y publicaciones con IA', destino: '/empresa/redes-sociales' },
-  { titulo: 'Campañas y anuncios', destino: '/contabilidad/crm/marketing-ads' },
-  { titulo: 'Reseñas y Google', destino: '/empresa/presencia-digital' },
-  { titulo: 'Web pública y portada', destino: '/empresa/marketing' },
+  { titulo: 'Redes Sociales', destino: '/empresa/redes-sociales' },
+  { titulo: 'Rendimiento de Anuncios', destino: '/contabilidad/crm/marketing-ads' },
+  { titulo: 'Moderación y Comentarios', destino: '/empresa/presencia-digital?tab=comentarios' },
+  { titulo: 'Editor Web y Portada', destino: '/empresa/landing-editor' },
 ];
 
 test.describe('La app ordenada (Orden 182)', () => {
@@ -70,10 +70,10 @@ test.describe('La app ordenada (Orden 182)', () => {
     await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('/marketing muestra las cuatro puertas y cada una apunta a una pantalla que existe', async ({ page, context, baseURL }) => {
+  test('/empresa/presencia-digital?tab=marketing muestra las puertas de marketing y cada una apunta a una pantalla que existe', async ({ page, context, baseURL }) => {
     test.setTimeout(180_000);
     await ponerSesionDelEquipo(context, baseURL);
-    await page.goto('/marketing');
+    await page.goto('/empresa/presencia-digital?tab=marketing');
 
     for (const puerta of CUATRO_PUERTAS_MARKETING) {
       const enlace = page.locator(`a[href="${puerta.destino}"]`).first();

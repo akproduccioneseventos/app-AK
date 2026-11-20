@@ -10,7 +10,7 @@ import { getFiestaById, saveFiesta, updateInvitacionSlug } from '@/app/actions/f
 import { armarWebConIA, crearTresPropuestasDeWeb } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
-import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
+import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta, mapTemplateToPlantillaId } from '@/lib/invitacion-config-defaults';
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
@@ -69,7 +69,8 @@ function PaginaWebPageContent() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
-  const [editorMode, setEditorMode] = useState<EditorMode>('simple');
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [, setEditorMode] = useState<EditorMode>('simple');
   const [mobileEditorOpen, setMobileEditorOpen] = useState(false);
   const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
   const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
@@ -117,13 +118,17 @@ function PaginaWebPageContent() {
       if (res.success && res.invitacionDigital) {
         setInvitacionData(res.invitacionDigital);
         if (res.invitacionDigital.plantilla) {
+          const p1 = res.invitacionDigital.cabecera.protagonista1;
+          const p2 = res.invitacionDigital.cabecera.protagonista2;
           setInvitacionConfig(prev => ({
             ...prev,
-            plantillaId: res.invitacionDigital!.plantilla,
+            plantillaId: mapTemplateToPlantillaId(res.invitacionDigital!.plantilla),
             colorPrincipal: res.invitacionDigital!.cabecera.paletaColores.primary,
             colorSecundario: res.invitacionDigital!.cabecera.paletaColores.secondary,
             colorAcento: res.invitacionDigital!.cabecera.paletaColores.accent,
-            nombreHomenajeada: res.invitacionDigital!.cabecera.protagonista1 || prev.nombreHomenajeada,
+            nombreHomenajeada: (p1 && p1 !== 'María' ? p1 : prev.nombreHomenajeada),
+            nombreHomenajeado2: (p2 && p2 !== 'Juan' ? p2 : prev.nombreHomenajeado2),
+            textoBienvenida: res.invitacionDigital!.bienvenida?.texto?.text || prev.textoBienvenida,
           }));
         }
         setArmarWebMensaje('Listo: revisá y ajustá lo que quieras');
@@ -281,9 +286,28 @@ function PaginaWebPageContent() {
           const config = (data as any).configuracion;
           const isXV = config.tipoCelebracion === 'XV años';
 
-          mergedData.cabecera.protagonista1 = config.protagonista1Nombre || mergedData.cabecera.protagonista1;
-          mergedData.cabecera.protagonista2 = isXV ? '' : (config.protagonista2Nombre || mergedData.cabecera.protagonista2);
-          mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
+          // Nunca arrastrar datos de ejemplo ("María y Juan", "Salón El Paraíso") a una fiesta real
+          const nombreReal1 = config.protagonista1Nombre || config.nombreEvento || '';
+          const nombreReal2 = isXV ? '' : (config.protagonista2Nombre || '');
+          mergedData.cabecera.protagonista1 = nombreReal1;
+          mergedData.cabecera.protagonista2 = nombreReal2;
+          mergedData.cabecera.subtitulo.text = config.tipoCelebracion || '';
+          if (mergedData.footer?.titulo?.text?.includes('María y Juan')) {
+            mergedData.footer.titulo.text = nombreReal1
+              ? `Con cariño, ${nombreReal1}${nombreReal2 ? ` y ${nombreReal2}` : ''}`
+              : '¡Te esperamos!';
+          }
+          if (mergedData.redesSociales?.hashtag === '#BodaJuanYMaria') {
+            mergedData.redesSociales.hashtag = '';
+          }
+          if (mergedData.detallesEvento?.celebracion?.nombreLugar === 'Salón El Paraíso') {
+            mergedData.detallesEvento.celebracion.nombreLugar = config.nombreLugar || '';
+            mergedData.detallesEvento.celebracion.direccionLugar = config.direccionLugar || '';
+          }
+          if (mergedData.detallesEvento?.ceremoniaReligiosa?.nombreLugar === 'Catedral de San Juan') {
+            mergedData.detallesEvento.ceremoniaReligiosa.nombreLugar = '';
+            mergedData.detallesEvento.ceremoniaReligiosa.direccionLugar = '';
+          }
 
           if (!mergedData.bienvenida.titulo.text ||
               mergedData.bienvenida.titulo.text === '¡Nos Casamos!' ||
@@ -389,22 +413,25 @@ function PaginaWebPageContent() {
 
   const applyTemplate = (tpl: InvitacionDigitalTemplate) => {
     const palette = tpl.cabecera?.paletaColores;
+    const mappedPlantilla = mapTemplateToPlantillaId(tpl.plantilla);
     setInvitacionData(prev => ({
       ...prev,
       plantilla: tpl.plantilla,
       cabecera: palette ? { ...prev.cabecera, paletaColores: { ...palette } } : prev.cabecera,
     }));
-    if (palette) {
-      setInvitacionConfig(prev => ({
-        ...prev,
-        colorPrincipal: palette.primary,
-        colorSecundario: palette.secondary,
-        colorAcento: palette.accent,
-        plantillaId: tpl.plantilla,
-      }));
-    }
+    setInvitacionConfig(prev => ({
+      ...prev,
+      plantillaId: mappedPlantilla,
+      ...(palette
+        ? {
+            colorPrincipal: palette.primary,
+            colorSecundario: palette.secondary,
+            colorAcento: palette.accent,
+          }
+        : {}),
+    }));
     setTemplateGalleryOpen(false);
-    toast({ title: 'Plantilla aplicada', description: `${tpl.name} está activa.` });
+    toast({ title: 'Diseño aplicado', description: `${tpl.name} está activo en tu invitación.` });
   };
 
   const handleSaveSlug = async () => {
@@ -466,79 +493,117 @@ function PaginaWebPageContent() {
   };
 
   const renderEditorPanel = () => (
-    <div className="h-full bg-white overflow-y-auto custom-scrollbar">
-      {fiestaId && !selectedSectionId && (
-        <div className="p-3 border-b bg-slate-50/80 flex items-center gap-1">
-          <Button
-            variant={editorMode === 'simple' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setEditorMode('simple')}
-            className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'simple' && "shadow-sm")}
-          >
-            <Wand2 className="w-3.5 h-3.5" />Config Rápida
-          </Button>
-          <Button
-            variant={editorMode === 'avanzado' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setEditorMode('avanzado')}
-            className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'avanzado' && "shadow-sm")}
-          >
-            <Settings2 className="w-3.5 h-3.5" />Avanzado
-          </Button>
-        </div>
-      )}
+    <div className="h-full bg-white flex flex-col overflow-hidden">
+      {fiestaId ? (
+        <>
+          {/* Armador único en 3 pasos */}
+          <div className="p-3 border-b bg-slate-50/80 grid grid-cols-3 gap-1.5 shrink-0" role="tablist" aria-label="Pasos del armador">
+            {(
+              [
+                { step: 1 as const, label: '1. Diseño' },
+                { step: 2 as const, label: '2. Datos' },
+                { step: 3 as const, label: '3. Estilo' },
+              ]
+            ).map((item) => (
+              <Button
+                key={item.step}
+                type="button"
+                role="tab"
+                aria-selected={wizardStep === item.step}
+                variant={wizardStep === item.step ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setWizardStep(item.step)}
+                className={cn(
+                  'rounded-xl h-8 text-xs font-bold',
+                  wizardStep === item.step && 'shadow-sm'
+                )}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
 
-      {selectedSectionId ? (
-        <SectionEditorPanel
-          data={invitacionData}
-          update={handleUpdate}
-          addSection={addSection}
-          removeSection={removeSection}
-          selectedSectionId={selectedSectionId}
-          fiestaId={fiestaId}
-          onClose={() => setSelectedSectionId(null)}
-        />
-      ) : editorMode === 'simple' && fiestaId ? (
-        <>
-          <InvitacionConfigPanel
-            config={invitacionConfig}
-            onChange={setInvitacionConfig}
-            fiestaId={fiestaId}
-          />
-          {fiesta && (
-            <div className="p-4 border-t space-y-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-muted-foreground">Enlace personalizado</Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">{slugPrefixLabel}</span>
-                  <Input
-                    value={slugInput}
-                    onChange={e => setSlugInput(normalizeInvitationSlug(e.target.value))}
-                    placeholder="ej: fiesta-valentina"
-                    className="h-9 text-sm"
-                  />
-                </div>
-                <Button onClick={handleSaveSlug} size="sm" className="rounded-xl" disabled={isSavingSlug}>
-                  {isSavingSlug ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Guardar enlace
-                </Button>
-                <div className="flex items-center gap-2">
-                  <Input value={slugUrl} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
-                  <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(slugUrl)}>
-                    <ClipboardCopy className="h-4 w-4" />
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <InvitacionConfigPanel
+              config={invitacionConfig}
+              onChange={setInvitacionConfig}
+              fiestaId={fiestaId}
+              activeStep={wizardStep}
+              onOpenTemplateGallery={() => setTemplateGalleryOpen(true)}
+              tipoCelebracion={fiesta?.configuracion?.tipoCelebracion}
+            />
+            {fiesta && wizardStep === 2 && (
+              <div className="p-4 border-t space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-muted-foreground">Enlace personalizado</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{slugPrefixLabel}</span>
+                    <Input
+                      value={slugInput}
+                      onChange={e => setSlugInput(normalizeInvitationSlug(e.target.value))}
+                      placeholder="ej: fiesta-valentina"
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <Button onClick={handleSaveSlug} size="sm" className="rounded-xl" disabled={isSavingSlug}>
+                    {isSavingSlug ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Guardar enlace
                   </Button>
+                  <div className="flex items-center gap-2">
+                    <Input value={slugUrl} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
+                    <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(slugUrl)}>
+                      <ClipboardCopy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-muted-foreground">Link técnico de respaldo</Label>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">Solo para uso interno o compatibilidad.</p>
+                  <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl text-muted-foreground" />
                 </div>
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs font-bold text-muted-foreground">Link técnico de respaldo</Label>
-                <p className="text-[10px] text-muted-foreground leading-relaxed">Solo para uso interno o compatibilidad.</p>
-                <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl text-muted-foreground" />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <div className="p-3 border-t bg-slate-50/80 flex items-center justify-between gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={wizardStep === 1}
+              onClick={() => setWizardStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : 1))}
+              className="rounded-xl text-xs"
+            >
+              Anterior
+            </Button>
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              Paso {wizardStep} de 3
+            </span>
+            <Button
+              type="button"
+              size="sm"
+              disabled={wizardStep === 3}
+              onClick={() => setWizardStep((s) => (s < 3 ? ((s + 1) as 1 | 2 | 3) : 3))}
+              className="rounded-xl text-xs"
+            >
+              Siguiente
+            </Button>
+          </div>
         </>
+      ) : selectedSectionId ? (
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <SectionEditorPanel
+            data={invitacionData}
+            update={handleUpdate}
+            addSection={addSection}
+            removeSection={removeSection}
+            selectedSectionId={selectedSectionId}
+            fiestaId={fiestaId}
+            onClose={() => setSelectedSectionId(null)}
+          />
+        </div>
       ) : (
-        <>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           <ControlPanel
             data={invitacionData}
             update={handleUpdate}
@@ -546,31 +611,7 @@ function PaginaWebPageContent() {
             removeSection={removeSection}
             onSectionClick={setSelectedSectionId}
           />
-
-          {fiestaId && fiesta && (
-            <div className="p-6 space-y-6 border-t bg-slate-50/50">
-              <div className="space-y-1">
-                <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Marketing y QR</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas.</p>
-              </div>
-              <div className="space-y-4">
-                {invitacionData.regalos.visible && (
-                  <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
-                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Lista de Regalos</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input value={getPublicInvitationLink('regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
-                      <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getPublicInvitationLink('regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                    </div>
-                    <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <QRCodeStylized id="qr-regalos" value={getPublicInvitationLink('regalos')} size={100} level="M" />
-                      <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
-                    </div>
-                  </Card>
-                )}
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
     </div>
   );
@@ -631,19 +672,19 @@ function PaginaWebPageContent() {
             {fiestaId ? (
               <Button
                 variant="outline"
-                className="rounded-xl font-bold h-9 hidden xs:inline-flex items-center"
+                className="rounded-xl font-bold h-9 inline-flex items-center"
                 onClick={() => {
-                  const realUrl = slugUrl || getFullLink('/invitacion/[fiestaId]');
+                  const guestUrl = `/invitacion/${encodeURIComponent(fiestaId)}`;
                   checkMissingDataBeforeAction(() => {
-                    window.open(realUrl, '_blank');
+                    window.open(guestUrl, '_blank');
                   });
                 }}
               >
-                <Eye className="w-4 h-4 mr-2"/>Ver Real
+                <Eye className="w-4 h-4 sm:mr-2"/><span className="hidden sm:inline">Ver como invitado</span>
               </Button>
             ) : (
               <Button variant="outline" className="hidden h-9 rounded-xl font-bold xs:inline-flex" disabled title="Selecciona una fiesta para abrir su página">
-                <Eye className="mr-2 h-4 w-4"/>Ver Real
+                <Eye className="mr-2 h-4 w-4"/>Ver como invitado
               </Button>
             )}
            <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">
@@ -747,7 +788,7 @@ function PaginaWebPageContent() {
               <div className="flex items-center justify-center h-full"><Loader2 className="w-12 h-12 animate-spin text-primary opacity-20"/></div>
             ) : fiesta ? (
               <div className={cn("h-full", previewMode !== 'desktop' && "overflow-y-auto custom-scrollbar")}>
-                {editorMode === 'simple' && fiestaId ? (
+                {fiestaId ? (
                   <InvitacionPublicaClient
                     config={invitacionConfig}
                     fiestaId={fiestaId}
@@ -828,8 +869,7 @@ function PaginaWebPageContent() {
               className="rounded-xl font-bold"
               onClick={() => {
                 setMissingDataDialogOpen(false);
-                setEditorMode('avanzado');
-                setSelectedSectionId('detallesEvento');
+                setWizardStep(2);
               }}
             >
               Ir a completarlos

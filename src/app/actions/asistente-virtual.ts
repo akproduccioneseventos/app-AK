@@ -18,6 +18,9 @@ export interface AssistantResponse {
   error?: string;
   budgetGenerated?: boolean;
   budgetUrl?: string;
+  whatsappUrl?: string;
+  opciones?: string[];
+  atiende?: 'asistente' | 'persona';
   nivel?: 'rapido' | 'profundo';
 }
 
@@ -42,15 +45,25 @@ function esUnSi(mensaje: string): boolean {
 }
 
 export async function chatWithVirtualAssistant(
-  sessionId: string,
-  history: MessageData[],
-  newMessage: string
+  sessionIdOrHistory: string | MessageData[],
+  historyOrMessage: MessageData[] | string,
+  newMessage?: string,
+  opciones?: { bienvenidaYaMostrada?: boolean; nombre?: string }
 ): Promise<AssistantResponse> {
+  const esLlamadaLegacy = Array.isArray(sessionIdOrHistory);
+  const sessionId = esLlamadaLegacy ? 'anonymous' : (sessionIdOrHistory || 'anonymous');
+  const history: MessageData[] = esLlamadaLegacy
+    ? sessionIdOrHistory
+    : (Array.isArray(historyOrMessage) ? historyOrMessage : []);
+  const messageText = esLlamadaLegacy
+    ? (typeof historyOrMessage === 'string' ? historyOrMessage : '')
+    : (newMessage || '');
+
   try {
     // 1. Validar límite de uso (Rate Limiting) basado en el sessionId/IP
     await enforcePublicRateLimit({
       scope: 'public-virtual-assistant',
-      identity: sessionId || 'anonymous',
+      identity: sessionId,
       limit: 20, // 20 mensajes por hora por sesión
       windowMs: 60 * 60 * 1000,
     });
@@ -60,6 +73,42 @@ export async function chatWithVirtualAssistant(
       return {
         success: false,
         error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
+      };
+    }
+
+    if (!esLlamadaLegacy) {
+      const historialPrevio = history
+        .map((m) => {
+          const text = Array.isArray(m.content)
+            ? m.content.map((c: any) => c?.text || '').join('')
+            : '';
+          return {
+            role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+            text,
+          };
+        })
+        .filter((m) => m.text.trim().length > 0);
+
+      const { atenderProspectoUnificado } = await import('@/lib/whatsapp/asistente-de-prospectos');
+      const unificado = await atenderProspectoUnificado({
+        canal: 'web',
+        remitenteId: sessionId,
+        texto: messageText,
+        historialPrevio,
+        bienvenidaYaMostrada: opciones?.bienvenidaYaMostrada,
+        nombre: opciones?.nombre,
+      });
+
+      return {
+        success: true,
+        text: unificado.respuesta || (unificado.silenciado
+          ? 'Una persona del equipo ya tomó tu consulta y te va a responder por WhatsApp.'
+          : ''),
+        opciones: unificado.opciones,
+        budgetGenerated: Boolean(unificado.budgetUrl),
+        budgetUrl: unificado.budgetUrl,
+        whatsappUrl: unificado.whatsappUrl,
+        atiende: unificado.atiende,
       };
     }
 
@@ -104,7 +153,7 @@ Si el usuario dice algo que no entendés, preguntá amablemente.`;
       system: systemPrompt,
       messages: [
         ...history,
-        { role: 'user', content: [{ text: newMessage }] }
+        { role: 'user', content: [{ text: messageText }] }
       ]
     });
 
@@ -122,7 +171,7 @@ Si el usuario dice algo que no entendés, preguntá amablemente.`;
 Historial:
 ${JSON.stringify(history)}
 Último mensaje:
-${newMessage}`,
+${messageText}`,
         output: { format: 'json' }
       });
 
@@ -132,7 +181,7 @@ ${newMessage}`,
 
       if (data && data.nombre && data.telefono && data.evento) {
         const permisoConcedido =
-          data.permisoContacto === true && esUnSi(newMessage);
+          data.permisoContacto === true && esUnSi(messageText);
 
         const progressRes = await captureSimulatorLeadProgress({
           clienteNombre: data.nombre,

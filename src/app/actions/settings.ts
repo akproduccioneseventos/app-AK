@@ -511,6 +511,7 @@ export interface AiAssistantSettings {
     content: string;
     updatedAt: string;
   }>;
+  decisionesRapidasActivas?: boolean;
   updatedAt: string;
 }
 
@@ -522,13 +523,18 @@ const defaultAiAssistantSettings: AiAssistantSettings = {
   lessonsLearned: '',
   appFunctionalityContext: '',
   knowledgeDocuments: [],
+  decisionesRapidasActivas: true,
   updatedAt: '',
 };
 
 export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
   await requireAppSession();
   const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
-  return { ...defaultAiAssistantSettings, ...data };
+  return {
+    ...defaultAiAssistantSettings,
+    ...data,
+    decisionesRapidasActivas: data.decisionesRapidasActivas !== false,
+  };
 }
 
 export async function saveAiAssistantSettings(
@@ -541,10 +547,19 @@ export async function saveAiAssistantSettings(
     | 'lessonsLearned'
     | 'appFunctionalityContext'
     | 'knowledgeDocuments'
-  >
+  > & {
+    decisionesRapidasActivas?: boolean;
+  }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+    let decisionesRapidasActivas: boolean;
+    if (typeof settings.decisionesRapidasActivas === 'boolean') {
+      decisionesRapidasActivas = settings.decisionesRapidasActivas;
+    } else {
+      const current = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
+      decisionesRapidasActivas = current?.decisionesRapidasActivas !== false;
+    }
     const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
       ? settings.knowledgeDocuments
           .map(doc => ({
@@ -564,6 +579,7 @@ export async function saveAiAssistantSettings(
       lessonsLearned: (settings.lessonsLearned || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
       appFunctionalityContext: (settings.appFunctionalityContext || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
       knowledgeDocuments: sanitizedKnowledgeDocuments,
+      decisionesRapidasActivas,
       updatedAt: new Date().toISOString(),
     };
     await writeData(AI_ASSISTANT_SETTINGS_FILE, toSave);

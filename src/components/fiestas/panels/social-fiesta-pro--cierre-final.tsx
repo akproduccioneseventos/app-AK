@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
-import { ArrowLeft, Camera, CheckCircle2, Gamepad2, Monitor, QrCode, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle2, Gamepad2, Loader2, Monitor, QrCode, ShieldCheck, Sparkles, Users } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildSocialFinalReadiness, getSocialFinalScore } from '@/lib/social-fiesta/social-final-readiness';
 import type { SocialFinalAreaId } from '@/lib/social-fiesta/social-final-readiness';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const iconByArea: Record<SocialFinalAreaId, LucideIcon> = {
   invitacion: QrCode,
@@ -19,15 +24,37 @@ const iconByArea: Record<SocialFinalAreaId, LucideIcon> = {
   post_evento: CheckCircle2,
 };
 
-type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
-
 function withFiesta(route: string, fiestaId: string): string {
   return `${route}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
-export default async function SocialFiestaCierreFinalPage(props: PageProps) {
-  const params = (await props.searchParams) ?? {};
-  const fiestaId = params.fiestaId;
+export default function SocialFiestaCierreFinalPage() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    if (!fiestaId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getFiestaById(fiestaId)
+      .then((data) => {
+        if (active) setFiesta(data);
+      })
+      .catch(() => {
+        if (active) setFiesta(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [fiestaId]);
 
   if (!fiestaId) {
     return (
@@ -43,7 +70,14 @@ export default async function SocialFiestaCierreFinalPage(props: PageProps) {
     );
   }
 
-  const fiesta = await getFiestaById(fiestaId);
+  if (loading) {
+    return (
+      <main className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
+
   const areas = buildSocialFinalReadiness(fiesta);
   const score = getSocialFinalScore(fiesta);
   const eventName = fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.tipoCelebracion || 'Fiesta AK';

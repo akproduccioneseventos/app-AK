@@ -36,18 +36,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const VALID_LIVE_TABS = new Set(['operaciones', 'modos', 'retorno', 'invitados']);
+
 function LiveEventDashboardContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const fiestaId = searchParams.get('fiestaId');
     const tabParam = searchParams.get('tab');
-    const [activeTab, setActiveTab] = useState(tabParam || 'operaciones');
+    const resolvedTabParam = tabParam && VALID_LIVE_TABS.has(tabParam) ? tabParam : null;
+    const [activeTab, setActiveTab] = useState(resolvedTabParam || 'operaciones');
 
     useEffect(() => {
-        if (tabParam) {
-            setActiveTab(tabParam);
+        if (resolvedTabParam) {
+            setActiveTab(resolvedTabParam);
         }
-    }, [tabParam]);
+    }, [resolvedTabParam]);
 
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [empleados, setEmpleados] = useState<Empleado[]>([]);

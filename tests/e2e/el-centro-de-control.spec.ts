@@ -54,7 +54,7 @@ test.describe('Centro de Control (Orden 236)', () => {
     test.setTimeout(60_000);
     await ponerSesionDelEquipo(context, baseURL);
 
-    await page.goto(`${baseURL}/centro-de-control`);
+    await page.goto(`${baseURL}/mi-dia?tab=centro`);
     await page.waitForLoadState('networkidle');
 
     // 1. Verifica que existan las 3 pestañas con sus nombres EXACTOS

@@ -36,6 +36,8 @@ export interface AsistenteSettings {
   avisosProactivosActivos?: boolean;
   vozEnVivoClienteActiva?: boolean;
   vozEnVivoClienteMinutosPorDia?: number;
+  /** Orden 325: interruptor "El asistente contesta a los prospectos" en WhatsApp. Apagado de entrada. */
+  asistenteProspectosWhatsApp?: boolean;
 }
 
 export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
@@ -61,6 +63,7 @@ export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
   ],
   atenderLlamadasIaHabilitado: false,
   avisosProactivosActivos: true,
+  asistenteProspectosWhatsApp: false,
 };
 
 const SETTINGS_FILE = 'asistente-settings.json';

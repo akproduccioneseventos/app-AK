@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppConfig, saveWhatsAppConfig, getWhatsAppStats } from '@/app/actions/whatsapp';
 import type { WhatsAppConfig, WhatsAppStats } from '@/types/whatsapp';
 import { QRCodeSVG } from 'qrcode.react';
+import { WhatsAppProspectosCrmCard } from './WhatsAppProspectosCrmCard';
 
 const DAYS = [
   { id: 'mon', label: 'Lun' },
@@ -596,6 +597,8 @@ export default function WhatsAppBusinessPage() {
           </CardFooter>
         </Card>
       </form>
+
+      <WhatsAppProspectosCrmCard />
     </div>
   );
 }

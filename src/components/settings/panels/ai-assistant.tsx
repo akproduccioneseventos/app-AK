@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText, ShieldAlert } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText, ShieldAlert, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext, getAiAssistantFallosHoy } from '@/app/actions/settings';
 import { getAssistantOperationalStatus, type AssistantOperationalStatus } from '@/app/actions/assistant-operational-status';
@@ -40,6 +41,7 @@ export default function AiAssistantSettingsPage() {
   const [isScanningApp, setIsScanningApp] = useState(false);
   const [operationalStatus, setOperationalStatus] = useState<AssistantOperationalStatus | null>(null);
   const [fallosHoy, setFallosHoy] = useState<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>>({});
+  const [decisionesRapidasActivas, setDecisionesRapidasActivas] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function AiAssistantSettingsPage() {
         setLessonsLearned(data.lessonsLearned || '');
         setAppFunctionalityContext(data.appFunctionalityContext || '');
         setKnowledgeDocuments(Array.isArray(data.knowledgeDocuments) ? data.knowledgeDocuments : []);
+        setDecisionesRapidasActivas(data.decisionesRapidasActivas !== false);
         setUpdatedAt(data.updatedAt || '');
         setOperationalStatus(status);
         setFallosHoy(fallos || {});
@@ -166,6 +169,7 @@ export default function AiAssistantSettingsPage() {
       lessonsLearned,
       appFunctionalityContext,
       knowledgeDocuments,
+      decisionesRapidasActivas,
     });
     setIsSaving(false);
     if (result.success) {
@@ -261,6 +265,48 @@ export default function AiAssistantSettingsPage() {
               <>
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Probar conexión con Gemini
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-500" />
+            Decisiones rápidas con IA
+          </CardTitle>
+          <CardDescription>
+            Revisa al instante las fotos y videos del muro, ordena las mejores fotos del álbum y avisa si un comprobante coincide con el monto informado.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="space-y-0.5">
+              <Label htmlFor="decisiones-rapidas-switch" className="text-sm font-medium text-slate-900">
+                Decisiones rápidas
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Prendido por defecto. Respeta el tope mensual de IA y, si se apaga o falla, todo sigue funcionando manual como siempre.
+              </p>
+            </div>
+            <Switch
+              id="decisiones-rapidas-switch"
+              checked={decisionesRapidasActivas}
+              onCheckedChange={setDecisionesRapidasActivas}
+            />
+          </div>
+          <Button onClick={handleSave} disabled={isSaving} variant="outline" size="sm">
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Guardar interruptor
               </>
             )}
           </Button>

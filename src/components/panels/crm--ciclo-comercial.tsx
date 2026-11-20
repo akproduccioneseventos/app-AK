@@ -1,7 +1,8 @@
-export const dynamic = 'force-dynamic';
+'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, FileSignature, PartyPopper, ReceiptText, UserRound, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, FileSignature, Loader2, PartyPopper, ReceiptText, UserRound, Users } from 'lucide-react';
 import { getCommercialLifecycleDashboard } from '@/app/actions/commercial-lifecycle';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,8 +41,36 @@ function dateLabel(value?: string) {
   return new Intl.DateTimeFormat('es-UY', { dateStyle: 'medium' }).format(date);
 }
 
-export default async function CicloComercialPage() {
-  const dashboard = await getCommercialLifecycleDashboard();
+type CommercialLifecycleDashboard = Awaited<ReturnType<typeof getCommercialLifecycleDashboard>>;
+
+export default function CicloComercialPage() {
+  const [dashboard, setDashboard] = useState<CommercialLifecycleDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getCommercialLifecycleDashboard()
+      .then((data) => {
+        if (active) setDashboard(data);
+      })
+      .catch(() => {
+        if (active) setDashboard(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (loading || !dashboard) {
+    return (
+      <main className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-red-50 px-4 py-6 text-slate-900 sm:px-6 lg:px-8">

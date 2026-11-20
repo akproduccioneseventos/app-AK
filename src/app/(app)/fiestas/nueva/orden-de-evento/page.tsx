@@ -29,6 +29,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { armarHojaDeCocina, type HojaDeCocina } from '@/lib/catering/hoja-de-cocina';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -217,7 +218,7 @@ function OrdenDeEventoContenido() {
               <span className="text-xs text-muted-foreground block uppercase font-bold">Fecha</span>
               <span className="font-semibold flex items-center gap-1 mt-0.5">
                 <Calendar className="h-4 w-4 text-slate-500" />
-                {configuracion.fechaEvento || 'A definir'}
+                {configuracion.fechaEvento ? formatearFechaEvento(configuracion.fechaEvento) : 'A definir'}
               </span>
             </div>
             <div>

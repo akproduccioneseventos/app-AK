@@ -40,7 +40,7 @@ test.describe('La web pública se ve — Prueba de visibilidad real y SEO', () =
   });
 
   test('La dirección canónica apunta a la página misma', async ({ page }) => {
-    const rutasMuestreo = ['/bodas', '/quinceaneras', '/cumpleanos', '/catalogo', '/club-uruguay'];
+    const rutasMuestreo = ['/bodas', '/quinceaneras', '/cumpleanos', '/presentacion-led', '/club-uruguay'];
     for (const ruta of rutasMuestreo) {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');

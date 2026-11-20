@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { ComponentType, SVGProps } from 'react';
-import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, FileSignature, Image as ImageIcon, MessageCircle, Music, Palette, Smartphone, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, FileSignature, Image as ImageIcon, Loader2, MessageCircle, Music, Palette, Smartphone, Users } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CLIENT_PORTAL_VIP_AREAS } from '@/lib/client-portal-vip-ux';
 import { getAkFinalPremiumReadinessByArea } from '@/lib/design/ak-final-premium-readiness';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-
-type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 type JourneyItem = {
   title: string;
@@ -43,9 +45,33 @@ function StatusBadge({ state }: { state: 'listo' | 'revisar' }) {
     : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Revisar</Badge>;
 }
 
-export default async function ClientPortalWorldClassPage(props: PageProps) {
-  const params = (await props.searchParams) ?? {};
-  const fiestaId = params.fiestaId;
+export default function ClientPortalWorldClassPage() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    if (!fiestaId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getFiestaById(fiestaId)
+      .then((data) => {
+        if (active) setFiesta(data);
+      })
+      .catch(() => {
+        if (active) setFiesta(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [fiestaId]);
 
   if (!fiestaId) {
     return (
@@ -61,7 +87,14 @@ export default async function ClientPortalWorldClassPage(props: PageProps) {
     );
   }
 
-  const fiesta = await getFiestaById(fiestaId);
+  if (loading) {
+    return (
+      <main className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
+
   const settings = fiesta?.clientPortalSettings;
   const experience = fiesta?.clientePortalExperience;
   const publicHref = publicPortalHref(fiesta);

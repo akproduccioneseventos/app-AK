@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
-import { ArrowLeft, Camera, CheckCircle2, Flame, Gamepad2, Heart, MessageCircle, Monitor, QrCode, ShieldCheck, Sparkles, Trophy, Users, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Camera, CheckCircle2, Flame, Gamepad2, Heart, Loader2, MessageCircle, Monitor, QrCode, ShieldCheck, Sparkles, Trophy, Users, ExternalLink } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +16,6 @@ import { buildLiveWallEmptyState, buildLiveWallPremiumSlides } from '@/lib/socia
 import { buildPresetGameSet, getReadyPromptsForPreset, type FiestaEventPreset } from '@/lib/social-fiesta/games-raffles-ranking';
 import { buildModerationSummary } from '@/lib/social-fiesta/operator-moderation-panel';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-
-type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 function buildEventName(fiesta?: FiestaEnPlanificacion | null): string {
   return fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.tipoCelebracion || 'Evento AK';
@@ -37,9 +39,33 @@ function linkFor(path: string, fiestaId: string): string {
   return `${path}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
-export default async function SocialFiestaProPage(props: PageProps) {
-  const params = (await props.searchParams) ?? {};
-  const fiestaId = params.fiestaId;
+export default function SocialFiestaProPage() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    if (!fiestaId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getFiestaById(fiestaId)
+      .then((data) => {
+        if (active) setFiesta(data);
+      })
+      .catch(() => {
+        if (active) setFiesta(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [fiestaId]);
 
   if (!fiestaId) {
     return (
@@ -55,7 +81,13 @@ export default async function SocialFiestaProPage(props: PageProps) {
     );
   }
 
-  const fiesta = await getFiestaById(fiestaId);
+  if (loading) {
+    return (
+      <main className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
 
   if (!fiesta) {
     return (
@@ -121,8 +153,8 @@ export default async function SocialFiestaProPage(props: PageProps) {
               </Button>
             </div>
             <Badge className="mb-3 border-violet-200 bg-violet-50 text-violet-700">Experiencia gamificada</Badge>
+          </div>
         </div>
-      </div>
 
         <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
           <Card><CardContent className="space-y-5 p-6 sm:p-8">

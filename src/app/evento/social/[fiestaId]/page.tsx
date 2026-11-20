@@ -34,6 +34,8 @@ import {
   Clock,
   Trophy,
   Download,
+  Printer,
+  Radio,
 } from 'lucide-react';
 import TriviaEnVivo from '@/components/games/TriviaEnVivo';
 import { responderTrivia, getMiProgresoDeJuegos } from '@/app/actions/games.actions';
@@ -45,10 +47,16 @@ import {
   addCommentToPost,
   addLikeToPost,
   getChatMessages,
+  getMyMobilePrintRequests,
   getPublicSocialEvent,
   getPublicSocialPosts,
+  recordGuestPresence,
+  requestMobilePrint,
   uploadSocialPost,
 } from '@/app/actions/social-gallery';
+import { isZonaDigitalFeatureEnabled } from '@/lib/zona-digital-adolescentes';
+import { LiveStreamGuestDialog } from '@/components/social-wall/LiveStreamGuestDialog';
+import { GuestbookMessageDialog } from '@/components/social-wall/GuestbookMessageDialog';
 import {
   addDedication,
   addSongRequest,
@@ -148,6 +156,9 @@ function FeedPost({
   liked,
   onLike,
   onComment,
+  canMobilePrint = false,
+  printTicket,
+  onRequestPrint,
 }: {
   post: SocialGalleryPost;
   authorName: string;
@@ -157,6 +168,9 @@ function FeedPost({
   liked: boolean;
   onLike: () => void;
   onComment: (text: string) => Promise<void>;
+  canMobilePrint?: boolean;
+  printTicket?: { ticketNumber: number; status: 'queued' | 'ready' | 'printed' };
+  onRequestPrint?: () => Promise<void>;
 }) {
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
@@ -215,7 +229,7 @@ function FeedPost({
           <span>{post.likes || 0} Me gusta</span>
           <span>{post.comments?.length || 0} comentarios</span>
         </div>
-        <div className="grid grid-cols-3 border-b border-slate-100 py-1">
+        <div className={`grid ${canMobilePrint && !isVideo(post) ? 'grid-cols-4' : 'grid-cols-3'} border-b border-slate-100 py-1`}>
           <button
             type="button"
             onClick={onLike}
@@ -244,6 +258,19 @@ function FeedPost({
           >
             <Download className="h-4 w-4" /> Bajar
           </a>
+          {canMobilePrint && !isVideo(post) && (
+            <button
+              type="button"
+              onClick={() => onRequestPrint?.()}
+              disabled={Boolean(printTicket)}
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-md text-xs font-bold text-slate-700 transition hover:bg-amber-50 disabled:text-amber-700"
+            >
+              <Printer className="h-4 w-4" />
+              {printTicket
+                ? `#${printTicket.ticketNumber} ${printTicket.status === 'ready' ? '¡Lista!' : printTicket.status === 'printed' ? 'Impresa' : 'En cola'}`
+                : 'Imprimir'}
+            </button>
+          )}
         </div>
 
         {(post.comments || []).slice(-4).map((item) => (
@@ -347,8 +374,14 @@ export default function SocialEventPage() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioPreview, setAudioPreview] = useState<string | null>(null);
   const [isPaparazziOpen, setIsPaparazziOpen] = useState(false);
+  const [liveStreamOpen, setLiveStreamOpen] = useState(false);
+  const [guestbookOpen, setGuestbookOpen] = useState(false);
+  const [printTickets, setPrintTickets] = useState<Record<string, { ticketNumber: number; status: 'queued' | 'ready' | 'printed' }>>({});
 
   const settings = useMemo(() => mergeSettings(event?.socialGallerySettings), [event?.socialGallerySettings]);
+  const canLiveStream = isZonaDigitalFeatureEnabled(event?.zonaDigitalAdolescentes, 'transmision_invitado');
+  const canGuestbook = isZonaDigitalFeatureEnabled(event?.zonaDigitalAdolescentes, 'libro_de_firmas');
+  const canMobilePrint = isZonaDigitalFeatureEnabled(event?.zonaDigitalAdolescentes, 'impresion_desde_celular');
   const accentColor = settings.accentColor || '#c81e2a';
   const eventName = settings.title || event?.configuracion.nombreEvento || 'Red social del evento';
   const activeGame = settings.activeGame;
@@ -382,9 +415,55 @@ export default function SocialEventPage() {
     if (pollResult.status === 'fulfilled') setPoll(pollResult.value);
     else anyError = true;
 
+    if (eventResult.status === 'fulfilled' && isZonaDigitalFeatureEnabled(eventResult.value?.zonaDigitalAdolescentes, 'impresion_desde_celular')) {
+      getMyMobilePrintRequests(fiestaId).then((items) => {
+        const nextMap: Record<string, { ticketNumber: number; status: 'queued' | 'ready' | 'printed' }> = {};
+        for (const it of items) {
+          nextMap[it.postId] = { ticketNumber: it.ticketNumber, status: it.status };
+        }
+        setPrintTickets(nextMap);
+      }).catch(() => undefined);
+    }
+
     if (anyError) setHasError(true);
     if (showLoader) setRefreshing(false);
   }, [fiestaId]);
+
+  useEffect(() => {
+    if (!fiestaId) return;
+    const ping = () => {
+      void recordGuestPresence(fiestaId, {
+        guestId: guestId || undefined,
+        guestAccessToken: guestAccessToken || undefined,
+        dispositivoId: idDelTelefono(),
+        tableNumber: guestTableNumber || undefined,
+      }).catch(() => undefined);
+    };
+    ping();
+    const t = setInterval(ping, 60_000);
+    return () => clearInterval(t);
+  }, [fiestaId, guestId, guestAccessToken, guestTableNumber]);
+
+  const handleRequestPrint = async (post: SocialGalleryPost) => {
+    const res = await requestMobilePrint(fiestaId, post.id, {
+      guestId: guestId || undefined,
+      guestAccessToken: guestAccessToken || undefined,
+      dispositivoId: idDelTelefono(),
+      authorName: authorName || post.authorName || 'Invitado',
+    });
+    if (!res.success || !res.request) {
+      toast({ title: 'No se pudo pedir la impresión', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setPrintTickets((prev) => ({
+      ...prev,
+      [post.id]: { ticketNumber: res.request!.ticketNumber, status: res.request!.status },
+    }));
+    toast({
+      title: `Tu foto entró a la cola · Turno #${res.request.ticketNumber}`,
+      description: 'Te avisamos cuando esté lista en la estación de impresión.',
+    });
+  };
 
   const loadSection = useCallback(async (target: SocialSection) => {
     // Si la lectura falla se conserva la lista anterior (no se vacía) y se avisa en chico.
@@ -1157,6 +1236,29 @@ export default function SocialEventPage() {
         onClose={() => setIsPaparazziOpen(false)}
       />
 
+      {canLiveStream && (
+        <LiveStreamGuestDialog
+          open={liveStreamOpen}
+          onOpenChange={setLiveStreamOpen}
+          fiestaId={fiestaId}
+          authorName={authorName || 'Invitado'}
+          guestId={guestId || undefined}
+          guestAccessToken={guestAccessToken || undefined}
+          dispositivoId={idDelTelefono()}
+          accentColor={accentColor}
+        />
+      )}
+
+      {canGuestbook && (
+        <GuestbookMessageDialog
+          open={guestbookOpen}
+          onOpenChange={setGuestbookOpen}
+          fiestaId={fiestaId}
+          authorName={authorName || 'Invitado'}
+          accentColor={accentColor}
+        />
+      )}
+
 
 
       <Dialog open={nameDialogOpen} onOpenChange={(open) => authorName && setNameDialogOpen(open)}>
@@ -1287,6 +1389,32 @@ export default function SocialEventPage() {
               <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>
+                {(canLiveStream || canGuestbook) && (
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+                    {canLiveStream && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setLiveStreamOpen(true)}
+                        className="flex-1 min-w-[160px] h-10 font-bold border-red-200 text-red-700 hover:bg-red-50"
+                      >
+                        <Radio className="w-4 h-4 mr-2" />
+                        Salir en la pantalla
+                      </Button>
+                    )}
+                    {canGuestbook && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setGuestbookOpen(true)}
+                        className="flex-1 min-w-[160px] h-10 font-bold border-violet-200 text-violet-700 hover:bg-violet-50"
+                      >
+                        <Mic className="w-4 h-4 mr-2" />
+                        Dejale un mensaje
+                      </Button>
+                    )}
+                  </div>
+                )}
               </section>
               {hasError && visiblePosts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center text-slate-500">
@@ -1294,7 +1422,7 @@ export default function SocialEventPage() {
                   <p className="text-sm mb-6">Hubo un problema de conexión.</p>
                   <Button onClick={() => void loadCore(true)} className="px-6" style={{ backgroundColor: accentColor }}>Reintentar</Button>
                 </div>
-              ) : visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false && canParticipate} allowComments={settings.allowComments !== false && canParticipate} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento de la fiesta.'} actionLabel={!posts.length && settings.uploadsActive && canUpload ? 'Subí tu primera foto' : undefined} onAction={!posts.length && settings.uploadsActive && canUpload ? () => setUploadOpen(true) : undefined} hint={!posts.length ? 'Todo lo que subas aparece también en la pantalla grande del salón.' : undefined} />}
+              ) : visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false && canParticipate} allowComments={settings.allowComments !== false && canParticipate} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} canMobilePrint={canMobilePrint} printTicket={printTickets[post.id]} onRequestPrint={() => handleRequestPrint(post)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento de la fiesta.'} actionLabel={!posts.length && settings.uploadsActive && canUpload ? 'Subí tu primera foto' : undefined} onAction={!posts.length && settings.uploadsActive && canUpload ? () => setUploadOpen(true) : undefined} hint={!posts.length ? 'Todo lo que subas aparece también en la pantalla grande del salón.' : undefined} />}
             </div>
           )}
 

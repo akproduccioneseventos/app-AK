@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppSettings, saveWhatsAppSettings } from '@/app/actions/settings';
 import type { WhatsAppSettings } from '@/types/settings';
 import type { WhatsAppAutomationRule, AutomationTrigger, MessageTemplateType } from '@/types/whatsapp-automation';
+import { WhatsAppProspectosCrmCard } from './WhatsAppProspectosCrmCard';
 
 export default function WhatsAppSettingsPage() {
   const { toast } = useToast();
@@ -537,6 +538,8 @@ export default function WhatsAppSettingsPage() {
           </CardFooter>
         </Card>
       </form>
+
+      <WhatsAppProspectosCrmCard />
     </div>
   );
 }

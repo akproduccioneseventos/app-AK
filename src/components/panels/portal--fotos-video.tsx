@@ -28,6 +28,7 @@ import {
   Film,
 } from 'lucide-react';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
+import { MensajesParaVosSection } from '@/components/album/MensajesParaVosSection';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
@@ -432,6 +433,9 @@ export default function FotosVideoPortalPage() {
             </div>
           ) : null
         )}
+
+        {/* --- LIBRO DE FIRMAS PRIVADO ("Mensajes para vos") --- */}
+        <MensajesParaVosSection fiestaId={fiestaId} variant="light" />
 
         {/* --- ENTREGAS FORMALES DE FOTOGRAFÍA & FILMACIÓN --- */}
         <div className="space-y-4">

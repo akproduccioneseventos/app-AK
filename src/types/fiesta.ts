@@ -923,6 +923,8 @@ export interface SocialGallerySettings {
   maxImpresionesPorPersona?: number;
   /** Si se incluye franja inferior con marco, fecha, logo y nombre en la impresión */
   marcoEnImpresion?: boolean;
+  /** Transición visual elegida para las fotos en pantalla gigante */
+  transicion?: 'fundido' | 'deslizar' | 'zoom' | 'polaroid' | 'al_ritmo';
 }
 
 export interface SocialGalleryBrand {
@@ -1404,7 +1406,10 @@ export type ZonaDigitalFeatureId =
   | 'totems'
   | 'audioritmico'
   | 'ranking'
-  | 'recap';
+  | 'recap'
+  | 'transmision_invitado'
+  | 'libro_de_firmas'
+  | 'impresion_desde_celular';
 
 export type ZonaDigitalGameType =
   | 'reto_foto'
@@ -1902,6 +1907,16 @@ export interface BebidaReceta {
 export type CostoCategoria = string;
 
 // --- CLIENT PAYMENT NOTIFICATIONS ---
+export type TipoComprobanteIA = 'transferencia' | 'deposito' | 'mercado_pago' | 'otro';
+
+export interface ClientPaymentRevisionIA {
+  esComprobante: boolean;
+  montoCoincide: boolean;
+  tieneFecha: boolean;
+  tipo: TipoComprobanteIA;
+  revisadoAt: string;
+}
+
 export interface ClientPaymentNotification {
   id: string;
   monto: number;
@@ -1914,6 +1929,8 @@ export interface ClientPaymentNotification {
   /** Cuándo quedó acreditado en el presupuesto. Con esto puesto, ningún intento fallido lo vuelve a pendiente. */
   cobroConfirmadoAt?: string;
   notas?: string;
+  /** Sólo informativo: la IA nunca cambia el estado ni acredita plata. */
+  revisionIA?: ClientPaymentRevisionIA;
 }
 
 export interface ClientMenuChangeRequest {

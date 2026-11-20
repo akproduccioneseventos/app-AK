@@ -5,6 +5,7 @@ import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell
 const __AkPanel1 = __akDynamic(() => import('@/components/panels/fiesta--entretenimiento-control'));
 const __AkPanel2 = __akDynamic(() => import('@/components/panels/fiesta--barra-tecnologica'));
 const __AkPanel3 = __akDynamic(() => import('@/components/panels/fiesta--pantallas-totem'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/fiesta--zona-digital'));
 
 import React, { Suspense, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
@@ -2729,9 +2730,9 @@ export default function EntretenimientoPage() {
   return (
     <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
       <__AkTabHostShell
-        tabs={[{"id":"entretenimiento","label":"Entretenimiento"},{"id":"control","label":"Control en vivo"},{"id":"barra","label":"Barra tecnológica"},{"id":"pantallas","label":"Pantallas y tótem"}]}
+        tabs={[{"id":"entretenimiento","label":"Entretenimiento"},{"id":"control","label":"Control en vivo"},{"id":"barra","label":"Barra tecnológica"},{"id":"pantallas","label":"Pantallas y tótem"},{"id":"zona-digital","label":"Zona digital"}]}
         renderDefault={() => <EntretenimientoPageInner />}
-        renderTab={(tab) => { if (tab === 'control') return <__AkPanel1 />; if (tab === 'barra') return <__AkPanel2 />; if (tab === 'pantallas') return <__AkPanel3 />; return null; }}
+        renderTab={(tab) => { if (tab === 'control') return <__AkPanel1 />; if (tab === 'barra') return <__AkPanel2 />; if (tab === 'pantallas') return <__AkPanel3 />; if (tab === 'zona-digital') return <__AkPanel4 />; return null; }}
       />
     </__AkSuspense>
   );

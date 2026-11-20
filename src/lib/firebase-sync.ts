@@ -12,6 +12,8 @@ import { ChoqueAlGuardar, decidirGuardado, marcarLectura, sacarMarcas } from './
 
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
+  'marketing-competencia.json': 'marketing_competencia',
+  'marketing-enlaces-clics.json': 'marketing_enlaces_clics',
   'customers.json': 'clientes',
   'servicios-empresa.json': 'servicios',
   'empleados.json': 'empleados',

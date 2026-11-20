@@ -7,6 +7,9 @@ import {
   saveSettingsAsistenteAction,
   eliminarReglaAprendidaAction,
 } from '@/app/actions/asistente-proactivo.actions';
+import { getBudgetDisplaySettings, saveBudgetDisplaySettings } from '@/app/actions/settings';
+import { getAjustesRespuestasAction, setAjustesRespuestasAction } from '@/app/actions/presencia-digital';
+import type { BudgetDisplaySettings } from '@/types/settings';
 import type { AsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import type { ReglaAprendida } from '@/lib/asistente/propuestas-service';
 import {
@@ -55,6 +58,10 @@ export default function AsistenteSettingsPage() {
   const [vozTelefonoActiva, setVozTelefonoActiva] = useState(true);
   const [vozEnVivoActiva, setVozEnVivoActiva] = useState(true);
   const [vozEnVivoMinutos, setVozEnVivoMinutos] = useState(10);
+  const [asistenteProspectosWhatsApp, setAsistenteProspectosWhatsApp] = useState(false);
+  const [webAssistantEnabled, setWebAssistantEnabled] = useState(false);
+  const [budgetSettingsCache, setBudgetSettingsCache] = useState<BudgetDisplaySettings | null>(null);
+  const [mensajesDirectosRedes, setMensajesDirectosRedes] = useState(true);
   const [numerosEquipo, setNumerosEquipo] = useState<Array<{ telefono: string; nombre: string; rol: string }>>([
     { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ]);
@@ -69,7 +76,18 @@ export default function AsistenteSettingsPage() {
 
   const cargar = async () => {
     setLoading(true);
-    const res = await getSettingsAsistenteAction();
+    const [res, budgetCfg, ajustesRedes] = await Promise.all([
+      getSettingsAsistenteAction(),
+      getBudgetDisplaySettings().catch(() => null),
+      getAjustesRespuestasAction().catch(() => null),
+    ]);
+    if (budgetCfg) {
+      setBudgetSettingsCache(budgetCfg);
+      setWebAssistantEnabled(Boolean(budgetCfg.virtualAssistantEnabled));
+    }
+    if (ajustesRedes && typeof (ajustesRedes as any).mensajesDirectos === 'boolean') {
+      setMensajesDirectosRedes(Boolean((ajustesRedes as any).mensajesDirectos));
+    }
     if (res.success && res.settings) {
       setSettings(res.settings);
       setAvisoCelular(res.settings.avisoCelularHabilitado ?? true);
@@ -85,6 +103,7 @@ export default function AsistenteSettingsPage() {
       setVozTelefonoActiva(res.settings.vozTelefonoActiva !== false);
       setVozEnVivoActiva(res.settings.vozEnVivoActiva !== false);
       setVozEnVivoMinutos(res.settings.vozEnVivoMinutosPorDia ?? 10);
+      setAsistenteProspectosWhatsApp(Boolean(res.settings.asistenteProspectosWhatsApp));
       if (res.settings.numerosEquipo && res.settings.numerosEquipo.length > 0) {
         setNumerosEquipo(res.settings.numerosEquipo);
       }
@@ -116,13 +135,34 @@ export default function AsistenteSettingsPage() {
       vozEnVivoMinutosPorDia: Math.max(0, Math.min(600, Math.floor(Number(vozEnVivoMinutos) || 0))),
       numerosEquipo,
       asistentesAreas: areas,
+      asistenteProspectosWhatsApp,
     });
 
+    let budgetError: string | undefined;
+    if (budgetSettingsCache) {
+      const budgetRes = await saveBudgetDisplaySettings({
+        ...budgetSettingsCache,
+        virtualAssistantEnabled: webAssistantEnabled,
+      }).catch(() => ({ success: false, error: 'No se pudo guardar la configuración del asistente web.' }));
+      if (!budgetRes.success) {
+        budgetError = budgetRes.error;
+      }
+    }
+    await setAjustesRespuestasAction({ mensajesDirectos: mensajesDirectosRedes }).catch(() => {});
+
     if (res.success) {
-      toast({
-        title: 'Guardado',
-        description: 'Configuración guardada correctamente.',
-      });
+      if (budgetError) {
+        toast({
+          title: 'Guardado con advertencia',
+          description: `Configuración guardada, pero el asistente web falló: ${budgetError}`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Guardado',
+          description: 'Configuración guardada correctamente.',
+        });
+      }
     } else {
       toast({
         title: 'Error',
@@ -278,6 +318,68 @@ export default function AsistenteSettingsPage() {
               </div>
               <p className="text-[11px] text-slate-400">Durante este horario no se mandan WhatsApps; se juntan para las 8 hs.</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 1.5. Canales de Atención a Prospectos */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-emerald-600" />
+            Asistente para prospectos por canal
+          </CardTitle>
+          <CardDescription>
+            Prendé o apagá el asistente virtual en cada canal. Web y WhatsApp vienen apagados de fábrica.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="switch-canal-web" className="text-sm font-medium text-slate-800">
+                Web (asistente en la página)
+              </Label>
+              <p className="text-xs text-slate-500">
+                Muestra el chat del asistente en la web pública (apagado de entrada).
+              </p>
+            </div>
+            <Switch
+              id="switch-canal-web"
+              checked={webAssistantEnabled}
+              onCheckedChange={setWebAssistantEnabled}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="switch-canal-whatsapp" className="text-sm font-medium text-slate-800">
+                El asistente contesta a los prospectos (WhatsApp)
+              </Label>
+              <p className="text-xs text-slate-500">
+                Atiende consultas de prospectos en WhatsApp respetando números personales y notas bajas (apagado de entrada).
+              </p>
+            </div>
+            <Switch
+              id="switch-canal-whatsapp"
+              checked={asistenteProspectosWhatsApp}
+              onCheckedChange={setAsistenteProspectosWhatsApp}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="switch-canal-redes" className="text-sm font-medium text-slate-800">
+                Instagram DM y Messenger
+              </Label>
+              <p className="text-xs text-slate-500">
+                Reutiliza el interruptor de mensajes directos en redes sociales (Presencia digital).
+              </p>
+            </div>
+            <Switch
+              id="switch-canal-redes"
+              checked={mensajesDirectosRedes}
+              onCheckedChange={setMensajesDirectosRedes}
+            />
           </div>
         </CardContent>
       </Card>

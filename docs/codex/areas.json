@@ -217,7 +217,9 @@
         "src/components/panels/empresa--creador-anuncios.tsx",
         "src/app/api/marketing",
         "src/app/api/v1",
-        "src/components/panels/empresa--resenas-google.tsx"
+        "src/components/panels/empresa--resenas-google.tsx",
+        "src/app/enlaces/page.tsx",
+        "src/app/api/enlaces/clic/route.ts"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {

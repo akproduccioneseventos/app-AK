@@ -105,8 +105,8 @@ test.describe('Orden 79 - los enlaces llegan a donde dicen', () => {
       const linkRoto = page.locator('a[href="/fiestas"]');
       await expect(linkRoto, `En ${url} sin fiesta no debe existir href="/fiestas"`).toHaveCount(0);
 
-      // Debe ofrecer ir a /eventos
-      const linkEventos = page.locator('a[href="/eventos"]');
+      // Debe ofrecer ir a /eventos dentro del contenido principal (no solo en la barra lateral)
+      const linkEventos = page.locator('main a[href="/eventos"]').first();
       await expect(linkEventos, `En ${url} sin fiesta debe apuntar a /eventos`).toBeVisible({ timeout: 15_000 });
     }
   });

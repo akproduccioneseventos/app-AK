@@ -9,7 +9,7 @@ import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppSta
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import type { CrmLead } from '@/types/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
-import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
@@ -42,6 +42,8 @@ const defaultConfig: WhatsAppConfig = {
     sendMarketingFollowUp: true,
     logMessageHistory: true,
   },
+  llevarWhatsAppProspectosAlCrm: false,
+  numerosPersonales: [],
 };
 
 // --- Config ---
@@ -102,6 +104,80 @@ export async function saveWhatsAppConfig(
     return { success: true, config: toSave };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al guardar la configuración.' };
+  }
+}
+
+export async function getWhatsAppProspectosCrmSettings(): Promise<{
+  llevarWhatsAppProspectosAlCrm: boolean;
+  numerosPersonales: string[];
+}> {
+  const auth = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!auth.ok) {
+    throw new Error(auth.error || 'No autorizado');
+  }
+  const data = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
+  return {
+    llevarWhatsAppProspectosAlCrm: Boolean(data?.llevarWhatsAppProspectosAlCrm ?? false),
+    numerosPersonales: Array.isArray(data?.numerosPersonales) ? data.numerosPersonales : [],
+  };
+}
+
+export async function saveWhatsAppProspectosCrmSettings(settings: {
+  llevarWhatsAppProspectosAlCrm?: boolean;
+  numerosPersonales?: string[];
+}): Promise<{
+  success: boolean;
+  llevarWhatsAppProspectosAlCrm: boolean;
+  numerosPersonales: string[];
+  error?: string;
+}> {
+  const auth = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!auth.ok) {
+    return {
+      success: false,
+      llevarWhatsAppProspectosAlCrm: false,
+      numerosPersonales: [],
+      error: auth.error || 'No autorizado',
+    };
+  }
+  try {
+    const current = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
+    const llevarWhatsAppProspectosAlCrm =
+      settings.llevarWhatsAppProspectosAlCrm !== undefined
+        ? Boolean(settings.llevarWhatsAppProspectosAlCrm)
+        : Boolean(current?.llevarWhatsAppProspectosAlCrm ?? false);
+    const numerosPersonales = Array.isArray(settings.numerosPersonales)
+      ? Array.from(
+          new Set(
+            settings.numerosPersonales
+              .map((n) => String(n || '').trim())
+              .filter(Boolean),
+          ),
+        )
+      : (Array.isArray(current?.numerosPersonales) ? current.numerosPersonales : []);
+
+    const toSave: WhatsAppConfig = {
+      ...defaultConfig,
+      ...current,
+      messages: { ...defaultConfig.messages, ...(current?.messages ?? {}) },
+      schedule: { ...defaultConfig.schedule, ...(current?.schedule ?? {}) },
+      integrations: { ...defaultConfig.integrations, ...(current?.integrations ?? {}) },
+      llevarWhatsAppProspectosAlCrm,
+      numerosPersonales,
+    };
+    await writeData(CONFIG_FILE, toSave);
+    return {
+      success: true,
+      llevarWhatsAppProspectosAlCrm,
+      numerosPersonales,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      llevarWhatsAppProspectosAlCrm: false,
+      numerosPersonales: [],
+      error: error?.message || 'Error al guardar los ajustes.',
+    };
   }
 }
 

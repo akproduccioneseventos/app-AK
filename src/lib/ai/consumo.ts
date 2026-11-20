@@ -37,7 +37,8 @@ export type FuncionConCosto =
   | 'whatsapp-media'
   | 'asistente-dot-contador'
   | 'recorte-decoracion'
-  | 'respuesta-profunda';
+  | 'respuesta-profunda'
+  | 'decisiones';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -78,6 +79,8 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'asistente-dot-contador': 1,
   'recorte-decoracion': 6,
   'respuesta-profunda': 3,
+  // Preguntas cerradas con gemini-decision-1 (sin tokens de salida): estimacion minima por consulta.
+  decisiones: 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

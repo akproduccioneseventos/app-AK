@@ -20,21 +20,16 @@ function createSessionToken() {
   return encodeURIComponent(`${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`); // Next decodifica el valor de la cookie: va codificado una vez más.
 }
 
-const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas', '/empresa/contabilidad/reportes',
-  '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
-  '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
-  '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico',
+const RUTAS_INTERNAS = ['/mi-dia', '/settings', '/asistente', '/customers', '/presupuestos/nuevo', '/eventos', '/pagos-rapidos',
+  '/empresa/menus', '/empresa/contabilidad/reportes', '/contabilidad/crm',
+  '/fiestas/nueva/reuniones', '/empresa/presencia-digital', '/fiestas/nueva/decoracion',
   // Pantallas que listan mucha gente o muchos ítems: con la fiesta de prueba de
   // 80 invitados en diez mesas es donde aparecen los desbordes de verdad.
-  '/fiestas/nueva/invitados', '/fiestas/nueva/invitados/layout',
+  '/fiestas/nueva/invitados',
   '/fiestas/nueva/personal', '/fiestas/nueva/carga-operativa',
   '/fiestas/nueva/gestion-costos-rentabilidad',
   '/empresa/insumos', '/empresa/activos-fijos'];
-// El catálogo se muestra en persona, con el cliente al lado: que se corte el
-// botón de avanzar es de lo peor que puede pasar. Va con los cinco tipos.
-const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/presentacion-led',
-  '/catalogo/bodas', '/catalogo/xv-anos', '/catalogo/cumpleanos',
-  '/catalogo/corporativos', '/catalogo/aniversarios'];
+const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/presentacion-led', '/enlaces'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
 const TOLERANCIA = 2;

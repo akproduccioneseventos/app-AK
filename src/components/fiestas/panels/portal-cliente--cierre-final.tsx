@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, Image as ImageIcon, MessageCircle, Smartphone, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, Image as ImageIcon, Loader2, MessageCircle, Smartphone, Users } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildClientFinalReadiness, getClientFinalScore } from '@/lib/client-portal/client-final-readiness';
 import type { ClientFinalAreaId } from '@/lib/client-portal/client-final-readiness';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const iconByArea: Record<ClientFinalAreaId, typeof Smartphone> = {
   portada: ImageIcon,
@@ -17,8 +22,6 @@ const iconByArea: Record<ClientFinalAreaId, typeof Smartphone> = {
   post_evento: CheckCircle2,
 };
 
-type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
-
 function withFiesta(route: string, fiestaId: string): string {
   return `${route}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
@@ -27,9 +30,33 @@ function portalPublicHref(accessKey?: string): string | undefined {
   return accessKey ? `/portal/c/${encodeURIComponent(accessKey)}` : undefined;
 }
 
-export default async function ClienteCierreFinalPage(props: PageProps) {
-  const params = (await props.searchParams) ?? {};
-  const fiestaId = params.fiestaId;
+export default function ClienteCierreFinalPage() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    if (!fiestaId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getFiestaById(fiestaId)
+      .then((data) => {
+        if (active) setFiesta(data);
+      })
+      .catch(() => {
+        if (active) setFiesta(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [fiestaId]);
 
   if (!fiestaId) {
     return (
@@ -45,7 +72,14 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
     );
   }
 
-  const fiesta = await getFiestaById(fiestaId);
+  if (loading) {
+    return (
+      <main className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </main>
+    );
+  }
+
   const areas = buildClientFinalReadiness(fiesta);
   const score = getClientFinalScore(fiesta);
   const eventName = fiesta?.clientePortalExperience?.eventDisplayName || fiesta?.configuracion?.nombreEvento || 'Portal del cliente';
@@ -98,12 +132,12 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
                 <p className="mt-1">Todo tiene que abrirse y cerrarse por secciones.</p>
               </div>
               <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">Botones grandes</p>
-                <p className="mt-1">El cliente debe poder tocar sin saber informatica.</p>
+                <p className="font-semibold text-slate-950">Un solo contacto</p>
+                <p className="mt-1">No llenar la pantalla de botones repetidos para escribir.</p>
               </div>
               <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">Un solo contacto</p>
-                <p className="mt-1">Las dudas se mandan desde un punto claro, no repetido.</p>
+                <p className="font-semibold text-slate-950">Post-evento claro</p>
+                <p className="mt-1">Las fotos y videos finales deben encontrarse rapido después de la fiesta.</p>
               </div>
             </CardContent>
           </Card>
@@ -126,7 +160,7 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground">{area.simpleGoal}</p>
                   <div className={area.ready ? 'rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800' : 'rounded-lg bg-amber-50 p-3 text-sm text-amber-900'}>
-                    {area.ready ? 'Listo para mostrar' : 'Falta activar o completar'}
+                    {area.ready ? 'Listo para usar' : 'Falta completar antes de entregar'}
                   </div>
                   <p className="text-xs text-muted-foreground">{area.clientWords}</p>
                   <Button asChild variant="outline" className="w-full justify-start">
@@ -137,23 +171,6 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
             );
           })}
         </section>
-
-        <Card>
-          <CardContent className="grid gap-4 p-5 md:grid-cols-3">
-            <div className="rounded-lg bg-white p-4">
-              <p className="font-semibold text-slate-950">Cliente entiende</p>
-              <p className="mt-1 text-sm text-muted-foreground">Ve su evento, sus pagos, sus invitados y lo que tiene que hacer.</p>
-            </div>
-            <div className="rounded-lg bg-white p-4">
-              <p className="font-semibold text-slate-950">AK controla</p>
-              <p className="mt-1 text-sm text-muted-foreground">La empresa decide que se muestra y que el cliente puede cambiar.</p>
-            </div>
-            <div className="rounded-lg bg-white p-4">
-              <p className="font-semibold text-slate-950">Menos mensajes sueltos</p>
-              <p className="mt-1 text-sm text-muted-foreground">La información importante queda dentro del portal.</p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </main>
   );

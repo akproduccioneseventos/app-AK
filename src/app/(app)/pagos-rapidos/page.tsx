@@ -37,6 +37,7 @@ import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import Image from 'next/image';
 import { getBudgetPaymentSummary, getPaymentReceiptSnapshot } from '@/lib/budget/financial-guardrails';
+import { resumenRevisionComprobanteIA } from '@/lib/client-portal/payment-notifications';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 const formatCurrency = (amount?: number) => {
@@ -909,7 +910,9 @@ function PagosRapidosContent() {
                   </Card>
                 );
               })}
-              {pendingAvisosCliente.map(({ fiestaId, fiestaNombre, notificacion }) => (
+              {pendingAvisosCliente.map(({ fiestaId, fiestaNombre, notificacion }) => {
+                const cartelIA = resumenRevisionComprobanteIA(notificacion.revisionIA);
+                return (
                 <Card key={`aviso-${fiestaId}-${notificacion.id}`} className="border-indigo-100 shadow-md rounded-2xl overflow-hidden">
                   <CardHeader className="bg-indigo-50/50 p-4 pb-3">
                     <div className="flex items-center justify-between gap-2">
@@ -940,6 +943,30 @@ function PagosRapidosContent() {
                         </Button>
                       </Link>
                     </div>
+                    {cartelIA && (
+                      <div
+                        className={cn(
+                          'flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-xs font-semibold',
+                          cartelIA.nivel === 'ok'
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                            : cartelIA.nivel === 'atencion'
+                            ? 'bg-amber-50 border-amber-200 text-amber-800'
+                            : 'bg-rose-50 border-rose-200 text-rose-800',
+                        )}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          {cartelIA.nivel === 'ok' ? (
+                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                          ) : (
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                          )}
+                          {cartelIA.texto}
+                        </span>
+                        <Badge variant="outline" className="text-[10px] font-bold shrink-0 bg-white/70">
+                          {cartelIA.tipoLabel}
+                        </Badge>
+                      </div>
+                    )}
                     {notificacion.notas && (
                       <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
                         📝 {notificacion.notas}
@@ -947,7 +974,8 @@ function PagosRapidosContent() {
                     )}
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

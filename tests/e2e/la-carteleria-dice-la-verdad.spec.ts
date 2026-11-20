@@ -42,12 +42,12 @@ test.describe('Orden 73 Bloque 1: La cartelería dice la verdad', () => {
 
     await ponerSesionDelEquipo(context, baseURL);
 
-    await page.goto(`/fiestas/nueva/carteleria?fiestaId=${FIESTA_ID}`, {
+    await page.goto(`/fiestas/nueva/orden-de-evento?fiestaId=${FIESTA_ID}`, {
       waitUntil: 'domcontentloaded',
     });
 
     // Esperar a que cargue la pantalla
-    await expect(page.getByText('Generador de Cartelería de Mesas')).toContainText('Generador de Cartelería de Mesas');
+    await expect(page.getByRole('heading', { name: 'Orden de Evento' })).toBeVisible({ timeout: 30_000 });
 
     // La fecha debe decir 30 de setiembre/septiembre de 2026, nunca 29
     const textoFecha = page.getByText(/30 de se(p)?tiembre de 2026/i);

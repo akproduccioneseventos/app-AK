@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
+import { buildAccesosVivosInvitacion } from '@/lib/invitacion/accesos-vivos';
 import { InvitacionPublicaClient } from './invitacion-publica-client';
 
 interface PageProps {
@@ -74,6 +75,15 @@ export default async function InvitacionPublicaPage(props: PageProps) {
   }
 
   const config = buildInvitacionConfigFromFiesta(fiesta, fiesta.invitacionConfig);
+  const accesosVivos = buildAccesosVivosInvitacion(fiesta, params.fiestaId);
 
-  return <InvitacionPublicaClient config={config} fiestaId={params.fiestaId} socialConnections={socialConnections} galeriaUrl={fiesta.galeriaUrl} />;
+  return (
+    <InvitacionPublicaClient
+      config={config}
+      fiestaId={params.fiestaId}
+      socialConnections={socialConnections}
+      galeriaUrl={fiesta.galeriaUrl}
+      accesosVivos={accesosVivos}
+    />
+  );
 }

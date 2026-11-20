@@ -48,6 +48,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 
 const SalonScene = dynamic(() => import('@/components/salon-3d/SalonScene'), {
   ssr: false,
@@ -1049,7 +1050,9 @@ function SalonLayoutContent() {
                     <CardContent className={cn("flex-grow p-0 overflow-auto relative", view3d ? "bg-slate-900" : "bg-slate-50/30")} onMouseDown={() => !view3d && setSelectedElementId(null)}>
                         {view3d ? (
                           <div className="w-full h-full min-h-[500px]">
-                            <SalonScene captureRef={salonSceneRef} decoracion={decoracion} />
+                            <SalonSceneAislada>
+                              <SalonScene captureRef={salonSceneRef} decoracion={decoracion} />
+                            </SalonSceneAislada>
                           </div>
                         ) : (
                         <div className="relative canvas-grid-background transition-transform duration-300 ease-out" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>

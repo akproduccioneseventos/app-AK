@@ -35,6 +35,7 @@ import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMedia
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import { FONDOS_MURO } from '@/lib/social-fiesta/fondos-muro';
+import { TRANSICIONES_MURO, normalizarTransicionMuro } from '@/lib/social-fiesta/transiciones-muro';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   getGlobalScreenMediaLibrary,
@@ -1517,6 +1518,29 @@ function MuroSocialContent() {
                   className="h-9 text-xs"
                 />
               </div>
+
+              <div className="space-y-1.5 sm:col-span-3">
+                <Label htmlFor="muro-transicion-select" className="text-xs font-semibold">Transición de fotos en pantalla gigante</Label>
+                <Select
+                  value={normalizarTransicionMuro(settings.transicion)}
+                  onValueChange={(val) =>
+                    handleUpdateMuroSetting({
+                      transicion: normalizarTransicionMuro(val),
+                    })
+                  }
+                >
+                  <SelectTrigger id="muro-transicion-select" className="text-xs h-9">
+                    <SelectValue placeholder="Fundido suave" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRANSICIONES_MURO.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.nombre} — {t.descripcion}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1534,6 +1558,8 @@ function MuroSocialContent() {
               { key: 'showSongRequests', label: 'Pedidos de canciones 🎵' },
               { key: 'showDedications', label: 'Dedicatorias 💌' },
               { key: 'showPolls', label: 'Encuestas y juegos 🎯' },
+              { key: 'photoFrame', label: 'Marco del evento en pantalla 🖼️' },
+              { key: 'marcoEnImpresion', label: 'Marco del evento al imprimir 🖨️' },
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between rounded-lg border p-3">
                 <span className="text-sm font-medium">{item.label}</span>

@@ -1,16 +1,4 @@
 {
-  "chromium-desktop /admin": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 321,
-    "h1Y": 18,
-    "h1W": 129,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 257,
-    "mainW": 1023,
-    "colores": 1190975077
-  },
   "chromium-desktop /customers": {
     "anchoDocumento": 1280,
     "desborde": 0,
@@ -28,7 +16,7 @@
     "desborde": 0,
     "h1X": 321,
     "h1Y": 18,
-    "h1W": 212,
+    "h1W": 216,
     "headerY": 0,
     "headerH": 64,
     "mainX": 257,
@@ -59,18 +47,6 @@
     "mainW": 1280,
     "colores": -1634398827
   },
-  "chromium-desktop /catalogo/bodas": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 332,
-    "h1Y": 365,
-    "h1W": 617,
-    "headerY": 0,
-    "headerH": 125,
-    "mainX": 0,
-    "mainW": 1280,
-    "colores": 1597126197
-  },
   "chromium-desktop /presentacion-led": {
     "anchoDocumento": 1280,
     "desborde": 0,
@@ -94,30 +70,6 @@
     "mainX": 257,
     "mainW": 1023,
     "colores": 1190975077
-  },
-  "chromium-desktop /contabilidad/comercial-360": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 281,
-    "h1Y": 18,
-    "h1W": 150,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 257,
-    "mainW": 1023,
-    "colores": 1190975077
-  },
-  "chromium-mobile /admin": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": 96,
-    "h1Y": 22,
-    "h1W": 101,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 0,
-    "mainW": 412,
-    "colores": 90644102
   },
   "chromium-mobile /customers": {
     "anchoDocumento": 412,
@@ -167,18 +119,6 @@
     "mainW": 412,
     "colores": -1634398827
   },
-  "chromium-mobile /catalogo/bodas": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": 32,
-    "h1Y": 309,
-    "h1W": 348,
-    "headerY": 0,
-    "headerH": 69,
-    "mainX": 0,
-    "mainW": 412,
-    "colores": 1597126197
-  },
   "chromium-mobile /presentacion-led": {
     "anchoDocumento": 412,
     "desborde": 0,
@@ -203,16 +143,124 @@
     "mainW": 412,
     "colores": 90644102
   },
-  "chromium-mobile /contabilidad/comercial-360": {
+  "chromium-desktop /mi-dia": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 281,
+    "h1Y": 18,
+    "h1W": 151,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "colores": 1190975077
+  },
+  "chromium-desktop /settings": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 198,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "colores": 1190975077
+  },
+  "chromium-desktop /asistente": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 281,
+    "h1Y": 18,
+    "h1W": 151,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "colores": 1190975077
+  },
+  "chromium-desktop /contabilidad/crm": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 254,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "colores": 1190975077
+  },
+  "chromium-desktop /enlaces": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 525,
+    "h1Y": 144,
+    "h1W": 231,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": 0,
+    "mainW": 1280,
+    "colores": -1946129126
+  },
+  "chromium-mobile /mi-dia": {
     "anchoDocumento": 412,
     "desborde": 0,
     "h1X": 56,
     "h1Y": 22,
-    "h1W": 117,
+    "h1W": 116,
     "headerY": 0,
     "headerH": 64,
     "mainX": 0,
     "mainW": 412,
     "colores": 90644102
+  },
+  "chromium-mobile /settings": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 94,
+    "h1Y": 22,
+    "h1W": 142,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "colores": 90644102
+  },
+  "chromium-mobile /asistente": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 56,
+    "h1Y": 22,
+    "h1W": 116,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "colores": 90644102
+  },
+  "chromium-mobile /contabilidad/crm": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 89,
+    "h1Y": 22,
+    "h1W": 147,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "colores": 90644102
+  },
+  "chromium-mobile /enlaces": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 91,
+    "h1Y": 204,
+    "h1W": 231,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": 0,
+    "mainW": 412,
+    "colores": -1946129126
   }
 }

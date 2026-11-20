@@ -23,9 +23,15 @@ import {
   EyeOff,
   CheckCircle2,
   Tv,
+  Radio,
+  Users,
+  BarChart3,
+  Check,
+  X,
 } from 'lucide-react';
 import {
   obtenerEstadoControlPantalla,
+  obtenerEstadisticasEnVivo,
   nextScreenItem,
   prevScreenItem,
   playScreenPlaylist,
@@ -38,6 +44,14 @@ import {
   sortearGanadorEnServidor,
   getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
+import {
+  getLiveStreamRequestsForOperator,
+  acceptLiveStreamRequest,
+  rejectLiveStreamRequest,
+  stopLiveStreamRequest,
+} from '@/app/actions/social-live-stream';
+import { formatearDatoEstadistica, type LiveEventStats } from '@/lib/social-fiesta/estadisticas-en-vivo';
+import type { LiveStreamRequest } from '@/lib/social-fiesta/transmision-invitado';
 import { getSocialPosts, moderateSocialPost } from '@/app/actions/social-gallery';
 import { terminarTrivia, revelarRespuestaTrivia } from '@/app/actions/games.actions';
 import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
@@ -72,6 +86,9 @@ export default function ControlPantallaPage() {
 
   // Últimas fotos
   const [ultimasFotos, setUltimasFotos] = useState<SocialGalleryPost[]>([]);
+  const [liveStats, setLiveStats] = useState<LiveEventStats | null>(null);
+  const [liveRequests, setLiveRequests] = useState<LiveStreamRequest[]>([]);
+  const [liveFeatureEnabled, setLiveFeatureEnabled] = useState(false);
 
   // Anuncio rápido
   const [anuncioTexto, setAnuncioTexto] = useState('');
@@ -89,17 +106,36 @@ export default function ControlPantallaPage() {
     feedbackTimeoutRef.current = setTimeout(() => setFeedbackMessage(null), 3000);
   };
 
-  // Carga periódica de fotos aprobadas
+  // Carga periódica de fotos aprobadas, estadísticas y pedidos en vivo
   const refrescarFotos = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const posts = await getSocialPosts(fiestaId);
+      const [posts, statsRes] = await Promise.all([
+        getSocialPosts(fiestaId),
+        obtenerEstadisticasEnVivo(fiestaId),
+      ]);
       const aprobadas = posts
         .filter((p) => (p.moderationStatus ?? 'approved') === 'approved')
         .slice(0, 6);
       setUltimasFotos(aprobadas);
+      if (statsRes.success && statsRes.stats) {
+        setLiveStats(statsRes.stats);
+      }
     } catch {
       // Si falla la lectura de fotos no bloquea el control de pantalla
+    }
+  }, [fiestaId]);
+
+  const refrescarLiveStreams = useCallback(async () => {
+    if (!fiestaId) return;
+    try {
+      const res = await getLiveStreamRequestsForOperator(fiestaId);
+      if (res.success) {
+        setLiveRequests(res.requests);
+        setLiveFeatureEnabled(res.featureEnabled);
+      }
+    } catch {
+      // no bloquea el resto del control
     }
   }, [fiestaId]);
 
@@ -137,9 +173,11 @@ export default function ControlPantallaPage() {
   useEffect(() => {
     refrescarEstado(false);
     refrescarFotos();
+    refrescarLiveStreams();
 
     const intervalEstado = setInterval(() => {
       refrescarEstado(true);
+      refrescarLiveStreams();
     }, 2000);
 
     const intervalFotos = setInterval(() => {
@@ -151,7 +189,7 @@ export default function ControlPantallaPage() {
       clearInterval(intervalFotos);
       if (feedbackTimeoutRef.current) clearTimeout(feedbackTimeoutRef.current);
     };
-  }, [refrescarEstado, refrescarFotos]);
+  }, [refrescarEstado, refrescarFotos, refrescarLiveStreams]);
 
   // Ejecutor de acciones con manejo de fallas y rollback
   const ejecutarAccion = async (
@@ -518,6 +556,155 @@ export default function ControlPantallaPage() {
             </div>
           )}
         </section>
+
+        {/* ESTADÍSTICAS EN VIVO PARA EL OPERADOR (Bloque 11) */}
+        <section
+          className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3"
+          data-testid="control-estadisticas-en-vivo"
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-emerald-400" />
+              Estadísticas en vivo
+            </h2>
+            <span className="text-[11px] font-semibold text-slate-400">Datos reales</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-3">
+              <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                <Users className="w-3.5 h-3.5 text-sky-400" /> Entraron
+              </p>
+              <p className="mt-1 text-lg font-black text-white" data-testid="stat-entraron">
+                {liveStats ? formatearDatoEstadistica(liveStats.invitadosEntraron) : 'Sin datos todavía'}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-3">
+              <p className="text-[11px] font-bold text-slate-400">Activos ahora</p>
+              <p className="mt-1 text-lg font-black text-emerald-300" data-testid="stat-ahora">
+                {liveStats ? formatearDatoEstadistica(liveStats.invitadosAhora) : 'Sin datos todavía'}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-3">
+              <p className="text-[11px] font-bold text-slate-400">Fotos subidas / aprobadas</p>
+              <p className="mt-1 text-sm font-black text-white" data-testid="stat-fotos">
+                {liveStats && liveStats.fotosSubidas > 0
+                  ? `${liveStats.fotosSubidas} / ${liveStats.fotosAprobadas}`
+                  : 'Sin datos todavía'}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-3">
+              <p className="text-[11px] font-bold text-slate-400">Votos y likes</p>
+              <p className="mt-1 text-lg font-black text-amber-300" data-testid="stat-votos">
+                {liveStats ? formatearDatoEstadistica(liveStats.votos) : 'Sin datos todavía'}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-slate-950/70 border border-slate-800 p-3 flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400">Mesa más activa</span>
+            <span className="text-sm font-black text-violet-300" data-testid="stat-mesa">
+              {liveStats?.mesaMasActiva
+                ? `Mesa ${liveStats.mesaMasActiva.mesa} (${liveStats.mesaMasActiva.actividad})`
+                : 'Sin datos todavía'}
+            </span>
+          </div>
+        </section>
+
+        {/* TRANSMISIÓN EN VIVO DESDE CELULAR (Bloque 8) */}
+        {(liveFeatureEnabled || liveRequests.length > 0) && (
+          <section
+            className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3"
+            data-testid="control-transmision-invitado"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-wider text-rose-300 flex items-center gap-2">
+                <Radio className="w-4 h-4 text-rose-500" />
+                En vivo desde celular
+              </h2>
+              <span className="text-[11px] text-slate-400 font-semibold">Máx. 60s</span>
+            </div>
+
+            {liveRequests.length === 0 ? (
+              <p className="text-xs text-slate-400 bg-slate-950/60 rounded-2xl p-3 text-center">
+                Ningún invitado pidió salir en pantalla todavía.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {liveRequests.map((req) => {
+                  const isActive = req.status === 'accepted' || req.status === 'live';
+                  return (
+                    <div
+                      key={req.id}
+                      className={`rounded-2xl border p-3 flex items-center justify-between gap-2 ${
+                        isActive
+                          ? 'bg-rose-500/15 border-rose-500/40'
+                          : 'bg-slate-950/70 border-slate-800'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">{req.authorName}</p>
+                        <p className="text-[11px] text-slate-400">
+                          {isActive ? '🔴 Al aire en pantalla gigante' : 'Esperando tu aprobación'}
+                        </p>
+                      </div>
+                      {isActive ? (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await stopLiveStreamRequest(fiestaId, req.id);
+                            if (!res.success) {
+                              mostrarFeedback(res.error || 'No se pudo cortar la transmisión');
+                              return;
+                            }
+                            await refrescarLiveStreams();
+                            mostrarFeedback('Transmisión cortada');
+                          }}
+                          className="min-h-[40px] px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black shrink-0"
+                        >
+                          Cortar
+                        </button>
+                      ) : (
+                        <div className="flex gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const res = await acceptLiveStreamRequest(fiestaId, req.id);
+                              if (!res.success) {
+                                mostrarFeedback(res.error || 'No se pudo aceptar la transmisión');
+                                return;
+                              }
+                              await refrescarLiveStreams();
+                              mostrarFeedback(`${req.authorName} aceptado en pantalla`);
+                            }}
+                            className="min-h-[40px] px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1"
+                          >
+                            <Check className="w-3.5 h-3.5" /> Aceptar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const res = await rejectLiveStreamRequest(fiestaId, req.id);
+                              if (!res.success) {
+                                mostrarFeedback(res.error || 'No se pudo rechazar el pedido');
+                                return;
+                              }
+                              await refrescarLiveStreams();
+                              mostrarFeedback('Pedido rechazado');
+                            }}
+                            className="min-h-[40px] px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1"
+                          >
+                            <X className="w-3.5 h-3.5" /> Rechazar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* BOTONES GRANDES DE UN TOQUE (Muro y Video) */}
         <section className="space-y-3">
