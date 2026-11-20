@@ -2,6 +2,10 @@
 
 ## 20/11/2026 - Todas las fotos de la fiesta a Wfolio y a las redes (orden 329)
 
+- **Ampliación (bloque 4):** el editor arma el álbum entero: proyecto con nombre y fecha, carpetas sin vacías, portada con la
+  mejor foto de la agasajada y la plantilla AK, videos comprimidos para que se vean (hasta 500 MB) y reconocimiento de caras
+  prendido (hasta 2000 fotos). No se prenden la selección del cliente ni la venta de fotos (decisiones del dueño).
+
 - **Qué se decidió:** además de las del fotógrafo (orden 281), la fotocabina, la 360 y las fotos de los invitados van al mismo
   álbum de Wfolio en carpetas, desde el AK Editor (Wfolio no tiene API). Con esas fotos se arma solo el video y queda un
   borrador para todas las redes, sólo si la fiesta dio permiso de promoción. El álbum es privado y el enlace lo manda el dueño.
