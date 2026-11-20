@@ -50,8 +50,7 @@ un bloque se traba, entregá el resto en la misma propuesta y decí cuál faltó
   seguridad: **aviso al celular** (las notificaciones de la app ya existen, `src/lib/firebase/server-messaging.ts`) *"Aparecés
   en 3 fotos nuevas"*, una vez por tanda (no por foto), y la sección **"Mis fotos"** en su portal
   (`src/app/portal-invitado/[fiestaId]/[guestId]/page.tsx`) con todas, de todas las cámaras y del fotógrafo.
-- **Por WhatsApp no se manda solo:** queda preparado un mensaje con el enlace a "Mis fotos" en la bandeja de salida, para que
-  lo mande una persona, hasta que el dueño diga otra cosa.
+- **Por WhatsApp:** ver bloque 8 (el dueño dijo que sí: sale solo, con interruptor).
 - **Mejor que Waldo:** el invitado no instala nada (es la app web que ya abre) y no paga nada.
 
 ## Bloque 4 — Buscar por momento, no sólo por cara
@@ -71,12 +70,59 @@ un bloque se traba, entregá el resto en la misma propuesta y decí cuál faltó
   invitados anotados se hace en el servidor.
 - Se borran solos **90 días después de la fiesta**, y el invitado tiene "Borrar mi cara" a un toque.
 
+## Bloque 6 — "Buscarme" siempre a mano (pedido del dueño, 20/11 noche)
+
+- Botón fijo **"Buscarme 📸"** en todas las pantallas del invitado (muro `src/app/evento/social/[fiestaId]/page.tsx`, galería,
+  portal del invitado, recuerdo de después), siempre visible y abajo a la derecha en el celular, que no tape otros botones.
+  Abre directo la selfie de la búsqueda (la de la galería, ~línea 88) desde cualquier lado. Si ya dejó su selfie (bloque 3),
+  lleva derecho a "Mis fotos".
+
+## Bloque 7 — Ponerle nombre a cada cara: el invitado o el cliente
+
+**Palabras del dueño:** *"que la persona se pueda poner el nombre, porque uno no va a saber el nombre de las personas, pero la
+persona o el cliente puede poner el nombre de sus invitados"*.
+
+- Hoy `Persona` (`src/lib/caras/agrupar-caras.ts` ~40) a propósito **no tiene nombre**. Se le suma `invitadoId` y `nombre`
+  opcionales, guardados aparte de los vectores.
+- **El invitado se nombra solo:** al dejar su selfie (bloque 3) ya viene con su credencial (sabemos quién es); si entró sin
+  credencial, escribe su nombre y se busca en la lista de invitados con el mismo control de nombre exacto que usa la
+  confirmación (no por parecido: error de nombre parcial ya visto).
+- **El cliente nombra a sus invitados:** en su portal (`src/app/portal/[fiestaId]/[module]`), una sección **"¿Quién es
+  quién?"** con la grilla de caras de su fiesta (la de `FaceGalleryStrip`), de a una, con la lista de sus invitados para
+  elegir (buscador). Tocar una cara y elegir "Tía Marta" la une a ese invitado. Se puede deshacer.
+- Desde que una cara tiene invitado, **sus fotos le llegan solas** (bloque 3) aunque nunca se haya sacado la selfie, si en
+  la confirmación dejó su teléfono o se instaló la app.
+- La grilla sólo la ve el cliente de **esa** fiesta y el equipo (permiso de siempre del portal). El invitado no ve la grilla
+  de los demás.
+
+## Bloque 8 — Por WhatsApp también sale solo (decisión del dueño: "todo lo automático, mucho mejor")
+
+- Cuando un invitado con teléfono tiene fotos nuevas, sale solo un WhatsApp **una vez por tanda** (no por foto, y nunca más de
+  uno cada dos horas, y uno al día siguiente con el recuerdo completo): *"¡Hola Marta! Aparecés en 5 fotos de los 15 de
+  Valentina 📸"* con el enlace a "Mis fotos". Con interruptor en Ajustes.
+- Se manda por la API de WhatsApp de la empresa con plantilla aprobada por Meta. **Meta cobra cada mensaje que inicia la
+  empresa**: el interruptor viene **apagado** y, al lado, la cuenta estimada para la fiesta ("~120 mensajes ≈ costo según
+  la tarifa de Meta"). Lo prende el dueño cuando quiera.
+- Sólo a **invitados** de la fiesta; nunca a prospectos ni a números de la lista personal (orden 325). El que contesta "no"
+  o "baja" no recibe más.
+
+## Lo que hacemos mejor que Wfolio
+
+- Wfolio agrupa caras en el álbum final. Nosotros: **durante la fiesta**, con **todas las cámaras** (fotógrafo, fotocabina,
+  360, invitados), **con nombre** (lo pone el invitado o el cliente) y **llega solo** al celular. Wfolio queda para el álbum.
+
 ## Qué NO tocar
 
 - La búsqueda con selfie que ya anda en la galería y sus distancias.
 - Las órdenes 328 y 329.
 
 ## Qué tiene que comprobar la prueba
+
+- **Bloque 6 (navegador):** el botón "Buscarme" se ve en el muro y en la galería, en celular, sin tapar "Publicar".
+- **Bloque 7 (Jest):** el cliente une una cara con un invitado de **su** fiesta; con otra fiesta, rechaza. Un nombre parecido
+  no une a nadie.
+- **Bloque 8 (Jest):** con el interruptor apagado no sale nada; prendido, cinco fotos nuevas en una tanda mandan **un** mensaje;
+  un número de la lista personal no recibe.
 
 - **Bloque 1 (Jest):** una foto aprobada con caras queda en el índice sin llamar a `PrepararGrillaDeCara`; ocultarla la saca.
 - **Bloque 2 (Python):** con tres fotos de prueba, el editor devuelve vectores de 128 números del mismo modelo y arma el
@@ -87,6 +133,10 @@ un bloque se traba, entregá el resto en la misma propuesta y decí cuál faltó
 - **Bloque 4 (navegador):** en la galería, el filtro "Torta" deja sólo las fotos con ese momento.
 
 ```comprobar
+usa: Buscarme en src/app/evento/social/[fiestaId]/page.tsx
+usa: invitadoId en src/lib/caras/agrupar-caras.ts
+usa: Quién es quién en src/app/portal/[fiestaId]/[module]/page.tsx
+usa: FaceGalleryStrip en src/app/portal/[fiestaId]/[module]/page.tsx
 usa: guardarCarasDeFiesta en src/app/evento/social/[fiestaId]/page.tsx
 usa: extraerDescriptorFacial en src/app/evento/social/[fiestaId]/page.tsx
 usa: buscarFotosDeUnaCara en src/lib/caras/agrupar-caras.ts
