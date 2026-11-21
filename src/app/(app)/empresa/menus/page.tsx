@@ -285,7 +285,7 @@ function GestionMenusPageInner() {
       </Alert>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* MESA DULCE Y FUENTE */}
             <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
                 <CardHeader className="bg-orange-50/50 p-6 border-b border-orange-100">
@@ -303,8 +303,8 @@ function GestionMenusPageInner() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-orange-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter whitespace-nowrap">Costo Est: {formatCurrency(item.costoEstimado)}</p>
                                         <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
                                     </div>
                                 </div>
@@ -337,8 +337,8 @@ function GestionMenusPageInner() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-pink-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter whitespace-nowrap">Costo Est: {formatCurrency(item.costoEstimado)}</p>
                                         <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
                                     </div>
                                 </div>

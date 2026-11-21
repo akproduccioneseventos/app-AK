@@ -13,6 +13,20 @@
 archivo: docs/ordenes/332-gemini-la-app-de-play-store-recibe-a-cada-uno-facil.md
 ```
 
+## 21/11/2026 - Tres pantallas internas apretadas en la tableta (revisión de la 1458)
+
+- **Qué pasó:** al pasar menús y decoración a solapas, el recorrido las miró por primera vez en tableta: en Menús el costo
+  quedaba una palabra por renglón (dos columnas desde 768 px), en la presentación LED la fila de la foto de fondo no bajaba de
+  renglón en el celular, y en Decoración la galería de plantillas se armaba cerrada y mostraba el error técnico del servidor.
+- **Qué se hizo:** Menús pasa a dos columnas recién en pantallas grandes; la fila de la LED baja de renglón; la galería se arma
+  sólo al abrirla y los errores de borradores dicen qué hacer en criollo.
+
+```comprobar
+usa: lg:grid-cols-2 gap-8 en src/app/(app)/empresa/menus/page.tsx
+usa: plantillasAbiertas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+usa: Tocá Actualizar para probar de nuevo en src/components/decoracion/DecoCatalogDrafts.tsx
+```
+
 ## 21/11/2026 - Menos pantallas, mismo resultado (orden 331)
 
 - **Qué se decidió:** un solo simulador (`/simulador-de-presupuesto`, con Sofía adentro como opción; las otras dos direcciones

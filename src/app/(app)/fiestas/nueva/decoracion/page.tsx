@@ -153,6 +153,7 @@ function DecoracionYDisenoEventoContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
 
+  const [plantillasAbiertas, setPlantillasAbiertas] = useState(false);
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
   const [isSugerirPaletaLoading, setIsSugerirPaletaLoading] = useState(false);
 
@@ -2205,12 +2206,13 @@ function DecoracionYDisenoEventoContent() {
               </div>
 
               <div className="mt-6">
-                <details className="group">
+                <details className="group" onToggle={(e) => setPlantillasAbiertas(e.currentTarget.open)}>
                   <summary className="cursor-pointer font-bold text-base flex items-center gap-2 list-none select-none">
                     <span className="group-open:rotate-90 transition-transform">▶</span>
                     Plantillas de Diseño
                   </summary>
-                  <div className="mt-4">
+                  {/* Se arma recién al abrir: cerrada no pide los borradores al servidor ni se dibuja sin ancho. */}
+                  {plantillasAbiertas && <div className="mt-4">
                     <DecoTemplateGallery
                       currentElementos={canvasElementos}
                       currentFondoColor={canvasFondoColor}
@@ -2222,7 +2224,7 @@ function DecoracionYDisenoEventoContent() {
                         setCanvasHasChanges(true);
                       }}
                     />
-                  </div>
+                  </div>}
                 </details>
               </div>
 
