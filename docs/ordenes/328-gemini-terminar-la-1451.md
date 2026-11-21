@@ -81,7 +81,6 @@ prueba: tests/e2e/muro-subir-foto.spec.ts
 prueba: tests/e2e/el-estilo-de-fotos-se-configura-en-ajustes.spec.ts
 prueba: tests/e2e/la-ia-arma-la-web-del-evento.spec.ts
 prueba: tests/e2e/la-presentacion-lleva-las-entradas.spec.ts
-usa: /presentacion-led en src/lib/seo/paginas-publicas.ts
-no-usa: '/catalogo', en src/lib/seo/paginas-publicas.ts
+usa: '/catalogo', en src/lib/seo/paginas-publicas.ts
 usa: decidir en src/app/actions/social-gallery.ts
 ```

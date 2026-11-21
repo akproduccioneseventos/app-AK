@@ -21,6 +21,7 @@ jest.mock('@/lib/notifications/create-notification', () => ({
 }));
 
 import fs from 'fs';
+import { hoyEnUruguay } from '@/lib/utils';
 import path from 'path';
 import { loginUser } from '@/app/actions/auth';
 import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
@@ -103,7 +104,8 @@ describe('Recorrido completo: Acceso, Panel, Simulador y Presupuesto Formal (P3)
       clienteNombre: 'Cliente Prueba Recorrido',
       clienteContacto: '099123456',
       eventoTipo: 'Boda',
-      eventoFecha: '2026-11-20',
+      // Siempre a futuro: con una fecha fija el simulador la rechazó al quedar en el pasado (21/11/2026).
+      eventoFecha: hoyEnUruguay(new Date(Date.now() + 120 * 24 * 60 * 60 * 1000)),
       adultos: 100,
       adolescentes: 0,
       ninos: 0,

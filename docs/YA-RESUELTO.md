@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/11/2026 - Dos pruebas con fecha fija se vencieron solas
+
+- **Qué pasó:** la prueba del contexto del asistente y la del simulador tenían la fiesta el 20/11/2026; el 21 quedaron en el
+  pasado y fallaron también en la versión publicada. Ahora la fecha se arma desde hoy (10 y 120 días adelante).
+
+```comprobar
+usa: hoyEnUruguay en src/__tests__/contexto-compartido-por-perfil.test.ts
+usa: hoyEnUruguay en src/__tests__/simulator-budget-pdf-flow.test.ts
+```
+
 ## 20/11/2026 - Cada invitado encuentra sus fotos solo (orden 330)
 
 - **Ampliación (bloques 6 a 8):** botón "Buscarme" fijo en todas las pantallas del invitado; el invitado o el cliente le
