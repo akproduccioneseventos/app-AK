@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/11/2026 - Menos pantallas, mismo resultado (orden 331)
+
+- **Qué se decidió:** un solo simulador (`/simulador-de-presupuesto`, con Sofía adentro como opción; las otras dos direcciones
+  llevan ahí), el planificador de la fiesta de 28 pantallas a 5 con solapas, y una sola puerta para elegir estación. El
+  presupuesto manual del equipo queda aparte, a propósito. Las direcciones de las estaciones con fiesta no cambian (QR impresos).
+
+```comprobar
+archivo: docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md
+```
+
 ## 21/11/2026 - Dos pruebas con fecha fija se vencieron solas
 
 - **Qué pasó:** la prueba del contexto del asistente y la del simulador tenían la fiesta el 20/11/2026; el 21 quedaron en el

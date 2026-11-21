@@ -15,6 +15,9 @@
 - **DESPUÉS de la 329, en la misma propuesta: orden 330 (`docs/ordenes/330-gemini-cada-invitado-encuentra-sus-fotos-solo.md`).**
   El índice de caras se arma solo, entran las fotos del fotógrafo, y el invitado deja su selfie una vez y le llegan sus fotos
   (toca quién ve qué: lo revisa Claude).
+- **PRÓXIMA, cuando Claude haya fusionado la 1458: orden 331 (`docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md`).**
+  Arrancá de la principal nueva: un solo simulador (Sofía adentro), el planificador de 28 pantallas a 5 con solapas, y una sola
+  puerta para las estaciones. Redirecciones exactas y sin ablandar pruebas.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
   todas. Claude devolvió cinco pantallas que borraste y se usan (Entrar, decoración y moodboard del portal, simulador y
