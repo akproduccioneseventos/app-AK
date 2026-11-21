@@ -214,7 +214,12 @@ function buildLead(
     ),
     timeline,
     ...(conversacion ? { conversacion } : {}),
-    ...(input.atiende || existing?.atiende ? { atiende: input.atiende ?? existing?.atiende } : {}),
+    // Si una persona del equipo ya tomó la charla, un mensaje nuevo que entra no se la devuelve al asistente: eso lo
+    // hace sólo el botón "volver al asistente" (crm.ts). Antes Instagram y Messenger guardaban siempre
+    // `atiende: 'asistente'` y le sacaban la charla al vendedor (auditoría externa 21/11/2026).
+    ...(input.atiende || existing?.atiende
+      ? { atiende: existing?.atiende === 'persona' ? 'persona' : (input.atiende ?? existing?.atiende) }
+      : {}),
     ...(input.esProspectoDudoso !== undefined || existing?.esProspectoDudoso !== undefined
       ? { esProspectoDudoso: input.esProspectoDudoso !== undefined ? input.esProspectoDudoso : existing?.esProspectoDudoso }
       : {}),

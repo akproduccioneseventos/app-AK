@@ -14,7 +14,7 @@ import { resolveDepositAmount } from '@/lib/fiesta/sena-del-contrato';
 import { generateBudgetToken } from '@/lib/auth/session-token';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
-import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 
@@ -108,7 +108,11 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
  * habia quedado ahi, ocupando lugar que se paga.
  */
 export async function uploadDocumento(formData: FormData): Promise<{ success: boolean; error?: string }> {
-    await requireAppSession();
+    // Contratos, señas y recibos son documentos de plata: subirlos pide lo mismo que borrarlos (CONTABILIDAD), y se
+    // comprueba ANTES de subir al depósito. Con sólo sesión, el operador de sala subía contratos y recibos, y el
+    // archivo quedaba en el depósito (que se paga) aunque el guardado después fallara (auditoría externa 21/11/2026).
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
 
     const file = formData.get('file') as File | null;
     const docType = formData.get('docType') as DocumentoTipo;

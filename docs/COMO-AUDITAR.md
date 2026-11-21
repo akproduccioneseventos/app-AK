@@ -1958,3 +1958,29 @@ Cierre de ronda del 18/11/2026 (R18-06): "TOTAL: $2.500" daba $0 y "TOTAL:2500" 
 
 Entrega 1443 del 19/11/2026: al achicar la app se borraron "Entrar", la decoración y el moodboard del portal, el simulador
 y la asistente Sofía, y dos redirecciones con comodín tapaban la lista de presupuestos y "Nueva fiesta".
+
+### 198. El perfil auditor, que tiene todos los permisos para probar, ¿pasa como administrador en algo que no es probar?
+
+Auditoría externa del 21/11/2026: `esAdministrador` dejaba al auditor cambiar las preguntas de seguridad de otras cuentas,
+el tope mensual de gasto de IA y prender mensajes a clientes. Probar sí; quedarse con una cuenta, gastar o mandar, no.
+
+### 199. Un enlace a una pantalla del invitado (hub, recap, menú), ¿lleva su credencial?
+
+Auditoría externa del 21/11/2026: `/entrar`, la invitación pública y "Buscá tu mesa" llevaban al hub o al recap sin
+`guestId` y `token`, y el invitado caía en "Este acceso no es válido" sin salida.
+
+### 200. Una suma de plata que recorre las fiestas, ¿saca las de muestra?
+
+Auditoría externa del 21/11/2026: el reporte de ganancias, el panel, las analíticas y la comparativa sumaban las fiestas
+de muestra (`esMuestra`) como si fueran reales.
+
+### 201. Un "guardado sin conexión" o "enviado", ¿sale también cuando el servidor contestó que no?
+
+Auditoría externa del 21/11/2026: la recepción marcaba "Presente — guardado sin conexión" cuando el servidor había
+rechazado el ingreso, y el portal decía "Consulta enviada" con `success: false`. Sin red es una cosa; un "no" es otra.
+
+### 202. Un control que, si tarda, ¿deja pasar?
+
+Auditoría externa del 21/11/2026: el filtro de contactos personales de WhatsApp, si tardaba más de 1,2 segundos,
+contestaba `bloquear: false` y el número personal entraba al CRM.
+

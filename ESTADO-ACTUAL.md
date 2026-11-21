@@ -14,6 +14,9 @@
   de la fiesta (sin QR obligatorio), equipo con Google, "Bajá la app" y publicación en redes. iPhone y PC desde la web
   (el dueño no paga la tienda de Apple).
 
+- **333:** lo confirmado de la auditoría externa del 21/11 (unos 60 de 80 avisos). Claude ya arregló lo urgente de
+  permisos y plata (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta).
+
 ## Para Claude, cuando llegue la entrega
 - Revisar línea por línea `entrarComoInvitado` (quién ve qué: devuelve sólo la credencial del invitado, nunca la lista).
 - Copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa, **sin nada corriendo al lado** (la subida con

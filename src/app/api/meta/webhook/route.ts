@@ -128,16 +128,40 @@ export async function POST(request: NextRequest) {
       const senderName = msg.sender?.name || msg.sender?.username;
 
       const attachments = msg.message?.attachments || [];
-      const storyMentionAtt = attachments.find((att: any) => att.type === 'story_mention' || att.payload?.url);
+      // Sólo una mención en una historia es `story_mention`. Antes también contaba cualquier adjunto con dirección
+      // (`payload.url`): una foto o un audio de un prospecto por privado se tomaba como mención, se agradecía y se
+      // descartaba sin llegar al CRM (auditoría externa 21/11/2026).
+      const storyMentionAtt = attachments.find((att: any) => att.type === 'story_mention');
       if (storyMentionAtt) {
         const storyUrl = storyMentionAtt.payload?.url || storyMentionAtt.url || '';
         if (storyUrl) {
           try {
+            // Save to social-story-mentions.json
+            // Primero se guarda y se sabe si es nueva: el mismo aviso repetido por Meta no agradece dos veces.
+            let esNueva = false;
+            await mutateGenericJsonArray<any>('social-story-mentions.json', (mentions) => {
+              const existe = mentions.some((m: any) => m.url === storyUrl || (m.senderId === senderId && Math.abs(new Date(m.fecha).getTime() - Date.now()) < 3600000));
+              if (existe) return null;
+              esNueva = true;
+              return [
+                {
+                  id: `mention_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                  url: storyUrl,
+                  senderId: senderId || 'anonimo',
+                  senderName: senderName || 'Usuario de Instagram',
+                  fecha: new Date().toISOString(),
+                  compartidoEnMiHistoria: false,
+                },
+                ...mentions,
+              ];
+            });
+
+
             // Check settings or default to true for "Agradecer menciones"
             const { getAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
             const ajustesComentarios = await getAjustesRespuestasComentarios().catch(() => ({ agradecerMenciones: true }));
             const agradecer = ajustesComentarios.agradecerMenciones ?? true;
-            if (agradecer && senderId) {
+            if (esNueva && agradecer && senderId) {
               // Send thank you via Meta Graph API if access token is available
               const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN || process.env.INSTAGRAM_ACCESS_TOKEN;
               if (pageAccessToken && senderId) {
@@ -151,23 +175,6 @@ export async function POST(request: NextRequest) {
                 }).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
               }
             }
-
-            // Save to social-story-mentions.json
-            await mutateGenericJsonArray<any>('social-story-mentions.json', (mentions) => {
-              const existe = mentions.some((m: any) => m.url === storyUrl || (m.senderId === senderId && Math.abs(new Date(m.fecha).getTime() - Date.now()) < 3600000));
-              if (existe) return null;
-              return [
-                {
-                  id: `mention_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                  url: storyUrl,
-                  senderId: senderId || 'anonimo',
-                  senderName: senderName || 'Usuario de Instagram',
-                  fecha: new Date().toISOString(),
-                  compartidoEnMiHistoria: false,
-                },
-                ...mentions,
-              ];
-            });
 
             // No se anota en la fiesta: reescribir fiestas.json desde un aviso de Meta pisaba cobros
             // guardados al mismo tiempo, y el nombre parcial confundía invitados (revisión de la 1451).

@@ -5,7 +5,7 @@
 **Actualizado el 21/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Las órdenes 322 a 330 ya están publicadas** (las fusionó Claude en la 1458). No las rehagas.
-- **AHORA, una sola propuesta con las dos: arrancá de la versión principal recién actualizada**, rama nueva
+- **AHORA, una sola propuesta con las tres: arrancá de la versión principal recién actualizada**, rama nueva
   `gemini/ordenes-331-332`.
   1. **Orden 331 (`docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md`).** El simulador de siempre
      (`/simulador-de-presupuesto`) va primero y **queda exactamente como está**; se borra la portada de dos botones. Sofía queda
@@ -16,7 +16,11 @@
      cada uno fácil: el prospecto va directo al simulador sin datos, el invitado entra con su celular (o el código de la fiesta)
      sin escanear, el equipo con un toque de Google, y "Bajá la app" en la portada, `/entrar` y `/enlaces`. La acción
      `entrarComoInvitado` toca quién ve qué: la revisa Claude.
-  Si una se traba, entregá la otra en la misma propuesta y decí cuál faltó.
+  3. **Orden 333 (`docs/ordenes/333-gemini-auditoria-externa-21-noviembre.md`).** Lo confirmado de la auditoría externa
+     del 21/11, módulo por módulo: plata (reporte de ganancias, fiestas de muestra, recetas, simulador), entrada de
+     invitados y clientes, planificador, estaciones, AK Editor y redes. Lo urgente de permisos ya lo hizo Claude: no lo
+     toques. Plata y permisos los revisa Claude línea por línea.
+  Si una se traba, entregá las otras en la misma propuesta y decí cuál faltó.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
