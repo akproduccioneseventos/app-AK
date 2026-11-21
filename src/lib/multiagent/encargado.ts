@@ -18,6 +18,36 @@ import {
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { clavePresupuestoChat } from '@/lib/multiagent/intento-presupuesto';
 
+/**
+ * Elige el presupuesto que pidió el asistente. Con número, sólo por número (y si el nombre no coincide, frena); con
+ * nombre, una sola coincidencia o pregunta. Antes un nombre vacío coincidía con todos y se devolvía el primero de la
+ * lista: el presupuesto de otro cliente (auditoría externa 21/11/2026, IA-01).
+ */
+export function elegirPresupuestoPedido<T extends { id: string; clienteNombre?: string; estado?: string }>(
+  presupuestos: T[],
+  args: { id?: unknown; nombreCliente?: unknown },
+): { ok: true; presupuesto: T | undefined } | { ok: false; motivo: string; candidatos?: Array<{ id: string; clienteNombre?: string; estado?: string }> } {
+  const id = typeof args.id === 'string' ? args.id.trim() : '';
+  const nombre = typeof args.nombreCliente === 'string' ? args.nombreCliente.trim().toLowerCase() : '';
+  if (id) {
+    const p = presupuestos.find((item) => item.id === id);
+    if (p && nombre && !(p.clienteNombre || '').toLowerCase().includes(nombre)) {
+      return { ok: false, motivo: 'El número y el nombre del cliente no coinciden: confirmá cuál es.' };
+    }
+    return { ok: true, presupuesto: p };
+  }
+  if (!nombre) return { ok: true, presupuesto: undefined };
+  const candidatos = presupuestos.filter((item) => (item.clienteNombre || '').toLowerCase().includes(nombre));
+  if (candidatos.length > 1) {
+    return {
+      ok: false,
+      motivo: `Hay ${candidatos.length} presupuestos con ese nombre: preguntá cuál es.`,
+      candidatos: candidatos.slice(0, 5).map((c) => ({ id: c.id, clienteNombre: c.clienteNombre, estado: c.estado })),
+    };
+  }
+  return { ok: true, presupuesto: candidatos[0] };
+}
+
 export const MAX_ESPECIALISTAS_POR_PEDIDO = 3;
 export const MAX_VUELTAS_POR_PEDIDO = 5;
 
@@ -149,7 +179,11 @@ async function ejecutarHerramienta(
 
       case 'leer_presupuesto': {
         const presupuestos = await getPresupuestos();
-        const p = presupuestos.find((item) => item.id === args.id || item.clienteNombre.toLowerCase().includes((args.nombreCliente || '').toLowerCase()));
+        // Con un número, se busca SÓLO por número. Antes un nombre vacío coincidía con todos y devolvía el primero de la
+        // lista: se respondía con el presupuesto (importe y estado) de otro cliente (auditoría externa 21/11/2026, IA-01).
+        const eleccion = elegirPresupuestoPedido(presupuestos, args);
+        if (!eleccion.ok) return { exito: false, resultado: eleccion.candidatos ?? null, comprobacion: eleccion.motivo };
+        const p = eleccion.presupuesto;
         return {
           exito: Boolean(p),
           resultado: p || null,

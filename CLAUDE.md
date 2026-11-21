@@ -2120,6 +2120,7 @@ con otra cara.
 | Una mención en una historia reescribía todas las fiestas, y el WhatsApp de `/enlaces` llevaba a una página que no existe | `src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts` |
 | Una redirección con comodín tapaba la lista de presupuestos y "Nueva fiesta" | `src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts` |
 | El auditor cambiaba cuentas ajenas y el tope de IA, la voz del equipo no tenía tope, y una foto por Instagram se perdía como "mención" | `src/__tests__/auditoria-externa-21-11-quien-toca-que.test.ts` |
+| El asistente devolvía el presupuesto (o hacía la factura) de otro cliente con un nombre vacío, y el tope de IA tenía agujeros | `src/__tests__/el-asistente-lee-el-presupuesto-que-se-pidio.test.ts` y `src/__tests__/el-tope-de-ia-es-un-tope.test.ts` |
 
 ### Cómo se elige el matafuego
 

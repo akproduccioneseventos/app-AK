@@ -1984,3 +1984,17 @@ rechazado el ingreso, y el portal decía "Consulta enviada" con `success: false`
 Auditoría externa del 21/11/2026: el filtro de contactos personales de WhatsApp, si tardaba más de 1,2 segundos,
 contestaba `bloquear: false` y el número personal entraba al CRM.
 
+### 203. Una búsqueda por nombre, ¿puede recibir un nombre vacío (que coincide con todos) o elegir el primero de varios?
+
+Auditoría externa del 21/11/2026 (IA-01): el asistente pedía un presupuesto por número y le llegaba el de otro cliente,
+porque el nombre vacío coincidía con todos. Lo mismo en `assistant.ts`: una factura podía salir a nombre de otro cliente.
+
+### 204. Una pregunta ("¿cuántos…?"), ¿puede disparar una acción como si fuera una orden?
+
+Auditoría externa del 21/11/2026 (IA-02): "¿Cuántos presupuestos tengo?" preparaba seguimientos en el Centro de control.
+
+### 205. Un error al leer, ¿se muestra como "todo bien"?
+
+Auditoría externa del 21/11/2026 (IA-04): si no se podía leer el registro de fallos de la IA, la pantalla decía "La IA
+funcionó con normalidad en todas sus funciones".
+

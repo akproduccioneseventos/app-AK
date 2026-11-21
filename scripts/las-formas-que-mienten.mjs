@@ -173,6 +173,13 @@ const FORMAS = [
     comoSeArregla: 'Si el control no contesta, no se deja pasar: se anota para revisar.',
   },
   {
+    pregunta: 203,
+    nombre: 'La búsqueda con un nombre que puede venir vacío',
+    porque: 'Un nombre vacío coincide con todos y se elige el primero: el presupuesto o la factura de otro cliente (auditoría externa 21/11/2026, IA-01).',
+    buscar: /\.includes\(\(\s*[\w.?]+\s*\|\|\s*''\s*\)(?:\.toLowerCase\(\))?\)/g,
+    comoSeArregla: 'Exigir el nombre y una sola coincidencia (unoSoloPorNombre en assistant.ts, elegirPresupuestoPedido en encargado.ts).',
+  },
+  {
     pregunta: 187,
     nombre: 'La ganancia calculada sin el personal asignado',
     porque: 'Un sueldo cargado a mano en una fiesta sin presupuesto no entraba en la ganancia: la cuenta no recibía fiesta.personalAsignado (auditoría 18/11/2026, C18-01).',
@@ -210,6 +217,8 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   198: 'Auditor que pasa como administrador: src/__tests__/auditoria-externa-21-11-quien-toca-que.test.ts.',
   200: 'Sumas de plata con fiestas de muestra: src/__tests__/auditoria-21-11-plata.test.ts (orden 333, bloque 1).',
   201: 'Sin conexión o enviado ante un no del servidor: src/__tests__/auditoria-21-11-entrar-y-portal.test.ts (orden 333).',
+  204: 'Pregunta tomada como orden: la prueba que pide la orden 333, bloque 9 (src/__tests__/auditoria-21-11-ia.test.ts).',
+  205: 'Error de lectura mostrado como normalidad: la prueba que pide la orden 333, bloque 9 (auditoria-21-11-ia.test.ts).',
   195: 'Datos como conceptos: src/__tests__/cierre-de-ronda-18-11.test.ts (Adultos y Niños no son artículos).',
   190: 'Período al revés: src/__tests__/un-solo-numero-de-plata.test.ts (inicio posterior al fin).',
   188: 'Suspendidas como activas: comprobar de la orden 320 (suspendid en recursos-multi-evento).',
