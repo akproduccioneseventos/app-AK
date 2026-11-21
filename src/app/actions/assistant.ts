@@ -428,6 +428,22 @@ function normalizeServicesInput(rawServices: unknown): Array<{
   return [];
 }
 
+
+/**
+ * Elige UN registro por el nombre que dijo el asistente: el nombre tiene que estar (vacío no coincide con todos) y tiene
+ * que haber una sola coincidencia; con varias, no se elige ninguno y la acción avisa que no lo encontró (auditoría
+ * externa 21/11/2026: una factura podía salir a nombre de otro cliente y se cambiaba la fiesta de otro).
+ */
+function unoSoloPorNombre<T>(lista: T[], nombresDe: (item: T) => Array<string | undefined>, buscado?: string): T | undefined {
+  const quiero = (buscado || '').trim().toLowerCase();
+  if (quiero.length < 3) return undefined;
+  const exactos = lista.filter((item) => nombresDe(item).some((n) => (n || '').trim().toLowerCase() === quiero));
+  if (exactos.length === 1) return exactos[0];
+  if (exactos.length > 1) return undefined;
+  const parecidos = lista.filter((item) => nombresDe(item).some((n) => (n || '').toLowerCase().includes(quiero)));
+  return parecidos.length === 1 ? parecidos[0] : undefined;
+}
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -1041,9 +1057,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     } else if (result.action?.type === 'create_invoice' && result.action.data) {
       const d = result.action.data;
       try {
-        const customer: Customer = customers.find(c =>
-          c.name.toLowerCase().includes((d.clienteNombre || '').toLowerCase())
-        ) || {
+        // Un nombre vacío coincidía con todos y la factura salía a nombre del primer cliente de la lista; uno parcial,
+        // con el primero que se pareciera (auditoría externa 21/11/2026). Sólo una coincidencia exacta y única.
+        const customer: Customer = unoSoloPorNombre(customers, (c) => [c.name], d.clienteNombre) || {
           id: `tmp_${Date.now()}`,
           name: d.clienteNombre || 'Cliente',
           phone: '',
@@ -1300,9 +1316,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       }
       try {
         let clienteId: string;
-        const existing = customers.find(c =>
-          c.name.toLowerCase().includes((d.clienteNombre || '').toLowerCase())
-        );
+        const existing = unoSoloPorNombre(customers, (c) => [c.name], d.clienteNombre);
         if (existing) {
           clienteId = existing.id;
         } else {
@@ -1371,10 +1385,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         const allFiestas = await getAllFiestas();
         let fiesta = d.fiestaId
           ? allFiestas.find(f => f.id === d.fiestaId)
-          : allFiestas.find(f =>
-              (f.configuracion?.nombreEvento || '').toLowerCase().includes((d.clienteNombre || '').toLowerCase()) ||
-              (f.configuracion?.clienteNombre || '').toLowerCase().includes((d.clienteNombre || '').toLowerCase())
-            );
+          : unoSoloPorNombre(allFiestas, (f) => [f.configuracion?.nombreEvento, f.configuracion?.clienteNombre], d.clienteNombre);
         if (!fiesta) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
           finalResponse = `❌ No se pudo actualizar el evento: No se encontró el evento para "${d.clienteNombre || d.fiestaId}". Verificalo en /fiestas/nueva.`;

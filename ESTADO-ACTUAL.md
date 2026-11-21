@@ -17,6 +17,9 @@
 - **333:** lo confirmado de la auditoría externa del 21/11 (unos 60 de 80 avisos). Claude ya arregló lo urgente de
   permisos y plata (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta).
 
+- **Publicado el 21/11 (#1460):** permisos y plata urgentes de las auditorías externas, y Poner al día con el ajuste anual.
+  En la tanda siguiente (Claude): el asistente ya no lee el presupuesto de otro cliente y el tope de IA es un tope.
+
 ## Para Claude, cuando llegue la entrega
 - Revisar línea por línea `entrarComoInvitado` (quién ve qué: devuelve sólo la credencial del invitado, nunca la lista).
 - Copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa, **sin nada corriendo al lado** (la subida con

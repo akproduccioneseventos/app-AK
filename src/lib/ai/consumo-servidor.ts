@@ -178,8 +178,10 @@ export async function reservarConsumoIA(
 }
 
 export async function reservarRespuestaProfunda(ahora?: Date | string): Promise<boolean> {
+  // El auditor no anota, pero tampoco pasa por encima del tope del mes: la respuesta igual le cuesta al proveedor
+  // (auditoría externa 21/11/2026, IA-03).
   if (await esSesionDeAuditor()) {
-    return true;
+    return hayPresupuestoParaIA(ahora);
   }
   await exigirQueSePuedaGuardar();
   const fechaUY = aFechaHoraLocal(ahora).slice(0, 10);
@@ -195,6 +197,13 @@ export async function reservarRespuestaProfunda(ahora?: Date | string): Promise<
       : 40;
 
     if (actualProfundo + 1 > tope) {
+      return { siguiente: null, resultado: false };
+    }
+    // Además del tope diario, el del mes: antes una respuesta profunda pasaba aunque el mes ya estuviera lleno
+    // (auditoría externa 21/11/2026, IA-03).
+    const delMesAntes = { ...(datos.meses?.[mesUY] ?? {}) };
+    const topeMes = datos.topeMensualUYU ?? 0;
+    if (topeMes > 0 && calcularConsumo(mesUY, delMesAntes).gastadoUYU + (COSTO_ESTIMADO_UYU['respuesta-profunda'] ?? 0) > topeMes) {
       return { siguiente: null, resultado: false };
     }
 
@@ -300,8 +309,11 @@ export async function setTopeDiarioProfundo(tope: number, ahora?: Date | string)
 export async function hayPresupuestoParaIA(ahora: Date | string = new Date()): Promise<boolean> {
   try {
     return !(await getResumenDeGasto(ahora)).frenado;
-  } catch {
-    return true;
+  } catch (error) {
+    // Si no se puede leer cuánto se gastó, no se gasta: el tope tiene que ser un tope. Las funciones de IA ya tienen su
+    // respuesta de respaldo (el efecto simple, la respuesta fija). Antes devolvía "hay presupuesto" (IA-03, 21/11/2026).
+    console.warn('[consumo IA] No se pudo leer el gasto del mes; se frena la IA hasta poder leerlo:', error);
+    return false;
   }
 }
 

@@ -204,6 +204,26 @@ no se toca) y **AK-03 ya lo arregló Claude** (Poner al día cobraba el saldo si
 8. **AK-10, el cronograma dice "AHORA MISMO" en un evento futuro:** `src/app/evento/staff/[fiestaId]/cronograma/page.tsx`
    ~171-177: el bloque "AHORA MISMO" aparece sólo el día del evento; antes, *"Lo primero, el día del evento"*.
 
+## Bloque 9 — Tercer informe del 21/11 (PDF "IA y mecanismos", IA-01 a IA-05)
+
+Claude ya arregló **IA-01** (el asistente leía el presupuesto de otro cliente; y lo mismo, encontrado por el barrido, al
+hacer una factura o cambiar una fiesta por nombre en `src/app/actions/assistant.ts`) e **IA-03** (el tope de gasto de IA
+tenía agujeros: respuestas profundas, auditor y falla al leer). Lo demás:
+
+1. **IA-02, una pregunta prepara seguimientos:** en `src/app/actions/centro-de-control.ts` (~487, ~598-641, ~733-750),
+   `darOrdenPorVozOTexto` toma "¿Cuántos presupuestos tengo?" como orden y llama a `ejecutarPerseguidorPresupuestos`.
+   Antes de ejecutar, clasificá: si es una pregunta (empieza con "cuánt", "qué", "cuál", "hay", o termina en "?"), se
+   contesta leyendo (la cantidad y de qué período) y **no** se llama al perseguidor ni se toca la bandeja. Sólo una orden
+   explícita ("prepará los seguimientos") lo dispara.
+2. **IA-04, un error al leer se muestra como "todo bien":** `src/components/settings/panels/ai-assistant.tsx` ~43, ~47-64 y
+   ~319-330: si la lectura de fallos falla, cartel neutro *"No se pudo leer el registro de fallos"* (nunca el verde).
+   Con la lista vacía leída bien: *"No se registraron fallos hoy"*, no "la IA funcionó con normalidad en todas sus
+   funciones".
+3. **IA-05, Conexiones confunde configuración con presencia pública:** `src/app/actions/conexiones-estado.actions.ts`
+   ~163-189. WhatsApp: si la web ya tiene el botón con `AK_WHATSAPP_NUMBER`, no decir que "los clientes no pueden
+   escribirte"; decir *"El botón de la web anda; falta conectar la cuenta para que la app conteste"*. Google: decir
+   *"Falta guardar el enlace de tu ficha de Google"* y **sacar el "32% de los clientes"** (es un número inventado).
+
 ## Barrido en toda la app (hecho por Claude el 21/11)
 
 - **Pregunta 198 (auditor que pasa como administrador en lo que no es probar):** buscado `esAdministrador(` en
@@ -221,6 +241,8 @@ no se toca) y **AK-03 ya lo arregló Claude** (Poner al día cobraba el saldo si
 - **Pregunta 182 (total y detalle de fuentes distintas), por AK-03 y AK-04:** buscado `getBudgetPaymentSummary(` sin el
   ajuste en `src/`: Poner al día era el único que cobraba con el saldo sin ajuste (arreglado); el recibo muestra la base a
   propósito, desglosada. El estado guardado de la factura contra sus pagos va al bloque 8, punto 2.
+- **Pregunta 203 (búsqueda con un nombre que puede venir vacío):** el escaneo encontró, además del encargado, tres en
+  `src/app/actions/assistant.ts` (factura, alta de cliente y cambio de fiesta). Los arregló Claude; hoy da cero.
 - **Pregunta 188 (suspendidas contadas como activas):** volvió en agenda, propuesta de equipo, Mi Día y Eventos (bloque 3).
 
 ## Lo que ya arregló Claude (no lo toques)
@@ -309,4 +331,7 @@ usa: confirmados en src/app/(app)/fiestas/nueva/personal/page.tsx
 usa: Lo primero, el día del evento en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
 usa: hoyEnUruguay en src/components/invitacion/edit/SeccionCuentaRegresiva.tsx
 prueba: src/__tests__/la-factura-dice-el-estado-de-sus-pagos.test.ts
+prueba: src/__tests__/auditoria-21-11-ia.test.ts
+no-usa: funcionó con normalidad en todas sus funciones en src/components/settings/panels/ai-assistant.tsx
+no-usa: 32% en src/app/actions/conexiones-estado.actions.ts
 ```
