@@ -1576,6 +1576,12 @@ lo que hice?* Si es lo segundo, no se manda.
   siempre visible; el invitado o el cliente le ponen nombre a cada cara. **Por WhatsApp sale solo** ("todo lo automático, mucho
   mejor"), una vez por tanda y sólo a invitados; como Meta cobra cada mensaje, el interruptor lo prende él.
 
+- **La app de Play Store es para todo público y recibe a cada uno fácil (21 de noviembre de 2026).** Palabras suyas: *"cualquier
+  persona la descarga, la instala y entra con un rol… para el invitado tiene que ser fácil… el prospecto no debería tener nada"*.
+  Abre en "¿Quién sos?": el prospecto va al simulador sin datos, el invitado entra con su celular o el código de la fiesta (el QR
+  queda como tercera opción), el equipo con Google. **iPhone y computadora se instalan gratis desde la web: no se paga la tienda
+  de Apple** (orden 332).
+
 - **Menos es más: un simulador, el planificador agrupado (21 de noviembre de 2026).** Palabras suyas: *"no puede haber tres del
   simulador, tiene que haber una… el presupuesto manual es otra cosa… a veces menos es más"*. Se achica sin perder funciones:
   un simulador con Sofía adentro, el planificador en 5 pantallas con solapas y una puerta para las estaciones (orden 331).

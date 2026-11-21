@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/11/2026 - La app de Play Store recibe a cada uno fácil (orden 332)
+
+- **Qué se decidió:** la app es para todo público y abre en "¿Quién sos?". El prospecto va directo al simulador sin dar ningún
+  dato; el invitado entra con su celular (o con el código corto de la fiesta y su nombre), sin tener que escanear; el cliente
+  sigue con celular y clave; el equipo entra con un toque de Google. En iPhone y computadora se instala gratis desde la web
+  (la tienda de Apple cobra por año y el dueño eligió que no).
+- **Por qué el celular alcanza para el invitado:** en sus fiestas la entrada la controla el nombre (decisión del 22/09/2026) y
+  la credencial del invitado sólo abre lo suyo. La acción devuelve sólo su credencial, nunca la lista.
+
+```comprobar
+archivo: docs/ordenes/332-gemini-la-app-de-play-store-recibe-a-cada-uno-facil.md
+```
+
 ## 21/11/2026 - Menos pantallas, mismo resultado (orden 331)
 
 - **Qué se decidió:** un solo simulador (`/simulador-de-presupuesto`, con Sofía adentro como opción; las otras dos direcciones
