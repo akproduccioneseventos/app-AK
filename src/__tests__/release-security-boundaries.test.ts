@@ -258,11 +258,14 @@ describe('release security boundaries', () => {
   it('keeps WhatsApp secrets private while the simulator receives only the phone number', () => {
     const whatsapp = readSource('src/app/actions/whatsapp.ts');
     const webhook = readSource('src/app/api/whatsapp/webhook/route.ts');
-    const simulator = readSource('src/app/simulador-ak/page.tsx');
+    const simulator = readSource('src/app/simulador-de-presupuesto/page.tsx');
+    const bootstrap = readSource('src/app/actions/public-simulator-bootstrap.ts');
     expect(whatsapp).toContain('internalToken !== WHATSAPP_WEBHOOK_INTERNAL_TOKEN');
     expect(webhook).toContain('getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN)');
-    expect(simulator).toContain('getPublicWhatsAppNumber()');
+    expect(simulator).toContain('getPublicSimulatorBootstrap()');
     expect(simulator).not.toContain('getWhatsAppConfig()');
+    expect(bootstrap).toContain('getSocialConnectionsPublicas()');
+    expect(bootstrap).not.toContain('getWhatsAppConfig(');
   });
 
   it('waits for real Meta delivery and never records a rejected manual message as sent', () => {

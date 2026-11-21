@@ -107,7 +107,7 @@ describe('la ficha temporal', () => {
 
 describe('Ajustes y widget', () => {
   it('la pantalla de Ajustes tiene la tarjeta con el interruptor y los minutos, y los guarda', () => {
-    const pagina = leer('src/app/(app)/settings/asistente/page.tsx');
+    const pagina = leer('src/components/settings/panels/asistente.tsx');
     expect(pagina).toContain('Voz en vivo');
     expect(pagina).toContain('Minutos por día');
     expect(pagina).toMatch(/vozEnVivoActiva,\s*\n\s*vozEnVivoMinutosPorDia/);

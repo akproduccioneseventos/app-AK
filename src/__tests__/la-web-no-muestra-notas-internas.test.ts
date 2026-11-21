@@ -41,8 +41,8 @@ describe('Orden 297: La web no muestra notas internas', () => {
     expect(fs.readFileSync(processFile, 'utf-8')).not.toContain('contigo');
   });
 
-  it('simulador viejo no contiene palabras sin tildes del barrido', () => {
-    const simFile = path.join(process.cwd(), 'src/app/simulador/page.tsx');
+  it('simulador público no contiene palabras sin tildes del barrido', () => {
+    const simFile = path.join(process.cwd(), 'src/app/simulador-de-presupuesto/page.tsx');
     const simContent = fs.readFileSync(simFile, 'utf-8');
     expect(simContent).not.toMatch(/['">]Instantaneo['"<]/);
     expect(simContent).not.toMatch(/['">]Rapido['"<]/);

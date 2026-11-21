@@ -20,7 +20,7 @@ jest.mock('@/app/actions/invitacion-digital-templates', () => ({
   duplicateInvitationTemplate: jest.fn(),
 }));
 
-import InvitationTemplatesPage from '@/app/(app)/settings/templates/invitaciones/page';
+import InvitationTemplatesPage from '@/components/settings/panels/templates--invitaciones';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });

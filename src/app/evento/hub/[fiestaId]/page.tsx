@@ -28,7 +28,9 @@ import {
 import {
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
+  type PublicMenuNocheData,
 } from '@/app/actions/public-guest-portal';
+import { condicionesDelInvitado } from '@/lib/catering/condiciones-del-invitado';
 import { getPublicSocialPostCount } from '@/app/actions/social-gallery';
 import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import { CompanyLogo } from '@/components/company-logo';
@@ -76,6 +78,7 @@ export default function EventoHubPage() {
   const guestAccessToken = searchParams.get('token') || '';
 
   const [portal, setPortal] = useState<PublicGuestPortalData | null>(null);
+  const [menuNoche, setMenuNoche] = useState<PublicMenuNocheData | null>(null);
   const [stations, setStations] = useState<PublicGuestEntertainmentLink[]>([]);
   const [photoCount, setPhotoCount] = useState(0);
   const [enlaceResena, setEnlaceResena] = useState<string>('');
@@ -92,6 +95,7 @@ export default function EventoHubPage() {
       ]);
       if (!active) return;
       setPortal(portalData);
+      setMenuNoche(portalData?.menuNoche ?? null);
       if (portalData && typeof window !== 'undefined') {
         try {
           localStorage.setItem('ak_invitado_fiesta', fiestaId);
@@ -297,6 +301,51 @@ export default function EventoHubPage() {
             <p className="mt-5 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">
               El organizador todavía no habilitó actividades públicas para esta fiesta.
             </p>
+          )}
+
+          {menuNoche && menuNoche.platos.length > 0 && (
+            <section className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" aria-labelledby="menu-noche-title">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                <div>
+                  <p className="text-xs font-black uppercase text-[var(--event-accent)]">Menú de la noche</p>
+                  <h3 id="menu-noche-title" className="mt-1 text-2xl font-black text-slate-950">
+                    {menuNoche.menuNombre}
+                  </h3>
+                  {condicionesDelInvitado(portal.guest).length > 0 && (
+                    <p className="mt-1 text-xs font-semibold text-emerald-700">
+                      Adaptado a tus preferencias: {condicionesDelInvitado(portal.guest).join(' · ')}
+                    </p>
+                  )}
+                </div>
+                <Link
+                  href={`/evento/mi-mesa/${encodeURIComponent(fiestaId)}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100"
+                >
+                  <MapPin className="h-4 w-4 text-[var(--event-accent)]" />
+                  Buscá tu mesa
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {menuNoche.platos.map((plato) => (
+                  <div key={plato.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{plato.tipo}</p>
+                    <p className="mt-0.5 text-sm font-bold text-slate-900">{plato.nombre}</p>
+                  </div>
+                ))}
+              </div>
+              {menuNoche.tragos.length > 0 && (
+                <div className="mt-4 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-bold uppercase text-slate-500">Carta de tragos</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {menuNoche.tragos.map((trago) => (
+                      <span key={trago.id} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        {trago.nombre}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
           )}
 
           {enlaceResena ? (

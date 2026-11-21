@@ -6,7 +6,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 
 describe('Orden 3D: Salón en 3D, Generación Automática y 5 Piezas de Layout', () => {
   const rootDir = process.cwd();
-  const layoutPagePath = path.join(rootDir, 'src/app/(app)/fiestas/nueva/invitados/layout/page.tsx');
+  const layoutPagePath = path.join(rootDir, 'src/components/panels/invitados--layout.tsx');
   const salonScenePath = path.join(rootDir, 'src/components/salon-3d/SalonScene.tsx');
   const portalDecoPath = path.join(rootDir, 'src/app/portal/[fiestaId]/decoracion/decoracion-client.tsx');
   const salon3DViewPath = path.join(rootDir, 'src/components/salon-3d/Salon3DClienteView.tsx');

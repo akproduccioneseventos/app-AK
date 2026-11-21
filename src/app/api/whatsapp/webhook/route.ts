@@ -11,13 +11,42 @@ import {
   type ReferenciaDeOrigen,
 } from '@/lib/whatsapp/vino-de-la-publicidad';
 import { atenderProspectoAnuncioWhatsApp, enlaceAlSimuladorDelProspecto } from '@/lib/asistente/por-whatsapp';
+import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
+import {
+  atenderProspectoUnificado,
+  verificarEsContactoPersonalONotaBaja,
+} from '@/lib/whatsapp/asistente-de-prospectos';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { clavesIguales } from '@/lib/security/claves-iguales';
+import {
+  evaluarProspectoDeWhatsApp,
+  esProspectoDeWhatsApp,
+  type EvaluacionProspectoWhatsApp,
+} from '@/lib/whatsapp/quien-es-prospecto';
+import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
+import { buildCrmMensaje } from '@/lib/crm/conversacion';
+import { enriquecerLeadExistenteConIA, registrarMensajeYAnalizarProspecto } from '@/lib/crm/ia-prospecto';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { createNotification } from '@/lib/notifications/create-notification';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+async function conTimeout<T>(promesa: Promise<T>, ms = 1200): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promesa,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`Timeout tras ${ms}ms`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 /**
  * GET /api/whatsapp/webhook
@@ -124,6 +153,15 @@ export async function POST(request: NextRequest) {
             messageText = messageData.audio?.id ? `[AUDIO:${messageData.audio.id}]` : '[AUDIO]';
           } else if (msgType === 'image') {
             messageText = messageData.image?.caption || (messageData.image?.id ? `[IMAGE:${messageData.image.id}]` : '[IMAGE]');
+          } else if (msgType === 'button') {
+            messageText = messageData.button?.text ?? messageData.button?.payload ?? '';
+          } else if (msgType === 'interactive') {
+            messageText =
+              messageData.interactive?.button_reply?.title ??
+              messageData.interactive?.button_reply?.id ??
+              messageData.interactive?.list_reply?.title ??
+              messageData.interactive?.list_reply?.id ??
+              '';
           } else {
             messageText = messageData.text?.body ?? messageData.type ?? '';
           }
@@ -197,16 +235,273 @@ export async function POST(request: NextRequest) {
     // Un eco es un mensaje que mandó el dueño: no es una consulta de nadie y no se contesta.
     if (isEcho) return NextResponse.json({ status: 'ok', eco: true }, { status: 200 });
 
-    /**
-     * **El numero es el personal del dueno: no se le contesta a cualquiera.**
-     *
-     * La charla de quienes llegan de anuncios sigue siendo automatica. Solo el
-     * presupuesto con fotos queda como borrador para revision y envio humanos.
-     *
-     * A la familia, a los proveedores y a los amigos **no les contesta nadie**: el
-     * mensaje se ignora y lo lee una persona cuando puede.
-     */
-    if (!(await correspondeContestarSolo(phone, referencia))) {
+    const evaluacion: EvaluacionProspectoWhatsApp = config.llevarWhatsAppProspectosAlCrm === true
+      ? await conTimeout(
+          typeof evaluarProspectoDeWhatsApp === 'function'
+            ? evaluarProspectoDeWhatsApp({
+                telefono: phone,
+                referencia,
+                texto: messageText,
+              })
+            : esProspectoDeWhatsApp(phone, referencia, messageText).then((motivo) => ({
+                esProspecto: Boolean(motivo),
+                motivo,
+                esDudoso: motivo === 'dudoso_ia',
+              })),
+        ).catch(() => ({ esProspecto: false, motivo: null, rechazadoPor: 'interruptor_apagado' as const }))
+      : { esProspecto: false, motivo: null, rechazadoPor: 'interruptor_apagado' };
+
+    const asistenteSettings = await conTimeout(getAsistenteSettings()).catch(() => null);
+    const asistenteProspectosActivo = Boolean(asistenteSettings?.asistenteProspectosWhatsApp);
+    const filtroContacto =
+      !asistenteProspectosActivo && config.llevarWhatsAppProspectosAlCrm !== true
+        ? { bloquear: false }
+        : await conTimeout(
+            verificarEsContactoPersonalONotaBaja(
+              phone,
+              body?.clasificacion ||
+                (typeof body?.nota === 'number'
+                  ? { nota: body.nota }
+                  : evaluacion.notaIA !== undefined
+                    ? { nota: evaluacion.notaIA, esPersonal: evaluacion.rechazadoPor === 'numero_personal' }
+                    : null),
+              asistenteSettings,
+            ),
+          ).catch(() => ({ bloquear: false }));
+
+    let leadGuardadoId = evaluacion.leadCoincidente?.id;
+
+    if (evaluacion.rechazadoPor !== 'interruptor_apagado') {
+      if (!evaluacion.esProspecto || !evaluacion.motivo) {
+        return NextResponse.json({
+          received: true,
+          respondido: false,
+          motivo: 'No es prospecto para el CRM (ignorado).',
+        });
+      }
+
+      const ahoraIso = new Date().toISOString();
+      const idExterno = messageId
+        ? `wa_${messageId}`
+        : `wa_${normalizeUruguayPhone(phone) || phone}_${Date.now()}`;
+      const phoneNorm = normalizeUruguayPhone(phone);
+      const esCelularUy = /^09\d{7}$/.test(phoneNorm);
+
+      try {
+        const { lead } = await conTimeout(upsertPublicCommercialLead({
+          name: evaluacion.leadCoincidente?.name || clientName || `WhatsApp ${phone.slice(-4)}`,
+          phone: esCelularUy ? phoneNorm : phone,
+          permitirSinTelefono: !esCelularUy,
+          claveSinTelefono: !esCelularUy ? `wa:${phoneNorm || phone}` : undefined,
+          leadIdExistente: evaluacion.leadCoincidente?.id,
+          coincidirSoloPorTelefono: true,
+          acquisition: {
+            source: 'whatsapp',
+            ...(referencia?.source_id ? { campaign: referencia.headline || referencia.source_id } : {}),
+          },
+          atiende: evaluacion.motivo === 'anuncio' ? 'asistente' : (evaluacion.leadCoincidente?.atiende || 'persona'),
+          esProspectoDudoso: evaluacion.esDudoso ? true : evaluacion.leadCoincidente?.esProspectoDudoso,
+          origenWhatsApp: evaluacion.motivo,
+          notaClasificacionIA: evaluacion.notaIA,
+          mensajesConversacion: [
+            buildCrmMensaje({
+              idExterno,
+              canal: 'whatsapp',
+              direccion: 'entrante',
+              texto: messageText,
+              fecha: ahoraIso,
+              autor: clientName || phone,
+              meta: {
+                ...(messageId ? { messageId } : {}),
+                motivo: evaluacion.motivo,
+              },
+            }),
+          ],
+        }));
+        leadGuardadoId = lead.id;
+
+        await conTimeout(enriquecerLeadExistenteConIA({
+          leadId: lead.id,
+          mensaje: messageText,
+          canal: 'whatsapp',
+        })).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
+
+        if (evaluacion.esDudoso) {
+          const notifRes = await createNotification({
+            titulo: '¿Es prospecto?',
+            mensaje: `Llegó un WhatsApp dudoso de ${lead.name} (${phone}): "${messageText.slice(0, 80)}". Confirmá si es prospecto o personal.`,
+            href: `/contabilidad/crm?leadId=${encodeURIComponent(lead.id)}`,
+            tipo: 'aviso',
+            icono: 'HelpCircle',
+            entidadRelacionadaId: lead.id,
+            rolDestino: 'admin',
+          }).catch(() => ({ success: false, error: 'Error creando notificación' }));
+          if (!notifRes.success) {
+            console.warn('[WhatsApp Webhook] No se pudo crear notificación:', notifRes.error);
+          }
+        }
+      } catch (crmErr) {
+        console.warn('[WhatsApp Webhook] No se pudo guardar el mensaje en el CRM:', crmErr);
+      }
+    }
+
+    // Personal, números personales o nota <= 2 NUNCA reciben respuesta automática.
+    if (
+      filtroContacto.bloquear ||
+      evaluacion.rechazadoPor === 'numero_personal' ||
+      evaluacion.rechazadoPor === 'cliente_con_fiesta' ||
+      evaluacion.rechazadoPor === 'contacto_conocido' ||
+      evaluacion.esDudoso ||
+      (evaluacion.notaIA !== undefined && evaluacion.notaIA <= 2)
+    ) {
+      return NextResponse.json({
+        status: 'ok',
+        received: true,
+        savedToCrm: Boolean(leadGuardadoId),
+        leadId: leadGuardadoId,
+        motivo: filtroContacto.motivo || evaluacion.motivo || 'Contacto personal o nota <= 2: contesta una persona.',
+        respondido: false,
+      });
+    }
+
+    const vinoDePublicidad = await correspondeContestarSolo(phone, referencia);
+
+    const pidioPersonaExplicitamente =
+      messageText.trim().toLowerCase() === 'quiero una persona';
+
+    if (asistenteProspectosActivo) {
+      const habilitadoPorPuerta =
+        vinoDePublicidad ||
+        (evaluacion.esProspecto && !evaluacion.esDudoso && (evaluacion.notaIA === undefined || evaluacion.notaIA > 2)) ||
+        (pidioPersonaExplicitamente && Boolean(leadGuardadoId));
+
+      if (!habilitadoPorPuerta) {
+        return NextResponse.json({
+          status: 'ok',
+          received: true,
+          savedToCrm: Boolean(leadGuardadoId),
+          leadId: leadGuardadoId,
+          motivo: 'No viene de la publicidad ni supera el filtro de prospecto.',
+          respondido: false,
+        });
+      }
+
+      if (messageId) {
+        let yaRespondido = false;
+        await mutateGenericJsonArray<string>('asistente/anuncio-mensajes-respondidos.json', (actuales) => {
+          const lista = actuales || [];
+          if (lista.includes(messageId)) {
+            yaRespondido = true;
+            return null;
+          }
+          return [...lista, messageId];
+        }).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
+        if (yaRespondido) {
+          return NextResponse.json({ status: 'ok', respondido: false, motivo: 'Mensaje duplicado ya atendido' }, { status: 200 });
+        }
+      }
+
+      const resultadoProspecto = await atenderProspectoUnificado({
+        canal: 'whatsapp',
+        remitenteId: phone,
+        nombre: clientName,
+        texto: pidioPersonaExplicitamente ? 'Quiero una persona' : messageText,
+        messageId,
+        esPersonal: filtroContacto.esPersonal,
+        nota: evaluacion.notaIA ?? filtroContacto.nota,
+      });
+
+      if (resultadoProspecto.silenciado || !resultadoProspecto.respuesta) {
+        return NextResponse.json({
+          status: 'ok',
+          savedToCrm: Boolean(leadGuardadoId),
+          leadId: leadGuardadoId,
+          respondido: false,
+          motivo: resultadoProspecto.motivo || 'atiende_persona',
+        }, { status: 200 });
+      }
+
+      if (leadGuardadoId) {
+        await registrarMensajeYAnalizarProspecto({
+          leadId: leadGuardadoId,
+          analizar: false,
+          mensaje: buildCrmMensaje({
+            canal: 'whatsapp',
+            direccion: 'saliente',
+            texto: resultadoProspecto.respuesta,
+            fecha: new Date().toISOString(),
+            autor: 'Asistente AK',
+            respondidoPor: 'asistente',
+          }),
+        }).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
+      }
+
+      if (body.From) {
+        const text = resultadoProspecto.respuesta.replace(/[<>&"']/g, char => ({
+          '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;',
+        })[char]!);
+        return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${text}</Message></Response>`, {
+          status: 200, headers: { 'Content-Type': 'text/xml' },
+        });
+      }
+
+      const apiToken = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
+      const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+      let envioExitoso = false;
+      try {
+        const envio = await sendMetaWhatsAppMessage({
+          to: phone,
+          text: resultadoProspecto.respuesta,
+          apiToken,
+          phoneNumberId,
+        });
+        envioExitoso = Boolean(envio?.success);
+      } catch {
+        envioExitoso = false;
+      }
+
+      if (!envioExitoso) {
+        await agregarPropuestasDeduplicadas([{
+          clave: 'prospecto-asistente-fallo-envio:' + (messageId || phone),
+          titulo: 'Contestar al prospecto: no salió el mensaje automático',
+          area: 'ventas',
+          tipoPropuesta: 'prospecto_envio_fallido',
+          nivelRiesgo: 'aviso' as any,
+          quePasa: `No se pudo enviar la respuesta automática al prospecto (${phone}).`,
+          porQueImporta: 'El prospecto espera respuesta.',
+          quePropone: `Contactar manualmente a ${clientName || phone}.`,
+        }]).catch((e) => console.warn('[WhatsApp webhook] Paso secundario sin completar:', e));
+      }
+
+      return NextResponse.json({
+        status: 'ok',
+        tipo: 'asistente_prospectos',
+        respondido: true,
+        atiende: resultadoProspecto.atiende,
+      }, { status: 200 });
+    }
+
+    if (evaluacion.rechazadoPor !== 'interruptor_apagado' && !vinoDePublicidad) {
+      return NextResponse.json({
+        status: 'ok',
+        received: true,
+        savedToCrm: Boolean(leadGuardadoId),
+        leadId: leadGuardadoId,
+        motivo: evaluacion.motivo,
+        respondido: false,
+      });
+    }
+
+    if (!vinoDePublicidad) {
+      /**
+       * **El numero es el personal del dueno: no se le contesta a cualquiera.**
+       *
+       * La charla de quienes llegan de anuncios sigue siendo automatica. Solo el
+       * presupuesto con fotos queda como borrador para revision y envio humanos.
+       *
+       * A la familia, a los proveedores y a los amigos **no les contesta nadie**: el
+       * mensaje se ignora y lo lee una persona cuando puede.
+       */
       return NextResponse.json({
         received: true,
         respondido: false,

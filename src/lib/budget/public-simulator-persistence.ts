@@ -386,6 +386,7 @@ export async function persistPublicSimulatorBudget(
       || attribution.source === 'portal_led',
   });
 
+  const { buildCrmMensaje } = await import('@/lib/crm/conversacion');
   const { lead } = await upsertPublicCommercialLead({
     name: presupuesto.clienteNombre,
     phone,
@@ -398,6 +399,17 @@ export async function persistPublicSimulatorBudget(
     budgetSource: presupuesto.source,
     acquisition: attribution,
     conversionPlan,
+    mensajesConversacion: [
+      buildCrmMensaje({
+        idExterno: `sim_presupuesto_${presupuesto.id}`,
+        canal: 'simulador',
+        direccion: 'sistema',
+        texto: `Generó presupuesto de ${presupuesto.eventoTipo} para ${presupuesto.invitadosCantidad} invitados (${presupuesto.salonFiestas}) por $${presupuesto.totalConDescuento}.`,
+        fecha: timestamp,
+        autor: presupuesto.clienteNombre,
+        meta: { presupuestoId: presupuesto.id },
+      }),
+    ],
   });
 
   presupuesto = { ...presupuesto, leadId: lead.id };

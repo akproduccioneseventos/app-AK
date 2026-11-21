@@ -25,6 +25,7 @@ jest.mock('@/app/actions/social-gallery', () => ({
   getChatMessages: jest.fn(async () => []),
   getPublicSocialEvent: (...a: unknown[]) => getPublicSocialEvent(...a),
   getPublicSocialPosts: jest.fn(async () => []),
+  recordGuestPresence: jest.fn().mockResolvedValue({ success: true }),
   uploadSocialPost: jest.fn(),
 }));
 jest.mock('@/app/actions/social-interactive', () => ({

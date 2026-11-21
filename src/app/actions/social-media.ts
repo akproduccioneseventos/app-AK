@@ -1,6 +1,6 @@
 'use server';
 
-import type { SocialPost } from '@/types/social-media';
+import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import fs from 'fs/promises';
@@ -13,8 +13,29 @@ import { classifyGalleryCategories } from '@/components/landing/gallery-media-ut
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import { publishPostInternal } from '@/lib/presencia-digital/publicador';
+import { adaptarTextoFallbackPorRed, adaptarPostParaRedes, type AdaptedPlatformVersion } from '@/lib/social-media/adaptar-post-por-red';
 
-const POSTS_FILE = 'social-posts.json';
+const POSTS_FILE = 'social-media-posts.json';
+
+export async function adaptarTextoPorRedAction(params: {
+  textoBase: string;
+  plataformas: SocialPlatform[];
+  link?: string;
+}): Promise<{
+  success: boolean;
+  versions?: Partial<Record<SocialPlatform, AdaptedPlatformVersion>>;
+  aiUsed?: boolean;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    const versions = adaptarPostParaRedes(params);
+    return { success: true, versions, aiUsed: false };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al adaptar texto por red.' };
+  }
+}
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const ASSETS_DIR_NAME = 'social-media-assets';
 const assetsDirectoryPath = path.join(DATA_DIR, ASSETS_DIR_NAME);

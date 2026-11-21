@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/customers--reporte'));
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -117,7 +121,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
 };
 
 
-export default function CustomersPage() {
+function CustomersPageInner() {
   const { toast } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -296,5 +300,18 @@ export default function CustomersPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+
+export default function CustomersPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"lista","label":"Clientes"},{"id":"reporte","label":"Reporte"}]}
+        renderDefault={() => <CustomersPageInner />}
+        renderTab={(tab) => { if (tab === 'reporte') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

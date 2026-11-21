@@ -211,7 +211,7 @@ export default function PresupuestoCard({
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href={`/presupuestos/${presupuesto.id}/editar`}>
+            <Link href={`/presupuestos/${presupuesto.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               Editar
             </Link>

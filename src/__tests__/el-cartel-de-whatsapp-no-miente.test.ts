@@ -13,7 +13,7 @@ import path from 'path';
  * afirma algo sin nada detras hace que el dueno deje de revisar algo que en
  * realidad esta sin hacer.
  */
-const PANTALLA = 'src/app/(app)/settings/whatsapp-business/page.tsx';
+const PANTALLA = 'src/components/settings/panels/whatsapp-business.tsx';
 
 describe('el cartel de WhatsApp', () => {
   const fuente = fs.readFileSync(path.join(process.cwd(), PANTALLA), 'utf8');

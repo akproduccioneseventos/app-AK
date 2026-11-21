@@ -111,6 +111,7 @@ export function isBackupMetadataFile(fileName: string): boolean {
 }
 
 export function isSafeTopLevelJsonFile(fileName: string): boolean {
+  if (fileName === 'marketing-competencia.json' || fileName === 'marketing-enlaces-clics.json') return true;
   const normalized = normalizeBackupFileName(fileName);
   return /^[A-Za-z0-9][A-Za-z0-9._-]*\.json$/.test(normalized) && !normalized.startsWith('_');
 }

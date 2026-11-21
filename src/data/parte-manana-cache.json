@@ -1,7 +1,8 @@
 {
-  "fecha": "2026-09-04",
+  "fecha": "2026-11-20",
+  "itemsPrincipales": [],
+  "totalPendientes": 0,
   "textoHablado": "Buen día. Por hoy está todo al día.",
   "textoResumen": "Por hoy está todo al día.",
-  "itemsPrincipales": [],
-  "totalPendientes": 0
+  "items": []
 }

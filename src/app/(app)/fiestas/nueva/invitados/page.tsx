@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/invitados--checkin-scanner'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/invitados--layout'));
 import { armarMesasInteligente, type ResultadoAsignacionMesas } from '@/lib/fiesta/armador-mesas-inteligente';
 
 import React, { useState, type FormEvent, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -966,9 +971,22 @@ function InvitadosEventoContent() {
   );
 }
 
-export default function InvitadosEventoPage() {
+function InvitadosEventoPageInner() {
     return (
         <Suspense fallback={null}><InvitadosEventoContent/></Suspense>
     )
 }
 
+
+
+export default function InvitadosEventoPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"invitados","label":"Invitados"},{"id":"scanner","label":"Check-in scanner"},{"id":"layout","label":"Distribución de mesas"}]}
+        renderDefault={() => <InvitadosEventoPageInner />}
+        renderTab={(tab) => { if (tab === 'scanner') return <__AkPanel1 />; if (tab === 'layout') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

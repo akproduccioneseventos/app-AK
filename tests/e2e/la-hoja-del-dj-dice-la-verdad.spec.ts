@@ -93,6 +93,6 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
     await expect(fallbackBox).toContainText('No se pudo copiar automáticamente');
     const inputUrl = fallbackBox.locator('input');
     await expect(inputUrl).toBeVisible();
-    await expect(inputUrl).toHaveValue(/fiestas\/nueva\/musica\/pdf/);
+    await expect(inputUrl).toHaveValue(/fiestas\/nueva\/musica/);
   });
 });

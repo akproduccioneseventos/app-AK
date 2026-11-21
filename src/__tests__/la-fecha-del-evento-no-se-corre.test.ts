@@ -31,7 +31,7 @@ describe('Orden 286 — Bloque 3: La fecha del evento no se corre', () => {
   });
 
   it('decoracion/pdf y configuracion usan formatearFechaEvento', () => {
-    const decoracionPdf = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx'), 'utf8');
+    const decoracionPdf = fs.readFileSync(path.join(process.cwd(), 'src/components/panels/pdf--decoracion.tsx'), 'utf8');
     const configuracion = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/configuracion/page.tsx'), 'utf8');
 
     expect(decoracionPdf).toContain('formatearFechaEvento');

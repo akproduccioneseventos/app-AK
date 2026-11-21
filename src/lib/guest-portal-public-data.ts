@@ -8,6 +8,7 @@ import type {
   ModulosContratados,
   ZonaDigitalAdolescentesSettings,
 } from "@/types/fiesta";
+import { vectorInvitadoExpirado } from "@/lib/caras/agrupar-caras";
 
 export type PublicGuestEventConfig = Pick<
   ConfigEventoDataStorage,
@@ -81,7 +82,9 @@ export type PublicGuest = Pick<
   | "cancionesDJ"
   | "mensaje"
   | "requiereAccesibilidad"
->;
+> & {
+  tieneCaraRegistrada?: boolean;
+};
 
 export interface PublicGuestPortalData {
   fiesta: PublicGuestEvent;
@@ -180,6 +183,10 @@ export function buildPublicGuestPortalData(
   const guest = (fiesta.invitados || []).find((item) => item.id === guestId);
   if (!hasPublicGuestAccess(guest, guestId, guestAccessToken)) return null;
 
+  const expirado = vectorInvitadoExpirado(fiesta.configuracion?.fechaEvento);
+  const tieneCaraRegistrada =
+    !expirado && Boolean(fiesta.vectoresCarasInvitados?.[guest.id]?.vector?.length);
+
   return {
     fiesta: buildPublicGuestEvent(fiesta),
     guest: {
@@ -193,6 +200,7 @@ export function buildPublicGuestPortalData(
       cancionesDJ: guest.cancionesDJ,
       mensaje: guest.mensaje,
       requiereAccesibilidad: guest.requiereAccesibilidad,
+      tieneCaraRegistrada,
     },
   };
 }

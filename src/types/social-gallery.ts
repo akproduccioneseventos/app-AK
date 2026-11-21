@@ -7,6 +7,14 @@ export interface SocialComment {
   highlighted?: boolean;
 }
 
+export interface SocialPostIaRevision {
+  apropiado: boolean;
+  esDeLaFiesta: boolean;
+  calidad?: 1 | 2 | 3 | number;
+  motivo?: string;
+  revisadoAt?: string;
+}
+
 export interface SocialGalleryPost {
   id: string;
   fiestaId: string;
@@ -36,8 +44,11 @@ export interface SocialGalleryPost {
   caption?: string;
   /** SHA-256 hex hash of the image content — used to reject duplicate uploads */
   imageHash?: string;
+  /** Enlace a la foto oficial en Wfolio (para fotos del fotógrafo importadas desde AK Editor). */
+  wfolioUrl?: string;
   drinkId?: string;
   drinkName?: string;
+  iaRevision?: SocialPostIaRevision;
 }
 
 export interface ChatMessage {

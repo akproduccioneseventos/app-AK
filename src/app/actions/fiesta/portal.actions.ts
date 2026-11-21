@@ -4,7 +4,7 @@ import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, ClientPaymentRevisionIA, TipoComprobanteIA, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente } from '@/types/fiesta';
 export type { MensajePortalCliente };
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
@@ -471,6 +471,69 @@ export async function guardarCorreoDeRecuperacion(
   }));
 }
 
+const TIPOS_COMPROBANTE_VALIDOS = new Set<TipoComprobanteIA>([
+  'transferencia',
+  'deposito',
+  'mercado_pago',
+  'otro',
+]);
+
+async function revisarComprobanteConIA(
+  buffer: Buffer,
+  mimeType: string,
+  montoEsperado: number,
+): Promise<ClientPaymentRevisionIA | undefined> {
+  try {
+    const { decidir } = await import('@/lib/ai/decisiones');
+    const decision = await decidir({
+      entradas: [
+        { buffer, mimeType },
+        `Monto informado por el cliente: $${montoEsperado} pesos uruguayos.`,
+      ],
+      preguntas: {
+        es_comprobante: {
+          tipo: 'si_no',
+          instruccion: '¿Esta imagen o documento parece un comprobante de pago o transferencia real?',
+        },
+        monto_coincide: {
+          tipo: 'si_no',
+          instruccion: `¿El importe visible en el comprobante coincide con $${montoEsperado}?`,
+        },
+        tiene_fecha: {
+          tipo: 'si_no',
+          instruccion: '¿El comprobante muestra claramente una fecha de operación?',
+        },
+        tipo: {
+          tipo: 'opcion',
+          instruccion: '¿Qué medio de pago parece ser?',
+          opciones: {
+            transferencia: 'Transferencia bancaria',
+            deposito: 'Depósito en efectivo o buzón',
+            mercado_pago: 'Mercado Pago',
+            otro: 'Otro medio o no se distingue',
+          },
+        },
+      },
+      funcion: 'decisiones',
+    });
+    if (!decision) return undefined;
+
+    const tipoCrudo = decision.tipo?.opcion as TipoComprobanteIA | undefined;
+    const tipo: TipoComprobanteIA =
+      tipoCrudo && TIPOS_COMPROBANTE_VALIDOS.has(tipoCrudo) ? tipoCrudo : 'otro';
+
+    return {
+      esComprobante: decision.es_comprobante?.siNo === true,
+      montoCoincide: decision.monto_coincide?.siNo === true,
+      tieneFecha: decision.tiene_fecha?.siNo === true,
+      tipo,
+      revisadoAt: new Date().toISOString(),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 export async function submitClientPayment(
   fiestaId: string,
   monto: number,
@@ -508,6 +571,8 @@ export async function submitClientPayment(
     // del archivo y sin el archivo, y el reintento devolvia el aviso viejo sin volver a subirlo.
     let comprobanteUrl: string | undefined = undefined;
     let comprobanteFallo = false;
+    let comprobanteBuffer: Buffer | undefined;
+    let comprobanteMimeType: string | undefined;
     if (comprobanteBase64) {
       try {
         const matches = comprobanteBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
@@ -515,6 +580,8 @@ export async function submitClientPayment(
           const mimeType = matches[1];
           const base64Data = matches[2];
           const buffer = Buffer.from(base64Data, 'base64');
+          comprobanteBuffer = buffer;
+          comprobanteMimeType = mimeType;
           const filename = comprobanteNombre || 'comprobante.png';
           const docId = `cpn_${crypto.randomUUID()}`;
           const storagePath = `payments/${fiestaId}/${docId}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
@@ -530,6 +597,12 @@ export async function submitClientPayment(
       }
     }
 
+    // Revisión estrictamente asesora: nunca aprueba, nunca rechaza y nunca acredita pagos.
+    const revisionIA =
+      comprobanteUrl && comprobanteBuffer && comprobanteMimeType
+        ? await revisarComprobanteConIA(comprobanteBuffer, comprobanteMimeType, safeMonto)
+        : undefined;
+
     const nuevo: ClientPaymentNotification = {
       id: `cpn_${crypto.randomUUID()}`,
       monto: safeMonto,
@@ -537,6 +610,7 @@ export async function submitClientPayment(
       comprobanteNombre: comprobanteUrl ? comprobanteNombre : undefined,
       estado: 'pendiente',
       timestamp: new Date().toISOString(),
+      ...(revisionIA ? { revisionIA } : {}),
     };
 
     // Se agrega el aviso sobre la fiesta de ESE momento (auditoría 71): el guardado general ya no
@@ -556,7 +630,7 @@ export async function submitClientPayment(
         return actual;
       }
       // El mismo aviso recupera el comprobante que le faltaba, sin duplicar el importe.
-      notification = { ...previo, comprobanteUrl, comprobanteNombre };
+      notification = { ...previo, comprobanteUrl, comprobanteNombre, ...(revisionIA ? { revisionIA } : {}) };
       return {
         ...actual,
         clientPaymentNotifications: avisos.map((a) => (a.id === previo.id ? notification : a)),

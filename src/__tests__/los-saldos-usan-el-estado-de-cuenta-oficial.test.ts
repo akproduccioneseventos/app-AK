@@ -60,10 +60,10 @@ describe('el estado de cuenta ve los cobros anotados en el presupuesto', () => {
     expect(c.saldo).toBe(7000);
   });
   it('el recibo y el panel en vivo salen de ese estado de cuenta', () => {
-    const recibo = leer('app', '(app)', 'fiestas', 'nueva', 'gestion-documental', 'recibo-pago', 'page.tsx');
+    const recibo = leer('components', 'panels', 'doc--recibo-pago.tsx');
     expect(recibo).toContain('estadoDeCuenta.pagado');
     expect(recibo).toContain('estadoDeCuenta.saldo');
-    const enVivo = leer('app', '(app)', 'fiestas', 'nueva', 'en-vivo', 'page.tsx');
+    const enVivo = leer('components', 'panels', 'fiesta--en-vivo.tsx');
     expect(enVivo).toContain('calcularEstadoDeCuenta(presupuesto).saldo');
     expect(enVivo).not.toContain('presupuestoEstimado || 0');
   });

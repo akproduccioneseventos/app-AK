@@ -143,7 +143,7 @@ describe('Auditoría integral 17/11: costo de catálogo, propuestas activas y me
   });
 
   it('la lista de compras suma el menú asignado a la fiesta', () => {
-    const fuente = leer('src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx');
+    const fuente = leer('src/components/panels/catering--lista-compras.tsx');
     expect(fuente).toMatch(/fiestaData\.menuAsignadoId/);
   });
 });

@@ -20,7 +20,7 @@ const con = (o: any) => ({ id: 'x', nombre: 'Algo', categoria: 'c', estado: 'con
 const ig = (historial: any) => con({ id: 'instagram', nombre: 'Instagram', estado: 'falta-configurarla', historial });
 
 async function pintar() {
-  const Page = require('@/app/(app)/settings/sincronizaciones/page').default;
+  const Page = require('@/components/settings/panels/sincronizaciones').default;
   const host = document.body.appendChild(document.createElement('div'));
   const root = createRoot(host);
   await act(async () => { root.render(<Page />); });

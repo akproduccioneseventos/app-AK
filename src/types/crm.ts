@@ -24,7 +24,9 @@ export type CrmTimelineEventType =
   | 'whatsapp_opened'
   | 'whatsapp_scheduled'
   | 'payment_reminder_sent'
-  | 'lead_created';
+  | 'lead_created'
+  | 'ai_analysis'
+  | 'assistant_handoff';
 
 export interface CrmTimelineItem {
   id: string;
@@ -47,6 +49,29 @@ export interface CrmStage {
   isConversionStage?: boolean; // Optional flag for special stages
 }
 
+export type CrmMensajeCanal =
+  | 'whatsapp'
+  | 'instagram_dm'
+  | 'messenger'
+  | 'instagram_comentario'
+  | 'facebook_comentario'
+  | 'simulador'
+  | 'rescatado';
+
+export type CrmMensajeDireccion = 'entrante' | 'saliente' | 'sistema';
+
+export interface CrmMensaje {
+  id: string;
+  idExterno?: string;
+  canal: CrmMensajeCanal;
+  direccion: CrmMensajeDireccion;
+  texto: string;
+  fecha: string;
+  autor?: string;
+  respondidoPor?: 'asistente' | 'persona';
+  meta?: Record<string, string | number | boolean>;
+}
+
 export interface CrmLead {
   id: string;
   name: string;
@@ -58,6 +83,11 @@ export interface CrmLead {
   notes?: string;
   history?: CrmLeadHistoryItem[];
   timeline?: CrmTimelineItem[];
+  conversacion?: CrmMensaje[];
+  atiende?: 'asistente' | 'persona';
+  esProspectoDudoso?: boolean;
+  origenWhatsApp?: 'anuncio' | 'crm_existente' | 'marca_ak' | 'llego_solo' | 'dudoso_ia' | 'rescatado';
+  notaClasificacionIA?: number;
   // Optional party details
   partyType?: string;
   venueName?: string;
@@ -104,6 +134,15 @@ export interface CrmLead {
    * Registra cada paso de la secuencia que ya recibió el prospecto.
    */
   recontactosEnviados?: Array<{ paso: number; at: string }>;
+  /** Resumen en 1 línea generado por IA al entrar un mensaje nuevo. */
+  resumenIA?: string;
+  /** Borrador de respuesta preparada para revisar y abrir en WhatsApp (nunca se envía solo). */
+  borradorRespuesta?: string;
+  borradorRespuestaAt?: string;
+  /** Código corto de referencia para enlaces a WhatsApp (ej: AK-1234). */
+  referenciaCodigo?: string;
+  canalOrigen?: 'whatsapp' | 'web' | 'instagram_dm' | 'messenger' | string;
+  clasificacionProspecto?: { tipo?: string; nota?: number; esPersonal?: boolean };
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

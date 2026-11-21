@@ -1,22 +1,31 @@
 'use server';
 
 import path from 'path';
+import { randomInt } from 'crypto';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import admin from 'firebase-admin';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-interaction-rate-limit';
-import { requirePermiso } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { sinBaseDisponible } from '@/lib/firebase/modo-local';
+import { readData } from '@/lib/data-service';
+import {
+  calcularEstadisticasEnVivo,
+  type GuestPresenceRecord,
+  type LiveEventStats,
+} from '@/lib/social-fiesta/estadisticas-en-vivo';
 
-import { requireAppSession } from '@/lib/auth/require-session';
 /** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
 const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
 /** Maximum allowed image upload size (bytes) */
 const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+const PRESENCE_COLLECTION = 'social_guest_presence';
 
 function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
@@ -211,6 +220,7 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
   activeGame?: ActiveGameData | null;
   activeSorteoWinner?: string | null;
   sorteoSpinStartedAt?: string | null;
+  sorteoCandidatos?: string[];
 }> {
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -232,6 +242,7 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
       activeGame: settings.activeGame || null,
       activeSorteoWinner: settings.activeSorteoWinner || null,
       sorteoSpinStartedAt: settings.sorteoSpinStartedAt || null,
+      sorteoCandidatos: settings.sorteoCandidatos ?? [],
     };
   } catch (error: any) {
     const msg = error.message || 'Error de acceso';
@@ -247,6 +258,57 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const verificarAccesoControlPantalla = obtenerEstadoControlPantalla;
+
+/**
+ * Calcula estadísticas en vivo reales de la fiesta para la consola del operador.
+ * No inventa números: si no hay actividad devuelve 0 / null.
+ */
+export async function obtenerEstadisticasEnVivo(
+  fiestaId: string,
+): Promise<{ success: boolean; stats?: LiveEventStats; error?: string }> {
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const { getSocialPosts } = await import('@/app/actions/social-gallery');
+    const { getPolls, getSongRequests } = await import('@/app/actions/social-interactive');
+
+    const presencesPromise = (async (): Promise<GuestPresenceRecord[]> => {
+      if (sinBaseDisponible()) {
+        return readData<GuestPresenceRecord[]>(`social-gallery/presences-${fiestaId}.json`, []);
+      }
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (!dbAdmin) return [];
+      const snap = await dbAdmin
+        .collection(PRESENCE_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .get();
+      return snap.docs.map((doc: QueryDocumentSnapshot) => doc.data() as GuestPresenceRecord);
+    })();
+
+    const [postsRes, pollsRes, songsRes, presencesRes] = await Promise.allSettled([
+      getSocialPosts(fiestaId),
+      getPolls(fiestaId),
+      getSongRequests(fiestaId),
+      presencesPromise,
+    ]);
+
+    const stats = calcularEstadisticasEnVivo({
+      invitados: fiesta.invitados,
+      presences: presencesRes.status === 'fulfilled' ? presencesRes.value : [],
+      posts: postsRes.status === 'fulfilled' ? postsRes.value : [],
+      polls: pollsRes.status === 'fulfilled' ? pollsRes.value : [],
+      songs: songsRes.status === 'fulfilled' ? songsRes.value : [],
+      activeGame: fiesta.socialGallerySettings?.activeGame ?? null,
+      triviaParticipants: fiesta.triviaGame?.participants ?? [],
+    });
+
+    return { success: true, stats };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error?.message || 'No se pudieron obtener las estadísticas en vivo.',
+    };
+  }
+}
 
 /** Registra un momento especial en vivo (aparece como overlay en la pantalla gigante) */
 export async function triggerLiveMoment(
@@ -495,18 +557,74 @@ export async function startSorteoSpinOnScreen(
   }
 }
 
+/** Lanza un sorteo eligiendo el ganador en el servidor con crypto.randomInt */
+export async function sortearGanadorEnServidor(
+  fiestaId: string,
+  opciones?: { premio?: string; candidatos?: string[] },
+): Promise<{ success: boolean; winner?: string; error?: string }> {
+  await requireAppSession();
+  const MAX_SORTEO_HISTORY = 50;
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+
+    const normalizeCandidatos = (list?: string[]) =>
+      Array.isArray(list)
+        ? list.map((c) => c.trim()).filter(Boolean)
+        : [];
+
+    const fromInput = normalizeCandidatos(opciones?.candidatos);
+    const fromSaved = normalizeCandidatos(settings.sorteoCandidatos);
+    const pool = fromInput.length > 0 ? fromInput : fromSaved;
+
+    if (pool.length === 0) {
+      return {
+        success: false,
+        error: 'Cargá los participantes del sorteo primero.',
+      };
+    }
+
+    const winner = pool[randomInt(0, pool.length)];
+    const previousWinners = settings.sorteoGanadores ?? [];
+    const updatedWinners = [...previousWinners, winner].slice(-MAX_SORTEO_HISTORY);
+
+    const guardado = await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        ...(fromInput.length > 0 ? { sorteoCandidatos: fromInput } : {}),
+        activeSorteoWinner: winner,
+        activeSorteoTimestamp: new Date().toISOString(),
+        sorteoGanadores: updatedWinners,
+        ...(opciones?.premio !== undefined ? { sorteoPremio: opciones.premio } : {}),
+      },
+    });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al lanzar sorteo.' };
+    }
+    return { success: true, winner };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al lanzar sorteo.' };
+  }
+}
+
 /** Transfiere la ruleta del sorteo a la pantalla gigante (modo estático, sin girar) */
 export async function transferSorteoToScreen(
-  fiestaId: string
+  fiestaId: string,
+  candidatos?: string[],
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const cleanedCandidatos = Array.isArray(candidatos)
+      ? candidatos.map((c) => c.trim()).filter(Boolean)
+      : undefined;
     const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
+        ...(cleanedCandidatos !== undefined ? { sorteoCandidatos: cleanedCandidatos } : {}),
         sorteoOnScreen: true,
         activeSorteoWinner: undefined,
         sorteoSpinStartedAt: undefined,
@@ -677,9 +795,8 @@ export async function getMuroParticipantesForSorteo(
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     // Import social actions lazily to avoid circular dependencies
-    const { getSocialPosts } = await import('@/app/actions/social-gallery');
+    const { getSocialPosts, getChatMessages } = await import('@/app/actions/social-gallery');
     const { getDedications, getSongRequests } = await import('@/app/actions/social-interactive');
-    const { getChatMessages } = await import('@/app/actions/social-gallery');
 
     let lecturaIncompleta = false;
     const [postsRes, dedicationsRes, songRequestsRes, chatMessagesRes] = await Promise.allSettled([

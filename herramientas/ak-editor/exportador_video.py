@@ -210,3 +210,127 @@ def exportar_video_ffmpeg(
     except Exception as e:
         print(f"[Exportador Video] Error: {e}")
         return False
+
+
+LIMITE_VIDEO_WFOLIO_BYTES = 500 * 1024 * 1024  # 500 MB
+
+
+def _obtener_duracion_video_segundos(ruta_video: str, default_segundos: float = 30.0) -> float:
+    """Consulta la duración de un video usando ffprobe con fallback seguro."""
+    try:
+        cmd = [
+            "ffprobe",
+            "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            ruta_video,
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        if res.returncode == 0 and res.stdout.strip():
+            dur = float(res.stdout.strip())
+            if dur > 0:
+                return dur
+    except Exception:
+        pass
+    return default_segundos
+
+
+def comprimir_video_para_wfolio(
+    ruta_video: str,
+    ruta_salida: Optional[str] = None,
+    max_bytes: int = LIMITE_VIDEO_WFOLIO_BYTES,
+    tamano_actual_bytes: Optional[int] = None,
+    dry_run: bool = False,
+    ejecutador_ffmpeg: Optional[Callable[[List[str], str, str], bool]] = None,
+) -> Dict[str, Any]:
+    """Comprime un video MP4/MOV a H.264 por debajo de 500 MB para que Wfolio lo reproduzca en la galería."""
+    if not os.path.exists(ruta_video) and tamano_actual_bytes is None:
+        return {
+            "exito": False,
+            "comprimido": False,
+            "ruta": ruta_video,
+            "error": f"No existe el video: {ruta_video}",
+        }
+
+    tamano_original = (
+        int(tamano_actual_bytes)
+        if tamano_actual_bytes is not None
+        else os.path.getsize(ruta_video)
+    )
+
+    if tamano_original <= max_bytes:
+        return {
+            "exito": True,
+            "comprimido": False,
+            "ruta": ruta_video,
+            "tamano_original_bytes": tamano_original,
+            "tamano_bytes": tamano_original,
+            "wfolio_compatible": True,
+        }
+
+    if ruta_salida is None:
+        stem, _ = os.path.splitext(ruta_video)
+        ruta_salida = f"{stem}_wfolio.mp4"
+
+    carpeta_salida = os.path.dirname(ruta_salida)
+    if carpeta_salida:
+        os.makedirs(carpeta_salida, exist_ok=True)
+
+    duracion = _obtener_duracion_video_segundos(ruta_video)
+    objetivo_bytes = int(max_bytes * 0.88)
+    bitrate_total_bps = max(500_000, int((objetivo_bytes * 8) / max(duracion, 1.0)))
+    audio_bps = 128_000
+    video_kbps = max(350, min(18_000, (bitrate_total_bps - audio_bps) // 1000))
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i", ruta_video,
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-b:v", f"{video_kbps}k",
+        "-maxrate", f"{video_kbps}k",
+        "-bufsize", f"{video_kbps * 2}k",
+        "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        ruta_salida,
+    ]
+
+    if dry_run:
+        return {
+            "exito": True,
+            "comprimido": True,
+            "ruta": ruta_salida,
+            "tamano_original_bytes": tamano_original,
+            "tamano_bytes": objetivo_bytes,
+            "cmd": cmd,
+            "wfolio_compatible": True,
+        }
+
+    if ejecutador_ffmpeg is not None:
+        ok = bool(ejecutador_ffmpeg(cmd, ruta_video, ruta_salida))
+    else:
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        ok = res.returncode == 0
+
+    if not ok or not os.path.exists(ruta_salida):
+        return {
+            "exito": False,
+            "comprimido": False,
+            "ruta": ruta_video,
+            "tamano_original_bytes": tamano_original,
+            "error": "No se pudo comprimir el video a H.264 por debajo de 500 MB para Wfolio.",
+            "wfolio_compatible": False,
+        }
+
+    tamano_final = os.path.getsize(ruta_salida)
+    return {
+        "exito": True,
+        "comprimido": True,
+        "ruta": ruta_salida,
+        "tamano_original_bytes": tamano_original,
+        "tamano_bytes": tamano_final,
+        "wfolio_compatible": tamano_final <= max_bytes,
+    }

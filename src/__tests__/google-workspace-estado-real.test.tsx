@@ -78,7 +78,7 @@ describe('la pantalla muestra el estado real', () => {
 
   async function pintar(d: GoogleWorkspaceDashboard) {
     mockDashboard.mockResolvedValue(d);
-    const Page = require('@/app/(app)/settings/google-workspace/page').default;
+    const Page = require('@/components/settings/panels/google-workspace').default;
     const host = document.body.appendChild(document.createElement('div'));
     const root = createRoot(host);
     await act(async () => { root.render(<Page />); });

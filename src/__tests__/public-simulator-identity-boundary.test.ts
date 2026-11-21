@@ -7,11 +7,11 @@ function read(relativePath: string) {
 
 describe('public simulator identity boundaries', () => {
   it('does not persist assistant budgets under shared placeholder identities', () => {
-    const source = read('src/app/simulador-ak/page.tsx');
+    const source = read('src/app/simulador-de-presupuesto/page.tsx');
 
     expect(source).not.toContain("clienteNombre.trim() || 'Cliente Chat'");
     expect(source).not.toContain("clienteContacto || '099000000'");
-    expect(source).toContain('isValidUruguayMobile(normalizedPhone)');
+    expect(source).toContain('isValidUruguayMobile(clienteContacto)');
   });
 
   it('rate limits phone-based budget history without collapsing multiple budgets', () => {

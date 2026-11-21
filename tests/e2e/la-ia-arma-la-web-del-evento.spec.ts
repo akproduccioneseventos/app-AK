@@ -101,7 +101,8 @@ test.describe('Orden 234 — La IA arma la web del evento', () => {
     await expect(botonArmar).toBeVisible({ timeout: 30_000 });
     // Esperar a que la pantalla termine de cargar la fiesta: si se toca antes, la carga pisa lo que arma la IA.
     await page.waitForLoadState('networkidle');
-    await expect(page.getByPlaceholder('Ej: Valentina')).toHaveValue(/\S/, { timeout: 30_000 });
+    // Desde la orden 323 el armador va en tres pasos y el nombre está en "2. Datos": la fiesta cargada se ve en la vista previa.
+    await expect(page.getByRole('heading', { name: 'Valentina' }).first()).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(1500);
     armada = true;
     await botonArmar.click();

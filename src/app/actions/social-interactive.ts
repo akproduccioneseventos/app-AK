@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * Social Interactive actions — polls, song requests, dedications.
+ * Social Interactive actions — polls, song requests, dedications, guestbook.
  *
  * All data is persisted directly to Firestore (bypassing the generic
  * readData / writeData helpers) so that concurrent operations are safe:
@@ -10,13 +10,14 @@
  *   • votePoll — Firestore transaction (no votes are lost under concurrency)
  *   • addSongRequest / voteSongRequest — FieldValue.increment (atomic)
  *   • addDedication / highlightDedication — individual dedication documents
+ *   • submitGuestbookMessage / getClientGuestbookMessages — private client-only audio/video guestbook
  *
  * Settings that live on the fiesta document (sorteo participants, momentos,
  * activeGame) still use saveFiesta — those paths are low-frequency writes
  * that don't have the 200-concurrent-user problem.
  */
 
-import type { SocialPoll, SongRequest, Dedication, SorteoParticipant, FiestaMomento } from '@/types/social-gallery';
+import type { SocialPoll, SongRequest, Dedication, FiestaMomento } from '@/types/social-gallery';
 import type { SocialGallerySettings } from '@/types/fiesta';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
@@ -38,11 +39,22 @@ import {
 } from '@/lib/social-fiesta/guardrails';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-interaction-rate-limit';
+import { readData, writeData } from '@/lib/data-service';
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { isZonaDigitalFeatureEnabled } from '@/lib/zona-digital-adolescentes';
+import {
+  GUESTBOOK_MAX_BYTES,
+  GUESTBOOK_MAX_SECONDS,
+  isGuestbookMessageClientOnly,
+  type GuestbookMessage,
+} from '@/lib/social-fiesta/libro-de-firmas';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
 const SONGS_COLLECTION = 'social_song_requests';
 const DEDICATIONS_COLLECTION = 'social_dedications';
+const GUESTBOOK_COLLECTION = 'social_guestbook';
 // Un documento por voto (encuesta o cancion + telefono). Como en las apps de votacion de eventos
 // (Slido, Mentimeter), el voto se cuenta UNA vez por telefono, y repetirlo no suma de nuevo.
 const POLL_VOTES_COLLECTION = 'social_poll_votes';
@@ -94,6 +106,16 @@ function dedicationAudioExtension(contentType: string): string {
   }
 }
 
+function guestbookMediaExtension(contentType: string, isVideo: boolean): string {
+  const lower = contentType.toLowerCase();
+  if (lower.includes('mp4')) return 'mp4';
+  if (lower.includes('ogg')) return 'ogg';
+  if (lower.includes('mpeg')) return 'mp3';
+  if (lower.includes('wav')) return 'wav';
+  if (lower.includes('quicktime')) return 'mov';
+  return isVideo ? 'webm' : 'webm';
+}
+
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
 async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
@@ -105,6 +127,7 @@ async function getDb(): Promise<Firestore> {
 
 export async function getPolls(fiestaId: string): Promise<SocialPoll[]> {
   try {
+    if (sinBaseDisponible()) return [];
     const db = await getDb();
     const snapshot = await db
       .collection(POLLS_COLLECTION)
@@ -121,6 +144,7 @@ export async function getPolls(fiestaId: string): Promise<SocialPoll[]> {
 
 export async function getActivePoll(fiestaId: string): Promise<SocialPoll | null> {
   try {
+    if (sinBaseDisponible()) return null;
     const db = await getDb();
     const snapshot = await db
       .collection(POLLS_COLLECTION)
@@ -486,6 +510,166 @@ export async function highlightDedication(
   }
 }
 
+// ─────────────────────────── CLIENT-ONLY GUESTBOOK (Bloque 9) ───────────────────────────
+
+export async function submitGuestbookMessage(
+  fiestaId: string,
+  formData: FormData,
+): Promise<{ success: boolean; entry?: GuestbookMessage; error?: string }> {
+  try {
+    const file = formData.get('file') as File | null;
+    const rawAuthor = (formData.get('authorName') as string) || 'Invitado';
+    const rawMessage = (formData.get('message') as string) || '';
+    const rawDuration = formData.get('durationSeconds');
+
+    await enforcePublicRateLimit({
+      scope: 'social-guestbook-submit',
+      identity: `${fiestaId}:${rawAuthor.trim() || 'anon'}`,
+      limit: 10,
+      windowMs: 60_000,
+    });
+
+    if (!fiestaId || !file || !(file instanceof File)) {
+      return { success: false, error: 'Falta el audio o video para el libro de firmas.' };
+    }
+
+    const mime = (file.type || '').toLowerCase();
+    const isVideo = mime.startsWith('video/');
+    const isAudio = mime.startsWith('audio/');
+    if (!isVideo && !isAudio) {
+      return { success: false, error: 'Solo se permiten grabaciones de audio o video.' };
+    }
+    if (file.size <= 0) {
+      return { success: false, error: 'La grabación está vacía.' };
+    }
+    if (file.size > GUESTBOOK_MAX_BYTES) {
+      return { success: false, error: 'La grabación supera el tamaño máximo permitido.' };
+    }
+
+    const parsedDuration = rawDuration !== null && rawDuration !== undefined ? Number(rawDuration) : undefined;
+    if (parsedDuration !== undefined && Number.isFinite(parsedDuration) && parsedDuration > GUESTBOOK_MAX_SECONDS + 1) {
+      return { success: false, error: `El mensaje puede durar hasta ${GUESTBOOK_MAX_SECONDS} segundos.` };
+    }
+
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (!isZonaDigitalFeatureEnabled(fiesta.zonaDigitalAdolescentes, 'libro_de_firmas')) {
+      return { success: false, error: 'El libro de firmas no está habilitado para este evento.' };
+    }
+
+    const textToReview = [rawAuthor, rawMessage].filter((s) => s.trim()).join(' ');
+    const review = reviewSocialContent({
+      type: 'text',
+      text: textToReview || 'Invitado',
+      authorName: rawAuthor,
+      moderationMode: 'automatico',
+    });
+    if (review.status === 'blocked') {
+      return { success: false, error: review.message };
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const id = `gb_${Date.now()}_${randomUUID()}`;
+    const ext = guestbookMediaExtension(mime, isVideo);
+    const storagePath = `guestbook/${fiestaId}/${id}.${ext}`;
+    const uploadedUrl = await uploadToStorage(
+      buffer,
+      storagePath,
+      file.type || (isVideo ? 'video/webm' : 'audio/webm'),
+      false,
+    );
+
+    const cleanMessage = sanitizeSocialText(rawMessage);
+    const entry: GuestbookMessage = {
+      id,
+      fiestaId,
+      authorName: sanitizeSocialText(rawAuthor) || 'Invitado',
+      mediaType: isVideo ? 'video' : 'audio',
+      mediaUrl: uploadedUrl || storagePath,
+      visibility: 'client_only',
+      createdAt: new Date().toISOString(),
+    };
+    if (cleanMessage) {
+      entry.message = cleanMessage;
+    }
+    if (parsedDuration !== undefined && Number.isFinite(parsedDuration) && parsedDuration > 0) {
+      entry.durationSeconds = Math.min(GUESTBOOK_MAX_SECONDS, Math.round(parsedDuration));
+    }
+
+    if (sinBaseDisponible()) {
+      const existing = await readData<GuestbookMessage[]>(`social-gallery/guestbook-${fiestaId}.json`, []);
+      await writeData(`social-gallery/guestbook-${fiestaId}.json`, [...existing, entry]);
+    } else {
+      const db = await getDb();
+      await db.collection(GUESTBOOK_COLLECTION).doc(entry.id).set(entry);
+    }
+
+    return { success: true, entry };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'No se pudo guardar el mensaje.' };
+  }
+}
+
+export async function getClientGuestbookMessages(
+  fiestaId: string,
+  accessKey?: string,
+): Promise<{ authorized: boolean; messages: GuestbookMessage[]; error?: string }> {
+  try {
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    if (!fiesta) {
+      return { authorized: false, messages: [], error: 'Evento no encontrado.' };
+    }
+
+    const [staffSession, portalSession] = await Promise.all([
+      hasAppSession(),
+      verifyPortalSession(fiestaId),
+    ]);
+    const cleanKey = accessKey?.trim();
+    const storedKey = fiesta.clientPortalSettings?.accessKey?.trim();
+    const hasValidKey = Boolean(
+      cleanKey &&
+      storedKey &&
+      fiesta.clientPortalSettings?.enabled !== false &&
+      cleanKey === storedKey,
+    );
+
+    if (!staffSession && !portalSession && !hasValidKey) {
+      return { authorized: false, messages: [], error: 'Solo el cliente con su clave puede abrir estos mensajes.' };
+    }
+
+    let rawMessages: GuestbookMessage[] = [];
+    if (sinBaseDisponible()) {
+      rawMessages = await readData<GuestbookMessage[]>(`social-gallery/guestbook-${fiestaId}.json`, []);
+    } else {
+      const db = await getDb();
+      const snap = await db
+        .collection(GUESTBOOK_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .get();
+      rawMessages = snap.docs.map((doc: QueryDocumentSnapshot) => doc.data() as GuestbookMessage);
+    }
+
+    const filtered = rawMessages
+      .filter((m) => m.fiestaId === fiestaId && isGuestbookMessageClientOnly(m))
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    const messages = await Promise.all(
+      filtered.map(async (m) => {
+        if (!m.mediaUrl || m.mediaUrl.startsWith('http') || m.mediaUrl.startsWith('data:') || m.mediaUrl.startsWith('/')) {
+          return m;
+        }
+        const signed = await getSignedUrl(m.mediaUrl);
+        return signed ? { ...m, mediaUrl: signed } : m;
+      }),
+    );
+
+    return { authorized: true, messages };
+  } catch (e: any) {
+    return { authorized: false, messages: [], error: e?.message || 'No se pudieron cargar los mensajes.' };
+  }
+}
+
 // ─────────────────────────── SORTEO / PARTICIPANTES REDES ───────────────────────────
 
 export async function addSorteoParticipanteRedes(
@@ -668,4 +852,3 @@ export async function getPublicLiveReactions(fiestaId: string, sinceTimestamp = 
     return [];
   }
 }
-

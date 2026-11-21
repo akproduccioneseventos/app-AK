@@ -84,6 +84,8 @@ export interface WhatsAppSettings {
   reminderMessageTemplate: string;
   paymentReminderTemplate: string;
   automationRules?: WhatsAppAutomationRule[];
+  /** Orden 325: llevar al CRM los WhatsApp de prospectos (apagado de entrada). */
+  llevarWhatsAppProspectosAlCrm?: boolean;
 }
 
 export const defaultWhatsAppSettings: WhatsAppSettings = {
@@ -91,6 +93,7 @@ export const defaultWhatsAppSettings: WhatsAppSettings = {
   sendingMode: 'manual',
   reminderMessageTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!',
   paymentReminderTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes un saldo pendiente de *{{SALDO}}* para tu evento del {{FECHA_EVENTO}}. Podés ver el detalle completo en: {{LINK}}',
+  llevarWhatsAppProspectosAlCrm: false,
 };
 
 export interface WhatsAppTemplates {

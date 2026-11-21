@@ -50,7 +50,6 @@ describe("performance release gate", () => {
       "src/components/public/BlogInteractiveList.tsx",
       "src/app/public/blog/page.tsx",
       "src/app/public/blog/[slug]/page.tsx",
-      "src/app/blog/[slug]/page.tsx",
     ];
 
     for (const file of publicBlogFiles) {
@@ -61,7 +60,7 @@ describe("performance release gate", () => {
   });
 
   it("loads the advanced invitation editor only when it is requested", () => {
-    const editor = read("src/app/(app)/fiestas/nueva/pagina-web/page.tsx");
+    const editor = read("src/components/fiestas/panels/pagina-web.tsx");
 
     expect(editor).toContain("const AdvancedInvitationCanvas = dynamic(");
     expect(editor).toContain("const ControlPanel = dynamic(");
@@ -86,8 +85,8 @@ describe("performance release gate", () => {
   });
 
   it("keeps dashboard and analytics charts out of their initial bundles", () => {
-    const dashboard = read("src/app/(app)/admin/page.tsx");
-    const analytics = read("src/app/analytics/page.tsx");
+    const dashboard = read("src/app/(app)/empresa/contabilidad/page.tsx");
+    const analytics = read("src/components/panels/analytics.tsx");
 
     expect(dashboard).toContain("const MonthlySalesChart = dynamic(");
     expect(dashboard).toContain("const PaymentStatusPieChart = dynamic(");
@@ -99,7 +98,7 @@ describe("performance release gate", () => {
   it("loads the QR camera engine only when a scanner is activated", () => {
     const publicScanner = read("src/app/evento/accesos/[fiestaId]/page.tsx");
     const internalScanner = read(
-      "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+      "src/components/panels/invitados--checkin-scanner.tsx",
     );
 
     for (const scanner of [publicScanner, internalScanner]) {

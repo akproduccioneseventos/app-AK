@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, CalendarDays, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin, Eye } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, CalendarDays, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin, Eye, HelpCircle, Check, UserX } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,13 +21,13 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { recordWhatsAppOpened, updateCrmLeadField } from '@/app/actions/crm';
+import { confirmarProspectoDudoso, recordWhatsAppOpened, updateCrmLeadField } from '@/app/actions/crm';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CrmLeadTimeline } from './CrmLeadTimeline';
 import { describeCommercialSource } from '@/lib/commercial/acquisition';
 import { daysUntilBirthday } from '@/lib/commercial/birthday';
-import { toWhatsAppNumber } from '@/lib/commercial/contact';
+import { buildWhatsAppLink, toWhatsAppNumber } from '@/lib/commercial/contact';
 import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 
 const INACTIVITY_DAYS = 7;
@@ -84,7 +84,36 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState(lead.notes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [dudosoLocal, setDudosoLocal] = useState(Boolean(lead.esProspectoDudoso));
+  const [ocultoPersonal, setOcultoPersonal] = useState(false);
+  const [isResolvingDudoso, setIsResolvingDudoso] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setDudosoLocal(Boolean(lead.esProspectoDudoso));
+  }, [lead.esProspectoDudoso]);
+
+  const handleResolverDudoso = useCallback(async (esProspecto: boolean) => {
+    setIsResolvingDudoso(true);
+    try {
+      const res = await confirmarProspectoDudoso(lead.id, esProspecto);
+      if (res.success) {
+        if (esProspecto) {
+          setDudosoLocal(false);
+          toast({ description: `${lead.name} confirmado como prospecto.` });
+        } else {
+          setOcultoPersonal(true);
+          toast({ description: `${lead.name} eliminado y agregado a Números personales.` });
+        }
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo actualizar.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Error inesperado.', variant: 'destructive' });
+    } finally {
+      setIsResolvingDudoso(false);
+    }
+  }, [lead.id, lead.name, toast]);
 
   // Sync notesValue when lead.notes changes externally (e.g. from timeline dialog)
   useEffect(() => {
@@ -159,7 +188,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
         ? `Hola ${firstName}, que bueno que compartiste ${lead.referrerEventName ? `la experiencia de ${lead.referrerEventName}` : 'una fiesta AK'}. Como nos autorizaste a contactarte, queremos ayudarte a imaginar tu proximo evento. Podes empezar aca: https://akproducciones.uy/simulador?source=guest_portal`
         : `Hola ${firstName}, te escribo desde AK Producciones para continuar con tu evento. Como podemos ayudarte?`;
 
-    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    const waUrl = buildWhatsAppLink(lead.phone, message, { leadId: lead.id });
     window.open(waUrl, '_blank', 'noopener,noreferrer');
 
     // Record contact in background
@@ -192,6 +221,8 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     }
   }, [lead.id, notesValue, toast]);
 
+  if (ocultoPersonal) return null;
+
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
       <Card className={cn("shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden", isDeleting && "opacity-60 pointer-events-none")}>
@@ -205,6 +236,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                 <div className="flex items-center justify-between gap-2">
                     <p className="font-bold text-sm truncate" title={lead.name}>{lead.name}</p>
                     <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
+                      {dudosoLocal && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-amber-100 text-amber-900 border-amber-300">
+                          <HelpCircle className="w-2.5 h-2.5 mr-0.5" />¿Es prospecto?
+                        </Badge>
+                      )}
                       {isInactive && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} días`}>
                           <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
@@ -250,6 +286,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                       {lead.contractGeneratedType && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-emerald-50 text-emerald-700 border-emerald-300" title="Contrato generado">
                           {CONTRACT_TYPE_LABELS[lead.contractGeneratedType] || 'Contrato'}
+                        </Badge>
+                      )}
+                      {lead.atiende === 'persona' && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-rose-50 text-rose-700 border-rose-300" title="El asistente se calló: atiende una persona">
+                          Atiende persona
                         </Badge>
                       )}
                     </div>
@@ -315,6 +356,47 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
              <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5"/>
               <span>~{lead.guestCount} invitados</span>
+            </div>
+          )}
+          {lead.resumenIA && (
+            <p className="text-[11px] text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1 line-clamp-2" title={lead.resumenIA}>
+              {lead.resumenIA}
+            </p>
+          )}
+          {lead.nextAction && (
+            <p className="text-[10px] font-medium text-indigo-700 truncate" title={lead.nextAction}>
+              Próximo paso: {lead.nextAction}
+            </p>
+          )}
+          {dudosoLocal && (
+            <div className="rounded border border-amber-300 bg-amber-50 p-2 space-y-1.5 text-amber-950">
+              <p className="font-semibold text-[11px] flex items-center gap-1">
+                <HelpCircle className="w-3 h-3 shrink-0" />
+                ¿Es prospecto?
+              </p>
+              <div className="flex gap-1.5">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-6 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700"
+                  disabled={isResolvingDudoso}
+                  onClick={() => handleResolverDudoso(true)}
+                >
+                  <Check className="w-3 h-3 mr-0.5" />
+                  Es prospecto
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-6 px-2 text-[10px] text-destructive border-destructive/40"
+                  disabled={isResolvingDudoso}
+                  onClick={() => handleResolverDudoso(false)}
+                >
+                  <UserX className="w-3 h-3 mr-0.5" />
+                  Es personal
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

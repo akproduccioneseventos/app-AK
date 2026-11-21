@@ -130,6 +130,12 @@ interface EditFotoDialogState {
   foto: GaleriaFoto | null;
 }
 
+const normalizarCategoriaGaleria = (categoria?: string) => {
+  const trimmed = (categoria || '').trim();
+  if (!trimmed) return '';
+  return trimmed.toLowerCase() === 'general' ? 'General' : trimmed;
+};
+
 export default function GaleriaAdminPage() {
   const { toast } = useToast();
   const [fotos, setFotos] = useState<GaleriaFoto[]>([]);
@@ -163,21 +169,25 @@ export default function GaleriaAdminPage() {
 
   // Combined categories (base + service names)
   const allCategories = useMemo(() => {
-    const options = new Set<string>([
-      ...SERVICIOS_GALERIA,
-      ...servicioNames,
-      ...GALERIA_CATEGORIAS,
-      ...fotos.map((f) => f.categoria).filter(Boolean),
-    ]);
+    const options = new Set<string>(
+      [
+        ...SERVICIOS_GALERIA,
+        ...servicioNames,
+        ...GALERIA_CATEGORIAS,
+        ...fotos.map((f) => normalizarCategoriaGaleria(f.categoria)),
+      ].filter(Boolean),
+    );
     return Array.from(options).sort((a, b) => a.localeCompare(b));
   }, [servicioNames, fotos]);
 
   const availableServiciosForView = useMemo(() => {
-    const options = new Set<string>([
-      ...SERVICIOS_GALERIA,
-      ...servicioNames,
-      ...fotos.map((f) => f.categoria).filter(Boolean),
-    ]);
+    const options = new Set<string>(
+      [
+        ...SERVICIOS_GALERIA,
+        ...servicioNames,
+        ...fotos.map((f) => normalizarCategoriaGaleria(f.categoria)),
+      ].filter(Boolean),
+    );
     return Array.from(options).sort((a, b) => a.localeCompare(b));
   }, [servicioNames, fotos]);
 
@@ -188,8 +198,16 @@ export default function GaleriaAdminPage() {
         getGaleriaItems(),
         getServiciosEmpresa(),
       ]);
-      setFotos(data.fotos.sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden));
-      setVideos(data.videos.sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden));
+      setFotos(
+        data.fotos
+          .map((f) => ({ ...f, categoria: normalizarCategoriaGaleria(f.categoria) || 'General' }))
+          .sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden),
+      );
+      setVideos(
+        data.videos
+          .map((v) => ({ ...v, categoria: normalizarCategoriaGaleria(v.categoria) || 'General' }))
+          .sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden),
+      );
       // Extract unique service names and categories from catalog
       const names = Array.from(new Set([
         ...servicios.map(s => s.nombre),

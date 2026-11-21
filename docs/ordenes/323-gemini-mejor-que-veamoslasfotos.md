@@ -154,4 +154,11 @@ usa: transmision_invitado en src/lib/zona-digital-adolescentes.ts
 usa: libro_de_firmas en src/lib/zona-digital-adolescentes.ts
 usa: impresion_desde_celular en src/lib/zona-digital-adolescentes.ts
 usa: /evento/social/ en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+usa: fondos-invitacion en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+archivo: src/lib/social-fiesta/fondos-muro.ts
+usa: generarTriviaConIa en src/app/(app)/fiestas/[id]/centro/page.tsx
+usa: topTrivia en src/lib/games/juegos-en-vivo.ts
+usa: likes en src/lib/album/armar-album.ts
+usa: photoFrame en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+archivo: src/lib/games/game-engine.ts
 ```

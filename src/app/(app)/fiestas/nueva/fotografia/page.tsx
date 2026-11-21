@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/edicion-videos'));
 
 import React, { useState, useEffect, useCallback, useRef, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -421,10 +425,23 @@ function FotografiaContent() {
     );
 }
 
-export default function FotografiaPage() {
+function FotografiaPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <FotografiaContent />
         </Suspense>
     )
+}
+
+
+export default function FotografiaPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"fotografia","label":"Fotografía"},{"id":"edicion-videos","label":"Edición de videos"}]}
+        renderDefault={() => <FotografiaPageInner />}
+        renderTab={(tab) => { if (tab === 'edicion-videos') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

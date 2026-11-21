@@ -18,7 +18,7 @@ jest.mock('@/app/actions/promos', () => ({
 }));
 jest.mock('@/app/actions/cupones', () => ({ getCupones: jest.fn().mockResolvedValue([]) }));
 
-import PromosAdminPage from '@/app/(app)/settings/promos/page';
+import PromosAdminPage from '@/components/settings/panels/promos';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });

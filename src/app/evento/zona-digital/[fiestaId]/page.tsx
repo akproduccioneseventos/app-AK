@@ -15,6 +15,9 @@ import {
   Loader2,
   MessageCircle,
   Music,
+  Mic,
+  Printer,
+  Radio,
   QrCode,
   Share2,
   ShieldCheck,
@@ -54,6 +57,9 @@ const featureIcon: Record<string, React.ComponentType<React.SVGProps<SVGSVGEleme
   audioritmico: Music,
   ranking: Trophy,
   recap: Heart,
+  transmision_invitado: Radio,
+  libro_de_firmas: Mic,
+  impresion_desde_celular: Printer,
 };
 
 function getBackgroundClass(style: ZonaDigitalAdolescentesSettings['backgroundStyle']) {
@@ -299,6 +305,9 @@ export default function ZonaDigitalPublicPage() {
             if (item.id === 'audioritmico') href = `/evento/muro-en-vivo/${fiestaId}`;
             if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
             if (item.id === 'recap') href = `/evento/galeria/${fiestaId}`;
+            if (item.id === 'transmision_invitado' || item.id === 'libro_de_firmas' || item.id === 'impresion_desde_celular') {
+              href = `/evento/social/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`;
+            }
 
             const isPersonalHardware = ['fotocabina', 'plataforma360', 'bogue', 'espejo_magico'].includes(item.id);
             if (isPersonalHardware && !href) return null;

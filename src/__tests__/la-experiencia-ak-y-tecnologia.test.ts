@@ -8,13 +8,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { TECNOLOGIAS_AK, GRUPOS_TECNOLOGIA } from '@/data/tecnologia-ak';
 
-describe('Orden 106 — Páginas /experiencia y /tecnologia', () => {
+describe('Orden 106 + Orden 321 — Páginas /experiencia y /tecnologia', () => {
   const experienciaPath = path.join(process.cwd(), 'src/app/experiencia/page.tsx');
-  const tecnologiaPath = path.join(process.cwd(), 'src/app/tecnologia/page.tsx');
+  const presentacionLedPath = path.join(process.cwd(), 'src/app/presentacion-led/page.tsx');
+  const nextConfigPath = path.join(process.cwd(), 'next.config.js');
 
-  test('las páginas /experiencia y /tecnologia existen en el proyecto', () => {
+  test('la página /experiencia existe y /tecnologia redirige a /presentacion-led en next.config.js', () => {
     expect(fs.existsSync(experienciaPath)).toBe(true);
-    expect(fs.existsSync(tecnologiaPath)).toBe(true);
+    expect(fs.existsSync(presentacionLedPath)).toBe(true);
+    const nextConfig = fs.readFileSync(nextConfigPath, 'utf8');
+    expect(nextConfig).toContain("source: '/tecnologia'");
+    expect(nextConfig).toContain("destination: '/presentacion-led'");
   });
 
   test('/experiencia no contiene promesas o palabras prohibidas (garant, 24/7, cero fallas)', () => {
@@ -39,19 +43,20 @@ describe('Orden 106 — Páginas /experiencia y /tecnologia', () => {
     expect(content).toContain('wa.me');
   });
 
-  test('/tecnologia no contiene promesas prohibidas y lee de TECNOLOGIAS_AK', () => {
-    const ruta = '/tecnologia';
-    expect(ruta).toBe('/tecnologia');
-    const content = fs.readFileSync(tecnologiaPath, 'utf8').toLowerCase();
+  test('/presentacion-led y TECNOLOGIAS_AK no contienen promesas prohibidas', () => {
+    const presentacionContent = fs.readFileSync(presentacionLedPath, 'utf8').toLowerCase();
+    expect(presentacionContent).not.toContain('garant');
+    expect(presentacionContent).not.toContain('24/7');
+    expect(presentacionContent).not.toContain('cero fallas');
 
-    expect(content).not.toContain('garant');
-    expect(content).not.toContain('24/7');
-    expect(content).not.toContain('cero fallas');
-
-    expect(content).toContain('+7 años');
-    expect(content).toContain('+200 eventos');
-    expect(content).toContain('tecnologias_ak');
-    expect(content).toContain('/experiencia');
+    expect(Object.keys(GRUPOS_TECNOLOGIA).length).toBeGreaterThan(0);
+    expect(TECNOLOGIAS_AK.length).toBeGreaterThan(0);
+    for (const tec of TECNOLOGIAS_AK) {
+      const texto = `${tec.nombre} ${tec.descripcionCorta}`.toLowerCase();
+      expect(texto).not.toContain('garant');
+      expect(texto).not.toContain('24/7');
+      expect(texto).not.toContain('cero fallas');
+    }
   });
 
   test('cada tecnología en TECNOLOGIAS_AK tiene un pasoDemo entre 1 y 6 correspondiente a la experiencia', () => {

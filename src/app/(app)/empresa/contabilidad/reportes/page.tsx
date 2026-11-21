@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -71,7 +72,7 @@ function ReportesContabilidadContent() {
         setEmailContador(email || null);
       })
       // no pasa nada si falla: sin el mail, el botón avisa que falta cargarlo y no manda nada.
-      .catch(() => {});
+      .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
   }, []);
 
   const handleGenerateReport = useCallback(async (customStart?: Date, customEnd?: Date) => {
@@ -393,6 +394,41 @@ function ReportesContabilidadContent() {
   );
 }
 
+const ComparativaPanel = dynamic(() => import('@/components/contabilidad/panels/comparativa-ganancias'));
+const FinanzasPanel = dynamic(() => import('@/components/contabilidad/panels/finanzas'));
+
+function GananciasHubContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') || 'reportes';
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-4 px-4 pt-4">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+        {[
+          { id: 'reportes', label: 'Reportes' },
+          { id: 'comparativa', label: 'Comparativa por evento' },
+          { id: 'tablero', label: 'Tablero ejecutivo' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => router.replace(`/empresa/contabilidad/reportes?tab=${t.id}`)}
+            className={`rounded-xl px-3.5 py-2 text-sm font-bold transition-colors ${
+              tab === t.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'reportes' && <ReportesContabilidadContent />}
+      {tab === 'comparativa' && <ComparativaPanel />}
+      {tab === 'tablero' && <FinanzasPanel />}
+    </div>
+  );
+}
+
 export default function GananciasYPerdidasPage() {
   return (
     <Suspense
@@ -402,7 +438,7 @@ export default function GananciasYPerdidasPage() {
         </div>
       }
     >
-      <ReportesContabilidadContent />
+      <GananciasHubContent />
     </Suspense>
   );
 }

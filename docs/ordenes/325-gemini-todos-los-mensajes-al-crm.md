@@ -223,4 +223,12 @@ usa: asistente-de-prospectos en src/app/actions/asistente-virtual.ts
 usa: asistente-de-prospectos en src/lib/mensajes/bandeja-unica.ts
 usa: consulta_de_evento en src/lib/whatsapp/quien-es-prospecto.ts
 usa: quedo_sin_respuesta en src/app/(app)/contabilidad/crm/page.tsx
+usa: conversacion en src/components/crm/CrmLeadTimeline.tsx
+usa: consulta_de_evento en src/lib/whatsapp/quien-es-prospecto.ts
+usa: decidir en src/lib/whatsapp/quien-es-prospecto.ts
+usa: conversacion en src/types/crm.ts
+archivo: src/ai/genkit.ts
+archivo: src/lib/ai/consumo-servidor.ts
+archivo: src/lib/social-media/clasificador-comentarios.ts
+usa: reservarConsumoIA en src/lib/ai/decisiones.ts
 ```

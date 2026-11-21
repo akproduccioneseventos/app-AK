@@ -12,24 +12,68 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown, Share2, BookOpen, Hotel } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown, Share2, BookOpen, Hotel, Image as ImageIcon, Play, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getErrorMessage } from '@/lib/error-utils';
+import {
+  FUENTES_INVITACION,
+  aplicarFondoAConfig,
+  getFondosPorTipo,
+  mapearTipoEventoAFondo,
+  type CategoriaMovimientoFondo,
+  type FuenteInvitacionId,
+  type InvitacionConfigConEstilo,
+  type TipoFiestaFondo,
+} from '@/lib/invitacion/fondos-invitacion';
 
 interface Props {
   config: InvitacionDigitalConfig;
   onChange: (config: InvitacionDigitalConfig) => void;
   fiestaId?: string;
+  activeStep?: 1 | 2 | 3;
+  onOpenTemplateGallery?: () => void;
+  tipoCelebracion?: string;
 }
 
-export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
+export function InvitacionConfigPanel({
+  config,
+  onChange,
+  fiestaId,
+  activeStep,
+  onOpenTemplateGallery,
+  tipoCelebracion,
+}: Props) {
   const { toast } = useToast();
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [galeriaUrlDraft, setGaleriaUrlDraft] = useState('');
   const [publishingUrl, setPublishingUrl] = useState<string | null>(null);
+  const [mostrarTodasPlantillas, setMostrarTodasPlantillas] = useState(false);
+  const [tipoFondoTab, setTipoFondoTab] = useState<TipoFiestaFondo>(() =>
+    mapearTipoEventoAFondo(config.tipoEvento, tipoCelebracion)
+  );
+  const [filtroMovimiento, setFiltroMovimiento] = useState<'todos' | CategoriaMovimientoFondo>('todos');
+  const [aplicarPaletaConFondo, setAplicarPaletaConFondo] = useState(true);
+
+  const configConEstilo = config as InvitacionConfigConEstilo;
+
+  React.useEffect(() => {
+    setTipoFondoTab(mapearTipoEventoAFondo(config.tipoEvento, tipoCelebracion));
+  }, [config.tipoEvento, tipoCelebracion]);
+
+  const plantillasFiltradas = React.useMemo(() => {
+    const entries = Object.entries(PLANTILLA_INFO);
+    if (mostrarTodasPlantillas) return entries;
+    const matched = entries.filter(([, info]) => info.categorias.includes(config.tipoEvento));
+    return matched.length > 0 ? matched : entries;
+  }, [config.tipoEvento, mostrarTodasPlantillas]);
+
+  const fondosFiltrados = React.useMemo(
+    () => getFondosPorTipo(tipoFondoTab, filtroMovimiento),
+    [tipoFondoTab, filtroMovimiento]
+  );
 
   const update = <K extends keyof InvitacionDigitalConfig>(key: K, value: InvitacionDigitalConfig[K]) => {
     onChange({ ...config, [key]: value });
@@ -144,18 +188,74 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
     }
   };
 
-  return (
-    <div className="space-y-2 p-4">
-      <Accordion type="multiple" defaultValue={['plantilla', 'basico', 'colores']} className="w-full">
+  const showStep1 = !activeStep || activeStep === 1;
+  const showStep2 = !activeStep || activeStep === 2;
+  const showStep3 = !activeStep || activeStep === 3;
 
-        {/* ===== PLANTILLA ===== */}
+  return (
+    <div className="space-y-3 p-4">
+      {showStep1 && (
+        <div className="space-y-3">
+          {activeStep === 1 && (
+            <div className="space-y-1">
+              <h2 className="text-sm font-black text-slate-900">1. Elegí el diseño</h2>
+              <p className="text-xs text-muted-foreground">
+                Mostramos los estilos pensados para este tipo de fiesta.
+              </p>
+            </div>
+          )}
+
+          {onOpenTemplateGallery && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onOpenTemplateGallery}
+              className="w-full rounded-xl font-bold gap-2 border-primary/30 text-primary hover:bg-primary/5"
+            >
+              <Sparkles className="w-4 h-4" />
+              Explorar galería de diseños
+            </Button>
+          )}
+        </div>
+      )}
+
+      <Accordion
+        type="multiple"
+        defaultValue={
+          activeStep === 1
+            ? ['plantilla']
+            : activeStep === 2
+              ? ['basico', 'ubicacion']
+              : activeStep === 3
+                ? ['fondos', 'colores', 'typography']
+                : ['plantilla', 'basico', 'colores']
+        }
+        className="w-full"
+      >
+
+        {/* ===== PASO 1: PLANTILLA ===== */}
+        {showStep1 && (
         <AccordionItem value="plantilla">
           <AccordionTrigger className="text-sm font-bold"><LayoutTemplate className="w-4 h-4 mr-2" />Plantilla Visual</AccordionTrigger>
-          <AccordionContent className="pt-2">
+          <AccordionContent className="pt-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-muted-foreground">
+                {mostrarTodasPlantillas ? 'Todas las plantillas' : 'Filtradas para tu fiesta'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMostrarTodasPlantillas((v) => !v)}
+                className="text-[11px] font-semibold text-primary hover:underline"
+              >
+                {mostrarTodasPlantillas ? 'Filtrar por fiesta' : 'Ver todas'}
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-2">
-              {Object.entries(PLANTILLA_INFO).map(([id, info]) => (
+              {plantillasFiltradas.map(([id, info]) => (
                 <button
                   key={id}
+                  type="button"
                   onClick={() => update('plantillaId', id as InvitacionPlantillaId)}
                   className={cn(
                     'p-3 rounded-xl border-2 text-left transition-all space-y-1',
@@ -177,19 +277,21 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             </div>
           </AccordionContent>
         </AccordionItem>
+        )}
 
-        {/* ===== DATOS BÁSICOS ===== */}
+        {/* ===== PASO 2: DATOS BÁSICOS ===== */}
+        {showStep2 && (
         <AccordionItem value="basico">
           <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Datos del Evento</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-2">
             <div className="space-y-1">
               <Label className="text-xs">{config.tipoEvento === 'boda' ? 'Nombre Novio/a 1' : 'Nombre de la Homenajeada'}</Label>
-              <Input value={config.nombreHomenajeada} onChange={e => update('nombreHomenajeada', e.target.value)} placeholder="Ej: Valentina" />
+              <Input value={config.nombreHomenajeada} onChange={e => update('nombreHomenajeada', e.target.value)} placeholder="Nombre del protagonista" />
             </div>
             {config.tipoEvento === 'boda' && (
               <div className="space-y-1">
                 <Label className="text-xs">Nombre Novio/a 2</Label>
-                <Input value={config.nombreHomenajeado2 || ''} onChange={e => update('nombreHomenajeado2', e.target.value)} placeholder="Ej: Martín" />
+                <Input value={config.nombreHomenajeado2 || ''} onChange={e => update('nombreHomenajeado2', e.target.value)} placeholder="Segundo protagonista" />
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -329,8 +431,121 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             </div>
           </AccordionContent>
         </AccordionItem>
+        )}
 
-        {/* ===== COLORES ===== */}
+        {/* ===== PASO 3: BIBLIOTECA DE FONDOS ===== */}
+        {showStep3 && (
+        <AccordionItem value="fondos">
+          <AccordionTrigger className="text-sm font-bold"><ImageIcon className="w-4 h-4 mr-2" />Biblioteca de Fondos ({fondosFiltrados.length})</AccordionTrigger>
+          <AccordionContent className="space-y-3 pt-2">
+            <div className="flex flex-wrap gap-1">
+              {(
+                [
+                  { id: '15', label: '15 Años' },
+                  { id: 'boda', label: 'Boda' },
+                  { id: 'cumpleanos', label: 'Cumpleaños' },
+                  { id: 'empresa', label: 'Empresa' },
+                ] as const
+              ).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTipoFondoTab(t.id)}
+                  className={cn(
+                    'px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors',
+                    tipoFondoTab === t.id
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-white text-muted-foreground border-gray-200 hover:border-primary/40'
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-1">
+                {(
+                  [
+                    { id: 'todos', label: 'Todos' },
+                    { id: 'quieto', label: 'Quietos' },
+                    { id: 'animado', label: 'En movimiento' },
+                  ] as const
+                ).map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setFiltroMovimiento(m.id)}
+                    className={cn(
+                      'px-2 py-0.5 rounded-lg text-[10px] font-semibold border transition-colors',
+                      filtroMovimiento === m.id
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-slate-50 text-slate-600 border-slate-200'
+                    )}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <label className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={aplicarPaletaConFondo}
+                  onChange={(e) => setAplicarPaletaConFondo(e.target.checked)}
+                  className="rounded"
+                />
+                Aplicar paleta
+              </label>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+              {fondosFiltrados.map((fondo) => {
+                const activo = configConEstilo.fondoId === fondo.id;
+                return (
+                  <button
+                    key={fondo.id}
+                    type="button"
+                    data-fondo-option={fondo.id}
+                    onClick={() => onChange(aplicarFondoAConfig(configConEstilo, fondo, aplicarPaletaConFondo))}
+                    className={cn(
+                      'relative h-20 rounded-xl border overflow-hidden text-left p-2 flex flex-col justify-between transition-all',
+                      activo ? 'border-primary ring-2 ring-primary/40 shadow-md' : 'border-slate-200 hover:border-primary/50'
+                    )}
+                    style={{ background: fondo.cssBackground }}
+                  >
+                    {fondo.imagenUrl && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={fondo.imagenUrl}
+                        alt={fondo.nombre}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover opacity-85"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <div className="relative z-10 flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        {fondo.enMovimiento ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
+                        {fondo.enMovimiento ? 'Vivo' : 'Quieto'}
+                      </span>
+                      <div className="flex gap-0.5">
+                        <span className="w-2.5 h-2.5 rounded-full border border-white/60" style={{ backgroundColor: fondo.paletaSugerida.primary }} />
+                        <span className="w-2.5 h-2.5 rounded-full border border-white/60" style={{ backgroundColor: fondo.paletaSugerida.accent }} />
+                      </div>
+                    </div>
+                    <span className="relative z-10 text-[10px] font-bold text-white drop-shadow truncate">
+                      {fondo.nombre}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        )}
+
+        {/* ===== PASO 3: COLORES ===== */}
+        {showStep3 && (
         <AccordionItem value="colores">
           <AccordionTrigger className="text-sm font-bold"><Palette className="w-4 h-4 mr-2" />Colores Globales</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-2">
@@ -357,14 +572,17 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             </div>
           </AccordionContent>
         </AccordionItem>
+        )}
 
         {/* ===== UBICACIÓN ===== */}
+        {showStep2 && (
+        <>
         <AccordionItem value="ubicacion">
           <AccordionTrigger className="text-sm font-bold"><MapPin className="w-4 h-4 mr-2" />Ubicación</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-2">
             <div className="space-y-1">
               <Label className="text-xs">Nombre del Salón</Label>
-              <Input value={config.nombreSalon} onChange={e => update('nombreSalon', e.target.value)} placeholder="Ej: Salón El Paraíso" />
+              <Input value={config.nombreSalon} onChange={e => update('nombreSalon', e.target.value)} placeholder="Nombre del salón" />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Dirección</Label>
@@ -775,11 +993,49 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             </Button>
           </AccordionContent>
         </AccordionItem>
+        </>
+        )}
 
-        {/* ===== DISEÑO Y TIPOGRAFÍA ===== */}
+        {/* ===== PASO 3: DISEÑO Y TIPOGRAFÍA (LETRA) ===== */}
+        {showStep3 && (
+        <>
         <AccordionItem value="typography">
-          <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Diseño y tipografía</AccordionTrigger>
+          <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Letra y tipografía</AccordionTrigger>
           <AccordionContent className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold">Estilo de letra</Label>
+              <div className="grid grid-cols-1 gap-1.5">
+                {FUENTES_INVITACION.map((fuente) => {
+                  const activa = configConEstilo.fuenteId === fuente.id;
+                  return (
+                    <button
+                      key={fuente.id}
+                      type="button"
+                      onClick={() =>
+                        onChange({
+                          ...configConEstilo,
+                          fuenteId: fuente.id as FuenteInvitacionId,
+                        } as InvitacionDigitalConfig)
+                      }
+                      className={cn(
+                        'flex items-center justify-between rounded-xl border px-3 py-2 text-left transition-all',
+                        activa
+                          ? 'border-primary bg-primary/5 shadow-sm'
+                          : 'border-slate-200 hover:border-primary/40'
+                      )}
+                    >
+                      <div>
+                        <p className={cn('text-sm font-bold text-slate-900', fuente.headingClass)}>
+                          {fuente.nombre}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">{fuente.descripcion}</p>
+                      </div>
+                      {activa && <Check className="w-4 h-4 text-primary shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <p className="text-[10px] text-muted-foreground">Controlá el tamaño y estilo del texto en la invitación.</p>
 
             <div className="space-y-1">
@@ -1012,6 +1268,8 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             })()}
           </AccordionContent>
         </AccordionItem>
+        </>
+        )}
 
       </Accordion>
     </div>

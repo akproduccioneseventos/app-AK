@@ -774,7 +774,7 @@ function ClientPortalContent() {
                     ))}
                 </div>
               ) : (
-                <Link href={`/portal-cliente/${fiesta.id}/menu`} className="inline-flex items-center text-primary font-semibold">
+                <Link href={`/portal-cliente/${fiesta.id}?tab=menu`} className="inline-flex items-center text-primary font-semibold">
                   Completar menú en módulo específico <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               )}

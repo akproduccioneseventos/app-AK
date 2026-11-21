@@ -31,6 +31,30 @@ archivo: docs/ordenes/329-gemini-todas-las-fotos-a-wfolio-y-a-las-redes.md
 ```
 
 ## 20/11/2026 - La entrega 1451 se devolvió con la orden 328
+## 20/11/2026 - Revisión de la entrega 1451 (órdenes 322 a 327)
+
+- **Qué estaba mal:** al llegar una mención en una historia, el aviso de Meta leía todas las fiestas y escribía la lista
+  entera de vuelta (podía pisar un cobro guardado al mismo tiempo) y buscaba al invitado por un pedazo del nombre. Se sacó:
+  la mención se guarda en "Para compartir" y nadie leía lo anotado en la fiesta.
+- En `/enlaces`, el botón de WhatsApp llevaba a una ruta que no existe y "redes" a la portada de Instagram; la cuenta de clics
+  guardaba cualquier nombre mandado desde afuera y contaba el día en hora de Greenwich. Ahora: WhatsApp de verdad con la marca
+  `ref AK-bio`, el Instagram de AK, sólo los cuatro botones y el día de Uruguay.
+- 25 errores tirados a la basura (`.catch(() => {})`) en lo nuevo pasaron a dejar aviso, y el ajuste de mensajes directos del
+  asistente lee el campo con su tipo.
+
+```comprobar
+prueba: src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts
+usa: AK_SOCIAL_LINKS en src/app/api/enlaces/clic/route.ts
+usa: hoyEnUruguay en src/lib/presencia-digital/enlaces-bio.ts
+## 20/11/2026 - Orden 328: lo que hizo Claude (el resto volvió a Gemini)
+
+- El muro rechazaba en el celular las fotos que medía movidas u oscuras ("Esta foto no está permitida"): nadie lo había
+  pedido y en una fiesta con poca luz rebota fotos buenas. Se sacó; la IA sólo ordena el álbum por calidad.
+- El estilo de fotos y "Armar con IA" andaban: Gemini cambió los títulos de las tarjetas y el armador pasó a tres pasos, y las
+  pruebas siguen a la pantalla nueva. La de la presentación pasó al repetirla.
+- **Descartado:** cambiar `/catalogo` por `/presentacion-led` en la lista para Google. La presentación no es una página
+  pública de venta (rompía cinco controles) y Google sigue solo el desvío.
+
 
 - **Qué pasó:** compila y Jest da verde, pero cuatro pantallas no hacen lo que dicen (subir al muro sin cartel, estilo de
   fotos, "Armar con IA" y la presentación sin el botón de presupuesto). Los arreglos de Claude quedaron en `claude/juntar-1451`.
@@ -104,6 +128,55 @@ archivo: docs/ordenes/324-gemini-decisiones-rapidas-con-ia.md
 ```comprobar
 archivo: docs/ordenes/323-gemini-mejor-que-veamoslasfotos.md
 ```
+
+## 19/11/2026 - La 1443 había borrado tres pantallas que usa el cliente: volvieron
+
+- **Qué pasaba:** al achicar la app, `/entrar` (el "¿quién sos?" de la web) pasó a redirigir al panel interno, y la
+  decoración y el tablero de ideas del portal del cliente se borraron (sus componentes quedaron sin que nadie los usara).
+  El aviso de instalar la app y el de notificaciones vivían en el panel viejo, que ahora va a Mi día.
+- **También el simulador:** `/simulador` (elegir simulador o asistente) y `/simulador-ak` (Sofía, escrita entera en esa
+  página) se habían borrado y redirigían al simulador común: la asistente de venta desaparecía. Volvieron (pregunta 197).
+- **Qué se hizo:** las pantallas volvieron tal cual estaban (Entrar con sesión ahora va a Mi día), sin sus
+  redirecciones; los dos avisos se montan en Mi día; se borró el código suelto de pantallas internas que sí salieron. El
+  tope de pantallas queda en 185 hasta que la próxima vuelta las junte sin perderlas.
+
+```comprobar
+archivo: src/app/entrar/page.tsx
+archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
+archivo: src/app/portal/[fiestaId]/moodboard/page.tsx
+archivo: src/app/simulador-ak/page.tsx
+archivo: src/app/simulador/page.tsx
+usa: PwaInstallPrompt en src/app/(app)/mi-dia/page.tsx
+usa: PushNotificationPrompt en src/app/(app)/mi-dia/page.tsx
+```
+
+## 19/11/2026 - Una redirección no tapa una pantalla que existe (entrega 1443)
+
+- **Qué pasaba:** la orden 321 agregó `/presupuestos/:id → /ver` y `/fiestas/:id → /centro`. Next mira las redirecciones
+  antes que las pantallas, así que `/presupuestos/nuevo` (donde quedó la lista de presupuestos) y `/fiestas/nueva` (crear
+  una fiesta) se iban a una página inexistente.
+- **Qué se hizo:** las dos redirecciones excluyen los nombres fijos (`nuevo`, `importar`, `reporte`; `nueva`, `revisar`).
+  Y un control recorre cada redirección contra cada pantalla real.
+
+```comprobar
+usa: (?!nuevo$ en next.config.js
+usa: (?!nueva$ en next.config.js
+prueba: src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts
+```
+
+## 19/11/2026 - Orden 318 Bloque 2 (devuelto), Orden 320, pantallas rotas y Orden 321
+
+- **Modificar confirmación RSVP:** Al entrar desde "Modificar confirmación", `rsvp/page.tsx` pre-carga los datos previos del invitado mediante `getPublicRsvpGuest` (solo leyendo ese invitado con `guestId` + `token`) y actualiza ese mismo registro al guardar. Probado E2E en `tests/e2e/modificar-confirmacion-trae-lo-respondido.spec.ts`.
+- **Orden 320 (Bloques 1–6):**
+  - Sorteo en vivo con `sorteoCandidatos` persistido y elección del ganador en servidor con `crypto.randomInt` (`sortearGanadorEnServidor`), sin fallback inventado `'Mesa 1..6'` en `control-pantalla`.
+  - Itinerario ordena con `ordenarPorHoraDelEvento` respetando eventos que cruzan la medianoche.
+  - Herramienta `buscarProspecto` de solo lectura en `tool-registry.ts` busca en todo el CRM por nombre o teléfono (hasta 10 resultados).
+  - Conteos dinámicos en `settings` y `tareas-automaticas`, estado `"Sin ejecutar"` en el despertador sin correr, y `"Sin datos todavía"` en `revision-diaria.ts` cuando no hay publicaciones con fecha real.
+  - `recursos-multi-evento` excluye fiestas suspendidas (`esFiestaSuspendida`); `/empresa/galeria` normaliza `"General"`; `/settings/estilo-fotos` usa fotos reales en lugar de gradientes; `/pagos-rapidos` muestra avisos pendientes de `clientPaymentNotifications`; `/evento/muro-en-vivo` no superpone estados vacíos y marca `"Finalizado"` en trivias terminadas.
+  - `herramientas/ak-editor`: respaldo `.ak_backup` del `.xmp` original para restaurar en `volver_al_original`, `fotos_ordenadas` en `app.py`, `ok: False` y `errores` ante 0 videos o fallos de Redes/Wfolio, sincronización de audio con `apad`+`atrim`, serialización JSON con `default=str`, `import cv2` en `app.py`, carpetas Él/Ella en modo Boda, lectura sin doble rotación EXIF (`IMREAD_IGNORE_ORIENTATION`), sanitización de nombre de evento, escucha en `127.0.0.1` y reempaquetado con `npm run editor:empaquetar`.
+- **Orden 321 (Reorganización de 382 a 180 pantallas):**
+  - Redirecciones movidas a `next.config.js` (`redirects()`), menú consolidado en 6 áreas en `src/lib/navegacion/mapa.ts` sin `/mas`, `/settings` consolidado en 7 secciones, asistentes/WhatsApp/ganancias/fiestas/portal-cliente consolidados por pestañas con `TabHostShell`/`FiestaHubShell`, y "Menú de la noche" (sin precios, con dietas del invitado y link a "Buscá tu mesa") agregado en `/evento/hub/[fiestaId]`.
+  - **Comparativa de editores de presupuesto (sin fusionar, Orden 321 Bloque 3):** `presupuestos/[id]/edit/page.tsx` recarga y guarda directamente sobre un presupuesto existente mediante `updatePresupuesto(updatedData)` + `recalculatePresupuestoFromCatalog`, mientras `presupuestos/nuevo/crear/page.tsx` unifica creación (`savePresupuesto(..., { source: 'manual', leadId, operationId })`) y edición (`updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId })` con `conTopeDeEspera`). No se unificaron por tocar guardado de dinero.
 
 ## 18/11/2026 - La hoja del evento ordena la noche desde el inicio, no como texto
 

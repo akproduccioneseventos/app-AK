@@ -63,14 +63,18 @@ describe('Orden 73 Bloque 2: El menú impreso no pierde lo escrito al fallar el 
     expect(res.error).toBeDefined();
   });
 
-  test('la pantalla de menú de mesa no descarta los datos escritos al fallar el guardado', () => {
-    const pagePath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/menu-mesa/page.tsx');
-    const content = fs.readFileSync(pagePath, 'utf8');
+  test('los editores de menú mantienen lo escrito cuando falla el guardado', () => {
+    const menuFormPath = path.join(process.cwd(), 'src/components/catering/MenuForm.tsx');
+    const portalMenuPath = path.join(process.cwd(), 'src/components/panels/portal--menu.tsx');
+    const menuForm = fs.readFileSync(menuFormPath, 'utf8');
+    const portalMenu = fs.readFileSync(portalMenuPath, 'utf8');
 
-    // No debe restaurar la versión anterior en el catch
-    expect(content).not.toMatch(/setData\(lastSavedDataRef\.current\)/);
-    // Debe tener un estado saveError para avisar arriba qué no se pudo guardar
-    expect(content).toContain('saveError');
-    expect(content).toContain('No se pudo guardar:');
+    // No deben restaurar una versión anterior al fallar el guardado
+    expect(menuForm).not.toMatch(/setData\(lastSavedDataRef\.current\)/);
+    expect(menuForm).toContain("setSaveStatus('error')");
+    expect(menuForm).toContain('Error al Guardar');
+
+    expect(portalMenu).not.toMatch(/setForm\(lastSaved/);
+    expect(portalMenu).toContain('No se pudo guardar');
   });
 });

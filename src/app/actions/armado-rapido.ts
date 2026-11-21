@@ -139,7 +139,7 @@ export async function generateBudgetAndLeadFromSimulator(
       tipo: 'aviso',
       entidadRelacionadaId: result.presupuesto.id,
       rolDestino: 'admin',
-    }).catch(() => {}); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
+    }).catch((e) => console.warn('[armado-rapido] Paso secundario sin completar:', e)); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
 
     return {
       success: true,
@@ -176,6 +176,14 @@ export async function captureSimulatorLeadProgress(input: {
     const dias = fechaCandidata ? diasHastaEnUruguay(fechaCandidata) : NaN;
     const fechaValida = fechaCandidata && !Number.isNaN(dias) && dias >= 0 ? fechaCandidata : undefined;
 
+    const { buildCrmMensaje } = await import('@/lib/crm/conversacion');
+    const partes = [
+      input.eventoTipo,
+      fechaValida ? `fecha ${fechaValida}` : undefined,
+      input.invitados ? `${input.invitados} invitados` : undefined,
+      input.salonFiestas,
+    ].filter(Boolean);
+
     const result = await upsertPublicCommercialLead({
       name: input.clienteNombre,
       phone,
@@ -188,6 +196,17 @@ export async function captureSimulatorLeadProgress(input: {
       acquisition: input.acquisition,
       marketingConsent: input.marketingConsent === true,
       marketingConsentSource: 'simulador-publico-paso-contacto',
+      mensajesConversacion: [
+        buildCrmMensaje({
+          canal: 'simulador',
+          direccion: 'sistema',
+          texto: partes.length > 0
+            ? `Comenzó el simulador visual (${partes.join(', ')}).`
+            : 'Comenzó el simulador visual.',
+          fecha: new Date().toISOString(),
+          autor: input.clienteNombre,
+        }),
+      ],
     });
     return { success: true, leadId: result.lead.id };
   } catch (error: any) {

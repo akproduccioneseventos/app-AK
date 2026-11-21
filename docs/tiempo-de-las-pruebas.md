@@ -2,8 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-10-22 — total 975s.
+Medido el 2026-11-20 — total 450s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| recorrido-de-pantallas.spec.ts | 975s | 100% |
+| layout-baseline.spec.ts | 450s | 100% |
