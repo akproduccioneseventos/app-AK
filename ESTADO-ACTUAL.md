@@ -7,8 +7,8 @@
 - En la misma: **órdenes 331 y 332 para Gemini**, y `GEMINI.md` → "TU TRABAJO DE HOY" ya las nombra.
 
 ## Esperando a Gemini (una sola propuesta, rama nueva desde la principal)
-- **331:** un solo simulador (`/simulador-de-presupuesto` IGUAL que hoy, Sofía como botón optativo con "Reintentar" si no
-  guarda: hoy el prospecto de Sofía se pierde callado), planificador de 28 a 5 pantallas sin perder partes, una puerta
+- **331:** el simulador de siempre primero e IGUAL que hoy; Sofía aparte en su página, con un enlace chico al pie del
+  simulador y "Reintentar" si no guarda (hoy el prospecto de Sofía se pierde callado), planificador de 28 a 5 pantallas sin perder partes, una puerta
   para las estaciones.
 - **332:** la app de Play Store: "¿Quién sos?" con prospecto directo al simulador, invitado con su celular o el código corto
   de la fiesta (sin QR obligatorio), equipo con Google, "Bajá la app" y publicación en redes. iPhone y PC desde la web

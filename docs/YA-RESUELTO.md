@@ -29,8 +29,8 @@ usa: Tocá Actualizar para probar de nuevo en src/components/decoracion/DecoCata
 
 ## 21/11/2026 - Menos pantallas, mismo resultado (orden 331)
 
-- **Qué se decidió:** un solo simulador (`/simulador-de-presupuesto`, con Sofía adentro como opción; las otras dos direcciones
-  llevan ahí), el planificador de la fiesta de 28 pantallas a 5 con solapas, y una sola puerta para elegir estación. El
+- **Qué se decidió:** el simulador de siempre (`/simulador-de-presupuesto`) va primero y no se toca; la portada de dos botones se
+  borra; Sofía, que fue una prueba, queda en su página propia con un enlace chico al pie del simulador, el planificador de la fiesta de 28 pantallas a 5 con solapas, y una sola puerta para elegir estación. El
   presupuesto manual del equipo queda aparte, a propósito. Las direcciones de las estaciones con fiesta no cambian (QR impresos).
 
 ```comprobar
