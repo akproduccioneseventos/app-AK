@@ -1179,6 +1179,10 @@ usarlo. `ordenes?` dio la orden por hecha.
 **Qué se hace distinto:** cuando un bloque nombra varios archivos, va una línea de `comprobar` por cada
 uno (así quedó la orden 221).
 
+**Y otra vez el 20 de noviembre de 2026 (órdenes 323 a 326):** nueve bloques sin su línea de `comprobar`; la entrega los había
+hecho y `ordenes?` igual daba FALTA. **Antes de publicar una orden, correr `node scripts/ordenes-cumplidas.mjs` y mirar que no
+diga "bloque sin comprobación".**
+
 ### 46. Juntar una entrega en mi rama antes de saber si compila
 
 **Pasó el 24 de octubre de 2026.** La entrega 1353 se veía bien leyendo el cambio. La junté en mi rama y
@@ -1571,6 +1575,16 @@ lo que hice?* Si es lo segundo, no se manda.
   arma solo, incluye al fotógrafo, y el invitado deja su selfie una vez y le llegan sus fotos (orden 330). Botón "Buscarme"
   siempre visible; el invitado o el cliente le ponen nombre a cada cara. **Por WhatsApp sale solo** ("todo lo automático, mucho
   mejor"), una vez por tanda y sólo a invitados; como Meta cobra cada mensaje, el interruptor lo prende él.
+
+- **La app de Play Store es para todo público y recibe a cada uno fácil (21 de noviembre de 2026).** Palabras suyas: *"cualquier
+  persona la descarga, la instala y entra con un rol… para el invitado tiene que ser fácil… el prospecto no debería tener nada"*.
+  Abre en "¿Quién sos?": el prospecto va al simulador sin datos, el invitado entra con su celular o el código de la fiesta (el QR
+  queda como tercera opción), el equipo con Google. **iPhone y computadora se instalan gratis desde la web: no se paga la tienda
+  de Apple** (orden 332).
+
+- **Menos es más: un simulador, el planificador agrupado (21 de noviembre de 2026).** Palabras suyas: *"no puede haber tres del
+  simulador, tiene que haber una… el presupuesto manual es otra cosa… a veces menos es más"*. Se achica sin perder funciones:
+  un simulador con Sofía adentro, el planificador en 5 pantallas con solapas y una puerta para las estaciones (orden 331).
 
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 
@@ -2102,6 +2116,8 @@ con otra cara.
 | El modo sin conexión no llegaba a la versión publicada: `/sw.js` daba 404 | `scripts/copiar-pwa-al-standalone.mjs` con `src/__tests__/el-modo-sin-conexion-llega-a-la-version-publicada.test.ts` |
 | El portal del cliente (decoración, ideas, mesas) se abría con sólo el enlace | `src/__tests__/el-portal-del-cliente-pide-sesion.test.ts` |
 | Los datos de corrida ignorados por git se acumulaban y rompían pruebas que estaban bien | `scripts/limpiar-corrida.mjs` borra también lo ignorado |
+| Una mención en una historia reescribía todas las fiestas, y el WhatsApp de `/enlaces` llevaba a una página que no existe | `src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts` |
+| Una redirección con comodín tapaba la lista de presupuestos y "Nueva fiesta" | `src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts` |
 
 ### Cómo se elige el matafuego
 

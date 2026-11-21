@@ -75,6 +75,7 @@ jest.mock('@/lib/social-fiesta/content-review', () => ({
   imageAiSafeDesde: jest.fn(),
 }));
 jest.mock('@/lib/social-fiesta/content-safety-ai', () => ({ checkImageSafety: jest.fn(async () => ({ safe: true })) }));
+jest.mock('@/lib/ai/decisiones', () => ({ decidir: jest.fn(async () => null) }));
 jest.mock('@/lib/games/misiones-fotos', () => ({ sumarMisionDeFoto: jest.fn(async () => undefined) }));
 jest.mock('@/lib/games/juegos-en-vivo', () => ({ idDeMisionDelTag: jest.fn(() => null) }));
 

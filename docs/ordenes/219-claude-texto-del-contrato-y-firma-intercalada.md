@@ -56,7 +56,7 @@ Regresion propuesta abajo PENDIENTE hasta que Claude la implemente y ejecute.
 ```comprobar
 archivo: src/app/actions/fiesta/fiesta.actions.ts
 usa: updateFiestaPartial en src/app/actions/fiesta-actual.ts
-usa: updateContratoFiestaActual en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+usa: updateContratoFiestaActual en src/components/panels/doc--contrato-servicio.tsx
 usa: updateDataPartial en src/app/actions/fiesta/fiesta.actions.ts
 prueba: docs/evidencias/264-contrato-guardado-sdk.mjs
 prueba: src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts

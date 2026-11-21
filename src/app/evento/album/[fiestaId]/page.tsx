@@ -31,7 +31,7 @@ import {
   Film,
   AlertTriangle,
 } from 'lucide-react';
-import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { getPublicSocialEvent, getPublicSocialPosts, completarNotasAlbum } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
 import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
@@ -44,6 +44,7 @@ import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } 
 import { bajarRecuerdosParaZip, resumirEntrega } from '@/lib/album/armar-zip-del-album';
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
+import { MensajesParaVosSection } from '@/components/album/MensajesParaVosSection';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 type ViewMode = 'libro' | 'cuadricula';
@@ -121,8 +122,8 @@ export default function PublicAlbumPage() {
   useEffect(() => {
     // no pasa nada si falla: son el título de la fiesta y el botón de reseña; sin ellos el álbum
     // se ve igual y el botón no aparece (decisión del dueño: sin enlace, no se muestra).
-    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {}); // no pasa nada si falla: título
-    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {}); // no pasa nada si falla: botón de reseña
+    getPublicSocialEvent(fiestaId).then(setFiesta).catch((e) => console.warn('[page] Paso secundario sin completar:', e)); // no pasa nada si falla: título
+    getEnlaceDeResenaPublico().then(setEnlaceResena).catch((e) => console.warn('[page] Paso secundario sin completar:', e)); // no pasa nada si falla: botón de reseña
   }, [fiestaId]);
 
   const loadPosts = useCallback(async () => {
@@ -156,6 +157,22 @@ export default function PublicAlbumPage() {
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  // Orden 324 (Bloque 2): si hay fotos viejas sin nota de calidad, completa una tanda en segundo plano sin trabar la carga.
+  const backfillIniciadoRef = useRef(false);
+  useEffect(() => {
+    if (isLoading || backfillIniciadoRef.current || !fiestaId) return;
+    const faltanNotas = posts.some((p) => p.imageUrl && p.iaRevision?.calidad == null);
+    if (!faltanNotas) return;
+    backfillIniciadoRef.current = true;
+    completarNotasAlbum(fiestaId, 5)
+      .then((res) => {
+        if (!res.updatedPosts.length) return;
+        const porId = new Map(res.updatedPosts.map((u) => [u.id, u.iaRevision]));
+        setPosts((prev) => prev.map((p) => (porId.has(p.id) ? { ...p, iaRevision: porId.get(p.id) } : p)));
+      })
+      .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
+  }, [isLoading, fiestaId, posts]);
 
   // Orden 298: El video resumen del cliente se genera solo la primera vez que abre su álbum, sin botón.
   const [autoAperturaVideoIntentada, setAutoAperturaVideoIntentada] = useState(false);
@@ -720,6 +737,54 @@ export default function PublicAlbumPage() {
             )}
           </div>
         )}
+
+        {/* Sección: Las más queridas de la noche (Top 20 por likes) */}
+        {albumDigital.lasMasQueridas && albumDigital.lasMasQueridas.length > 0 && (
+          <section className="mt-12 space-y-4" aria-labelledby="las-mas-queridas-heading">
+            <div className="flex items-center justify-between">
+              <h2 id="las-mas-queridas-heading" className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                <Heart className="w-5 h-5 text-rose-400 fill-rose-400" />
+                Las más queridas de la noche
+              </h2>
+              <span className="text-xs font-bold text-zinc-400">
+                Top {albumDigital.lasMasQueridas.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {albumDigital.lasMasQueridas.map((foto, idx) => (
+                <div
+                  key={foto.id}
+                  className="relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 aspect-square group"
+                >
+                  {foto.imageUrl && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={foto.imageUrl}
+                      alt={foto.autor || 'Foto destacada'}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  )}
+                  <div className="absolute top-2 left-2 bg-black/70 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full">
+                    #{idx + 1}
+                  </div>
+                  <div className="absolute top-2 right-2 bg-rose-600/90 text-white text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Heart className="w-2.5 h-2.5 fill-current" />
+                    {foto.likes || 0}
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2">
+                    <p className="text-[11px] font-bold text-white truncate">{foto.autor}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* LIBRO DE FIRMAS PRIVADO PARA EL CLIENTE ("Mensajes para vos") */}
+        <div className="mt-10">
+          <MensajesParaVosSection fiestaId={fiestaId} variant="dark" />
+        </div>
 
         {/* Banner de reseña de Google para invitados */}
         {enlaceResena ? (

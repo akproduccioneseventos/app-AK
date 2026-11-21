@@ -77,7 +77,7 @@ const DEFAULT_PAGE_DATA: PageData = {
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? '100%' : '-100%',
-    opacity: 0,
+    opacity: 1,
   }),
   center: {
     x: 0,
@@ -92,7 +92,7 @@ const slideVariants = {
 const transition = {
   type: 'tween' as const,
   ease: 'easeInOut',
-  duration: 0.5,
+  duration: 0.12,
 };
 const NEXT_SLIDE_OFFSET = 1;
 const SKIP_TEEN_MENU_OFFSET = 2;
@@ -794,7 +794,7 @@ export default function PresentacionLedPage() {
       </div>
 
       {/* Slides */}
-      <AnimatePresence custom={direction} mode="wait">
+      <AnimatePresence custom={direction}>
         <motion.div
           key={currentSlide}
           custom={direction}
@@ -985,24 +985,16 @@ export default function PresentacionLedPage() {
 
         <Button
           data-testid="btn-siguiente-slide"
-          onClick={isContratarnosSlide ? handleCierreCta : goNext}
-          disabled={!isContratarnosSlide && (nextDisabled || currentSlide >= totalSlides - 1)}
+          onClick={goNext}
+          disabled={nextDisabled || currentSlide >= totalSlides - 1}
           size="lg"
           className={cn(
             'h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-base sm:text-lg font-bold border-0',
-            isContratarnosSlide
-              ? 'bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 text-white shadow-lg'
-              : 'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
+            'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
           )}
         >
-          {isContratarnosSlide ? (
-            <>{presentacionSettings?.cierre.ctaTexto || 'Contratarnos'}</>
-          ) : (
-            <>
-              Siguiente
-              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-1.5 sm:ml-2" />
-            </>
-          )}
+          Siguiente
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-1.5 sm:ml-2" />
         </Button>
       </div>
 

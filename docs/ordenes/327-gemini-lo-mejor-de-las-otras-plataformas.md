@@ -129,6 +129,6 @@ usa: business_discovery en src/lib/presencia-digital/competencia.ts
 usa: competencia en src/app/api/cron/metricas-de-redes/route.ts
 usa: Competencia en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
 archivo: src/app/enlaces/page.tsx
-usa: buildWhatsAppLink en src/app/enlaces/page.tsx
+usa: buildWhatsAppLink en src/app/api/enlaces/clic/route.ts
 archivo: src/app/api/enlaces/clic/route.ts
 ```

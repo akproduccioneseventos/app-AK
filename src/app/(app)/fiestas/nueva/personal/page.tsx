@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/personal--recibos'));
 
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -962,10 +966,23 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   );
 }
 
-export default function AsignarPersonalEventoPage() {
+function AsignarPersonalEventoPageInner() {
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
             <AsignarPersonalEventoContent />
         </Suspense>
     )
+}
+
+
+export default function AsignarPersonalEventoPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"personal","label":"Personal asignado"},{"id":"recibos","label":"Recibos"}]}
+        renderDefault={() => <AsignarPersonalEventoPageInner />}
+        renderTab={(tab) => { if (tab === 'recibos') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

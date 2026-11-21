@@ -1,4 +1,4 @@
-import type { ClientPaymentNotification } from '@/types/fiesta';
+import type { ClientPaymentNotification, ClientPaymentRevisionIA, TipoComprobanteIA } from '@/types/fiesta';
 
 type PaymentDecision = 'aprobado' | 'rechazado';
 
@@ -6,6 +6,53 @@ export interface PaymentNotificationTransition {
   notifications: ClientPaymentNotification[];
   notification: ClientPaymentNotification;
   changed: boolean;
+}
+
+export interface CartelRevisionComprobanteIA {
+  nivel: 'ok' | 'atencion' | 'alerta';
+  texto: string;
+  tipoLabel: string;
+}
+
+const ETIQUETA_TIPO_COMPROBANTE: Record<TipoComprobanteIA, string> = {
+  transferencia: 'Transferencia',
+  deposito: 'Depósito',
+  mercado_pago: 'Mercado Pago',
+  otro: 'Otro medio',
+};
+
+export function resumenRevisionComprobanteIA(
+  revisionIA?: ClientPaymentRevisionIA | null,
+): CartelRevisionComprobanteIA | null {
+  if (!revisionIA) return null;
+  const tipoLabel = ETIQUETA_TIPO_COMPROBANTE[revisionIA.tipo] ?? 'Otro medio';
+
+  if (!revisionIA.esComprobante) {
+    return {
+      nivel: 'alerta',
+      texto: 'La IA no reconoce un comprobante válido',
+      tipoLabel,
+    };
+  }
+  if (!revisionIA.montoCoincide) {
+    return {
+      nivel: 'alerta',
+      texto: 'La IA no encuentra el monto',
+      tipoLabel,
+    };
+  }
+  if (!revisionIA.tieneFecha) {
+    return {
+      nivel: 'atencion',
+      texto: 'Comprobante sin fecha visible',
+      tipoLabel,
+    };
+  }
+  return {
+    nivel: 'ok',
+    texto: 'Parece un comprobante correcto',
+    tipoLabel,
+  };
 }
 
 export function transitionPaymentNotification(

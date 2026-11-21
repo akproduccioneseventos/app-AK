@@ -143,19 +143,18 @@ export function PrepararGrillaDeCara({ fiestaId, fotosAprobadas, onListo }: Prop
       <div className="flex items-start gap-3">
         <Scan className="w-5 h-5 text-primary mt-0.5 shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground">Preparar grilla de caras</p>
+          <p className="text-sm font-bold text-foreground">Índice de caras (opcional)</p>
           <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
-            Procesa las {fotosAprobadas.length} fotos aprobadas en este browser para activar la
-            {' '}grilla de caras de los invitados. Corre aca mismo: ninguna foto sale del equipo.
-            {' '}La primera vez tarda unos segundos mas mientras se prepara.
+            Las {fotosAprobadas.length} fotos aprobadas se indexan solas al subirse. Usá este botón
+            {' '}sólo si querés volver a armar toda la grilla manualmente desde este navegador.
           </p>
         </div>
       </div>
 
       {estado === 'idle' && (
-        <Button size="sm" onClick={iniciar} className="w-full">
+        <Button size="sm" variant="outline" onClick={iniciar} className="w-full">
           <Scan className="w-4 h-4 mr-2" />
-          Preparar grilla ({fotosAprobadas.length} fotos)
+          Volver a armar ({fotosAprobadas.length} fotos)
         </Button>
       )}
 

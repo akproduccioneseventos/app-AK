@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Printer, RefreshCw, Loader2, ToggleLeft, ToggleRight, CheckCircle, Check, Slash, AlertCircle } from 'lucide-react';
-import { getSocialPosts } from '@/app/actions/social-gallery';
+import { ArrowLeft, Printer, RefreshCw, Loader2, ToggleLeft, ToggleRight, CheckCircle, Check, Slash, AlertCircle, Volume2 } from 'lucide-react';
+import { getSocialPosts, getMobilePrintQueueForStation, updateMobilePrintStatus } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { puedeImprimir } from '@/lib/social-fiesta/limite-de-impresion';
+import type { MobilePrintRequest } from '@/lib/social-fiesta/cola-impresion';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,8 @@ export default function PrintStationPage() {
   const [printPost, setPrintPost] = useState<SocialGalleryPost | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
   const [pendingPrintConfirmation, setPendingPrintConfirmation] = useState<SocialGalleryPost | null>(null);
+  const [mobileQueue, setMobileQueue] = useState<MobilePrintRequest[]>([]);
+  const [calledTicket, setCalledTicket] = useState<MobilePrintRequest | null>(null);
 
   // Load printed IDs from localStorage on mount
   useEffect(() => {
@@ -66,11 +69,15 @@ export default function PrintStationPage() {
   const loadData = useCallback(async (showIndicator = true) => {
     if (showIndicator) setLoading(true);
     try {
-      const [fiestaData, socialPosts] = await Promise.all([
+      const [fiestaData, socialPosts, mobileRes] = await Promise.all([
         getFiestaById(fiestaId),
         getSocialPosts(fiestaId),
+        getMobilePrintQueueForStation(fiestaId).catch(() => ({ success: false, queue: [] as MobilePrintRequest[] })),
       ]);
       setFiesta(fiestaData);
+      if (mobileRes.success) {
+        setMobileQueue(mobileRes.queue);
+      }
       
       // Keep only approved image posts (we cannot print videos directly)
       const approvedImages = socialPosts.filter(
@@ -162,8 +169,12 @@ export default function PrintStationPage() {
   }, [posts, printedIds]);
 
   const maxImpresiones = fiesta?.socialGallerySettings?.maxImpresionesPorPersona ?? 2;
-  const marcoEnImpresion = fiesta?.socialGallerySettings?.marcoEnImpresion !== false;
+  const tieneMarcoImpresion =
+    fiesta?.socialGallerySettings?.marcoEnImpresion === true ||
+    (fiesta?.socialGallerySettings?.marcoEnImpresion !== false &&
+      fiesta?.socialGallerySettings?.photoFrame === true);
   const logoUrl = (fiesta?.socialGallerySettings as any)?.brand?.logoUrl || (fiesta?.socialGallerySettings as any)?.templateSettings?.logoUrl || (fiesta?.socialGallerySettings as any)?.companyInfo?.logoUrl;
+  const accentColor = fiesta?.socialGallerySettings?.accentColor || '#d97706';
   const eventName = fiesta?.configuracion?.nombreEvento || (fiesta as any)?.nombre || 'Fiesta AK';
   const eventDate = (fiesta as any)?.fecha || fiesta?.configuracion?.fechaEvento || (fiesta?.configuracion as any)?.fechaInicio || '';
 
@@ -202,7 +213,10 @@ export default function PrintStationPage() {
       <div id="print-area" className="hidden print:block print:absolute print:inset-0">
         {printPost && (
           <div className="w-full h-full flex flex-col items-center justify-between p-4 bg-white relative">
-            <div className={`relative w-full ${marcoEnImpresion ? 'h-[82%]' : 'h-full'}`}>
+            <div
+              className={`relative w-full ${tieneMarcoImpresion ? 'h-[82%] rounded-xl overflow-hidden border-4' : 'h-full'}`}
+              style={tieneMarcoImpresion ? { borderColor: accentColor } : undefined}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={printPost.imageUrl}
@@ -210,8 +224,8 @@ export default function PrintStationPage() {
                 className="w-full h-full object-contain"
               />
             </div>
-            {marcoEnImpresion && (
-              <div className="w-full border-t border-slate-200 pt-2 flex items-center justify-between px-2 text-slate-800 shrink-0">
+            {tieneMarcoImpresion && (
+              <div data-testid="impresion-marco-evento" className="w-full border-t border-slate-200 pt-2 flex items-center justify-between px-2 text-slate-800 shrink-0">
                 <div className="flex items-center gap-2">
                   {logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -324,7 +338,124 @@ export default function PrintStationPage() {
         </div>
 
         {/* PRINT QUEUE LIST */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {calledTicket && (
+            <div className="rounded-3xl border-2 border-emerald-400 bg-emerald-500/20 p-5 flex items-center justify-between gap-4 shadow-xl animate-pulse">
+              <div className="flex items-center gap-4">
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-400 text-zinc-950 text-2xl font-black">
+                  #{calledTicket.ticketNumber}
+                </span>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-emerald-300">
+                    ¡Turno listo para retirar!
+                  </p>
+                  <p className="text-xl font-black text-white">
+                    {calledTicket.requestedBy}
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCalledTicket(null)}
+                className="rounded-xl border-emerald-300/40 text-emerald-100 hover:bg-emerald-500/30"
+              >
+                Cerrar aviso
+              </Button>
+            </div>
+          )}
+
+          {mobileQueue.length > 0 && (
+            <section className="space-y-3" data-testid="cola-impresion-celular">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest">
+                  Pedidos desde el celular (en orden)
+                </h2>
+                <span className="text-xs font-bold text-zinc-400">
+                  {mobileQueue.filter((q) => q.status !== 'printed').length} pendientes
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {mobileQueue.map((req) => (
+                  <div
+                    key={req.id}
+                    className={`rounded-2xl border p-3.5 flex items-center gap-3 ${
+                      req.status === 'printed'
+                        ? 'border-zinc-800 bg-zinc-900/30 opacity-60'
+                        : req.status === 'ready'
+                        ? 'border-emerald-500/50 bg-emerald-500/10'
+                        : 'border-amber-400/40 bg-amber-400/5'
+                    }`}
+                  >
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-amber-400 text-zinc-950 text-lg font-black">
+                      #{req.ticketNumber}
+                    </div>
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-900">
+                      <NextImage src={req.imageUrl} alt="" fill className="object-cover" unoptimized />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-white truncate">{req.requestedBy}</p>
+                      <p className="text-[11px] font-semibold text-zinc-400">
+                        {req.status === 'ready' ? 'Listo para retirar' : req.status === 'printed' ? 'Entregada' : 'En cola'}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <Button
+                        size="sm"
+                        className="h-8 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold px-2.5"
+                        onClick={async () => {
+                          const targetPost = posts.find((p) => p.id === req.postId) || {
+                            id: req.postId,
+                            fiestaId,
+                            imageUrl: req.imageUrl,
+                            authorName: req.authorName,
+                            timestamp: req.createdAt,
+                            likes: 0,
+                            comments: [],
+                          };
+                          handlePrint(targetPost);
+                          await updateMobilePrintStatus(fiestaId, req.id, 'printed').catch(() => undefined);
+                          setMobileQueue((prev) =>
+                            prev.map((m) => (m.id === req.id ? { ...m, status: 'printed' } : m)),
+                          );
+                        }}
+                      >
+                        <Printer className="w-3.5 h-3.5 mr-1" /> Imprimir
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 rounded-lg border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/15 text-xs font-bold px-2.5"
+                        onClick={async () => {
+                          await updateMobilePrintStatus(fiestaId, req.id, 'ready').catch(() => undefined);
+                          setMobileQueue((prev) =>
+                            prev.map((m) => (m.id === req.id ? { ...m, status: 'ready' } : m)),
+                          );
+                          setCalledTicket(req);
+                          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                            try {
+                              const utter = new SpeechSynthesisUtterance(
+                                `Turno número ${req.ticketNumber} para ${req.requestedBy}, tu foto está lista.`,
+                              );
+                              utter.lang = 'es-UY';
+                              window.speechSynthesis.speak(utter);
+                            } catch {}
+                          }
+                          toast({
+                            title: `Turno #${req.ticketNumber} cantado`,
+                            description: `Foto lista para ${req.requestedBy}`,
+                          });
+                        }}
+                      >
+                        <Volume2 className="w-3.5 h-3.5 mr-1" /> Cantar #{req.ticketNumber}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <h2 className="text-sm font-black text-zinc-400 uppercase tracking-widest mb-2">Historial de Fotos y Cola</h2>
           {posts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

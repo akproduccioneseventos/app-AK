@@ -36,7 +36,7 @@ jest.mock('@/components/social-media/SocialHistoryImportDialog', () => ({ Social
 jest.mock('@/components/social-media/SocialHistoryPanel', () => ({ SocialHistoryPanel: () => null }));
 jest.mock('@/components/social-media/SocialMediaCalendar', () => ({ SocialMediaCalendar: () => null }));
 
-import SocialMediaPage from '@/app/(app)/empresa/redes-sociales/page';
+import SocialMediaPage from '@/components/panels/empresa--redes-sociales';
 
 beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
 afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });

@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
-import { getPhotoFilePathsForZip } from '@/app/actions/social-gallery';
+import { getPhotoFilePathsForZip, type PhotoZipItem } from '@/app/actions/social-gallery';
 import { hasAppSession } from '@/lib/auth/require-session';
+import { soloAprobados } from '@/lib/social-fiesta/visibilidad';
+import { esTiraFotocabina } from '@/lib/video-resumen/elegir-fotos-video';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_DOMAINS = [
@@ -23,6 +25,109 @@ function isUrlAllowed(urlStr: string): boolean {
   }
 }
 
+function formatearNombreModulo(sourceModule: string): string {
+  const limpio = sourceModule
+    .replace(/[-_]+/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim();
+  if (!limpio) return 'Fotos de los invitados';
+  return limpio
+    .split(/\s+/)
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function clasificarCarpetaEstacion(post: PhotoZipItem): string {
+  const modRaw = String(post.sourceModule || '').trim();
+  const mod = modRaw.toLowerCase();
+  const modCompacto = mod.replace(/[-_\s]+/g, '');
+
+  if (
+    modCompacto === 'plataforma360' ||
+    modCompacto === 'video360' ||
+    modCompacto === '360' ||
+    mod.includes('360')
+  ) {
+    return 'Plataforma 360';
+  }
+
+  if (
+    esTiraFotocabina(post) ||
+    modCompacto === 'fotocabina' ||
+    modCompacto === 'photobooth' ||
+    modCompacto === 'cabina'
+  ) {
+    return 'Fotocabina';
+  }
+
+  if (
+    modCompacto === 'vogue' ||
+    modCompacto === 'bogue' ||
+    modCompacto === 'cabinavogue' ||
+    modCompacto === 'boomerang'
+  ) {
+    return 'Vogue';
+  }
+
+  if (modCompacto.startsWith('espejo')) {
+    return 'Espejo Magico';
+  }
+
+  if (
+    modCompacto === 'barra' ||
+    modCompacto === 'kiosco' ||
+    modCompacto === 'barratecnologica'
+  ) {
+    return 'Barra Tecnologica';
+  }
+
+  if (
+    modCompacto === 'totem' ||
+    modCompacto === 'totems' ||
+    modCompacto === 'totemia' ||
+    modCompacto === 'pantallastotem' ||
+    modCompacto === 'touchpix'
+  ) {
+    return 'Totem Interactivo';
+  }
+
+  if (
+    modCompacto === 'buzon' ||
+    modCompacto === 'capsulatiempo' ||
+    modCompacto === 'audioguestbook'
+  ) {
+    return 'Buzon';
+  }
+
+  if (
+    !mod ||
+    post.source === 'guest' ||
+    ['muro', 'murosocial', 'invitado', 'invitados', 'guest'].includes(modCompacto)
+  ) {
+    return 'Fotos de los invitados';
+  }
+
+  return formatearNombreModulo(modRaw);
+}
+
+function rutaUnicaEnZip(zip: JSZip, rutaBase: string): string {
+  if (!zip.file(rutaBase)) return rutaBase;
+  const slashIdx = rutaBase.lastIndexOf('/');
+  const dir = slashIdx >= 0 ? rutaBase.slice(0, slashIdx + 1) : '';
+  const nombre = slashIdx >= 0 ? rutaBase.slice(slashIdx + 1) : rutaBase;
+  const dotIdx = nombre.lastIndexOf('.');
+  const stem = dotIdx > 0 ? nombre.slice(0, dotIdx) : nombre;
+  const ext = dotIdx > 0 ? nombre.slice(dotIdx) : '';
+
+  let idx = 2;
+  let candidata = `${dir}${stem}_${idx}${ext}`;
+  while (zip.file(candidata)) {
+    idx += 1;
+    candidata = `${dir}${stem}_${idx}${ext}`;
+  }
+  return candidata;
+}
+
 export async function GET(request: Request, props: { params: Promise<{ fiestaId: string }> }) {
   if (!(await hasAppSession())) return new NextResponse('Unauthorized', { status: 401 });
   const params = await props.params;
@@ -31,6 +136,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   if (!fiestaId) {
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
   }
+
+  const searchParams =
+    (request as { nextUrl?: { searchParams?: URLSearchParams } }).nextUrl?.searchParams ??
+    new URL(request.url).searchParams;
+  const usarCarpetas = searchParams.get('carpetas') === '1';
 
   try {
     let lectura: Awaited<ReturnType<typeof getPhotoFilePathsForZip>>;
@@ -42,9 +152,17 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       return NextResponse.json({ error: 'No pudimos leer las fotos, probá de nuevo.' }, { status: 502 });
     }
     const { photos: photoPaths, stats } = lectura;
-    
+
     if (photoPaths.length === 0) {
       return NextResponse.json({ error: 'No se encontraron fotos para este evento.' }, { status: 404 });
+    }
+
+    const photosParaZip = usarCarpetas
+      ? soloAprobados(photoPaths).filter((p) => p.approved !== false)
+      : photoPaths;
+
+    if (usarCarpetas && photosParaZip.length === 0) {
+      return NextResponse.json({ error: 'No se encontraron fotos aprobadas para este evento.' }, { status: 404 });
     }
 
     const zip = new JSZip();
@@ -52,8 +170,8 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     let limitExceeded = false;
     const omittedFiles: string[] = [];
     let includedCount = 0;
-    
-    for (const photo of photoPaths) {
+
+    for (const photo of photosParaZip) {
       let fileContent: Buffer;
       try {
         if (photo.path.startsWith('https://') || photo.path.startsWith('http://')) {
@@ -79,7 +197,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
           omittedFiles.push(`${photo.name} (Excedió límite de 50MB)`);
           break;
         }
-        zip.file(photo.name, fileContent);
+        const nombreLimpio = photo.name.replace(/^[\\/]+/, '').replace(/\.\./g, '_');
+        const entryBase = usarCarpetas
+          ? `${clasificarCarpetaEstacion(photo)}/${nombreLimpio}`
+          : photo.name;
+        const entryPath = usarCarpetas ? rutaUnicaEnZip(zip, entryBase) : entryBase;
+        zip.file(entryPath, fileContent);
         includedCount++;
       } catch (err: any) {
         omittedFiles.push(`${photo.name} (${err?.message || 'Error al leer archivo'})`);
@@ -124,11 +247,13 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     }
 
     zip.file('ESTADO_DE_FOTOS.txt', manifestLines.join('\n'));
-    
+
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-    
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `galeria-social-${fiestaId}-${timestamp}.zip`;
+    const filename = usarCarpetas
+      ? `estaciones-${fiestaId}-${timestamp}.zip`
+      : `galeria-social-${fiestaId}-${timestamp}.zip`;
 
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');

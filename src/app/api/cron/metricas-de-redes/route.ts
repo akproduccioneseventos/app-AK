@@ -5,6 +5,7 @@ import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
+import { sincronizarCompetenciaSemanal } from '@/lib/presencia-digital/competencia';
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
 import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
@@ -80,6 +81,13 @@ async function correrTarea(request: Request) {
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
     }));
 
+    const competencia = await sincronizarCompetenciaSemanal()
+      .then(() => ({ ok: true }))
+      .catch((error: unknown) => ({
+        ok: false,
+        error: error instanceof Error ? error.message : 'No se pudo sincronizar la competencia semanal.',
+      }));
+
     // A public-safe cron can reconcile sources, but never initiate new paid decoration analyses.
     const decoracion = await syncDecorationCatalog().then(async summary => ({
       sources: summary.sources, added: summary.added,
@@ -114,6 +122,7 @@ async function correrTarea(request: Request) {
         otrasRedes: historialOtrasRedes,
       },
       comentarios: comentariosSincronizados,
+      competencia,
       decoracion,
     }));
   } catch (error: any) {

@@ -38,7 +38,7 @@ export interface CaraEnFoto {
 }
 
 export interface Persona {
-  /** Un número de orden. **Nunca un nombre**: acá no se identifica a nadie. */
+  /** Un número de orden. **Nunca un nombre** salvo que el invitado o el cliente lo asignen. */
   id: string;
   /** La cara que mejor la representa, para mostrar en la grilla. */
   representante: CaraEnFoto;
@@ -46,6 +46,128 @@ export interface Persona {
   fotoIds: string[];
   /** Cuántas caras suyas se juntaron. Más caras, más confianza. */
   apariciones: number;
+  /** Identificador del invitado asignado (guardado aparte de los vectores). */
+  invitadoId?: string;
+  /** Nombre visible asignado por el invitado o el cliente (guardado aparte de los vectores). */
+  nombre?: string;
+}
+
+export interface AsignacionCara {
+  personaId?: string;
+  representativeFotoId?: string;
+  invitadoId?: string;
+  nombre?: string;
+  updatedAt?: string;
+}
+
+export const DIAS_EXPIRACION_CARAS_INVITADO = 90;
+export const MS_EXPIRACION_CARAS_INVITADO = DIAS_EXPIRACION_CARAS_INVITADO * 24 * 60 * 60 * 1000;
+
+export function esVectorFacialValido(vector: unknown): vector is number[] {
+  return (
+    Array.isArray(vector) &&
+    vector.length === 128 &&
+    vector.every((n) => typeof n === 'number' && Number.isFinite(n))
+  );
+}
+
+export function parsearFechaFiestaMs(fechaEvento?: string | null): number | null {
+  const raw = typeof fechaEvento === 'string' ? fechaEvento.trim() : '';
+  if (!raw) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const parsed = Date.parse(`${raw}T12:00:00.000Z`);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  const parsed = Date.parse(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/**
+ * Los vectores faciales de invitados vencen a los 90 días de la fecha de la fiesta.
+ */
+export function vectorInvitadoExpirado(
+  fechaEvento?: string | null,
+  ahoraMs: number = Date.now(),
+): boolean {
+  const fechaMs = parsearFechaFiestaMs(fechaEvento);
+  if (fechaMs === null) return false;
+  return ahoraMs - fechaMs > MS_EXPIRACION_CARAS_INVITADO;
+}
+
+export function quitarCarasDeFoto(
+  caras: readonly CaraEnFoto[],
+  fotoId: string,
+): CaraEnFoto[] {
+  return caras.filter((c) => c.fotoId !== fotoId);
+}
+
+/**
+ * Mezcla caras nuevas en el índice sin borrar las de otras fotos,
+ * reemplazando entradas previas del mismo `fotoId` para evitar duplicados.
+ */
+export function mezclarCarasPorFoto(
+  existentes: readonly CaraEnFoto[],
+  nuevas: readonly CaraEnFoto[],
+): CaraEnFoto[] {
+  const fotoIdsNuevos = new Set(nuevas.map((c) => c.fotoId).filter(Boolean));
+  const conservadas = existentes.filter((c) => c.fotoId && !fotoIdsNuevos.has(c.fotoId));
+  const limpias = nuevas.filter((c) => Boolean(c.fotoId) && Array.isArray(c.vector) && c.vector.length > 0);
+  return [...conservadas, ...limpias];
+}
+
+export function filtrarCarasPorPosts(
+  caras: readonly CaraEnFoto[],
+  postIdsValidos: ReadonlySet<string>,
+): CaraEnFoto[] {
+  return caras.filter((c) => postIdsValidos.has(c.fotoId));
+}
+
+export function aplicarAsignacionesAPersonas(
+  personas: Persona[],
+  asignaciones?: Record<string, AsignacionCara>,
+): Persona[] {
+  if (!asignaciones) return personas;
+  const valores = Object.values(asignaciones);
+  return personas.map((persona) => {
+    const match =
+      asignaciones[persona.representante.fotoId] ??
+      asignaciones[persona.id] ??
+      valores.find(
+        (a) =>
+          (a.representativeFotoId && a.representativeFotoId === persona.representante.fotoId) ||
+          (a.personaId && a.personaId === persona.id),
+      );
+    if (!match?.invitadoId) return persona;
+    return {
+      ...persona,
+      invitadoId: match.invitadoId,
+      nombre: match.nombre,
+    };
+  });
+}
+
+export function normalizarNombreInvitadoExacto(nombre: string): string {
+  return String(nombre || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Busca un invitado por coincidencia exacta normalizada (sin aceptar nombres parciales ni parecidos).
+ */
+export function buscarInvitadoPorNombreExacto<T extends { id: string; nombre: string }>(
+  invitados: readonly T[],
+  nombreBuscado: string,
+): T | null {
+  const norm = normalizarNombreInvitadoExacto(nombreBuscado);
+  if (!norm) return null;
+  const coincidencias = invitados.filter(
+    (inv) => normalizarNombreInvitadoExacto(inv.nombre) === norm,
+  );
+  return coincidencias.length === 1 ? coincidencias[0] : null;
 }
 
 /**

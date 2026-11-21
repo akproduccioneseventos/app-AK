@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createHash } from 'crypto';
-import type { CrmLead, CrmStage, CrmTimelineItem } from '@/types/crm';
+import type { CrmLead, CrmMensaje, CrmStage, CrmTimelineItem } from '@/types/crm';
 import type { PresupuestoSource } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import type { CommercialAttribution } from '@/lib/commercial/acquisition';
@@ -11,6 +11,7 @@ import { normalizeBirthdayMonthDay } from '@/lib/commercial/birthday';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { resolvePublicLeadStage } from '@/lib/crm/lead-stage';
 import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
+import { mergeConversacionMessages } from '@/lib/crm/conversacion';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -49,6 +50,13 @@ export interface PublicLeadPersistenceInput {
    * dos invitadas que se llamen igual quedarían pegadas en una sola ficha.
    */
   claveSinTelefono?: string;
+  leadIdExistente?: string;
+  coincidirSoloPorTelefono?: boolean;
+  mensajesConversacion?: CrmMensaje[];
+  atiende?: CrmLead['atiende'];
+  esProspectoDudoso?: boolean;
+  origenWhatsApp?: CrmLead['origenWhatsApp'];
+  notaClasificacionIA?: number;
 }
 
 function normalizeName(name: string): string {
@@ -154,11 +162,25 @@ function buildLead(
     && (!existing?.currentStageId || existing.currentStageId === initialStageId),
   );
 
+  const sinTelefono = input.permitirSinTelefono === true;
+  const esNombreGenerico = (value?: string) =>
+    Boolean(value && /^(WhatsApp|Instagram|Messenger)\b/i.test(value.trim()));
+  const resolvedName =
+    existing?.name && (!esNombreGenerico(existing.name) || esNombreGenerico(name))
+      ? existing.name
+      : name;
+  const resolvedAcquisition =
+    existing?.acquisition && existing.acquisition.source !== 'direct'
+      ? existing.acquisition
+      : acquisition;
+  const conversacion = mergeConversacionMessages(existing?.conversacion, input.mensajesConversacion);
+  const resolvedPhone = existing?.phone ?? (phone || (sinTelefono ? (input.phone?.trim() ?? '') : undefined));
+
   return stripUndefined({
     ...(existing || {}),
     id: existing?.id || `lead_public_${identityKey.slice(0, 24)}`,
-    name: existing?.name || name,
-    phone: existing?.phone || phone,
+    name: resolvedName,
+    phone: resolvedPhone,
     email: existing?.email || input.email,
     partyType: canUpdateOpportunity ? (input.partyType || existing?.partyType) : existing?.partyType,
     // La fecha de la fiesta NO es una cita: va en su campo. La cita la agenda una persona
@@ -173,12 +195,14 @@ function buildLead(
       : existing?.presupuestoEstado,
     budgetSource: canUpdateOpportunity ? (input.budgetSource || existing?.budgetSource) : existing?.budgetSource,
     lastBudgetAt: input.presupuestoId && canUpdateOpportunity ? now : existing?.lastBudgetAt,
-    acquisition,
+    acquisition: resolvedAcquisition,
     acquisitionHistory: appendAcquisitionHistory(existing?.acquisitionHistory, acquisition, now),
     crmTags: Array.from(new Set([
       ...(existing?.crmTags || []),
       ...(input.conversionPlan?.crmTags || []),
       ...(acquisition.source === 'guest_portal' ? ['invitado-interesado'] : []),
+      ...(input.origenWhatsApp === 'rescatado' ? ['rescatado'] : []),
+      ...(input.esProspectoDudoso ? ['dudoso-whatsapp'] : []),
     ])),
     leadTemperature: input.conversionPlan?.leadTemperature || existing?.leadTemperature,
     nextAction: input.conversionPlan?.nextAction || existing?.nextAction,
@@ -189,6 +213,17 @@ function buildLead(
         .join('\n'),
     ),
     timeline,
+    ...(conversacion ? { conversacion } : {}),
+    ...(input.atiende || existing?.atiende ? { atiende: input.atiende ?? existing?.atiende } : {}),
+    ...(input.esProspectoDudoso !== undefined || existing?.esProspectoDudoso !== undefined
+      ? { esProspectoDudoso: input.esProspectoDudoso !== undefined ? input.esProspectoDudoso : existing?.esProspectoDudoso }
+      : {}),
+    ...(existing?.origenWhatsApp || input.origenWhatsApp
+      ? { origenWhatsApp: existing?.origenWhatsApp || input.origenWhatsApp }
+      : {}),
+    ...(input.notaClasificacionIA !== undefined || existing?.notaClasificacionIA !== undefined
+      ? { notaClasificacionIA: input.notaClasificacionIA ?? existing?.notaClasificacionIA }
+      : {}),
     publicIdentityKey: existing?.publicIdentityKey
       || (!existing || existing.id.startsWith('lead_public_') ? identityKey : undefined),
     birthdayMonthDay: existing?.birthdayMonthDay || birthdayMonthDay,
@@ -219,27 +254,51 @@ export async function upsertPublicCommercialLead(
   const now = new Date().toISOString();
   const phone = normalizeUruguayPhone(input.phone);
   const name = normalizeName(input.name);
-  const sinTelefono = input.permitirSinTelefono === true && !phone;
-  if (!sinTelefono && !/^09\d{7}$/.test(phone)) throw new Error('Ingresa un celular uruguayo valido.');
+  const permitirSinTelefono = input.permitirSinTelefono === true;
+  const sinTelefono = permitirSinTelefono && (!phone || !/^09\d{7}$/.test(phone));
+  if (!permitirSinTelefono && !/^09\d{7}$/.test(phone)) throw new Error('Ingresa un celular uruguayo valido.');
   if (name.length < 3 || name.length > 120) throw new Error('Ingresa un nombre valido.');
 
   // Sin telefono se distingue por de donde vino (que fiesta y que invitado). Si
   // ni eso hay, se usa el nombre solo: peor que nada, pero mejor que juntar a
   // dos personas distintas en una misma ficha.
   const identityKey = buildPublicIdentityKey(
-    sinTelefono ? `sin-telefono|${input.claveSinTelefono || ''}` : phone,
-    name,
+    input.claveSinTelefono
+      ? `sin-telefono|${input.claveSinTelefono}`
+      : sinTelefono
+        ? `sin-telefono|${phone}`
+        : phone,
+    input.claveSinTelefono ? input.claveSinTelefono : name,
   );
-  const existingIndex = leads.findIndex((lead) =>
-    lead.publicIdentityKey === identityKey
-    || (
-      // Sin telefono no se puede juntar por telefono: dos fichas vacias no son
-      // la misma persona.
+
+  let existingIndex = -1;
+  if (input.leadIdExistente) {
+    existingIndex = leads.findIndex((lead) => lead.id === input.leadIdExistente);
+  }
+  if (existingIndex === -1) {
+    existingIndex = leads.findIndex((lead) => lead.publicIdentityKey === identityKey);
+  }
+  if (existingIndex === -1 && input.coincidirSoloPorTelefono && phone) {
+    let bestIdx = -1;
+    let bestTs = -Infinity;
+    leads.forEach((lead, idx) => {
+      if (lead.phone && normalizeUruguayPhone(lead.phone) === phone) {
+        const ts = new Date(lead.updatedAt || lead.createdAt || 0).getTime() || 0;
+        if (ts >= bestTs) {
+          bestTs = ts;
+          bestIdx = idx;
+        }
+      }
+    });
+    existingIndex = bestIdx;
+  }
+  if (existingIndex === -1) {
+    existingIndex = leads.findIndex((lead) =>
       Boolean(phone)
       && normalizeUruguayPhone(lead.phone) === phone
       && comparableName(lead.name) === comparableName(name)
-    )
-  );
+    );
+  }
   const existing = existingIndex >= 0 ? leads[existingIndex] : undefined;
   const leadId = existing?.id || `lead_public_${identityKey.slice(0, 24)}`;
 

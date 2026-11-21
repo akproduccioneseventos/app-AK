@@ -34,7 +34,51 @@ export function toWhatsAppDigits(value?: string | null): string {
   return uruguayo || digits;
 }
 
-export function buildWhatsAppLink(phone?: string | null, text?: string): string {
+export type WhatsAppLinkRef =
+  | string
+  | {
+      leadId?: string | null;
+      pagina?: string | null;
+      page?: string | null;
+    };
+
+export function sanitizeWhatsAppRefCode(ref?: WhatsAppLinkRef | null): string {
+  if (!ref) return '';
+  const raw = typeof ref === 'string'
+    ? ref
+    : (ref.leadId || ref.pagina || ref.page || '');
+  const cleaned = raw
+    .trim()
+    .replace(/^ak-/i, '')
+    .replace(/[^A-Za-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+  return cleaned;
+}
+
+export function extractWhatsAppRefCode(text?: string | null): string | null {
+  if (!text) return null;
+  const match = text.match(/\(ref\s+AK-([A-Za-z0-9_-]{1,64})\)/i);
+  return match ? match[1] : null;
+}
+
+export function buildWhatsAppLink(
+  phone?: string | null,
+  text?: string,
+  ref?: WhatsAppLinkRef | null,
+): string {
   const base = `https://wa.me/${toWhatsAppDigits(phone)}`;
-  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+  const refCode = sanitizeWhatsAppRefCode(ref);
+  let finalText = text ? text.trim() : '';
+
+  if (refCode) {
+    const tag = `(ref AK-${refCode})`;
+    if (!finalText) {
+      finalText = tag;
+    } else if (!extractWhatsAppRefCode(finalText)) {
+      finalText = `${finalText} ${tag}`;
+    }
+  }
+
+  return finalText ? `${base}?text=${encodeURIComponent(finalText)}` : base;
 }

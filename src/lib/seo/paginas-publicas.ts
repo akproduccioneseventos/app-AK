@@ -20,6 +20,7 @@ export const SITE_URL = 'https://akproducciones.uy';
 
 /** Páginas de venta canónicas que Google debe mostrar. */
 export const PAGINAS_PARA_GOOGLE = [
+  '/enlaces',
   '/',
   '/bodas',
   '/quinceaneras',

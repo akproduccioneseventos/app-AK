@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any, Callable, Dict, List, Optional
 import urllib.parse
+import cv2
 import numpy as np
 
 from almacen import Almacen, obtener_ruta_base_datos
@@ -39,6 +41,15 @@ from fotos import (
 )
 
 PUERTO = 8765
+
+
+def _sanitizar_nombre_evento(nombre: Any) -> str:
+    """Evita caracteres peligrosos o path traversal en nombres de evento."""
+    texto = str(nombre or "").strip()
+    texto = re.sub(r'[\\/:*?"<>|\x00-\x1f]+', "_", texto)
+    texto = texto.replace("..", "_").strip(" ._")
+    return texto or "Evento_AK"
+
 
 # Estado global en memoria para progreso y control de tareas
 ESTADO_GLOBAL = {
@@ -174,7 +185,8 @@ def ejecutar_modo_automatico(
     if rutas_foto:
         try:
             fotos_dicts = [{"ruta": r, "nombre": os.path.basename(r)} for r in rutas_foto]
-            fotos_ord = video_de_vida.ordenar_fotos_vida(fotos_dicts, max_fotos=60)
+            res_vida = video_de_vida.ordenar_fotos_vida(fotos_dicts, max_fotos=60)
+            fotos_ord = res_vida.get("fotos_ordenadas", []) if isinstance(res_vida, dict) else res_vida
             ruta_vida_mp4 = os.path.join(carpeta_salida, f"{fiesta_nombre}_video_de_vida.mp4")
             video_de_vida.exportar_video_de_vida(fotos_ord, ruta_vida_mp4, ruta_audio=ruta_musica)
         except Exception as e_vida:
@@ -185,15 +197,19 @@ def ejecutar_modo_automatico(
     ESTADO_AUTOMATICO["mensaje"] = "Generando clips para redes..."
     carpeta_redes = os.path.join(carpeta_salida, "redes")
     clips_redes = []
+    errores: List[str] = []
+    if len(rutas_video) == 0:
+        errores.append("No se encontraron videos para procesar en la carpeta de entrada.")
     try:
         if rutas_video:
-            clips_redes = redes.generar_videos_redes(
-                carpeta_origen=carpeta_entrada,
+            res_redes = redes.generar_videos_redes(
+                origen=carpeta_entrada,
                 carpeta_destino=carpeta_redes,
-                nombre_evento=fiesta_nombre,
                 ruta_musica=ruta_musica,
             )
+            clips_redes = res_redes.get("videos", []) if isinstance(res_redes, dict) else (res_redes or [])
     except Exception as e_redes:
+        errores.append(f"Redes falló: {e_redes}")
         print(f"[Automático] Redes omitido: {e_redes}")
 
     # 6. Sincronización Wfolio simulada/real
@@ -202,16 +218,16 @@ def ejecutar_modo_automatico(
     resumen_wfolio = None
     try:
         resumen_wfolio = wfolio.subir_a_wfolio(
-            carpeta_fotos=carpeta_entrada if rutas_foto else carpeta_salida,
-            id_seccion="auto_entrega",
-            nombre_cliente=fiesta_nombre,
+            ruta_carpetas=carpeta_entrada if rutas_foto else carpeta_salida,
+            fiesta_nombre=fiesta_nombre,
             endpoint_simulado=endpoint_wfolio_simulado,
         )
     except Exception as e_wf:
         print(f"[Automático] Wfolio omitido: {e_wf}")
 
     resumen_resultado = {
-        "ok": True,
+        "ok": len(errores) == 0,
+        "errores": errores,
         "fiesta": fiesta_nombre,
         "total_videos_procesados": len(rutas_video),
         "total_cortes_generados": len(cortes),
@@ -504,7 +520,7 @@ class AKEditorHandler(BaseHTTPRequestHandler):
         return
 
     def _responder_json(self, codigo: int, datos: Any) -> None:
-        cuerpo = json.dumps(datos, ensure_ascii=False).encode("utf-8")
+        cuerpo = json.dumps(datos, ensure_ascii=False, default=str).encode("utf-8")
         self.send_response(codigo)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(cuerpo)))
@@ -877,10 +893,12 @@ class AKEditorHandler(BaseHTTPRequestHandler):
 
                     ESTADO_VIDA["total"] = len(fotos)
                     ESTADO_VIDA["mensaje"] = f"Ordenando {len(fotos)} fotos cronológicamente..."
-                    ordenadas = video_de_vida.ordenar_fotos_vida(fotos)
+                    res_orden = video_de_vida.ordenar_fotos_vida(fotos, modo=modo)
+                    ordenadas = res_orden.get("fotos_ordenadas", []) if isinstance(res_orden, dict) else res_orden
 
+                    evento_seguro = _sanitizar_nombre_evento(ESTADO_GLOBAL.get("evento_actual"))
                     destino_dir = os.path.expanduser(
-                        os.path.join("~", "Documents", "AK Editor", ESTADO_GLOBAL["evento_actual"])
+                        os.path.join("~", "Documents", "AK Editor", evento_seguro)
                     )
                     os.makedirs(destino_dir, exist_ok=True)
                     salida_mp4 = os.path.join(destino_dir, "video_de_vida.mp4")
@@ -1874,7 +1892,7 @@ HTML_INTERFAZ = """<!DOCTYPE html>
 
 
 def iniciar_servidor(puerto: int = PUERTO) -> None:
-    servidor = HTTPServer(("0.0.0.0", puerto), AKEditorHandler)
+    servidor = HTTPServer(("127.0.0.1", puerto), AKEditorHandler)
     print(f"AK Editor Inteligente escuchando en http://localhost:{puerto}")
     try:
         servidor.serve_forever()

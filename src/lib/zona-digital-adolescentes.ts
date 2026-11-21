@@ -38,6 +38,9 @@ export const defaultZonaDigitalFeatures: ZonaDigitalFeatureToggle[] = [
   feature('audioritmico', 'Modo baile audiorrítmico', 'Visuales de discoteca con fotos, QR y movimiento.', { linkedModuleId: 'muroSocial' }),
   feature('ranking', 'Ranking por puntos', 'Leaderboard por invitado, mesa o grupo.'),
   feature('recap', 'Resumen final', 'Cierre con mejores fotos, retos y momentos compartibles.'),
+  feature('transmision_invitado', 'En vivo desde tu celular', 'Permite que un invitado pida salir en vivo en la pantalla gigante.', { enabled: false }),
+  feature('libro_de_firmas', 'Libro de firmas en audio y video', 'Los invitados graban mensajes privados de hasta 30s para el álbum del cliente.', { enabled: false }),
+  feature('impresion_desde_celular', 'Imprimir foto desde el celular', 'Los invitados piden imprimir fotos aprobadas con número de cola.', { enabled: false }),
 ];
 
 export const defaultZonaDigitalChallenges: ZonaDigitalChallenge[] = [
@@ -153,6 +156,16 @@ export function getVisibleZonaDigitalFeatures(
     if (!featureItem.linkedModuleId) return true;
     return modulos?.[featureItem.linkedModuleId] !== false;
   });
+}
+
+export function isZonaDigitalFeatureEnabled(
+  settings: Partial<ZonaDigitalAdolescentesSettings> | undefined,
+  featureId: ZonaDigitalFeatureId
+): boolean {
+  const normalized = withZonaDigitalDefaults(settings);
+  if (!normalized.enabled) return false;
+  const found = normalized.features.find(f => f.id === featureId);
+  return Boolean(found && found.enabled && found.visibleForGuests !== false);
 }
 
 export function buildZonaDigitalPublicUrl(fiestaId: string) {

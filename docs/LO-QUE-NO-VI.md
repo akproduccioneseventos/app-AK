@@ -1517,3 +1517,5 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 328 → propia de Claude
 - Orden 329 → no es un defecto
 - Orden 330 → no es un defecto
+- Orden 331 → no es un defecto
+- Orden 332 → no es un defecto

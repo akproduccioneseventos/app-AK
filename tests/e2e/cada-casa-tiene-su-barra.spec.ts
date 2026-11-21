@@ -28,10 +28,16 @@ test.describe('Cada casa tiene su barra (Orden 284 Bloque 2)', () => {
       nombrePestana: 'Salones',
     },
     {
-      ruta: '/marketing',
-      casaId: 'marketing',
-      pestanaTestId: 'pestana-resumen',
-      nombrePestana: 'Resumen',
+      ruta: '/contabilidad/crm',
+      casaId: 'vender',
+      pestanaTestId: 'pestana-prospectos',
+      nombrePestana: 'Prospectos',
+    },
+    {
+      ruta: '/empresa/presencia-digital',
+      casaId: 'vender',
+      pestanaTestId: 'pestana-redes-y-presencia',
+      nombrePestana: 'Redes y presencia',
     },
   ];
 

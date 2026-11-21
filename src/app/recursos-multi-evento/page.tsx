@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, CheckCircle2, Users, Wrench, RefreshCw, CalendarDays } from 'lucide-react';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getEmpleados } from '@/app/actions/empleados';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 
@@ -94,6 +95,7 @@ function RecursosMultiEventoContent() {
         getEmpleados(),
       ]);
       const upcomingFiestas = fs.filter(f => {
+        if (esFiestaSuspendida(f)) return false;
         const fecha = f.configuracion?.fechaEvento;
         if (!fecha) return false;
         return new Date(fecha) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // last 30 days + future

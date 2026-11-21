@@ -15,10 +15,6 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
-    "etiqueta": "Más",
-    "ruta": "/mas"
-  },
-  {
     "etiqueta": "Mi Día",
     "ruta": "/mi-dia"
   },
@@ -32,7 +28,7 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Muro Social",
-    "ruta": "/empresa/red-social-eventos"
+    "ruta": "/empresa/presencia-digital?tab=social-eventos"
   },
   {
     "etiqueta": "Incidentes",
@@ -56,11 +52,7 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Edición de Videos",
-    "ruta": "/edicion-videos"
-  },
-  {
-    "etiqueta": "Gestión de Empresa",
-    "ruta": "/empresa"
+    "ruta": "/fiestas/nueva/fotografia?tab=edicion-videos"
   },
   {
     "etiqueta": "Prospectos",
@@ -76,7 +68,7 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Simulador IA",
-    "ruta": "/simulador-ak"
+    "ruta": "/simulador-de-presupuesto"
   },
   {
     "etiqueta": "Pagos Rápidos",
@@ -95,16 +87,16 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/aprobaciones"
   },
   {
-    "etiqueta": "Métricas del Negocio",
-    "ruta": "/empresa/dashboard"
+    "etiqueta": "Ganancias y Reportes",
+    "ruta": "/empresa/contabilidad/reportes"
   },
   {
     "etiqueta": "Comida / Menús",
     "ruta": "/empresa/menus"
   },
   {
-    "etiqueta": "Lista de Compras",
-    "ruta": "/compras"
+    "etiqueta": "Insumos y Compras",
+    "ruta": "/empresa/insumos"
   },
   {
     "etiqueta": "Salones",
@@ -124,7 +116,7 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Marketing y Redes",
-    "ruta": "/marketing"
+    "ruta": "/empresa/presencia-digital"
   },
   {
     "etiqueta": "WhatsApp del Día",
@@ -140,47 +132,43 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   },
   {
     "etiqueta": "Tareas Automáticas",
-    "ruta": "/settings/tareas-automaticas"
+    "ruta": "/settings?seccion=asistente&sub=tareas-automaticas"
   },
   {
     "etiqueta": "Conexiones",
-    "ruta": "/settings/sincronizaciones"
+    "ruta": "/settings?seccion=conexiones&sub=sincronizaciones"
   },
   {
     "etiqueta": "WhatsApp",
-    "ruta": "/settings/whatsapp"
+    "ruta": "/settings?seccion=conexiones&sub=whatsapp"
   },
   {
     "etiqueta": "Cláusulas de Contrato",
-    "ruta": "/settings/contratos/clausulas"
+    "ruta": "/settings?seccion=contratos&sub=contratos--clausulas"
   },
   {
     "etiqueta": "Seguridad",
-    "ruta": "/settings/account"
+    "ruta": "/settings?seccion=empresa&sub=account"
   },
   {
     "etiqueta": "Promociones",
-    "ruta": "/settings/promos"
+    "ruta": "/settings?seccion=ventas&sub=promos"
   },
   {
     "etiqueta": "Asistente IA",
-    "ruta": "/settings/ai-assistant"
-  },
-  {
-    "etiqueta": "Mapa Tecnológico",
-    "ruta": "/settings/mapa-tecnologico-ak"
+    "ruta": "/asistente"
   },
   {
     "etiqueta": "Laboratorio Experimental",
-    "ruta": "/settings/feature-flags"
+    "ruta": "/settings?seccion=sistema&sub=feature-flags"
   },
   {
     "etiqueta": "Alertas",
-    "ruta": "/alertas"
+    "ruta": "/mi-dia?tab=alertas"
   },
   {
-    "etiqueta": "Más Herramientas",
-    "ruta": "/mas"
+    "etiqueta": "Gastos",
+    "ruta": "/empresa/contabilidad/gastos"
   }
 ];
 
@@ -189,18 +177,12 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
   "publica": [
     "/",
     "/bodas",
-    "/catalogo",
-    "/catalogo/:tipo",
     "/club-uruguay",
     "/cumpleanos",
     "/experiencia-ak",
-    "/landing",
     "/landing/:slug",
-    "/landing/bodas",
     "/landing/eventos",
-    "/landing/xv-anos",
     "/login",
-    "/public",
     "/public/:eventType",
     "/public/blog",
     "/public/blog/:slug",
@@ -211,208 +193,90 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
   "acceso-externo": [
     "/acceso-personal/:tokenId",
     "/personal/:empleadoId",
-    "/proveedor/:id",
     "/proveedor/acceso/:token"
   ],
   "staff": [
-    "/admin",
-    "/admin/asistente-ak",
-    "/admin/carga-historicos",
-    "/admin/finanzas",
     "/admin/usuarios",
-    "/admin/ventas",
-    "/alertas",
-    "/analytics",
     "/aprobaciones",
     "/asistente",
     "/auditoria",
-    "/blog",
-    "/blog/:slug",
     "/buscar",
     "/calendario",
-    "/centro-de-control",
-    "/comparativa-ganancias",
-    "/compras",
-    "/configuracion/backup-final",
-    "/contabilidad",
-    "/contabilidad/comercial-360",
     "/contabilidad/crm",
-    "/contabilidad/crm/agenda",
-    "/contabilidad/crm/atraccion-fiestas",
-    "/contabilidad/crm/ciclo-comercial",
-    "/contabilidad/crm/marketing-ads",
     "/contabilidad/crm/outbox",
     "/contabilidad/fiestas-historicas",
-    "/control-tower",
-    "/control-tower/automatizaciones",
-    "/control-tower/comercial",
-    "/control-tower/post-fiesta",
-    "/control-tower/preparacion",
     "/customers",
     "/customers/:id",
     "/customers/:id/edit",
     "/customers/new",
-    "/customers/reporte",
-    "/edicion-videos",
     "/empleados",
     "/empleados/:id/editar",
     "/empleados/:id/historial",
     "/empleados/nuevo",
-    "/empleados/reporte",
-    "/empleados/roles",
-    "/empresa",
     "/empresa/activos-fijos",
     "/empresa/activos-fijos/:id/editar",
-    "/empresa/activos-fijos/editar/:id",
     "/empresa/activos-fijos/nuevo",
-    "/empresa/activos-fijos/reporte",
-    "/empresa/configurador-reunion",
     "/empresa/contabilidad",
     "/empresa/contabilidad/flujo-caja",
     "/empresa/contabilidad/gastos",
     "/empresa/contabilidad/poner-al-dia",
     "/empresa/contabilidad/reportes",
-    "/empresa/creador-anuncios",
-    "/empresa/crm",
-    "/empresa/dashboard",
-    "/empresa/empleados/reporte",
     "/empresa/galeria",
     "/empresa/insumos",
     "/empresa/insumos/:id/editar",
-    "/empresa/insumos/editar/:id",
     "/empresa/insumos/nuevo",
-    "/empresa/insumos/reporte",
     "/empresa/landing-editor",
-    "/empresa/marketing",
     "/empresa/menus",
     "/empresa/menus/:menuId/editar",
-    "/empresa/menus/catalogo",
     "/empresa/menus/nuevo",
-    "/empresa/menus/reporte",
-    "/empresa/menus/tragos",
-    "/empresa/personal/:empleadoId/historial",
     "/empresa/presencia-digital",
     "/empresa/presentacion-led/configuracion",
-    "/empresa/red-social-eventos",
-    "/empresa/redes-sociales",
-    "/empresa/redes-sociales/ia-marketing",
-    "/empresa/resenas-google",
     "/empresa/salones",
     "/empresa/salones/:id/croquis",
     "/empresa/salones/:id/diseno",
-    "/empresa/salones/club-uruguay",
-    "/empresa/salones/experiencia-visual",
     "/empresa/servicios",
-    "/empresa/servicios/:slugs*",
     "/empresa/servicios/editar/:id",
     "/empresa/servicios/nuevo",
-    "/empresa/servicios/reporte",
-    "/empresa/todos-los-servicios/:id/editar",
+    "/enlaces",
     "/entrar",
     "/eventos",
     "/experiencia",
-    "/fiestas/:id",
-    "/fiestas/:id/ak-100",
     "/fiestas/:id/centro",
-    "/fiestas/:id/centro-de-mando",
-    "/fiestas/:id/centro-experiencia",
-    "/fiestas/:id/cierre-mundial",
-    "/fiestas/:id/comando-total",
-    "/fiestas/:id/entretenimiento/control",
-    "/fiestas/:id/experiencia-tecnologica-ak",
-    "/fiestas/:id/show-control",
-    "/fiestas/:id/timeline",
     "/fiestas/nueva",
-    "/fiestas/nueva/accesos-personal",
     "/fiestas/nueva/alergias",
     "/fiestas/nueva/asistente",
-    "/fiestas/nueva/barra-tecnologica",
     "/fiestas/nueva/buzon",
     "/fiestas/nueva/carga-operativa",
-    "/fiestas/nueva/carga-operativa/pdf",
-    "/fiestas/nueva/carta-tragos",
-    "/fiestas/nueva/carteleria",
     "/fiestas/nueva/catering",
-    "/fiestas/nueva/catering/hoja-de-cocina",
-    "/fiestas/nueva/catering/lista-compras",
-    "/fiestas/nueva/centro",
-    "/fiestas/nueva/centro-total",
     "/fiestas/nueva/configuracion",
     "/fiestas/nueva/decoracion",
-    "/fiestas/nueva/decoracion/pdf",
-    "/fiestas/nueva/en-vivo",
     "/fiestas/nueva/entretenimiento",
-    "/fiestas/nueva/fiesta-lista",
     "/fiestas/nueva/fotografia",
     "/fiestas/nueva/gestion-costos-rentabilidad",
-    "/fiestas/nueva/gestion-costos-rentabilidad/reporte",
     "/fiestas/nueva/gestion-documental",
-    "/fiestas/nueva/gestion-documental/cambio-fecha",
-    "/fiestas/nueva/gestion-documental/cancelacion-contrato",
-    "/fiestas/nueva/gestion-documental/cancelacion-parcial",
-    "/fiestas/nueva/gestion-documental/contrato-salon",
-    "/fiestas/nueva/gestion-documental/contrato-servicio",
-    "/fiestas/nueva/gestion-documental/recibo-pago",
     "/fiestas/nueva/invitados",
-    "/fiestas/nueva/invitados/checkin-scanner",
-    "/fiestas/nueva/invitados/layout",
-    "/fiestas/nueva/invitados/numeros-mesa",
     "/fiestas/nueva/itinerario",
-    "/fiestas/nueva/itinerario/pdf",
-    "/fiestas/nueva/logistica",
-    "/fiestas/nueva/menu-mesa",
-    "/fiestas/nueva/mission-control",
     "/fiestas/nueva/modulo-invitado",
     "/fiestas/nueva/muro-social",
     "/fiestas/nueva/musica",
-    "/fiestas/nueva/musica/pdf",
-    "/fiestas/nueva/numeros-mesa",
     "/fiestas/nueva/orden-de-evento",
-    "/fiestas/nueva/pagina-web",
-    "/fiestas/nueva/pantallas-totem",
     "/fiestas/nueva/personal",
-    "/fiestas/nueva/personal/recibos",
     "/fiestas/nueva/plan-pagos",
-    "/fiestas/nueva/planner-costo-fiesta",
-    "/fiestas/nueva/playlist-pantalla",
     "/fiestas/nueva/portal-cliente",
-    "/fiestas/nueva/portal-cliente/cierre-final",
-    "/fiestas/nueva/portal-cliente/experiencia-mundial",
     "/fiestas/nueva/post-evento",
     "/fiestas/nueva/proveedores-portal",
-    "/fiestas/nueva/readiness",
     "/fiestas/nueva/regalos",
-    "/fiestas/nueva/resumen-imprimible",
-    "/fiestas/nueva/resumen-planificacion",
-    "/fiestas/nueva/reunion-organizacion",
     "/fiestas/nueva/reuniones",
-    "/fiestas/nueva/reuniones/imprimir",
     "/fiestas/nueva/servicios-contratados",
-    "/fiestas/nueva/social-fiesta-pro",
-    "/fiestas/nueva/social-fiesta-pro/cierre-final",
     "/fiestas/nueva/tareas",
     "/fiestas/nueva/video-vida",
-    "/fiestas/nueva/zona-digital",
-    "/fiestas/revisar",
-    "/galeria-led",
     "/incidentes",
     "/invoices",
     "/invoices/:id",
     "/invoices/:id/edit",
     "/invoices/new",
     "/mantenimiento",
-    "/marketing",
-    "/marketing/checklist",
-    "/marketing/demo-tecnologia",
-    "/marketing/plantillas",
-    "/mas",
     "/mi-dia",
-    "/multiagente",
-    "/multiagente/acciones",
-    "/multiagente/contable",
-    "/multiagente/equipo",
-    "/multiagente/fiestas",
-    "/multiagente/memoria",
     "/pago/mercadopago",
     "/pagos-rapidos",
     "/perfil",
@@ -424,87 +288,26 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/portal/:fiestaId/moodboard",
     "/portal/c/:accessKey",
     "/portal/mesas",
-    "/presentacion",
     "/presentacion-led",
-    "/presentacion-led/portafolio",
-    "/presentacion-led/portafolio/fiesta/:id",
-    "/presupuestos",
-    "/presupuestos/:id",
     "/presupuestos/:id/edit",
-    "/presupuestos/:id/editar",
     "/presupuestos/:id/estado-de-cuenta",
     "/presupuestos/:id/recibo-contrato",
     "/presupuestos/:id/ver",
-    "/presupuestos/importar",
     "/presupuestos/nuevo",
     "/presupuestos/nuevo/crear",
-    "/presupuestos/reporte",
     "/privacidad",
-    "/prospectos",
-    "/prospectos/:prospectId",
     "/proveedores",
     "/proveedores/:id/edit",
     "/proveedores/new",
-    "/proveedores/reporte",
     "/recepcion/:fiestaId",
     "/recursos-multi-evento",
-    "/repaso-diario",
-    "/secretaria-ak",
     "/settings",
-    "/settings/accesos-personal",
-    "/settings/account",
-    "/settings/agentes-autonomos",
-    "/settings/ai-assistant",
-    "/settings/ajuste-precios",
-    "/settings/asistente",
-    "/settings/asistentes-contextuales",
-    "/settings/backup",
-    "/settings/backup-final",
-    "/settings/biblioteca-visual-ak",
-    "/settings/budget-display",
-    "/settings/catalogo-servicios",
-    "/settings/cierre-global-producto",
-    "/settings/cierre-operativo-final",
-    "/settings/company",
-    "/settings/contenido-publico",
-    "/settings/contratos",
-    "/settings/contratos/clausulas",
-    "/settings/cupones",
-    "/settings/datos",
-    "/settings/estilo-fotos",
-    "/settings/feature-flags",
-    "/settings/feedback",
-    "/settings/google-workspace",
-    "/settings/instalar-app",
-    "/settings/lanzamiento-cto",
-    "/settings/mapa-tecnologico-ak",
-    "/settings/notifications",
-    "/settings/promos",
-    "/settings/sincronizaciones",
-    "/settings/social-connections",
-    "/settings/tareas-automaticas",
-    "/settings/task-templates",
-    "/settings/templates",
-    "/settings/templates/carga-operativa",
-    "/settings/templates/contrato",
-    "/settings/templates/invitaciones",
-    "/settings/templates/layouts",
-    "/settings/templates/reuniones",
-    "/settings/videos-de-ayuda",
-    "/settings/whatsapp",
-    "/settings/whatsapp-business",
-    "/settings/whatsapp-business/conversations",
-    "/settings/whatsapp-templates",
     "/simulador",
-    "/simulador-ak",
-    "/tecnologia"
+    "/simulador-ak"
   ],
   "invitado": [
-    "/album/:fiestaId",
-    "/evento",
     "/evento/:id/video-recuerdo",
     "/evento/accesos/:fiestaId",
-    "/evento/actual",
     "/evento/actual/checkin",
     "/evento/actual/mesa",
     "/evento/album/:fiestaId",
@@ -557,7 +360,6 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/invitacion/:fiestaId/invitado/:guestId",
     "/invitacion/:fiestaId/recap",
     "/invitacion/:fiestaId/rsvp",
-    "/invitado/:fiestaId/:invitadoId",
     "/portal-invitado/:fiestaId/:guestId",
     "/post-fiesta/:fiestaId",
     "/q/:fiestaId",
@@ -566,17 +368,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
   ],
   "portal-cliente": [
     "/portal-cliente",
-    "/portal-cliente/:id",
-    "/portal-cliente/:id/confirmar-invitados",
-    "/portal-cliente/:id/decoracion",
-    "/portal-cliente/:id/faq",
-    "/portal-cliente/:id/fotos-video",
-    "/portal-cliente/:id/mensajes",
-    "/portal-cliente/:id/menu",
-    "/portal-cliente/:id/muro-social",
-    "/portal-cliente/:id/musica",
-    "/portal-cliente/:id/tu-web",
-    "/portal-cliente/:id/videos-invitados"
+    "/portal-cliente/:id"
   ]
 };
 
@@ -587,8 +379,9 @@ export const CUANTAS_PANTALLAS = TODAS_LAS_PANTALLAS.length;
 
 /** Una ruta sirve para navegar si existe como pantalla de la app. */
 export function esPantallaReal(ruta: string): boolean {
-  if (TODAS_LAS_PANTALLAS.includes(ruta)) return true;
-  const partes = ruta.split('/').filter(Boolean);
+  const sinQuery = ruta.split('?')[0].split('#')[0] || '/';
+  if (TODAS_LAS_PANTALLAS.includes(sinQuery)) return true;
+  const partes = sinQuery.split('/').filter(Boolean);
   return TODAS_LAS_PANTALLAS.some(p => {
     const suyas = p.split('/').filter(Boolean);
     if (suyas.length !== partes.length) return false;

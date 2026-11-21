@@ -24,6 +24,7 @@ jest.mock('@/app/actions/fiesta/portal.actions', () => ({ getFiestaByAccessKey: 
 jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({ getFiestaByIdRaw: jest.fn() }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: jest.fn(async () => 'https://fotos.test/foto.jpg'), deleteFromStorage: jest.fn() }));
 jest.mock('@/lib/social-fiesta/content-safety-ai', () => ({ checkImageSafety: jest.fn(async () => ({ safe: true, reason: 'clean' })) }));
+jest.mock('@/lib/ai/decisiones', () => ({ decidir: jest.fn(async () => null) }));
 jest.mock('@/lib/auth/require-session', () => ({ hasAppSession: jest.fn(async () => false), requirePermiso: jest.fn() }));
 jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn() }));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn(async () => undefined) }));

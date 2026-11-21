@@ -1,4 +1,12 @@
-export type CommentNetwork = 'Facebook' | 'Instagram' | 'YouTube';
+export type CommentNetwork =
+  | 'Facebook'
+  | 'Instagram'
+  | 'YouTube'
+  | 'Google'
+  | 'Threads'
+  | 'TikTok'
+  | 'Pinterest'
+  | 'X';
 
 export type CommentSentiment = 'positivo' | 'neutro' | 'negativo';
 
@@ -9,19 +17,21 @@ export interface SocialComment {
   postId: string;
   postTitle?: string;
   postUrl?: string;
+  postMediaUrl?: string;
   authorName: string;
   authorId?: string;
   authorProfileUrl?: string;
   text: string;
   createdAt: string; // ISO String
   permalink?: string;
-  
+
   // Clasificación por IA
   sentiment?: CommentSentiment;
   sentimentReason?: string;
   isInsultOrSpam?: boolean;
   isLegitimateComplaint?: boolean;
   esPregunta?: boolean;
+  autoHideRecommended?: boolean;
   classifiedAt?: string;
 
   // Respuesta automática a preguntas y comentarios
@@ -29,6 +39,18 @@ export interface SocialComment {
     texto: string;
     at: string;
   } | boolean;
+  respondidoAt?: string;
+
+  // Me gusta, ocultamiento y palabras clave (Órdenes 326 y 327)
+  meGustaAt?: string;
+  ocultoAt?: string;
+  privadoEnviadoAt?: string;
+  palabraClave?: string;
+  alertaDuenioEnviadaAt?: string;
+
+  // Reseñas de Google y borrador pendiente para el dueño
+  starRating?: number;
+  borradorRespuesta?: string;
 
   // Moderación y Estado
   isAutoHidden?: boolean;

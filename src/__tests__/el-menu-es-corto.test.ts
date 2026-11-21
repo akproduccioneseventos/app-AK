@@ -14,9 +14,17 @@ describe('El menú es corto (Orden 283)', () => {
     expect(gruposDueno.length).toBeLessThanOrEqual(5);
   });
 
-  it('todas las direcciones que salieron del menú siguen existiendo y aparecen en /mas o en Ajustes', () => {
-    const contenidoMas = fs.readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/mas/page.tsx'),
+  it('todas las direcciones que salieron del menú siguen existiendo (como page.tsx o redirect) y están accesibles desde el mapa o Ajustes', () => {
+    const contenidoNextConfig = fs.readFileSync(
+      path.join(process.cwd(), 'next.config.js'),
+      'utf-8',
+    );
+    const contenidoMapa = fs.readFileSync(
+      path.join(process.cwd(), 'src/lib/navegacion/mapa.ts'),
+      'utf-8',
+    );
+    const contenidoMainNav = fs.readFileSync(
+      path.join(process.cwd(), 'src/components/main-nav.tsx'),
       'utf-8',
     );
     const contenidoAjustes = fs.readFileSync(
@@ -58,18 +66,22 @@ describe('El menú es corto (Orden 283)', () => {
     ];
 
     for (const href of rutasQueSalieronDelMenu) {
-      // 1. Debe seguir existiendo en el sistema de rutas de la app
+      // 1. Debe seguir existiendo como page.tsx o como redirect en next.config.js
       const rutaSinSlash = href.startsWith('/') ? href.slice(1) : href;
       const existeArchivo =
         fs.existsSync(path.join(process.cwd(), 'src/app/(app)', rutaSinSlash, 'page.tsx')) ||
         fs.existsSync(path.join(process.cwd(), 'src/app', rutaSinSlash, 'page.tsx')) ||
         esPantallaReal(href);
-      expect(existeArchivo).toBe(true);
+      const tieneRedirect = contenidoNextConfig.includes(`'${href}'`);
+      expect(existeArchivo || tieneRedirect).toBe(true);
 
-      // 2. Debe aparecer en /mas o en Ajustes (/settings)
-      const apareceEnMasOAjustes =
-        contenidoMas.includes(href) || contenidoAjustes.includes(href);
-      expect(apareceEnMasOAjustes).toBe(true);
+      // 2. Debe estar accesible en el mapa, el catálogo de navegación, Ajustes o redirigida en next.config.js
+      const accesible =
+        contenidoMapa.includes(href) ||
+        contenidoMainNav.includes(href) ||
+        contenidoAjustes.includes(href) ||
+        tieneRedirect;
+      expect(accesible).toBe(true);
     }
   });
 });

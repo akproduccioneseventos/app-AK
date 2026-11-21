@@ -6,6 +6,19 @@
 
 ## Novedades del 31 de octubre al 12 de noviembre de 2026 (publicado)
 
+- **Todas las fotos a Wfolio y cada invitado encuentra las suyas** (21/11, órdenes 328 a 330): fotógrafo, fotocabina, 360 e
+  invitados al mismo álbum de Wfolio en carpetas, con portada y diseño solos; de ahí sale el video y el borrador para redes.
+  Las caras se indexan solas (también las del fotógrafo); botón "Buscarme" siempre visible, el invitado deja su selfie una vez
+  y le llega un aviso con sus fotos; el cliente le pone nombre a cada cara; WhatsApp con las fotos, con interruptor apagado.
+
+- **Fotos, muro e invitación como las mejores, IA rápida y todas las redes juntas** (20/11, órdenes 322 a 327): la app pasó
+  de 382 a unas 185 pantallas sin perder funciones; invitación en tres pasos con biblioteca de fondos y viva el día de la fiesta;
+  moderación con enlace para un familiar, trivia armada por la IA, las fotos más queridas y estadísticas en vivo; la IA revisa el
+  muro, elige las mejores del álbum y mira los comprobantes (sólo avisa, no cobra); los WhatsApp, Instagram y Messenger de
+  prospectos entran al CRM y los atiende el asistente (lo personal no se guarda); el centro de redes junta conversaciones y
+  comentarios, contesta y da me gusta solo, publica en todas las redes; palabra clave → simulador por privado, competencia,
+  menciones en historias y la página `/enlaces`.
+
 - **IA con Gemini 4 Hydrogen** (19/11): Sofía, marketing y lo profundo usan Hydrogen; si se termina su parte gratis, la app
   sigue sola con el modelo gratis de siempre.
 

@@ -73,4 +73,6 @@ usa: decidir en src/app/actions/social-gallery.ts
 usa: calidad en src/lib/album/armar-album.ts
 usa: revisionIA en src/app/actions/fiesta/portal.actions.ts
 usa: revisionIA en src/app/(app)/pagos-rapidos/page.tsx
+usa: iaRevision en src/app/evento/moderacion/[fiestaId]/page.tsx
+archivo: src/lib/social-fiesta/content-review.ts
 ```

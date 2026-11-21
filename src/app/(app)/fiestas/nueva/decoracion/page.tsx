@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/pdf--decoracion'));
 
 import { suggestPalette } from '@/app/actions/salon-ia.actions';
 
@@ -149,6 +153,7 @@ function DecoracionYDisenoEventoContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
 
+  const [plantillasAbiertas, setPlantillasAbiertas] = useState(false);
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
   const [isSugerirPaletaLoading, setIsSugerirPaletaLoading] = useState(false);
 
@@ -2201,12 +2206,13 @@ function DecoracionYDisenoEventoContent() {
               </div>
 
               <div className="mt-6">
-                <details className="group">
+                <details className="group" onToggle={(e) => setPlantillasAbiertas(e.currentTarget.open)}>
                   <summary className="cursor-pointer font-bold text-base flex items-center gap-2 list-none select-none">
                     <span className="group-open:rotate-90 transition-transform">▶</span>
                     Plantillas de Diseño
                   </summary>
-                  <div className="mt-4">
+                  {/* Se arma recién al abrir: cerrada no pide los borradores al servidor ni se dibuja sin ancho. */}
+                  {plantillasAbiertas && <div className="mt-4">
                     <DecoTemplateGallery
                       currentElementos={canvasElementos}
                       currentFondoColor={canvasFondoColor}
@@ -2218,7 +2224,7 @@ function DecoracionYDisenoEventoContent() {
                         setCanvasHasChanges(true);
                       }}
                     />
-                  </div>
+                  </div>}
                 </details>
               </div>
 
@@ -2612,7 +2618,7 @@ function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string
   );
 }
 
-export default function DecoracionPageWrapper() {
+function DecoracionPageWrapperInner() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
       <DecoracionYDisenoEventoContent />
@@ -2621,3 +2627,16 @@ export default function DecoracionPageWrapper() {
 }
 
 
+
+
+export default function DecoracionPageWrapper() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"decoracion","label":"Decoración y salón"},{"id":"pdf","label":"Imprimir / PDF"}]}
+        renderDefault={() => <DecoracionPageWrapperInner />}
+        renderTab={(tab) => { if (tab === 'pdf') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

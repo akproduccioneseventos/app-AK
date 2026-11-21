@@ -1,4 +1,8 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/proveedores--reporte'));
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -31,7 +35,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 
-export default function ProveedoresPage() {
+function ProveedoresPageInner() {
   const { toast } = useToast();
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [filteredProveedores, setFilteredProveedores] = useState<Proveedor[]>([]);
@@ -219,5 +223,18 @@ export default function ProveedoresPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+
+export default function ProveedoresPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"lista","label":"Proveedores"},{"id":"reporte","label":"Reporte"}]}
+        renderDefault={() => <ProveedoresPageInner />}
+        renderTab={(tab) => { if (tab === 'reporte') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

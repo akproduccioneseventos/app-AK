@@ -45,6 +45,7 @@ import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 
 /**
  * Quién opera la barra desde la sesión (Codex, auditoría 66): la noche (el operador, sólo en su
@@ -137,6 +138,7 @@ function getStoredBarData(fiesta: FiestaEnPlanificacion | null): BarTechnologyDa
 }
 
 async function getDb(): Promise<Firestore | null> {
+  if (sinBaseDisponible()) return null;
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     return (dbAdmin as Firestore | null) || null;

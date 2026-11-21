@@ -24,6 +24,8 @@ export const CAMPOS_DEL_EQUIPO = [
   'gestionCostos',
   'pagosProveedores',
   'carasIndexadas',
+  'vectoresCarasInvitados',
+  'asignacionesCaras',
   'comprasSugeridas',
   'listaDeCargaOperativa',
   'estadosCompra',

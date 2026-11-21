@@ -1,4 +1,13 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/doc--contrato-servicio'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/doc--contrato-salon'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/doc--recibo-pago'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/doc--cambio-fecha'));
+const __AkPanel5 = __akDynamic(() => import('@/components/panels/doc--cancelacion-parcial'));
+const __AkPanel6 = __akDynamic(() => import('@/components/panels/doc--cancelacion-contrato'));
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -329,10 +338,23 @@ function GestionDocumentalContent() {
   );
 }
 
-export default function GestionDocumentalPageWrapper() {
+function GestionDocumentalPageWrapperInner() {
     return (
         <Suspense fallback={<div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
             <GestionDocumentalContent />
         </Suspense>
     )
+}
+
+
+export default function GestionDocumentalPageWrapper() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"documentos","label":"Gestión documental"},{"id":"contrato-servicio","label":"Contrato servicio"},{"id":"contrato-salon","label":"Contrato salón"},{"id":"recibo-pago","label":"Recibo de pago"},{"id":"cambio-fecha","label":"Cambio de fecha"},{"id":"cancelacion-parcial","label":"Cancelación parcial"},{"id":"cancelacion-contrato","label":"Cancelación total"}]}
+        renderDefault={() => <GestionDocumentalPageWrapperInner />}
+        renderTab={(tab) => { if (tab === 'contrato-servicio') return <__AkPanel1 />; if (tab === 'contrato-salon') return <__AkPanel2 />; if (tab === 'recibo-pago') return <__AkPanel3 />; if (tab === 'cambio-fecha') return <__AkPanel4 />; if (tab === 'cancelacion-parcial') return <__AkPanel5 />; if (tab === 'cancelacion-contrato') return <__AkPanel6 />; return null; }}
+      />
+    </__AkSuspense>
+  );
 }

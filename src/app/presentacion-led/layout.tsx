@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 export const metadata: Metadata = {
   title: 'Presentación de Tecnología | AK Producciones Eventos',
   description: 'Conocé nuestra tecnología y despliegue visual en presentaciones en vivo.',
+  alternates: { canonical: '/presentacion-led' },
 };
 import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
 

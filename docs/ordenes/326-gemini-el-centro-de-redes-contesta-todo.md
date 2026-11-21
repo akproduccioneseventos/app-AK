@@ -132,4 +132,5 @@ usa: isConnected en src/components/social-media/NewPostDialog.tsx
 usa: Google en src/lib/social-media/comments-backfill.ts
 usa: YouTube en src/lib/social-media/comments-backfill.ts
 prueba: tests/e2e/el-centro-de-redes-tiene-cinco-solapas.spec.ts
+usa: syncCommentsFromNetworks en src/app/api/cron/metricas-de-redes/route.ts
 ```

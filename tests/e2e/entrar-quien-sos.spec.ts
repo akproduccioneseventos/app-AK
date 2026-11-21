@@ -50,8 +50,8 @@ test.describe('Orden 263: pantalla /entrar (¿Quién sos?)', () => {
 
     await page.goto('/entrar', { waitUntil: 'domcontentloaded' });
 
-    // Antes esperaba /dashboard, que no existe: la prueba pasaba con la pantalla de "Esta página no existe" (auditor, 12/11/2026).
-    await page.waitForURL((url) => url.pathname.startsWith('/admin'), { timeout: 20_000 });
+    // Con sesión del equipo, /entrar redirige directo a /mi-dia (Orden 322).
+    await page.waitForURL((url) => url.pathname.startsWith('/mi-dia'), { timeout: 20_000 });
     await expect(page.getByText(/esta p[aá]gina no existe/i)).toHaveCount(0);
   });
 });

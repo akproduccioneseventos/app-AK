@@ -43,6 +43,7 @@ jest.mock('@/app/actions/google-workspace-extended', () => ({
   notifyClientPaymentApproved: jest.fn(async () => undefined), notifyClientPaymentRejected: jest.fn(async () => undefined), notifyClientPaymentSubmitted: jest.fn(async () => undefined),
 }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: (...a: any[]) => subir(...a) }));
+jest.mock('@/lib/ai/decisiones', () => ({ decidir: jest.fn(async () => null) }));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn() }));
 jest.mock('@/app/actions/presupuestos', () => ({ addPagoToPresupuesto: jest.fn(async () => ({ success: true })), getPresupuestoById: jest.fn() }));
 jest.mock('fs/promises', () => ({ mkdir: jest.fn(async () => undefined), writeFile: jest.fn(async () => undefined) }));

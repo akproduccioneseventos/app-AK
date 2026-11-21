@@ -9,7 +9,7 @@ const RAIZ = process.cwd();
  */
 describe('La puerta anda sin señal (/fiestas/nueva/invitados/checkin-scanner)', () => {
   it('el componente checkin-scanner maneja la cola local ak_checkin_pendientes_ y reintenta online', () => {
-    const scannerFile = path.join(RAIZ, 'src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx');
+    const scannerFile = path.join(RAIZ, 'src/components/panels/invitados--checkin-scanner.tsx');
     expect(fs.existsSync(scannerFile)).toBe(true);
     const contenido = fs.readFileSync(scannerFile, 'utf8');
 

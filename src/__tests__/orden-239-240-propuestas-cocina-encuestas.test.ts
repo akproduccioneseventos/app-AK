@@ -71,7 +71,7 @@ describe('orden 239: las propuestas usan lo escrito en el diálogo', () => {
   });
 
   it('la pantalla manda los datos actuales y no la fiesta entera', () => {
-    const src = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/pagina-web/page.tsx'), 'utf8');
+    const src = fs.readFileSync(path.join(process.cwd(), 'src/components/fiestas/panels/pagina-web.tsx'), 'utf8');
     expect(src).toMatch(/crearTresPropuestasDeWeb\(fiestaId, propuestasColor, \{\s*nombre: propuestasNombre,\s*fecha: propuestasFecha,\s*salon: propuestasSalon/);
   });
 });

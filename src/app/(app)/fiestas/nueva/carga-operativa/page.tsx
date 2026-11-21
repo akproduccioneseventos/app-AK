@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/fiesta--logistica'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/pdf--carga-operativa'));
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
@@ -1119,10 +1124,23 @@ function ListaDeCargaOperativaContent() {
   );
 }
 
-export default function ListaDeCargaOperativaPage() {
+function ListaDeCargaOperativaPageInner() {
   return (
     <Suspense fallback={<div className="flex flex-col items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
       <ListaDeCargaOperativaContent />
     </Suspense>
+  );
+}
+
+
+export default function ListaDeCargaOperativaPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"carga","label":"Carga operativa"},{"id":"logistica","label":"Logística"},{"id":"pdf","label":"Imprimir / PDF"}]}
+        renderDefault={() => <ListaDeCargaOperativaPageInner />}
+        renderTab={(tab) => { if (tab === 'logistica') return <__AkPanel1 />; if (tab === 'pdf') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

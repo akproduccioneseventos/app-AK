@@ -124,5 +124,9 @@ export interface NetworkAttributionReport {
   totalPresupuestos: number;
   totalContratados: number;
   totalRevenueUYU: number;
+  bioInstagramClics?: {
+    total: number;
+    porBoton: Record<string, number>;
+  };
 }
 

@@ -65,6 +65,7 @@ import type { GuestPortalSettings } from '@/types/fiesta';
 import { isRecapAvailable } from '@/lib/recap/recap-engine';
 import { MiniQuiosco } from './MiniQuiosco';
 import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvitado';
+import { MisFotosInvitadoSection } from '@/components/guest-portal/MisFotosInvitadoSection';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
@@ -761,6 +762,15 @@ function GuestPortalContent() {
           </motion.section>
         )}
 
+        {/* Bloque 3: Mis fotos personales del invitado */}
+        {photosEnabled && (
+          <MisFotosInvitadoSection
+            fiestaId={fiestaId}
+            guestId={guest.id}
+            guestAccessToken={guestAccessToken}
+          />
+        )}
+
         {/* Programa del Evento */}
         {programaEnabled && (
           <motion.section
@@ -880,6 +890,18 @@ function GuestPortalContent() {
           mesaAsignada={guest.tableNumber}
         />
       )}
+
+      {/* Bloque 6: Botón fijo Buscarme 📸 abajo a la derecha */}
+      <a
+        href={
+          guest.tieneCaraRegistrada
+            ? '#mis-fotos'
+            : `${withGuestAccess(`/evento/galeria/${fiestaId}`, guest.id, guestAccessToken)}&buscarme=1`
+        }
+        className="fixed bottom-24 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-rose-600 px-4 py-3 text-sm font-black text-white shadow-xl transition hover:bg-rose-500 active:scale-95 sm:bottom-4"
+      >
+        <span>Buscarme 📸</span>
+      </a>
 
       <style jsx global>{`
         @keyframes guestHero {

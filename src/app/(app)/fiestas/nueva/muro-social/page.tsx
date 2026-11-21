@@ -1,4 +1,9 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/fiesta--playlist-pantalla'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/fiesta--en-vivo'));
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -26,10 +31,12 @@ import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/ac
 import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
 import { PrepararGrillaDeCara } from '@/components/social-gallery/PrepararGrillaDeCara';
+import { calcularEstimadoMensajesFotosWhatsapp } from '@/lib/caras/whatsapp-fotos';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import { FONDOS_MURO } from '@/lib/social-fiesta/fondos-muro';
+import { TRANSICIONES_MURO, normalizarTransicionMuro } from '@/lib/social-fiesta/transiciones-muro';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   getGlobalScreenMediaLibrary,
@@ -45,7 +52,7 @@ import {
   updateScreenBrand,
   launchGame,
   clearActiveGame,
-  triggerSorteoWinner,
+  sortearGanadorEnServidor,
   startSorteoSpinOnScreen,
   transferSorteoToScreen,
   getMuroParticipantesForSorteo,
@@ -344,6 +351,9 @@ function MuroSocialContent() {
         setAkBrandSettings(fiestaData.socialGallerySettings.brand);
       }
       setActiveGame(fiestaData.socialGallerySettings?.activeGame ?? null);
+      if (fiestaData.socialGallerySettings?.sorteoCandidatos?.length) {
+        setSorteoParticipants(fiestaData.socialGallerySettings.sorteoCandidatos.join('\n'));
+      }
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
       // Load active poll independently to avoid blocking the main data load
@@ -811,7 +821,6 @@ function MuroSocialContent() {
       toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
       return;
     }
-    const winner = participants[Math.floor(Math.random() * participants.length)];
     // Animate the wheel before saving to Firestore
     setSorteoPreviewWinner(null);
     setSorteoIsSpinning(true);
@@ -819,21 +828,24 @@ function MuroSocialContent() {
     const spinRotations = 10 + Math.floor(Math.random() * 5);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
     // Also trigger spin animation on the big screen immediately (clears the static preview)
-    // no-mira-el-resultado: avisa a la pantalla gigante que gire; el sorteo se resuelve igual
+    // no-mira-el-resultado: avisa a la pantalla gigante que gire; el sorteo se resuelve en el servidor
     await startSorteoSpinOnScreen(fiestaId);
-    // After animation (6s for suspense), persist to Firestore and reveal winner
+    // After animation (6s for suspense), resolve winner in server and reveal
     setTimeout(async () => {
-      setSorteoIsSpinning(false);
-      setSorteoPreviewWinner(winner);
-      setSorteoTransferredToScreen(false);
       setIsTriggeringSorteo(true);
-      const result = await triggerSorteoWinner(fiestaId, winner, sorteoPremio.trim() || undefined);
+      const result = await sortearGanadorEnServidor(fiestaId, {
+        premio: sorteoPremio.trim() || undefined,
+        candidatos: participants,
+      });
+      setSorteoIsSpinning(false);
       setIsTriggeringSorteo(false);
-      if (result.success) {
-        setLastSorteoWinner(winner);
+      if (result.success && result.winner) {
+        setSorteoPreviewWinner(result.winner);
+        setLastSorteoWinner(result.winner);
         setSorteoTransferredToScreen(false); // reset after winner revealed
-        toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
+        toast({ title: `🎉 ¡Ganador: ${result.winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
       } else {
+        setSorteoTransferredToScreen(false);
         toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
       }
     }, 6000);
@@ -851,7 +863,7 @@ function MuroSocialContent() {
     }
     setIsTransferringSorteo(true);
     try {
-      const result = await transferSorteoToScreen(fiestaId);
+      const result = await transferSorteoToScreen(fiestaId, participants);
       if (result.success) {
         setSorteoTransferredToScreen(true);
         setSorteoPreviewWinner(null);
@@ -1507,6 +1519,29 @@ function MuroSocialContent() {
                   className="h-9 text-xs"
                 />
               </div>
+
+              <div className="space-y-1.5 sm:col-span-3">
+                <Label htmlFor="muro-transicion-select" className="text-xs font-semibold">Transición de fotos en pantalla gigante</Label>
+                <Select
+                  value={normalizarTransicionMuro(settings.transicion)}
+                  onValueChange={(val) =>
+                    handleUpdateMuroSetting({
+                      transicion: normalizarTransicionMuro(val),
+                    })
+                  }
+                >
+                  <SelectTrigger id="muro-transicion-select" className="text-xs h-9">
+                    <SelectValue placeholder="Fundido suave" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRANSICIONES_MURO.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.nombre} — {t.descripcion}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1524,6 +1559,8 @@ function MuroSocialContent() {
               { key: 'showSongRequests', label: 'Pedidos de canciones 🎵' },
               { key: 'showDedications', label: 'Dedicatorias 💌' },
               { key: 'showPolls', label: 'Encuestas y juegos 🎯' },
+              { key: 'photoFrame', label: 'Marco del evento en pantalla 🖼️' },
+              { key: 'marcoEnImpresion', label: 'Marco del evento al imprimir 🖨️' },
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between rounded-lg border p-3">
                 <span className="text-sm font-medium">{item.label}</span>
@@ -1569,7 +1606,7 @@ function MuroSocialContent() {
                   if (win) {
                     const requestFs = () => {
                       // no pasa nada si falla: el navegador puede negar la pantalla completa y el muro igual se ve.
-                      win.document.documentElement.requestFullscreen?.().catch(() => {});
+                      win.document.documentElement.requestFullscreen?.().catch((e) => console.warn('[page] Paso secundario sin completar:', e));
                     };
                     if (win.document.readyState === 'complete') {
                       requestFs();
@@ -1663,7 +1700,7 @@ function MuroSocialContent() {
 
               {/* Orden 36: Preparar grilla de caras cuando el equipo cierra la galería */}
               {fiestaId && (
-                <div className="pt-2">
+                <div className="pt-2 space-y-3">
                   <PrepararGrillaDeCara
                     fiestaId={fiestaId}
                     fotosAprobadas={approvedPosts}
@@ -1674,6 +1711,28 @@ function MuroSocialContent() {
                       });
                     }}
                   />
+
+                  {/* Orden 330 Bloque 8: Envío opcional de fotos por WhatsApp (apagado por defecto) */}
+                  {(() => {
+                    const estimacionWa = calcularEstimadoMensajesFotosWhatsapp(fiesta?.invitados ?? []);
+                    return (
+                      <div className="flex items-center justify-between gap-4 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3.5">
+                        <div className="space-y-1">
+                          <Label htmlFor="whatsappFotosInvitadosActivo" className="text-sm font-semibold text-emerald-950 cursor-pointer">
+                            📲 Avisar fotos nuevas por WhatsApp (tandas cada 2 h)
+                          </Label>
+                          <p className="text-xs text-emerald-900/80">
+                            Apagado por defecto. Solo escribe a invitados confirmados de esta fiesta con teléfono ({estimacionWa.invitadosConTelefono} invitados; {estimacionWa.leyendaCosto}).
+                          </p>
+                        </div>
+                        <Switch
+                          id="whatsappFotosInvitadosActivo"
+                          checked={Boolean(settings.whatsappFotosInvitadosActivo)}
+                          onCheckedChange={(checked) => handleToggleSetting('whatsappFotosInvitadosActivo', checked)}
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -2818,10 +2877,23 @@ function MuroSocialContent() {
   );
 }
 
-export default function MuroSocialPage() {
+function MuroSocialPageInner() {
   return (
     <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
       <MuroSocialContent />
     </Suspense>
+  );
+}
+
+
+export default function MuroSocialPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"muro","label":"Muro social"},{"id":"playlist","label":"Playlist de pantalla"},{"id":"en-vivo","label":"En vivo"}]}
+        renderDefault={() => <MuroSocialPageInner {...({} as any)} />}
+        renderTab={(tab) => { if (tab === 'playlist') return <__AkPanel1 {...({} as any)} />; if (tab === 'en-vivo') return <__AkPanel2 {...({} as any)} />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { FiestaHubShell } from '@/components/fiestas/FiestaHubShell';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -540,10 +542,24 @@ function GuestModuleContent() {
   );
 }
 
+const PaginaWebPanel = dynamic(() => import('@/components/fiestas/panels/pagina-web'));
+const SocialProPanel = dynamic(() => import('@/components/fiestas/panels/social-fiesta-pro'));
+const SocialCierrePanel = dynamic(() => import('@/components/fiestas/panels/social-fiesta-pro--cierre-final'));
+
 export default function GuestModulePage() {
   return (
     <Suspense fallback={<div className="flex justify-center p-8 h-screen items-center"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
-      <GuestModuleContent />
+      <FiestaHubShell
+        basePath="/fiestas/nueva/modulo-invitado"
+        tabs={[
+          { id: 'invitados', label: 'Módulo de invitado' },
+          { id: 'pagina-web', label: 'Página web' },
+          { id: 'social-pro', label: 'Social Fiesta Pro' },
+          { id: 'cierre', label: 'Cierre y difusión' },
+        ]}
+        renderDefault={() => <GuestModuleContent />}
+        renderTab={(tab) => (tab === 'pagina-web' ? <PaginaWebPanel /> : tab === 'social-pro' ? <SocialProPanel /> : <SocialCierrePanel />)}
+      />
     </Suspense>
   );
 }

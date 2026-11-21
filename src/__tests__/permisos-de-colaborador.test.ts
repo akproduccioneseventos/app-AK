@@ -42,7 +42,7 @@ describe('Permisos que se pueden dar por enlace', () => {
 
   it('la pantalla que crea accesos no ofrece ninguno de los nueve', () => {
     const pantalla = readFileSync(
-      join(RAIZ, 'src/app/(app)/settings/accesos-personal/page.tsx'),
+      join(RAIZ, 'src/components/settings/panels/accesos-personal.tsx'),
       'utf-8',
     );
 
@@ -71,7 +71,7 @@ describe('Permisos que se pueden dar por enlace', () => {
 
   it('la pantalla /settings/accesos-personal tiene la configuracion de control de llegada al salon', () => {
     const pantalla = readFileSync(
-      join(RAIZ, 'src/app/(app)/settings/accesos-personal/page.tsx'),
+      join(RAIZ, 'src/components/settings/panels/accesos-personal.tsx'),
       'utf-8',
     );
 

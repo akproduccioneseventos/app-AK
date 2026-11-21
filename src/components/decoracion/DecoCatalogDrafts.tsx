@@ -38,7 +38,7 @@ export default function DecoCatalogDrafts({ fiestaId = 'catalogo-decoracion', on
       if (mountedRef.current) setList(result);
       return result;
     } catch (cause) {
-      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los borradores.');
+      if (mountedRef.current) { console.warn('[decoracion] borradores:', cause); setError('No se pudieron cargar los borradores. Tocá Actualizar para probar de nuevo.'); }
       return null;
     } finally {
       if (mountedRef.current) setLoading(false);
@@ -66,7 +66,7 @@ export default function DecoCatalogDrafts({ fiestaId = 'catalogo-decoracion', on
         if (!result.processed || !automatic || !updated?.automatic) break;
       }
     } catch (cause) {
-      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudo procesar el siguiente borrador.');
+      if (mountedRef.current) { console.warn('[decoracion] borradores:', cause); setError('No se pudo procesar el siguiente borrador. Tocá Actualizar para probar de nuevo.'); }
     } finally {
       runRef.current = false;
       if (mountedRef.current) setProcessing(false);
@@ -99,14 +99,14 @@ export default function DecoCatalogDrafts({ fiestaId = 'catalogo-decoracion', on
       const result = await approveDecorationDraft(selected.id, selected.revision, name.trim(), elements);
       if (!result.success) { setError(result.error || 'No se pudo aprobar el borrador.'); return; }
       updateDrafts(selected.id); setSelected(null); await onChanged?.();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo aprobar el borrador.'); }
+    } catch (cause) { console.warn('[decoracion] borradores:', cause); setError('No se pudo aprobar el borrador. Tocá Actualizar para probar de nuevo.'); }
     finally { setBusy(false); }
   };
 
   const dismiss = async (draft: DecorationDraft) => {
     setBusy(true); setError('');
     try { await dismissDecorationDraft(draft.id); updateDrafts(draft.id); if (selected?.id === draft.id) setSelected(null); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo descartar el borrador.'); }
+    catch (cause) { console.warn('[decoracion] borradores:', cause); setError('No se pudo descartar el borrador. Tocá Actualizar para probar de nuevo.'); }
     finally { setBusy(false); }
   };
 
@@ -118,7 +118,7 @@ export default function DecoCatalogDrafts({ fiestaId = 'catalogo-decoracion', on
       setRetryPending(true);
       await refresh();
     }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo reintentar el borrador.'); }
+    catch (cause) { console.warn('[decoracion] borradores:', cause); setError('No se pudo reintentar el borrador. Tocá Actualizar para probar de nuevo.'); }
     finally { setBusy(false); }
   };
 

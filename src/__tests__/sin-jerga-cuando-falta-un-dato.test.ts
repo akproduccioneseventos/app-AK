@@ -14,18 +14,22 @@ import path from 'path';
 const leer = (ruta: string) => fs.readFileSync(path.join(process.cwd(), ruta), 'utf-8');
 
 describe('cuando falta un dato, la app no habla como programador', () => {
-  it('la pantalla de estado del evento no muestra la direccion web con parametros', () => {
-    const pantalla = leer('src/app/(app)/fiestas/nueva/readiness/page.tsx');
-    expect(pantalla).not.toContain('?fiestaId=...');
-    expect(pantalla).not.toContain('Usá el parámetro');
-    expect(pantalla).toContain('Todavía no elegiste una fiesta');
+  it('los paneles de evento sin fiesta no muestran la direccion web con parametros', () => {
+    for (const ruta of [
+      'src/components/panels/costos--reporte.tsx',
+      'src/components/fiestas/panels/planner-costo-fiesta.tsx',
+    ]) {
+      const pantalla = leer(ruta);
+      expect(pantalla).not.toContain('?fiestaId=...');
+      expect(pantalla).not.toContain('Usá el parámetro');
+    }
   });
 
   it('las pantallas que necesitan una fiesta piden elegirla, no tiran error', () => {
     for (const ruta of [
       'src/app/(app)/fiestas/nueva/tareas/client.tsx',
-      'src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx',
-      'src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx',
+      'src/components/panels/reuniones--imprimir.tsx',
+      'src/components/panels/costos--reporte.tsx',
     ]) {
       const pantalla = leer(ruta);
       expect(pantalla).not.toContain('No se ha especificado un ID de fiesta');

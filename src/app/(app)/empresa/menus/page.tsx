@@ -1,4 +1,10 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/menus--catalogo'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/menus--reporte'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/menus--tragos'));
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -39,7 +45,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function GestionMenusPage() {
+function GestionMenusPageInner() {
   const { toast } = useToast();
 
   // Menus State
@@ -279,7 +285,7 @@ export default function GestionMenusPage() {
       </Alert>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* MESA DULCE Y FUENTE */}
             <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
                 <CardHeader className="bg-orange-50/50 p-6 border-b border-orange-100">
@@ -297,8 +303,8 @@ export default function GestionMenusPage() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-orange-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter whitespace-nowrap">Costo Est: {formatCurrency(item.costoEstimado)}</p>
                                         <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
                                     </div>
                                 </div>
@@ -331,8 +337,8 @@ export default function GestionMenusPage() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-pink-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter whitespace-nowrap">Costo Est: {formatCurrency(item.costoEstimado)}</p>
                                         <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
                                     </div>
                                 </div>
@@ -433,5 +439,18 @@ export default function GestionMenusPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+
+export default function GestionMenusPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"menus","label":"Menús"},{"id":"catalogo","label":"Catálogo"},{"id":"reporte","label":"Reporte"},{"id":"tragos","label":"Tragos"}]}
+        renderDefault={() => <GestionMenusPageInner />}
+        renderTab={(tab) => { if (tab === 'catalogo') return <__AkPanel1 />; if (tab === 'reporte') return <__AkPanel2 />; if (tab === 'tragos') return <__AkPanel3 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

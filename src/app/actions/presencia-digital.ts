@@ -27,6 +27,9 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { buildMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
 import { publishPostInternal, type PublicarResultado } from '@/lib/presencia-digital/publicador';
+import type { CompetenciaCuenta, CompetenciaEstado } from '@/lib/presencia-digital/competencia';
+import { getCompetenciaEstado, guardarCompetenciaCuentas, sincronizarCompetenciaSemanal } from '@/lib/presencia-digital/competencia';
+import type { AjustesRespuestasComentarios } from '@/lib/social-media/comments-backfill';
 
 const REVIEW_FILE = 'digital-presence-review.json';
 const POSTS_FILE = 'social-posts.json';
@@ -443,11 +446,138 @@ export async function getAjustesRespuestasAction() {
   return await getAjustesRespuestasComentarios();
 }
 
-export async function setAjustesRespuestasAction(ajustes: { comentarios?: boolean; mensajesDirectos?: boolean }) {
+export async function setAjustesRespuestasAction(ajustes: boolean | Partial<AjustesRespuestasComentarios>) {
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   const { setAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await setAjustesRespuestasComentarios(ajustes);
+}
+
+export interface StoryMentionItem {
+  id: string;
+  mediaId?: string;
+  username: string;
+  senderName: string;
+  caption?: string;
+  mediaUrl?: string;
+  permalink?: string;
+  timestamp: string;
+  fecha: string;
+  shared?: boolean;
+  compartidoEnMiHistoria?: boolean;
+}
+
+export async function getCompetenciaDashboardAction(): Promise<{
+  success: boolean;
+  data?: CompetenciaEstado;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    const estado = await getCompetenciaEstado();
+    return { success: true, data: estado };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al obtener competencia.' };
+  }
+}
+
+export async function guardarCompetenciaCuentasAction(cuentasInput: CompetenciaCuenta[] | string[]): Promise<{
+  success: boolean;
+  data?: CompetenciaEstado;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    
+    let cuentasAguardar: CompetenciaCuenta[] = [];
+    const estadoActual = await getCompetenciaEstado();
+    
+    if (Array.isArray(cuentasInput)) {
+      cuentasAguardar = cuentasInput.map((item) => {
+        if (typeof item === 'string') {
+          const existente = estadoActual.cuentas.find((c) => c.username === item);
+          return existente || { username: item, activo: true, seguidores: 0, publicacionesCount: 0 };
+        }
+        return item;
+      });
+    }
+
+    await guardarCompetenciaCuentas(cuentasAguardar);
+    const estado = await getCompetenciaEstado();
+    return { success: true, data: estado };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al guardar cuentas de competencia.' };
+  }
+}
+
+export async function sincronizarCompetenciaAhoraAction(): Promise<{
+  success: boolean;
+  data?: CompetenciaEstado;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    await sincronizarCompetenciaSemanal();
+    const estado = await getCompetenciaEstado();
+    return { success: true, data: estado };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al sincronizar competencia.' };
+  }
+}
+
+export async function getStoryMentionsAction(): Promise<{
+  success: boolean;
+  mentions?: StoryMentionItem[];
+  data?: StoryMentionItem[];
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    const rawMentions = await readData<any[]>('story-mentions.json', []);
+    const mentiones: StoryMentionItem[] = rawMentions.map((m) => {
+      const fechaVal = m.fecha || m.timestamp || new Date().toISOString();
+      const userVal = m.username || m.senderName || 'Anónimo';
+      return {
+        ...m,
+        id: m.id || Math.random().toString(),
+        username: userVal,
+        senderName: m.senderName || userVal,
+        timestamp: m.timestamp || fechaVal,
+        fecha: fechaVal,
+      };
+    });
+    return { success: true, mentions: mentiones, data: mentiones };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al obtener menciones en historias.' };
+  }
+}
+
+export async function compartirMencionEnHistoriaAction(mentionId: string): Promise<{
+  success: boolean;
+  mediaUrl?: string;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    const mentiones = await readData<StoryMentionItem[]>('story-mentions.json', []);
+    let targetMediaUrl: string | undefined = undefined;
+    const actualizadas = mentiones.map((m) => {
+      if (m.id === mentionId) {
+        targetMediaUrl = m.mediaUrl;
+        return { ...m, shared: true, compartidoEnMiHistoria: true };
+      }
+      return m;
+    });
+    await writeData('story-mentions.json', actualizadas);
+    return { success: true, mediaUrl: targetMediaUrl };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al compartir mención.' };
+  }
 }
 
 export async function getAjustesPublicarSoloAction(): Promise<{

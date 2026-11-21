@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getFiestaBySlug } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
+import { buildAccesosVivosInvitacion } from '@/lib/invitacion/accesos-vivos';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { notFound } from 'next/navigation';
 
@@ -56,6 +57,15 @@ export default async function InvitacionSlugPage(props: PageProps) {
   }
 
   const config = buildInvitacionConfigFromFiesta(fiesta, fiesta.invitacionConfig);
+  const accesosVivos = buildAccesosVivosInvitacion(fiesta, fiesta.id);
 
-  return <InvitacionPublicaClient config={config} fiestaId={fiesta.id} socialConnections={socialConnections} />;
+  return (
+    <InvitacionPublicaClient
+      config={config}
+      fiestaId={fiesta.id}
+      socialConnections={socialConnections}
+      galeriaUrl={fiesta.galeriaUrl}
+      accesosVivos={accesosVivos}
+    />
+  );
 }

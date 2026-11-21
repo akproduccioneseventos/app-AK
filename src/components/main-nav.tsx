@@ -96,7 +96,7 @@ export function puedeVerEntradaMenu(
 }
 
 /**
- * Las 7 casas de la app más la puerta Más (Orden 284).
+ * Las 6 casas de la app (Orden 321).
  * Lee directamente de CASAS en src/lib/navegacion/mapa.ts.
  */
 export const navGroups: NavGroup[] = [
@@ -117,12 +117,6 @@ export const navGroups: NavGroup[] = [
             casa.pestanas.some((p) => pathname === p.ruta || isPathActive(pathname, p.ruta)),
         };
       }),
-      {
-        title: "Más",
-        href: "/mas",
-        icon: LayoutGrid,
-        active: (pathname: string) => isPathActive(pathname, "/mas"),
-      },
     ],
   },
 ];
@@ -168,7 +162,7 @@ export function MainNav() {
         setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
       })
       // no pasa nada si falla: el contador de avisos urgentes queda en cero y el menú anda igual.
-      .catch(() => {});
+      .catch((e) => console.warn('[main-nav] Paso secundario sin completar:', e));
   }, []);
 
   useEffect(() => {
@@ -277,14 +271,14 @@ export function MainNav() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isPathActive(pathname, "/alertas")}
+              isActive={isPathActive(pathname, "/mi-dia")}
               tooltip="Alertas"
               className={cn(
                 "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em] relative",
-                isPathActive(pathname, "/alertas") ? "bg-red-600 text-white shadow-lg" : "text-slate-500 hover:bg-red-50 hover:text-red-600"
+                isPathActive(pathname, "/mi-dia") ? "bg-red-600 text-white shadow-lg" : "text-slate-500 hover:bg-red-50 hover:text-red-600"
               )}
             >
-              <Link href="/alertas">
+              <Link href="/mi-dia?tab=alertas">
                 <Bell className="w-4 h-4" />
                 <span className="ml-2">Alertas</span>
                 {urgentAlertCount > 0 ? (
@@ -311,42 +305,40 @@ export const TODAS_LAS_OPCIONES_STAFF_MAPA = [
   { title: "Mi Día", href: "/mi-dia" },
   { title: "Eventos Activos", href: "/eventos" },
   { title: "Calendario", href: "/calendario" },
-  { title: "Muro Social", href: "/empresa/red-social-eventos" },
+  { title: "Muro Social", href: "/empresa/presencia-digital?tab=social-eventos" },
   { title: "Incidentes", href: "/incidentes" },
   { title: "Guias de Armado", href: "/playbooks" },
   { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias" },
   { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal" },
   { title: "Personal en dos fiestas", href: "/recursos-multi-evento" },
-  { title: "Edición de Videos", href: "/edicion-videos" },
-  { title: "Gestión de Empresa", href: "/empresa" },
+  { title: "Edición de Videos", href: "/fiestas/nueva/fotografia?tab=edicion-videos" },
   { title: "Prospectos", href: "/contabilidad/crm" },
   { title: "Presupuestos", href: "/presupuestos/nuevo" },
   { title: "Clientes", href: "/customers" },
-  { title: "Simulador IA", href: "/simulador-ak" },
+  { title: "Simulador IA", href: "/simulador-de-presupuesto" },
   { title: "Pagos Rápidos", href: "/pagos-rapidos" },
   { title: "Panel Contable", href: "/empresa/contabilidad" },
   { title: "Facturas", href: "/invoices" },
   { title: "Cambios a Aprobar", href: "/aprobaciones" },
-  { title: "Métricas del Negocio", href: "/empresa/dashboard" },
+  { title: "Ganancias y Reportes", href: "/empresa/contabilidad/reportes" },
   { title: "Comida / Menús", href: "/empresa/menus" },
-  { title: "Lista de Compras", href: "/compras" },
+  { title: "Insumos y Compras", href: "/empresa/insumos" },
   { title: "Salones", href: "/empresa/salones" },
   { title: "Catálogo de Servicios", href: "/empresa/servicios" },
   { title: "Proveedores", href: "/proveedores" },
   { title: "Empleados", href: "/empleados" },
-  { title: "Marketing y Redes", href: "/marketing" },
+  { title: "Marketing y Redes", href: "/empresa/presencia-digital" },
   { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox" },
   { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion" },
   { title: "Ajustes Generales", href: "/settings" },
-  { title: "Tareas Automáticas", href: "/settings/tareas-automaticas" },
-  { title: "Conexiones", href: "/settings/sincronizaciones" },
-  { title: "WhatsApp", href: "/settings/whatsapp" },
-  { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas" },
-  { title: "Seguridad", href: "/settings/account" },
-  { title: "Promociones", href: "/settings/promos" },
-  { title: "Asistente IA", href: "/settings/ai-assistant" },
-  { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak" },
-  { title: "Laboratorio Experimental", href: "/settings/feature-flags" },
-  { title: "Alertas", href: "/alertas" },
-  { title: "Más Herramientas", href: "/mas" },
+  { title: "Tareas Automáticas", href: "/settings?seccion=asistente&sub=tareas-automaticas" },
+  { title: "Conexiones", href: "/settings?seccion=conexiones&sub=sincronizaciones" },
+  { title: "WhatsApp", href: "/settings?seccion=conexiones&sub=whatsapp" },
+  { title: "Cláusulas de Contrato", href: "/settings?seccion=contratos&sub=contratos--clausulas" },
+  { title: "Seguridad", href: "/settings?seccion=empresa&sub=account" },
+  { title: "Promociones", href: "/settings?seccion=ventas&sub=promos" },
+  { title: "Asistente IA", href: "/asistente" },
+  { title: "Laboratorio Experimental", href: "/settings?seccion=sistema&sub=feature-flags" },
+  { title: "Alertas", href: "/mi-dia?tab=alertas" },
+  { title: "Gastos", href: "/empresa/contabilidad/gastos" },
 ];

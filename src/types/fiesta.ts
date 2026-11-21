@@ -78,6 +78,14 @@ export interface Invitado {
   fechaPrimeraApertura?: string;
   /** Registro de fechas en que se enviaron recordatorios de invitación no abierta */
   recordatoriosApertura?: string[];
+  /** Si el invitado pidió darse de baja de avisos automáticos de fotos por WhatsApp ("no" / "baja"). */
+  whatsappFotosBaja?: boolean;
+  /** Marca ISO del último WhatsApp enviado por tanda de fotos (ventana mínima de 2 horas). */
+  ultimoWhatsappFotosAt?: string;
+  /** IDs de fotos que ya fueron avisadas por push a este invitado. */
+  fotosYaNotificadasPush?: string[];
+  /** IDs de fotos que ya fueron avisadas por WhatsApp a este invitado. */
+  fotosYaNotificadasWhatsapp?: string[];
 }
 
 // --- MENU MESA ---
@@ -877,6 +885,7 @@ export interface SocialGallerySettings {
   photoFrame?: boolean;
   momentosActivos?: { id: string; nombre: string; emoji: string; timestamp: string }[];
   sorteoParticipantesRedes?: { nombre: string; timestamp: string; platform?: 'instagram' | 'facebook' | 'tiktok' }[];
+  sorteoCandidatos?: string[];
   sorteoGanadores?: string[];
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
@@ -922,6 +931,10 @@ export interface SocialGallerySettings {
   maxImpresionesPorPersona?: number;
   /** Si se incluye franja inferior con marco, fecha, logo y nombre en la impresión */
   marcoEnImpresion?: boolean;
+  /** Transición visual elegida para las fotos en pantalla gigante */
+  transicion?: 'fundido' | 'deslizar' | 'zoom' | 'polaroid' | 'al_ritmo';
+  /** Orden 330 Bloque 8: envío automático por tanda de WhatsApp con fotos al invitado (apagado por defecto). */
+  whatsappFotosInvitadosActivo?: boolean;
 }
 
 export interface SocialGalleryBrand {
@@ -1403,7 +1416,10 @@ export type ZonaDigitalFeatureId =
   | 'totems'
   | 'audioritmico'
   | 'ranking'
-  | 'recap';
+  | 'recap'
+  | 'transmision_invitado'
+  | 'libro_de_firmas'
+  | 'impresion_desde_celular';
 
 export type ZonaDigitalGameType =
   | 'reto_foto'
@@ -1605,6 +1621,10 @@ export interface FiestaEnPlanificacion {
   invitados?: Invitado[];
   /** Caras indexadas de las fotos de la fiesta (Orden 36). */
   carasIndexadas?: import('@/lib/caras/agrupar-caras').CaraEnFoto[];
+  /** Descriptores faciales anotados por los propios invitados (uso exclusivo del servidor; vencen a los 90 días). */
+  vectoresCarasInvitados?: Record<string, { vector: number[]; registradoAt: string }>;
+  /** Asignaciones de caras a invitados hechas por el cliente o el propio invitado (separadas de los vectores). */
+  asignacionesCaras?: Record<string, import('@/lib/caras/agrupar-caras').AsignacionCara>;
   /** Juegos del evento. Los guarda y lee `games.actions.ts`. */
   triviaGame?: import('@/lib/games/game-engine').TriviaGame;
   photoMissions?: import('@/lib/games/game-engine').PhotoMission[];
@@ -1901,6 +1921,16 @@ export interface BebidaReceta {
 export type CostoCategoria = string;
 
 // --- CLIENT PAYMENT NOTIFICATIONS ---
+export type TipoComprobanteIA = 'transferencia' | 'deposito' | 'mercado_pago' | 'otro';
+
+export interface ClientPaymentRevisionIA {
+  esComprobante: boolean;
+  montoCoincide: boolean;
+  tieneFecha: boolean;
+  tipo: TipoComprobanteIA;
+  revisadoAt: string;
+}
+
 export interface ClientPaymentNotification {
   id: string;
   monto: number;
@@ -1913,6 +1943,8 @@ export interface ClientPaymentNotification {
   /** Cuándo quedó acreditado en el presupuesto. Con esto puesto, ningún intento fallido lo vuelve a pendiente. */
   cobroConfirmadoAt?: string;
   notas?: string;
+  /** Sólo informativo: la IA nunca cambia el estado ni acredita plata. */
+  revisionIA?: ClientPaymentRevisionIA;
 }
 
 export interface ClientMenuChangeRequest {

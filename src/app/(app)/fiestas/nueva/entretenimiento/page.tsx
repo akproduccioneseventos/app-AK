@@ -1,4 +1,11 @@
 'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/fiesta--entretenimiento-control'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/fiesta--barra-tecnologica'));
+const __AkPanel3 = __akDynamic(() => import('@/components/panels/fiesta--pantallas-totem'));
+const __AkPanel4 = __akDynamic(() => import('@/components/panels/fiesta--zona-digital'));
 
 import React, { Suspense, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
@@ -1179,7 +1186,7 @@ function EntretenimientoContent() {
               donde el equipo arma el entretenimiento de esta fiesta.
             */}
             <Button asChild variant="outline" className="rounded-xl border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20 hover:text-white font-black">
-              <Link href={`/fiestas/${fiestaId}/entretenimiento/control`}>
+              <Link href={`/fiestas/nueva/entretenimiento?tab=control&fiestaId=${fiestaId}`}>
                 <Monitor className="mr-2 h-4 w-4" />
                 Tablero de la noche
               </Link>
@@ -2706,7 +2713,7 @@ function EntretenimientoContent() {
   );
 }
 
-export default function EntretenimientoPage() {
+function EntretenimientoPageInner() {
   return (
     <Suspense fallback={
       <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
@@ -2715,5 +2722,18 @@ export default function EntretenimientoPage() {
     }>
       <EntretenimientoContent />
     </Suspense>
+  );
+}
+
+
+export default function EntretenimientoPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        tabs={[{"id":"entretenimiento","label":"Entretenimiento"},{"id":"control","label":"Control en vivo"},{"id":"barra","label":"Barra tecnológica"},{"id":"pantallas","label":"Pantallas y tótem"},{"id":"zona-digital","label":"Zona digital"}]}
+        renderDefault={() => <EntretenimientoPageInner />}
+        renderTab={(tab) => { if (tab === 'control') return <__AkPanel1 />; if (tab === 'barra') return <__AkPanel2 />; if (tab === 'pantallas') return <__AkPanel3 />; if (tab === 'zona-digital') return <__AkPanel4 />; return null; }}
+      />
+    </__AkSuspense>
   );
 }

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Copy, ExternalLink, Loader2, MessageCircle, Sparkles, AlertCircle, Images } from 'lucide-react';
+import { Check, Copy, Download, ExternalLink, Loader2, MessageCircle, AlertCircle, Images } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   isValidWfolioUrl,
@@ -47,6 +47,7 @@ export function TarjetaEntregaAlbum({
   const { toast } = useToast();
   const [wfolioUrl, setWfolioUrl] = useState(initialWfolioUrl);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDownloadingEstaciones, setIsDownloadingEstaciones] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedDelivery, setSavedDelivery] = useState<WfolioAlbumDelivery | undefined>(initialDelivery);
 
@@ -131,6 +132,54 @@ export function TarjetaEntregaAlbum({
     });
   };
 
+  const handleMandarTodoAWfolio = async () => {
+    setIsDownloadingEstaciones(true);
+    try {
+      const urlDescarga = `/api/social-gallery/${encodeURIComponent(fiestaId)}/download?carpetas=1`;
+      const response = await fetch(urlDescarga);
+      if (!response.ok) {
+        let mensajeError = `No se pudieron descargar las estaciones (HTTP ${response.status}).`;
+        try {
+          const data = await response.json();
+          if (data?.error) mensajeError = data.error;
+        } catch (parseErr) {
+          console.warn('No se pudo leer detalle de error al bajar estaciones:', parseErr);
+        }
+        toast({
+          title: 'Error al descargar estaciones',
+          description: mensajeError,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const blob = await response.blob();
+      const nombreLimpio = (eventName || fiestaId).replace(/[\\/:*?"<>|]+/g, '_').trim() || fiestaId;
+      const nombreZip = `estaciones-${nombreLimpio}.zip`;
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = nombreZip;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      toast({
+        title: 'Estaciones listas para Wfolio',
+        description: `Guardá ${nombreZip} en Documentos\\AK Editor\\${nombreLimpio}\\estaciones\\ y abrí el AK Editor para subir todo al álbum.`,
+      });
+    } catch (e: any) {
+      toast({
+        title: 'Error al descargar',
+        description: e?.message || 'No se pudo descargar el ZIP de estaciones.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloadingEstaciones(false);
+    }
+  };
+
   const whatsappHref = clientPhone
     ? `https://wa.me/${toWhatsAppDigits(clientPhone)}?text=${encodeURIComponent(mensajePreparado)}`
     : `https://wa.me/?text=${encodeURIComponent(mensajePreparado)}`;
@@ -187,8 +236,20 @@ export function TarjetaEntregaAlbum({
           )}
         </div>
 
-        {/* Acciones para mandarle el enlace al cliente */}
+        {/* Acciones para mandarle el enlace al cliente y exportar estaciones */}
         <div className="pt-2 flex flex-wrap gap-2.5 items-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleMandarTodoAWfolio}
+            disabled={isDownloadingEstaciones}
+            data-testid="btn-mandar-todo-wfolio"
+            className="rounded-xl border-indigo-400/40 bg-indigo-500/15 text-indigo-200 hover:bg-indigo-500/25 font-bold text-xs h-10"
+          >
+            {isDownloadingEstaciones ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+            Mandar todo a Wfolio
+          </Button>
+
           <Button
             asChild
             variant="outline"

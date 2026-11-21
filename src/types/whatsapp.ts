@@ -26,6 +26,10 @@ export interface WhatsAppConfig {
     sendMarketingFollowUp: boolean;
     logMessageHistory: boolean;
   };
+  /** Orden 325: interruptor general para llevar consultas de WhatsApp de prospectos al CRM (apagado por defecto). */
+  llevarWhatsAppProspectosAlCrm?: boolean;
+  /** Orden 325: lista de números personales/familiares que nunca entran al CRM. */
+  numerosPersonales?: string[];
 }
 
 export interface WhatsAppConversation {

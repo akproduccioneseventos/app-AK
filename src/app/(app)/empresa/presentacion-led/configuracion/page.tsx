@@ -60,7 +60,7 @@ function PhotoUploadRow({ id, label, currentUrl, onUploaded }: PhotoUploadRowPro
   };
 
   return (
-    <div className="flex items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
+    <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
       <div className="relative h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
         {previewUrl && !imgError && isSafeUrl(previewUrl) ? (
           <Image
@@ -246,7 +246,7 @@ export default function PresentacionLedConfiguracionPage() {
           <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-white/10">
             Imagen — Slide Plan de Pagos
           </h2>
-          <div className="flex items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
+          <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
             <div className="h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
               {planPagosUrl && isSafeUrl(planPagosUrl) ? (
                 <div className="relative h-full w-full">
@@ -256,7 +256,7 @@ export default function PresentacionLedConfiguracionPage() {
                 <Camera className="h-6 w-6 text-white/30" />
               )}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[10rem]">
               <p className="text-white/80 text-sm font-medium">Foto de fondo para el slide "Plan de Pagos"</p>
               {planPagosUrl && <p className="text-emerald-400 text-xs flex items-center gap-1 mt-0.5"><Check className="h-3 w-3" /> Cargada</p>}
             </div>
