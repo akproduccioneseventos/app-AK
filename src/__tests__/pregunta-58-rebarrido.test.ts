@@ -1,3 +1,34 @@
+const copia = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
+
+// ---- Firestore de mentira (trivia, cancion, dedicatoria, comentario, chat) ----
+const colecciones = new Map<string, Map<string, any>>();
+const col = (n: string) => { if (!colecciones.has(n)) colecciones.set(n, new Map()); return colecciones.get(n)!; };
+const referencia = (nombre: string, id: string) => ({
+  id,
+  get: async () => { const v = col(nombre).get(id); return { exists: v !== undefined, data: () => (v === undefined ? undefined : copia(v)), id }; },
+  set: async (valor: any) => { col(nombre).set(id, copia(valor)); },
+  create: async (valor: any) => {
+    if (col(nombre).has(id)) { const e: any = new Error('6 ALREADY_EXISTS'); e.code = 6; throw e; }
+    col(nombre).set(id, copia(valor));
+  },
+  update: async (cambios: any) => {
+    const actual = col(nombre).get(id) || {};
+    const siguiente = { ...actual };
+    for (const [k, v] of Object.entries(cambios)) {
+      // arrayUnion de mentira: el valor llega marcado con `__union`.
+      siguiente[k] = (v as any)?.__union ? [...(actual[k] || []), ...copia((v as any).__union)] : v;
+    }
+    col(nombre).set(id, copia(siguiente));
+  },
+});
+const db = {
+  collection: (nombre: string) => ({
+    doc: (id: string) => referencia(nombre, id),
+    where: () => ({ get: async () => ({ docs: [...col(nombre).entries()].map(([id, v]) => ({ ref: referencia(nombre, id), data: () => copia(v) })) }) }),
+  }),
+  batch: () => ({ update: () => undefined, commit: async () => undefined }),
+};
+
 /**
  * PREGUNTA 58, SEGUNDO BARRIDO (15 de octubre de 2026): la respuesta de un "crear/agregar" se pierde,
  * la persona vuelve a tocar el boton y se guarda dos veces.
@@ -19,8 +50,6 @@ jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => true),
 }));
 jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn(async () => undefined) }));
-
-const copia = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
 
 // ---- Archivos JSON (plantillas) ----
 const archivos: Record<string, any[]> = {};
@@ -52,35 +81,7 @@ jest.mock('@/lib/ai/gemini-image', () => ({ generateGeminiImage: jest.fn() }));
 jest.mock('@/lib/ai/foto-de-referencia', () => ({ fotoDeReferenciaSegura: jest.fn() }));
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => []) }));
 
-// ---- Firestore de mentira (trivia, cancion, dedicatoria, comentario, chat) ----
-const colecciones = new Map<string, Map<string, any>>();
-const col = (n: string) => { if (!colecciones.has(n)) colecciones.set(n, new Map()); return colecciones.get(n)!; };
-const referencia = (nombre: string, id: string) => ({
-  id,
-  get: async () => { const v = col(nombre).get(id); return { exists: v !== undefined, data: () => (v === undefined ? undefined : copia(v)), id }; },
-  set: async (valor: any) => { col(nombre).set(id, copia(valor)); },
-  create: async (valor: any) => {
-    if (col(nombre).has(id)) { const e: any = new Error('6 ALREADY_EXISTS'); e.code = 6; throw e; }
-    col(nombre).set(id, copia(valor));
-  },
-  update: async (cambios: any) => {
-    const actual = col(nombre).get(id) || {};
-    const siguiente = { ...actual };
-    for (const [k, v] of Object.entries(cambios)) {
-      // arrayUnion de mentira: el valor llega marcado con `__union`.
-      siguiente[k] = (v as any)?.__union ? [...(actual[k] || []), ...copia((v as any).__union)] : v;
-    }
-    col(nombre).set(id, copia(siguiente));
-  },
-});
-const db = {
-  collection: (nombre: string) => ({
-    doc: (id: string) => referencia(nombre, id),
-    where: () => ({ get: async () => ({ docs: [...col(nombre).entries()].map(([id, v]) => ({ ref: referencia(nombre, id), data: () => copia(v) })) }) }),
-  }),
-  batch: () => ({ update: () => undefined, commit: async () => undefined }),
-};
-jest.mock('@/lib/firebase/server', () => ({ dbAdmin: db }));
+jest.mock('@/lib/firebase/server', () => ({ get dbAdmin() { return db; } }));
 jest.mock('firebase-admin', () => ({ __esModule: true, default: { firestore: { FieldValue: { arrayUnion: (...v: any[]) => ({ __union: v }), increment: (n: number) => n } } } }));
 
 jest.mock('@/lib/social-fiesta/content-review', () => ({

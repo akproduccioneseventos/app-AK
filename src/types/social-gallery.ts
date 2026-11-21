@@ -44,6 +44,8 @@ export interface SocialGalleryPost {
   caption?: string;
   /** SHA-256 hex hash of the image content — used to reject duplicate uploads */
   imageHash?: string;
+  /** Enlace a la foto oficial en Wfolio (para fotos del fotógrafo importadas desde AK Editor). */
+  wfolioUrl?: string;
   drinkId?: string;
   drinkName?: string;
   iaRevision?: SocialPostIaRevision;

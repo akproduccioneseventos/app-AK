@@ -212,9 +212,9 @@ export function CierreSlide({
 
           {/* Right: CTAs */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 1, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.25 }}
+            transition={{ duration: 0.12 }}
             className="flex flex-col gap-4"
           >
             {/* Main CTA */}

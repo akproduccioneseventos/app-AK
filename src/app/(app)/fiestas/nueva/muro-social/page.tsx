@@ -31,6 +31,7 @@ import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/ac
 import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
 import { PrepararGrillaDeCara } from '@/components/social-gallery/PrepararGrillaDeCara';
+import { calcularEstimadoMensajesFotosWhatsapp } from '@/lib/caras/whatsapp-fotos';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
@@ -1699,7 +1700,7 @@ function MuroSocialContent() {
 
               {/* Orden 36: Preparar grilla de caras cuando el equipo cierra la galería */}
               {fiestaId && (
-                <div className="pt-2">
+                <div className="pt-2 space-y-3">
                   <PrepararGrillaDeCara
                     fiestaId={fiestaId}
                     fotosAprobadas={approvedPosts}
@@ -1710,6 +1711,28 @@ function MuroSocialContent() {
                       });
                     }}
                   />
+
+                  {/* Orden 330 Bloque 8: Envío opcional de fotos por WhatsApp (apagado por defecto) */}
+                  {(() => {
+                    const estimacionWa = calcularEstimadoMensajesFotosWhatsapp(fiesta?.invitados ?? []);
+                    return (
+                      <div className="flex items-center justify-between gap-4 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3.5">
+                        <div className="space-y-1">
+                          <Label htmlFor="whatsappFotosInvitadosActivo" className="text-sm font-semibold text-emerald-950 cursor-pointer">
+                            📲 Avisar fotos nuevas por WhatsApp (tandas cada 2 h)
+                          </Label>
+                          <p className="text-xs text-emerald-900/80">
+                            Apagado por defecto. Solo escribe a invitados confirmados de esta fiesta con teléfono ({estimacionWa.invitadosConTelefono} invitados; {estimacionWa.leyendaCosto}).
+                          </p>
+                        </div>
+                        <Switch
+                          id="whatsappFotosInvitadosActivo"
+                          checked={Boolean(settings.whatsappFotosInvitadosActivo)}
+                          onCheckedChange={(checked) => handleToggleSetting('whatsappFotosInvitadosActivo', checked)}
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>

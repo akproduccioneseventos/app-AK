@@ -19,6 +19,9 @@ import {
   Check,
   Sparkles,
   RefreshCw,
+  Bell,
+  Trash2,
+  ExternalLink,
 } from 'lucide-react';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { SUAVE, DURACION } from '@/lib/motion';
@@ -26,7 +29,17 @@ import {
   getPublicSocialEvent,
   getPublicSocialPosts,
   getCarasDeFiesta,
+  registrarCaraInvitado,
+  borrarCaraInvitado,
+  obtenerMisFotosInvitado,
+  buscarInvitadoPorNombreExactoParaCara,
 } from '@/app/actions/social-gallery';
+import {
+  MOMENTOS_GALERIA,
+  filtrarPostsPorMomento,
+  normalizarMomentoPost,
+  type MomentoGaleria,
+} from '@/lib/caras/momentos-galeria';
 import {
   agruparEnPersonas,
   buscarFotosDeUnaCara,
@@ -38,6 +51,7 @@ import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'invitados';
 
@@ -79,18 +93,29 @@ async function extraerVectorLocal(video: HTMLVideoElement): Promise<VectorDeCara
 export default function GaleriaPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
+  const guestId = searchParams.get('guestId') || '';
+  const guestAccessToken = searchParams.get('token') || searchParams.get('guestAccessToken') || '';
+  const abrirBuscarmeAlEntrar = searchParams.get('buscarme') === '1';
 
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [caras, setCaras] = useState<CaraEnFoto[]>([]);
 
-  // Estados de la grilla de caras y búsqueda selfie (Orden 36)
+  // Estados de la grilla de caras y búsqueda selfie (Orden 36 & 330)
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const [selfieResult, setSelfieResult] = useState<{ seguras: string[]; dudosas: string[] } | null>(null);
   const [confirmedDudosas, setConfirmedDudosas] = useState<string[]>([]);
   const [rejectedDudosas, setRejectedDudosas] = useState<string[]>([]);
   const [showSelfieModal, setShowSelfieModal] = useState(false);
+  const [modoRegistroCara, setModoRegistroCara] = useState<'buscar' | 'registrar'>('buscar');
+  const [caraRegistrada, setCaraRegistrada] = useState(false);
+  const [guardandoCara, setGuardandoCara] = useState(false);
+  const [nombreSinCredencial, setNombreSinCredencial] = useState('');
+  const [nombreVerificado, setNombreVerificado] = useState<string | null>(null);
+  const [verificandoNombre, setVerificandoNombre] = useState(false);
+  const [errorNombre, setErrorNombre] = useState<string | null>(null);
   const [selfiePermisoAceptado, setSelfiePermisoAceptado] = useState(false);
   const [capturandoSelfie, setCapturandoSelfie] = useState(false);
   const [camaraError, setCamaraError] = useState<string | null>(null);
@@ -103,11 +128,12 @@ export default function GaleriaPage() {
   // lista**: lo que llega por la direccion lo escribe cualquiera, y un valor
   // inventado tiene que caer en "todas", no romper la pantalla.
   const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'bogue', 'vogue', 'touchpix', 'totem', 'invitados'];
-  const filtroPedido = useSearchParams().get('estacion') as FilterTab | null;
+  const filtroPedido = searchParams.get('estacion') as FilterTab | null;
   const filtroInicial: FilterTab =
     filtroPedido && FILTROS.includes(filtroPedido) ? filtroPedido : 'todas';
 
   const [activeTab, setActiveTab] = useState<FilterTab>(filtroInicial);
+  const [activeMomento, setActiveMomento] = useState<MomentoGaleria>('Todos');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -130,9 +156,30 @@ export default function GaleriaPage() {
           setCaras(c);
         }
       })
-      // no pasa nada si falla: sin el índice de caras la galería se ve entera, sin el filtro.
-      .catch(() => {});
-  }, [fiestaId]);
+      .catch((err) => {
+        // no pasa nada si falla: sin el índice de caras la galería se ve entera, sin el filtro.
+        console.warn('[GaleriaPage] No se pudieron leer caras:', err);
+      });
+
+    if (guestId && guestAccessToken) {
+      obtenerMisFotosInvitado(fiestaId, guestId, guestAccessToken)
+        .then((res) => {
+          if (res.success) {
+            setCaraRegistrada(res.tieneCaraRegistrada);
+          }
+        })
+        .catch((err) => {
+          console.warn('[GaleriaPage] No se pudo verificar estado de cara registrada:', err);
+        });
+    }
+  }, [fiestaId, guestId, guestAccessToken]);
+
+  useEffect(() => {
+    if (abrirBuscarmeAlEntrar) {
+      setModoRegistroCara('buscar');
+      setShowSelfieModal(true);
+    }
+  }, [abrirBuscarmeAlEntrar]);
 
   const loadPosts = useCallback(async () => {
     try {
@@ -192,8 +239,12 @@ export default function GaleriaPage() {
       const setIds = new Set(selectedPersona.fotoIds);
       return posts.filter((p) => setIds.has(p.id));
     }
-    return filtrarPorEstacion(posts, activeTab);
-  }, [posts, activeTab, selectedPersona]);
+    const porEstacion = filtrarPorEstacion(posts, activeTab);
+    return filtrarPostsPorMomento(
+      porEstacion.map((p) => ({ ...p, momentTag: p.momentTag })),
+      activeMomento,
+    );
+  }, [posts, activeTab, activeMomento, selectedPersona]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -368,6 +419,39 @@ export default function GaleriaPage() {
       setCapturandoSelfie(false);
       setShowSelfieModal(false);
 
+      if (modoRegistroCara === 'registrar' && vectoresExtraidos.length > 0 && guestId && guestAccessToken) {
+        setGuardandoCara(true);
+        try {
+          const regRes = await registrarCaraInvitado({
+            fiestaId,
+            guestId,
+            guestAccessToken,
+            vector: Array.from(vectoresExtraidos[0]),
+          });
+          if (regRes.success) {
+            setCaraRegistrada(true);
+            toast({
+              title: '¡Listo!',
+              description: 'Te avisamos cuando salgas en fotos nuevas. Guardamos sólo los números de tu cara.',
+            });
+          } else {
+            toast({
+              title: 'No pudimos guardar tu aviso',
+              description: regRes.error || 'Intentá nuevamente.',
+              variant: 'destructive',
+            });
+          }
+        } catch {
+          toast({
+            title: 'Error de conexión',
+            description: 'No pudimos guardar tu cara ahora.',
+            variant: 'destructive',
+          });
+        } finally {
+          setGuardandoCara(false);
+        }
+      }
+
       const vectoresABuscar =
         vectoresExtraidos.length > 0 ? vectoresExtraidos : [new Array(128).fill(0.01)];
 
@@ -383,7 +467,54 @@ export default function GaleriaPage() {
         setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
       }
     }
-  }, [caras, detenerCamara]);
+  }, [caras, detenerCamara, fiestaId, guestAccessToken, guestId, modoRegistroCara]);
+
+  const handleBorrarMiCara = useCallback(async () => {
+    if (!guestId || !guestAccessToken) return;
+    setGuardandoCara(true);
+    try {
+      const res = await borrarCaraInvitado({ fiestaId, guestId, guestAccessToken });
+      if (res.success) {
+        setCaraRegistrada(false);
+        toast({
+          title: 'Cara borrada',
+          description: 'Eliminamos los números de tu cara de este evento.',
+        });
+      } else {
+        toast({
+          title: 'No se pudo borrar',
+          description: res.error || 'Intentá de nuevo.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Error de conexión',
+        description: 'No pudimos borrar tu cara ahora.',
+        variant: 'destructive',
+      });
+    } finally {
+      setGuardandoCara(false);
+    }
+  }, [fiestaId, guestAccessToken, guestId]);
+
+  const handleVerificarNombreExacto = useCallback(async () => {
+    setErrorNombre(null);
+    setVerificandoNombre(true);
+    try {
+      const res = await buscarInvitadoPorNombreExactoParaCara(fiestaId, nombreSinCredencial);
+      if (res.found && res.nombre) {
+        setNombreVerificado(res.nombre);
+      } else {
+        setNombreVerificado(null);
+        setErrorNombre(res.error || 'No encontramos un invitado con ese nombre completo exacto.');
+      }
+    } catch {
+      setErrorNombre('No pudimos verificar el nombre.');
+    } finally {
+      setVerificandoNombre(false);
+    }
+  }, [fiestaId, nombreSinCredencial]);
 
   const cerrarModalSelfie = useCallback(() => {
     selfieCanceladaRef.current = true;
@@ -452,36 +583,114 @@ export default function GaleriaPage() {
           </div>
         )}
 
-        {/* FILTER TABS (visibles en modo normal) */}
+        {/* FILTER TABS (estación + momento) */}
         {!selectedPersona && !selfieResult && (
-          <div className="px-4 py-3 overflow-x-auto hide-scrollbar flex gap-2">
-            {[
-              { id: 'todas', label: 'Todas' },
-              { id: 'fotocabina', label: '📸 Fotocabina' },
-              { id: '360', label: '🌐 360°' },
-              { id: 'espejo', label: '✨ Espejo' },
-              ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: 'Cabina Vogue' }] : []),
-              ...(posts.some(p => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA' || p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem') ? [{ id: 'touchpix', label: '🤖 Tótem IA' }] : []),
-              { id: 'invitados', label: '📱 Invitados' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as FilterTab)}
-                className={`shrink-0 px-4 min-h-10 py-2 rounded-full text-xs font-bold transition-all border ${
-                  activeTab === tab.id
-                    ? 'bg-white text-zinc-950 border-white'
-                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="border-t border-white/5">
+            <div className="px-4 py-2.5 overflow-x-auto hide-scrollbar flex gap-2">
+              {[
+                { id: 'todas', label: 'Todas' },
+                { id: 'fotocabina', label: '📸 Fotocabina' },
+                { id: '360', label: '🌐 360°' },
+                { id: 'espejo', label: '✨ Espejo' },
+                ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: 'Cabina Vogue' }] : []),
+                ...(posts.some(p => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA' || p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem') ? [{ id: 'touchpix', label: '🤖 Tótem IA' }] : []),
+                { id: 'invitados', label: '📱 Invitados' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as FilterTab)}
+                  className={`shrink-0 px-4 min-h-10 py-2 rounded-full text-xs font-bold transition-all border ${
+                    activeTab === tab.id
+                      ? 'bg-white text-zinc-950 border-white'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* BLOQUE 4: Filtro por momento */}
+            <div className="px-4 pb-3 overflow-x-auto hide-scrollbar flex items-center gap-1.5" aria-label="Filtrar por momento">
+              {MOMENTOS_GALERIA.map((momento) => (
+                <button
+                  key={momento}
+                  type="button"
+                  onClick={() => setActiveMomento(momento)}
+                  aria-pressed={activeMomento === momento}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
+                    activeMomento === momento
+                      ? 'bg-rose-600 text-white border-rose-500'
+                      : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-white'
+                  }`}
+                >
+                  {momento}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* MAIN CONTAINER */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* BLOQUE 3: AVISO AUTOMÁTICO DE FOTOS ("Quiero que me lleguen mis fotos" / "Borrar mi cara") */}
+        {!selfieResult && carasHabilitadas && (
+          <div className="mb-4 p-4 rounded-2xl bg-zinc-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5 text-rose-400" />
+                <span>
+                  {caraRegistrada
+                    ? 'Tus fotos nuevas te llegan solas cuando aparecen'
+                    : '¿Querés que te lleguen tus fotos nuevas solas?'}
+                </span>
+              </p>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Guardamos sólo los números de tu cara, nunca tu selfie. Se borran solos a los 90 días.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {caraRegistrada ? (
+                <>
+                  {guestId && guestAccessToken && (
+                    <Link
+                      href={`/portal-invitado/${encodeURIComponent(fiestaId)}/${encodeURIComponent(guestId)}?token=${encodeURIComponent(guestAccessToken)}#mis-fotos`}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition"
+                    >
+                      Ver Mis fotos
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    disabled={guardandoCara}
+                    onClick={handleBorrarMiCara}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10 transition disabled:opacity-50"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Borrar mi cara</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  disabled={guardandoCara}
+                  onClick={() => {
+                    setModoRegistroCara('registrar');
+                    setShowSelfieModal(true);
+                    setSelfiePermisoAceptado(false);
+                    setCamaraError(null);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition disabled:opacity-50"
+                >
+                  <Bell className="w-3.5 h-3.5" />
+                  <span>Quiero que me lleguen mis fotos</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* BLOQUE 1 & 2: LA GRILLA DE CARAS Y BOTÓN ENCONTRAME A MÍ */}
         {estaPreparada && !selfieResult && (
           <div className="mb-6 p-4 rounded-3xl bg-zinc-900/60 border border-white/5 backdrop-blur-md">
@@ -498,6 +707,7 @@ export default function GaleriaPage() {
               {/* Botón Encontrame a mí (usa: Encontrame) */}
               <button
                 onClick={() => {
+                  setModoRegistroCara('buscar');
                   setShowSelfieModal(true);
                   setSelfiePermisoAceptado(false);
                   setCamaraError(null);
@@ -667,6 +877,17 @@ export default function GaleriaPage() {
                             className="w-full h-auto object-cover"
                             loading="lazy"
                           />
+                          {post.wfolioUrl && (
+                            <a
+                              href={post.wfolioUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-bold text-amber-300 hover:bg-black"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              Wfolio
+                            </a>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -856,6 +1077,21 @@ export default function GaleriaPage() {
                               {post.sourceModule.replace('_', ' ')}
                             </span>
                           )}
+                          <span className="text-[11px] text-zinc-300 bg-white/10 px-2 py-0.5 rounded-full">
+                            {normalizarMomentoPost(post.momentTag)}
+                          </span>
+                          {post.wfolioUrl && (
+                            <a
+                              href={post.wfolioUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[11px] text-amber-300 hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              Wfolio
+                            </a>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -908,17 +1144,53 @@ export default function GaleriaPage() {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
                     <Camera className="w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">Buscá tus fotos al instante</h3>
-                  <p className="text-sm text-zinc-300 leading-relaxed mb-6">
-                    Vamos a mirar tu cara en este teléfono para buscar tus fotos. No se guarda ni se
-                    manda a ningún lado.
+                  <h3 className="text-lg font-bold text-white mb-2">
+                    {modoRegistroCara === 'registrar' ? 'Recibí tus fotos automáticamente' : 'Buscá tus fotos al instante'}
+                  </h3>
+                  <p className="text-sm text-zinc-300 leading-relaxed mb-4">
+                    {modoRegistroCara === 'registrar'
+                      ? 'Se guardan sólo los números de tu cara, nunca tu selfie, para avisarte cuando salgas en fotos nuevas.'
+                      : 'Vamos a mirar tu cara en este teléfono para buscar tus fotos. No se guarda ni se manda a ningún lado.'}
                   </p>
+                  {modoRegistroCara === 'registrar' && (!guestId || !guestAccessToken) && (
+                    <div className="mb-4 p-3 rounded-xl bg-zinc-800/80 border border-white/10 text-left space-y-2">
+                      <label htmlFor="galeria-nombre-exacto-input" className="block text-[11px] font-bold text-zinc-300">
+                        ¿Entraste sin tu enlace personal? Escribí tu nombre completo exacto:
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          id="galeria-nombre-exacto-input"
+                          type="text"
+                          value={nombreSinCredencial}
+                          onChange={(e) => setNombreSinCredencial(e.target.value)}
+                          placeholder="Ej: Marta Gómez"
+                          className="flex-1 rounded-lg bg-zinc-950 border border-white/10 px-2.5 py-1.5 text-xs text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleVerificarNombreExacto}
+                          disabled={verificandoNombre || !nombreSinCredencial.trim()}
+                          className="px-3 py-1.5 rounded-lg bg-white text-zinc-950 text-xs font-bold disabled:opacity-50"
+                        >
+                          {verificandoNombre ? '...' : 'Validar'}
+                        </button>
+                      </div>
+                      {nombreVerificado && (
+                        <p className="text-[11px] text-emerald-400">
+                          Confirmado: {nombreVerificado}. Abrí tu enlace personal de invitación para activar avisos automáticos; acá igual podés buscar tus fotos ahora.
+                        </p>
+                      )}
+                      {errorNombre && (
+                        <p className="text-[11px] text-amber-300">{errorNombre}</p>
+                      )}
+                    </div>
+                  )}
                   <div className="flex flex-col gap-2.5">
                     <button
                       onClick={iniciarCamara}
                       className="w-full py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm shadow-lg hover:shadow-rose-500/20 transition-all hover:scale-105 active:scale-95"
                     >
-                      Entendido, buscar mis fotos
+                      {modoRegistroCara === 'registrar' ? 'Aceptar y sacarme selfie' : 'Entendido, buscar mis fotos'}
                     </button>
                     <button
                       onClick={cerrarModalSelfie}
@@ -1103,6 +1375,31 @@ export default function GaleriaPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* BLOQUE 6: Botón flotante fijo Buscarme 📸 */}
+      {caraRegistrada && guestId && guestAccessToken ? (
+        <Link
+          href={`/portal-invitado/${encodeURIComponent(fiestaId)}/${encodeURIComponent(guestId)}?token=${encodeURIComponent(guestAccessToken)}#mis-fotos`}
+          className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 px-4 py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-2xl border border-white/20 transition-transform hover:scale-105 active:scale-95"
+        >
+          <span>Buscarme 📸</span>
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setModoRegistroCara('buscar');
+            setShowSelfieModal(true);
+            setSelfiePermisoAceptado(false);
+            setCamaraError(null);
+          }}
+          className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 px-4 py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-2xl border border-white/20 transition-transform hover:scale-105 active:scale-95"
+        >
+          <span>Buscarme 📸</span>
+        </button>
+      )}
+      <div className="p-4 max-w-md mx-auto my-6">
+        <AvisoDeDatos para="invitado" />
+      </div>
     </div>
   );
 }

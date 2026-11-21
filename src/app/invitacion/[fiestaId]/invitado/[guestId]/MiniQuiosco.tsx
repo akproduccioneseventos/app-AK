@@ -49,7 +49,9 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
   const [loadError, setLoadError] = useState(false);
   const esMenor = Boolean(guest.categoria && guest.categoria !== 'Adulto');
   const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
-  const [selectedVersion, setSelectedVersion] = useState<'con_alcohol' | 'sin_alcohol'>('sin_alcohol');
+  const [selectedVersion, setSelectedVersion] = useState<'con_alcohol' | 'sin_alcohol'>(
+    esMenor ? 'sin_alcohol' : 'con_alcohol',
+  );
   const [drinkToChange, setDrinkToChange] = useState<BarDrinkOrder | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [isCanceling, setIsCanceling] = useState<string | null>(null);
@@ -107,7 +109,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
         toast({ title: 'Pedido registrado', description: 'Te avisaremos cuando este listo.' });
         setSelectedDrink(null);
         setDrinkToChange(null);
-        await loadData();
+        void loadData().catch((e) => console.warn('[MiniQuiosco] loadData tras pedido:', e));
       } else {
         toast({ title: 'No se pudo registrar', description: result.error || 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
       }
@@ -185,8 +187,19 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
     return aAgotado ? 1 : -1;
   });
   const availableDrinks = drinks.filter((d) => d.stockDisponible === undefined || d.stockDisponible > 0);
+  const defaultVersionForDrink = (drink: Trago): 'con_alcohol' | 'sin_alcohol' => {
+    if (esMenor) return 'sin_alcohol';
+    if (!drink.recetaIngredientes?.length && drink.recetaIngredientesSinAlcohol?.length) {
+      return 'sin_alcohol';
+    }
+    return 'con_alcohol';
+  };
   const chooseRandomDrink = () => {
-    if (availableDrinks.length) setSelectedDrink(availableDrinks[Math.floor(Math.random() * availableDrinks.length)]);
+    if (availableDrinks.length) {
+      const chosen = availableDrinks[Math.floor(Math.random() * availableDrinks.length)];
+      setSelectedDrink(chosen);
+      setSelectedVersion(defaultVersionForDrink(chosen));
+    }
   };
 
   if (isLoading) {
@@ -259,7 +272,10 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
                     {/* El boton va abajo de todo y ocupa el ancho: se alcanza con el
                         pulgar y se toca sin apuntar, que es como se usa en una fiesta. */}
                     <Button
-                      onClick={() => { setSelectedDrink(drink); setSelectedVersion(esMenor ? 'sin_alcohol' : 'con_alcohol'); }}
+                      onClick={() => {
+                        setSelectedDrink(drink);
+                        setSelectedVersion(defaultVersionForDrink(drink));
+                      }}
                       disabled={Boolean(activeOrder) || isAgotado}
                       data-testid="boton-pedir-trago"
                       className="mt-4 min-h-12 w-full rounded-xl text-base font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"

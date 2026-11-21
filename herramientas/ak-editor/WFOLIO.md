@@ -56,7 +56,46 @@ Dado que no existe plugin de Lightroom ni API pública, el camino robusto, limpi
 
 ---
 
-## 4. Enlaces y Referencias
+## 4. Estructura del Proyecto, Diseño y Portada (Orden 329)
+
+Cada álbum en Wfolio Disk funciona como un **proyecto** que contiene carpetas ordenadas. El plan ilimitado del dueño habilita las siguientes secciones y reglas operativas:
+
+### Solapa "Diseño y portada"
+En la solapa **Diseño y portada** del proyecto se configuran:
+- **Plantillas**: selección del layout de la galería (grilla, mampostería, portada a pantalla completa). AK Editor guarda la elección única del dueño en **"Marca AK"** para reutilizarla en todas las fiestas.
+- **Letra (Tipografía)**: fuente para título, subtítulo y nombres de carpetas.
+- **Colores**: paleta de fondo, acentos y textos de la galería.
+- **Foto de portada**: imagen principal del álbum (AK Editor elige la foto con mejor nota de calidad en `analizador.py`, prefiriendo la carpeta `Exterior`).
+- **Título y subtítulo**: título con el nombre de la fiesta/agasajada y subtítulo con el tipo de celebración y fecha (ej.: `"Valentina · 15 años · 14/03/2027"`).
+- **Espacio entre fotos** (vista computadora): chico, mediano o grande.
+
+### Opciones por carpeta
+Cada carpeta dentro del proyecto (fotógrafo + estaciones) admite configurar:
+- **Carpeta oculta**: permite ocultar temporalmente una subcarpeta al público manteniendo su contenido en el proyecto.
+- **Descarga permitida**: habilita o bloquea la descarga de archivos para quienes acceden con el enlace.
+- **PIN / contraseña de descarga**: clave opcional de 4+ dígitos para autorizar la descarga de archivos originales o en alta resolución.
+- **Orden y visibilidad**: nunca se crean carpetas vacías en el proyecto.
+
+### Manejo de videos (MP4 / MOV H.264 hasta 500 MB)
+- Wfolio reproduce dentro de la galería videos **MP4 o MOV codificados en H.264 (`libx264` + `aac`)** de hasta **500 MB**.
+- Si un video supera los **500 MB**, Wfolio lo muestra únicamente como foto fija en lugar de reproducirlo; por eso `exportador_video.py` lo comprime automáticamente por debajo de 500 MB antes de subirlo.
+- Si el plan o la página rechaza videos, los archivos de Plataforma 360 permanecen en la carpeta local y el resumen avisa: `"Wfolio no acepta video: los 360 quedaron en tu compu"`.
+
+### Reconocimiento de caras (hasta 2000 fotos)
+- Disponible en el plan ilimitado para imágenes **JPG y PNG**.
+- El límite operativo de Wfolio es de **2000** fotos/archivos por proyecto (contando todas las carpetas).
+- Si el proyecto tiene hasta **2000** archivos, AK Editor deja el reconocimiento de caras **activado** para que cada invitado encuentre sus fotos buscando su rostro.
+- Si supera **2000** archivos, se deja **apagado** y el resumen informa: `"Más de 2000 fotos: Wfolio no busca caras en este álbum"`.
+
+### Decisiones del dueño (qué NO se activa)
+- **Selección de fotos por el cliente**: **NO se activa** ("el cliente no elige nada").
+- **Venta de fotos / tienda**: **NO se activa**.
+- **Privacidad**: el álbum se mantiene **privado** y el enlace lo envía el dueño manualmente desde el Centro de la fiesta.
+
+---
+
+## 5. Enlaces y Referencias
 - Portal de Wfolio Disk: [https://wfolio.com/my/disk](https://wfolio.com/my/disk)
+- Documentación oficial: [https://docs.wfolio.pro](https://docs.wfolio.pro)
 - Documentación de Playwright Python: [https://playwright.dev/python/](https://playwright.dev/python/)
 - Guía de almacenamiento local de AK Editor: `herramientas/ak-editor/almacen.py`

@@ -365,6 +365,47 @@ def calcular_nota_tramo(metricas_tramo: List[Dict[str, Any]], bloque: str = "gen
     return round(nota_final, 2)
 
 
+def evaluar_calidad_foto(ruta_archivo: str) -> float:
+    """Calcula la nota de calidad de una fotografía (nitidez, brillo y presencia de rostros)."""
+    if not ruta_archivo or not os.path.exists(ruta_archivo):
+        return -100.0
+
+    try:
+        datos_bytes = np.fromfile(ruta_archivo, dtype=np.uint8)
+        frame = cv2.imdecode(datos_bytes, cv2.IMREAD_COLOR)
+        if frame is None or frame.size == 0:
+            return 0.0
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape[:2]
+        small_w = 320
+        small_h = max(1, int(h * (320.0 / max(w, 1))))
+        gray_small = cv2.resize(gray, (small_w, small_h))
+
+        brillo = float(np.mean(gray_small))
+        var_lap = float(cv2.Laplacian(gray_small, cv2.CV_64F).var())
+
+        tiene_cara = False
+        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        if os.path.exists(cascade_path):
+            try:
+                detector_caras = cv2.CascadeClassifier(cascade_path)
+                caras = detector_caras.detectMultiScale(gray_small, scaleFactor=1.1, minNeighbors=4)
+                tiene_cara = len(caras) > 0
+            except Exception:
+                tiene_cara = False
+
+        nota = (var_lap / 100.0) + (10.0 if tiene_cara else 0.0)
+        if brillo < 25.0 or brillo > 235.0:
+            nota -= 15.0
+        elif 85.0 <= brillo <= 175.0:
+            nota += 3.0
+
+        return round(nota, 2)
+    except Exception:
+        return 0.0
+
+
 
 class Analizador:
     """Clase principal que orquesta el análisis de videos y persistencia."""

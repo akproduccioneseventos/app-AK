@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { MensajesParaVosSection } from '@/components/album/MensajesParaVosSection';
+import { QuienEsQuienCarasPanel } from '@/components/portal/QuienEsQuienCarasPanel';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
@@ -436,6 +437,11 @@ export default function FotosVideoPortalPage() {
 
         {/* --- LIBRO DE FIRMAS PRIVADO ("Mensajes para vos") --- */}
         <MensajesParaVosSection fiestaId={fiestaId} variant="light" />
+
+        {/* --- BLOQUE 7: ¿QUIÉN ES QUIÉN? --- */}
+        {!isLoading && !error && posts.length > 0 && (
+          <QuienEsQuienCarasPanel fiestaId={fiestaId} />
+        )}
 
         {/* --- ENTREGAS FORMALES DE FOTOGRAFÍA & FILMACIÓN --- */}
         <div className="space-y-4">

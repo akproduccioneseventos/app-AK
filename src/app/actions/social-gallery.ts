@@ -77,6 +77,35 @@ import {
 import type { GuestPresenceRecord } from '@/lib/social-fiesta/estadisticas-en-vivo';
 import { decidir } from '@/lib/ai/decisiones';
 import { completarNotasAlbumEnTandas } from '@/lib/album/armar-album';
+import { sendNotificationToTargets } from '@/lib/firebase/server-messaging';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
+import { getWhatsAppConfig } from '@/app/actions/whatsapp';
+import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import {
+  agruparEnPersonas,
+  aplicarAsignacionesAPersonas,
+  buscarFotosDeUnaCara,
+  buscarInvitadoPorNombreExacto,
+  esVectorFacialValido,
+  filtrarCarasPorPosts,
+  mezclarCarasPorFoto,
+  quitarCarasDeFoto,
+  vectorInvitadoExpirado,
+  type AsignacionCara,
+  type CaraEnFoto,
+  type Persona,
+} from '@/lib/caras/agrupar-caras';
+import { normalizarMomentoPost } from '@/lib/caras/momentos-galeria';
+import {
+  armarMensajeWhatsappFotos,
+  esRespuestaBajaWhatsapp,
+  VENTANA_WHATSAPP_FOTOS_MS,
+} from '@/lib/caras/whatsapp-fotos';
+import type { Empleado } from '@/types/empleado';
+import type { WhatsAppConfig, WhatsAppConversation } from '@/types/whatsapp';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -913,6 +942,11 @@ export async function moderateSocialPost(
       };
       const updatedAll = allPosts.map((p) => (p.id === postId ? updatedPost : p));
       await writeData('social-gallery/metadata.json', updatedAll);
+      if (moderationStatus === 'hidden') {
+        await eliminarCarasDePostEnIndice(target.fiestaId, postId);
+      } else if (moderationStatus === 'approved') {
+        await evaluarCarasDePostRecienAprobado(target.fiestaId, postId);
+      }
       return { success: true, post: updatedPost };
     }
 
@@ -931,6 +965,11 @@ export async function moderateSocialPost(
       moderatedBy,
     });
     const updated = await ref.get();
+    if (moderationStatus === 'hidden') {
+      await eliminarCarasDePostEnIndice(post.fiestaId, postId);
+    } else if (moderationStatus === 'approved') {
+      await evaluarCarasDePostRecienAprobado(post.fiestaId, postId);
+    }
     return { success: true, post: { ...updated.data() } as SocialGalleryPost };
   } catch (e: any) {
     return { success: false, error: e.message || 'No se pudo moderar la publicación.' };
@@ -1060,6 +1099,7 @@ export async function deleteSocialPost(
         'social-gallery/metadata.json',
         allPosts.filter((p) => p.id !== postId),
       );
+      await eliminarCarasDePostEnIndice(target.fiestaId, postId);
       return { success: true };
     }
 
@@ -1078,6 +1118,7 @@ export async function deleteSocialPost(
       logger.warn(`[social-gallery] Could not delete Storage file for post ${postId}: ${fileError.message}`);
     }
     await ref.delete();
+    await eliminarCarasDePostEnIndice(post.fiestaId, postId);
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message || 'No se pudo borrar la publicación.' };
@@ -1177,6 +1218,7 @@ export async function blockGuestFromSocialEvent(
                 : p,
             ),
           );
+          await eliminarCarasDePostEnIndice(fiestaId, input.postId);
         }
       }
     } else {
@@ -1191,6 +1233,7 @@ export async function blockGuestFromSocialEvent(
             moderatedAt: entry.blockedAt,
             moderatedBy: entry.blockedBy,
           });
+          await eliminarCarasDePostEnIndice(fiestaId, input.postId);
         }
       }
     }
@@ -1586,10 +1629,17 @@ export async function clearGallery(fiestaId: string): Promise<{ success: boolean
 }
 
 export interface PhotoZipItem {
+  id?: string;
   path: string;
+  imageUrl?: string;
   name: string;
   moderationStatus: 'approved' | 'pending' | 'hidden';
+  approved?: boolean;
   authorName?: string;
+  source?: string;
+  sourceModule?: string;
+  mediaType?: 'image' | 'video';
+  caption?: string;
 }
 
 export async function getPhotoFilePathsForZip(
@@ -1629,10 +1679,17 @@ export async function getPhotoFilePathsForZip(
         name = data.id;
       }
       return {
+        id: data.id || doc.id,
         path: data.imageUrl,
+        imageUrl: data.imageUrl,
         name,
         moderationStatus: status,
+        approved: status === 'approved',
         authorName: data.authorName,
+        source: data.source,
+        sourceModule: data.sourceModule,
+        mediaType: data.mediaType,
+        caption: data.caption,
       };
     });
 
@@ -1785,6 +1842,11 @@ export async function moderateSocialPostByClient(
       moderatedAt: new Date().toISOString(),
       moderatedBy: 'Cliente Portal',
     });
+    if (moderationStatus === 'hidden') {
+      await eliminarCarasDePostEnIndice(fiestaId, postId);
+    } else if (moderationStatus === 'approved') {
+      await evaluarCarasDePostRecienAprobado(fiestaId, postId);
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al moderar.' };
@@ -1824,7 +1886,372 @@ export async function getPublicInstagramFeedAction() {
   return getPublicInstagramFeed();
 }
 
-export async function getCarasDeFiesta(fiestaId: string): Promise<import('@/lib/caras/agrupar-caras').CaraEnFoto[]> {
+function samePhoneDigits(a?: string | null, b?: string | null): boolean {
+  const normA = normalizeUruguayPhone(a);
+  const normB = normalizeUruguayPhone(b);
+  if (normA && normB && normA === normB) return true;
+  const digitsA = String(a || '').replace(/\D/g, '');
+  const digitsB = String(b || '').replace(/\D/g, '');
+  return digitsA.length >= 7 && digitsB.length >= 7 && digitsA === digitsB;
+}
+
+async function eliminarCarasDePostEnIndice(fiestaId: string, postId: string): Promise<void> {
+  if (!fiestaId || !postId) return;
+  try {
+    const res = await actualizarFiesta(
+      fiestaId,
+      (fiesta) => {
+        const actuales = fiesta.carasIndexadas || [];
+        const filtradas = quitarCarasDeFoto(actuales, postId);
+        if (filtradas.length === actuales.length) return fiesta;
+        return {
+          ...fiesta,
+          carasIndexadas: filtradas,
+        };
+      },
+      { publicRsvp: true },
+    );
+    if (!res.success) {
+      logger.warn('[social-gallery] No se pudieron eliminar caras del índice al ocultar/borrar post:', res.error);
+    }
+  } catch (err) {
+    logger.warn('[social-gallery] Error quitando caras de foto oculta:', err);
+  }
+}
+
+async function purgarVectoresInvitadosSiExpiraron(
+  fiesta: FiestaEnPlanificacion,
+  ahoraMs: number = Date.now(),
+): Promise<boolean> {
+  if (!vectorInvitadoExpirado(fiesta.configuracion?.fechaEvento, ahoraMs)) {
+    return false;
+  }
+  const tieneVectores = Boolean(
+    fiesta.vectoresCarasInvitados && Object.keys(fiesta.vectoresCarasInvitados).length > 0,
+  );
+  if (tieneVectores) {
+    const res = await actualizarFiesta(
+      fiesta.id,
+      (actual) => ({ ...actual, vectoresCarasInvitados: {} }),
+      { publicRsvp: true },
+    );
+    if (!res.success) {
+      logger.warn('[social-gallery] No se pudieron purgar vectores expirados:', res.error);
+    }
+  }
+  return true;
+}
+
+async function evaluarCarasDePostRecienAprobado(fiestaId: string, postId: string): Promise<void> {
+  try {
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta?.carasIndexadas?.length) return;
+    const carasDelPost = fiesta.carasIndexadas.filter((c) => c.fotoId === postId);
+    if (carasDelPost.length > 0) {
+      await procesarNotificacionesTandaFotos(fiestaId, carasDelPost);
+    }
+  } catch (err) {
+    logger.warn('[social-gallery] Error evaluando caras de post recién aprobado:', err);
+  }
+}
+
+async function obtenerTelefonosExcluidosWhatsapp(): Promise<{
+  personales: string[];
+  empleados: string[];
+  bajasPorTelefono: Set<string>;
+}> {
+  const [waConfigRaw, extraPersonales, empleadosRaw, conversacionesRaw, bajasRaw] = await Promise.all([
+    readData<Partial<WhatsAppConfig>>('whatsapp-config.json', {}).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer whatsapp-config.json:', err);
+      return {} as Partial<WhatsAppConfig>;
+    }),
+    readData<string[]>('whatsapp-numeros-personales.json', []).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer whatsapp-numeros-personales.json:', err);
+      return [] as string[];
+    }),
+    readData<Empleado[]>('empleados.json', []).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer empleados.json:', err);
+      return [] as Empleado[];
+    }),
+    readData<WhatsAppConversation[]>('whatsapp-conversations.json', []).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer whatsapp-conversations.json:', err);
+      return [] as WhatsAppConversation[];
+    }),
+    readData<string[]>('whatsapp-fotos-bajas.json', []).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer whatsapp-fotos-bajas.json:', err);
+      return [] as string[];
+    }),
+  ]);
+
+  const personales = [
+    ...(Array.isArray(waConfigRaw?.numerosPersonales) ? waConfigRaw.numerosPersonales : []),
+    ...(Array.isArray(extraPersonales) ? extraPersonales : []),
+  ].filter(Boolean);
+
+  const empleados = (Array.isArray(empleadosRaw) ? empleadosRaw : [])
+    .map((e) => e?.telefono)
+    .filter((t): t is string => Boolean(t));
+
+  const bajasPorTelefono = new Set<string>();
+  for (const tel of Array.isArray(bajasRaw) ? bajasRaw : []) {
+    const norm = normalizeUruguayPhone(tel) || String(tel || '').replace(/\D/g, '');
+    if (norm) bajasPorTelefono.add(norm);
+  }
+  for (const conv of Array.isArray(conversacionesRaw) ? conversacionesRaw : []) {
+    const msgs = Array.isArray(conv?.messages) ? conv.messages : [];
+    const pidioBaja = msgs.some((m) => m?.from === 'client' && esRespuestaBajaWhatsapp(m?.content));
+    if (pidioBaja && conv?.clientPhone) {
+      const norm = normalizeUruguayPhone(conv.clientPhone) || conv.clientPhone.replace(/\D/g, '');
+      if (norm) bajasPorTelefono.add(norm);
+    }
+  }
+
+  return { personales, empleados, bajasPorTelefono };
+}
+
+function calcularFotosNuevasPorInvitado(params: {
+  fiesta: FiestaEnPlanificacion;
+  carasTanda: readonly CaraEnFoto[];
+  approvedPostIds: ReadonlySet<string>;
+  expirado: boolean;
+}): Map<string, Set<string>> {
+  const { fiesta, carasTanda, approvedPostIds, expirado } = params;
+  const carasAprobadasTanda = carasTanda.filter(
+    (c) => approvedPostIds.size === 0 || approvedPostIds.has(c.fotoId),
+  );
+  const todasCarasAprobadas = (fiesta.carasIndexadas || []).filter(
+    (c) => approvedPostIds.size === 0 || approvedPostIds.has(c.fotoId),
+  );
+  const personasAgrupadas = aplicarAsignacionesAPersonas(
+    agruparEnPersonas(todasCarasAprobadas, { minimoDeApariciones: 1 }),
+    fiesta.asignacionesCaras,
+  );
+
+  const mapa = new Map<string, Set<string>>();
+  const agregar = (guestId: string, fotoId: string) => {
+    if (!guestId || !fotoId) return;
+    let set = mapa.get(guestId);
+    if (!set) {
+      set = new Set<string>();
+      mapa.set(guestId, set);
+    }
+    set.add(fotoId);
+  };
+
+  if (!expirado && fiesta.vectoresCarasInvitados && carasAprobadasTanda.length > 0) {
+    for (const [guestId, entry] of Object.entries(fiesta.vectoresCarasInvitados)) {
+      if (!entry?.vector?.length) continue;
+      const res = buscarFotosDeUnaCara([entry.vector], carasAprobadasTanda);
+      for (const fotoId of res.seguras) {
+        agregar(guestId, fotoId);
+      }
+    }
+  }
+
+  const asignaciones = Object.values(fiesta.asignacionesCaras || {});
+  if (asignaciones.length > 0 && carasAprobadasTanda.length > 0) {
+    for (const persona of personasAgrupadas) {
+      if (!persona.invitadoId) continue;
+      const res = buscarFotosDeUnaCara([persona.representante.vector], carasAprobadasTanda);
+      for (const fotoId of res.seguras) {
+        agregar(persona.invitadoId, fotoId);
+      }
+      for (const fotoId of persona.fotoIds) {
+        if (carasAprobadasTanda.some((c) => c.fotoId === fotoId)) {
+          agregar(persona.invitadoId, fotoId);
+        }
+      }
+    }
+  }
+
+  return mapa;
+}
+
+async function procesarNotificacionesTandaFotos(
+  fiestaId: string,
+  carasTanda: readonly CaraEnFoto[],
+  opciones: { ahoraMs?: number; baseUrl?: string } = {},
+): Promise<{ pushEnviados: number; whatsappEnviados: number }> {
+  const ahoraMs = opciones.ahoraMs ?? Date.now();
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+  if (!fiesta) return { pushEnviados: 0, whatsappEnviados: 0 };
+
+  const expirado = await purgarVectoresInvitadosSiExpiraron(fiesta, ahoraMs);
+  if (expirado) {
+    return { pushEnviados: 0, whatsappEnviados: 0 };
+  }
+
+  const allPosts = await getAllEventPosts(fiestaId).catch((err) => {
+    logger.warn('[social-gallery] No se pudieron leer posts al evaluar notificaciones:', err);
+    return [] as SocialGalleryPost[];
+  });
+  const approvedPostIds = new Set(
+    allPosts.filter((p) => esAprobadoParaMostrar(p)).map((p) => p.id),
+  );
+  // Si ya hay posts cargados para la fiesta y todos quedaron ocultos/pendientes, no notificar nada.
+  if (allPosts.length > 0 && approvedPostIds.size === 0) {
+    return { pushEnviados: 0, whatsappEnviados: 0 };
+  }
+
+  const fotosPorInvitado = calcularFotosNuevasPorInvitado({
+    fiesta,
+    carasTanda,
+    approvedPostIds: allPosts.length > 0 ? approvedPostIds : new Set<string>(),
+    expirado,
+  });
+
+  if (fotosPorInvitado.size === 0) {
+    return { pushEnviados: 0, whatsappEnviados: 0 };
+  }
+
+  const whatsappActivo = fiesta.socialGallerySettings?.whatsappFotosInvitadosActivo === true;
+  const excluidos = whatsappActivo ? await obtenerTelefonosExcluidosWhatsapp() : null;
+  let waConfig: WhatsAppConfig | null = null;
+  if (whatsappActivo) {
+    waConfig = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN).catch((err) => {
+      logger.warn('[social-gallery] No se pudo leer configuración de WhatsApp:', err);
+      return null;
+    });
+  }
+
+  const nombreEvento = fiesta.configuracion?.nombreEvento || 'la fiesta';
+  const baseUrl = opciones.baseUrl || process.env.NEXT_PUBLIC_APP_URL || '';
+
+  let pushEnviados = 0;
+  let whatsappEnviados = 0;
+  const pushNuevosPorGuest = new Map<string, string[]>();
+  const waNuevosPorGuest = new Map<string, { fotoIds: string[]; enviadoAt: string }>();
+
+  for (const invitado of fiesta.invitados || []) {
+    const coincidencias = fotosPorInvitado.get(invitado.id);
+    if (!coincidencias || coincidencias.size === 0) continue;
+
+    const yaNotifPush = new Set(invitado.fotosYaNotificadasPush || []);
+    const nuevasPush = [...coincidencias].filter((id) => !yaNotifPush.has(id));
+    if (nuevasPush.length > 0) {
+      const cantidad = nuevasPush.length;
+      const body = cantidad === 1
+        ? 'Aparecés en 1 foto nueva'
+        : `Aparecés en ${cantidad} fotos nuevas`;
+      const guestPath = `/portal-invitado/${encodeURIComponent(fiestaId)}/${encodeURIComponent(invitado.id)}${
+        invitado.guestAccessToken ? `?token=${encodeURIComponent(invitado.guestAccessToken)}` : ''
+      }#mis-fotos`;
+      const pushRes = await sendNotificationToTargets(
+        { guestIds: [invitado.id], fiestaId },
+        {
+          title: `${nombreEvento} 📸`,
+          body,
+          url: baseUrl ? `${baseUrl}${guestPath}` : guestPath,
+          data: { fiestaId, guestId: invitado.id, cantidad: String(cantidad) },
+        },
+      );
+      if (pushRes.success) {
+        pushEnviados += 1;
+        pushNuevosPorGuest.set(invitado.id, nuevasPush);
+      } else {
+        logger.warn('[social-gallery] No se pudo enviar push de fotos nuevas:', pushRes.error);
+      }
+    }
+
+    if (whatsappActivo && excluidos) {
+      if (invitado.rsvp === 'Rechazado' || invitado.whatsappFotosBaja) continue;
+      const rawPhone = invitado.contacto?.trim();
+      const digits = String(rawPhone || '').replace(/\D/g, '');
+      if (!rawPhone || digits.length < 8) continue;
+
+      const esPersonalOEmpleado =
+        excluidos.personales.some((n) => samePhoneDigits(n, rawPhone)) ||
+        excluidos.empleados.some((n) => samePhoneDigits(n, rawPhone));
+      if (esPersonalOEmpleado) continue;
+
+      const normPhone = normalizeUruguayPhone(rawPhone) || digits;
+      if (excluidos.bajasPorTelefono.has(normPhone)) continue;
+
+      const ultimoMs = invitado.ultimoWhatsappFotosAt ? Date.parse(invitado.ultimoWhatsappFotosAt) : NaN;
+      if (Number.isFinite(ultimoMs) && ahoraMs - ultimoMs < VENTANA_WHATSAPP_FOTOS_MS) {
+        continue;
+      }
+
+      const yaNotifWa = new Set(invitado.fotosYaNotificadasWhatsapp || []);
+      const nuevasWa = [...coincidencias].filter((id) => !yaNotifWa.has(id));
+      if (nuevasWa.length === 0) continue;
+
+      const apiToken = waConfig?.apiKey?.trim() || process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN || '';
+      const phoneNumberId =
+        waConfig?.phoneNumberId?.trim() || process.env.META_WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+      if (waConfig && waConfig.enabled === false && Boolean(waConfig.apiKey?.trim())) {
+        continue;
+      }
+
+      const misFotosPath = `/portal-invitado/${encodeURIComponent(fiestaId)}/${encodeURIComponent(invitado.id)}${
+        invitado.guestAccessToken ? `?token=${encodeURIComponent(invitado.guestAccessToken)}` : ''
+      }#mis-fotos`;
+      const linkMisFotos = baseUrl ? `${baseUrl}${misFotosPath}` : misFotosPath;
+      const texto = armarMensajeWhatsappFotos({
+        nombre: invitado.nombre,
+        cantidad: nuevasWa.length,
+        nombreEvento,
+        linkMisFotos,
+      });
+
+      const waRes = await sendMetaWhatsAppMessage({
+        to: rawPhone,
+        text: texto,
+        apiToken,
+        phoneNumberId,
+      });
+      if (waRes.success) {
+        whatsappEnviados += 1;
+        waNuevosPorGuest.set(invitado.id, {
+          fotoIds: nuevasWa,
+          enviadoAt: new Date(ahoraMs).toISOString(),
+        });
+      } else {
+        logger.warn('[social-gallery] No se pudo enviar WhatsApp de fotos nuevas:', waRes.error);
+      }
+    }
+  }
+
+  if (pushNuevosPorGuest.size > 0 || waNuevosPorGuest.size > 0) {
+    const saveRes = await actualizarFiesta(
+      fiestaId,
+      (actual) => ({
+        ...actual,
+        invitados: (actual.invitados || []).map((inv) => {
+          const pNuevas = pushNuevosPorGuest.get(inv.id);
+          const wInfo = waNuevosPorGuest.get(inv.id);
+          if (!pNuevas && !wInfo) return inv;
+          return {
+            ...inv,
+            ...(pNuevas
+              ? {
+                  fotosYaNotificadasPush: Array.from(
+                    new Set([...(inv.fotosYaNotificadasPush || []), ...pNuevas]),
+                  ),
+                }
+              : {}),
+            ...(wInfo
+              ? {
+                  fotosYaNotificadasWhatsapp: Array.from(
+                    new Set([...(inv.fotosYaNotificadasWhatsapp || []), ...wInfo.fotoIds]),
+                  ),
+                  ultimoWhatsappFotosAt: wInfo.enviadoAt,
+                }
+              : {}),
+          };
+        }),
+      }),
+      { publicRsvp: true },
+    );
+    if (!saveRes.success) {
+      logger.warn('[social-gallery] No se pudo guardar historial de avisos de fotos:', saveRes.error);
+    }
+  }
+
+  return { pushEnviados, whatsappEnviados };
+}
+
+export async function getCarasDeFiesta(fiestaId: string): Promise<CaraEnFoto[]> {
   try {
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return [];
@@ -1832,11 +2259,25 @@ export async function getCarasDeFiesta(fiestaId: string): Promise<import('@/lib/
     if (!fiesta.socialGallerySettings?.carasPreparadas && !fiesta.carasIndexadas?.length) {
       return [];
     }
-    if (fiesta.carasIndexadas && fiesta.carasIndexadas.length > 0) {
-      return fiesta.carasIndexadas;
-    }
-    const caras = await readData<import('@/lib/caras/agrupar-caras').CaraEnFoto[]>(`caras/${fiestaId}.json`, []);
-    return caras || [];
+    const baseCaras =
+      fiesta.carasIndexadas && fiesta.carasIndexadas.length > 0
+        ? fiesta.carasIndexadas
+        : (await readData<CaraEnFoto[]>(`caras/${fiestaId}.json`, [])) || [];
+
+    const posts = await getAllEventPosts(fiestaId).catch((err) => {
+      logger.warn('[social-gallery] Error leyendo posts al filtrar caras:', err);
+      return [] as SocialGalleryPost[];
+    });
+    const noAprobados = new Set(
+      posts.filter((p) => !esAprobadoParaMostrar(p)).map((p) => p.id),
+    );
+    return baseCaras
+      .filter((c) => Boolean(c?.fotoId) && Array.isArray(c?.vector) && !noAprobados.has(c.fotoId))
+      .map((c) => ({
+        fotoId: c.fotoId,
+        vector: c.vector,
+        ...(c.tamano !== undefined ? { tamano: c.tamano } : {}),
+      }));
   } catch (err) {
     logger.warn('[social-gallery] Error al leer caras de fiesta:', err);
     return [];
@@ -1845,29 +2286,705 @@ export async function getCarasDeFiesta(fiestaId: string): Promise<import('@/lib/
 
 export async function guardarCarasDeFiesta(
   fiestaId: string,
-  caras: import('@/lib/caras/agrupar-caras').CaraEnFoto[],
-): Promise<{ ok: boolean }> {
+  caras: CaraEnFoto[],
+  opciones: {
+    incremental?: boolean;
+    guestId?: string;
+    guestAccessToken?: string;
+    stationModuleId?: string;
+    stationAccessToken?: string;
+    ahoraMs?: number;
+    skipNotifications?: boolean;
+  } = {},
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const appSession = await hasAppSession();
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) return { ok: false, error: 'Fiesta no encontrada.' };
+
+    if (!appSession) {
+      await enforcePublicRateLimit({
+        scope: 'social-guardar-caras',
+        identity: `${fiestaId}:${opciones.guestId || opciones.stationModuleId || 'public'}`,
+        limit: 60,
+        windowMs: 60_000,
+      });
+      const guest = opciones.guestId
+        ? fiesta.invitados?.find((item) => item.id === opciones.guestId)
+        : undefined;
+      const guestAuthorized = Boolean(
+        opciones.guestId &&
+          hasPublicGuestAccess(guest, opciones.guestId, opciones.guestAccessToken || ''),
+      );
+      const stationModuleId =
+        opciones.stationModuleId && isEntertainmentModuleId(opciones.stationModuleId)
+          ? opciones.stationModuleId
+          : undefined;
+      const stationAuthorized = Boolean(
+        stationModuleId &&
+          verifyEntertainmentAccessToken(
+            opciones.stationAccessToken,
+            fiestaId,
+            stationModuleId,
+            'guest',
+          ),
+      );
+      if (!guestAuthorized && !stationAuthorized) {
+        return { ok: false, error: 'Acceso no autorizado para actualizar caras.' };
+      }
+    }
+
+    const limpias = (caras || [])
+      .filter((c) => Boolean(c?.fotoId) && Array.isArray(c?.vector) && c.vector.length > 0)
+      .map((c) => ({
+        fotoId: c.fotoId,
+        vector: [...c.vector],
+        ...(c.tamano !== undefined ? { tamano: c.tamano } : {}),
+      }));
+
+    const saveRes = await actualizarFiesta(
+      fiestaId,
+      (actual) => {
+        const siguientesCaras = opciones.incremental
+          ? mezclarCarasPorFoto(actual.carasIndexadas || [], limpias)
+          : limpias;
+        return {
+          ...actual,
+          carasIndexadas: siguientesCaras,
+          socialGallerySettings: {
+            ...actual.socialGallerySettings,
+            enabled: actual.socialGallerySettings?.enabled ?? true,
+            allowLikes: actual.socialGallerySettings?.allowLikes ?? true,
+            allowComments: actual.socialGallerySettings?.allowComments ?? true,
+            uploadsActive: actual.socialGallerySettings?.uploadsActive ?? true,
+            carasPreparadas: true,
+            modoCaras: actual.socialGallerySettings?.modoCaras ?? 'grilla',
+          },
+        };
+      },
+      { publicRsvp: true },
+    );
+    if (!saveRes.success) {
+      return { ok: false, error: saveRes.error };
+    }
+
+    if (!opciones.skipNotifications && limpias.length > 0) {
+      await procesarNotificacionesTandaFotos(fiestaId, limpias, {
+        ahoraMs: opciones.ahoraMs,
+      });
+    }
+
+    return { ok: true };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error al guardar caras de fiesta:', err);
+    return { ok: false, error: err?.message };
+  }
+}
+
+export interface FotoFotografoImportInput {
+  id?: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  wfolioUrl?: string;
+  momentTag?: string;
+  authorName?: string;
+  descriptors?: number[][];
+  caras?: Array<{ vector: number[]; tamano?: number }>;
+}
+
+/**
+ * Bloque 2: Importa un lote de fotos del fotógrafo (desde AK Editor / Centro de la fiesta)
+ * con miniatura, enlace a Wfolio, momento y descriptores faciales de 128 números.
+ */
+export async function importarFotosFotografoConCaras(
+  fiestaId: string,
+  lote: FotoFotografoImportInput[],
+  opciones: { ahoraMs?: number } = {},
+): Promise<{
+  success: boolean;
+  importedCount: number;
+  indexedFacesCount: number;
+  pushEnviados?: number;
+  whatsappEnviados?: number;
+  error?: string;
+}> {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { ok: false };
-    fiesta.carasIndexadas = caras;
-    fiesta.socialGallerySettings = {
-      ...fiesta.socialGallerySettings,
-      enabled: fiesta.socialGallerySettings?.enabled ?? true,
-      allowLikes: fiesta.socialGallerySettings?.allowLikes ?? true,
-      allowComments: fiesta.socialGallerySettings?.allowComments ?? true,
-      uploadsActive: fiesta.socialGallerySettings?.uploadsActive ?? true,
-      carasPreparadas: true,
-      modoCaras: fiesta.socialGallerySettings?.modoCaras ?? 'grilla',
-    };
-    const saveRes = await saveFiesta(fiesta);
-    if (!saveRes.success) {
-      return { ok: false };
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+
+    if (!Array.isArray(lote) || lote.length === 0) {
+      return { success: false, importedCount: 0, indexedFacesCount: 0, error: 'El lote está vacío.' };
     }
-    return { ok: true };
-  } catch (err) {
-    logger.warn('[social-gallery] Error al guardar caras de fiesta:', err);
-    return { ok: false };
+
+    const postsNuevos: SocialGalleryPost[] = [];
+    const carasNuevas: CaraEnFoto[] = [];
+    const nowIso = new Date(opciones.ahoraMs ?? Date.now()).toISOString();
+
+    for (let i = 0; i < lote.length; i++) {
+      const item = lote[i];
+      if (!item?.imageUrl?.trim()) continue;
+      const postId =
+        item.id?.trim() ||
+        `post_fotografo_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 7)}`;
+      const post: SocialGalleryPost = {
+        id: postId,
+        fiestaId,
+        imageUrl: item.imageUrl.trim(),
+        thumbnailUrl: item.thumbnailUrl?.trim() || item.imageUrl.trim(),
+        mediaType: 'image',
+        moderationStatus: 'approved',
+        timestamp: nowIso,
+        authorName: sanitizeSocialText(item.authorName || 'Fotógrafo Oficial') || 'Fotógrafo Oficial',
+        likes: 0,
+        comments: [],
+        source: 'fotografo',
+        sourceModule: 'fotografo',
+        momentTag: normalizarMomentoPost(item.momentTag),
+        ...(item.wfolioUrl?.trim() ? { wfolioUrl: item.wfolioUrl.trim() } : {}),
+      };
+      postsNuevos.push(post);
+
+      for (const desc of item.descriptors || []) {
+        if (esVectorFacialValido(desc)) {
+          carasNuevas.push({ fotoId: post.id, vector: [...desc] });
+        }
+      }
+      for (const cara of item.caras || []) {
+        if (esVectorFacialValido(cara?.vector)) {
+          carasNuevas.push({
+            fotoId: post.id,
+            vector: [...cara.vector],
+            ...(cara.tamano !== undefined ? { tamano: cara.tamano } : {}),
+          });
+        }
+      }
+    }
+
+    if (postsNuevos.length === 0) {
+      return { success: false, importedCount: 0, indexedFacesCount: 0, error: 'No hay fotos válidas para importar.' };
+    }
+
+    if (sinBaseDisponible()) {
+      const existing = await readData<SocialGalleryPost[]>('social-gallery/metadata.json', []);
+      const idsNuevos = new Set(postsNuevos.map((p) => p.id));
+      await writeData('social-gallery/metadata.json', [
+        ...postsNuevos,
+        ...existing.filter((p) => !idsNuevos.has(p.id)),
+      ]);
+    } else {
+      const db = await getDb();
+      const batch = db.batch();
+      for (const post of postsNuevos) {
+        batch.set(db.collection(GALLERY_COLLECTION).doc(post.id), post);
+      }
+      await batch.commit();
+    }
+
+    if (carasNuevas.length > 0) {
+      const saveCaras = await actualizarFiesta(
+        fiestaId,
+        (actual) => ({
+          ...actual,
+          carasIndexadas: mezclarCarasPorFoto(actual.carasIndexadas || [], carasNuevas),
+          socialGallerySettings: {
+            ...actual.socialGallerySettings,
+            enabled: actual.socialGallerySettings?.enabled ?? true,
+            allowLikes: actual.socialGallerySettings?.allowLikes ?? true,
+            allowComments: actual.socialGallerySettings?.allowComments ?? true,
+            uploadsActive: actual.socialGallerySettings?.uploadsActive ?? true,
+            carasPreparadas: true,
+            modoCaras: actual.socialGallerySettings?.modoCaras ?? 'grilla',
+          },
+        }),
+        { publicRsvp: true },
+      );
+      if (!saveCaras.success) {
+        return {
+          success: false,
+          importedCount: postsNuevos.length,
+          indexedFacesCount: 0,
+          error: saveCaras.error || 'No se pudieron guardar las caras del fotógrafo.',
+        };
+      }
+    }
+
+    const notif = await procesarNotificacionesTandaFotos(fiestaId, carasNuevas, {
+      ahoraMs: opciones.ahoraMs,
+    });
+
+    return {
+      success: true,
+      importedCount: postsNuevos.length,
+      indexedFacesCount: carasNuevas.length,
+      pushEnviados: notif.pushEnviados,
+      whatsappEnviados: notif.whatsappEnviados,
+    };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error importando fotos del fotógrafo:', err);
+    return {
+      success: false,
+      importedCount: 0,
+      indexedFacesCount: 0,
+      error: err?.message || 'No se pudieron importar las fotos del fotógrafo.',
+    };
+  }
+}
+
+/**
+ * Bloque 3: El invitado registra su descriptor facial de 128 números ("Quiero que me lleguen mis fotos").
+ * Sólo se guardan números, nunca la selfie, y el vector vence automáticamente a los 90 días.
+ */
+export async function registrarCaraInvitado(input: {
+  fiestaId: string;
+  guestId: string;
+  guestAccessToken: string;
+  vector: number[];
+  fcmToken?: string;
+  ahoraMs?: number;
+}): Promise<{ success: boolean; tieneCaraRegistrada?: boolean; error?: string }> {
+  try {
+    await enforcePublicRateLimit({
+      scope: 'social-guest-face-register',
+      identity: `${input.fiestaId}:${input.guestId || 'anon'}`,
+      limit: 20,
+      windowMs: 60_000,
+    });
+
+    if (!input.fiestaId || !input.guestId || !input.guestAccessToken) {
+      return { success: false, error: 'Falta tu credencial personal de invitado.' };
+    }
+    if (!esVectorFacialValido(input.vector)) {
+      return { success: false, error: 'No pudimos leer los rasgos faciales. Intentá de nuevo.' };
+    }
+
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    const ahoraMs = input.ahoraMs ?? Date.now();
+    if (await purgarVectoresInvitadosSiExpiraron(fiesta, ahoraMs)) {
+      return {
+        success: false,
+        tieneCaraRegistrada: false,
+        error: 'El plazo de 90 días para guardar tu cara en este evento ya venció.',
+      };
+    }
+
+    const guest = fiesta.invitados?.find((item) => item.id === input.guestId);
+    if (!hasPublicGuestAccess(guest, input.guestId, input.guestAccessToken)) {
+      return { success: false, error: 'Credencial de invitado no autorizada.' };
+    }
+
+    const saveRes = await actualizarFiesta(
+      input.fiestaId,
+      (actual) => ({
+        ...actual,
+        vectoresCarasInvitados: {
+          ...(actual.vectoresCarasInvitados || {}),
+          [guest.id]: {
+            vector: [...input.vector],
+            registradoAt: new Date(ahoraMs).toISOString(),
+          },
+        },
+      }),
+      { publicRsvp: true },
+    );
+
+    if (!saveRes.success) {
+      return { success: false, error: saveRes.error || 'No se pudo guardar tu registro facial.' };
+    }
+
+    if (input.fcmToken && !sinBaseDisponible()) {
+      try {
+        const db = await getDb();
+        await db.collection('fcm_tokens').doc(input.fcmToken).set(
+          {
+            token: input.fcmToken,
+            guestId: guest.id,
+            fiestaId: input.fiestaId,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
+      } catch (fcmErr) {
+        logger.warn('[social-gallery] No se pudo guardar token FCM del invitado:', fcmErr);
+      }
+    }
+
+    return { success: true, tieneCaraRegistrada: true };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error registrando cara de invitado:', err);
+    return { success: false, error: err?.message || 'Error al registrar tu cara.' };
+  }
+}
+
+/**
+ * Bloque 3 (Privacidad): El invitado borra su descriptor facial a un toque ("Borrar mi cara").
+ */
+export async function borrarCaraInvitado(input: {
+  fiestaId: string;
+  guestId: string;
+  guestAccessToken: string;
+}): Promise<{ success: boolean; tieneCaraRegistrada?: boolean; error?: string }> {
+  try {
+    await enforcePublicRateLimit({
+      scope: 'social-guest-face-delete',
+      identity: `${input.fiestaId}:${input.guestId || 'anon'}`,
+      limit: 20,
+      windowMs: 60_000,
+    });
+
+    if (!input.fiestaId || !input.guestId || !input.guestAccessToken) {
+      return { success: false, error: 'Falta tu credencial personal de invitado.' };
+    }
+
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    const guest = fiesta.invitados?.find((item) => item.id === input.guestId);
+    if (!hasPublicGuestAccess(guest, input.guestId, input.guestAccessToken)) {
+      return { success: false, error: 'Credencial de invitado no autorizada.' };
+    }
+
+    const saveRes = await actualizarFiesta(
+      input.fiestaId,
+      (actual) => {
+        const siguientes = { ...(actual.vectoresCarasInvitados || {}) };
+        delete siguientes[guest.id];
+        return {
+          ...actual,
+          vectoresCarasInvitados: siguientes,
+        };
+      },
+      { publicRsvp: true },
+    );
+
+    if (!saveRes.success) {
+      return { success: false, error: saveRes.error || 'No se pudo borrar tu cara.' };
+    }
+    return { success: true, tieneCaraRegistrada: false };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error borrando cara de invitado:', err);
+    return { success: false, error: err?.message || 'Error al borrar tu cara.' };
+  }
+}
+
+/**
+ * Bloque 3: Devuelve las fotos aprobadas de ese invitado (sin exponer jamás vectores faciales).
+ */
+export async function obtenerMisFotosInvitado(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string,
+  opciones: { ahoraMs?: number } = {},
+): Promise<{
+  success: boolean;
+  fotos: SocialGalleryPost[];
+  tieneCaraRegistrada: boolean;
+  expirado?: boolean;
+  error?: string;
+}> {
+  try {
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) {
+      return { success: false, fotos: [], tieneCaraRegistrada: false, error: 'Fiesta no encontrada.' };
+    }
+
+    const guest = fiesta.invitados?.find((item) => item.id === guestId);
+    const autorizadoInvitado = hasPublicGuestAccess(guest, guestId, guestAccessToken);
+    const autorizadoEquipo = autorizadoInvitado ? false : await canModerateSocialEvent(fiestaId);
+
+    if (!autorizadoInvitado && !autorizadoEquipo) {
+      return { success: false, fotos: [], tieneCaraRegistrada: false, error: 'No autorizado.' };
+    }
+
+    const ahoraMs = opciones.ahoraMs ?? Date.now();
+    const expirado = await purgarVectoresInvitadosSiExpiraron(fiesta, ahoraMs);
+
+    const postsAprobados = soloAprobados(await getAllEventPosts(fiestaId));
+    const approvedIds = new Set(postsAprobados.map((p) => p.id));
+    const carasAprobadas = filtrarCarasPorPosts(fiesta.carasIndexadas || [], approvedIds);
+
+    const matchedIds = new Set<string>();
+    for (const post of postsAprobados) {
+      if (post.guestId === guestId) {
+        matchedIds.add(post.id);
+      }
+    }
+
+    const personasAsignadas = aplicarAsignacionesAPersonas(
+      agruparEnPersonas(carasAprobadas, { minimoDeApariciones: 1 }),
+      fiesta.asignacionesCaras,
+    );
+    for (const persona of personasAsignadas) {
+      if (persona.invitadoId === guestId) {
+        for (const fid of persona.fotoIds) matchedIds.add(fid);
+        const matches = buscarFotosDeUnaCara([persona.representante.vector], carasAprobadas);
+        for (const fid of matches.seguras) matchedIds.add(fid);
+      }
+    }
+
+    const vectorInvitado = !expirado ? fiesta.vectoresCarasInvitados?.[guestId]?.vector : undefined;
+    if (vectorInvitado?.length && carasAprobadas.length > 0) {
+      const res = buscarFotosDeUnaCara([vectorInvitado], carasAprobadas);
+      for (const fid of res.seguras) {
+        matchedIds.add(fid);
+      }
+    }
+
+    return {
+      success: true,
+      fotos: postsAprobados.filter((p) => matchedIds.has(p.id)),
+      tieneCaraRegistrada: Boolean(!expirado && vectorInvitado?.length),
+      expirado,
+    };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error obteniendo Mis fotos del invitado:', err);
+    return {
+      success: false,
+      fotos: [],
+      tieneCaraRegistrada: false,
+      error: err?.message || 'No se pudieron cargar tus fotos.',
+    };
+  }
+}
+
+export interface PersonaPortalCliente {
+  id: string;
+  representativeFotoId: string;
+  thumbnailUrl?: string;
+  fotoIds: string[];
+  apariciones: number;
+  invitadoId?: string;
+  nombre?: string;
+}
+
+/**
+ * Bloque 7: Devuelve las caras agrupadas de la fiesta (SIN vectores faciales) y la lista de invitados
+ * de ESA fiesta para que el cliente pueda asignar "¿Quién es quién?" en su portal.
+ */
+export async function obtenerPersonasParaPortalCliente(
+  fiestaId: string,
+  accessKey?: string,
+): Promise<{
+  success: boolean;
+  personas: PersonaPortalCliente[];
+  invitados: Array<{ id: string; nombre: string }>;
+  error?: string;
+}> {
+  try {
+    const tienePortal = await verifyPortalSession(fiestaId);
+    const esEquipo = tienePortal ? false : await canModerateSocialEvent(fiestaId);
+    if (!tienePortal && !esEquipo) {
+      return { success: false, personas: [], invitados: [], error: 'Sesión del portal no autorizada.' };
+    }
+
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    if (!fiesta) {
+      return { success: false, personas: [], invitados: [], error: 'Fiesta no encontrada.' };
+    }
+    if (
+      tienePortal &&
+      !esEquipo &&
+      accessKey !== undefined &&
+      (!fiesta.clientPortalSettings?.enabled || fiesta.clientPortalSettings?.accessKey !== accessKey)
+    ) {
+      return { success: false, personas: [], invitados: [], error: 'Sesión del portal no autorizada.' };
+    }
+
+    const postsAprobados = soloAprobados(await getAllEventPosts(fiestaId));
+    const postById = new Map(postsAprobados.map((p) => [p.id, p]));
+    const carasBase = postsAprobados.length > 0
+      ? filtrarCarasPorPosts(fiesta.carasIndexadas || [], new Set(postById.keys()))
+      : (fiesta.carasIndexadas || []);
+
+    const personasAgrupadas: Persona[] = aplicarAsignacionesAPersonas(
+      agruparEnPersonas(carasBase, { minimoDeApariciones: 1 }),
+      fiesta.asignacionesCaras,
+    );
+
+    const personas: PersonaPortalCliente[] = personasAgrupadas.map((p) => {
+      const repPost = postById.get(p.representante.fotoId);
+      return {
+        id: p.id,
+        representativeFotoId: p.representante.fotoId,
+        thumbnailUrl: repPost?.thumbnailUrl || repPost?.imageUrl,
+        fotoIds: p.fotoIds,
+        apariciones: p.apariciones,
+        ...(p.invitadoId ? { invitadoId: p.invitadoId } : {}),
+        ...(p.nombre ? { nombre: p.nombre } : {}),
+      };
+    });
+
+    const invitados = (fiesta.invitados || []).map((inv) => ({
+      id: inv.id,
+      nombre: inv.nombre,
+    }));
+
+    return { success: true, personas, invitados };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error cargando personas para portal cliente:', err);
+    return {
+      success: false,
+      personas: [],
+      invitados: [],
+      error: err?.message || 'No se pudieron cargar las caras.',
+    };
+  }
+}
+
+/**
+ * Bloque 7: Asigna (o deshace) un invitado de ESA fiesta a una cara agrupada desde el portal del cliente.
+ * Valida sesión del portal, opcionalmente `accessKey`, y que el `invitadoId` pertenezca a esta fiesta.
+ */
+export async function asignarNombreCaraDesdePortal(input: {
+  fiestaId: string;
+  accessKey?: string;
+  personaId: string;
+  representativeFotoId?: string;
+  invitadoId?: string;
+  nombre?: string;
+  ahoraMs?: number;
+}): Promise<{ success: boolean; invitadoId?: string; nombre?: string; error?: string }> {
+  try {
+    if (!(await verifyPortalSession(input.fiestaId))) {
+      return { success: false, error: 'Sesión del portal no autorizada.' };
+    }
+
+    const fiesta = await getFiestaByIdRaw(input.fiestaId);
+    if (!fiesta || !fiesta.clientPortalSettings?.enabled) {
+      return { success: false, error: 'Portal del cliente no habilitado para este evento.' };
+    }
+    if (
+      input.accessKey !== undefined &&
+      (!input.accessKey || fiesta.clientPortalSettings.accessKey !== input.accessKey)
+    ) {
+      return { success: false, error: 'Clave del portal inválida.' };
+    }
+
+    const claveAsignacion = input.representativeFotoId?.trim() || input.personaId?.trim();
+    if (!claveAsignacion) {
+      return { success: false, error: 'Falta identificar la cara a asignar.' };
+    }
+
+    if (!input.invitadoId) {
+      const saveRes = await actualizarFiesta(
+        input.fiestaId,
+        (actual) => {
+          const siguientes = { ...(actual.asignacionesCaras || {}) };
+          delete siguientes[claveAsignacion];
+          if (input.personaId && siguientes[input.personaId]) {
+            delete siguientes[input.personaId];
+          }
+          for (const [k, v] of Object.entries(siguientes)) {
+            if (
+              (input.personaId && v.personaId === input.personaId) ||
+              (input.representativeFotoId && v.representativeFotoId === input.representativeFotoId)
+            ) {
+              delete siguientes[k];
+            }
+          }
+          return {
+            ...actual,
+            asignacionesCaras: siguientes,
+          };
+        },
+        { publicRsvp: true },
+      );
+      if (!saveRes.success) {
+        return { success: false, error: saveRes.error || 'No se pudo deshacer la asignación.' };
+      }
+      return { success: true, invitadoId: undefined, nombre: undefined };
+    }
+
+    const guest = (fiesta.invitados || []).find((i) => i.id === input.invitadoId);
+    if (!guest) {
+      return {
+        success: false,
+        error: 'El invitado seleccionado no pertenece a esta fiesta.',
+      };
+    }
+
+    const nuevaAsignacion: AsignacionCara = {
+      personaId: input.personaId,
+      ...(input.representativeFotoId ? { representativeFotoId: input.representativeFotoId } : {}),
+      invitadoId: guest.id,
+      nombre: guest.nombre,
+      updatedAt: new Date(input.ahoraMs ?? Date.now()).toISOString(),
+    };
+
+    const saveRes = await actualizarFiesta(
+      input.fiestaId,
+      (actual) => ({
+        ...actual,
+        asignacionesCaras: {
+          ...(actual.asignacionesCaras || {}),
+          [claveAsignacion]: nuevaAsignacion,
+        },
+      }),
+      { publicRsvp: true },
+    );
+
+    if (!saveRes.success) {
+      return { success: false, error: saveRes.error || 'No se pudo guardar la asignación.' };
+    }
+
+    if ((fiesta.carasIndexadas || []).length > 0) {
+      await procesarNotificacionesTandaFotos(input.fiestaId, fiesta.carasIndexadas || [], {
+        ahoraMs: input.ahoraMs,
+      });
+    }
+
+    return {
+      success: true,
+      invitadoId: guest.id,
+      nombre: guest.nombre,
+    };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error asignando nombre a cara desde portal:', err);
+    return { success: false, error: err?.message || 'Error al asignar el nombre.' };
+  }
+}
+
+/**
+ * Bloque 7: Búsqueda de invitado por nombre exacto normalizado cuando entra sin credencial.
+ * Rechaza coincidencias parciales o parecidas (ej. "Juan" cuando es "Juan Pérez").
+ */
+export async function buscarInvitadoPorNombreExactoParaCara(
+  fiestaId: string,
+  nombre: string,
+): Promise<{ found: boolean; invitadoId?: string; nombre?: string; error?: string }> {
+  try {
+    await enforcePublicRateLimit({
+      scope: 'social-guest-exact-name',
+      identity: fiestaId,
+      limit: 30,
+      windowMs: 60_000,
+    });
+
+    if (!fiestaId || !nombre?.trim()) {
+      return { found: false, error: 'Escribí tu nombre completo exacto.' };
+    }
+
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) {
+      return { found: false, error: 'Fiesta no encontrada.' };
+    }
+
+    const match = buscarInvitadoPorNombreExacto(fiesta.invitados || [], nombre);
+    if (!match) {
+      return {
+        found: false,
+        error: 'No encontramos un invitado con ese nombre completo exacto.',
+      };
+    }
+
+    return {
+      found: true,
+      invitadoId: match.id,
+      nombre: match.nombre,
+    };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error buscando invitado por nombre exacto:', err);
+    return { found: false, error: err?.message || 'No se pudo verificar el nombre.' };
   }
 }

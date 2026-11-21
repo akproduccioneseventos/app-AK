@@ -52,9 +52,9 @@ export function ContratarnosSlide({
           type="button"
           data-testid="btn-generar-presupuesto-manual"
           onClick={onCtaAction}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ duration: 0.12 }}
           className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-indigo-600 text-white font-bold text-lg shadow-2xl hover:opacity-90 transition-opacity"
         >
           <MessageCircle className="h-5 w-5" />

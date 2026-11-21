@@ -213,7 +213,7 @@ export async function decidir({
   timeoutMs = DECISIONS_TIMEOUT_MS,
 }: DecidirParams): Promise<Record<string, RespuestaDecision> | null> {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey || apiKey === 'dummy') return null;
 
   if (!(await decisionesRapidasHabilitadas())) return null;
 

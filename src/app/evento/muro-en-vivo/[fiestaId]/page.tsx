@@ -1837,7 +1837,7 @@ function SlideshowLayout({
 
   useEffect(() => {
     setMediaLoaded(false);
-  }, [currentIndex, posts]);
+  }, [post?.id]);
 
   useEffect(() => {
     if (posts.length > prevLengthRef.current) {
@@ -1966,6 +1966,7 @@ function SlideshowLayout({
     reducedMotion: prefersReducedMotion,
     beatScale: beatPulse,
   });
+  const { transition: variantTransition, ...animateValues } = (motionVariants.animate ?? { opacity: 1 }) as Record<string, unknown>;
 
   return (
     <div
@@ -1973,7 +1974,7 @@ function SlideshowLayout({
       className={`absolute inset-0 flex items-center justify-center overflow-hidden bg-slate-950 ${transicionClass} ${isCinema ? 'p-0' : 'p-4 sm:p-6 md:p-8'}`}
     >
       {!mediaLoaded && (
-        <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950 text-sm text-white/60">
+        <div className="absolute inset-0 z-20 grid place-items-center bg-transparent pointer-events-none text-sm text-white/60">
           Cargando publicación...
         </div>
       )}
@@ -1992,10 +1993,11 @@ function SlideshowLayout({
       {/* ── CONTENEDOR PRINCIPAL CON TRANSICIÓN DINÁMICA (Bloque 4) + MARCO DEL EVENTO (Bloque 7) ── */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${post.id}-${transicion}`}
-          initial={motionVariants.initial as any}
-          animate={motionVariants.animate as any}
-          exit={motionVariants.exit as any}
+          key={post.id}
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0.95 }}
+          animate={prefersReducedMotion ? { opacity: 1, scale: 1, x: 0, y: 0 } : { ...animateValues, opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={(variantTransition as any) ?? { duration: 0.25 }}
           className={`relative z-10 w-full h-full flex items-center justify-center ${transicionClass}`}
         >
           <div
@@ -2027,7 +2029,7 @@ function SlideshowLayout({
               />
             ) : (
               <div
-                className={`relative max-h-[85vh] max-w-[94vw] overflow-hidden rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] bg-black/40 ${
+                className={`relative min-h-[240px] min-w-[240px] max-h-[85vh] max-w-[94vw] overflow-hidden rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.85)] bg-black/40 ${
                   isCinema ? 'max-h-[92vh] max-w-[96vw]' : ''
                 }`}
               >
@@ -2035,7 +2037,7 @@ function SlideshowLayout({
                 <img
                   src={post.imageUrl}
                   alt={post.authorName || 'Foto de la fiesta'}
-                  className="max-h-[85vh] max-w-[94vw] object-contain rounded-2xl"
+                  className="min-h-[240px] min-w-[240px] max-h-[85vh] max-w-[94vw] object-contain rounded-2xl"
                   onLoad={() => setMediaLoaded(true)}
                 />
                 {hasPhotoFrame && (
@@ -2175,7 +2177,7 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
           ⭐ Misión Secreta ⭐
         </div>
       )}
-      <div className={`relative ${isMission ? 'pt-6' : ''}`}>
+      <div className={`relative aspect-[4/3] min-h-[220px] w-full ${isMission ? 'pt-6' : ''}`}>
         {post.mediaType === 'video' || isVideoUrl(post.imageUrl) ? (
           <video
             src={post.imageUrl}

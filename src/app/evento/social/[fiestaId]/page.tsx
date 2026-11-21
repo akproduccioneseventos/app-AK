@@ -50,6 +50,7 @@ import {
   getMyMobilePrintRequests,
   getPublicSocialEvent,
   getPublicSocialPosts,
+  guardarCarasDeFiesta,
   recordGuestPresence,
   requestMobilePrint,
   uploadSocialPost,
@@ -96,6 +97,8 @@ import { optimizeImageForUpload } from '@/lib/media/image-optimizer';
 import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
 import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
+import type { CaraEnFoto } from '@/lib/caras/agrupar-caras';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
@@ -776,10 +779,66 @@ export default function SocialEventPage() {
     return () => window.removeEventListener('online', alVolverLaSenal);
   }, [fiestaId, toast]);
 
+  const indexarCarasPostEnSegundoPlano = useCallback(
+    async (post: SocialGalleryPost, imageUrlOrFile?: File | string) => {
+      if (typeof window === 'undefined' || typeof Image === 'undefined') return;
+      if (!post?.id || post.mediaType === 'video' || post.moderationStatus !== 'approved') return;
+
+      const fuente = imageUrlOrFile || post.imageUrl;
+      if (!fuente) return;
+
+      let objectUrl: string | undefined;
+      try {
+        const img = await new Promise<HTMLImageElement | null>((resolve) => {
+          const el = new Image();
+          if (typeof fuente === 'string') {
+            el.crossOrigin = 'anonymous';
+            el.src = fuente;
+          } else {
+            objectUrl = URL.createObjectURL(fuente);
+            el.src = objectUrl;
+          }
+          el.onload = () => resolve(el);
+          el.onerror = () => resolve(null);
+        });
+        if (!img) return;
+
+        const descriptor = await extraerDescriptorFacial(img);
+        if (!descriptor || descriptor.length === 0) return;
+
+        const carasPayload: CaraEnFoto[] = [
+          {
+            fotoId: post.id,
+            vector: [...descriptor],
+          },
+        ];
+
+        const res = await guardarCarasDeFiesta(fiestaId, carasPayload, {
+          incremental: true,
+          guestId: guestId || undefined,
+          guestAccessToken: guestAccessToken || undefined,
+          stationModuleId: stationModuleId || undefined,
+          stationAccessToken: stationAccessToken || undefined,
+        });
+        if (!res.ok) {
+          console.warn('[MuroSocial] No se pudieron guardar caras en segundo plano:', res.error);
+        }
+      } catch (err) {
+        console.warn('[MuroSocial] Error al indexar caras en segundo plano:', err);
+      } finally {
+        if (objectUrl) {
+          URL.revokeObjectURL(objectUrl);
+        }
+      }
+    },
+    [fiestaId, guestId, guestAccessToken, stationModuleId, stationAccessToken],
+  );
+
   const submitUpload = async (eventForm: FormEvent) => {
     eventForm.preventDefault();
     if (!uploadFile || uploading) return;
     setUploading(true);
+    const archivoParaIndexar = uploadFile;
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('file', uploadFile);
@@ -829,9 +888,18 @@ export default function SocialEventPage() {
       if (result.success) {
         terminarIntento(alcanceFoto);
         toast({
-          title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
-          description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+          title: settings.requireApproval ? 'Foto subida a revisión' : 'Foto publicada',
+          description: settings.requireApproval
+            ? 'Se subió y el equipo la revisará antes de mostrarla.'
+            : 'Se subió y ya aparece en la red social.',
         });
+        if (
+          result.post &&
+          result.post.moderationStatus === 'approved' &&
+          result.post.mediaType !== 'video'
+        ) {
+          void indexarCarasPostEnSegundoPlano(result.post, archivoParaIndexar);
+        }
         clearUpload();
         setUploadOpen(false);
         if (misionEnCurso) {
@@ -844,17 +912,25 @@ export default function SocialEventPage() {
         toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
       }
     } catch {
-      // La cola del celular no puede guardar la foto: una foto de celular pesa
-      // varios megas y ahi no entra. Antes se encolaba solo el nombre y el
-      // texto, y se le prometia al invitado que su foto se iba a publicar sola:
-      // la foto ya no estaba. Ahora se le dice la verdad y se reintenta solo
-      // mientras tenga la pantalla abierta.
-      setEnvioPendiente({ archivo: uploadFile, texto: uploadCaption.trim() });
-      toast({
-        title: 'Sin señal por ahora',
-        description: 'No cierres esta pantalla: lo subimos solos apenas vuelva la señal.',
-      });
-      setUploadOpen(false);
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        // La cola del celular no puede guardar la foto: una foto de celular pesa
+        // varios megas y ahi no entra. Antes se encolaba solo el nombre y el
+        // texto, y se le prometia al invitado que su foto se iba a publicar sola:
+        // la foto ya no estaba. Ahora se le dice la verdad y se reintenta solo
+        // mientras tenga la pantalla abierta.
+        setEnvioPendiente({ archivo: uploadFile, texto: uploadCaption.trim() });
+        toast({
+          title: 'Sin señal por ahora',
+          description: 'No cierres esta pantalla: lo subimos solos apenas vuelva la señal.',
+        });
+        setUploadOpen(false);
+      } else {
+        toast({
+          title: 'No se pudo publicar',
+          description: 'Hubo un problema al subir la foto. Probá de nuevo.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setUploading(false);
     }
@@ -1633,6 +1709,26 @@ export default function SocialEventPage() {
             </a>
           </div>
         </div>
+
+        {/* ── BLOQUE 6: Botón fijo Buscarme 📸 (fuera de modales y encima de la barra de reacciones) ── */}
+        {settings.modoCaras !== 'apagado' &&
+          !uploadOpen &&
+          !nameDialogOpen &&
+          !liveStreamOpen &&
+          !guestbookOpen &&
+          !isPaparazziOpen && (
+          <a
+            href={`/evento/galeria/${encodeURIComponent(fiestaId)}?buscarme=1${
+              guestId && guestAccessToken
+                ? `&guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`
+                : ''
+            }`}
+            className="fixed bottom-24 right-4 z-20 inline-flex min-h-11 items-center gap-2 rounded-full bg-rose-600 px-4 py-2.5 text-sm font-black text-white shadow-xl border border-white/20 transition-transform hover:bg-rose-500 hover:scale-105 active:scale-95"
+            aria-label="Buscarme en las fotos de la fiesta"
+          >
+            <span>Buscarme 📸</span>
+          </a>
+        )}
 
         {/* ── BARRA DE REACCIONES EN VIVO A LA PANTALLA GIGANTE (Bloque 3) ── */}
         <div className="fixed bottom-5 right-5 z-40 flex items-center gap-1.5 bg-slate-950/90 border border-white/20 p-1.5 rounded-full shadow-2xl backdrop-blur-md">
