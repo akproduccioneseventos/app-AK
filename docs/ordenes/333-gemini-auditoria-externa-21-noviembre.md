@@ -174,6 +174,36 @@ pasa el candado (`src/__tests__/el-candado-de-la-plata.test.ts`).
 2. `src/__tests__/el-plan-y-el-contrato-dicen-lo-mismo.test.ts` ~42-44 da 99 en vez de 100 días según la hora: armá
    las dos fechas en hora de Uruguay.
 
+## Bloque 8 — Segundo informe del 21/11 (PDF "Auditoría actual de la aplicación AK", AK-01 a AK-10)
+
+Claude lo verificó: **AK-01 es decisión del dueño** (los presupuestos que aparecen al poner el celular quedan, 11/11:
+no se toca) y **AK-03 ya lo arregló Claude** (Poner al día cobraba el saldo sin el ajuste anual). Lo demás:
+
+1. **AK-02, el simulador se cae si se publicó una versión nueva con la página abierta** (error "Server Action … was not
+   found"). En `src/app/simulador-de-presupuesto/page.tsx` (~879 y ~1010, la llamada a `generateBudgetAndLeadFromSimulator`),
+   si el error trae "Server Action" o "failed-to-find-server-action": guardá lo cargado en `sessionStorage`, mostrá
+   *"Hay una versión nueva de la página. Tocá Recargar y seguís donde estabas"* con botón **Recargar**, y al volver
+   recuperá los datos. Mismo `submissionId`: no se crea un prospecto dos veces. **Del simulador no se toca nada más.**
+2. **AK-04, factura "Pagada" con saldo pendiente** (plata: lo revisa Claude). `src/app/(app)/invoices/[id]/page.tsx`
+   ~139-141/233-259 suma `invoice.payments`; el listado y la edición usan `invoice.status`. El listado y la edición
+   muestran **el estado que sale de los pagos** (si el saldo confirmado es mayor que cero, no dice "Pagada"); no se agrega
+   ningún pago para que coincida. La edición no deja elegir "Pagada" a mano si el saldo no es cero.
+3. **AK-05, "publicaste hace poco" sin fechas:** `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`
+   ~860-898 usa lo contrario de `inactivePlatforms.length`. Tres estados: reciente (con fecha), inactivo y *"Sin datos de
+   publicaciones"*. Sin fechas no hay verde.
+4. **AK-06, "4 de 4 puestos cubiertos" con rol desconocido y nadie confirmado:** `src/app/(app)/fiestas/nueva/personal/page.tsx`
+   (~530, "Rol Desconocido"): el pie cuenta por separado requeridos, asignados y confirmados, y un rol que no existe no
+   cuenta como cubierto.
+5. **AK-07, el panel de tareas automáticas:** separar "corrió" de "entregó" (si falta WhatsApp, dice *"Corrió, pero no
+   pudo mandar: falta conectar WhatsApp"*), y avisar si la última corrida la disparó una visita a la web y no el
+   despertador.
+6. **AK-08:** en tableta (820 px) el título largo del evento no se corta: baja de renglón (`break-words`).
+7. **AK-09, la cuenta regresiva de la invitación termina 21 horas antes:** `src/components/invitacion/edit/SeccionCuentaRegresiva.tsx`
+   y las plantillas que la muestran (`src/components/invitacion/templates/*`): la fecha y la hora del evento se arman en
+   hora de Uruguay, no como medianoche UTC.
+8. **AK-10, el cronograma dice "AHORA MISMO" en un evento futuro:** `src/app/evento/staff/[fiestaId]/cronograma/page.tsx`
+   ~171-177: el bloque "AHORA MISMO" aparece sólo el día del evento; antes, *"Lo primero, el día del evento"*.
+
 ## Barrido en toda la app (hecho por Claude el 21/11)
 
 - **Pregunta 198 (auditor que pasa como administrador en lo que no es probar):** buscado `esAdministrador(` en
@@ -188,6 +218,9 @@ pasa el candado (`src/__tests__/el-candado-de-la-plata.test.ts`).
   portal (bloque 2, puntos 6 y 7); Touchpix (bloque 4, punto 2).
 - **Pregunta 202 (un control que, si tarda, deja pasar):** un solo caso, el filtro de contactos personales de WhatsApp
   (bloque 6, punto 2).
+- **Pregunta 182 (total y detalle de fuentes distintas), por AK-03 y AK-04:** buscado `getBudgetPaymentSummary(` sin el
+  ajuste en `src/`: Poner al día era el único que cobraba con el saldo sin ajuste (arreglado); el recibo muestra la base a
+  propósito, desglosada. El estado guardado de la factura contra sus pagos va al bloque 8, punto 2.
 - **Pregunta 188 (suspendidas contadas como activas):** volvió en agenda, propuesta de equipo, Mi Día y Eventos (bloque 3).
 
 ## Lo que ya arregló Claude (no lo toques)
@@ -270,4 +303,10 @@ usa: verificarLeadPidePersona en src/app/api/meta/webhook/route.ts
 no-usa: bloquear: false } en src/app/api/whatsapp/webhook/route.ts
 usa: hoyEnUruguay en src/lib/automatico/al-entrar-a-la-app.ts
 usa: \r\n en src/__tests__/hydrogen-y-despues-gratis.test.ts
+usa: Hay una versión nueva de la página en src/app/simulador-de-presupuesto/page.tsx
+usa: Sin datos de publicaciones en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
+usa: confirmados en src/app/(app)/fiestas/nueva/personal/page.tsx
+usa: Lo primero, el día del evento en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
+usa: hoyEnUruguay en src/components/invitacion/edit/SeccionCuentaRegresiva.tsx
+prueba: src/__tests__/la-factura-dice-el-estado-de-sus-pagos.test.ts
 ```

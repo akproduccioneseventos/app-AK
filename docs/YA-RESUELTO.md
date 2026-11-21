@@ -13,6 +13,10 @@
   hacer); el PIN vacío del portal (consultado al dueño, y además pide la sesión del portal antes); las fotos del muro por
   enlace directo (decisión del dueño); la presentación LED sí avisa y reintenta; un invitado que baja a 1 persona se guarda
   bien; el moodboard sí avisa si falla.
+- **Segundo informe del mismo día (PDF, AK-01 a AK-10):** AK-03 arreglado por Claude: Poner al día cobraba el saldo sin
+  el ajuste anual y daba unos $30.000 menos que Cobrar en el mismo presupuesto; ahora usa el mismo saldo. **AK-01 es
+  falso positivo:** que aparezcan los presupuestos al poner el celular es decisión del dueño (11/11), no se vuelve a
+  plantear. El resto va a la orden 333, bloque 8.
 - **Se corrige una nota vieja:** "Mesas del portal" (más arriba, ~1932) se dio por bien porque el servidor pide sesión; es
   cierto, pero por eso **el cliente no puede guardar**: va a la orden 333, bloque 2.
 
@@ -22,6 +26,7 @@ usa: esAdministradorQueManda en src/app/actions/marketing-automation.ts
 usa: reservarConsumoIA('voz-equipo' en src/app/api/asistente/voz-en-vivo/route.ts
 usa: requirePermiso(PERMISOS.ADMINISTRACION) en src/app/actions/audit-log.ts
 no-usa: || att.payload?.url en src/app/api/meta/webhook/route.ts
+usa: includeAnnualAdjustment: true en src/lib/contabilidad/poner-al-dia.ts
 archivo: docs/ordenes/333-gemini-auditoria-externa-21-noviembre.md
 ```
 

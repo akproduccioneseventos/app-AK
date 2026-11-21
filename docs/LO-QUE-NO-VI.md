@@ -1525,3 +1525,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 333 → pregunta 200
 - Orden 333 → pregunta 201
 - Orden 333 → pregunta 202
+- Orden 333 → pregunta 182
