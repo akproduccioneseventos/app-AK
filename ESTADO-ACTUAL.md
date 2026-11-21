@@ -1,22 +1,26 @@
-# Estado actual — 20 de noviembre de 2026
+# Estado actual — 21 de noviembre de 2026
 
 ## Publicado
-- **#1441** (19/11): entrega 1429 de Gemini (órdenes 310-318) + arreglos de Claude de las auditorías del 18/11.
-- **#1442 a #1452**: órdenes 322 a 328 y Gemini 4 Hydrogen.
-- **SIN PUBLICAR: entrega 1451 + parte de la 328 hecha por Claude** (siguen cuatro pruebas, orden 328), en la rama
-  `claude/juntar-1451`: de 382 a unas 185 pantallas, invitación en tres pasos, IA en muro/álbum/comprobantes, CRM con todas
-  las redes y el asistente, centro de redes que contesta solo, `/enlaces`.
-- Claude arregló al revisar: el aviso de Meta reescribía `fiestas.json`; `/enlaces` llevaba el WhatsApp a una ruta que no
-  existe; 25 errores tirados; el muro rechazaba fotos por nitidez sin que nadie lo pidiera.
-- Las PR 1443 y 1451 se cierran (quedaron adentro de la publicada).
+- **#1458** (21/11): entrega de Gemini de las órdenes 322 a 330 (redes, Wfolio, caras de los invitados, achique de 1443)
+  con la revisión de Claude: pruebas con fecha vencida, botones de la galería a tamaño de dedo, menús/LED/decoración sin
+  texto apretado en tableta. Se cerraron las PR 1443 y 1451 (quedaron adentro de la 1458).
+- En la misma: **órdenes 331 y 332 para Gemini**, y `GEMINI.md` → "TU TRABAJO DE HOY" ya las nombra.
 
-## Para Gemini
-- Nada pendiente. Próxima orden, cuando el dueño pida.
+## Esperando a Gemini (una sola propuesta, rama nueva desde la principal)
+- **331:** el simulador de siempre primero e IGUAL que hoy; Sofía aparte en su página, con un enlace chico al pie del
+  simulador y "Reintentar" si no guarda (hoy el prospecto de Sofía se pierde callado), planificador de 28 a 5 pantallas sin perder partes, una puerta
+  para las estaciones.
+- **332:** la app de Play Store: "¿Quién sos?" con prospecto directo al simulador, invitado con su celular o el código corto
+  de la fiesta (sin QR obligatorio), equipo con Google, "Bajá la app" y publicación en redes. iPhone y PC desde la web
+  (el dueño no paga la tienda de Apple).
 
-## Para Claude, cuando llegue la próxima entrega
-- Juntarla en una copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa.
-- Al escribir una orden, correr `node scripts/ordenes-cumplidas.mjs` y mirar que no diga "bloque sin comprobación".
+## Para Claude, cuando llegue la entrega
+- Revisar línea por línea `entrarComoInvitado` (quién ve qué: devuelve sólo la credencial del invitado, nunca la lista).
+- Copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa, **sin nada corriendo al lado** (la subida con
+  `git push` corre su propio filtro: no subir mientras corre la puerta).
 
 ## Ojo
-- La prueba de medidas de pantalla depende de la letra del entorno: lo que mide Gemini da 3-4 píxeles más.
-- `/catalogo` desvía a `/presentacion-led` y sigue en la lista para Google; cambiarlo rompe cinco controles (descartado).
+- La puerta falla seguido por carga de la máquina (pruebas distintas cada vez que pasan solas): `npm run otravez` y volver a
+  correr la puerta, que repite sólo lo que falló.
+- No pude confirmar que la app esté en Play Store (desde acá no se llega a la tienda y Google no la muestra todavía). El
+  paquete es `uy.akproducciones.app`.

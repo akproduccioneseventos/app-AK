@@ -1584,7 +1584,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 - **Menos es más: un simulador, el planificador agrupado (21 de noviembre de 2026).** Palabras suyas: *"no puede haber tres del
   simulador, tiene que haber una… el presupuesto manual es otra cosa… a veces menos es más"*. Se achica sin perder funciones:
-  un simulador con Sofía adentro, el planificador en 5 pantallas con solapas y una puerta para las estaciones (orden 331).
+  el simulador de siempre primero (corrigió el mismo día: *"el que vende es el anterior"*; Sofía queda aparte, con un enlace
+  chico al pie), el planificador en 5 pantallas con solapas y una puerta para las estaciones (orden 331).
 
 - **El simulador vende primero el valor (17 de noviembre de 2026).** Aprobó de la propuesta comercial: beneficios antes que precio, "reunión a coordinar" (no hay oficina), personalizar en el resumen, medir cuánto vende y regalos con sus condiciones. El reloj queda; al llegar a cero dice que la promoción y los regalos se confirman en la reunión, sin vencer nada (orden 314).
 

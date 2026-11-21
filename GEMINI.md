@@ -7,10 +7,11 @@
 - **Las órdenes 322 a 330 ya están publicadas** (las fusionó Claude en la 1458). No las rehagas.
 - **AHORA, una sola propuesta con las dos: arrancá de la versión principal recién actualizada**, rama nueva
   `gemini/ordenes-331-332`.
-  1. **Orden 331 (`docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md`).** Un solo simulador: queda
-     `/simulador-de-presupuesto` **exactamente como está**, con Sofía sólo como botón optativo adentro (y su reintento si no
-     guarda). El planificador de 28 pantallas a 5 con solapas **sin perder ninguna parte**, y una sola puerta para las
-     estaciones. Redirecciones exactas y sin ablandar pruebas.
+  1. **Orden 331 (`docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md`).** El simulador de siempre
+     (`/simulador-de-presupuesto`) va primero y **queda exactamente como está**; se borra la portada de dos botones. Sofía queda
+     en su página propia (`/simulador-ak`), con un solo enlace chico al pie del simulador y su "Reintentar" si no guarda. El
+     planificador de 28 pantallas a 5 con solapas **sin perder ninguna parte**, y una sola puerta para las estaciones.
+     Redirecciones exactas y sin ablandar pruebas.
   2. **Orden 332 (`docs/ordenes/332-gemini-la-app-de-play-store-recibe-a-cada-uno-facil.md`).** La app de Play Store recibe a
      cada uno fácil: el prospecto va directo al simulador sin datos, el invitado entra con su celular (o el código de la fiesta)
      sin escanear, el equipo con un toque de Google, y "Bajá la app" en la portada, `/entrar` y `/enlaces`. La acción

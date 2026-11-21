@@ -1,4 +1,4 @@
-# Orden 331 — Menos pantallas, mismo resultado: un simulador, el planificador agrupado y una puerta para las estaciones (21/11/2026)
+# Orden 331 — Menos pantallas, mismo resultado: el simulador primero, el planificador agrupado y una puerta para las estaciones (21/11/2026)
 
 **Pedido del dueño:** *"lo que se pueda achicar pero que no pierda la funcionalidad; no puede haber tres del simulador, tiene que
 haber una; después está el presupuesto manual, que es otra cosa; la planificación también: a veces menos es más"*.
@@ -15,7 +15,7 @@ genérico; si hace falta un parámetro, con expresión que excluya las rutas her
 
 Hoy son **186 pantallas** (contadas por Claude el 21/11). Con esta orden quedan unas **150**.
 
-## Bloque 1 — Un solo simulador
+## Bloque 1 — El simulador de siempre, primero; Sofía aparte
 
 Hoy hay tres (investigado por Claude):
 
@@ -30,21 +30,23 @@ Qué se hace:
 - **Queda uno: `/simulador-de-presupuesto`, EXACTAMENTE como está hoy.** Decisión del dueño (21/11): *"yo quiero la mejora que
   hicimos al simulador"*. Sus pasos no cambian: primero muestra el servicio, después pide los datos, y recién ahí los paquetes,
   con el reloj y la promoción. **No se le saca, agrega ni reordena nada**, salvo el botón de abajo.
-- Adentro, arriba, un botón **"Prefiero que me guíe Sofía"** que abre la charla de Sofía en la misma pantalla. Es **optativo**:
-  quien no lo toca ve el simulador de siempre. Pasá la charla de `simulador-ak/page.tsx` (estado y `handleSendMessage` ~425-680,
-  `handleSaveBudget` ~680-735, autoguardado ~740-756, cambio de paquete ~757-800, `ChatWindow` ~905) a un componente
-  `src/components/simulador/SofiaChat.tsx` **sin cambiarle nada de lo que dice ni de cómo calcula** (sigue usando
-  `calculateSimulatorPricing`, igual que el simulador), y montalo ahí.
-- **Arreglo que va con el traslado (Claude lo confirmó en el código):** hoy, si el guardado de Sofía falla
-  (`result.success` falso o error en `handleSaveBudget`, ~724-731), **no se avisa nada** y, como `autoSaveAttemptRef` ya quedó
-  con esa combinación, **no se vuelve a intentar**: el prospecto se pierde sin que nadie se entere. En el componente nuevo:
-  si falla, un cartel *"No pudimos guardar tu presupuesto. Tocá Reintentar o escribinos por WhatsApp"* con botón
-  **Reintentar** (limpia `autoSaveAttemptRef.current` y vuelve a llamar) y el enlace de `buildWhatsAppLink`. Mismo
-  `submissionId`, así reintentar no crea dos.
-- `/simulador` y `/simulador-ak` pasan a redirecciones **exactas** a `/simulador-de-presupuesto`, conservando lo que traiga la
-  dirección (`source`, `campaign`, `refFiesta`, `utm_*`), y `/simulador-ak` con `?modo=sofia` para que abra con Sofía.
+- **Sofía NO va adentro ni arriba del simulador** (corregido por el dueño el 21/11: *"el simulador tiene que ir primero, el que
+  ya estamos usando"*; Sofía fue una prueba). Sofía **queda en su página propia, `/simulador-ak`, sin cambiarle nada de lo que
+  dice ni de cómo calcula**, y se llega a ella por un solo lugar: **al pie del simulador**, debajo de todo, una línea chica y
+  discreta *"¿Preferís armarlo conversando? Probá con Sofía, nuestra asistente"* que lleva a `/simulador-ak` conservando lo que
+  traiga la dirección (`source`, `campaign`, `refFiesta`, `utm_*`). Ningún otro botón de la web, la app ni los mensajes lleva a
+  Sofía: todos llevan al simulador.
+- **Arreglo en Sofía (Claude lo confirmó en el código):** hoy, si el guardado falla (`result.success` falso o error en
+  `handleSaveBudget`, `src/app/simulador-ak/page.tsx` ~724-731), **no se avisa nada** y, como `autoSaveAttemptRef` ya quedó con
+  esa combinación, **no se vuelve a intentar**: el prospecto se pierde sin que nadie se entere. En esa misma página: si falla, un
+  cartel *"No pudimos guardar tu presupuesto. Tocá Reintentar o escribinos por WhatsApp"* con botón **Reintentar** (limpia
+  `autoSaveAttemptRef.current` y vuelve a llamar) y el enlace de `buildWhatsAppLink`. Mismo `submissionId`, así reintentar no
+  crea dos.
+- **`/simulador`** (la portada de dos botones, `src/app/simulador/page.tsx`) se borra y pasa a redirección **exacta** a
+  `/simulador-de-presupuesto`, conservando lo que traiga la dirección. **`/simulador-ak` NO se redirige.**
 - El menú (`src/lib/navegacion/mapa.ts`, la entrada "Simulador") apunta al único. Los enlaces en la web, el muro y los mensajes
-  que digan `/simulador-ak` o `/simulador` se cambian al único (buscá las dos rutas en `src/`).
+  que digan `/simulador-ak` o `/simulador` se cambian al simulador (buscá las dos rutas en `src/`); el único enlace a
+  `/simulador-ak` que queda es el del pie del simulador.
 - **No se toca:** el reloj, la promoción, los regalos, los textos y la seña (decisiones del dueño). **El presupuesto manual del
   equipo (`/presupuestos/nuevo`) no se toca**: es otra cosa.
 
@@ -96,11 +98,11 @@ impresion, barra, buzon, dj, muro-en-vivo, video-vida) son una línea cada una: 
 
 ## Qué tiene que comprobar la prueba
 
-- **Navegador:** `/simulador` y `/simulador-ak?source=x` llegan al único simulador con `source=x`; "Prefiero que me guíe Sofía"
-  abre la charla y Sofía saluda; el reloj sigue apareciendo al generar; **sin tocar el botón, los pasos del simulador son los
-  mismos de hoy** (servicio → datos → paquetes).
-- **Jest (Sofía):** con `generateBudgetAndLeadFromSimulator` devolviendo `{ success: false }`, `SofiaChat` muestra el cartel
-  "No pudimos guardar" y al tocar Reintentar lo llama **otra vez con el mismo `submissionId`**. Con éxito, no hay cartel.
+- **Navegador:** `/simulador?source=x` llega al simulador con `source=x`; los pasos del simulador son **los mismos de hoy**
+  (servicio → datos → paquetes) y el reloj sigue apareciendo al generar; al pie está la línea de Sofía y lleva a
+  `/simulador-ak` con el `source`; `/simulador-ak` sigue abriendo la charla y Sofía saluda.
+- **Jest (Sofía):** con `generateBudgetAndLeadFromSimulator` devolviendo `{ success: false }`, la página de Sofía muestra el
+  cartel "No pudimos guardar" y al tocar Reintentar lo llama **otra vez con el mismo `submissionId`**. Con éxito, no hay cartel.
 - **Navegador:** `/fiestas/nueva/catering?fiestaId=<prueba>` termina en `nueva/comida` con la solapa Catering abierta y su contenido;
   lo mismo para `plan-pagos` en `plata-y-papeles`.
 - **Navegador:** `/evento/fotocabina` abre `/evento/inicio` con Fotocabina elegida, y `/evento/fotocabina/<prueba>` sigue abriendo la
@@ -108,10 +110,9 @@ impresion, barra, buzon, dj, muro-en-vivo, video-vida) son una línea cada una: 
 - **Jest:** ninguna redirección tapa una pantalla (la prueba de siempre) y el tope de pantallas es el nuevo número.
 
 ```comprobar
-archivo: src/components/simulador/SofiaChat.tsx
-usa: SofiaChat en src/app/simulador-de-presupuesto/page.tsx
-usa: Reintentar en src/components/simulador/SofiaChat.tsx
-usa: autoSaveAttemptRef en src/components/simulador/SofiaChat.tsx
+usa: simulador-ak en src/app/simulador-de-presupuesto/page.tsx
+usa: Reintentar en src/app/simulador-ak/page.tsx
+usa: No pudimos guardar tu presupuesto en src/app/simulador-ak/page.tsx
 usa: simulador-de-presupuesto en src/lib/navegacion/mapa.ts
 archivo: src/app/(app)/fiestas/nueva/datos/page.tsx
 archivo: src/app/(app)/fiestas/nueva/comida/page.tsx
