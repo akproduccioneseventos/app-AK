@@ -68,7 +68,8 @@ export function armarPonerAlDia(
     const fecha = dia(p.eventoFecha);
     if (!fecha || fecha >= hoy) continue;
     if (!conFiesta.has(p.id) && p.estado !== 'Aceptado') continue;
-    const r = getBudgetPaymentSummary(p);
+    // El mismo saldo que Cobrar y el estado de cuenta: con el ajuste anual (auditoría externa 21/11/2026, AK-03).
+    const r = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
     if (r.balance <= 0) continue;
     cobros.push({ presupuestoId: p.id, cliente: p.clienteNombre || '—', fecha, total: r.total, cobrado: r.paid, saldo: r.balance });
   }

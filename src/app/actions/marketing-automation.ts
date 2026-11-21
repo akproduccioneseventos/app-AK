@@ -5,6 +5,16 @@ import { esAdministrador } from '@/lib/auth/perfiles';
 import type { MarketingAutomationResult } from '@/lib/marketing-automation';
 
 /**
+ * El auditor tiene todos los permisos para probar, pero prender mensajes a clientes reales o lanzar la automatización
+ * (que publica afuera) no es probar: es mandar. Eso lo decide un administrador de verdad (auditoría 21/11/2026).
+ */
+function esAdministradorQueManda(user: { perfil?: string; role?: string } | undefined | null): boolean {
+  if (!user) return false;
+  if (user.perfil === 'auditor' || user.role === 'auditor') return false;
+  return esAdministrador(user);
+}
+
+/**
  * Estado del interruptor del recontacto automático.
  *
  * Sólo el administrador lo ve y lo cambia: son mensajes de WhatsApp a clientes
@@ -22,7 +32,7 @@ export async function setRecontactoAutomaticoActivo(
   activo: boolean,
 ): Promise<{ success: boolean; activo: boolean; error?: string }> {
   const session = await verifySession();
-  if (!session.success || !esAdministrador(session.user)) {
+  if (!session.success || !esAdministradorQueManda(session.user)) {
     return { success: false, activo: false, error: 'Solo un administrador puede cambiar esto.' };
   }
 
@@ -35,7 +45,7 @@ export async function runMarketingAutomationFromAdmin(
   options?: { force?: boolean }
 ): Promise<MarketingAutomationResult> {
   const session = await verifySession();
-  if (!session.success || !esAdministrador(session.user)) {
+  if (!session.success || !esAdministradorQueManda(session.user)) {
     return {
       success: false,
       skipped: false,

@@ -2,14 +2,18 @@
 
 import type { AuditLog, ModuloSistema } from '@/types/audit-log';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const AUDIT_LOGS_FILE = 'audit-logs.json';
 
 export async function logAuditEvent(
   data: Omit<AuditLog, 'id' | 'timestamp'>
 ): Promise<{ success: boolean; log?: AuditLog; error?: string }> {
-  await requireAppSession();
+  // El registro de auditoría es del dueño: con sólo tener sesión cualquiera del equipo podía leerlo entero y
+  // escribir entradas falsas (auditoría externa 21/11/2026).
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const logs = await readData<AuditLog[]>(AUDIT_LOGS_FILE, []);
     const newLog: AuditLog = {
@@ -31,7 +35,8 @@ export async function getAuditLogs(filters?: {
   desde?: string;
   hasta?: string;
 }): Promise<AuditLog[]> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return [];
   const logs = await readData<AuditLog[]>(AUDIT_LOGS_FILE, []);
   if (!filters) return logs;
 

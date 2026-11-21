@@ -788,6 +788,26 @@
     "197": {
       "fecha": "2026-11-19",
       "resultado": "Pantallas públicas borradas en la 1443: cinco eran funciones (Entrar, decoración, moodboard, simulador, Sofía) y volvieron; el resto (catálogos, tecnología, control-tower, papelería) las sacó el dueño. Redirecciones: dos tapaban pantallas y se arreglaron; el control las recorre todas."
+    },
+    "198": {
+      "fecha": "2026-11-21",
+      "resultado": "esAdministrador en acciones y lib: preguntas de seguridad ajenas, tope mensual de IA y automatización de marketing dejaban pasar al auditor; arreglados por Claude."
+    },
+    "199": {
+      "fecha": "2026-11-21",
+      "resultado": "11 enlaces al hub o al recap sin credencial (entrar, invitación pública, accesos-vivos, mi mesa, realidad aumentada) → orden 333 bloque 2."
+    },
+    "200": {
+      "fecha": "2026-11-21",
+      "resultado": "Cinco sumas de plata con fiestas de muestra (reportes, panel, analíticas, comparativa, finanzas) → orden 333 bloque 1."
+    },
+    "201": {
+      "fecha": "2026-11-21",
+      "resultado": "Recepción, consulta del portal y Touchpix anunciaban guardado/enviado ante un no del servidor → orden 333 bloques 2 y 4."
+    },
+    "202": {
+      "fecha": "2026-11-21",
+      "resultado": "Un solo control que deja pasar si tarda: filtro de contactos personales de WhatsApp → orden 333 bloque 6."
     }
   },
   "hallazgos": {
@@ -1198,6 +1218,10 @@
     "orden-322": {
       "fecha": "2026-11-19",
       "resultado": "Barrido de todas las pantallas borradas fuera del panel interno contra sus redirecciones (ver orden 322)."
+    },
+    "orden-333": {
+      "fecha": "2026-11-21",
+      "resultado": "Auditoría externa del 21/11 (seis módulos): unos 60 de 80 avisos ciertos. Permisos y plata urgentes arreglados por Claude (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta); el resto → orden 333. Barrido con las preguntas 188 y 198 a 202."
     }
   }
 }

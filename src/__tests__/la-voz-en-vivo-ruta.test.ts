@@ -35,11 +35,22 @@ jest.mock('@/lib/auth/session-token', () => ({
 }));
 
 jest.mock('@/lib/auth/require-session', () => ({
+  // La ruta pide una sesión viva (no sólo la firma de la cookie): misma regla que el `verifySession` de arriba.
+  requireSession: jest.fn(async () => {
+    if (!sesion || perfil === 'personal' || perfil === 'operador') return { ok: false, error: 'Sesión no autorizada.' };
+    return { ok: true, user: { perfil, id: 'test-user', email: 'test@akproducciones.uy' } };
+  }),
   requirePermiso: jest.fn(async (p: string) => {
     if (!sesion) return { ok: false, error: 'Sesión no autorizada.' };
     const { puede } = jest.requireActual('@/lib/auth/perfiles');
     return puede({ perfil }, p) ? { ok: true, user: { perfil } } : { ok: false, error: 'Tu perfil no tiene acceso a esta parte.' };
   }),
+}));
+// El gasto de la voz entra en el tope mensual de IA (auditoría externa 21/11/2026).
+let hayTopeDeIA = true;
+const liberarConsumo = jest.fn(async () => undefined);
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  reservarConsumoIA: jest.fn(async () => (hayTopeDeIA ? { liberar: liberarConsumo } : null)),
 }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestas: jest.fn(async () => []) }));
 jest.mock('@/app/actions/crm', () => ({ getCrmLeadsForDashboard: jest.fn(async () => []) }));
@@ -200,6 +211,26 @@ describe('POST /api/asistente/voz-en-vivo', () => {
     expect(cuerpo.error).toBeTruthy();
     expect(cuerpo.token).toBeUndefined();
     expect(almacen[ARCHIVO]).toEqual({ fecha: hoyEnUruguay(), minutos: 0 });
+  });
+
+  it('con el tope de gasto de IA del mes lleno no abre la llamada y devuelve los minutos', async () => {
+    hayTopeDeIA = false;
+    try {
+      const r = await POST();
+      expect(r.status).toBe(429);
+      expect((await r.json()).error).toMatch(/tope de gasto/);
+      expect(almacen[ARCHIVO]).toEqual({ fecha: hoyEnUruguay(), minutos: 0 });
+    } finally {
+      hayTopeDeIA = true;
+    }
+  });
+
+  it('si Google falla también libera lo reservado del tope de IA', async () => {
+    liberarConsumo.mockClear();
+    respuestaGoogle = () => ({ ok: false, status: 500, body: { error: { message: 'boom' } } });
+    const r = await POST();
+    expect(r.status).toBe(502);
+    expect(liberarConsumo).toHaveBeenCalled();
   });
 
   it('dos pedidos a la vez con una base que devuelve copias no gastan de más', async () => {

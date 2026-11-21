@@ -68,3 +68,13 @@ it('un cobro guardado sin número interno cuenta como pagado', () => {
   expect(r.paid).toBe(200_000);
   expect(r.balance).toBe(0);
 });
+
+it('el saldo de Poner al día incluye el ajuste anual, igual que Cobrar (auditoría externa 21/11/2026, AK-03)', () => {
+  // Contratado en 2025 para una fiesta de 2026 con ajuste del 15%: base $200.000, total $230.000.
+  const conAjuste = presupuesto('p9', 'Caso B', '2026-08-08', {
+    ajusteAnualActivo: true, ajusteAnualPorcentaje: 15, fechaFirmaContrato: '2025-06-01T12:00:00.000Z',
+  });
+  const r = armarPonerAlDia([conAjuste], [fiesta('f9', 'p9', 'Evento de Caso B', '2026-08-08')], HOY);
+  expect(r.cobros[0].total).toBe(230_000);
+  expect(r.cobros[0].saldo).toBe(230_000);
+});

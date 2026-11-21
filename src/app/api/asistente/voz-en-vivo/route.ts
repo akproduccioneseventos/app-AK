@@ -1,5 +1,6 @@
 import { contextoDeVozParaPerfil } from '@/lib/asistente/voz-en-vivo';
-import { verifySession } from '@/lib/auth/session-token';
+import { requireSession } from '@/lib/auth/require-session';
+import { reservarConsumoIA, type ReservaConsumoIA } from '@/lib/ai/consumo-servidor';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCrmLeadsForDashboard } from '@/app/actions/crm';
 import { NextResponse } from 'next/server';
@@ -57,9 +58,10 @@ async function devolver(minutos: number, hoy: string): Promise<void> {
 }
 
 export async function POST() {
-  // La voz en vivo está abierta para cualquier perfil interno con sesión.
-  const session = await verifySession();
-  if (!session.success || !session.user) {
+  // La voz en vivo está abierta para cualquier perfil interno con sesión. `requireSession` (no sólo la firma de la
+  // cookie): una sesión cerrada o de un usuario borrado no abre la llamada (auditoría externa 21/11/2026).
+  const session = await requireSession();
+  if (!session.ok) {
     return NextResponse.json({ error: 'Sesión no válida o no iniciada.' }, { status: 401 });
   }
   const usuario = session.user;
@@ -88,6 +90,22 @@ export async function POST() {
   }
   if (reservados <= 0) {
     return NextResponse.json({ error: MENSAJE_SIN_MINUTOS }, { status: 429 });
+  }
+
+  // La voz del equipo también entra en el tope mensual de gasto de IA, como la del cliente: los minutos por día
+  // cuidan el uso, el tope del mes cuida la plata (auditoría externa 21/11/2026).
+  let consumo: ReservaConsumoIA | null = null;
+  try {
+    consumo = await reservarConsumoIA('voz-equipo', reservados);
+  } catch {
+    consumo = null;
+  }
+  if (!consumo) {
+    await devolver(reservados, hoy);
+    return NextResponse.json(
+      { error: 'Se llegó al tope de gasto de inteligencia artificial del mes. Se cambia en Ajustes → Asistente.' },
+      { status: 429 },
+    );
   }
 
   try {
@@ -133,9 +151,11 @@ export async function POST() {
       if (!(respuesta.status >= 400 && respuesta.status < 500 && /model/i.test(detalle))) break;
     }
     await devolver(reservados, hoy);
+    await consumo.liberar().catch(() => undefined);
     return NextResponse.json({ error: ultimoError }, { status: 502 });
   } catch (error: any) {
     await devolver(reservados, hoy);
+    await consumo.liberar().catch(() => undefined);
     return NextResponse.json({ error: 'No se pudo conectar con Google para la voz en vivo.' }, { status: 502 });
   }
 }

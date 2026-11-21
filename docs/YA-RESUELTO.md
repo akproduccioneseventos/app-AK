@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/11/2026 - Auditoría externa de seis módulos: lo urgente de permisos y plata (Claude) y el resto a la orden 333
+
+- **Qué estaba mal y lo arregló Claude:** el auditor (que tiene todos los permisos para probar) cambiaba las preguntas de
+  seguridad de otras cuentas, el tope mensual de gasto de IA y prendía mensajes a clientes; la llamada de voz del equipo
+  abría con una sesión cerrada y su gasto no entraba en el tope del mes; el registro de auditoría lo leía y escribía
+  cualquiera con sesión; el operador subía contratos y recibos (y el archivo quedaba en el depósito antes del control);
+  una foto o un audio de un prospecto por Instagram se tomaba como mención en una historia y se perdía, se agradecía dos
+  veces el mismo aviso y las menciones se guardaban en un archivo que la pantalla no lee; un mensaje nuevo le sacaba la
+  charla a la persona del equipo.
+- **Falsos positivos del informe:** las páginas `/simulador` y `/simulador-ak` existen (el auditor miró una rama a medio
+  hacer); el PIN vacío del portal (consultado al dueño, y además pide la sesión del portal antes); las fotos del muro por
+  enlace directo (decisión del dueño); la presentación LED sí avisa y reintenta; un invitado que baja a 1 persona se guarda
+  bien; el moodboard sí avisa si falla.
+- **Segundo informe del mismo día (PDF, AK-01 a AK-10):** AK-03 arreglado por Claude: Poner al día cobraba el saldo sin
+  el ajuste anual y daba unos $30.000 menos que Cobrar en el mismo presupuesto; ahora usa el mismo saldo. **AK-01 es
+  falso positivo:** que aparezcan los presupuestos al poner el celular es decisión del dueño (11/11), no se vuelve a
+  plantear. El resto va a la orden 333, bloque 8.
+- **Se corrige una nota vieja:** "Mesas del portal" (más arriba, ~1932) se dio por bien porque el servidor pide sesión; es
+  cierto, pero por eso **el cliente no puede guardar**: va a la orden 333, bloque 2.
+
+```comprobar
+archivo: src/__tests__/auditoria-externa-21-11-quien-toca-que.test.ts
+usa: esAdministradorQueManda en src/app/actions/marketing-automation.ts
+usa: reservarConsumoIA('voz-equipo' en src/app/api/asistente/voz-en-vivo/route.ts
+usa: requirePermiso(PERMISOS.ADMINISTRACION) en src/app/actions/audit-log.ts
+no-usa: || att.payload?.url en src/app/api/meta/webhook/route.ts
+usa: includeAnnualAdjustment: true en src/lib/contabilidad/poner-al-dia.ts
+archivo: docs/ordenes/333-gemini-auditoria-externa-21-noviembre.md
+```
+
 ## 21/11/2026 - La app de Play Store recibe a cada uno fácil (orden 332)
 
 - **Qué se decidió:** la app es para todo público y abre en "¿Quién sos?". El prospecto va directo al simulador sin dar ningún

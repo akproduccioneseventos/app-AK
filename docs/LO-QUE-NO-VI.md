@@ -1519,3 +1519,10 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 330 → no es un defecto
 - Orden 331 → no es un defecto
 - Orden 332 → no es un defecto
+- Orden 333 → pregunta 188
+- Orden 333 → pregunta 198
+- Orden 333 → pregunta 199
+- Orden 333 → pregunta 200
+- Orden 333 → pregunta 201
+- Orden 333 → pregunta 202
+- Orden 333 → pregunta 182

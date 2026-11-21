@@ -233,6 +233,10 @@ export async function getResumenDeGasto(ahora: Date | string = new Date()): Prom
 
 export async function setTopeMensual(topeUYU: number, ahora?: Date | string): Promise<ResumenDeGasto> {
   await exigirQueSePuedaGuardar();
+  // Igual que el tope diario: cuánto se gasta por mes en IA lo decide el dueño, no el auditor (auditoría 21/11/2026).
+  if (await esSesionDeAuditor()) {
+    throw new Error('Acceso de auditor: el tope de gasto de la IA lo cambia sólo el dueño.');
+  }
   const tope = Number.isFinite(topeUYU) && topeUYU > 0 ? Math.round(topeUYU) : 0;
   return cambiarConsumo((datos) => {
     const siguiente: ConsumoGuardado = { ...datos, topeMensualUYU: tope };

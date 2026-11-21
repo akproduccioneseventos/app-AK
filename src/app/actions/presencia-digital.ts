@@ -537,7 +537,7 @@ export async function getStoryMentionsAction(): Promise<{
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
-    const rawMentions = await readData<any[]>('story-mentions.json', []);
+    const rawMentions = await readData<any[]>('social-story-mentions.json', []);
     const mentiones: StoryMentionItem[] = rawMentions.map((m) => {
       const fechaVal = m.fecha || m.timestamp || new Date().toISOString();
       const userVal = m.username || m.senderName || 'Anónimo';
@@ -564,7 +564,7 @@ export async function compartirMencionEnHistoriaAction(mentionId: string): Promi
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
-    const mentiones = await readData<StoryMentionItem[]>('story-mentions.json', []);
+    const mentiones = await readData<StoryMentionItem[]>('social-story-mentions.json', []);
     let targetMediaUrl: string | undefined = undefined;
     const actualizadas = mentiones.map((m) => {
       if (m.id === mentionId) {
@@ -573,7 +573,7 @@ export async function compartirMencionEnHistoriaAction(mentionId: string): Promi
       }
       return m;
     });
-    await writeData('story-mentions.json', actualizadas);
+    await writeData('social-story-mentions.json', actualizadas);
     return { success: true, mediaUrl: targetMediaUrl };
   } catch (error: any) {
     return { success: false, error: error?.message || 'Error al compartir mención.' };

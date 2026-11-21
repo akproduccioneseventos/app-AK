@@ -2119,6 +2119,7 @@ con otra cara.
 | Los datos de corrida ignorados por git se acumulaban y rompían pruebas que estaban bien | `scripts/limpiar-corrida.mjs` borra también lo ignorado |
 | Una mención en una historia reescribía todas las fiestas, y el WhatsApp de `/enlaces` llevaba a una página que no existe | `src/__tests__/el-aviso-de-meta-no-reescribe-fiestas-y-los-enlaces-llevan-a-donde-dicen.test.ts` |
 | Una redirección con comodín tapaba la lista de presupuestos y "Nueva fiesta" | `src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts` |
+| El auditor cambiaba cuentas ajenas y el tope de IA, la voz del equipo no tenía tope, y una foto por Instagram se perdía como "mención" | `src/__tests__/auditoria-externa-21-11-quien-toca-que.test.ts` |
 
 ### Cómo se elige el matafuego
 

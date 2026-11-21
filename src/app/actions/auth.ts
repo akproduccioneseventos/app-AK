@@ -831,7 +831,10 @@ export async function updateSecurityQuestions(
   // administrador puede cambiar las de cualquiera.
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error ?? 'Sesion no autorizada.' };
-  if (!esAdministrador(auth.user) && auth.user?.userId !== userId) {
+  // El auditor tiene todos los permisos para PROBAR, pero cambiarle las preguntas a otra cuenta es la puerta para
+  // quedarse con ella por "olvidé mi clave": eso lo hace sólo un administrador de verdad (auditoría externa 21/11/2026).
+  const esAuditor = auth.user?.perfil === 'auditor' || auth.user?.role === 'auditor';
+  if ((!esAdministrador(auth.user) || esAuditor) && auth.user?.userId !== userId) {
     return { success: false, error: 'Solo podes cambiar tus propias preguntas de seguridad.' };
   }
 
@@ -863,7 +866,12 @@ export async function getUserSecurityQuestionsForEdit(
   data?: { q1: string; q2: string; q3: string };
   error?: string;
 }> {
-  await requireAppSession();
+  const yo = await requireAppSession();
+  // Las preguntas de recuperación de otra cuenta las ve sólo un administrador (no el auditor): son media llave.
+  const yoAuditor = yo.perfil === 'auditor' || yo.role === 'auditor';
+  if (yo.userId !== userId && (!esAdministrador(yo) || yoAuditor)) {
+    return { success: false, error: 'Solo podes ver tus propias preguntas de seguridad.' };
+  }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
