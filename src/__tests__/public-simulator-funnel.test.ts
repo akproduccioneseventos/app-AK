@@ -10,8 +10,9 @@ describe('public simulator sales funnel', () => {
     path.join(process.cwd(), 'src/app/actions/armado-rapido.ts'),
     'utf8',
   );
+  // Orden 331: la charla de Sofía se movió de src/app/simulador-ak/page.tsx a src/components/simulador/SofiaChat.tsx
   const assistantSource = fs.readFileSync(
-    path.join(process.cwd(), 'src/app/simulador-ak/page.tsx'),
+    path.join(process.cwd(), 'src/components/simulador/SofiaChat.tsx'),
     'utf8',
   );
   const pdfSource = fs.readFileSync(

@@ -63,6 +63,7 @@ export default async function InvitacionSlugPage(props: PageProps) {
     <InvitacionPublicaClient
       config={config}
       fiestaId={fiesta.id}
+      codigoFiesta={fiesta.codigoFiesta}
       socialConnections={socialConnections}
       galeriaUrl={fiesta.galeriaUrl}
       accesosVivos={accesosVivos}

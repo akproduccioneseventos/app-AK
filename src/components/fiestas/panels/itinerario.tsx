@@ -1,0 +1,676 @@
+'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/pdf--itinerario'));
+
+import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, EyeOff, X, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
+import type { TipoEvento } from '@/types/presupuesto';
+import { sugerirPlantillaPorTipo, ordenarPlantillasPorTipo } from '@/lib/itinerario/sugerir-plantilla';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
+import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
+import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
+import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { defaultPrograma } from '@/lib/fiesta-defaults';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+
+const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
+};
+
+const ALL_ICONS = [
+  { value: 'Clock', label: 'Reloj' },
+  { value: 'Utensils', label: 'Cena' },
+  { value: 'GlassWater', label: 'Bebidas' },
+  { value: 'Music', label: 'Música/Baile' },
+  { value: 'CakeSlice', label: 'Torta' },
+  { value: 'Camera', label: 'Fotos' },
+  { value: 'Diamond', label: 'Ceremonia' },
+  { value: 'PartyPopper', label: 'Fiesta' },
+];
+
+function SortableItem({
+  item,
+  hasOverlap,
+  onEdit,
+  onDelete,
+  onToggleVisible,
+}: {
+  item: ProgramaEventoItem;
+  hasOverlap?: boolean;
+  onEdit: (item: ProgramaEventoItem) => void;
+  onDelete: (id: string) => void;
+  onToggleVisible?: (id: string, visible: boolean) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+  const isVisibleForClient = item.visibleParaCliente !== false;
+
+  return (
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-3 p-3 bg-card border rounded-lg shadow-sm", hasOverlap && "border-amber-300 bg-amber-50/40")}>
+      <div {...listeners} {...attributes} className="cursor-grab p-1 text-muted-foreground"><GripVertical className="w-5 h-5" /></div>
+      <div className="p-2 bg-primary/10 rounded-md"><Icon className="w-5 h-5 text-primary" /></div>
+      <div className="flex-grow">
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="font-semibold">{item.hora} - {item.titulo}</p>
+          {hasOverlap && (
+            <Badge variant="outline" className="border-amber-300 bg-amber-100/80 text-amber-900 text-[10px] font-bold">
+              <AlertTriangle className="w-3 h-3 mr-1 text-amber-600 inline" /> Coincide horario
+            </Badge>
+          )}
+          {isVisibleForClient ? (
+            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
+              <Eye className="w-3 h-3 mr-1 inline" /> Visible cliente
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="border-slate-200 bg-slate-100 text-slate-500 text-[10px]">
+              <EyeOff className="w-3 h-3 mr-1 inline" /> Oculto cliente
+            </Badge>
+          )}
+        </div>
+        {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
+        {item.descripcionCliente && (
+          <p className="text-xs text-primary/80 mt-1">
+            <span className="font-medium">Texto para cliente:</span> {item.descripcionCliente}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted/40 rounded-md border border-border/40" title="Alternar si el cliente ve este momento en su portal">
+          <Switch
+            id={`switch-vis-${item.id}`}
+            checked={isVisibleForClient}
+            onCheckedChange={(checked) => onToggleVisible?.(item.id, checked)}
+            aria-label="Alternar visibilidad para el cliente"
+          />
+          <Label htmlFor={`switch-vis-${item.id}`} className="text-xs cursor-pointer text-muted-foreground hidden sm:inline">
+            Portal
+          </Label>
+        </div>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)} title="Editar momento"><Edit className="w-4 h-4" /></Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(item.id)} title="Eliminar momento"><Trash2 className="w-4 h-4" /></Button>
+      </div>
+    </div>
+  );
+}
+
+function ItinerarioContent() {
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
+
+  const [programa, setPrograma] = useState<ProgramaEventoItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Partial<ProgramaEventoItem> | null>(null);
+
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [templateTipoEvento, setTemplateTipoEvento] = useState('');
+  const [suggestedTemplate, setSuggestedTemplate] = useState<ItineraryTemplate | null>(null);
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+  const [clientViewMode, setClientViewMode] = useState(false);
+  const [isGeneratingIA, setIsGeneratingIA] = useState(false);
+  const [fiestaInfo, setFiestaInfo] = useState<{tipo: string, inicio: string, servicios: string[]}>({tipo: 'Fiesta', inicio: '21:00', servicios: []});
+
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
+
+  const { isSaving, lastSaved, saveError } = useAutoSave({
+    data: programa,
+    onSave: (p) => fiestaId ? updateProgramaFiestaActual(fiestaId, p) : Promise.resolve({ success: false, error: 'No se puede guardar: falta el identificador del evento' }),
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading,
+  });
+
+  const loadData = useCallback(async () => {
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("No se encontró el evento.");
+
+      const activeServices: string[] = [];
+      const modulos = fiestaData.modulosContratados;
+      if (modulos) {
+        if (modulos.catering) activeServices.push('Catering');
+        if (modulos.musica) activeServices.push('Música');
+        if (modulos.decoracion) activeServices.push('Decoración');
+        if (modulos.fotografia) activeServices.push('Fotografía');
+        if (modulos.videoVida) activeServices.push('Video');
+        if (modulos.barraTecnologica) activeServices.push('Barra de Tragos');
+        if (modulos.entretenimiento) activeServices.push('Entretenimiento');
+      }
+
+      const tipoCelebracionActual = fiestaData.configuracion?.tipoCelebracion || 'Evento General';
+      setFiestaInfo({
+        tipo: tipoCelebracionActual,
+        inicio: fiestaData.configuracion?.horaInicio || '21:00',
+        servicios: activeServices.length > 0 ? activeServices : ['Catering', 'Música', 'Bebidas'],
+      });
+
+      const itinerario = fiestaData.programa;
+      if (Array.isArray(itinerario)) {
+        // Respetar lo que decidió el usuario (incluso si está vacío)
+        setPrograma(itinerario);
+      } else {
+        setPrograma([]);
+      }
+
+      // Si el programa está vacío, sugerir plantilla según tipoEvento
+      try {
+        const fetched = await getItineraryTemplates();
+        setTemplates(ordenarPlantillasPorTipo(fetched, tipoCelebracionActual));
+        const sugerida = sugerirPlantillaPorTipo(itinerario, fetched, tipoCelebracionActual);
+        setSuggestedTemplate(sugerida);
+      } catch {}
+    } catch (err: any) {
+      setError("No se pudo cargar el cronograma.");
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast, fiestaId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleOpenLoadTemplateModal = async () => {
+    setIsLoadingTemplates(true);
+    setIsLoadTemplateModalOpen(true);
+    try {
+        const fetchedTemplates = await getItineraryTemplates();
+        setTemplates(ordenarPlantillasPorTipo(fetchedTemplates, fiestaInfo.tipo));
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas", variant: "destructive"});
+    } finally {
+        setIsLoadingTemplates(false);
+    }
+  };
+
+  const handleOpenSaveTemplateModal = () => {
+    setTemplateName('');
+    setTemplateTipoEvento(fiestaInfo.tipo || '');
+    setIsSaveTemplateModalOpen(true);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast({title: "Nombre requerido", variant: "destructive"});
+      return;
+    }
+    setIsSavingTemplate(true);
+    try {
+        const tipoEventoVal = (templateTipoEvento.trim() || undefined) as TipoEvento | undefined;
+        // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no otra.
+        const idIntento = await obtenerIntento('plantilla-itinerario', { templateName, programa, tipoEventoVal });
+        const result = await saveItineraryTemplate(templateName, programa, tipoEventoVal, { idIntento });
+        if (result.success) {
+          terminarIntento('plantilla-itinerario');
+          toast({title: "Plantilla Guardada"});
+          setIsSaveTemplateModalOpen(false);
+          const fetched = await getItineraryTemplates();
+          setTemplates(ordenarPlantillasPorTipo(fetched, fiestaInfo.tipo));
+        } else {
+          throw new Error(result.error);
+        }
+    } catch(e: any) {
+        toast({title: "Error al guardar plantilla", description: e.message, variant: "destructive"});
+    } finally {
+        setIsSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = async (template: ItineraryTemplate) => {
+    const updatedItems = template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`}));
+    setPrograma(updatedItems);
+    setSuggestedTemplate(null);
+    toast({title: "Plantilla cargada", description: `Se aplicó la plantilla de ${template.tipoEvento || template.name}.`});
+    setIsLoadTemplateModalOpen(false);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingTemplateId(id);
+    try {
+        const result = await deleteItineraryTemplate(id);
+        if(result.success) {
+          toast({title: "Plantilla eliminada"});
+          setTemplates(prev => prev.filter(t => t.id !== id));
+        } else {
+          throw new Error(result.error);
+        }
+    } catch(e: any) {
+        toast({title: "Error al eliminar", description: e.message, variant: "destructive"});
+    } finally {
+        setDeletingTemplateId(null);
+    }
+  };
+
+  const openModal = (item?: ProgramaEventoItem) => {
+    setCurrentItem(
+      item
+        ? { ...item }
+        : {
+            hora: '20:00',
+            titulo: '',
+            descripcion: '',
+            descripcionCliente: '',
+            visibleParaCliente: true,
+            icono: 'Clock',
+          }
+    );
+    setIsEditModalOpen(true);
+  };
+
+  const handleToggleVisibleCliente = (id: string, visible: boolean) => {
+    setPrograma(prev => prev.map(p => (p.id === id ? { ...p, visibleParaCliente: visible } : p)));
+  };
+
+  const handleSaveItem = (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentItem || !currentItem.titulo) return;
+
+    const newItem: ProgramaEventoItem = {
+      id: currentItem.id || `prog_${Date.now()}`,
+      ...currentItem,
+    } as ProgramaEventoItem;
+
+    const overlapping = programa.find(p => p.hora === newItem.hora && p.id !== newItem.id);
+    if (overlapping) {
+      toast({
+        title: "Horario duplicado",
+        description: `No se pueden programar dos momentos a la misma hora (${newItem.hora}). Ya existe "${overlapping.titulo}". Modificá la hora para continuar.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentItem.id) {
+      setPrograma(prev => prev.map(p => p.id === newItem.id ? newItem : p));
+    } else {
+      setPrograma(prev => ordenarPorHoraDelEvento([...prev, newItem], fiestaInfo.inicio));
+    }
+    setIsEditModalOpen(false);
+    setCurrentItem(null);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    setPrograma(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleGenerateIA = async () => {
+    setIsGeneratingIA(true);
+    try {
+      toast({ title: "Generando...", description: "La IA está diseñando tu cronograma ideal." });
+      const res = await generateTimelineAction(fiestaInfo.tipo, fiestaInfo.inicio, 8, fiestaInfo.servicios);
+      if (res.success && res.data) {
+        const sugeridos = res.data;
+        setPrograma(prev => {
+          if (prev.length === 0) return sugeridos;
+          const horasExistentes = new Set(prev.map(p => p.hora));
+          const titulosExistentes = new Set(prev.map(p => p.titulo.toLowerCase().trim()));
+
+          // No pisar lo que el usuario cargó o modificó mientras esperaba
+          const noChocan = sugeridos.filter(
+            s => !horasExistentes.has(s.hora) && !titulosExistentes.has(s.titulo.toLowerCase().trim())
+          );
+          return ordenarPorHoraDelEvento([...prev, ...noChocan], fiestaInfo.inicio);
+        });
+        toast({ title: "Cronograma Generado", description: "Se incorporaron las sugerencias respetando los momentos que ya tenías cargados." });
+      } else {
+        throw new Error(res.error || 'Error desconocido');
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsGeneratingIA(false);
+    }
+  };
+
+  function handleDragEnd(event: DragEndEvent) {
+    const {active, over} = event;
+    if (over && active.id !== over.id) {
+      setPrograma((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Itinerario y Cronograma"
+        descripcion="Entrá al itinerario desde la fiesta: elegí el evento en el listado y abrí su planificador."
+        fiestaId=""
+      />
+    );
+  }
+
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+       {/* Modals para Plantillas */}
+       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">Cargar Cronograma desde Plantilla</DialogTitle><DialogDescription>Selecciona una plantilla para sobreescribir el cronograma actual.</DialogDescription></DialogHeader>
+          {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> :
+            templates.length > 0 ? (
+              <ScrollArea className="max-h-64">
+                <div className="space-y-2 pr-4">
+                    {templates.map(t => (
+                    <div key={t.id} className="flex items-center justify-between p-2 border rounded-md">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{t.name}</span>
+                            {t.tipoEvento && (
+                              <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+                                {t.tipoEvento}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{t.items.length} momentos</p>
+                        </div>
+                        <div className="flex gap-1">
+                        <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
+                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>
+                            {deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                        </Button>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+              </ScrollArea>
+            ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">Guardar como Plantilla</DialogTitle><DialogDescription>Crea una plantilla a partir de este cronograma para usarla en otros eventos.</DialogDescription></DialogHeader>
+          <div className="py-2 space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="template-name">Nombre de la Plantilla</Label>
+                <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Itinerario Boda Estándar"/>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="template-tipo-evento">Tipo de Evento</Label>
+                <Input
+                  id="template-tipo-evento"
+                  value={templateTipoEvento}
+                  onChange={e => setTemplateTipoEvento(e.target.value)}
+                  placeholder="Ej: Boda, 15 Años..."
+                />
+                <p className="text-xs text-muted-foreground">Propuesto según el tipo de esta fiesta ({fiestaInfo.tipo}).</p>
+              </div>
+          </div>
+          <DialogFooter>
+              <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+              <Button onClick={handleSaveTemplate} disabled={isSavingTemplate || !templateName.trim()}>
+                  {isSavingTemplate ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Plantilla
+              </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Momento</DialogTitle></DialogHeader>
+          <form onSubmit={handleSaveItem} className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1"><Label htmlFor="item-hora">Hora*</Label><Input id="item-hora" type="time" value={currentItem?.hora || ''} onChange={(e) => setCurrentItem(p => p ? {...p, hora: e.target.value} : null)} required /></div>
+              <div className="space-y-1"><Label htmlFor="item-icono">Icono</Label>
+                <Select value={currentItem?.icono || 'Clock'} onValueChange={(val) => setCurrentItem(p => p ? {...p, icono: val} : null)}>
+                  <SelectTrigger id="item-icono"><SelectValue/></SelectTrigger>
+                  <SelectContent>{ALL_ICONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1"><Label htmlFor="item-titulo">Título*</Label><Input id="item-titulo" value={currentItem?.titulo || ''} onChange={(e) => setCurrentItem(p => p ? {...p, titulo: e.target.value} : null)} required /></div>
+            <div className="space-y-1">
+              <Label htmlFor="item-desc">Descripción interna (solo organizador)</Label>
+              <Textarea
+                id="item-desc"
+                value={currentItem?.descripcion || ''}
+                onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)}
+                rows={2}
+                placeholder="Notas operativas del equipo (no visibles para el cliente)"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="item-desc-cliente" className="font-semibold text-foreground">
+                Texto que leerá el cliente en su portal (opcional)
+              </Label>
+              <Textarea
+                id="item-desc-cliente"
+                value={currentItem?.descripcionCliente || ''}
+                onChange={(e) => setCurrentItem(p => p ? {...p, descripcionCliente: e.target.value} : null)}
+                rows={2}
+                placeholder="Escribí acá el texto redactado para la familia (si se deja vacío, se mostrará el título/descripción)"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Permite escribir una redacción cuidada para el cliente, separada de las notas técnicas del equipo.
+              </p>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+              <div className="space-y-0.5 pr-2">
+                <Label htmlFor="item-visible-cliente" className="text-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+                  <Eye className="w-4 h-4 text-primary" /> Visible en el portal del cliente
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Marcá este interruptor para que este momento aparezca en el cronograma del portal VIP del cliente.
+                </p>
+              </div>
+              <Switch
+                id="item-visible-cliente"
+                checked={currentItem?.visibleParaCliente !== false}
+                onCheckedChange={(checked) => setCurrentItem(p => p ? {...p, visibleParaCliente: checked} : null)}
+              />
+            </div>
+            <DialogFooter className="pt-3">
+              <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+              <Button type="submit">Guardar Momento</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Clock className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
+        </div>
+        <div className="flex gap-2">
+            <Button
+              variant={clientViewMode ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setClientViewMode(v => !v)}
+            >
+              <Eye className="w-4 h-4 mr-2"/>{clientViewMode ? 'Vista Interna' : 'Vista Cliente'}
+            </Button>
+            <Button asChild variant="secondary" size="sm"><Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`}><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Link></Button>
+            <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+        </div>
+      </div>
+
+      {/* ── Sugerencia de plantilla por tipo de evento ─── */}
+      {suggestedTemplate && programa.length === 0 && (
+        <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-primary">
+                Usar la plantilla de {suggestedTemplate.tipoEvento || suggestedTemplate.name}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                El cronograma está vacío. Podés aplicar los {suggestedTemplate.items.length} momentos de esta plantilla en un toque.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => handleLoadTemplate(suggestedTemplate)}
+            className="font-bold text-xs shrink-0"
+          >
+            Usar la plantilla de {suggestedTemplate.tipoEvento || suggestedTemplate.name}
+          </Button>
+        </div>
+      )}
+
+      {/* ── Vista Cliente: cronograma simplificado ─── */}
+      {clientViewMode && (
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye className="w-5 h-5 text-primary" />
+            <p className="font-black text-primary uppercase tracking-widest text-sm">Vista del Cliente</p>
+            <span className="text-xs text-slate-500 ml-1">— Así verá el cliente su cronograma en el Portal VIP</span>
+          </div>
+          {programa.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-4">No hay momentos cargados aún.</p>
+          ) : (
+            <div className="space-y-3">
+              {programa.filter(item => item.visibleParaCliente !== false).map(item => {
+                const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+                return (
+                  <div key={item.id} className="flex gap-3 items-start p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                    <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-black text-sm text-primary">{item.hora}</p>
+                      <p className="font-semibold text-slate-800">{item.titulo}</p>
+                      {item.descripcionCliente && <p className="text-xs text-slate-500 mt-0.5">{item.descripcionCliente}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+                <CardTitle>Eventos Programados</CardTitle>
+                <CardDescription>Organiza cada momento de la fiesta. Los cambios se sincronizan solos.</CardDescription>
+            </div>
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Momento</Button>
+            <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+            <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
+            <Button onClick={handleGenerateIA} disabled={isGeneratingIA} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              {isGeneratingIA ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Sparkles className="w-4 h-4 mr-2"/>}
+              Autocompletar con IA
+            </Button>
+          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={programa.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-3">
+                {programa.map(item => {
+                  const hasOverlap = programa.some(p => p.id !== item.id && p.hora === item.hora);
+                  return (
+                    <SortableItem
+                      key={item.id}
+                      item={item}
+                      hasOverlap={hasOverlap}
+                      onEdit={openModal}
+                      onDelete={handleDeleteItem}
+                      onToggleVisible={handleToggleVisibleCliente}
+                    />
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ItinerarioPageInner() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>}>
+            <ItinerarioContent />
+        </Suspense>
+    );
+}
+
+
+export default function ItinerarioPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        queryKey="subtab"
+        tabs={[{"id":"itinerario","label":"Itinerario"},{"id":"pdf","label":"Imprimir / PDF"}]}
+        renderDefault={() => <ItinerarioPageInner />}
+        renderTab={(tab) => { if (tab === 'pdf') return <__AkPanel1 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

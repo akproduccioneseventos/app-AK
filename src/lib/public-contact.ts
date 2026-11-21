@@ -7,6 +7,7 @@
 
 export const AK_WHATSAPP_NUMBER = '59898355530';
 export const AK_INSTAGRAM_HANDLE = '@akproduccionesfiestasyeventos';
+export const AK_PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=uy.akproducciones.app';
 
 /**
  * El mismo numero, como lo lee una persona: "+598 98 355 530".

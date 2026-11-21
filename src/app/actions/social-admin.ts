@@ -31,7 +31,7 @@ const defaultGlobalAds: GlobalAdItem[] = [
     description: '¡Hacé que tus invitados se lleven un video espectacular en cámara lenta! Reservá la plataforma 360 de AK Producciones para tu fiesta.',
     imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80',
     ctaText: 'Cotizar en mi Simulador',
-    ctaUrl: '/simulador-ak',
+    ctaUrl: '/simulador-de-presupuesto',
     enabled: true
   },
   {
@@ -40,7 +40,7 @@ const defaultGlobalAds: GlobalAdItem[] = [
     description: 'Megatron y show de luces LED robotizado para hacer explotar la tanda de baile de tu evento.',
     imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80',
     ctaText: 'Ver Servicios en Simulador',
-    ctaUrl: '/simulador-ak',
+    ctaUrl: '/simulador-de-presupuesto',
     enabled: true
   },
   {
@@ -49,7 +49,7 @@ const defaultGlobalAds: GlobalAdItem[] = [
     description: 'Un espejo táctil interactivo que saca fotos de cuerpo entero y las imprime al instante como souvenir premium para tus invitados.',
     imageUrl: 'https://images.unsplash.com/photo-1541140111813-8222e9d90981?auto=format&fit=crop&w=600&q=80',
     ctaText: 'Cotizar Souvenirs',
-    ctaUrl: '/simulador-ak',
+    ctaUrl: '/simulador-de-presupuesto',
     enabled: true
   },
   {
@@ -58,7 +58,7 @@ const defaultGlobalAds: GlobalAdItem[] = [
     description: 'Pistas de baile iluminadas que cambian de color al ritmo de la música. Elevá la estética visual de tu evento al máximo.',
     imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
     ctaText: 'Diseñar mi Pista',
-    ctaUrl: '/simulador-ak',
+    ctaUrl: '/simulador-de-presupuesto',
     enabled: true
   }
 ];

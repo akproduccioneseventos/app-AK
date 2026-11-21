@@ -44,6 +44,7 @@ export default function AficheMuroPage() {
   const qrUrl = `${origin}/evento/social/${fiestaId}${permiso ? `?estacion=totems&access=${encodeURIComponent(permiso)}` : ''}`;
   const eventName = event?.configuracion?.nombreEvento || 'Nuestra Fiesta';
   const primaryColor = event?.socialGallerySettings?.accentColor || '#d97706';
+  const codigoFiesta = event?.codigoFiesta?.trim();
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
@@ -97,16 +98,16 @@ export default function AficheMuroPage() {
           </p>
         </div>
 
-        {/* QR Grande */}
-        <div className="flex justify-center p-4">
+        {/* QR Grande + Código de Fiesta */}
+        <div className={codigoFiesta ? 'flex flex-col sm:flex-row items-center justify-center gap-5 p-2' : 'flex justify-center p-4'}>
           <div
-            className="p-5 rounded-3xl bg-white border-4 shadow-xl inline-block"
+            className="p-5 rounded-3xl bg-white border-4 shadow-xl inline-block shrink-0"
             style={{ borderColor: primaryColor }}
           >
             {qrUrl ? (
               <QRCodeSVG
                 value={qrUrl}
-                size={220}
+                size={codigoFiesta ? 185 : 220}
                 level="H"
                 includeMargin={false}
                 fgColor="#0f172a"
@@ -117,6 +118,27 @@ export default function AficheMuroPage() {
               </div>
             )}
           </div>
+
+          {codigoFiesta && (
+            <div
+              data-testid="afiche-codigo-fiesta"
+              className="rounded-3xl border-4 bg-slate-50 px-5 py-4 text-center shadow-md"
+              style={{ borderColor: primaryColor }}
+            >
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                Código de la fiesta
+              </p>
+              <p
+                className="mt-1 font-mono text-3xl sm:text-4xl font-black tracking-[0.18em] text-slate-900"
+                style={{ color: primaryColor }}
+              >
+                {codigoFiesta}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-600">
+                Escribilo en la app de AK
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-3 pt-2">

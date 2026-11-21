@@ -40,7 +40,8 @@ export type KioskRole =
   | 'buzon'
   | 'video-vida'
   | 'impresion'
-  | 'dj';
+  | 'dj'
+  | 'bogue';
 
 interface KioskSetupProps {
   defaultRole: KioskRole;
@@ -67,12 +68,17 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const fiestaSelectId = useId();
   const rolesGroupId = useId();
   const totemInputId = useId();
+  const resolvedDefaultRole = (defaultRole in ETIQUETAS_DE_ESTACION ? defaultRole : 'fotocabina') as KioskRole;
 
   // Loading and State
   const [status, setStatus] = useState<'checking' | 'setup' | 'redirecting'>('checking');
   const [fiestas, setFiestas] = useState<any[]>([]);
   const [selectedFiestaId, setSelectedFiestaId] = useState('');
-  const [selectedRole, setSelectedRole] = useState(defaultRole);
+  const [selectedRole, setSelectedRole] = useState<KioskRole>(resolvedDefaultRole);
+
+  useEffect(() => {
+    setSelectedRole(resolvedDefaultRole);
+  }, [resolvedDefaultRole]);
   /**
    * SIN PIN, y lo pidio el dueño: *"o mejor sacale el PIN y ta. Asi no complica."*
    *

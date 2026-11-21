@@ -8,7 +8,7 @@ para no volver a construir algo que ya está ni prometer algo que la app no hace
 Van juntos a propósito. Dos manuales separados se despegan en un mes, y el que
 queda viejo hace más daño que no tener ninguno.
 
-**Tamaño de la app hoy: 186 pantallas y 39 opciones de menú.** Esos dos números
+**Tamaño de la app hoy: 151 pantallas y 39 opciones de menú.** Esos dos números
 no se escriben a mano: los cuenta el control automático, y si no coinciden con
 la app de verdad, se pone en rojo.
 
@@ -55,21 +55,21 @@ ruta que nombra este manual siga estando.
 | Incidentes en eventos | `/incidentes` |
 | Guías de armado paso a paso | `/playbooks` |
 | Personal que está en dos fiestas el mismo día | `/recursos-multi-evento` |
-| Configuración general de una fiesta | `/fiestas/nueva/configuracion` |
-| Invitados y confirmaciones | `/fiestas/nueva/invitados` |
-| Comida del evento | `/fiestas/nueva/catering` |
-| Alergias y dietas especiales | `/fiestas/nueva/alergias` |
-| Decoración | `/fiestas/nueva/decoracion` |
-| Entretenimiento | `/fiestas/nueva/entretenimiento` |
-| Música | `/fiestas/nueva/musica` |
-| Personal asignado | `/fiestas/nueva/personal` |
-| Servicios contratados | `/fiestas/nueva/servicios-contratados` |
-| Plan de pagos de esa fiesta | `/fiestas/nueva/plan-pagos` |
-| Rentabilidad de esa fiesta | `/fiestas/nueva/gestion-costos-rentabilidad` |
-| Contratos, recibos y cambios firmados | `/fiestas/nueva/gestion-documental` |
-| Centro de operaciones, la noche de la fiesta | `/fiestas/nueva/muro-social?tab=en-vivo` |
-| Configurar el portal del cliente | `/fiestas/nueva/portal-cliente` |
-| Portal para los proveedores | `/fiestas/nueva/proveedores-portal` |
+| Configuración general de una fiesta | `/fiestas/nueva/datos?tab=configuracion` |
+| Invitados y confirmaciones | `/fiestas/nueva/datos?tab=invitados` |
+| Comida del evento | `/fiestas/nueva/comida?tab=catering` |
+| Alergias y dietas especiales | `/fiestas/nueva/datos?tab=alergias` |
+| Decoración | `/fiestas/nueva/show?tab=decoracion` |
+| Entretenimiento | `/fiestas/nueva/show?tab=entretenimiento` |
+| Música | `/fiestas/nueva/show?tab=musica` |
+| Personal asignado | `/fiestas/nueva/operacion?tab=personal` |
+| Servicios contratados | `/fiestas/nueva/datos?tab=servicios-contratados` |
+| Plan de pagos de esa fiesta | `/fiestas/nueva/plata-y-papeles?tab=plan-pagos` |
+| Rentabilidad de esa fiesta | `/fiestas/nueva/plata-y-papeles?tab=gestion-costos-rentabilidad` |
+| Contratos, recibos y cambios firmados | `/fiestas/nueva/plata-y-papeles?tab=gestion-documental` |
+| Centro de operaciones, la noche de la fiesta | `/fiestas/nueva/show?tab=muro-social&subtab=en-vivo` |
+| Configurar el portal del cliente | `/fiestas/nueva/plata-y-papeles?tab=portal-cliente` |
+| Portal para los proveedores | `/fiestas/nueva/operacion?tab=proveedores-portal` |
 | Muro social de todos los eventos | `/empresa/presencia-digital?tab=social-eventos` |
 
 ### 💼 3. Vender — prospectos, presupuestos y clientes

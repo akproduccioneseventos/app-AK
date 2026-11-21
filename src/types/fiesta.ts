@@ -1604,6 +1604,7 @@ export interface FiestaEnPlanificacion {
   esMuestra?: boolean;
   mensajesCliente?: MensajePortalCliente[];
   invitacionSlug?: string;
+  codigoFiesta?: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;
   motivoSuspension?: string;

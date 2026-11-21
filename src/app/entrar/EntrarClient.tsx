@@ -9,7 +9,6 @@ import {
   Shield,
   Truck,
   PartyPopper,
-  KeyRound,
   Eye,
   EyeOff,
   Loader2,
@@ -23,7 +22,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { entrarAlPortalPorTelefono } from '@/app/actions/fiesta/portal.actions';
+import { entrarComoInvitado, type OpcionFiestaInvitado } from '@/app/actions/entrar-como-invitado';
 import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
+import { BajaLaApp } from '@/components/BajaLaApp';
+
+function guardarCredencialInvitado(fiestaId: string, guestId: string, token: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('ak_invitado_fiesta', fiestaId);
+    localStorage.setItem(
+      'ak_invitado_credencial',
+      JSON.stringify({ fiestaId, guestId, token }),
+    );
+  } catch (err) {
+    console.warn('[EntrarClient] No se pudo guardar ak_invitado_fiesta en localStorage:', err);
+  }
+}
 
 export function EntrarClient() {
   const router = useRouter();
@@ -34,9 +48,29 @@ export function EntrarClient() {
       try {
         const fiestaInvitado = localStorage.getItem('ak_invitado_fiesta');
         if (fiestaInvitado) {
+          const credencialRaw = localStorage.getItem('ak_invitado_credencial');
+          if (credencialRaw) {
+            try {
+              const cred = JSON.parse(credencialRaw) as {
+                fiestaId?: string;
+                guestId?: string;
+                token?: string;
+              };
+              if (cred?.fiestaId === fiestaInvitado && cred.guestId && cred.token) {
+                router.replace(
+                  `/evento/hub/${encodeURIComponent(fiestaInvitado)}?guestId=${encodeURIComponent(cred.guestId)}&token=${encodeURIComponent(cred.token)}`,
+                );
+                return;
+              }
+            } catch (err) {
+              console.warn('[EntrarClient] Credencial guardada inválida:', err);
+            }
+          }
           router.replace(`/evento/hub/${encodeURIComponent(fiestaInvitado)}`);
         }
-      } catch {}
+      } catch (err) {
+        console.warn('[EntrarClient] Error leyendo localStorage:', err);
+      }
     }
   }, [router]);
 
@@ -51,14 +85,108 @@ export function EntrarClient() {
   const [errorCliente, setErrorCliente] = useState<string | null>(null);
   const [fiestasMultiples, setFiestasMultiples] = useState<Array<{ id: string; nombreEvento: string }> | null>(null);
 
+  // Formulario invitado (celular primero, luego código + nombre)
+  const [telefonoInvitado, setTelefonoInvitado] = useState('');
+  const [cargandoInvitado, setCargandoInvitado] = useState(false);
+  const [errorInvitado, setErrorInvitado] = useState<string | null>(null);
+  const [opcionesInvitado, setOpcionesInvitado] = useState<OpcionFiestaInvitado[] | null>(null);
+  const [mostrarIngresoPorCodigo, setMostrarIngresoPorCodigo] = useState(false);
+  const [codigoFiestaInput, setCodigoFiestaInput] = useState('');
+  const [nombreInvitadoInput, setNombreInvitadoInput] = useState('');
+
   // Modal QR Invitado
   const [mostrarScanner, setMostrarScanner] = useState(false);
-  const [mostrarAyudaInvitado, setMostrarAyudaInvitado] = useState(false);
 
   const toggleSeccion = (seccion: 'cliente' | 'invitado' | 'proveedor') => {
     setSeccionAbierta((actual) => (actual === seccion ? null : seccion));
     setErrorCliente(null);
     setFiestasMultiples(null);
+    setErrorInvitado(null);
+    setOpcionesInvitado(null);
+  };
+
+  const abrirHubInvitado = (fiestaId: string, guestId: string, token: string) => {
+    guardarCredencialInvitado(fiestaId, guestId, token);
+    router.push(
+      `/evento/hub/${encodeURIComponent(fiestaId)}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(token)}`,
+    );
+  };
+
+  const handleIngresoInvitadoTelefono = async (
+    e?: React.FormEvent,
+    fiestaIdElegida?: string,
+  ) => {
+    if (e) e.preventDefault();
+    setErrorInvitado(null);
+    if (!fiestaIdElegida) setOpcionesInvitado(null);
+
+    if (!telefonoInvitado.trim()) {
+      setErrorInvitado('Escribí tu celular para entrar.');
+      return;
+    }
+
+    setCargandoInvitado(true);
+    try {
+      const res = await entrarComoInvitado({
+        telefono: telefonoInvitado,
+        ...(fiestaIdElegida ? { fiestaIdElegida } : {}),
+      });
+      if (res.status === 'ok') {
+        abrirHubInvitado(res.fiestaId, res.guestId, res.token);
+        return;
+      }
+      if (res.status === 'multiple') {
+        setOpcionesInvitado(res.opciones);
+        return;
+      }
+      if (res.status === 'ir_a_invitacion') {
+        router.push(res.url);
+        return;
+      }
+      setErrorInvitado(res.error);
+    } catch (err) {
+      console.warn('[EntrarClient] Error al ingresar como invitado por teléfono:', err);
+      setErrorInvitado('Ocurrió un error al buscar tu entrada. Probá de nuevo.');
+    } finally {
+      setCargandoInvitado(false);
+    }
+  };
+
+  const handleIngresoInvitadoCodigo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorInvitado(null);
+    setOpcionesInvitado(null);
+
+    if (!codigoFiestaInput.trim() || !nombreInvitadoInput.trim()) {
+      setErrorInvitado('Escribí el código de la fiesta y tu nombre completo.');
+      return;
+    }
+
+    setCargandoInvitado(true);
+    try {
+      const res = await entrarComoInvitado({
+        codigoFiesta: codigoFiestaInput,
+        nombre: nombreInvitadoInput,
+      });
+      if (res.status === 'ok') {
+        abrirHubInvitado(res.fiestaId, res.guestId, res.token);
+        return;
+      }
+      if (res.status === 'ir_a_invitacion') {
+        router.push(res.url);
+        return;
+      }
+      if (res.status === 'multiple') {
+        setOpcionesInvitado(res.opciones);
+        return;
+      }
+      setErrorInvitado(res.error);
+    } catch (err) {
+      console.warn('[EntrarClient] Error al ingresar como invitado por código:', err);
+      setErrorInvitado('Ocurrió un error al verificar el código. Probá de nuevo.');
+    } finally {
+      setCargandoInvitado(false);
+    }
   };
 
   const handleIngresoCliente = async (e: React.FormEvent) => {
@@ -87,7 +215,8 @@ export function EntrarClient() {
       if (res.fiestas && res.fiestas.length > 0) {
         setFiestasMultiples(res.fiestas);
       }
-    } catch {
+    } catch (err) {
+      console.warn('[EntrarClient] Error al verificar datos de cliente:', err);
       setErrorCliente('Ocurrió un error al verificar tus datos. Probá nuevamente.');
     } finally {
       setCargandoCliente(false);
@@ -120,7 +249,9 @@ export function EntrarClient() {
             if (!activo) return;
             try {
               scanner.clear();
-            } catch {}
+            } catch (err) {
+              console.warn('[EntrarClient] Error cerrando scanner:', err);
+            }
             setMostrarScanner(false);
 
             let targetUrl = '';
@@ -135,7 +266,9 @@ export function EntrarClient() {
                   const m = url.pathname.match(/\/evento\/hub\/([^/?]+)/) || url.pathname.match(/\/invitacion\/([^/?]+)/);
                   if (m) scannedFiestaId = decodeURIComponent(m[1]);
                 }
-              } catch {}
+              } catch (err) {
+                console.warn('[EntrarClient] URL de QR inválida:', err);
+              }
             } else {
               const matchFiesta = texto.match(/fiestaId=([^&]+)/);
               if (matchFiesta) scannedFiestaId = decodeURIComponent(matchFiesta[1]);
@@ -144,7 +277,9 @@ export function EntrarClient() {
             if (scannedFiestaId) {
               try {
                 localStorage.setItem('ak_invitado_fiesta', scannedFiestaId);
-              } catch {}
+              } catch (err) {
+                console.warn('[EntrarClient] No se pudo guardar fiestaId del QR:', err);
+              }
             }
 
             if (targetUrl) {
@@ -171,7 +306,9 @@ export function EntrarClient() {
       if (scanner) {
         try {
           scanner.clear();
-        } catch {}
+        } catch (err) {
+          console.warn('[EntrarClient] Error limpiando scanner al desmontar:', err);
+        }
       }
     };
   }, [mostrarScanner]);
@@ -198,9 +335,213 @@ export function EntrarClient() {
         </p>
       </header>
 
-      {/* Contenido principal con los 5 botones */}
+      {/* Contenido principal */}
       <main className="w-full max-w-md mx-auto space-y-3.5 flex-1 flex flex-col justify-center">
-        {/* 1. Soy cliente de AK */}
+        {/* 1. Quiero organizar mi fiesta (primero y el más grande, directo al simulador) */}
+        <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-600/20 via-slate-900/90 to-slate-900/80 backdrop-blur-sm p-4 sm:p-5 shadow-xl">
+          <Link
+            href="/simulador-de-presupuesto?utm_source=app&utm_medium=entrar"
+            className="flex items-center justify-between text-left font-bold text-white transition hover:opacity-95 group py-1"
+            data-testid="btn-quiero-organizar"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="h-14 w-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-950/50">
+                <PartyPopper className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="text-lg font-extrabold text-white leading-tight">Quiero organizar mi fiesta</p>
+                <p className="text-xs text-emerald-200 font-normal mt-1">Armá tu presupuesto al instante, sin registros</p>
+              </div>
+            </div>
+            <span className="text-sm text-emerald-300 font-bold group-hover:translate-x-0.5 transition shrink-0 ml-2">Ir →</span>
+          </Link>
+
+          <div className="mt-3 pt-3 border-t border-emerald-500/20 flex items-center justify-center gap-5 text-xs text-slate-300">
+            <Link href="/?utm_source=app" className="hover:text-white underline underline-offset-4 transition">
+              Ver la web
+            </Link>
+            <span className="text-slate-600">·</span>
+            <Link href="/#landing-faq" className="hover:text-white underline underline-offset-4 transition">
+              Preguntas frecuentes
+            </Link>
+          </div>
+        </div>
+
+        {/* 2. Soy invitado a una fiesta */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-lg hover:border-slate-700">
+          <button
+            type="button"
+            onClick={() => toggleSeccion('invitado')}
+            className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-bold text-white transition hover:bg-slate-800/40"
+            data-testid="btn-soy-invitado"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="h-11 w-11 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0">
+                <Ticket className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-base font-bold text-white leading-tight">Soy invitado a una fiesta</p>
+                <p className="text-xs text-slate-400 font-normal mt-0.5">Fotos, música y sorpresas en vivo</p>
+              </div>
+            </div>
+            {seccionAbierta === 'invitado' ? (
+              <ChevronUp className="h-5 w-5 text-slate-400" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-slate-400" />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {seccionAbierta === 'invitado' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="px-4 pb-5 pt-2 border-t border-slate-800/60 space-y-3"
+              >
+                {opcionesInvitado ? (
+                  <div className="space-y-2.5 pt-1">
+                    <p className="text-sm font-semibold text-slate-200">
+                      Estás en más de una fiesta. ¿A cuál entrás?
+                    </p>
+                    <div className="space-y-2">
+                      {opcionesInvitado.map((op) => (
+                        <button
+                          key={op.fiestaId}
+                          type="button"
+                          disabled={cargandoInvitado}
+                          onClick={() => void handleIngresoInvitadoTelefono(undefined, op.fiestaId)}
+                          className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm flex items-center justify-between transition disabled:opacity-60"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate font-bold">{op.nombreEvento}</p>
+                            {op.fechaEvento ? (
+                              <p className="text-xs text-slate-400 mt-0.5">{op.fechaEvento.slice(0, 10)}</p>
+                            ) : null}
+                          </div>
+                          <span className="text-xs text-purple-300 font-bold shrink-0 ml-2">Entrar →</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={(e) => void handleIngresoInvitadoTelefono(e)} className="space-y-3 pt-1">
+                    <div>
+                      <label htmlFor="telefono-invitado" className="block text-xs font-semibold text-slate-300 mb-1">
+                        Tu celular
+                      </label>
+                      <input
+                        id="telefono-invitado"
+                        type="tel"
+                        value={telefonoInvitado}
+                        onChange={(e) => setTelefonoInvitado(e.target.value)}
+                        placeholder="Ej: 099 123 456"
+                        className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={cargandoInvitado}
+                      className="w-full min-h-11 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm flex items-center justify-center gap-2 transition disabled:opacity-60 shadow-lg shadow-purple-950/30"
+                    >
+                      {cargandoInvitado ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> Buscando...
+                        </>
+                      ) : (
+                        'Entrar'
+                      )}
+                    </button>
+                  </form>
+                )}
+
+                {errorInvitado && (
+                  <p className="text-xs text-red-400 bg-red-950/40 border border-red-800/60 rounded-lg p-2.5">
+                    {errorInvitado}
+                  </p>
+                )}
+
+                <AvisoDeDatos para="invitado" />
+
+                <div className="pt-1 border-t border-slate-800/60">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMostrarIngresoPorCodigo((p) => !p);
+                      setErrorInvitado(null);
+                    }}
+                    className="w-full text-center text-xs text-slate-300 hover:text-white transition flex items-center justify-center gap-1 py-1.5 font-medium"
+                  >
+                    <span>¿No te encuentra? Entrá con el código de la fiesta</span>
+                    {mostrarIngresoPorCodigo ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  </button>
+
+                  <AnimatePresence>
+                    {mostrarIngresoPorCodigo && (
+                      <motion.form
+                        onSubmit={(e) => void handleIngresoInvitadoCodigo(e)}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-2 space-y-2.5 overflow-hidden"
+                      >
+                        <div>
+                          <label htmlFor="codigo-fiesta-invitado" className="block text-xs font-semibold text-slate-300 mb-1">
+                            Código de la fiesta
+                          </label>
+                          <input
+                            id="codigo-fiesta-invitado"
+                            type="text"
+                            value={codigoFiestaInput}
+                            onChange={(e) => setCodigoFiestaInput(e.target.value.toUpperCase())}
+                            placeholder="Ej: K7P4QX"
+                            maxLength={8}
+                            className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm font-mono uppercase text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="nombre-invitado-codigo" className="block text-xs font-semibold text-slate-300 mb-1">
+                            Tu nombre
+                          </label>
+                          <input
+                            id="nombre-invitado-codigo"
+                            type="text"
+                            value={nombreInvitadoInput}
+                            onChange={(e) => setNombreInvitadoInput(e.target.value)}
+                            placeholder="Nombre y apellido"
+                            className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={cargandoInvitado}
+                          className="w-full min-h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-60"
+                        >
+                          {cargandoInvitado ? 'Verificando...' : 'Entrar con código'}
+                        </button>
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div className="pt-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setMostrarScanner(true)}
+                    className="inline-flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-white transition py-1"
+                  >
+                    <QrCode className="h-3.5 w-3.5" />
+                    <span>Tengo el QR de la invitación</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 3. Soy cliente de AK */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-lg hover:border-slate-700">
           <button
             type="button"
@@ -331,81 +672,9 @@ export function EntrarClient() {
           </AnimatePresence>
         </div>
 
-        {/* 2. Soy invitado a una fiesta */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-lg hover:border-slate-700">
-          <button
-            type="button"
-            onClick={() => toggleSeccion('invitado')}
-            className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-bold text-white transition hover:bg-slate-800/40"
-            data-testid="btn-soy-invitado"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0">
-                <Ticket className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-base font-bold text-white leading-tight">Soy invitado a una fiesta</p>
-                <p className="text-xs text-slate-400 font-normal mt-0.5">Fotos, música y sorpresas en vivo</p>
-              </div>
-            </div>
-            {seccionAbierta === 'invitado' ? (
-              <ChevronUp className="h-5 w-5 text-slate-400" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-slate-400" />
-            )}
-          </button>
-
-          <AnimatePresence>
-            {seccionAbierta === 'invitado' && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="px-4 pb-5 pt-2 border-t border-slate-800/60 space-y-3"
-              >
-                <button
-                  type="button"
-                  onClick={() => setMostrarScanner(true)}
-                  className="w-full min-h-12 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm flex items-center justify-center gap-2.5 transition shadow-lg shadow-purple-950/30"
-                >
-                  <QrCode className="h-4 w-4" />
-                  Escanear el QR de mi invitación
-                </button>
-
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setMostrarAyudaInvitado((p) => !p)}
-                    className="w-full text-center text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1 py-1"
-                  >
-                    <span>No tengo el QR</span>
-                    {mostrarAyudaInvitado ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                  </button>
-
-                  <AnimatePresence>
-                    {mostrarAyudaInvitado && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-2 p-3 rounded-xl bg-slate-950 border border-slate-800 text-center"
-                      >
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Pedile el enlace a quien te invitó. Te lo mandan por WhatsApp y entrás directo con un toque.
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* 3. Soy del equipo */}
+        {/* 4. Soy del equipo */}
         <Link
-          href="/login"
+          href="/login?con=google"
           className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm p-4 sm:p-5 flex items-center justify-between text-left font-bold text-white transition-all duration-200 shadow-lg hover:border-slate-700 hover:bg-slate-800/40 group block"
           data-testid="btn-soy-del-equipo"
         >
@@ -421,7 +690,7 @@ export function EntrarClient() {
           <span className="text-xs text-slate-400 group-hover:text-white transition">Entrar →</span>
         </Link>
 
-        {/* 4. Soy proveedor */}
+        {/* 5. Soy proveedor */}
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-lg hover:border-slate-700">
           <button
             type="button"
@@ -470,31 +739,16 @@ export function EntrarClient() {
             )}
           </AnimatePresence>
         </div>
-
-        {/* 5. Quiero organizar mi fiesta */}
-        <Link
-          href="/"
-          className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-sm p-4 sm:p-5 flex items-center justify-between text-left font-bold text-white transition-all duration-200 shadow-lg hover:border-slate-700 hover:bg-slate-800/40 group block"
-          data-testid="btn-quiero-organizar"
-        >
-          <div className="flex items-center gap-3.5">
-            <div className="h-11 w-11 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0">
-              <PartyPopper className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-base font-bold text-white leading-tight">Quiero organizar mi fiesta</p>
-              <p className="text-xs text-slate-400 font-normal mt-0.5">Conocé nuestros servicios y presupuestos</p>
-            </div>
-          </div>
-          <span className="text-xs text-slate-400 group-hover:text-white transition">Ver más →</span>
-        </Link>
       </main>
 
-      {/* Pie con texto para el personal */}
-      <footer className="w-full max-w-md mx-auto pt-6 pb-4 text-center">
+      {/* Pie con texto para el personal y botón de instalar / Google Play */}
+      <footer className="w-full max-w-md mx-auto pt-6 pb-4 text-center space-y-4">
         <p className="text-xs text-slate-500 leading-relaxed">
           ¿Sos del personal y te mandaron un enlace? Abrilo desde WhatsApp y se abre acá.
         </p>
+        <div className="pt-1">
+          <BajaLaApp compact label="Bajá la app de AK" />
+        </div>
       </footer>
 
       {/* Modal Lector QR */}

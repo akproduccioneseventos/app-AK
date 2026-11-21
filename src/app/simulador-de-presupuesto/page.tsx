@@ -68,6 +68,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
+import { SofiaChat } from '@/components/simulador/SofiaChat';
 
 const SimulatorMeetingScheduler = dynamic(
   () => import('@/components/simulator/SimulatorMeetingScheduler').then((m) => m.SimulatorMeetingScheduler),
@@ -315,6 +316,13 @@ function SimuladorContent() {
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
         simulatorMode: 'visual' as const,
     }), [searchParams]);
+    const modoParam = searchParams.get('modo');
+    const [showSofiaChat, setShowSofiaChat] = useState(() => modoParam === 'sofia');
+    useEffect(() => {
+      if (modoParam === 'sofia') {
+        setShowSofiaChat(true);
+      }
+    }, [modoParam]);
     const [hasStarted, setHasStarted] = useState(false);
     // Si la URL trae el tipo de fiesta pre-seleccionado o parámetros clave, saltamos la pantalla de bienvenida
     // para que el formulario quede visible de entrada y las pruebas e2e puedan encontrarlo.
@@ -1572,6 +1580,10 @@ function SimuladorContent() {
         acquisition,
     ]);
 
+    if (showSofiaChat) {
+        return <SofiaChat onClose={() => setShowSofiaChat(false)} />;
+    }
+
     if (errorLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
@@ -1621,6 +1633,16 @@ function SimuladorContent() {
                                   ) : (
                                       <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
                                   )}
+                              </Button>
+                              <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => setShowSofiaChat(true)}
+                                  data-testid="simulator-sofia-trigger"
+                                  className="h-14 rounded-md border-white/30 bg-white/10 px-6 text-sm font-bold text-white hover:bg-white/20 backdrop-blur-sm"
+                              >
+                                  <Sparkles className="mr-2 h-4 w-4 text-amber-300" />
+                                  Prefiero que me guíe Sofía
                               </Button>
                               <VideoDeAyuda lugar="simulador" />
                             </div>
@@ -2145,6 +2167,19 @@ function SimuladorContent() {
 
     return (
         <div className="ak-public-page flex min-h-screen flex-col items-center justify-start sm:justify-center gap-2 sm:gap-4 p-2 sm:p-6 lg:p-8">
+            <div className="w-full max-w-4xl flex justify-end">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSofiaChat(true)}
+                    data-testid="simulator-sofia-top-trigger"
+                    className="rounded-full border-indigo-200 bg-white/90 text-indigo-800 hover:bg-indigo-50 font-bold text-xs gap-1.5 shadow-sm"
+                >
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    Prefiero que me guíe Sofía
+                </Button>
+            </div>
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                 <CardHeader className="text-center bg-slate-50 p-3 sm:p-10 border-b border-slate-200">
                     <div className="flex justify-between items-center mb-2 sm:mb-4">

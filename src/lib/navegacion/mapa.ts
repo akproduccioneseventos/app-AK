@@ -80,7 +80,7 @@ export const CASAS: Casa[] = [
       },
       {
         titulo: 'Simulador',
-        ruta: '/simulador-ak',
+        ruta: '/simulador-de-presupuesto',
         permiso: PERMISOS.CRM,
         palabras: ['simulador', 'ia cotizador', 'presupuesto automatico', 'estimacion'],
       },

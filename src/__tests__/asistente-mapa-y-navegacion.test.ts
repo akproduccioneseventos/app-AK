@@ -21,8 +21,9 @@ describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
     expect(esPantallaReal('/empresa/insumos')).toBe(true);
     expect(esPantallaReal('/invoices')).toBe(true);
     expect(esPantallaReal('/contabilidad/crm')).toBe(true);
-    expect(esPantallaReal('/fiestas/nueva/configuracion')).toBe(true);
-    expect(esPantallaReal('/fiestas/nueva/plan-pagos')).toBe(true);
+    // Orden 331: planificador agrupado en 5 pantallas con solapas
+    expect(esPantallaReal('/fiestas/nueva/datos')).toBe(true);
+    expect(esPantallaReal('/fiestas/nueva/plata-y-papeles')).toBe(true);
     expect(esPantallaReal('/portal-cliente/123')).toBe(true);
     expect(esPantallaReal('/evento/hub/fiesta-456')).toBe(true);
   });
@@ -43,6 +44,7 @@ describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
   it('el mapa contiene hasta 180 pantallas indexadas en total (Orden 321)', () => {
     expect(CUANTAS_PANTALLAS).toBeGreaterThan(100);
     // 186: orden 327: página de enlaces de la biografía (/enlaces).
-    expect(CUANTAS_PANTALLAS).toBeLessThanOrEqual(186);
+    // 155: orden 331: consolidación de simulador, planificador (28 -> 5) y estaciones (151 pantallas reales).
+    expect(CUANTAS_PANTALLAS).toBeLessThanOrEqual(155);
   });
 });

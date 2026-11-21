@@ -20,7 +20,8 @@ describe('Orden 321: La app no pasa de 180 pantallas', () => {
     // 185 y no 180: Claude devolvió Entrar, la decoración y el tablero de ideas del portal, y el simulador con su asistente (19/11/2026),
     // que la 1443 había borrado y eran funciones que usa el cliente. La meta de achicar sigue: la próxima vuelta las junta.
     // 186: orden 327: página de enlaces de la biografía (/enlaces).
-    expect(total).toBeLessThanOrEqual(186);
+    // 155: orden 331: consolidación de simulador, planificador (28 -> 5) y estaciones (151 pantallas reales).
+    expect(total).toBeLessThanOrEqual(155);
   });
 
   it('usa redirects en next.config.js y no usa /mas en mapa.ts', () => {

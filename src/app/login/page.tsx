@@ -1,6 +1,7 @@
 ﻿'use client';
 
-import { useState, type FormEvent, type MouseEvent, useEffect } from 'react';
+import { Suspense, useState, type FormEvent, type MouseEvent, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -99,7 +100,10 @@ function GoogleMark() {
   );
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const conGoogle = searchParams.get('con') === 'google';
+  const [mostrarCorreoYClave, setMostrarCorreoYClave] = useState(false);
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
   const [recoveryStep, setRecoveryStep] = useState<'method' | 'verify' | 'new-password'>('method');
   const [selectedMethod, setSelectedMethod] = useState<'email' | 'google' | 'backup' | 'questions' | null>(null);
@@ -507,85 +511,173 @@ export default function LoginPage() {
         </CardHeader>
 
         {mode === 'login' ? (
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-email">Correo electrónico</Label>
-                <Input
-                  id="login-email"
-                  data-testid="login-email"
-                  type="email"
-                  placeholder="nombre@correo.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  autoComplete="username"
+          conGoogle ? (
+            <div className="space-y-4">
+              <CardContent className="space-y-4">
+                <Button
+                  type="button"
+                  size="lg"
+                  data-testid="login-google-primary"
+                  className="w-full h-12 text-base font-bold shadow-md"
+                  onClick={handleGoogleLogin}
                   disabled={isSubmitting}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="login-password">Contraseña</Label>
-                <Input
-                  id="login-password"
-                  data-testid="login-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                  autoComplete="current-password"
-                  disabled={isSubmitting}
-                />
-              </div>
-              {notice && <p className="text-sm text-emerald-700 text-center">{notice}</p>}
-              {error && <p className="text-sm text-destructive text-center">{error}</p>}
-              {diagnostico && (
-                <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-center">
-                  <p className="text-sm font-semibold text-amber-900">{diagnostico.causa}</p>
-                  <p className="mt-1 text-xs text-amber-800">{diagnostico.queHacer}</p>
+                >
+                  {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <GoogleMark />}
+                  Ingresar con Google
+                </Button>
+
+                {notice && <p className="text-sm text-emerald-700 text-center">{notice}</p>}
+                {error && <p className="text-sm text-destructive text-center">{error}</p>}
+                {diagnostico && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-center">
+                    <p className="text-sm font-semibold text-amber-900">{diagnostico.causa}</p>
+                    <p className="mt-1 text-xs text-amber-800">{diagnostico.queHacer}</p>
+                  </div>
+                )}
+
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    data-testid="toggle-correo-clave"
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setMostrarCorreoYClave((prev) => !prev)}
+                  >
+                    Entrar con correo y clave
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex-col gap-3">
-              <Button className="w-full" type="submit" data-testid="login-submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <LogIn className="w-5 h-5 mr-2" />}
-                {isSubmitting ? 'Ingresando...' : 'Ingresar'}
-              </Button>
-              {/*
-                El aviso de la espera. Sin esto, la primera entrada del dia deja el
-                boton diciendo "Ingresando..." varios segundos sin nada mas en
-                pantalla, y parece que la aplicacion no anda: el dueno reporto
-                exactamente eso, que apretaba y no pasaba nada.
-              */}
-              {isSubmitting && (
-                <p className="text-xs text-center text-muted-foreground">
-                  La primera entrada del día puede demorar unos segundos. Ya está andando.
-                </p>
-              )}
 
-              <div className="relative flex py-2 items-center w-full">
-                <div className="flex-grow border-t border-muted"></div>
-                <span className="flex-shrink mx-4 text-muted-foreground text-xs uppercase">O</span>
-                <div className="flex-grow border-t border-muted"></div>
-              </div>
+                {mostrarCorreoYClave && (
+                  <form onSubmit={handleLogin} className="space-y-4 border-t pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email">Correo electrónico</Label>
+                      <Input
+                        id="login-email"
+                        data-testid="login-email"
+                        type="email"
+                        placeholder="nombre@correo.com"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        autoComplete="username"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password">Contraseña</Label>
+                      <Input
+                        id="login-password"
+                        data-testid="login-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                        autoComplete="current-password"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <Button className="w-full" type="submit" data-testid="login-submit" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <LogIn className="w-5 h-5 mr-2" />}
+                      {isSubmitting ? 'Ingresando...' : 'Ingresar'}
+                    </Button>
+                    {isSubmitting && (
+                      <p className="text-xs text-center text-muted-foreground">
+                        La primera entrada del día puede demorar unos segundos. Ya está andando.
+                      </p>
+                    )}
+                    <div className="text-center">
+                      <Button asChild variant="link" className="h-auto min-h-10 p-0 text-xs">
+                        <a href="/login?mode=recovery" onClick={openRecovery}>
+                        Olvide mi contraseña
+                        </a>
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </CardContent>
+            </div>
+          ) : (
+            <form onSubmit={handleLogin}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Correo electrónico</Label>
+                  <Input
+                    id="login-email"
+                    data-testid="login-email"
+                    type="email"
+                    placeholder="nombre@correo.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="username"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Contraseña</Label>
+                  <Input
+                    id="login-password"
+                    data-testid="login-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required
+                    autoComplete="current-password"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                {notice && <p className="text-sm text-emerald-700 text-center">{notice}</p>}
+                {error && <p className="text-sm text-destructive text-center">{error}</p>}
+                {diagnostico && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-center">
+                    <p className="text-sm font-semibold text-amber-900">{diagnostico.causa}</p>
+                    <p className="mt-1 text-xs text-amber-800">{diagnostico.queHacer}</p>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex-col gap-3">
+                <Button className="w-full" type="submit" data-testid="login-submit" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <LogIn className="w-5 h-5 mr-2" />}
+                  {isSubmitting ? 'Ingresando...' : 'Ingresar'}
+                </Button>
+                {/*
+                  El aviso de la espera. Sin esto, la primera entrada del dia deja el
+                  boton diciendo "Ingresando..." varios segundos sin nada mas en
+                  pantalla, y parece que la aplicacion no anda: el dueno reporto
+                  exactamente eso, que apretaba y no pasaba nada.
+                */}
+                {isSubmitting && (
+                  <p className="text-xs text-center text-muted-foreground">
+                    La primera entrada del día puede demorar unos segundos. Ya está andando.
+                  </p>
+                )}
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full relative hover:bg-muted/50 transition-colors"
-                onClick={handleGoogleLogin}
-                disabled={isSubmitting}
-              >
-                <GoogleMark />
-                Ingresar con Google
-              </Button>
+                <div className="relative flex py-2 items-center w-full">
+                  <div className="flex-grow border-t border-muted"></div>
+                  <span className="flex-shrink mx-4 text-muted-foreground text-xs uppercase">O</span>
+                  <div className="flex-grow border-t border-muted"></div>
+                </div>
 
-              <Button asChild variant="link" className="h-auto min-h-10 p-0 text-xs mt-2">
-                <a href="/login?mode=recovery" onClick={openRecovery}>
-                Olvide mi contraseña
-                </a>
-              </Button>
-            </CardFooter>
-          </form>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full relative hover:bg-muted/50 transition-colors"
+                  onClick={handleGoogleLogin}
+                  disabled={isSubmitting}
+                >
+                  <GoogleMark />
+                  Ingresar con Google
+                </Button>
+
+                <Button asChild variant="link" className="h-auto min-h-10 p-0 text-xs mt-2">
+                  <a href="/login?mode=recovery" onClick={openRecovery}>
+                  Olvide mi contraseña
+                  </a>
+                </Button>
+              </CardFooter>
+            </form>
+          )
         ) : (
           <div>
             <CardContent className="space-y-5">
@@ -846,6 +938,14 @@ export default function LoginPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-primary/10 to-background" />}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
 

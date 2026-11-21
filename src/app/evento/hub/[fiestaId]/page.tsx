@@ -99,7 +99,15 @@ export default function EventoHubPage() {
       if (portalData && typeof window !== 'undefined') {
         try {
           localStorage.setItem('ak_invitado_fiesta', fiestaId);
-        } catch {}
+          if (guestId && guestAccessToken) {
+            localStorage.setItem(
+              'ak_invitado_credencial',
+              JSON.stringify({ fiestaId, guestId, token: guestAccessToken }),
+            );
+          }
+        } catch (err) {
+          console.warn('[EventoHubPage] No se pudo guardar acceso en localStorage:', err);
+        }
       }
       setStations(portalData?.entertainmentLinks ?? []);
       setPhotoCount(approvedPostCount);
@@ -198,8 +206,11 @@ export default function EventoHubPage() {
                 onClick={() => {
                   try {
                     localStorage.removeItem('ak_invitado_fiesta');
+                    localStorage.removeItem('ak_invitado_credencial');
                     localStorage.removeItem('ak_portal_fiesta');
-                  } catch {}
+                  } catch (err) {
+                    console.warn('[EventoHubPage] No se pudo limpiar localStorage:', err);
+                  }
                   window.location.href = '/entrar';
                 }}
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/25 bg-black/20 px-3 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
