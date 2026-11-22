@@ -738,17 +738,8 @@ export async function darOrdenPorVozOTexto(
     f.includes('presupuesto') ||
     f.includes('perseguidor')
   ) {
-    if (
-      f.includes('cuánt') ||
-      f.includes('cuant') ||
-      f.includes('qué') ||
-      f.includes('que') ||
-      f.includes('cuál') ||
-      f.includes('cual') ||
-      f.includes('hay') ||
-      f.includes('tengo') ||
-      f.endsWith('?')
-    ) {
+    // Sólo una pregunta de verdad: "que" suelto aparece en cualquier orden ("quiero que hagas seguimiento").
+    if (esPreguntaGeneral || /\b(?:cu[aá]ntos?|tengo)\b/.test(f)) {
       try {
         const { getPresupuestos } = await import('@/app/actions/presupuestos');
         const presupuestos = await getPresupuestos();
@@ -759,7 +750,7 @@ export async function darOrdenPorVozOTexto(
         const totalPeriodo = (presupuestos || []).reduce((acc: number, p: any) => acc + (Number(p.totalConDescuento || p.costoTotalEstimado || 0)), 0);
         return {
           success: true,
-          mensaje: `Tenés ${pend.length} presupuestos pendientes/enviados. Total del período actual: $${totalPeriodo.toLocaleString('es-UY')}.`,
+          mensaje: `Tenés ${pend.length} presupuestos pendientes/enviados. Suman $${totalPeriodo.toLocaleString('es-UY')} entre todos los presupuestos.`,
         };
       } catch (err: any) {
         return {
