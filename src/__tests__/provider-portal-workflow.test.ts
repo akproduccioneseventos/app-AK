@@ -5,7 +5,7 @@ const read = (relativePath: string) => fs.readFileSync(path.join(process.cwd(), 
 
 describe('provider portal workflow', () => {
   it('keeps provider access management connected to the selected event', () => {
-    const adminPage = read('src/app/(app)/fiestas/nueva/proveedores-portal/page.tsx');
+    const adminPage = read('src/components/fiestas/panels/proveedores-portal.tsx');
 
     expect(adminPage).toContain('getProveedoresPortal(fiestaId)');
     expect(adminPage).toContain('createProveedorAcceso({');

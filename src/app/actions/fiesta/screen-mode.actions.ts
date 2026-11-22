@@ -5,6 +5,8 @@ import { randomInt } from 'crypto';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
+import type { TriviaGame } from '@/lib/games/game-engine';
+import { topTrivia } from '@/lib/games/juegos-en-vivo';
 import admin from 'firebase-admin';
 import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -221,6 +223,8 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
   activeSorteoWinner?: string | null;
   sorteoSpinStartedAt?: string | null;
   sorteoCandidatos?: string[];
+  triviaGame?: TriviaGame | null;
+  triviaRanking?: { nombre: string; puntos: number }[];
 }> {
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -243,6 +247,8 @@ export async function obtenerEstadoControlPantalla(fiestaId: string): Promise<{
       activeSorteoWinner: settings.activeSorteoWinner || null,
       sorteoSpinStartedAt: settings.sorteoSpinStartedAt || null,
       sorteoCandidatos: settings.sorteoCandidatos ?? [],
+      triviaGame: fiesta.triviaGame || null,
+      triviaRanking: topTrivia(fiesta),
     };
   } catch (error: any) {
     const msg = error.message || 'Error de acceso';

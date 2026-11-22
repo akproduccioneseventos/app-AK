@@ -293,7 +293,7 @@ const nextConfig = {
       { source: '/admin/asistente-ak', destination: '/asistente', permanent: false },
       { source: '/marketing/checklist', destination: '/marketing', permanent: false },
       { source: '/marketing/plantillas', destination: '/marketing', permanent: false },
-      { source: '/portal-cliente/:id/decoracion', destination: '/portal?fiestaId=:id', permanent: false },
+      { source: '/portal-cliente/:id/decoracion', destination: '/portal/:id/decoracion', permanent: false },
       // ── Orden 321 Bloque 4: Ajustes unificados en /settings?seccion=...&sub=... ──
       { source: '/settings/company', destination: '/settings?seccion=empresa&sub=company', permanent: false },
       { source: '/settings/datos', destination: '/settings?seccion=empresa&sub=datos', permanent: false },
@@ -457,7 +457,6 @@ const nextConfig = {
       { source: '/presupuestos/importar', destination: '/presupuestos/nuevo?tab=importar', permanent: false },
       // ── Orden 331 Bloque 1: Un solo simulador ──
       { source: '/simulador', destination: '/simulador-de-presupuesto', permanent: false },
-      { source: '/simulador-ak', destination: '/simulador-de-presupuesto?modo=sofia', permanent: false },
       // ── Orden 331 Bloque 2: Planificador agrupado en 5 pantallas con solapas ──
       { source: '/fiestas/nueva/configuracion', destination: '/fiestas/nueva/datos?tab=configuracion', permanent: false },
       { source: '/fiestas/nueva/invitados', destination: '/fiestas/nueva/datos?tab=invitados', permanent: false },

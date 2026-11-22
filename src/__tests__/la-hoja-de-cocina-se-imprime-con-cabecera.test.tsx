@@ -20,7 +20,7 @@ const ARCHIVOS_21_CABECERA = [
   'src/components/panels/pdf--itinerario.tsx',
   'src/components/panels/pdf--musica.tsx',
   'src/components/panels/personal--recibos.tsx',
-  'src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx',
+  'src/components/fiestas/panels/orden-de-evento.tsx',
   'src/components/panels/presupuestos--reporte.tsx',
   'src/components/panels/proveedores--reporte.tsx',
   'src/app/evento/impresion/[fiestaId]/page.tsx',

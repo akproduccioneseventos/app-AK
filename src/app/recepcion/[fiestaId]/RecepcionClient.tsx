@@ -78,14 +78,7 @@ export default function RecepcionClient({
         setInvitados(prev => prev.map(inv => inv.id === guestId ? checkInInvitado : inv));
         toast({ title: '¡Listo!', description: 'Invitado marcado como presente.' });
       } else {
-        enqueueOfflineAction({
-          id: `checkin_${fiestaId}_${guestId}`,
-          type: 'recepcion_checkin',
-          fiestaId,
-          payload: { guestId },
-        });
-        setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
-        toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+        toast({ title: 'No se pudo registrar el ingreso', description: res.error || 'El servidor rechazó el ingreso.', variant: 'destructive' });
       }
     } catch (e) {
       enqueueOfflineAction({

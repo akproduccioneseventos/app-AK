@@ -543,6 +543,25 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
 
   const filledCount = useMemo(() => assignedStaff.filter(s => !!s.empleadoId).length, [assignedStaff]);
 
+  const requiredTotal = useMemo(() => {
+    return requiredRoles.reduce((sum, req) => sum + req.quantity, 0) + assignmentRows.filter(r => r.type === 'extra').length;
+  }, [requiredRoles, assignmentRows]);
+
+  const assignedCount = useMemo(() => {
+    return assignmentRows.filter(r => r.assignedId && allRoles.some(rol => rol.id === r.roleId)).length;
+  }, [assignmentRows, allRoles]);
+
+  const confirmados = useMemo(() => {
+    return assignmentRows.filter(r => {
+      if (!r.assignedId) return false;
+      const rol = allRoles.find(rol => rol.id === r.roleId);
+      if (!rol) return false;
+      if (r.originalIndex === undefined) return false;
+      const staff = assignedStaff[r.originalIndex];
+      return staff?.asistenciaConfirmada === true;
+    }).length;
+  }, [assignmentRows, allRoles, assignedStaff]);
+
   if (!fiestaId) return <EventSelectionRequired moduleName="la asignación de personal" />;
 
   return (
@@ -767,8 +786,16 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
         </CardHeader>
         <CardContent className="pt-4 space-y-2 text-sm text-muted-foreground">
           <div className="flex justify-between">
-              <span>Puestos Cubiertos:</span>
-              <span className="font-bold text-foreground">{filledCount} de {assignmentRows.length}</span>
+              <span>Puestos Requeridos:</span>
+              <span className="font-bold text-foreground">{requiredTotal}</span>
+          </div>
+          <div className="flex justify-between">
+              <span>Asignados:</span>
+              <span className="font-bold text-foreground">{assignedCount}</span>
+          </div>
+          <div className="flex justify-between">
+              <span>Confirmados:</span>
+              <span className="font-bold text-emerald-600">{confirmados}</span>
           </div>
           <p className="text-xs italic border-t pt-2">El total proyectado incluye sueldos y aportes patronales para todos los puestos requeridos según el presupuesto e invitados.</p>
         </CardContent>

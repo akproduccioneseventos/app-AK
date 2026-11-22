@@ -2308,3 +2308,9 @@ async function puedeVerLaPlataDelCliente(perfil: unknown): Promise<boolean> {
   const permisos = (PERMISOS_POR_PERFIL as Record<string, readonly string[]>)[String(perfil || '')] || [];
   return permisos.includes(PERMISOS.CONTABILIDAD);
 }
+
+export async function verificarSesionPortalCliente(fiestaId: string): Promise<boolean> {
+  if (!fiestaId) return false;
+  return await verifyPortalSession(fiestaId);
+}
+

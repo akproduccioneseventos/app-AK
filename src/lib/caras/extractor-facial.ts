@@ -28,7 +28,7 @@ export async function asegurarModelosFaciales(): Promise<boolean> {
           faceapi.nets.faceRecognitionNet.loadFromUri(ruta),
         ]);
         const timeoutPromesa = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar modelos')), 1500)
+          setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar modelos')), 15000)
         );
         await Promise.race([cargaPromesa, timeoutPromesa]);
         return true;

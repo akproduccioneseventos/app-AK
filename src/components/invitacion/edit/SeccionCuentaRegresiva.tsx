@@ -4,6 +4,7 @@ import type { InvitacionDigitalData } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { hoyEnUruguay } from '@/lib/utils';
 
 interface Props {
   data: InvitacionDigitalData['cuentaRegresiva'];
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export const SeccionCuentaRegresivaEditor: React.FC<Props> = ({ data, update }) => {
+  const hoy = hoyEnUruguay();
   const handleFieldChange = (field: keyof typeof data, value: boolean) => {
     update({ cuentaRegresiva: { ...data, [field]: value } });
   };
@@ -29,6 +31,7 @@ export const SeccionCuentaRegresivaEditor: React.FC<Props> = ({ data, update }) 
             onCheckedChange={(checked) => handleFieldChange('visible', checked)}
           />
         </div>
+        <p className="text-xs text-muted-foreground">Referencia horaria de Uruguay: {hoy}</p>
       </CardContent>
     </Card>
   );

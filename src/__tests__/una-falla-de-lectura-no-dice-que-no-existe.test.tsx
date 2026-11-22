@@ -49,7 +49,7 @@ jest.mock('@/hooks/use-toast', () => ({
 
 // Import actions after mocks
 import { getFiestaById, getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
-import InvitadosPage from '@/app/(app)/fiestas/nueva/invitados/page';
+import InvitadosPage from '@/components/fiestas/panels/invitados';
 
 describe('Orden 227: Una falla de lectura no dice que no existe', () => {
   let root: Root;

@@ -119,7 +119,7 @@ describe('Orden 13: Fotocabina con fondo heredado y configuración por fiesta', 
   });
 
   it('la pantalla de entretenimiento no promete funciones inexistentes (GIF, Boomerang, Filtros en vivo, Correos en fotocabina)', () => {
-    const filePath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx');
+    const filePath = path.join(process.cwd(), 'src/components/fiestas/panels/entretenimiento.tsx');
     const content = fs.readFileSync(filePath, 'utf8');
 
     // No debe prometer GIF ni boomerang en la lista de fotocabina

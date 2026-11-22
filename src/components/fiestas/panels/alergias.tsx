@@ -1,6 +1,7 @@
 'use client';
 
 import { condicionesDelInvitado, tieneCondicionAlimentaria } from '@/lib/catering/condiciones-del-invitado';
+import { getGuestPartySize } from '@/lib/fiesta/guest-counts';
 import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { detectarChoquesMenuYAlergias, type ChoqueAlergiaPlato } from '@/lib/catering/choques-alergias';
@@ -83,7 +84,7 @@ function AlergiasContent() {
    * solo plato especial y cuatro personas se quedaban sin comer.
    */
   const contarPersonas = (lista: typeof allGuests) =>
-    lista.reduce((sum, g) => sum + (g.partySize || 1), 0);
+    lista.reduce((sum, g) => sum + getGuestPartySize(g), 0);
 
 
   const choquesMenuAlergias = useMemo(() => {

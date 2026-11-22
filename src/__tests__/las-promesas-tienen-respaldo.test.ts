@@ -20,7 +20,7 @@ import { PROMESAS_AL_CLIENTE } from '@/lib/entretenimiento/promesas-al-cliente';
 
 const PANTALLA = path.join(
   process.cwd(),
-  'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx'
+  'src/components/fiestas/panels/entretenimiento.tsx'
 );
 
 /** Saca del código la lista que el equipo ve en pantalla. */

@@ -37,7 +37,7 @@ describe('Codex 1367: seis defectos', () => {
   });
 
   it('(6) la pantalla de alergias llama a la acción y ya no afirma sin enviar', () => {
-    const src = leer('src/app/(app)/fiestas/nueva/alergias/page.tsx');
+    const src = leer('src/components/fiestas/panels/alergias.tsx');
     expect(src).toMatch(/await avisarChoquesDeAlergiasACocina\(/);
     expect(src).not.toMatch(/Se notificó a cocina/);
     expect(src.indexOf('setAvisoCocinaEnviado(true)')).toBeGreaterThan(src.indexOf('if (res.success)'));

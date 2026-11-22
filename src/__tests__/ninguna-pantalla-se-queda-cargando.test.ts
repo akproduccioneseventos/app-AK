@@ -24,10 +24,10 @@ describe('Orden 72 - Bloque 1: Ninguna pantalla se queda cargando para siempre',
   const rootDir = process.cwd();
 
   const PANTALLAS_A_COMPROBAR = [
-    'src/app/(app)/fiestas/nueva/regalos/page.tsx',
-    'src/app/(app)/fiestas/nueva/musica/page.tsx',
-    'src/app/(app)/fiestas/nueva/itinerario/page.tsx',
-    'src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx',
+    'src/components/fiestas/panels/regalos.tsx',
+    'src/components/fiestas/panels/musica.tsx',
+    'src/components/fiestas/panels/itinerario.tsx',
+    'src/components/fiestas/panels/orden-de-evento.tsx',
     'src/app/evento/logistica/[fiestaId]/page.tsx',
     'src/app/(app)/fiestas/nueva/tareas/client.tsx',
   ];
@@ -75,8 +75,8 @@ describe('Orden 72 - Bloque 1: Ninguna pantalla se queda cargando para siempre',
     expect(archivosConFalla).toEqual([]);
   });
 
-  it('el modelo de referencia (regalos/page.tsx) apaga la carga y muestra estado criollo cuando falta la fiesta', () => {
-    const regalosPath = path.join(rootDir, 'src/app/(app)/fiestas/nueva/regalos/page.tsx');
+  it('el modelo de referencia (regalos.tsx) apaga la carga y muestra estado criollo cuando falta la fiesta', () => {
+    const regalosPath = path.join(rootDir, 'src/components/fiestas/panels/regalos.tsx');
     const content = stripComments(fs.readFileSync(regalosPath, 'utf8'));
 
     expect(content).toContain('if (!fiestaId)');

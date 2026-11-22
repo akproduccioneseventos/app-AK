@@ -74,7 +74,7 @@ function Tabla({
             <tr className="border-b border-slate-200 text-xs font-black uppercase tracking-wider text-slate-400">
               <th className="pb-2 pr-4 text-left">&nbsp;</th>
               <th className="pb-2 pr-4 text-right">Fiestas</th>
-              <th className="pb-2 pr-4 text-right">Se cobró</th>
+              <th className="pb-2 pr-4 text-right">Presupuestado</th>
               <th className="pb-2 pr-4 text-right">Costó</th>
               <th className="pb-2 pr-4 text-right">Quedó</th>
               <th className="pb-2 text-right">Margen</th>
@@ -160,7 +160,7 @@ export default function ComparativaGananciasPage() {
 
       <section className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl bg-slate-900 p-5 text-white">
-          <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Se cobró</p>
+          <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Presupuestado</p>
           <p className="mt-1 text-2xl font-black tabular-nums">{pesos(total.ingreso)}</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -229,7 +229,7 @@ export default function ComparativaGananciasPage() {
             <thead>
               <tr className="border-b border-slate-200 text-xs font-black uppercase tracking-wider text-slate-400">
                 <th className="pb-2 pr-4 text-left">Fiesta</th>
-                <th className="pb-2 pr-4 text-right">Se cobró</th>
+                <th className="pb-2 pr-4 text-right">Presupuestado</th>
                 <th className="pb-2 pr-4 text-right">Costó</th>
                 <th className="pb-2 pr-4 text-right">Quedó</th>
                 <th className="pb-2 text-right">Margen</th>

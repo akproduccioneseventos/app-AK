@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Loader2, BarChart3, Martini, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Loader2, BarChart3, Martini, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getBarraTecnologicaDashboard } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import type { BarTechnologyDashboard } from '@/types/barra-tecnologica';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ export default function BarraStatsPage() {
   const orders = dashboard?.orders || [];
   const delivered = orders.filter(o => o.status === 'entregado');
   const canceled = orders.filter(o => o.status === 'cancelado');
-  
+
   // Tragos consumidos
   const drinksCount = delivered.reduce((acc, o) => {
     acc[o.drinkName] = (acc[o.drinkName] || 0) + 1;
@@ -41,11 +41,13 @@ export default function BarraStatsPage() {
 
   const sortedDrinks = Object.entries(drinksCount).sort((a, b) => b[1] - a[1]);
   const maxDrink = sortedDrinks[0]?.[1] || 1;
+  const drinksWithStock = (dashboard?.drinks || []).filter((d) => typeof d.stockDisponible === 'number');
+  const lowOrEmptyDrinks = drinksWithStock.filter((d) => (d.stockDisponible ?? 0) <= 5);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto space-y-8">
-        
+
         <header className="flex items-center gap-4 border-b border-white/10 pb-6">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
             <BarChart3 className="w-8 h-8 text-white" />
@@ -68,7 +70,7 @@ export default function BarraStatsPage() {
               <p className="text-sm text-zinc-500 mt-1">Tragos entregados a los invitados</p>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-white/5 border-white/10">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
@@ -77,8 +79,8 @@ export default function BarraStatsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-5xl font-black text-white">
-                {delivered.length > 0 && orders.length > 0 
-                  ? Math.round((delivered.length / orders.length) * 100) 
+                {delivered.length > 0 && orders.length > 0
+                  ? Math.round((delivered.length / orders.length) * 100)
                   : 0}%
               </p>
               <p className="text-sm text-zinc-500 mt-1">Tasa de finalización de pedidos</p>
@@ -126,27 +128,42 @@ export default function BarraStatsPage() {
             </CardContent>
           </Card>
 
-          {/* Alertas de Stock */}
-          <Card className="bg-white/5 border-white/10 col-span-1">
-            <CardHeader>
-              <CardTitle className="text-xl font-black text-white flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-400" /> Alertas de Insumos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center p-8 text-center bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
-                <p className="text-sm font-bold text-emerald-400">Stock estable</p>
-                <p className="text-xs text-emerald-500/70">No hay insumos con nivel crítico.</p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Alertas de Stock (sólo cuando la barra tiene stock real por trago) */}
+          {drinksWithStock.length > 0 && (
+            <Card className="bg-white/5 border-white/10 col-span-1">
+              <CardHeader>
+                <CardTitle className="text-xl font-black text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" /> Stock real de tragos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {lowOrEmptyDrinks.length > 0 ? (
+                  lowOrEmptyDrinks.map((drink) => (
+                    <div
+                      key={drink.id}
+                      className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm"
+                    >
+                      <span className="font-bold text-amber-100">{drink.nombre}</span>
+                      <span className="font-black text-amber-300">
+                        {(drink.stockDisponible ?? 0) <= 0 ? 'Agotado' : `${drink.stockDisponible} disp.`}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-6 text-center bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+                    <p className="text-sm font-bold text-emerald-400">Todos los tragos con stock disponible</p>
+                    <p className="text-xs text-emerald-300/80 mt-1">
+                      {drinksWithStock.length} tragos con control de stock activo
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
-        
+
       </div>
     </main>
   );
 }
-
-// Para usar lucide icons CheckCircle2
-import { CheckCircle2 } from 'lucide-react';

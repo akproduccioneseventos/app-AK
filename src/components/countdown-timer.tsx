@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Assuming these are used in a broader context or were part of an older version, not strictly needed for the timer divs
-import { TimerIcon } from 'lucide-react'; // Assuming this is used, otherwise can be removed
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TimerIcon } from 'lucide-react';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 interface CountdownTimerProps {
   targetDate?: string; // ISO date string
@@ -29,18 +30,19 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
     const dateObj = match
       ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0)
       : new Date(targetDate);
-    if (isNaN(dateObj.getTime())) { // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
       return { message: 'Fecha del evento inválida.' };
     }
 
-    const difference = +dateObj - +new Date(); // new Date() is fine here as it's within useEffect or subsequent calls from interval
+    const difference = +dateObj - +new Date();
+    const days = diasHastaEnUruguay(targetDate);
     let newTimeLeft: TimeLeft = {};
 
-    if (difference <= 0) {
+    if (difference <= 0 || (Number.isFinite(days) && days < 0)) {
       newTimeLeft = { ended: true, message: '¡El evento ya ha comenzado o ha pasado!' };
     } else {
       newTimeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        days: Number.isFinite(days) ? Math.max(0, days) : Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
         seconds: Math.floor((difference / 1000) % 60),

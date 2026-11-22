@@ -22,11 +22,11 @@ describe('el cronograma cruza la medianoche (A18-06)', () => {
 
   it('la hoja del evento y el itinerario ya no ordenan las horas como texto', () => {
     const fs = require('fs');
-    const hoja = fs.readFileSync('src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx', 'utf8');
+    const hoja = fs.readFileSync('src/components/fiestas/panels/orden-de-evento.tsx', 'utf8');
     expect(hoja).toContain('ordenarPorHoraDelEvento(');
     expect(hoja).not.toMatch(/\.hora \|\| ''\)\.localeCompare/);
 
-    const itinerario = fs.readFileSync('src/app/(app)/fiestas/nueva/itinerario/page.tsx', 'utf8');
+    const itinerario = fs.readFileSync('src/components/fiestas/panels/itinerario.tsx', 'utf8');
     expect(itinerario).toContain('ordenarPorHoraDelEvento(');
     expect(itinerario).not.toMatch(/\.hora\.localeCompare/);
   });

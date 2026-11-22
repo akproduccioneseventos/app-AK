@@ -11,7 +11,7 @@ const ARCHIVOS_ENTEROS = [
   'src/app/invitacion/[fiestaId]/rsvp/page.tsx',
 ];
 const ARCHIVOS = [
-  'src/app/(app)/fiestas/nueva/invitados/page.tsx',
+  'src/components/fiestas/panels/invitados.tsx',
   'src/components/invitacion/edit/ControlPanel.tsx',
   'src/components/invitacion/edit/SeccionRedesSociales.tsx',
   'src/components/fiestas/panels/pagina-web.tsx',

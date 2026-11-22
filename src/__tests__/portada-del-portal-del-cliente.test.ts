@@ -102,7 +102,7 @@ describe('el portal del cliente no muestra notas internas del equipo', () => {
     const fs = require('fs') as typeof import('fs');
     const path = require('path') as typeof import('path');
     const interno = fs.readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/portal-cliente/page.tsx'),
+      path.join(process.cwd(), 'src/components/fiestas/panels/portal-cliente.tsx'),
       'utf8'
     );
 
@@ -114,7 +114,7 @@ describe('el portal del cliente no muestra notas internas del equipo', () => {
     const fs = require('fs') as typeof import('fs');
     const path = require('path') as typeof import('path');
     const portalPage = fs.readFileSync(
-      path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/portal-cliente/page.tsx'),
+      path.join(process.cwd(), 'src/components/fiestas/panels/portal-cliente.tsx'),
       'utf8'
     );
 

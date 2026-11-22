@@ -639,6 +639,7 @@ export default function BarraTecnologicaTouchPage() {
           tableNumber: action.payload.tableNumber,
           // El mismo identificador del primer intento: si aquel llego, no se duplica.
           clientRequestId: action.payload.clientRequestId || action.id,
+          version: action.payload.version,
         });
         return { success: res.success, error: res.error };
       }, { fiestaId, types: ['barra_pedido'] });
@@ -717,6 +718,7 @@ export default function BarraTecnologicaTouchPage() {
           guestName,
           tableNumber: 'Totem Táctil',
           clientRequestId: pedidoId,
+          version: drinkVersion,
         },
       });
       currentClientRequestIdRef.current = null;

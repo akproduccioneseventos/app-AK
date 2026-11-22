@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMe
 import { getInvoices, deleteInvoice as deleteInvoiceAction, pasarCobrosPendientesAlPresupuesto } from '@/app/actions/invoices';
 import { getFiestaActual, addInvoiceIdToFiestaActual, removeInvoiceIdFromFiestaActual } from '@/app/actions/fiesta-actual';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
+import { getEffectiveInvoiceStatus } from '@/lib/invoice-money';
 import { InvoiceListItem } from '@/components/invoice-list-item';
 import { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -72,7 +73,7 @@ function InvoicesListPageContent() {
 
         const activeStatuses = Object.entries(statusFilter).filter(([, checked]) => checked).map(([status]) => status);
         if (activeStatuses.length > 0 && activeStatuses.length < ALL_STATUSES.length) {
-            tempInvoices = tempInvoices.filter(inv => activeStatuses.includes(inv.status));
+            tempInvoices = tempInvoices.filter(inv => activeStatuses.includes(getEffectiveInvoiceStatus(inv)));
         }
 
         setFilteredInvoices(tempInvoices);

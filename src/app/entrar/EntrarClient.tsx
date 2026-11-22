@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { entrarAlPortalPorTelefono } from '@/app/actions/fiesta/portal.actions';
 import { entrarComoInvitado, type OpcionFiestaInvitado } from '@/app/actions/entrar-como-invitado';
 import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
@@ -58,7 +59,7 @@ export function EntrarClient() {
               };
               if (cred?.fiestaId === fiestaInvitado && cred.guestId && cred.token) {
                 router.replace(
-                  `/evento/hub/${encodeURIComponent(fiestaInvitado)}?guestId=${encodeURIComponent(cred.guestId)}&token=${encodeURIComponent(cred.token)}`,
+                  withGuestAccess(`/evento/hub/${encodeURIComponent(fiestaInvitado)}`, cred.guestId, cred.token),
                 );
                 return;
               }
@@ -66,7 +67,8 @@ export function EntrarClient() {
               console.warn('[EntrarClient] Credencial guardada inválida:', err);
             }
           }
-          router.replace(`/evento/hub/${encodeURIComponent(fiestaInvitado)}`);
+          localStorage.removeItem('ak_invitado_fiesta');
+          localStorage.removeItem('ak_invitado_credencial');
         }
       } catch (err) {
         console.warn('[EntrarClient] Error leyendo localStorage:', err);
@@ -107,9 +109,7 @@ export function EntrarClient() {
 
   const abrirHubInvitado = (fiestaId: string, guestId: string, token: string) => {
     guardarCredencialInvitado(fiestaId, guestId, token);
-    router.push(
-      `/evento/hub/${encodeURIComponent(fiestaId)}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(token)}`,
-    );
+    router.push(withGuestAccess(`/evento/hub/${encodeURIComponent(fiestaId)}`, guestId, token));
   };
 
   const handleIngresoInvitadoTelefono = async (

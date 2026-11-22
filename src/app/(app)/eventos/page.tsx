@@ -35,6 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents, esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -126,7 +127,7 @@ export default function GestorFiestasPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return dedupedFiestasActivas.filter(fiesta => {
-      if (esFiestaDemo(fiesta)) return false;
+      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       return !eventDate || eventDate >= today || fiesta.estado === 'Contratada';
     }).length;
@@ -140,7 +141,7 @@ export default function GestorFiestasPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return sortUpcomingEvents(dedupedFiestasActivas.filter(fiesta => {
-      if (esFiestaDemo(fiesta)) return false;
+      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
       const nombre = fiesta.configuracion.nombreEvento || '';
       const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
@@ -154,7 +155,7 @@ export default function GestorFiestasPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return sortPastEvents(dedupedFiestasActivas.filter(fiesta => {
-      if (esFiestaDemo(fiesta)) return false;
+      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       return eventDate && eventDate < today && !isContracted;

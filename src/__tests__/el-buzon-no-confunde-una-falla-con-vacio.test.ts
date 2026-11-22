@@ -78,7 +78,7 @@ describe('La pantalla y la descarga miran ese aviso', () => {
   const leer = (p: string) => fs.readFileSync(path.join(process.cwd(), p), 'utf-8');
 
   it('la pantalla del buzon usa el detalle, no la lista pelada', () => {
-    const pantalla = leer('src/app/(app)/fiestas/nueva/buzon/page.tsx');
+    const pantalla = leer('src/components/fiestas/panels/buzon.tsx');
     expect(pantalla).toContain('getBuzonMessagesConDetalle');
     expect(pantalla).toContain('huboFallaAlLeer');
     // Y el aviso se ve en pantalla, no queda en una variable que nadie mira.

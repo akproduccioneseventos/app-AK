@@ -129,7 +129,7 @@ antes de que firme.
 archivo: src/lib/album/elegir-las-mejores.ts
 usa: elegir-las-mejores en src/lib/album/armar-album.ts
 usa: faceLandmark68 en src/lib/album/elegir-las-mejores.ts
-usa: SalonScene en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+usa: SalonScene en src/components/fiestas/panels/decoracion.tsx
 prueba: src/__tests__/la-foto-nitida-gana.test.ts
 prueba: tests/e2e/el-informe-de-la-fiesta-se-arma-solo.spec.ts
 prueba: tests/e2e/el-asistente-le-contesta-al-invitado.spec.ts

@@ -7,7 +7,7 @@ describe('social wall guest and admin boundary', () => {
     'utf8'
   );
   const adminPage = fs.readFileSync(
-    path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/muro-social/page.tsx'),
+    path.join(process.cwd(), 'src/components/fiestas/panels/muro-social.tsx'),
     'utf8'
   );
   const publicTotemPage = fs.readFileSync(

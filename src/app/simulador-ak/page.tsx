@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { Suspense, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
@@ -73,10 +73,6 @@ interface ChatMessage {
   key: string;
 }
 
-export interface SofiaChatProps {
-  onClose?: () => void;
-}
-
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('es-UY', {
     style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0,
@@ -100,7 +96,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
   };
 };
 
-export function SofiaChat({ onClose }: SofiaChatProps) {
+export default function SimuladorAkPage() {
   return (
     <Suspense
       fallback={
@@ -109,12 +105,12 @@ export function SofiaChat({ onClose }: SofiaChatProps) {
         </div>
       }
     >
-      <SofiaChatContent onClose={onClose} />
+      <SimuladorAkContent />
     </Suspense>
   );
 }
 
-function SofiaChatContent({ onClose }: SofiaChatProps) {
+function SimuladorAkContent({ onClose }: { onClose?: () => void }) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -125,7 +121,7 @@ function SofiaChatContent({ onClose }: SofiaChatProps) {
   );
   const acquisition = useMemo(() => ({
     ...commercialAttributionFromSearchParams(searchParams, 'landing'),
-    entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
+    entryPath: searchParams.get('entry') || '/simulador-ak',
     simulatorMode: 'assistant' as const,
   }), [searchParams]);
 

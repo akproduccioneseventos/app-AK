@@ -64,8 +64,8 @@ SDKdemo. Un check de texto/archivo existente no cierra esta orden.
 ```comprobar
 archivo: src/app/actions/fiesta/portal.actions.ts
 usa: aprobarConPresupuesto en src/app/actions/fiesta/portal.actions.ts
-usa: approveClientMenuChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
-usa: approveClientServiceChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
+usa: approveClientMenuChangeRequest en src/components/fiestas/panels/portal-cliente.tsx
+usa: approveClientServiceChangeRequest en src/components/fiestas/panels/portal-cliente.tsx
 archivo: src/lib/budget/mutar-presupuesto.ts
 usa: mutarPresupuesto en src/app/actions/fiesta/portal.actions.ts
 prueba: docs/evidencias/216-contraste-aprobaciones.mjs

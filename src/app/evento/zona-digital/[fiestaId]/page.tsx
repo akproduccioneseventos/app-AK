@@ -246,7 +246,7 @@ export default function ZonaDigitalPublicPage() {
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 <Button asChild className="rounded-full bg-red-600 hover:bg-red-700">
-                  <Link href={`/evento/social/${fiestaId}`}><Camera className="mr-2 h-4 w-4" /> Subir al muro</Link>
+                  <Link href={`/evento/social/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}><Camera className="mr-2 h-4 w-4" /> Subir al muro</Link>
                 </Button>
                 <Button asChild variant="outline" className="rounded-full">
                   <Link href={`/evento/barra/${fiestaId}`}><Wine className="mr-2 h-4 w-4" /> Barra</Link>

@@ -92,13 +92,13 @@ describe('Ninguna pantalla del evento sin puerta', () => {
 
   describe('Pantallas operativas, de negocio y configuración (Orden 5 + Orden 321)', () => {
     const PANTALLAS_REQUERIDAS = [
-      // Bloque 1: El día de la fiesta (standalone y consolidadas en Orden 321)
-      { ruta: 'fiestas/nueva/buzon', archivo: 'src/app/(app)/fiestas/nueva/buzon/page.tsx', desc: 'Buzón de saludos' },
+      // Bloque 1: El día de la fiesta (standalone y consolidadas en Orden 321 y Orden 331)
+      { ruta: 'fiestas/nueva/buzon', archivo: 'src/components/fiestas/panels/buzon.tsx', desc: 'Buzón de saludos' },
       { ruta: 'fiestas/nueva/carteleria', archivo: 'src/app/(app)/fiestas/nueva/page.tsx', rutaEnlace: '/fiestas/nueva', desc: 'Cartelería' },
-      { ruta: 'fiestas/nueva/playlist-pantalla', archivo: 'src/app/(app)/fiestas/nueva/muro-social/page.tsx', rutaEnlace: 'fiestas/nueva/muro-social', desc: 'Playlist de pantalla' },
-      { ruta: 'fiestas/nueva/logistica', archivo: 'src/app/(app)/fiestas/nueva/carga-operativa/page.tsx', rutaEnlace: 'fiestas/nueva/carga-operativa', desc: 'Logística' },
+      { ruta: 'fiestas/nueva/playlist-pantalla', archivo: 'src/components/fiestas/panels/muro-social.tsx', rutaEnlace: 'fiestas/nueva/muro-social', desc: 'Playlist de pantalla' },
+      { ruta: 'fiestas/nueva/logistica', archivo: 'src/components/fiestas/panels/carga-operativa.tsx', rutaEnlace: 'fiestas/nueva/carga-operativa', desc: 'Logística' },
       { ruta: 'fiestas/nueva/fiesta-lista', archivo: 'src/app/(app)/eventos/page.tsx', rutaEnlace: '/eventos', desc: 'Fiesta lista / checklist' },
-      { ruta: 'fiestas/nueva/reuniones/imprimir', archivo: 'src/app/(app)/fiestas/nueva/reuniones/page.tsx', rutaEnlace: 'fiestas/nueva/reuniones', desc: 'Impresión de minutas' },
+      { ruta: 'fiestas/nueva/reuniones/imprimir', archivo: 'src/components/fiestas/panels/reuniones.tsx', rutaEnlace: 'fiestas/nueva/reuniones', desc: 'Impresión de minutas' },
       { ruta: 'cierre-mundial', archivo: 'src/app/(app)/fiestas/[id]/centro/page.tsx', rutaEnlace: '/centro', desc: 'Cierre del evento' },
       { ruta: 'experiencia-tecnologica-ak', archivo: 'src/app/(app)/fiestas/[id]/centro/page.tsx', rutaEnlace: '/centro', desc: 'Tecnología contratada' },
 

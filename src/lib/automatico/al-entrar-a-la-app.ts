@@ -2,6 +2,7 @@ import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
+import { getUruguayParts, hoyEnUruguay } from '@/lib/utils';
 import {
   intentarAdquirirLock,
   liberarLock,
@@ -91,6 +92,13 @@ function leTocaCorrer(ultima: string | undefined, cadaCuantoMs: number, ahoraMs:
   const anterior = new Date(ultima).getTime();
   if (!Number.isFinite(anterior)) return true;
   return ahoraMs - anterior >= cadaCuantoMs;
+}
+
+function enHorarioRecordatoriosUruguay(ahora: Date): boolean {
+  const fechaUy = hoyEnUruguay(ahora);
+  if (!fechaUy) return false;
+  const horaUy = getUruguayParts(ahora).hour % 24;
+  return horaUy >= 9 && horaUy < 21;
 }
 
 /**
@@ -347,6 +355,13 @@ export async function ponerAlDiaAlEntrar(
     ];
 
     for (const tarea of tareas) {
+      if (
+        (tarea.nombre === 'recordatorio_invitados' || tarea.nombre === 'recordar_invitacion') &&
+        !enHorarioRecordatoriosUruguay(ahora)
+      ) {
+        resultado.omitidas.push(tarea.nombre);
+        continue;
+      }
       const fallo = ultimoFallo[tarea.nombre];
       const falloReciente = fallo && ahoraMs - new Date(fallo.fecha).getTime() < ESPERA_TRAS_FALLO_MS;
       if (falloReciente || !leTocaCorrer(ultimaCorrida[tarea.nombre], CADA_CUANTO[tarea.nombre], ahoraMs)) {

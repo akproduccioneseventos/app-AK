@@ -854,8 +854,15 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       </div>
 
-      {/* BLOQUE 4: ALERTA DE INACTIVIDAD / ESTADO DE PUBLICACIÓN */}
-      {review?.inactivePlatforms && review.inactivePlatforms.length > 0 ? (
+      {/* BLOQUE 4: ALERTA DE INACTIVIDAD / ESTADO DE PUBLICACIÓN / SIN DATOS */}
+      {!review ? (
+        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-3 text-slate-300 text-sm">
+          <AlertCircle className="w-5 h-5 text-slate-400 shrink-0" />
+          <div>
+            <span className="font-bold text-white">Sin datos de publicaciones</span> — Todavía no hay registro de publicaciones recientes en tus redes conectadas.
+          </div>
+        </div>
+      ) : review.inactivePlatforms && review.inactivePlatforms.length > 0 ? (
         <div className="p-4 md:p-5 bg-amber-950/40 border border-amber-800/60 rounded-2xl space-y-3">
           <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
             <AlertCircle className="w-5 h-5" />
@@ -885,11 +892,18 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             ))}
           </div>
         </div>
-      ) : (
+      ) : review.inactivePlatforms.length === 0 ? (
         <div className="p-4 bg-emerald-950/30 border border-emerald-800/50 rounded-2xl flex items-center gap-3 text-emerald-200 text-sm">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
           <div>
             <span className="font-bold">Venís publicando parejo 👏</span> Todas tus redes principales tienen publicaciones recientes y te mantienen visible ante clientes.
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-3 text-slate-300 text-sm">
+          <AlertCircle className="w-5 h-5 text-slate-400 shrink-0" />
+          <div>
+            <span className="font-bold text-white">Sin datos de publicaciones</span> — No se registran fechas de publicaciones recientes.
           </div>
         </div>
       )}

@@ -44,12 +44,12 @@ describe('Planilla de invitados: cada fila lleva su identidad', () => {
 
 describe('Cada pantalla manda la identidad del intento y la suelta solo tras el exito', () => {
   const pantallas: Array<[string, string[], string]> = [
-    ['/fiestas/nueva/invitados (alta)', ['src', 'app', '(app)', 'fiestas', 'nueva', 'invitados', 'page.tsx'], 'addInvitadoFiestaActual(fiestaId, carga, { idIntento })'],
-    ['/fiestas/nueva/invitados (planilla)', ['src', 'app', '(app)', 'fiestas', 'nueva', 'invitados', 'page.tsx'], '{ idIntento: item.idIntento }'],
+    ['/fiestas/nueva/invitados (alta)', ['src', 'components', 'fiestas', 'panels', 'invitados.tsx'], 'addInvitadoFiestaActual(fiestaId, carga, { idIntento })'],
+    ['/fiestas/nueva/invitados (planilla)', ['src', 'components', 'fiestas', 'panels', 'invitados.tsx'], '{ idIntento: item.idIntento }'],
     ['/incidentes', ['src', 'app', '(app)', 'incidentes', 'page.tsx'], 'createIncidente(carga, { idIntento })'],
     ['/calendario', ['src', 'app', '(app)', 'calendario', 'page.tsx'], 'createAppointment(cargaCita, { idIntento })'],
     ['/empresa/salones', ['src', 'app', '(app)', 'empresa', 'salones', 'page.tsx'], 'saveSalon(payload, idIntento ?'],
-    ['/fiestas/nueva/tareas', ['src', 'app', '(app)', 'fiestas', 'nueva', 'tareas', 'client.tsx'], 'addTareaToFiestaActual(fiestaId, newTaskData, { idIntento })'],
+    ['/fiestas/nueva/tareas', ['src', 'components', 'fiestas', 'panels', 'tareas.tsx'], 'addTareaToFiestaActual(fiestaId, newTaskData, { idIntento })'],
     ['/alertas', ['src', 'components', 'panels', 'mi-dia--alertas.tsx'], 'idEstable: `msg_${idIntento}`'],
     ['/settings/templates/invitaciones', ['src', 'components', 'settings', 'panels', 'templates--invitaciones.tsx'], 'duplicateInvitationTemplate(id, { idIntento })'],
     ['/contabilidad/crm', ['src', 'components', 'crm', 'AddLeadDialog.tsx'], 'addCrmLead(cargaLead, { idIntento })'],

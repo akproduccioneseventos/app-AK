@@ -244,6 +244,7 @@ export default function EspejoMagicoPage() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [queuedOffline, setQueuedOffline] = useState(false);
   // Lo que pasó con la foto en el muro cuando NO está publicada todavía (espera a un moderador).
   const [avisoDelMuro, setAvisoDelMuro] = useState<string | null>(null);
   // Una identidad por captura: "Reintentar" repite la MISMA, así el servidor no duplica ni el
@@ -938,6 +939,7 @@ export default function EspejoMagicoPage() {
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     setIsUploading(true);
+    setQueuedOffline(false);
     setLocalStatus('processing');
     void updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, capturedAccessToken).catch(() => undefined);
     speak("Subiendo tu foto al muro");
@@ -1025,6 +1027,8 @@ export default function EspejoMagicoPage() {
             accessToken: capturedAccessToken,
           });
           setErrorMsg(null);
+          setQrCodeUrl('');
+          setQueuedOffline(true);
           setLocalStatus('done');
           void updateEntertainmentSessionStatus(
             fiestaId,
@@ -1080,6 +1084,7 @@ export default function EspejoMagicoPage() {
     setCapturedImage(null);
     setStickers([]);
     setQrCodeUrl('');
+    setQueuedOffline(false);
     setAvisoDelMuro(null);
     idDeLaCapturaRef.current = null;
     setOriginalPhotoUrl(null);
@@ -1695,20 +1700,41 @@ export default function EspejoMagicoPage() {
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
-                <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
+                <h3 className="text-2xl font-black text-white">
+                  {queuedOffline && !qrCodeUrl ? 'Foto guardada en la estación' : 'Escanea tu recuerdo'}
+                </h3>
+                <p className="text-sm text-zinc-400">
+                  {queuedOffline && !qrCodeUrl
+                    ? 'Guardada sin señal: se sube sola cuando vuelva'
+                    : 'Usá este código QR con tu celular para descargarlo o compartirlo.'}
+                </p>
                 {avisoDelMuro && (
                   <p data-testid="aviso-foto-pendiente" className="rounded-xl bg-amber-500/15 px-3 py-2 text-sm font-bold text-amber-300">{avisoDelMuro}</p>
                 )}
               </div>
 
               {/* QR Container con texto de marca */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative flex flex-col items-center gap-2">
-                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
-                <p className="text-xs font-black uppercase tracking-wider text-zinc-800">
-                  {fiesta?.station.brandText || 'AK Producciones'}
-                </p>
-              </div>
+              {queuedOffline && !qrCodeUrl ? (
+                <div
+                  role="status"
+                  data-testid="aviso-cola-offline"
+                  className="w-full rounded-3xl border border-amber-400/40 bg-amber-500/15 p-5 text-center shadow-2xl"
+                >
+                  <p className="text-sm font-black text-amber-200">
+                    Guardada sin señal: se sube sola cuando vuelva
+                  </p>
+                  <p className="mt-1.5 text-xs text-amber-100/80">
+                    También podés descargarla ahora en este dispositivo.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white p-4 rounded-3xl shadow-2xl relative flex flex-col items-center gap-2">
+                  <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
+                  <p className="text-xs font-black uppercase tracking-wider text-zinc-800">
+                    {fiesta?.station.brandText || 'AK Producciones'}
+                  </p>
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 w-full">
                 <button

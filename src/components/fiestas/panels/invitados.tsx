@@ -737,10 +737,10 @@ function InvitadosEventoContent() {
                 <div className="space-y-1.5">
                   <Label>Mesa asignada</Label>
                   {tableNames.length > 0 ? (
-                    <Select value={editingInvitado.tableNumber ?? ''} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, tableNumber: v || undefined } : prev)}>
+                    <Select value={editingInvitado.tableNumber ?? 'sin-mesa'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, tableNumber: v === 'sin-mesa' ? undefined : v } : prev)}>
                       <SelectTrigger><SelectValue placeholder="Sin asignar" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Sin asignar</SelectItem>
+                        <SelectItem value="sin-mesa">Sin mesa</SelectItem>
                         {tableNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                       </SelectContent>
                     </Select>

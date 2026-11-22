@@ -530,7 +530,9 @@ export async function darOrdenPorVozOTexto(
     };
   }
 
-  const tipoPlanSolicitado = detectarTipoPlanMultipaso(frase);
+  const esPreguntaGeneral =
+    /^\s*(?:¿|cu[aá]nt|qu[eé]\b|cu[aá]l\b|hay\b)/i.test(f) || f.endsWith('?');
+  const tipoPlanSolicitado = esPreguntaGeneral ? null : detectarTipoPlanMultipaso(frase);
   if (tipoPlanSolicitado) {
     const modo = await getReglaParaTarea('plan_multi_paso');
     if (modo === 'apagada') return { success: false, mensaje: 'Esa tarea está apagada en Tus reglas; no consulté datos ni preparé nada.' };
@@ -736,6 +738,37 @@ export async function darOrdenPorVozOTexto(
     f.includes('presupuesto') ||
     f.includes('perseguidor')
   ) {
+    if (
+      f.includes('cuánt') ||
+      f.includes('cuant') ||
+      f.includes('qué') ||
+      f.includes('que') ||
+      f.includes('cuál') ||
+      f.includes('cual') ||
+      f.includes('hay') ||
+      f.includes('tengo') ||
+      f.endsWith('?')
+    ) {
+      try {
+        const { getPresupuestos } = await import('@/app/actions/presupuestos');
+        const presupuestos = await getPresupuestos();
+        const pend = (presupuestos || []).filter((p: any) => {
+          const est = String(p.estado || '').toLowerCase();
+          return est === 'enviado' || est === 'pendiente';
+        });
+        const totalPeriodo = (presupuestos || []).reduce((acc: number, p: any) => acc + (Number(p.totalConDescuento || p.costoTotalEstimado || 0)), 0);
+        return {
+          success: true,
+          mensaje: `Tenés ${pend.length} presupuestos pendientes/enviados. Total del período actual: $${totalPeriodo.toLocaleString('es-UY')}.`,
+        };
+      } catch (err: any) {
+        return {
+          success: false,
+          mensaje: 'No pude consultar los presupuestos en este momento.',
+        };
+      }
+    }
+
     const modo = await getReglaParaTarea('perseguidor_presupuestos');
     if (modo === 'apagada') {
       return {

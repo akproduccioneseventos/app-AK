@@ -10,6 +10,9 @@ import type { DecorationDraft } from '@/lib/decoracion/catalog-types';
 jest.mock('server-only', () => ({}));
 jest.mock('@/lib/decoracion/catalog-photo', () => ({ loadDecorationPhoto: jest.fn() }));
 jest.mock('@/ai/flows/analyze-decoration-catalog', () => ({ analyzeDecorationCatalog: jest.fn() }));
+jest.mock('@/lib/ai/gemini-image', () => ({
+  generateGeminiImage: jest.fn(async () => null),
+}));
 jest.mock('@/lib/ai/consumo-servidor', () => ({ hayPresupuestoParaIA: jest.fn(), registrarConsumoIA: jest.fn() }));
 jest.mock('@/lib/auth/require-session', () => ({ requirePermisoAlguno: jest.fn(), requireAppSession: jest.fn() }));
 jest.mock('@/lib/data-service', () => ({ readDataConDetalle: jest.fn(), createDataItem: jest.fn(), mutateDataItem: jest.fn(), readData: jest.fn() }));

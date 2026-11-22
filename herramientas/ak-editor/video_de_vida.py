@@ -65,7 +65,7 @@ def crear_app1_exif(fecha_str: Optional[str] = None, orientacion: int = 1) -> by
     entradas_ifd0 = []
     # Orientation = 0x0112 (SHORT = 3)
     entradas_ifd0.append((0x0112, 3, 1, orientacion))
-    
+
     fecha_bytes = b""
     if fecha_str:
         fecha_bytes = fecha_str.encode("ascii")
@@ -321,13 +321,25 @@ def calcular_hash_perceptual(img: np.ndarray) -> np.ndarray:
     return (peque > media).astype(np.uint8)
 
 
+def _leer_imagen_unicode(ruta: Optional[str], flags: int = cv2.IMREAD_COLOR) -> Optional[np.ndarray]:
+    if not ruta or not os.path.exists(ruta):
+        return None
+    try:
+        datos_bytes = np.fromfile(ruta, dtype=np.uint8)
+        if datos_bytes.size == 0:
+            return None
+        return cv2.imdecode(datos_bytes, flags)
+    except Exception:
+        return None
+
+
 def detectar_duplicadas(fotos: List[Dict[str, Any]], umbral_diferencia: float = 0.08) -> List[Dict[str, Any]]:
     """Marca como 'es_duplicada' las fotos visualmente idénticas o casi idénticas."""
     hashes = []
     for f in fotos:
         ruta = f.get("ruta")
         if ruta and os.path.exists(ruta):
-            img = cv2.imread(ruta)
+            img = _leer_imagen_unicode(ruta)
             h = calcular_hash_perceptual(img) if img is not None else None
             hashes.append(h)
         else:
@@ -672,7 +684,7 @@ def ordenar_fotos_vida(
         ruta = f.get("ruta")
         img = None
         if ruta and os.path.exists(ruta):
-            img = cv2.imread(ruta)
+            img = _leer_imagen_unicode(ruta)
         elif "imagen" in f and f["imagen"] is not None:
             img = f["imagen"]
 
@@ -1058,7 +1070,7 @@ def exportar_video_de_vida(
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     writer = cv2.VideoWriter(ruta_render_video, fourcc, float(fps), (ancho, alto))
 
-    logo_img = cv2.imread(ruta_logo_ak) if ruta_logo_ak and os.path.exists(ruta_logo_ak) else None
+    logo_img = _leer_imagen_unicode(ruta_logo_ak)
     cuadros_totales = 0
 
     try:
@@ -1088,7 +1100,7 @@ def exportar_video_de_vida(
                 continue
 
             # Leer sin auto-rotación de OpenCV para que corregir_orientacion rote una sola vez
-            img_raw = cv2.imread(ruta_foto, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
+            img_raw = _leer_imagen_unicode(ruta_foto, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
             if img_raw is None:
                 continue
 

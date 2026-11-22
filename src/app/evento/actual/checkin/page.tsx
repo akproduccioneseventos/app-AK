@@ -55,16 +55,14 @@ function CheckInContent() {
 
         const invitadoOriginal = fiesta.invitados?.find(i => i.id === guestId);
 
-        if (invitadoOriginal?.checkedIn) {
-             setWasAlreadyCheckedIn(true);
-             setInvitado(invitadoOriginal);
-        } else {
-            const result = await checkInGuestFiestaActual(fiestaId, guestId, { token });
-            if (result.success && result.invitado) {
-                setInvitado(result.invitado);
-            } else {
-                throw new Error(result.error || "Error al registrar la entrada.");
+        const result = await checkInGuestFiestaActual(fiestaId, guestId, { token });
+        if (result.success && result.invitado) {
+            if (invitadoOriginal?.checkedIn) {
+                 setWasAlreadyCheckedIn(true);
             }
+            setInvitado(result.invitado);
+        } else {
+            throw new Error(result.error || "Error al registrar la entrada.");
         }
       } catch (err: any) {
         setError(mensajeParaElInvitado(err, 'No se pudo registrar la entrada.'));

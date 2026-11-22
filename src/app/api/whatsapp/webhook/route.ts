@@ -253,21 +253,47 @@ export async function POST(request: NextRequest) {
 
     const asistenteSettings = await conTimeout(getAsistenteSettings()).catch(() => null);
     const asistenteProspectosActivo = Boolean(asistenteSettings?.asistenteProspectosWhatsApp);
-    const filtroContacto =
-      !asistenteProspectosActivo && config.llevarWhatsAppProspectosAlCrm !== true
-        ? { bloquear: false }
-        : await conTimeout(
-            verificarEsContactoPersonalONotaBaja(
-              phone,
-              body?.clasificacion ||
-                (typeof body?.nota === 'number'
-                  ? { nota: body.nota }
-                  : evaluacion.notaIA !== undefined
-                    ? { nota: evaluacion.notaIA, esPersonal: evaluacion.rechazadoPor === 'numero_personal' }
-                    : null),
-              asistenteSettings,
-            ),
-          ).catch(() => ({ bloquear: false }));
+    let filtroContacto: { bloquear: boolean; motivo?: string; nota?: number; esPersonal?: boolean } = {
+      bloquear: false,
+      esPersonal: false,
+    };
+    if (asistenteProspectosActivo || config.llevarWhatsAppProspectosAlCrm === true) {
+      try {
+        filtroContacto = await conTimeout(
+          verificarEsContactoPersonalONotaBaja(
+            phone,
+            body?.clasificacion ||
+              (typeof body?.nota === 'number'
+                ? { nota: body.nota }
+                : evaluacion.notaIA !== undefined
+                  ? { nota: evaluacion.notaIA, esPersonal: evaluacion.rechazadoPor === 'numero_personal' }
+                  : null),
+            asistenteSettings,
+          ),
+        );
+      } catch (filtroErr: any) {
+        console.warn('[WhatsApp Webhook] Control de contacto personal no respondió a tiempo:', filtroErr);
+        await agregarPropuestasDeduplicadas([{
+          clave: `whatsapp-filtro-contacto-pendiente:${messageId || phone}`,
+          titulo: 'Revisar WhatsApp: no se pudo confirmar si es contacto personal',
+          area: 'ventas',
+          tipoPropuesta: 'whatsapp_revisar_contacto',
+          nivelRiesgo: 'aviso' as any,
+          quePasa: `Llegó un mensaje de ${clientName || phone} y el control de contacto personal falló o tardó demasiado (${filtroErr?.message || 'sin respuesta'}). Por seguridad no se contestó ni se guardó en el CRM.`,
+          porQueImporta: 'Evita contestar automáticamente o mezclar a un contacto personal si la verificación demora.',
+          quePropone: `Revisar manualmente el mensaje de ${clientName || phone}: "${messageText.slice(0, 80)}".`,
+        }]).catch((e) => console.warn('[WhatsApp webhook] No se pudo anotar para revisar:', e));
+
+        return NextResponse.json({
+          status: 'ok',
+          received: true,
+          savedToCrm: false,
+          respondido: false,
+          requiereRevision: true,
+          motivo: 'Control de contacto personal no contestó a tiempo: no se contesta ni se guarda.',
+        }, { status: 200 });
+      }
+    }
 
     let leadGuardadoId = evaluacion.leadCoincidente?.id;
 

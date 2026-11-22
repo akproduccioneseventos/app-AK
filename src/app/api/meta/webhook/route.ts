@@ -231,17 +231,22 @@ export async function POST(request: NextRequest) {
 
   let agregadosCount = 0;
   let crmActualizados = 0;
+  let respuestasEnviadas = 0;
+  let mensajesNuevos: MetaMensajeDirecto[] = [];
 
   if (incomingMessages.length > 0) {
     await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
       const midsExistentes = new Set(guardados.map((m) => m.mid));
       const paraAgregar = incomingMessages.filter((m) => !midsExistentes.has(m.mid));
       agregadosCount = paraAgregar.length;
+      mensajesNuevos = paraAgregar;
       if (agregadosCount === 0) return null;
       return [...guardados, ...paraAgregar];
     });
 
-    for (const dm of incomingMessages) {
+    const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN || process.env.INSTAGRAM_ACCESS_TOKEN || '';
+
+    for (const dm of mensajesNuevos) {
       try {
         const displayName = dm.senderName || `${dm.canal === 'instagram_dm' ? 'Instagram' : 'Messenger'} ${dm.senderId.slice(-4)}`;
         const { lead } = await conTimeout(upsertPublicCommercialLead({
@@ -263,13 +268,85 @@ export async function POST(request: NextRequest) {
             }),
           ],
         }));
-        const { enriquecerLeadExistenteConIA } = await import('@/lib/crm/ia-prospecto');
-        await conTimeout(enriquecerLeadExistenteConIA({
-          leadId: lead.id,
-          mensaje: dm.texto,
-          canal: dm.canal,
-        })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
+        const [
+          { enriquecerLeadExistenteConIA, registrarMensajeYAnalizarProspecto },
+          { getAjustesRespuestasComentarios },
+          { atenderProspectoUnificado, verificarLeadPidePersona },
+        ] = await Promise.all([
+          import('@/lib/crm/ia-prospecto'),
+          import('@/lib/social-media/comments-backfill'),
+          import('@/lib/whatsapp/asistente-de-prospectos'),
+        ]);
+
+        const [, ajustesDm, pidePersonaEnCrm] = await Promise.all([
+          conTimeout(enriquecerLeadExistenteConIA({
+            leadId: lead.id,
+            mensaje: dm.texto,
+            canal: dm.canal,
+          })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e)),
+          conTimeout(getAjustesRespuestasComentarios()).catch(() => ({ mensajesDirectos: true })),
+          conTimeout(verificarLeadPidePersona(dm.canal, dm.senderId)).catch(() => false),
+        ]);
         crmActualizados++;
+
+        const dmActivo = ajustesDm?.mensajesDirectos !== false;
+        if (dmActivo && !pidePersonaEnCrm && lead.atiende !== 'persona' && dm.texto.trim()) {
+          const resultado = await atenderProspectoUnificado({
+            canal: dm.canal,
+            remitenteId: dm.senderId,
+            nombre: displayName,
+            texto: dm.texto,
+            messageId: dm.mid,
+          });
+          if (!resultado.silenciado && resultado.respuesta) {
+            await registrarMensajeYAnalizarProspecto({
+              leadId: lead.id,
+              analizar: false,
+              mensaje: buildCrmMensaje({
+                canal: dm.canal,
+                direccion: 'saliente',
+                texto: resultado.respuesta,
+                fecha: new Date().toISOString(),
+                autor: 'Asistente AK',
+                respondidoPor: 'asistente',
+                meta: { senderId: dm.senderId },
+              }),
+            }).catch((e) => console.warn('[Meta webhook] No se pudo guardar respuesta en CRM:', e));
+
+            if (pageAccessToken && dm.senderId) {
+              const sendRes = await fetch(
+                `https://graph.facebook.com/v18.0/me/messages?access_token=${encodeURIComponent(pageAccessToken)}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    recipient: { id: dm.senderId },
+                    message: { text: resultado.respuesta },
+                  }),
+                },
+              ).catch((e) => {
+                console.warn('[Meta webhook] No se pudo enviar respuesta por Meta API:', e);
+                return null;
+              });
+              if (sendRes?.ok) {
+                respuestasEnviadas++;
+                await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
+                  let cambio = false;
+                  const next = guardados.map((m) => {
+                    if (m.mid === dm.mid && !m.contestado) {
+                      cambio = true;
+                      return { ...m, contestado: true, contestadoPor: 'solo' as const };
+                    }
+                    return m;
+                  });
+                  return cambio ? next : null;
+                }).catch((e) => console.warn('[Meta webhook] No se pudo marcar DM contestado:', e));
+              } else if (sendRes) {
+                console.warn('[Meta webhook] Meta API devolvió error al enviar DM:', sendRes.status);
+              }
+            }
+          }
+        }
       } catch (err) {
         console.warn('[Meta Webhook] No se pudo guardar DM en el CRM:', err);
       }
@@ -338,5 +415,5 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ status: 'EVENT_RECEIVED', guardados: agregadosCount, crmActualizados }, { status: 200 });
+  return NextResponse.json({ status: 'EVENT_RECEIVED', guardados: agregadosCount, crmActualizados, respuestasEnviadas }, { status: 200 });
 }

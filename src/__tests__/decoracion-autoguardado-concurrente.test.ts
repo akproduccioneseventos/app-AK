@@ -11,7 +11,7 @@
  * sale de la pantalla.
  *
  * Esta prueba evalúa el código de la pantalla REAL en:
- * src/app/(app)/fiestas/nueva/decoracion/page.tsx
+ * src/components/fiestas/panels/decoracion.tsx
  */
 
 import fs from 'node:fs';
@@ -20,7 +20,7 @@ import path from 'node:path';
 describe('Pantalla real de decoración - Preservación de cambios concurrentes durante autoguardado', () => {
   const decoracionPagePath = path.join(
     process.cwd(),
-    'src/app/(app)/fiestas/nueva/decoracion/page.tsx'
+    'src/components/fiestas/panels/decoracion.tsx'
   );
   const decoracionSource = fs.readFileSync(decoracionPagePath, 'utf8');
 

@@ -4,8 +4,8 @@ import path from 'node:path';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import ViewInvoicePage from '@/app/(app)/invoices/[id]/page';
-import GestionDocumentalPage from '@/app/(app)/fiestas/nueva/gestion-documental/page';
-import InvitadosPage from '@/app/(app)/fiestas/nueva/invitados/page';
+import GestionDocumentalPage from '@/components/fiestas/panels/gestion-documental';
+import InvitadosPage from '@/components/fiestas/panels/invitados';
 import PantallasTotemPage from '@/components/panels/fiesta--pantallas-totem';
 import TragosMasterPage from '@/components/panels/menus--tragos';
 

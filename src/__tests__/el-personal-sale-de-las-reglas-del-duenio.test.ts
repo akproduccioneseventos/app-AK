@@ -54,7 +54,7 @@ describe('el personal sale de las reglas del dueño', () => {
     expect(fiesta).toMatch(/utilerosPorInvitados\(guests\)/);
     expect(fiesta).toMatch(/addVacantes\('Barman', barra\.cantidad, barra\.sueldo\)/);
     expect(fiesta).not.toMatch(/guests \/ (50|75)/);
-    const pantalla = leer('src/app/(app)/fiestas/nueva/personal/page.tsx');
+    const pantalla = leer('src/components/fiestas/panels/personal.tsx');
     expect(pantalla).toMatch(/personalDeCocina\(/);
     expect(pantalla).toMatch(/utilerosPorInvitados\(totalGuests\)/);
     expect(pantalla).toMatch(/barra\.sueldo\)/);

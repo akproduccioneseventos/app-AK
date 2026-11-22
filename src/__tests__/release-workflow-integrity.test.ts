@@ -38,7 +38,7 @@ describe('release workflow integrity', () => {
   });
 
   it('checks persistence results before confirming financial saves', () => {
-    const costsPage = read('src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx');
+    const costsPage = read('src/components/fiestas/panels/gestion-costos-rentabilidad.tsx');
     expect(costsPage).toContain("if (!result.success) throw new Error(result.error || 'No se pudo registrar el pago.')");
     expect(costsPage).toContain("if (!result.success) throw new Error(result.error || 'No se pudo guardar el análisis financiero.')");
   });
@@ -52,11 +52,11 @@ describe('release workflow integrity', () => {
   });
 
   it('does not announce optimistic saves after a rejected server result', () => {
-    const catering = read('src/app/(app)/fiestas/nueva/catering/page.tsx');
+    const catering = read('src/components/fiestas/panels/catering.tsx');
     const planner = read('src/app/(app)/fiestas/nueva/page.tsx');
-    const configuration = read('src/app/(app)/fiestas/nueva/configuracion/page.tsx');
-    const socialWall = read('src/app/(app)/fiestas/nueva/muro-social/page.tsx');
-    const decoration = read('src/app/(app)/fiestas/nueva/decoracion/page.tsx');
+    const configuration = read('src/components/fiestas/panels/configuracion.tsx');
+    const socialWall = read('src/components/fiestas/panels/muro-social.tsx');
+    const decoration = read('src/components/fiestas/panels/decoracion.tsx');
 
     expect(catering).toContain('if (!result.success) throw new Error');
     expect(planner).toContain('setModulosContratados(previousModules)');

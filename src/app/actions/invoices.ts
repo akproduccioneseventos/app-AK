@@ -332,6 +332,9 @@ async function saveInvoiceInner(
       if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
         return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
       }
+      if (dataToUpdate.status === 'Paid' && (totalPaid <= 0 || totalAmount - totalPaid > invoiceMoneyTolerance(currency))) {
+        return { success: false, error: 'No se puede marcar como pagada una factura con saldo pendiente.' };
+      }
 
       invoices[index] = {
         ...invoices[index],

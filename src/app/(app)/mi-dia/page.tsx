@@ -7,6 +7,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import Link from 'next/link';
 import {
   Bot,
@@ -57,7 +58,7 @@ export default async function MiDiaPage() {
   let errorFiestas = false;
   try {
     const rawFiestas = await getFiestas(false);
-    fiestas = (rawFiestas || []).filter((f) => !esFiestaDemo(f));
+    fiestas = (rawFiestas || []).filter((f) => !esFiestaDemo(f) && !esFiestaSuspendida(f));
   } catch {
     errorFiestas = true;
     fiestas = [];

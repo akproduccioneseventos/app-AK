@@ -14,6 +14,9 @@ import type { PagoCliente } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { getMisPermisos } from '@/app/actions/sesion';
+import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(v);
@@ -33,9 +36,6 @@ interface FiestaFinanzas {
 }
 
 function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {
-  // La cuenta oficial de ganancia: lo pagado donde hay pagos, lo estimado donde no, con los bloques
-  // automaticos (catering, bebidas, reposteria, sueldos) y sin la merma duplicada. Antes aca se usaba
-  // "los pagos o los renglones manuales", y el mismo mes no coincidia con Analiticas.
   return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal;
 }
 
@@ -64,18 +64,25 @@ export default function FinanzasPage() {
   const { toast } = useToast();
   const [fiestas, setFiestas] = useState<FiestaFinanzas[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [puedeVerGanancias, setPuedeVerGanancias] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, presupuestos] = await Promise.all([
+      const [data, presupuestos, misPermisosRes] = await Promise.all([
         getFiestas(true),
         getPresupuestos(true).catch(() => []),
-      ]);
+        getMisPermisos().catch(() => ({ permisos: [] as Permiso[] })),
+      ]) as [any, any, { permisos: Permiso[] }];
+      const pList = (misPermisosRes?.permisos || []) as string[];
+      const veGanancias = pList.includes(PERMISOS.GANANCIAS) || pList.includes(PERMISOS.ADMINISTRACION);
+      setPuedeVerGanancias(veGanancias);
+
       const cobrosPorPresupuesto = new Map(
-        (presupuestos || []).map((p) => [p.id, p.pagosCliente ?? []])
+        ((presupuestos || []) as any[]).map((p: any) => [p.id, p.pagosCliente ?? []])
       );
-      const calculados: FiestaFinanzas[] = (Array.isArray(data) ? data : []).map(f => {
+      const fiestasFiltradas = (Array.isArray(data) ? data : []).filter(f => !esFiestaDemo(f));
+      const calculados: FiestaFinanzas[] = fiestasFiltradas.map(f => {
         const pagosCliente = (f as any).pagosCliente || (f.presupuestoId ? cobrosPorPresupuesto.get(f.presupuestoId) : undefined);
         const ingresos = calcularIngresos(f, pagosCliente);
         const totalPactado = calcularTotalPactado(f);
@@ -124,7 +131,7 @@ export default function FinanzasPage() {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className={`grid grid-cols-2 ${puedeVerGanancias ? 'md:grid-cols-4' : 'md:grid-cols-2'} gap-3`}>
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
@@ -147,34 +154,42 @@ export default function FinanzasPage() {
             </Link>
           </CardContent>
         </Card>
-        <Card className={gananciaCobrado >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className={`w-4 h-4 ${gananciaCobrado >= 0 ? 'text-emerald-600' : 'text-orange-600'}`} />
-              <p className={`text-xs font-medium ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>Ganancia sobre lo cobrado</p>
-            </div>
-            <p className={`text-xl font-bold ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
-              {formatCurrency(gananciaCobrado)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-violet-200 bg-violet-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-violet-600" />
-              <p className="text-xs text-violet-700 font-medium">Ganancia esperada</p>
-            </div>
-            <p className="text-xl font-bold text-violet-700">{formatCurrency(gananciaEsperada)}</p>
-            <p className="text-[10px] text-violet-600/80 mt-0.5">si se cobra todo lo pactado</p>
-          </CardContent>
-        </Card>
+        {puedeVerGanancias && (
+          <>
+            <Card className={gananciaCobrado >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className={`w-4 h-4 ${gananciaCobrado >= 0 ? 'text-emerald-600' : 'text-orange-600'}`} />
+                  <p className={`text-xs font-medium ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>Ganancia sobre lo cobrado</p>
+                </div>
+                <p className={`text-xl font-bold ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+                  {formatCurrency(gananciaCobrado)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-violet-200 bg-violet-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="w-4 h-4 text-violet-600" />
+                  <p className="text-xs text-violet-700 font-medium">Ganancia esperada</p>
+                </div>
+                <p className="text-xl font-bold text-violet-700">{formatCurrency(gananciaEsperada)}</p>
+                <p className="text-[10px] text-violet-600/80 mt-0.5">si se cobra todo lo pactado</p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Table */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Detalle por Evento</CardTitle>
-          <CardDescription>Cobrado − Egresos = Ganancia sobre lo cobrado por fiesta</CardDescription>
+          <CardDescription>
+            {puedeVerGanancias
+              ? 'Cobrado − Egresos = Ganancia sobre lo cobrado por fiesta'
+              : 'Detalle de cobranzas y egresos por evento'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -193,7 +208,7 @@ export default function FinanzasPage() {
                     <th className="text-left pb-2 font-medium hidden md:table-cell">Estado</th>
                     <th className="text-right pb-2 font-medium text-green-700">Cobrado</th>
                     <th className="text-right pb-2 font-medium text-red-700">Egresos</th>
-                    <th className="text-right pb-2 font-medium">Ganancia</th>
+                    {puedeVerGanancias && <th className="text-right pb-2 font-medium">Ganancia</th>}
                     <th className="pb-2" />
                   </tr>
                 </thead>
@@ -212,9 +227,11 @@ export default function FinanzasPage() {
                       </td>
                       <td className="py-2.5 text-right text-green-700 font-medium">{formatCurrency(f.ingresos)}</td>
                       <td className="py-2.5 text-right text-red-600 font-medium">{formatCurrency(f.egresos)}</td>
-                      <td className={`py-2.5 text-right font-bold ${f.ganancia >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
-                        {formatCurrency(f.ganancia)}
-                      </td>
+                      {puedeVerGanancias && (
+                        <td className={`py-2.5 text-right font-bold ${f.ganancia >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
+                          {formatCurrency(f.ganancia)}
+                        </td>
+                      )}
                       <td className="py-2.5 pl-2">
                         <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${f.id}`}>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -228,9 +245,11 @@ export default function FinanzasPage() {
                     <td colSpan={3} className="pt-3 text-sm">TOTAL</td>
                     <td className="pt-3 text-right text-green-700">{formatCurrency(totalCobrado)}</td>
                     <td className="pt-3 text-right text-red-600">{formatCurrency(totalEgresos)}</td>
-                    <td className={`pt-3 text-right text-lg ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
-                      {formatCurrency(gananciaCobrado)}
-                    </td>
+                    {puedeVerGanancias && (
+                      <td className={`pt-3 text-right text-lg ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
+                        {formatCurrency(gananciaCobrado)}
+                      </td>
+                    )}
                     <td />
                   </tr>
                 </tfoot>

@@ -73,9 +73,9 @@ describe('La noche de la fiesta sigue siendo hoy (12/10 22:30 en Uruguay)', () =
 });
 
 describe('Las pantallas con ?fiestaId= lo leen de la dirección', () => {
-  const base = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva');
+  const base = path.join(process.cwd(), 'src/components/fiestas/panels');
   it('servicios-contratados mira fiestaId y pide esa fiesta', () => {
-    const src = fs.readFileSync(path.join(base, 'servicios-contratados', 'page.tsx'), 'utf8');
+    const src = fs.readFileSync(path.join(base, 'servicios-contratados.tsx'), 'utf8');
     expect(src).toMatch(/fiestaId/);
     expect(src).toMatch(/getFiestaById\(/);
     expect(src).toMatch(/earchParams/);

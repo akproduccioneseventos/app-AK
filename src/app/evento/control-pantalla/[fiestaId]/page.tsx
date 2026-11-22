@@ -10,7 +10,6 @@ import {
   SkipForward,
   Megaphone,
   Trophy,
-  HelpCircle,
   Image as ImageIcon,
   Sparkles,
   ExternalLink,
@@ -53,7 +52,15 @@ import {
 import { formatearDatoEstadistica, type LiveEventStats } from '@/lib/social-fiesta/estadisticas-en-vivo';
 import type { LiveStreamRequest } from '@/lib/social-fiesta/transmision-invitado';
 import { getSocialPosts, moderateSocialPost } from '@/app/actions/social-gallery';
-import { terminarTrivia, revelarRespuestaTrivia } from '@/app/actions/games.actions';
+import {
+  generarTriviaConIa,
+  confirmarTrivia,
+  saveTriviaGame,
+  terminarTrivia,
+  revelarRespuestaTrivia,
+} from '@/app/actions/games.actions';
+import { CentroTriviaPanel } from '@/components/centro/CentroTriviaPanel';
+import type { TriviaGame } from '@/lib/games/game-engine';
 import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
 import type { ActiveGameData, ScreenPlaylistItem } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
@@ -81,6 +88,8 @@ export default function ControlPantallaPage() {
   const [playlist, setPlaylist] = useState<ScreenPlaylistItem[]>([]);
   const [ledMarqueeText, setLedMarqueeText] = useState('');
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
+  const [triviaGame, setTriviaGame] = useState<TriviaGame | null>(null);
+  const [triviaRanking, setTriviaRanking] = useState<{ nombre: string; puntos: number }[]>([]);
   const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
   const [sorteoCandidatos, setSorteoCandidatos] = useState<string[]>([]);
 
@@ -156,6 +165,8 @@ export default function ControlPantallaPage() {
       if (estado.playlist) setPlaylist(estado.playlist);
       if (estado.ledMarqueeText !== undefined) setLedMarqueeText(estado.ledMarqueeText);
       setActiveGame(estado.activeGame ?? null);
+      if (estado.triviaGame !== undefined) setTriviaGame(estado.triviaGame);
+      if (estado.triviaRanking !== undefined) setTriviaRanking(estado.triviaRanking);
       setActiveSorteoWinner(estado.activeSorteoWinner ?? null);
       if (estado.sorteoCandidatos !== undefined) {
         setSorteoCandidatos(estado.sorteoCandidatos);
@@ -278,33 +289,6 @@ export default function ControlPantallaPage() {
       () => setLedMarqueeText(''),
       () => setLedMarqueeText(textoPrevio)
     );
-  };
-
-  // Trivia
-  const handleLanzarTrivia = () => {
-    const triviaData: Omit<ActiveGameData, 'launchedAt'> = {
-      type: 'trivia',
-      title: 'TRIVIA DE LA FIESTA 🧠',
-      subtitle: '¡Respondé en tu celular!',
-      options: [
-        { id: 'opt_0', text: 'Opción 1' },
-        { id: 'opt_1', text: 'Opción 2' },
-        { id: 'opt_2', text: 'Opción 3' },
-        { id: 'opt_3', text: 'Opción 4' },
-      ],
-      correctOptionId: 'opt_0',
-    };
-
-    ejecutarAccion(
-      () => launchGame(fiestaId, triviaData),
-      () => setActiveGame({ ...triviaData, launchedAt: new Date().toISOString() }),
-      () => setActiveGame(null)
-    );
-    mostrarFeedback('Trivia lanzada a la pantalla');
-  };
-
-  const handleRevelarRespuestaTrivia = () => {
-    ejecutarAccion(() => revelarRespuestaTrivia(fiestaId));
   };
 
   const handleTerminarJuego = () => {
@@ -783,38 +767,37 @@ export default function ControlPantallaPage() {
           </div>
         </section>
 
+        {/* TRIVIA REAL DE LA FIESTA */}
+        <CentroTriviaPanel
+          key={triviaGame?.id || 'sin-trivia'}
+          fiestaId={fiestaId}
+          eventName={fiestaNombre}
+          initialTrivia={triviaGame ?? undefined}
+          initialActiveGame={activeGame ?? undefined}
+          initialRanking={triviaRanking}
+          onGenerarConIa={generarTriviaConIa}
+          onConfirmarTrivia={confirmarTrivia}
+          onGuardarBorrador={saveTriviaGame}
+          onLanzarPregunta={launchGame}
+          onRevelarRespuesta={revelarRespuestaTrivia}
+          onTerminarTrivia={terminarTrivia}
+        />
+
         {/* JUEGOS Y SORTEO */}
         <section className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
-          <p className="text-xs uppercase tracking-wider text-slate-400 font-bold">
-            Juegos y sorteo
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={handleLanzarTrivia}
-              className="min-h-[56px] w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 px-3 py-3 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
-            >
-              <HelpCircle className="w-5 h-5 shrink-0" />
-              <span>Lanzar trivia</span>
-            </button>
-
-            <button
-              onClick={handleTerminarJuego}
-              className="min-h-[56px] w-full bg-rose-700 hover:bg-rose-600 active:bg-rose-800 text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 px-3 py-3 shadow-lg shadow-rose-700/20 active:scale-95 transition-all"
-            >
-              <span>Terminar juego</span>
-            </button>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs uppercase tracking-wider text-slate-400 font-bold">
+              Sorteo y cierre en pantalla
+            </p>
+            {activeGame && (
+              <button
+                onClick={handleTerminarJuego}
+                className="min-h-[44px] px-4 rounded-xl bg-rose-700 hover:bg-rose-600 active:bg-rose-800 text-white font-black text-xs active:scale-95 transition-all"
+              >
+                Quitar juego de pantalla
+              </button>
+            )}
           </div>
-
-          {/* Si hay trivia activa, botón para mostrar respuesta */}
-          {activeGame?.type === 'trivia' && !activeGame.respuestaRevelada && (
-            <button
-              onClick={handleRevelarRespuestaTrivia}
-              className="min-h-[56px] w-full bg-teal-600 hover:bg-teal-500 text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-            >
-              <span>Mostrar respuesta correcta</span>
-            </button>
-          )}
 
           {/* Botón de Sorteo */}
           <button

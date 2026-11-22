@@ -8,7 +8,7 @@ describe('action link integrity', () => {
     'src/components/panels/crm--ciclo-comercial.tsx',
     'src/app/(app)/empresa/galeria/page.tsx',
     'src/app/(app)/fiestas/[id]/centro/page.tsx',
-    'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx',
+    'src/components/fiestas/panels/entretenimiento.tsx',
     'src/components/fiestas/panels/pagina-web.tsx',
     'src/components/invitacion/templates/AllegriaTemplate.tsx',
     'src/components/invitacion/templates/GraziaTemplate.tsx',

@@ -29,7 +29,7 @@ describe('La estación de boomerang se llama Vogue', () => {
       'src/lib/commercial/portal-led-pro-visual-model.ts',
       'src/data/tecnologia-ak.ts',
       'src/components/panels/fiesta--entretenimiento-control.tsx',
-      'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx',
+      'src/components/fiestas/panels/entretenimiento.tsx',
       'src/app/(app)/fiestas/nueva/page.tsx',
       'src/data/servicios-empresa.json',
     ];

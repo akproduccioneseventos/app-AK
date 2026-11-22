@@ -145,6 +145,18 @@ export default function EventoHubPage() {
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
+              href="/entrar"
+              onClick={() => {
+                try {
+                  localStorage.removeItem('ak_invitado_fiesta');
+                  localStorage.removeItem('ak_invitado_credencial');
+                } catch {}
+              }}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-red-500"
+            >
+              Volver a entrar
+            </Link>
+            <Link
               href="/"
               className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-slate-200"
             >

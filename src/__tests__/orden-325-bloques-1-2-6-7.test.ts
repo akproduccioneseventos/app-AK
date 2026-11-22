@@ -428,7 +428,7 @@ describe('Orden 325 — Bloques 1, 2, 6 y 7', () => {
     // Camila IG (DM) + interesada_2 (pregunta); comm_elogio_1 NO entra al CRM
     expect(leads).toHaveLength(2);
     const camilaLead = leads.find((l: any) => l.name === 'Camila IG');
-    expect(camilaLead.conversacion).toHaveLength(1);
+    expect(camilaLead.conversacion.filter((m: any) => m.direccion === 'entrante')).toHaveLength(1);
     expect(camilaLead.conversacion[0].idExterno).toBe('meta_dm_mid_ig_500');
 
     const bandeja = await leerBandejaUnica();

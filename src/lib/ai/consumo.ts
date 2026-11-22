@@ -1,3 +1,5 @@
+import { hoyEnUruguay } from '@/lib/utils';
+
 /**
  * Cuánto se está gastando en inteligencia artificial este mes.
  *
@@ -9,6 +11,7 @@
  * Acá viven las cuentas puras, sin tocar archivos, para poder probarlas. El
  * guardado y la lectura están en `consumo-servidor.ts`.
  */
+
 
 /** Las funciones que consumen plata de verdad: las que generan imágenes. */
 export type FuncionConCosto =
@@ -111,10 +114,11 @@ export interface ResumenDeGasto extends ConsumoDelMes {
   topeDiarioProfundo?: number;
 }
 
-/** El mes en curso, como '2026-08'. */
+
+/** El mes en curso, como '2026-08' usando la fecha en Uruguay. */
 export function claveDelMes(fecha: Date = new Date()): string {
-  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-  return `${fecha.getFullYear()}-${mes}`;
+  const hoyUY = hoyEnUruguay(fecha); // 'AAAA-MM-DD'
+  return hoyUY.slice(0, 7);
 }
 
 export function calcularConsumo(mes: string, porFuncion: ConteoPorFuncion): ConsumoDelMes {

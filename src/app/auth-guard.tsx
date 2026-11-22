@@ -34,8 +34,9 @@ function isPublicRoute(pathname: string) {
     if (urlParams.has('token')) isPublic = true;
   }
 
-  if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) && typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+  const urlParams = new URLSearchParams(search);
+  if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || search.includes('tab=pdf') || urlParams.get('tab') === 'pdf') && typeof window !== 'undefined') {
     if (urlParams.has('token')) isPublic = true;
   }
 

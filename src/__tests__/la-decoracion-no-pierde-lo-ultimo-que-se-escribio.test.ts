@@ -2,7 +2,7 @@
  * Orden 59 - Bloque B: La decoración editada mientras se guarda no pierde lo último escrito.
  *
  * Cumple con docs/ordenes/59-el-cartel-no-dice-protegido-sin-saberlo.md:
- * 1. Inspecciona el componente real en src/app/(app)/fiestas/nueva/decoracion/page.tsx.
+ * 1. Inspecciona el componente real en src/components/fiestas/panels/decoracion.tsx.
  * 2. Comprueba que el componente real tenga el contador de versiones (canvasChangeVersionRef).
  * 3. Comprueba que saveCanvas compare canvasChangeVersionRef.current === versionAtStart
  *    antes de limpiar canvasHasChanges(false).
@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 describe('Orden 59 - Bloque B: La decoración no pierde lo último que se escribió', () => {
-  const decoracionPath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/decoracion/page.tsx');
+  const decoracionPath = path.join(process.cwd(), 'src/components/fiestas/panels/decoracion.tsx');
   const decoracionCode = fs.readFileSync(decoracionPath, 'utf8');
 
   describe('Inspección sobre el componente real', () => {

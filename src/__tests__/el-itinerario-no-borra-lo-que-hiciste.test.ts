@@ -11,7 +11,7 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Orden 73 Bloque 5: El itinerario no borra lo que hiciste', () => {
-  const pagePath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/itinerario/page.tsx');
+  const pagePath = path.join(process.cwd(), 'src/components/fiestas/panels/itinerario.tsx');
   const content = fs.readFileSync(pagePath, 'utf8');
 
   test('no repuebla automáticamente una lista que el usuario dejó vacía a propósito', () => {

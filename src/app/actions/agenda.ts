@@ -7,6 +7,8 @@ import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 
 export interface CalendarEvent {
   id: string;
@@ -73,10 +75,11 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
   // Estaba abierta, y la usa solo la pantalla del calendario, que ya pide cuenta.
   await requireAppSession();
   try {
-    const [activeFiestas, archivedFiestas] = await Promise.all([
+    const [activeFiestasRaw, archivedFiestas] = await Promise.all([
       getFiestas(false),
       getHistorialFiestas(),
     ]);
+    const activeFiestas = (activeFiestasRaw || []).filter(f => !esFiestaDemo(f) && !esFiestaSuspendida(f));
 
     const toCalendarEvent = (fiesta: FiestaEnPlanificacion, isArchived: boolean): CalendarEvent | null => {
       if (!fiesta.configuracion.fechaEvento) return null;
@@ -226,6 +229,7 @@ export async function getOcupiedDates(): Promise<string[]> {
     const occupiedDates: string[] = [];
 
     fiestas.forEach(fiesta => {
+      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return;
       if (fiesta.configuracion.fechaEvento) {
         // El mismo dia civil que usa el calendario. Con el dia de Greenwich, una fiesta de
         // las 23:00 marcaba ocupado **el dia siguiente**: el dia que de verdad estaba tomado

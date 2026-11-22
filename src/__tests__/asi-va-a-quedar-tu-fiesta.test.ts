@@ -20,6 +20,10 @@ jest.mock('@/lib/ai/gemini-image', () => ({
   generateGeminiImage: (...args: unknown[]) => generateGeminiImage(...args),
 }));
 
+jest.mock('@/lib/ai/foto-de-referencia', () => ({
+  fotoDeReferenciaSegura: jest.fn(async () => null),
+}));
+
 jest.mock('@/lib/ai/consumo-servidor', () => ({
   hayPresupuestoParaIA: (...args: unknown[]) => hayPresupuestoParaIA(...args),
   registrarConsumoIA: (...args: unknown[]) => registrarConsumoIA(...args),
