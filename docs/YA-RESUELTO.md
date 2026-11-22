@@ -72,7 +72,7 @@ archivo: docs/ordenes/332-gemini-la-app-de-play-store-recibe-a-cada-uno-facil.md
 
 ```comprobar
 usa: lg:grid-cols-2 gap-8 en src/app/(app)/empresa/menus/page.tsx
-usa: plantillasAbiertas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+usa: plantillasAbiertas en src/components/fiestas/panels/decoracion.tsx
 usa: Tocá Actualizar para probar de nuevo en src/components/decoracion/DecoCatalogDrafts.tsx
 ```
 
@@ -241,7 +241,7 @@ archivo: src/app/entrar/page.tsx
 archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
 archivo: src/app/portal/[fiestaId]/moodboard/page.tsx
 archivo: src/app/simulador-ak/page.tsx
-archivo: src/app/simulador/page.tsx
+no-usa: Armado Rápido de Propuesta en src/app/simulador-de-presupuesto/page.tsx
 usa: PwaInstallPrompt en src/app/(app)/mi-dia/page.tsx
 usa: PushNotificationPrompt en src/app/(app)/mi-dia/page.tsx
 ```
@@ -281,7 +281,7 @@ prueba: src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts
   El resto de las pantallas (itinerario, portal, pantalla gigante, PDF) la usan en la orden 320, bloque 2.
 
 ```comprobar
-usa: ordenarPorHoraDelEvento en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
+usa: ordenarPorHoraDelEvento en src/components/fiestas/panels/orden-de-evento.tsx
 prueba: src/__tests__/el-cronograma-cruza-la-medianoche.test.ts
 ```
 
@@ -296,7 +296,7 @@ prueba: src/__tests__/el-cronograma-cruza-la-medianoche.test.ts
   Preguntas 192 a 196.
 
 ```comprobar
-usa: condicionesDelInvitado en src/app/(app)/fiestas/nueva/alergias/page.tsx
+usa: condicionesDelInvitado en src/components/fiestas/panels/alergias.tsx
 usa: consumoValido en src/app/(app)/empresa/menus/tragos/page.tsx
 usa: step="any" en src/app/(app)/empresa/insumos/nuevo/page.tsx
 usa: montoTrasEtiqueta en src/lib/parse-budget-text.ts
@@ -362,7 +362,7 @@ prueba: src/__tests__/un-solo-numero-de-plata.test.ts
 
 ```comprobar
 usa: personalAsignado en src/app/actions/analytics.ts
-usa: personalEstimado en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: personalEstimado en src/components/fiestas/panels/gestion-costos-rentabilidad.tsx
 usa: T12:00:00-03:00 en src/app/actions/activos-fijos.ts
 prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
 ```
@@ -1543,7 +1543,7 @@ prueba: src/__tests__/assistant-actions.test.ts
 
 ```comprobar
 usa: personalDeCocina(guests) en src/app/actions/fiesta/fiesta.actions.ts
-usa: utilerosPorInvitados(totalGuests) en src/app/(app)/fiestas/nueva/personal/page.tsx
+usa: utilerosPorInvitados(totalGuests) en src/components/fiestas/panels/personal.tsx
 prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
 ```
 
@@ -2701,7 +2701,7 @@ prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx
 
 ```comprobar
 archivo: src/components/kiosk/kiosk-setup.tsx
-usa: KioskSetup en src/app/evento/barra/page.tsx
+usa: KioskSetup en src/app/evento/inicio/page.tsx
 prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx
 ```
 
@@ -3218,7 +3218,7 @@ usa: updateFiestaPresupuestoId en src/app/(app)/presupuestos/nuevo/crear/page.ts
 usa: crearHref en src/app/(app)/presupuestos/nuevo/page.tsx
 usa: CrmLeadTimeline en src/app/(app)/contabilidad/crm/page.tsx
 usa: parseUruguayDate en src/app/(app)/contabilidad/crm/agenda/page.tsx
-usa: prepararReintentoDePlanilla en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: prepararReintentoDePlanilla en src/components/fiestas/panels/invitados.tsx
 usa: datosDeLaReunion en src/app/actions/notifications.ts
 usa: datosDeLaReunion en src/app/actions/agenda.ts
 usa: mutateGenericJsonArray en src/app/actions/simulator-agenda.ts
@@ -3340,7 +3340,7 @@ usa: hoyEnUruguay en src/app/actions/fiesta-actual.ts
 usa: hoyEnUruguay en src/app/actions/scheduled-messages.ts
 usa: hoyEnUruguay en src/app/actions/multiagent.ts
 usa: hoyEnUruguay en src/lib/commercial-flow/puesta-al-dia.ts
-usa: getFiestaById en src/app/(app)/fiestas/nueva/servicios-contratados/page.tsx
+usa: getFiestaById en src/components/fiestas/panels/servicios-contratados.tsx
 usa: getFiestaById en src/app/(app)/fiestas/nueva/centro/page.tsx
 prueba: src/__tests__/la-noche-de-la-fiesta-sigue-siendo-hoy.test.ts
 ```
@@ -3965,7 +3965,7 @@ usa: lecturaConError en src/app/actions/fiesta/video-vida.actions.ts
 usa: MENSAJE_LECTURA_FALLIDA en src/app/video-vida/[fiestaId]/page.tsx
 usa: lectura.estado en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
 usa: lectura.estado en src/app/evento/video-vida/[fiestaId]/page.tsx
-usa: lectura.estado en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+usa: lectura.estado en src/components/fiestas/panels/video-vida.tsx
 prueba: src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx
 prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
 prueba: tests/e2e/video-vida-error-lectura.spec.ts
@@ -6220,7 +6220,7 @@ prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
 
 ```comprobar
 archivo: src/lib/invitados/aviso-importacion-invitados.ts
-archivo: src/app/(app)/fiestas/nueva/invitados/page.tsx
+archivo: src/components/fiestas/panels/invitados.tsx
 archivo: src/app/evento/espejo-magico/[fiestaId]/page.tsx
 archivo: src/app/evento/buzon/[fiestaId]/page.tsx
 archivo: src/app/evento/plataforma-360/[fiestaId]/page.tsx
@@ -6269,7 +6269,7 @@ prueba: src/__tests__/el-cartel-de-respaldo-no-miente.test.ts
   - `src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts` (4 de 4 pasadas).
 
 ```comprobar
-archivo: src/app/(app)/fiestas/nueva/decoracion/page.tsx
+archivo: src/components/fiestas/panels/decoracion.tsx
 prueba: src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts
 ```
 
@@ -13425,7 +13425,7 @@ corren en milesimas.
 
 ```comprobar
 archivo: src/lib/invitados/leer-planilla.ts
-usa: leerPlanillaDeInvitados en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: leerPlanillaDeInvitados en src/components/fiestas/panels/invitados.tsx
 prueba: src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
 ```
 
@@ -14864,7 +14864,7 @@ comprueba antes: quien no tiene permiso recibe un error, no un "no se pudo leer"
 
 ```comprobar
 archivo: src/app/actions/buzon.ts
-usa: getBuzonMessagesConDetalle en src/app/(app)/fiestas/nueva/buzon/page.tsx
+usa: getBuzonMessagesConDetalle en src/components/fiestas/panels/buzon.tsx
 prueba: src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts
 ```
 
@@ -14896,8 +14896,8 @@ texto no estaba en ningun lado. Es la misma forma que ya se arreglo en otros tre
 cuadro de arriba.
 
 ```comprobar
-archivo: src/app/(app)/fiestas/nueva/musica/page.tsx
-usa: No se pudo copiar solo en src/app/(app)/fiestas/nueva/musica/page.tsx
+archivo: src/components/fiestas/panels/musica.tsx
+usa: No se pudo copiar solo en src/components/fiestas/panels/musica.tsx
 prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
 ```
 
@@ -15192,7 +15192,7 @@ La parte de pantalla (una respuesta vieja que desmarca lo cargado, LOG04) quedó
 
 ```comprobar
 usa: necesidadPorEquipo en src/app/actions/fiesta/carga-operativa.actions.ts
-usa: listaCompleta en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
+usa: listaCompleta en src/components/fiestas/panels/carga-operativa.tsx
 prueba: src/__tests__/carga-stock-total-por-origen.test.ts
 ```
 
@@ -15403,7 +15403,7 @@ comprobación. Ahora `npm run ordenes?` marca todo bloque que nombra un archivo 
 
 ```comprobar
 usa: FALTAN_FOTOS en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
-usa: X-Fotos-Fallidas en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+usa: X-Fotos-Fallidas en src/components/fiestas/panels/video-vida.tsx
 prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
 usa: bloquesSinComprobacion en scripts/ordenes-cumplidas.mjs
 ```
@@ -15751,7 +15751,7 @@ prueba: src/__tests__/el-afiche-deja-subir-fotos.test.ts
 
 ```comprobar
 usa: comisionDeMercadoPago en src/lib/payments/mercadopago-core.ts
-usa: comisionesMercadoPago en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: comisionesMercadoPago en src/components/fiestas/panels/gestion-costos-rentabilidad.tsx
 prueba: src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts
 usa: RecepcionDelPedido en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 usa: pedido_incompleto en src/lib/automatizaciones-engine.ts
@@ -15939,7 +15939,7 @@ usa: diaDelEvento en src/app/portal-cliente/[id]/page.tsx
 ```comprobar
 prueba: src/__tests__/auditoria-70-contabilidad.test.ts
 usa: getBudgetCollectibleTotal en src/lib/commercial-flow/ledger-service.ts
-usa: versionLeida en src/app/(app)/fiestas/nueva/plan-pagos/page.tsx
+usa: versionLeida en src/components/fiestas/panels/plan-pagos.tsx
 usa: idDeLaLlave en src/app/actions/gastos.ts
 ```
 
@@ -16641,7 +16641,7 @@ con la identidad del intento: el mismo pago reintentado queda uno solo.
 
 ```comprobar
 prueba: src/__tests__/un-pago-a-proveedor-reintentado-no-se-duplica.test.ts
-usa: agregarPagoProveedorFiestaActual en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+usa: agregarPagoProveedorFiestaActual en src/components/fiestas/panels/gestion-costos-rentabilidad.tsx
 ```
 
 ## Rama `codex/qa-115-fuente-20261013`: no se junta, ya está cubierta (14 de octubre de 2026)
