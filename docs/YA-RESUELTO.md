@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/11/2026 - Una redirección no lleva a otra redirección (pregunta 206)
+
+- Seis direcciones viejas (respaldo, reporte de empleados, IA de marketing, contrato, checklist y plantillas de marketing)
+  iban a otra dirección que también se redirigía. Ahora van en un salto a su destino final, y un control mira todo
+  `next.config.js`. Las de la entrega 1462 las arregla Gemini (orden 334).
+
+```comprobar
+prueba: src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts
+```
+
 ## 21/11/2026 - Auditoría externa de seis módulos: lo urgente de permisos y plata (Claude) y el resto a la orden 333
 
 - **Qué estaba mal y lo arregló Claude:** el auditor (que tiene todos los permisos para probar) cambiaba las preguntas de

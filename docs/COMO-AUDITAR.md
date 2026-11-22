@@ -1998,3 +1998,9 @@ Auditoría externa del 21/11/2026 (IA-02): "¿Cuántos presupuestos tengo?" prep
 Auditoría externa del 21/11/2026 (IA-04): si no se podía leer el registro de fallos de la IA, la pantalla decía "La IA
 funcionó con normalidad en todas sus funciones".
 
+### 206. Una redirección, ¿lleva a otra dirección que también se redirige?
+
+Entrega 1462 (22/11/2026): `/fiestas/nueva/logistica` iba a `carga-operativa?tab=logistica`, y `carga-operativa` se
+redirigía a `operacion?tab=carga-operativa`. Encadenadas, la segunda pisaba la solapa y el que entraba por logística caía
+en otra pantalla. Cada dirección vieja va en un solo salto a su destino final. Lo mira toda la app
+`src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts`.

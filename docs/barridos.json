@@ -820,6 +820,10 @@
     "205": {
       "fecha": "2026-11-21",
       "resultado": "Error de lectura mostrado como normalidad: el panel de fallos de la IA → orden 333 bloque 9."
+    },
+    "206": {
+      "fecha": "2026-11-22",
+      "resultado": "Seis redirecciones encadenadas en la principal (respaldo, reporte de empleados, IA de marketing, contrato, checklist y plantillas de marketing): las arregló Claude en un salto. Las de la entrega 1462 → orden 334 bloque 1."
     }
   },
   "hallazgos": {
@@ -1234,6 +1238,10 @@
     "orden-333": {
       "fecha": "2026-11-21",
       "resultado": "Auditoría externa del 21/11 (seis módulos): unos 60 de 80 avisos ciertos. Permisos y plata urgentes arreglados por Claude (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta); el resto → orden 333. Barrido con las preguntas 188 y 198 a 202. Tercer informe (IA): IA-01 e IA-03 arreglados por Claude, preguntas 203 a 205."
+    },
+    "orden-334": {
+      "fecha": "2026-11-22",
+      "resultado": "Devolución de la 1462: 25 pruebas de pantallas en rojo tras juntar solapas. Forma nueva: redirecciones encadenadas que pierden la solapa → pregunta 206, barrida en toda la app (seis en la principal, arregladas)."
     }
   }
 }

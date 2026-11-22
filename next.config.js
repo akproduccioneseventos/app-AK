@@ -200,7 +200,7 @@ const nextConfig = {
       },
       {
         source: '/configuracion/backup-final',
-        destination: '/settings/backup-final',
+        destination: '/settings?seccion=sistema&sub=backup-final',
         permanent: true,
       },
       {
@@ -245,10 +245,10 @@ const nextConfig = {
       // ── Orden 321 Bloque 1: Redirecciones que antes tenían su propio page.tsx ──
       { source: '/contabilidad', destination: '/empresa/contabilidad', permanent: false },
       { source: '/empresa/crm', destination: '/contabilidad/crm?view=guest', permanent: false },
-      { source: '/empresa/empleados/reporte', destination: '/empleados/reporte', permanent: false },
+      { source: '/empresa/empleados/reporte', destination: '/empleados?tab=reporte', permanent: false },
       { source: '/empresa/insumos/editar/:id', destination: '/empresa/insumos/:id/editar', permanent: false },
       { source: '/empresa/personal/:empleadoId/historial', destination: '/empleados/:empleadoId/historial', permanent: false },
-      { source: '/empresa/redes-sociales/ia-marketing', destination: '/empresa/redes-sociales', permanent: false },
+      { source: '/empresa/redes-sociales/ia-marketing', destination: '/empresa/presencia-digital?tab=redes', permanent: false },
       { source: '/empresa/todos-los-servicios/:id/editar', destination: '/empresa/servicios/editar/:id', permanent: false },
       {
         source: '/fiestas/nueva/centro',
@@ -289,10 +289,10 @@ const nextConfig = {
       { source: '/presupuestos/:id((?!nuevo$|importar$|reporte$)[^/]+)', destination: '/presupuestos/:id/ver', permanent: false },
       { source: '/presupuestos/:id/editar', destination: '/presupuestos/:id/edit', permanent: false },
       { source: '/repaso-diario', destination: '/mi-dia', permanent: false },
-      { source: '/settings/templates/contrato', destination: '/settings/contratos', permanent: false },
+      { source: '/settings/templates/contrato', destination: '/settings?seccion=contratos&sub=contratos', permanent: false },
       { source: '/admin/asistente-ak', destination: '/asistente', permanent: false },
-      { source: '/marketing/checklist', destination: '/marketing', permanent: false },
-      { source: '/marketing/plantillas', destination: '/marketing', permanent: false },
+      { source: '/marketing/checklist', destination: '/empresa/presencia-digital?tab=marketing', permanent: false },
+      { source: '/marketing/plantillas', destination: '/empresa/presencia-digital?tab=marketing', permanent: false },
       { source: '/portal-cliente/:id/decoracion', destination: '/portal?fiestaId=:id', permanent: false },
       // ── Orden 321 Bloque 4: Ajustes unificados en /settings?seccion=...&sub=... ──
       { source: '/settings/company', destination: '/settings?seccion=empresa&sub=company', permanent: false },
