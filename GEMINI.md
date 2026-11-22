@@ -2,25 +2,13 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 21/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 22/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Las órdenes 322 a 330 ya están publicadas** (las fusionó Claude en la 1458). No las rehagas.
-- **AHORA, una sola propuesta con las tres: arrancá de la versión principal recién actualizada**, rama nueva
-  `gemini/ordenes-331-332`.
-  1. **Orden 331 (`docs/ordenes/331-gemini-menos-pantallas-mismo-resultado.md`).** El simulador de siempre
-     (`/simulador-de-presupuesto`) va primero y **queda exactamente como está**; se borra la portada de dos botones. Sofía queda
-     en su página propia (`/simulador-ak`), con un solo enlace chico al pie del simulador y su "Reintentar" si no guarda. El
-     planificador de 28 pantallas a 5 con solapas **sin perder ninguna parte**, y una sola puerta para las estaciones.
-     Redirecciones exactas y sin ablandar pruebas.
-  2. **Orden 332 (`docs/ordenes/332-gemini-la-app-de-play-store-recibe-a-cada-uno-facil.md`).** La app de Play Store recibe a
-     cada uno fácil: el prospecto va directo al simulador sin datos, el invitado entra con su celular (o el código de la fiesta)
-     sin escanear, el equipo con un toque de Google, y "Bajá la app" en la portada, `/entrar` y `/enlaces`. La acción
-     `entrarComoInvitado` toca quién ve qué: la revisa Claude.
-  3. **Orden 333 (`docs/ordenes/333-gemini-auditoria-externa-21-noviembre.md`).** Lo confirmado de la auditoría externa
-     del 21/11, módulo por módulo: plata (reporte de ganancias, fiestas de muestra, recetas, simulador), entrada de
-     invitados y clientes, planificador, estaciones, AK Editor y redes. Lo urgente de permisos ya lo hizo Claude: no lo
-     toques. Plata y permisos los revisa Claude línea por línea.
-  Si una se traba, entregá las otras en la misma propuesta y decí cuál faltó.
+- **AHORA: orden 334 (`docs/ordenes/334-gemini-devolucion-de-la-1462.md`).** Tu entrega 1462 (órdenes 331, 332 y 333) está
+  casi: tipos, Jest y acentos dan bien, pero **25 pruebas de pantallas fallan** después de juntar pantallas en solapas, y
+  fallan igual al repetirlas. Seguí en la **misma rama `gemini/ordenes-331-332`** y la misma propuesta. Claude ya le sumó
+  cuatro arreglos: no los deshagas. Las redirecciones van en un solo salto, cada prueba sigue a su pantalla nueva mirando el
+  mismo resultado, y las de la portada de dos botones pasan a probar el simulador de siempre.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen

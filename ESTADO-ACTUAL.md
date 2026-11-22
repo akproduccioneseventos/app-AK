@@ -1,32 +1,23 @@
-# Estado actual — 21 de noviembre de 2026
+# Estado actual — 22 de noviembre de 2026
 
 ## Publicado
-- **#1458** (21/11): entrega de Gemini de las órdenes 322 a 330 (redes, Wfolio, caras de los invitados, achique de 1443)
-  con la revisión de Claude: pruebas con fecha vencida, botones de la galería a tamaño de dedo, menús/LED/decoración sin
-  texto apretado en tableta. Se cerraron las PR 1443 y 1451 (quedaron adentro de la 1458).
-- En la misma: **órdenes 331 y 332 para Gemini**, y `GEMINI.md` → "TU TRABAJO DE HOY" ya las nombra.
+- Hasta la **#1461** (21/11): órdenes 322 a 330, los arreglos urgentes de las tres auditorías externas (permisos, plata,
+  asistente que leía el presupuesto de otro, tope de IA).
 
-## Esperando a Gemini (una sola propuesta, rama nueva desde la principal)
-- **331:** el simulador de siempre primero e IGUAL que hoy; Sofía aparte en su página, con un enlace chico al pie del
-  simulador y "Reintentar" si no guarda (hoy el prospecto de Sofía se pierde callado), planificador de 28 a 5 pantallas sin perder partes, una puerta
-  para las estaciones.
-- **332:** la app de Play Store: "¿Quién sos?" con prospecto directo al simulador, invitado con su celular o el código corto
-  de la fiesta (sin QR obligatorio), equipo con Google, "Bajá la app" y publicación en redes. iPhone y PC desde la web
-  (el dueño no paga la tienda de Apple).
+## Esperando a Gemini: orden 334, en la misma #1462 (rama `gemini/ordenes-331-332`)
+- La 1462 trae las órdenes 331, 332 y 333. Tipos, Jest, acentos y `ordenes?` dan bien; **25 pruebas de pantallas fallan**
+  (y fallan igual al repetirlas) por juntar pantallas en solapas: redirecciones encadenadas que pierden la solapa, títulos y
+  botones que las pruebas no encuentran, y dos pruebas de la portada de dos botones que ya no existe.
+- Claude ya le sumó a la rama: Centro de control (respondía a cualquier "que"), paquete del AK Editor al día, enlaces del
+  invitado sin pase, y los controles de `YA-RESUELTO.md` apuntando a los paneles nuevos.
+- Revisado a mano y bien: `entrarComoInvitado` (devuelve sólo la credencial del invitado), invitados desde el portal sólo
+  con la sesión de esa fiesta, factura "pagada" con saldo pendiente frenada.
 
-- **333:** lo confirmado de la auditoría externa del 21/11 (unos 60 de 80 avisos). Claude ya arregló lo urgente de
-  permisos y plata (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta).
-
-- **Publicado el 21/11 (#1460):** permisos y plata urgentes de las auditorías externas, y Poner al día con el ajuste anual.
-  En la tanda siguiente (Claude): el asistente ya no lee el presupuesto de otro cliente y el tope de IA es un tope.
-
-## Para Claude, cuando llegue la entrega
-- Revisar línea por línea `entrarComoInvitado` (quién ve qué: devuelve sólo la credencial del invitado, nunca la lista).
-- Copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa, **sin nada corriendo al lado** (la subida con
-  `git push` corre su propio filtro: no subir mientras corre la puerta).
+## Para Claude, cuando Gemini avise
+- Traer la rama a la copia aparte (`git fetch` + `reset --hard`), repetir solas las 25 pruebas de la orden 334 y después la
+  puerta completa, **sin nada corriendo al lado**. Con verde: lista, fusión con `expectedHeadSha`, y "Novedades" en
+  `QUE-HAY-EN-LA-APP.md`.
 
 ## Ojo
-- La puerta falla seguido por carga de la máquina (pruebas distintas cada vez que pasan solas): `npm run otravez` y volver a
-  correr la puerta, que repite sólo lo que falló.
-- No pude confirmar que la app esté en Play Store (desde acá no se llega a la tienda y Google no la muestra todavía). El
-  paquete es `uy.akproducciones.app`.
+- La puerta falla seguido por carga de la máquina: `npm run otravez` antes de creer una falla.
+- Play Store: no se pudo confirmar desde acá (paquete `uy.akproducciones.app`).
