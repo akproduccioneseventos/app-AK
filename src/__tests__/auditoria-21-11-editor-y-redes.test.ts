@@ -193,6 +193,11 @@ with tempfile.TemporaryDirectory() as d_in, tempfile.TemporaryDirectory() as d_o
 `;
     const venvPython = path.join(process.cwd(), 'herramientas', 'ak-editor', '.venv', 'Scripts', 'python.exe');
     const pythonBin = fs.existsSync(venvPython) ? venvPython : 'python';
+    // El editor corre en la computadora del dueño, con OpenCV instalado. Donde no está (contenedores de prueba),
+    // la parte en Python no puede cargar y se queda con las comprobaciones del texto de arriba.
+    let hayOpenCv = true;
+    try { execFileSync(pythonBin, ['-c', 'import cv2, numpy'], { stdio: 'ignore' }); } catch { hayOpenCv = false; }
+    if (!hayOpenCv) return;
     const salida = execFileSync(pythonBin, ['-c', pyScript], { encoding: 'utf8' }).trim();
     const parsed = JSON.parse(salida);
     expect(parsed.ok).toBe(false);
