@@ -191,11 +191,12 @@ function Countdown({
   const muroSocialActivo = accesosVivos ? accesosVivos.muroSocialActivo : Boolean(portalSocialActivo);
   const miMesaActivo = accesosVivos ? accesosVivos.miMesaActivo : true;
   const menuDigitalActivo = accesosVivos ? accesosVivos.menuDigitalActivo : false;
-  const menuDigitalUrl = accesosVivos?.menuDigitalUrl || `/evento/hub/${encodedId}#menu-noche-title`;
+  // Sin los accesos vivos no hay credencial del invitado: el menú y el resumen no se ofrecen (llevarían a "acceso no válido").
+  const menuDigitalUrl = accesosVivos?.menuDigitalUrl || "";
   const albumUrl = galeriaUrl || accesosVivos?.albumUrl || `/evento/album/${encodedId}`;
   const albumActivo = accesosVivos ? accesosVivos.albumActivo : Boolean(galeriaUrl || portalSocialActivo);
-  const recapActivo = accesosVivos ? accesosVivos.recapActivo : true;
-  const recapUrl = accesosVivos?.recapUrl || `/invitacion/${encodedId}/recap`;
+  const recapActivo = accesosVivos ? accesosVivos.recapActivo : false;
+  const recapUrl = accesosVivos?.recapUrl || "";
 
   useEffect(() => {
     if (pasoPorFecha || esHoy) return;

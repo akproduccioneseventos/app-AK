@@ -285,7 +285,8 @@ export function EntrarClient() {
             if (targetUrl) {
               window.location.href = targetUrl;
             } else if (scannedFiestaId) {
-              window.location.href = `/evento/hub/${encodeURIComponent(scannedFiestaId)}`;
+              // Sin credencial el hub no abre: la invitación le deja confirmarse con su nombre.
+              window.location.href = `/invitacion/${encodeURIComponent(scannedFiestaId)}`;
             } else if (texto.startsWith('/')) {
               window.location.href = texto;
             } else {

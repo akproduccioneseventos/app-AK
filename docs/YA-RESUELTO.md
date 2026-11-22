@@ -4,12 +4,15 @@
 
 - El Centro de control contestaba "tenés N presupuestos" a cualquier orden que tuviera "que" ("quiero que hagas
   seguimiento") y llamaba "total del período" a la suma de todos. Ahora sólo responde a una pregunta y dice lo que suma.
+- Tres enlaces llevaban al invitado al hub o al resumen sin su pase ("acceso no válido"): el error del check-in vuelve al
+  hub con su pase, el QR sin pase va a la invitación, y la invitación no ofrece menú ni resumen sin los accesos del invitado.
 - El paquete del AK Editor que se baja había quedado viejo: se volvió a armar. La prueba que corre el editor en Python
   se saltea esa parte donde no está OpenCV (sólo está en la computadora del dueño) y mantiene las comprobaciones del texto.
 
 ```comprobar
 no-usa: f.includes('que') || en src/app/actions/centro-de-control.ts
 prueba: src/__tests__/el-editor-que-se-baja-es-el-de-ahora.test.ts
+usa: withGuestAccess en src/app/evento/actual/checkin/page.tsx
 ```
 
 ## 21/11/2026 - Auditoría externa de seis módulos: lo urgente de permisos y plata (Claude) y el resto a la orden 333
