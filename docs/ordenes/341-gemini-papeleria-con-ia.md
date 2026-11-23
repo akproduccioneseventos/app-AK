@@ -54,6 +54,20 @@ La IA a veces escribe mal. Antes de mostrar la pieza:
 - Pedir al modelo la resolución más alta que acepte y comprobar el tamaño que devolvió; si queda por debajo de lo que
   pide la impresión, avisarlo en la vista previa.
 
+## Bloque 4 — La hoja A4 lista para imprimir, como la arma hoy el dueño
+El dueño mandó cuatro PDF de cómo imprime (23/11/2026). La app arma la hoja sola:
+1. **Carta de tragos y menú:** **dos copias por hoja A4**, una al lado de la otra, cada una con su borde negro fino para
+   cortar. El menú lleva secciones con foto de cada plato: Entradas, Plato principal, Menú niños y adolescentes, Postres y
+   Bebidas (sólo las que la fiesta tiene), el logo de AK y el WhatsApp de Ajustes.
+2. **Números de mesa en carpa:** `src/components/fiestas/panels/numeros-mesa.tsx`. Cada tarjeta se dobla al medio y se
+   lee de los dos lados: la mitad de arriba va **girada 180°** y la de abajo derecha, con "Mesa N", el nombre del
+   agasajado y la fecha (`dd/mm/aa`). Una tarjeta por cada mesa de la fiesta, numeradas solas, **dos por hoja A4**, con
+   borde para cortar. El fondo lo diseña la IA **una sola vez** y se repite en todas las mesas (no una imagen por mesa: se
+   paga cada una); el número, el nombre y la fecha los escribe la app encima, así nunca salen mal.
+3. **No sólo quinces y bodas:** si la fiesta es de empresa (ejemplo del dueño: "Correo Uruguayo, Día del Funcionario
+   Postal"), la temática sale del cliente y del motivo del evento (sus colores, sus símbolos), no de flores y coronas.
+4. El botón "Imprimir" baja **un PDF con todas las hojas** (todas las mesas, las dos copias de cada pieza).
+
 ## Lo que NO hay que hacer
 - No borrar ni cambiar las plantillas de hoy: son el respaldo.
 - No generar solo al abrir la pantalla: sólo cuando alguien toca "Diseñar con IA" (cada imagen se paga).
@@ -77,4 +91,7 @@ usa: papeleriaIA en src/types/fiesta.ts
 usa: papeleriaIA en src/app/evento/fotocabina/[fiestaId]/page.tsx
 prueba: src/__tests__/la-papeleria-con-ia-no-escribe-mal.test.ts
 prueba: src/__tests__/el-marco-con-ia-deja-las-ventanas-transparentes.test.ts
+usa: rotate(180deg) en src/components/fiestas/panels/numeros-mesa.tsx
+usa: Diseñar con IA en src/components/fiestas/panels/numeros-mesa.tsx
+prueba: src/__tests__/la-hoja-a4-de-mesas-sale-completa.test.ts
 ```
