@@ -12,6 +12,7 @@
   (10% del manual) es la promoción del dueño: queda.
 
 ## Para Gemini, en orden
+- **339 primero** (el auditor robot, pedido del dueño: que cada auditoría no traiga una tanda nueva).
 - **336** (`gemini/orden-336`): su auditoría de 99 avisos. **337** (`gemini/orden-337`): la general maestra. **338**
   (`gemini/orden-338`): la funcional.
 

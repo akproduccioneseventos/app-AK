@@ -5,6 +5,9 @@
 **Actualizado el 23/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya publicadas:** 331 a 335 (#1462 y #1464). No las rehagas.
+- **LO MÁS IMPORTANTE: orden 339 (`docs/ordenes/339-gemini-el-auditor-robot.md`).** El auditor robot: reglas que se
+  aplican solas a todas las pantallas con dos fiestas de verdad en el emulador. Si no arrancaste la 336, empezá por la 339;
+  si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
 - **AHORA: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Una sola propuesta, rama nueva
   `gemini/orden-336` desde la principal recién actualizada. Confirmá cada hallazgo abriendo el archivo antes de arreglar;
   seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.

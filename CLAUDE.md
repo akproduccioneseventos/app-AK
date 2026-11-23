@@ -1322,6 +1322,15 @@ marcar una pregunta como no escaneable, intentar la expresión sobre el archivo 
 principal pensando que la había borrado una prueba. La había sacado la orden 311 (datos personales fuera del repositorio); lo
 frenó su prueba en la puerta. **Antes de devolver un archivo de datos, `git log -1 -- <archivo>` en la rama que lo trae.**
 
+### 59. Creer que las preguntas y escaneos cerraban la app, con las pruebas sin ninguna fiesta activa
+
+**Pasó el 23 de noviembre de 2026.** El dueño: *"generaste más preguntas y más escaneo; inventá un mecanismo… cada auditoría
+trae un montón"*. Medido: las pruebas de navegador corren con `AK_USE_LOCAL_JSON_ONLY` y nunca vieron una fiesta activa, y la
+lista de cierre nunca corrió (456 de 456 sin mirar).
+
+**Qué se hace distinto:** el auditor robot (orden 339): reglas generales de comportamiento sobre todas las pantallas, con dos
+fiestas en el emulador. Un hallazgo nuevo del auditor se suma como **regla del robot**, no sólo como pregunta.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
