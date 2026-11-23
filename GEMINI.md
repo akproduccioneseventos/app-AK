@@ -8,6 +8,8 @@
 - **LO MÁS IMPORTANTE: orden 339 (`docs/ordenes/339-gemini-el-auditor-robot.md`).** El auditor robot: reglas que se
   aplican solas a todas las pantallas con dos fiestas de verdad en el emulador. Si no arrancaste la 336, empezá por la 339;
   si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
+- **En la misma propuesta que la 339, al final: orden 340 (`docs/ordenes/340-gemini-alinear-la-ia-de-google.md`).** Una sola
+  lista de modelos con respaldo, Gemini 4 Hydrogen gratis primero, y el texto de la tarea diaria de Jules.
 - **AHORA: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Una sola propuesta, rama nueva
   `gemini/orden-336` desde la principal recién actualizada. Confirmá cada hallazgo abriendo el archivo antes de arreglar;
   seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.

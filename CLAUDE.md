@@ -1561,6 +1561,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Jules y el ecosistema gratis de Google (23 de noviembre de 2026).** Palabras suyas: *"se podría sumar con el límite de
+  15 tareas por día… alinear con la IA de Gemini"*. Jules (plan gratis) toma cada día un rojo del auditor robot y deja una
+  propuesta; **nunca fusiona** y no toca plata, permisos ni textos del cliente. Stitch Loop: lista de espera. Sólo lo gratis
+  (orden 340).
+
 - **WhatsApp de prospectos al CRM y el asistente que contesta (19 de noviembre de 2026).** Palabras suyas: *"todos los mensajes
   deberían llegar al CRM… siempre diferenciando los de anuncios de los personales; los demás no"*. Entran al CRM y los atiende el
   asistente sólo los de **tres puertas**: anuncio, alguien que ya es prospecto (hizo el simulador) y el botón de la web con su marca.
