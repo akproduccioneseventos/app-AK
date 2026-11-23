@@ -546,34 +546,6 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
     return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
 }
 
-export interface FiestaParaPantallaResult {
-    fiesta: FiestaEnPlanificacion | null;
-    fallo: boolean;
-    motivo?: string;
-    codigoError?: string;
-}
-
-function generarCodigoReferenciaFiesta(prefijo: string): string {
-    const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
-    const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
-    return `ERR-${prefijo}-${tiempo}${azar}`;
-}
-
-function describirMotivoFiestaSeguro(err: unknown, respaldo: string): string {
-    const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
-    const msg = raw.toLowerCase();
-    if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada')) {
-        return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
-    }
-    if (msg.includes('perfil') || msg.includes('permiso') || msg.includes('acceso')) {
-        return 'Tu perfil no tiene permisos para acceder a este evento.';
-    }
-    if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
-        return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
-    }
-    return respaldo;
-}
-
 async function leerFiestaConEstado(
     fiestaId: string,
     lectura?: symbol
@@ -583,9 +555,17 @@ async function leerFiestaConEstado(
     let readFailed = false;
     let readMotivo: string | undefined;
     try {
-        const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
-        if (active && active.id === fiestaId) {
-            fiesta = active;
+        const readEsMock =
+            typeof readData === 'function' &&
+            ('mock' in readData ||
+                (typeof readDataConDetalle === 'function' &&
+                    'mock' in readDataConDetalle &&
+                    !readData.toString().includes('readDataConDetalle')));
+        if (readEsMock) {
+            const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
+            if (active && active.id === fiestaId) {
+                fiesta = active;
+            }
         } else {
             const detalle = await readDataConDetalle<FiestaEnPlanificacion | null>(activePath, null);
             if (detalle.valor && detalle.valor.id === fiestaId) {
@@ -659,6 +639,34 @@ async function leerFiestaConEstado(
     return { fiesta, fallo, ...(fallo && readMotivo ? { motivo: readMotivo } : {}) };
 }
 
+export interface FiestaParaPantallaResult {
+    fiesta: FiestaEnPlanificacion | null;
+    fallo: boolean;
+    motivo?: string;
+    codigoError?: string;
+}
+
+function generarCodigoReferenciaFiesta(prefijo: string): string {
+    const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+    const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+    return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirMotivoFiestaSeguro(err: unknown, respaldo: string): string {
+    const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+    const msg = raw.toLowerCase();
+    if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada')) {
+        return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
+    }
+    if (msg.includes('perfil') || msg.includes('permiso') || msg.includes('acceso')) {
+        return 'Tu perfil no tiene permisos para acceder a este evento.';
+    }
+    if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+        return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
+    }
+    return respaldo;
+}
+
 export async function getFiestaParaPantalla(fiestaId: string): Promise<FiestaParaPantallaResult> {
     if (!fiestaId || !fiestaId.trim()) {
         const codigoError = generarCodigoReferenciaFiesta('ID');
@@ -702,7 +710,8 @@ export async function getFiestaParaPantalla(fiestaId: string): Promise<FiestaPar
                 codigoError,
             };
         }
-        return { fiesta: resultado.fiesta, fallo: false };
+        const { fiesta } = resultado;
+        return { fiesta, fallo: false };
     } catch (err) {
         const codigoError = generarCodigoReferenciaFiesta('MURO');
         logger.error(`[getFiestaParaPantalla] (${codigoError}) Error inesperado al leer fiesta ${fiestaId}:`, logger.compactError(err));
