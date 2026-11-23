@@ -187,6 +187,30 @@ function generatePlaylistItemId() {
   return `playlist_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 }
 
+function generarRefMuro(prefijo: string): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 4).toUpperCase();
+  return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirErrorMuroSeguro(err: unknown, respaldo: string): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const msg = raw.toLowerCase();
+  if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada')) {
+    return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
+  }
+  if (msg.includes('perfil') || msg.includes('permiso') || msg.includes('acceso')) {
+    return 'Tu perfil no tiene permisos para ver esta sección.';
+  }
+  if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+    return 'La conexión tardó demasiado en responder. Reintentá en unos segundos.';
+  }
+  if (msg.includes('network') || msg.includes('fetch')) {
+    return 'No se pudo conectar con el servidor. Revisá tu conexión e intentá de nuevo.';
+  }
+  return respaldo;
+}
+
 function MuroSocialContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -230,7 +254,8 @@ function MuroSocialContent() {
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ motivo: string; codigoError?: string } | null>(null);
+  const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLed, setIsSavingLed] = useState(false);
   const [isPlayAction, setIsPlayAction] = useState(false);
@@ -318,21 +343,52 @@ function MuroSocialContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
+      setIsLoading(false);
       router.push('/eventos');
       return;
     }
     setIsLoading(true);
     setError(null);
+    setLoadWarnings([]);
     try {
-      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
-      if (fallo) {
-        setError('No se pudo cargar la fiesta');
+      let fiestaResult: Awaited<ReturnType<typeof getFiestaParaPantalla>>;
+      try {
+        fiestaResult = await getFiestaParaPantalla(fiestaId);
+      } catch (fiestaErr: unknown) {
+        const codigoError = generarRefMuro('MURO');
+        console.error(`[MuroSocial] (${codigoError}) Error invocando getFiestaParaPantalla:`, fiestaErr);
+        const motivo = describirErrorMuroSeguro(
+          fiestaErr,
+          'No se pudo conectar con el servidor para cargar la fiesta.',
+        );
+        setError({ motivo, codigoError });
+        toast({
+          title: 'Error al cargar la fiesta',
+          description: `${motivo} (Ref: ${codigoError})`,
+          variant: 'destructive',
+        });
         return;
       }
+
+      if (fiestaResult.fallo) {
+        const codigoError = fiestaResult.codigoError || generarRefMuro('MURO');
+        const motivo = fiestaResult.motivo || 'No se pudo leer la fiesta desde la base de datos.';
+        console.error(`[MuroSocial] (${codigoError}) Fallo devuelto al cargar fiesta:`, motivo);
+        setError({ motivo, codigoError });
+        toast({
+          title: 'Error al cargar la fiesta',
+          description: `${motivo} (Ref: ${codigoError})`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const fiestaData = fiestaResult.fiesta;
       if (!fiestaData) {
         setFiesta(null);
         return;
       }
+
       setFiesta(fiestaData);
       setSettings(withScreenDefaults({
         enabled: true,
@@ -351,18 +407,33 @@ function MuroSocialContent() {
         setAkBrandSettings(fiestaData.socialGallerySettings.brand);
       }
       setActiveGame(fiestaData.socialGallerySettings?.activeGame ?? null);
-      if (fiestaData.socialGallerySettings?.sorteoCandidatos?.length) {
+      if (Array.isArray(fiestaData.socialGallerySettings?.sorteoCandidatos) && fiestaData.socialGallerySettings.sorteoCandidatos.length > 0) {
         setSorteoParticipants(fiestaData.socialGallerySettings.sorteoCandidatos.join('\n'));
       }
-      const globalAssets = await getGlobalScreenMediaLibrary();
-      setGlobalLibrary(globalAssets);
+
+      const warnings: string[] = [];
+
+      // La biblioteca global recorre otras fiestas: si falla, degradamos sin bloquear este evento.
+      try {
+        const globalAssets = await getGlobalScreenMediaLibrary();
+        setGlobalLibrary(Array.isArray(globalAssets) ? globalAssets : []);
+      } catch (libErr: unknown) {
+        const ref = generarRefMuro('MURO-LIB');
+        console.error(`[MuroSocial] (${ref}) Error al cargar biblioteca global de pantalla:`, libErr);
+        setGlobalLibrary([]);
+        warnings.push(`No se pudo cargar la biblioteca global de medios (Ref: ${ref}). Podés seguir operando con los archivos del evento.`);
+      }
+
       // Load active poll independently to avoid blocking the main data load
       try {
         const pollData = await getActivePoll(fiestaId);
         setActivePoll(pollData);
-      } catch {
+      } catch (pollErr: unknown) {
+        const ref = generarRefMuro('MURO-POLL');
+        console.error(`[MuroSocial] (${ref}) Error al cargar encuesta activa:`, pollErr);
         setActivePoll(null);
       }
+
       // Load photo count and approved photos for admin status and face indexer
       try {
         const posts = await getSocialPosts(fiestaId);
@@ -371,13 +442,27 @@ function MuroSocialContent() {
           .filter((p: any) => p.moderationStatus !== 'hidden' && p.imageUrl && !p.imageUrl.toLowerCase().endsWith('.mp4') && !p.imageUrl.toLowerCase().endsWith('.mov'))
           .map((p: any) => ({ id: p.id, imageUrl: p.imageUrl }));
         setApprovedPosts(approved);
-      } catch {
+      } catch (postsErr: unknown) {
+        const ref = generarRefMuro('MURO-POSTS');
+        console.error(`[MuroSocial] (${ref}) Error al cargar fotos del muro:`, postsErr);
         setPostCount(null);
         setApprovedPosts([]);
+        warnings.push(`No se pudieron cargar las fotos actuales del muro (Ref: ${ref}).`);
       }
-    } catch (e: any) {
-      setError('No se pudo cargar la fiesta');
-      toast({ title: 'Error al cargar', description: 'No se pudo cargar la fiesta', variant: 'destructive' });
+
+      if (warnings.length > 0) {
+        setLoadWarnings(warnings);
+      }
+    } catch (e: unknown) {
+      const codigoError = generarRefMuro('MURO');
+      console.error(`[MuroSocial] (${codigoError}) Error inesperado en loadData:`, e);
+      const motivo = describirErrorMuroSeguro(e, 'Ocurrió un error inesperado al cargar el muro social.');
+      setError({ motivo, codigoError });
+      toast({
+        title: 'Error al cargar',
+        description: `${motivo} (Ref: ${codigoError})`,
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -1141,9 +1226,14 @@ function MuroSocialContent() {
   }
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center">
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center" role="alert">
         <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
-        <p className="text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground max-w-md">{error.motivo}</p>
+        {error.codigoError && (
+          <p className="text-xs font-mono text-muted-foreground">
+            Código de referencia: {error.codigoError}
+          </p>
+        )}
         <Button onClick={() => loadData()} variant="outline">
           <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
         </Button>
@@ -1167,13 +1257,21 @@ function MuroSocialContent() {
           <Camera className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-2xl font-black">Panel de Muro Social & Juegos</h1>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{fiesta.configuracion.nombreEvento}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{fiesta.configuracion?.nombreEvento || 'Evento'}</p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button onClick={saveSettings} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}Guardar</Button>
         </div>
       </div>
+
+      {loadWarnings.length > 0 && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 space-y-1" role="status">
+          {loadWarnings.map((warning, idx) => (
+            <p key={idx}>{warning}</p>
+          ))}
+        </div>
+      )}
 
       <section className="rounded-lg border bg-background p-4 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

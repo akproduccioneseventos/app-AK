@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TimerIcon } from 'lucide-react';
-import { diasHastaEnUruguay } from '@/lib/utils';
+import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experience/event-date';
 
 interface CountdownTimerProps {
   targetDate?: string; // ISO date string
+  horaInicio?: string;
 }
 
 interface TimeLeft {
@@ -18,7 +19,7 @@ interface TimeLeft {
   message?: string;
 }
 
-export function CountdownTimer({ targetDate }: CountdownTimerProps) {
+export function CountdownTimer({ targetDate, horaInicio }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null); // Initialize to null
 
   const calculateTimeLeft = useCallback((): TimeLeft => {
@@ -26,30 +27,28 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
       return { message: 'Fecha del evento no definida.' };
     }
 
-    const match = targetDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    const dateObj = match
-      ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0)
-      : new Date(targetDate);
-    if (isNaN(dateObj.getTime())) {
+    const dateObj =
+      parseEventDateTimeUruguay(targetDate, horaInicio) ??
+      parseEventDate(targetDate, horaInicio);
+    if (!dateObj || isNaN(dateObj.getTime())) {
       return { message: 'Fecha del evento inválida.' };
     }
 
-    const difference = +dateObj - +new Date();
-    const days = diasHastaEnUruguay(targetDate);
+    const difference = dateObj.getTime() - Date.now();
     let newTimeLeft: TimeLeft = {};
 
-    if (difference <= 0 || (Number.isFinite(days) && days < 0)) {
+    if (difference <= 0) {
       newTimeLeft = { ended: true, message: '¡El evento ya ha comenzado o ha pasado!' };
     } else {
       newTimeLeft = {
-        days: Number.isFinite(days) ? Math.max(0, days) : Math.floor(difference / (1000 * 60 * 60 * 24)),
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
     return newTimeLeft;
-  }, [targetDate]);
+  }, [targetDate, horaInicio]);
 
   useEffect(() => {
     // This effect runs only on the client, ensuring `new Date()` matches the user's clock

@@ -1,5 +1,39 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/11/2026 - Orden 335: cada botón llega a la función que anuncia
+
+- **Solapas:** "Imprimir / PDF" en Operación → Itinerario mandaba a Personal porque la solapa de adentro pisaba la de afuera.
+  Ahora cada nivel escribe sólo su propia clave (`tab` o `subtab`) y las direcciones viejas se leen al entrar.
+- **Impresos de mesa:** cartelería, menú de mesa, números de mesa y carta de tragos se habían borrado (commit `54764d6bd`) y las
+  tarjetas decían "Activo". Se recuperaron tal como estaban como solapas de "Comida, barra e impresos"; las direcciones
+  viejas van en un salto.
+- **Rentabilidad:** el ingreso sale del mismo presupuesto que el plan de pagos (con ajuste anual). Sin presupuesto dice
+  "Sin presupuesto vinculado" y no inventa una ganancia negativa. "Sincronizado" sólo si coincide. **Plata: revisar Claude.**
+- **Tareas automáticas:** lo que no tiene conexión va en "No disponible", no en "Al día"; el despertador sin correr y el
+  último intento fallido se ven arriba. **Presencia digital:** sin publicaciones con fecha dice "Sin datos todavía".
+- **Cuenta regresiva:** usa fecha y hora del evento en hora de Uruguay (`America/Montevideo`), no medianoche.
+- **Muro social y carga operativa:** el error dice el motivo y un código para buscarlo; lo secundario (biblioteca, activos,
+  conflictos) avisa sin tumbar toda la solapa. Carga operativa ahora muestra la pantalla de error (antes quedaba vacía).
+- **Por qué así:** lo que se borra o se junta en solapas nunca debe dejar un botón que dice una cosa y abre otra.
+
+```comprobar
+prueba: tests/e2e/las-solapas-llegan-a-su-funcion.spec.ts
+prueba: tests/e2e/los-impresos-de-mesa-se-abren.spec.ts
+no-usa: source: '/fiestas/nueva/carteleria', destination: '/fiestas/nueva', en next.config.js
+no-usa: source: '/fiestas/nueva/menu-mesa', destination: '/fiestas/nueva', en next.config.js
+no-usa: source: '/fiestas/nueva/numeros-mesa', destination: '/fiestas/nueva', en next.config.js
+no-usa: source: '/fiestas/nueva/carta-tragos', destination: '/fiestas/nueva', en next.config.js
+usa: includeAnnualAdjustment en src/components/fiestas/panels/gestion-costos-rentabilidad.tsx
+prueba: src/__tests__/rentabilidad-ingreso-presupuesto.test.ts
+prueba: src/__tests__/al-dia-no-cuenta-lo-no-disponible.test.ts
+prueba: src/__tests__/presencia-no-felicita-sin-datos.test.ts
+prueba: src/__tests__/la-cuenta-regresiva-usa-la-hora.test.ts
+prueba: src/__tests__/muro-y-carga-cargan-fiesta.test.tsx
+usa: America/Montevideo en src/lib/public-experience/event-date.ts
+usa: carteleria en src/app/(app)/fiestas/nueva/page.tsx
+archivo: src/components/fiestas/panels/muro-social.tsx
+```
+
 ## 22/11/2026 - Revisión de la entrega 1462 (órdenes 331 a 333)
 
 - El Centro de control contestaba "tenés N presupuestos" a cualquier orden que tuviera "que" ("quiero que hagas

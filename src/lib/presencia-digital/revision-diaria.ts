@@ -42,31 +42,50 @@ export async function buildDigitalPresenceDailyReview(params: {
   // 2. Calcular días sin publicar por plataforma (solo si hay publicaciones con fecha real)
   const platformsToCheck: PlatformName[] = ['Instagram', 'Facebook', 'TikTok', 'YouTube'];
   const inactivePlatforms: Array<{ platform: PlatformName; daysWithoutPost: number }> = [];
-  const hasAnyDatedPost = publishedPosts.some((p) => Boolean(p.publishDate));
+  const activePlatformsWithRecentPosts: PlatformName[] = [];
+
+  const validDatedPosts = publishedPosts.filter((p) => {
+    if (!p.publishDate) return false;
+    const ms = new Date(p.publishDate).getTime();
+    return Number.isFinite(ms);
+  });
+  const hasAnyDatedPost = validDatedPosts.length > 0;
+
+  // 3. Revisar plataformas desconectadas / conectadas
+  const disconnectedPlatforms: string[] = [];
+  const connectedPlatforms: PlatformName[] = [];
+  for (const platform of platformsToCheck) {
+    const conn = params.connections.find((c) => c.platform === platform);
+    if (!conn || !conn.isConnected) {
+      disconnectedPlatforms.push(platform);
+    } else {
+      connectedPlatforms.push(platform);
+    }
+  }
+  const hasAnyConnection = connectedPlatforms.length > 0;
 
   if (hasAnyDatedPost) {
     for (const platform of platformsToCheck) {
-      const lastPost = publishedPosts
-        .filter((p) => p.platform === platform && p.publishDate)
+      const lastPost = validDatedPosts
+        .filter((p) => p.platform === platform)
         .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())[0];
 
       if (lastPost && lastPost.publishDate) {
         const diffDays = Math.floor((now.getTime() - new Date(lastPost.publishDate).getTime()) / (1000 * 60 * 60 * 24));
         if (diffDays >= 3) {
           inactivePlatforms.push({ platform, daysWithoutPost: diffDays });
+        } else {
+          activePlatformsWithRecentPosts.push(platform);
         }
       }
     }
   }
 
-  // 3. Revisar plataformas desconectadas
-  const disconnectedPlatforms: string[] = [];
-  for (const platform of platformsToCheck) {
-    const conn = params.connections.find((c) => c.platform === platform);
-    if (!conn || !conn.isConnected) {
-      disconnectedPlatforms.push(platform);
-    }
-  }
+  const allConnectedPlatformsActive =
+    hasAnyConnection &&
+    activePlatformsWithRecentPosts.length > 0 &&
+    inactivePlatforms.length === 0 &&
+    connectedPlatforms.every((p) => activePlatformsWithRecentPosts.includes(p));
 
   // 4. Generar sugerencia de posteo pasando por el contador de IA
   let aiUsed = false;
@@ -108,18 +127,26 @@ export async function buildDigitalPresenceDailyReview(params: {
   }
 
   // 5. Armar resumen conciso en lenguaje rioplatense
-  let summaryText = !hasAnyDatedPost
-    ? 'Sin datos todavía — aún no hay publicaciones con fecha registrada.'
-    : 'Todo en orden en las redes principales.';
+  let summaryText = 'Todo en orden en las redes principales.';
   if (hasAnyDatedPost && inactivePlatforms.length > 0) {
     const nombres = inactivePlatforms.map((p) => `${p.platform} (${p.daysWithoutPost} días)`).join(', ');
     summaryText = `Hay redes sin movimiento reciente: ${nombres}. Conviene publicar para mantener el alcance.`;
+  } else if (!hasAnyDatedPost) {
+    summaryText = 'Sin datos todavía — aún no hay publicaciones con fecha registrada.';
+  } else if (!hasAnyConnection) {
+    summaryText = 'Sin datos todavía — conectá tus redes para verificar el ritmo de publicaciones.';
+  } else if (!allConnectedPlatformsActive) {
+    summaryText = 'Sin datos todavía — aún no hay publicaciones fechadas recientes en todas tus redes conectadas.';
   }
 
   return {
     date: today,
     generatedAt: now.toISOString(),
     summary: summaryText,
+    hasAnyDatedPost,
+    activePlatformsWithRecentPosts,
+    hasAnyConnection,
+    allConnectedPlatformsActive,
     topPost,
     inactivePlatforms,
     disconnectedPlatforms,

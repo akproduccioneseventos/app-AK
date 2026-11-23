@@ -3,6 +3,8 @@
 import dynamic from 'next/dynamic';
 import { TabHostShell } from '@/components/ui/tab-host-shell';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { resolverIngresoRentabilidad } from '@/lib/costos/ingreso-rentabilidad';
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -19,7 +21,7 @@ import { syncAllEventCosts } from '@/app/actions/fiesta/costos.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
 import type { Rol } from '@/types/rol';
-import type { PagoCliente } from '@/types/presupuesto';
+import type { PagoCliente, Presupuesto } from '@/types/presupuesto';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -50,12 +52,13 @@ const formatCurrency = (amount: number | undefined) => {
   }).format(amount);
 };
 
-function GestionCostosRentabilidadContent() {
+export function GestionCostosRentabilidadContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   // Cobros al cliente: de acá sale la comisión real de Mercado Pago (28/09/2026).
@@ -88,8 +91,12 @@ function GestionCostosRentabilidadContent() {
       if (fiestaData.presupuestoId) {
         // Si no se puede leer el presupuesto, la ganancia se muestra sin la comisión
         // y la tarjeta avisa que faltan cobros sin comisión informada.
-        const presupuesto = await getPresupuestoById(fiestaData.presupuestoId).catch(() => null);
-        setCobrosCliente(presupuesto?.pagosCliente ?? []);
+        const presupuestoData = await getPresupuestoById(fiestaData.presupuestoId).catch(() => null);
+        setPresupuesto(presupuestoData);
+        setCobrosCliente(presupuestoData?.pagosCliente ?? []);
+      } else {
+        setPresupuesto(null);
+        setCobrosCliente([]);
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -169,6 +176,27 @@ function GestionCostosRentabilidadContent() {
     }
   };
 
+  const ingresoInfo = useMemo(() => {
+    const resumenPresupuesto = presupuesto
+      ? getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true })
+      : null;
+    const fechaFiestaUpdatedAt = (fiesta as (FiestaEnPlanificacion & { updatedAt?: string }) | null)?.updatedAt ?? null;
+    return resolverIngresoRentabilidad({
+      presupuestoId: fiesta?.presupuestoId,
+      presupuesto,
+      ingresosGuardados: gestionCostos.ingresosTotalesEstimados,
+      fechaFiestaUpdatedAt,
+      resumenPresupuesto,
+    });
+  }, [fiesta, presupuesto, gestionCostos.ingresosTotalesEstimados]);
+
+  const fechaSyncTexto = useMemo(() => {
+    if (!ingresoInfo.fechaReferencia) return null;
+    const d = new Date(ingresoInfo.fechaReferencia);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }, [ingresoInfo.fechaReferencia]);
+
   const stats = useMemo(() => {
     // La cuenta vive en `@/lib/costos/ganancia-evento`, un solo lugar para toda la
     // aplicacion. Antes cada pantalla la rehacia y dos mostraban numeros distintos
@@ -178,7 +206,11 @@ function GestionCostosRentabilidadContent() {
     // Ademas ahora la ganancia se muestra contra lo que se gasto DE VERDAD donde
     // hay pagos cargados. Antes se mostraba siempre contra lo estimado: si el
     // evento se iba de gasto, el numero seguia viendose lindo.
-    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores, cobrosCliente, fiesta?.personalAsignado ?? [], rolesPersonal);
+    const gestionParaCalculo =
+      ingresoInfo.hayPresupuesto && ingresoInfo.ingreso !== null
+        ? { ...gestionCostos, ingresosTotalesEstimados: ingresoInfo.ingreso }
+        : gestionCostos;
+    const g = calcularGananciaDeEvento(gestionParaCalculo, pagosProveedores, cobrosCliente, fiesta?.personalAsignado ?? [], rolesPersonal);
     return {
       personalEstimado: g.personalEstimado,
       projectedCost: g.costoReal,
@@ -191,7 +223,7 @@ function GestionCostosRentabilidadContent() {
       recargosCobrados: g.recargosCobrados,
       cobrosSinComisionInformada: g.cobrosSinComisionInformada,
     };
-  }, [gestionCostos, pagosProveedores, cobrosCliente, fiesta, rolesPersonal]);
+  }, [gestionCostos, ingresoInfo, pagosProveedores, cobrosCliente, fiesta, rolesPersonal]);
 
   const costItemsForSelect = useMemo(() => {
       const automatic = [
@@ -226,11 +258,32 @@ function GestionCostosRentabilidadContent() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-slate-900 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
+          <Card className="bg-slate-900 text-white border-none shadow-xl rounded-[2rem] overflow-hidden" data-testid="card-ingreso-pactado">
               <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ingreso Pactado</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-4xl font-black">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p>
-                  <p className="text-[9px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">Sincronizado con Presupuesto</p>
+                  {ingresoInfo.estado === 'sin_presupuesto' ? (
+                    <>
+                      <p className="text-4xl font-black">—</p>
+                      <p className="text-[11px] font-bold text-amber-300 mt-2 uppercase tracking-tighter">
+                        Sin presupuesto vinculado
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-4xl font-black">{formatCurrency(ingresoInfo.ingreso ?? 0)}</p>
+                      {ingresoInfo.estado === 'sincronizado' ? (
+                        <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">
+                          {fechaSyncTexto
+                            ? `Sincronizado con presupuesto (${fechaSyncTexto})`
+                            : 'Sincronizado con presupuesto'}
+                        </p>
+                      ) : (
+                        <p className="text-[10px] font-bold text-amber-300 mt-2 uppercase tracking-tighter">
+                          Desactualizado — tocá Sincronizar todo
+                        </p>
+                      )}
+                    </>
+                  )}
               </CardContent>
           </Card>
           <Card className="bg-primary text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
@@ -242,33 +295,47 @@ function GestionCostosRentabilidadContent() {
                   </p>
               </CardContent>
           </Card>
-          <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
+          <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden" data-testid="card-ganancia-evento">
               <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">{stats.hayGastoCargado ? 'Ganancia con lo pagado' : 'Ganancia estimada'}</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-4xl font-black">{formatCurrency(stats.projectedProfit)}</p>
-                  <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
-                      {stats.projectedMargin.toFixed(1)}% MARGEN
-                  </Badge>
-                  {/* Que el numero diga contra que se compara. Antes decia siempre
-                      "estimada" y usaba el costo estimado, asi que un evento que se
-                      iba de gasto seguia viendose bien. */}
-                  <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
-                    {stats.hayGastoCargado
-                      ? 'Calculada con los pagos que ya cargaste. Lo que todavía no tiene pago va por lo estimado.'
-                      : 'Todavía no cargaste ningun pago: este número usa lo que se estima gastar.'}
-                  </p>
-                  {(stats.comisionesMercadoPago > 0 || stats.recargosCobrados > 0) && (
-                    <p className="mt-2 text-[11px] font-medium leading-snug text-white/80" data-testid="ganancia-mercado-pago">
-                      Mercado Pago: se descontaron {formatCurrency(stats.comisionesMercadoPago)} de comisión y se sumaron{' '}
-                      {formatCurrency(stats.recargosCobrados)} de recargo por cuotas que pagó el cliente.
-                    </p>
-                  )}
-                  {stats.cobrosSinComisionInformada > 0 && (
-                    <p className="mt-1 text-[11px] font-bold leading-snug text-amber-100">
-                      {stats.cobrosSinComisionInformada === 1
-                        ? 'Hay 1 cobro de Mercado Pago sin la comisión informada: no está descontada.'
-                        : `Hay ${stats.cobrosSinComisionInformada} cobros de Mercado Pago sin la comisión informada: no están descontadas.`}
-                    </p>
+                  {ingresoInfo.estado === 'sin_presupuesto' ? (
+                    <>
+                      <p className="text-4xl font-black">—</p>
+                      <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
+                        Sin presupuesto vinculado
+                      </Badge>
+                      <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
+                        Vinculá un presupuesto para calcular la ganancia sobre el ingreso pactado.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-4xl font-black">{formatCurrency(stats.projectedProfit)}</p>
+                      <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
+                          {stats.projectedMargin.toFixed(1)}% MARGEN
+                      </Badge>
+                      {/* Que el numero diga contra que se compara. Antes decia siempre
+                          "estimada" y usaba el costo estimado, asi que un evento que se
+                          iba de gasto seguia viendose bien. */}
+                      <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
+                        {stats.hayGastoCargado
+                          ? 'Calculada con los pagos que ya cargaste. Lo que todavía no tiene pago va por lo estimado.'
+                          : 'Todavía no cargaste ningun pago: este número usa lo que se estima gastar.'}
+                      </p>
+                      {(stats.comisionesMercadoPago > 0 || stats.recargosCobrados > 0) && (
+                        <p className="mt-2 text-[11px] font-medium leading-snug text-white/80" data-testid="ganancia-mercado-pago">
+                          Mercado Pago: se descontaron {formatCurrency(stats.comisionesMercadoPago)} de comisión y se sumaron{' '}
+                          {formatCurrency(stats.recargosCobrados)} de recargo por cuotas que pagó el cliente.
+                        </p>
+                      )}
+                      {stats.cobrosSinComisionInformada > 0 && (
+                        <p className="mt-1 text-[11px] font-bold leading-snug text-amber-100">
+                          {stats.cobrosSinComisionInformada === 1
+                            ? 'Hay 1 cobro de Mercado Pago sin la comisión informada: no está descontada.'
+                            : `Hay ${stats.cobrosSinComisionInformada} cobros de Mercado Pago sin la comisión informada: no están descontadas.`}
+                        </p>
+                      )}
+                    </>
                   )}
               </CardContent>
           </Card>

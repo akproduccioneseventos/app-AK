@@ -76,7 +76,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
     // 3. Obtener o generar la revisión diaria (Bloque 4)
     const todayStr = hoyEnUruguay();
     let review = storedReview;
-    if (!review || review.date !== todayStr) {
+    if (!review || review.date !== todayStr || typeof review.hasAnyDatedPost !== 'boolean') {
       review = await buildDigitalPresenceDailyReview({ posts, connections });
       await writeData(REVIEW_FILE, review);
     }
@@ -490,10 +490,10 @@ export async function guardarCompetenciaCuentasAction(cuentasInput: CompetenciaC
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
-    
+
     let cuentasAguardar: CompetenciaCuenta[] = [];
     const estadoActual = await getCompetenciaEstado();
-    
+
     if (Array.isArray(cuentasInput)) {
       cuentasAguardar = cuentasInput.map((item) => {
         if (typeof item === 'string') {

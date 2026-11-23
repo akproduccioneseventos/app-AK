@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { cn, hoyEnUruguay } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
-import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
+import { formatEventDate, parseEventDate, parseEventDateTimeUruguay, parseEventHourParts } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { EventParticles } from '@/components/invitacion/EventParticles';
 import { getFondoInvitacionById, getFuenteInvitacionById, type InvitacionConfigConEstilo } from '@/lib/invitacion/fondos-invitacion';
@@ -26,6 +26,7 @@ import { toWhatsAppDigits } from '@/lib/commercial/contact';
 interface Props {
   config: InvitacionDigitalConfig;
   fiestaId: string;
+  horaEvento?: string;
   codigoFiesta?: string;
   socialConnections?: SocialConnection[];
   galeriaUrl?: string;
@@ -166,6 +167,7 @@ function AccesosEnVivoHoy({
 // ---------- COUNTDOWN ----------
 function Countdown({
   fechaEvento,
+  horaEvento,
   galeriaUrl,
   headingClassName,
   fiestaId,
@@ -173,6 +175,7 @@ function Countdown({
   accesosVivos,
 }: {
   fechaEvento: string;
+  horaEvento?: string;
   galeriaUrl?: string;
   headingClassName?: string;
   fiestaId: string;
@@ -186,6 +189,7 @@ function Countdown({
   const fechaStr = (fechaEvento || '').slice(0, 10);
   const pasoPorFecha = Boolean(fechaStr && fechaStr < hoy);
   const esHoy = Boolean(fechaStr && fechaStr === hoy);
+  const hasValidHour = Boolean(parseEventHourParts(horaEvento));
   const encodedId = encodeURIComponent(fiestaId);
 
   const muroSocialActivo = accesosVivos ? accesosVivos.muroSocialActivo : Boolean(portalSocialActivo);
@@ -199,8 +203,16 @@ function Countdown({
   const recapUrl = accesosVivos?.recapUrl || "";
 
   useEffect(() => {
-    if (pasoPorFecha || esHoy) return;
-    const target = parseEventDate(fechaEvento)?.getTime() ?? new Date(fechaEvento).getTime();
+    if (pasoPorFecha) return;
+    if (esHoy && !hasValidHour) {
+      setTermino(true);
+      setTimeLeft({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+      return;
+    }
+    const targetDate =
+      parseEventDateTimeUruguay(fechaEvento, horaEvento) ??
+      parseEventDate(fechaEvento, horaEvento);
+    const target = targetDate?.getTime() ?? new Date(fechaEvento).getTime();
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const update = () => {
@@ -226,9 +238,9 @@ function Countdown({
 
     update();
     return () => clearTimeout(timeoutId);
-  }, [fechaEvento, pasoPorFecha, esHoy]);
+  }, [fechaEvento, horaEvento, pasoPorFecha, esHoy, hasValidHour]);
 
-  if (pasoPorFecha || termino) {
+  if (pasoPorFecha || (termino && !esHoy)) {
     return (
       <div className="space-y-4" data-testid="invitacion-post-evento">
         <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
@@ -263,7 +275,7 @@ function Countdown({
     );
   }
 
-  if (esHoy) {
+  if (esHoy && (termino || !hasValidHour)) {
     return (
       <div className="space-y-4">
         <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
@@ -283,7 +295,7 @@ function Countdown({
   return (
     <>
       <h2 className={headingClassName} style={{ color: 'var(--inv-primary)' }}>
-        Faltan...
+        {esHoy ? '¡Es hoy! Faltan...' : 'Faltan...'}
       </h2>
       <div className="flex justify-center gap-3 sm:gap-6">
       {Object.entries(timeLeft).map(([label, value]) => (
@@ -295,6 +307,15 @@ function Countdown({
         </div>
       ))}
       </div>
+      {esHoy && (
+        <AccesosEnVivoHoy
+          fiestaId={fiestaId}
+          muroSocialActivo={muroSocialActivo}
+          miMesaActivo={miMesaActivo}
+          menuDigitalActivo={menuDigitalActivo}
+          menuDigitalUrl={menuDigitalUrl}
+        />
+      )}
     </>
   );
 }
@@ -1228,7 +1249,8 @@ function EditableText({
 }
 
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId, codigoFiesta, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange, accesosVivos }: Props) {
+export function InvitacionPublicaClient({ config, fiestaId, horaEvento, codigoFiesta, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange, accesosVivos }: Props) {
+  const effectiveHoraEvento = horaEvento?.trim() || config.horaEvento?.trim() || '';
   const baseStyles = getTemplateStyles(config.plantillaId);
   const configConEstilo = config as InvitacionConfigConEstilo;
   const fondoActivo = getFondoInvitacionById(configConEstilo.fondoId);
@@ -1288,7 +1310,7 @@ export function InvitacionPublicaClient({ config, fiestaId, codigoFiesta, social
   const calendarUrl = buildGoogleCalendarUrl({
     title: `${config.nombreHomenajeada || 'Fiesta'}${secondName ? ` & ${secondName}` : ''}`,
     startDate: config.fechaEvento,
-    startTime: config.horaEvento,
+    startTime: effectiveHoraEvento,
     endTime: (config as any).horaFin || '05:00',
     location: [config.nombreSalon, config.direccionSalon].filter(Boolean).join(' - '),
     details: `Invitacion digital de ${config.nombreHomenajeada || 'la fiesta'}.`,
@@ -1346,6 +1368,7 @@ export function InvitacionPublicaClient({ config, fiestaId, codigoFiesta, social
     <Section key="contador" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
       <Countdown
         fechaEvento={config.fechaEvento}
+        horaEvento={effectiveHoraEvento}
         galeriaUrl={galeriaUrl}
         headingClassName={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)}
         fiestaId={fiestaId}
@@ -1777,6 +1800,7 @@ export function InvitacionPublicaClient({ config, fiestaId, codigoFiesta, social
         <Section key="accesos-en-vivo" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
           <Countdown
             fechaEvento={config.fechaEvento}
+            horaEvento={effectiveHoraEvento}
             galeriaUrl={galeriaUrl}
             headingClassName={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)}
             fiestaId={fiestaId}

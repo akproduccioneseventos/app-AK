@@ -44,7 +44,7 @@ import {
 import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
 import { isValidWfolioUrl, buildWfolioDelivery, type WfolioAlbumDelivery } from '@/lib/social-fiesta/wfolio-album-delivery';
 import { leerFiestasCrudas, leerHistorialCrudo } from '@/lib/fiesta/leer-fiestas';
-import { readData, writeData, updateDataPartial } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getPresupuestoById, getPresupuestos } from '../presupuestos';
@@ -573,18 +573,58 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
     return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
 }
 
+export interface FiestaParaPantallaResult {
+    fiesta: FiestaEnPlanificacion | null;
+    fallo: boolean;
+    motivo?: string;
+    codigoError?: string;
+}
+
+function generarCodigoReferenciaFiesta(prefijo: string): string {
+    const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+    const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+    return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirMotivoFiestaSeguro(err: unknown, respaldo: string): string {
+    const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+    const msg = raw.toLowerCase();
+    if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada')) {
+        return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
+    }
+    if (msg.includes('perfil') || msg.includes('permiso') || msg.includes('acceso')) {
+        return 'Tu perfil no tiene permisos para acceder a este evento.';
+    }
+    if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+        return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
+    }
+    return respaldo;
+}
+
 async function leerFiestaConEstado(
     fiestaId: string,
     lectura?: symbol
-): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
+): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean; motivo?: string }> {
     const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     let fiesta: FiestaEnPlanificacion | null = null;
     let readFailed = false;
+    let readMotivo: string | undefined;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
-        if (active && active.id === fiestaId) fiesta = active;
+        if (active && active.id === fiestaId) {
+            fiesta = active;
+        } else {
+            const detalle = await readDataConDetalle<FiestaEnPlanificacion | null>(activePath, null);
+            if (detalle.valor && detalle.valor.id === fiestaId) {
+                fiesta = detalle.valor;
+            } else if (detalle.huboFalla) {
+                readFailed = true;
+                readMotivo = detalle.motivo;
+            }
+        }
     } catch (e) {
         readFailed = true;
+        readMotivo = e instanceof Error ? e.message : String(e);
     }
     if (!fiesta) {
         try {
@@ -608,7 +648,9 @@ async function leerFiestaConEstado(
         try {
             const archivadas = await getHistorialFiestas();
             fiesta = archivadas.find(f => f.id === fiestaId) || null;
-        } catch {}
+        } catch (err) {
+            logger.warn(`[fiesta.actions] No se pudo consultar historial al buscar ${fiestaId}:`, logger.compactError(err));
+        }
     }
 
     const fallo = !fiesta && readFailed;
@@ -649,12 +691,66 @@ async function leerFiestaConEstado(
         }
         fiesta = marcarItemLectura(fiesta as unknown as Record<string, unknown>, (fiesta as any)._syncedAt, CAMPOS_DE_PLATA_Y_CONTRATO) as unknown as FiestaEnPlanificacion;
     }
-    return { fiesta, fallo };
+    return { fiesta, fallo, ...(fallo && readMotivo ? { motivo: readMotivo } : {}) };
 }
 
-export async function getFiestaParaPantalla(fiestaId: string): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
-    await requireAppSession();
-    return await leerFiestaConEstado(fiestaId);
+export async function getFiestaParaPantalla(fiestaId: string): Promise<FiestaParaPantallaResult> {
+    if (!fiestaId || !fiestaId.trim()) {
+        const codigoError = generarCodigoReferenciaFiesta('ID');
+        logger.error(`[getFiestaParaPantalla] (${codigoError}) Se solicitó la pantalla sin identificador de fiesta.`);
+        return {
+            fiesta: null,
+            fallo: true,
+            motivo: 'Falta el identificador del evento para cargar esta pantalla.',
+            codigoError,
+        };
+    }
+
+    try {
+        await requireAppSession();
+    } catch (err) {
+        const codigoError = generarCodigoReferenciaFiesta('SES');
+        logger.error(`[getFiestaParaPantalla] (${codigoError}) Error de sesión al cargar fiesta ${fiestaId}:`, logger.compactError(err));
+        return {
+            fiesta: null,
+            fallo: true,
+            motivo: describirMotivoFiestaSeguro(err, 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.'),
+            codigoError,
+        };
+    }
+
+    try {
+        const resultado = await leerFiestaConEstado(fiestaId);
+        if (resultado.fallo) {
+            const codigoError = generarCodigoReferenciaFiesta('READ');
+            logger.error(
+                `[getFiestaParaPantalla] (${codigoError}) Fallo al leer la fiesta ${fiestaId}:`,
+                resultado.motivo || 'Error de lectura desconocido',
+            );
+            return {
+                fiesta: null,
+                fallo: true,
+                motivo: describirMotivoFiestaSeguro(
+                    resultado.motivo,
+                    'No se pudo leer el evento desde la base de datos. Reintentá en unos segundos.',
+                ),
+                codigoError,
+            };
+        }
+        return { fiesta: resultado.fiesta, fallo: false };
+    } catch (err) {
+        const codigoError = generarCodigoReferenciaFiesta('MURO');
+        logger.error(`[getFiestaParaPantalla] (${codigoError}) Error inesperado al leer fiesta ${fiestaId}:`, logger.compactError(err));
+        return {
+            fiesta: null,
+            fallo: true,
+            motivo: describirMotivoFiestaSeguro(
+                err,
+                'Ocurrió un problema en el servidor al cargar la fiesta. Reintentá en unos segundos.',
+            ),
+            codigoError,
+        };
+    }
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {

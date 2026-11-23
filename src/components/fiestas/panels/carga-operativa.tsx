@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
@@ -152,6 +153,30 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
 
 
 
+function generarRefCarga(prefijo: string): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 4).toUpperCase();
+  return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirErrorCargaSeguro(err: unknown, respaldo: string): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const msg = raw.toLowerCase();
+  if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada')) {
+    return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
+  }
+  if (msg.includes('perfil') || msg.includes('permiso') || msg.includes('acceso')) {
+    return 'Tu perfil no tiene permisos para consultar esa información.';
+  }
+  if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+    return 'La conexión tardó demasiado en responder. Reintentá en unos segundos.';
+  }
+  if (msg.includes('network') || msg.includes('fetch')) {
+    return 'No se pudo conectar con el servidor. Revisá tu conexión e intentá de nuevo.';
+  }
+  return respaldo;
+}
+
 function ListaDeCargaOperativaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -163,7 +188,8 @@ function ListaDeCargaOperativaContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ motivo: string; codigoError?: string } | null>(null);
+  const [loadWarnings, setLoadWarnings] = useState<string[]>([]);
   const [operatorName, setOperatorName] = useState('');
   const [pendingItemUpdates, setPendingItemUpdates] = useState(0);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -192,34 +218,99 @@ function ListaDeCargaOperativaContent() {
     }
     if (showLoading) setIsLoading(true);
     setError(null);
+    setLoadWarnings([]);
     try {
-      const [fiestaData, catalogoData, masterTemplate] = await Promise.all([
-        getFiestaById(fiestaId),
-        getActivosFijos(),
-        getCargaOperativaMasterTemplate()
-      ]);
+      let fiestaResult: Awaited<ReturnType<typeof getFiestaParaPantalla>>;
+      try {
+        fiestaResult = await getFiestaParaPantalla(fiestaId);
+      } catch (fiestaErr: unknown) {
+        const codigoError = generarRefCarga('CARGA');
+        console.error(`[CargaOperativa] (${codigoError}) Error invocando getFiestaParaPantalla:`, fiestaErr);
+        const motivo = describirErrorCargaSeguro(
+          fiestaErr,
+          'No se pudo conectar con el servidor para cargar la fiesta.',
+        );
+        setError({ motivo, codigoError });
+        toast({
+          title: 'Error al cargar',
+          description: `${motivo} (Ref: ${codigoError})`,
+          variant: 'destructive',
+        });
+        return;
+      }
 
-      if (!fiestaData) throw new Error("Fiesta no encontrada.");
+      if (fiestaResult.fallo) {
+        const codigoError = fiestaResult.codigoError || generarRefCarga('CARGA');
+        const motivo = fiestaResult.motivo || 'No se pudo leer la fiesta desde la base de datos.';
+        console.error(`[CargaOperativa] (${codigoError}) Fallo devuelto al cargar fiesta:`, motivo);
+        setError({ motivo, codigoError });
+        toast({
+          title: 'Error al cargar',
+          description: `${motivo} (Ref: ${codigoError})`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const fiestaData = fiestaResult.fiesta;
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
+
+      const warnings: string[] = [];
+
+      // El catálogo de activos pide INSUMOS/ORGANIZACION; si falla o el perfil no lo ve, no bloqueamos la carga del evento.
+      let catalogoData: ServicioEmpresa[] = [];
+      try {
+        catalogoData = await getActivosFijos();
+      } catch (activosErr: unknown) {
+        const ref = generarRefCarga('CARGA-ACT');
+        console.error(`[CargaOperativa] (${ref}) Error al cargar activos fijos:`, activosErr);
+        warnings.push(
+          `No se pudo cargar el catálogo de activos (Ref: ${ref}): ${describirErrorCargaSeguro(activosErr, 'error de lectura')}. Podés seguir usando la lista del evento.`,
+        );
+      }
 
       let loadedLista = fiestaData.listaDeCargaOperativa;
-
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
 
       if (hasNoData) {
+        try {
+          const masterTemplate = await getCargaOperativaMasterTemplate();
           loadedLista = { ...masterTemplate };
+        } catch (tplErr: unknown) {
+          const ref = generarRefCarga('CARGA-TPL');
+          console.error(`[CargaOperativa] (${ref}) Error al cargar plantilla maestra:`, tplErr);
+          loadedLista = { categorias: [], notasGenerales: '' };
+          warnings.push(
+            `No se pudo cargar la plantilla maestra de carga (Ref: ${ref}): ${describirErrorCargaSeguro(tplErr, 'error de lectura')}.`,
+          );
+        }
       }
 
-      // Módulo 1: Procesar conflictos al cargar
-      if (fiestaData.configuracion.fechaEvento && loadedLista?.categorias) {
-          const allItems = loadedLista.categorias.flatMap(cat => cat.items || []);
-          if (allItems.length > 0) {
-              const checkedItems = await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento!, allItems);
-              const checkedMap = new Map(checkedItems.map(item => [item.id, item]));
-              loadedLista.categorias = loadedLista.categorias.map(cat => ({
-                  ...cat,
-                  items: (cat.items || []).map(item => checkedMap.get(item.id) || item)
-              }));
+      // Módulo 1: Procesar conflictos al cargar sin bloquear la solapa si falla el cruce entre eventos
+      if (fiestaData.configuracion?.fechaEvento && loadedLista?.categorias) {
+        const allItems = loadedLista.categorias.flatMap(cat => cat.items || []);
+        if (allItems.length > 0) {
+          try {
+            const checkedItems = await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento, allItems);
+            const checkedMap = new Map(checkedItems.map(item => [item.id, item]));
+            loadedLista = {
+              ...loadedLista,
+              categorias: loadedLista.categorias.map(cat => ({
+                ...cat,
+                items: (cat.items || []).map(item => checkedMap.get(item.id) || item),
+              })),
+            };
+          } catch (conflictErr: unknown) {
+            const ref = generarRefCarga('CARGA-CONF');
+            console.error(`[CargaOperativa] (${ref}) Error verificando conflictos de stock:`, conflictErr);
+            warnings.push(
+              `No se pudo verificar disponibilidad de stock entre eventos (Ref: ${ref}). La lista de carga sigue disponible.`,
+            );
           }
+        }
       }
 
       const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
@@ -230,11 +321,23 @@ function ListaDeCargaOperativaContent() {
       lastAppliedUpdatedAtRef.current = loadedLista?.updatedAt || null;
       setHasPendingStructure(false);
       setFiesta(fiestaData);
-      setActivosCatalogo(catalogoData);
-
-    } catch (err: any) {
-      setError("No se pudo cargar la lista de carga operativa.");
-      toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
+      setActivosCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
+      if (warnings.length > 0) {
+        setLoadWarnings(warnings);
+      }
+    } catch (err: unknown) {
+      const codigoError = generarRefCarga('CARGA');
+      console.error(`[CargaOperativa] (${codigoError}) Error inesperado en loadData:`, err);
+      const motivo = describirErrorCargaSeguro(
+        err,
+        'Ocurrió un error inesperado al cargar la lista de carga operativa.',
+      );
+      setError({ motivo, codigoError });
+      toast({
+        title: 'Error al Cargar',
+        description: `${motivo} (Ref: ${codigoError})`,
+        variant: 'destructive',
+      });
     } finally {
       if (showLoading) setIsLoading(false);
     }
@@ -806,8 +909,52 @@ function ListaDeCargaOperativaContent() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center max-w-lg mx-auto" role="alert">
+        <AlertTriangle className="w-10 h-10 text-destructive" />
+        <h2 className="text-xl font-bold">No se pudo cargar la lista de carga operativa</h2>
+        <p className="text-muted-foreground">{error.motivo}</p>
+        {error.codigoError && (
+          <p className="text-xs font-mono text-muted-foreground">
+            Código de referencia: {error.codigoError}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2 justify-center">
+          <Button onClick={() => loadData()} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+          </Button>
+          <Button asChild variant="ghost">
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>Volver al Planificador</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!fiesta) {
+    return (
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
+  }
+
   return (
     <div data-testid="carga-operativa-page" className="max-w-4xl mx-auto space-y-8 pb-20">
+      {loadWarnings.length > 0 && (
+        <Alert className="border-amber-200 bg-amber-50 text-amber-900 rounded-2xl" role="status">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="font-bold text-sm">Carga parcial con avisos</AlertTitle>
+          <AlertDescription className="text-xs space-y-1">
+            {loadWarnings.map((warning, idx) => (
+              <p key={idx}>{warning}</p>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg rounded-3xl border-none"><DialogHeader><DialogTitle className="font-headline text-2xl">Catálogo de Activos</DialogTitle><DialogDescription>Añadiendo a: <span className="font-bold text-primary">{categoryForCatalogSelect?.nombre}</span></DialogDescription></DialogHeader><div className="py-2 space-y-4"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><Input type="text" placeholder="Buscar por nombre o categoría..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-slate-50 border-none shadow-inner"/></div><ScrollArea className="h-[350px] border-none pr-4">{isLoading ? <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div> : filteredCatalogItems.length > 0 ? (<div className="space-y-2">{filteredCatalogItems.map(item => (<Button key={item.id} type="button" variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-bold text-slate-800">{item.nombre}</p><p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{item.categoria} • Stock: {item.cantidadDisponible || 0}</p></div></Button>))}</div>) : (<div className="p-12 text-center space-y-3 text-slate-400"><PackageSearch className="w-12 h-12 mx-auto opacity-20"/><p className="text-sm font-medium">No se encontraron activos.</p></div>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline" className="rounded-xl h-12 w-full sm:w-auto">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

@@ -129,14 +129,14 @@ const modules: ModuleDefinition[] = [
   { id: 'catering', pestana: obtenerPestanaDeModulo('catering'), title: "Gastronomía / Catering", href: "/fiestas/nueva/catering", icon: UtensilsCrossed, description: "Cálculo de menú, insumos y porciones.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
   { id: 'listaCompras', pestana: obtenerPestanaDeModulo('listaCompras'), title: "Lista de Compras", href: "/fiestas/nueva/catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
   { id: 'alergias', pestana: obtenerPestanaDeModulo('alergias'), title: "Gestión Alimentaria", href: "/fiestas/nueva/alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
-  { id: 'cartaTragos', pestana: obtenerPestanaDeModulo('cartaTragos'), title: "Carta de Tragos", href: "/fiestas/nueva/carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
+  { id: 'cartaTragos', pestana: obtenerPestanaDeModulo('cartaTragos'), title: "Carta de Tragos", href: "/fiestas/nueva/comida?tab=carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
   { id: 'plannerCostoFiesta', pestana: obtenerPestanaDeModulo('plannerCostoFiesta'), title: "Planificador Gastronómico", href: "/fiestas/nueva/planner-costo-fiesta", icon: Calculator, description: "Gastos por categoría y armado de mesas.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
   { id: 'barraTecnologica', pestana: obtenerPestanaDeModulo('barraTecnologica'), title: "Barra Tecnológica", href: "/fiestas/nueva/barra-tecnologica", icon: Wine, description: "Pantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-700", badge: 'Invitado' },
 
   // 9. CARTELERÍA Y MATERIAL IMPRESO
-  { id: 'carteleria', pestana: obtenerPestanaDeModulo('carteleria'), title: "Cartelería de Mesas", href: "/fiestas/nueva/carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
-  { id: 'menuMesa', pestana: obtenerPestanaDeModulo('menuMesa'), title: "Menú de Mesa", href: "/fiestas/nueva/menu-mesa", icon: BookOpen, description: "Menú impreso para cada mesa.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
-  { id: 'numerosMesa', pestana: obtenerPestanaDeModulo('numerosMesa'), title: "Números de Mesa", href: "/fiestas/nueva/numeros-mesa", icon: Hash, description: "Impresión de señalética y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
+  { id: 'carteleria', pestana: obtenerPestanaDeModulo('carteleria'), title: "Cartelería de Mesas", href: "/fiestas/nueva/comida?tab=carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
+  { id: 'menuMesa', pestana: obtenerPestanaDeModulo('menuMesa'), title: "Menú de Mesa", href: "/fiestas/nueva/comida?tab=menu-mesa", icon: BookOpen, description: "Menú impreso para cada mesa.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
+  { id: 'numerosMesa', pestana: obtenerPestanaDeModulo('numerosMesa'), title: "Números de Mesa", href: "/fiestas/nueva/comida?tab=numeros-mesa", icon: Hash, description: "Impresión de señalética y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-slate-100 text-slate-600", badge: 'Impresión' },
 
   // 10. EVENTO EN VIVO / CENTRO DE OPERACIONES
   { id: 'feedback', pestana: obtenerPestanaDeModulo('feedback'), title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento y NPS.", category: 'EVENTO EN VIVO / CENTRO DE OPERACIONES', color: "bg-yellow-100 text-yellow-600", badge: 'Interno' },
@@ -1016,12 +1016,16 @@ function PlannerDashboardContent() {
 
             const renderCard = (module: typeof modules[0]) => {
               const active = isModuleActive(module.id);
-              const moduleHref =
+              const baseHref =
                 module.id === 'centroFiesta'
                   ? `/fiestas/${fiesta.id}/centro`
                   : module.href.startsWith('/')
-                  ? `${module.href}?fiestaId=${fiesta.id}`
-                  : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+                  ? module.href
+                  : `/fiestas/nueva/${module.href}`;
+              const moduleHref =
+                module.id === 'centroFiesta'
+                  ? baseHref
+                  : `${baseHref}${baseHref.includes('?') ? '&' : '?'}fiestaId=${fiesta.id}`;
               const modProgress = getModuleProgress(module.id, fiesta);
               return (
                 <div key={module.id}>

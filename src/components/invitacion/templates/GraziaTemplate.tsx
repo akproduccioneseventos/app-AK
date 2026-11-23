@@ -439,7 +439,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white text-center">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="space-y-8 md:space-y-12">
                 <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.5em] text-primary/60" style={{ color: `${primaryColor}99` }}>La espera termina en</span>
-                <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+                <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} horaInicio={fiesta.configuracion.horaInicio} />
             </motion.div>
           </SectionWrapper>
         );

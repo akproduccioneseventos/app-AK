@@ -38,16 +38,25 @@ const CRON_ID_A_NOMBRE_ENTRAR: Record<string, string> = {
   'asistente-proactivo': 'asistente_proactivo',
 };
 
-export interface TareaAutomatica {
-  /** El nombre de la carpeta en `src/app/api/cron/`. */
-  id: string;
-  /** Como se llama para el dueno, sin jerga. */
-  nombre: string;
-  /** Que deja de pasar si no corre. En criollo, y concreto. */
-  siNoCorre: string;
-  /** Cada cuantas horas deberia correr. Sirve para saber si esta atrasada. */
-  cadaHoras: number;
-}
+import {
+  resumirTareasAutomaticas,
+  tieneFalloPosteriorAlExito,
+  type EstadoDeTarea,
+  type EstadoDespertador,
+  type EstadoTarea,
+  type ResumenTareasAutomaticas,
+  type TareaAutomatica,
+} from '@/lib/automatico/resumen-tareas';
+
+export {
+  resumirTareasAutomaticas,
+  tieneFalloPosteriorAlExito,
+  type EstadoDeTarea,
+  type EstadoDespertador,
+  type EstadoTarea,
+  type ResumenTareasAutomaticas,
+  type TareaAutomatica,
+};
 
 export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
   {
@@ -175,16 +184,7 @@ export async function marcarFallo(
   }
 }
 
-export interface EstadoDeTarea extends TareaAutomatica {
-  ultimaCorrida: string | null;
-  ultimoIntento: string | null;
-  ultimoFallo?: { fecha: string; error: string } | null;
-  faltaConexion?: string | null;
-  disparadoPor?: OrigenDisparo | null;
-  /** `nunca` es la que importa: quiere decir que esta escrita y no se ejecuta. */
-  estado: 'nunca' | 'atrasada' | 'al-dia';
-  horasDesdeLaUltima: number | null;
-}
+// Tipos y resumen re-exportados desde '@/lib/automatico/resumen-tareas'.
 
 export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<EstadoDeTarea[]> {
   const [marcas, estadoAlEntrar, sociales, settings, waConfig] = await Promise.all([
@@ -250,6 +250,11 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
       }
     }
 
+    const falloPosteriorAlExito = Boolean(
+      ultimoFallo?.fecha &&
+        (!marca || new Date(ultimoFallo.fecha).getTime() > new Date(marca).getTime()),
+    );
+
     if (!marca) {
       return {
         ...tarea,
@@ -257,6 +262,7 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
         ultimoIntento,
         ultimoFallo,
         faltaConexion,
+        falloPosteriorAlExito,
         disparadoPor: null,
         estado: 'nunca' as const,
         horasDesdeLaUltima: null,
@@ -264,9 +270,13 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
     }
 
     const horas = (ahora.getTime() - new Date(marca).getTime()) / 3_600_000;
-    // Se le da el doble del intervalo antes de marcarla atrasada: una corrida que
-    // se salteo por un reinicio no es una tarea rota.
-    const estado = horas > tarea.cadaHoras * 2 ? ('atrasada' as const) : ('al-dia' as const);
+    // Si le falta la conexión requerida no está al día ni funcionando: queda no disponible.
+    // Si tiene conexión, se le da el doble del intervalo antes de marcarla atrasada.
+    const estado: EstadoTarea = faltaConexion
+      ? 'no-disponible'
+      : horas > tarea.cadaHoras * 2
+        ? 'atrasada'
+        : 'al-dia';
 
     return {
       ...tarea,
@@ -274,6 +284,7 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
       ultimoIntento,
       ultimoFallo,
       faltaConexion,
+      falloPosteriorAlExito,
       disparadoPor,
       estado,
       horasDesdeLaUltima: Math.round(horas),
@@ -281,12 +292,7 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
   });
 }
 
-export interface EstadoDespertador {
-  ultimoToque: string | null;
-  estado: 'activo' | 'nunca' | 'atrasado';
-  minutosDesdeUltimoToque: number | null;
-  mensaje: string;
-}
+// EstadoDespertador re-exportado desde '@/lib/automatico/resumen-tareas'.
 
 /** Deja constancia de que el despertador externo/Google toco la puerta del despachador. */
 export async function marcarToqueDespertador(ahora: Date = new Date()): Promise<void> {

@@ -60,6 +60,7 @@ import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva, textoDeEstadoDeFiestaParaPortal } from '@/lib/portal/cuenta-regresiva';
 import { hoyEnUruguay } from '@/lib/utils';
+import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experience/event-date';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
 // Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
@@ -107,13 +108,7 @@ function normalizeText(value: unknown): string {
 }
 
 function parseFechaSegura(date?: string): Date | null {
-  if (!date) return null;
-  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
-  }
-  const d = new Date(date);
-  return Number.isNaN(d.getTime()) ? null : d;
+  return parseEventDate(date);
 }
 
 function formatDate(date?: string): string {
@@ -341,7 +336,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   useEffect(() => {
     if (!config.fechaEvento) return;
-    const targetDate = parseFechaSegura(config.fechaEvento);
+    const targetDate =
+      parseEventDateTimeUruguay(config.fechaEvento, config.horaInicio) ??
+      parseFechaSegura(config.fechaEvento);
     if (!targetDate || Number.isNaN(targetDate.getTime())) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
@@ -362,7 +359,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
     updateCountdown();
     return () => clearTimeout(timeoutId);
-  }, [config.fechaEvento]);
+  }, [config.fechaEvento, config.horaInicio]);
 
   const [coverModalOpen, setCoverModalOpen] = useState(false);
   const [customCoverUrl, setCustomCoverUrl] = useState('');
