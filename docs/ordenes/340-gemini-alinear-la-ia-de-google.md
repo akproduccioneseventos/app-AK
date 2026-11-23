@@ -37,7 +37,7 @@ gratis (15 tareas por día). Qué tiene que hacer:
 archivo: src/ai/modelos.ts
 usa: gemini-4-hydrogen en src/ai/modelos.ts
 no-usa: models/gemini-2.5-flash:generateContent en src/lib/asistente/whatsapp-media.ts
-usa: modelos en src/ai/genkit.ts
+usa: ./modelos en src/ai/genkit.ts
 archivo: docs/jules/tarea-diaria.md
 prueba: src/__tests__/los-modelos-de-ia-tienen-respaldo.test.ts
 ```
