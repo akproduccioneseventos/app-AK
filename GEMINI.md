@@ -10,6 +10,9 @@
   si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
 - **En la misma propuesta que la 339, al final: orden 340 (`docs/ordenes/340-gemini-alinear-la-ia-de-google.md`).** Una sola
   lista de modelos con respaldo, Gemini 4 Hydrogen gratis primero, y el texto de la tarea diaria de Jules.
+- **Después de la 339/340, propuesta aparte: orden 341 (`docs/ordenes/341-gemini-papeleria-con-ia.md`).** La carta de
+  tragos, el menú, el cronograma, el afiche y el marco de fotocabina diseñados por la IA con los datos de la fiesta, y la
+  IA revisa que no escribió mal ningún nombre ni hora.
 - **AHORA: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Una sola propuesta, rama nueva
   `gemini/orden-336` desde la principal recién actualizada. Confirmá cada hallazgo abriendo el archivo antes de arreglar;
   seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.

@@ -1561,6 +1561,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La papelería la diseña la IA (23 de noviembre de 2026).** El dueño arma a mano con IA la carta, el menú, el cronograma,
+  el afiche y el marco de fotocabina, y quiere que la app lo haga sola. Orden 341: la IA arma la pieza con los datos de la
+  fiesta, se lee de nuevo para que no haya un nombre ni una hora mal, y las plantillas de hoy quedan de respaldo.
+
 - **Jules y el ecosistema gratis de Google (23 de noviembre de 2026).** Palabras suyas: *"se podría sumar con el límite de
   15 tareas por día… alinear con la IA de Gemini"*. Jules (plan gratis) toma cada día un rojo del auditor robot y deja una
   propuesta; **nunca fusiona** y no toca plata, permisos ni textos del cliente. Stitch Loop: lista de espera. Sólo lo gratis
