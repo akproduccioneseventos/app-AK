@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/11/2026 - La lista de fiestas no se cae por un documento raro (auditoría general)
+
+- En producción, `/eventos` y ocho pantallas más daban error. Se arreglaron los tres puntos donde un solo documento raro
+  tiraba la lectura entera: las fechas de la base (Timestamp) ahora salen como texto, el documento sin su número toma el
+  de la base, y ordenar el historial no se cae con una fiesta sin `configuracion`. La colección entera tiene 15 s en vez
+  de 3,5. **La causa exacta en producción no se pudo medir** (sin registros del servidor); si sigue, la orden 337 hace que
+  el error diga el motivo.
+- `/fiestas/nueva` se caía con una fiesta sin invitados estimados: ahora muestra 0.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts
+usa: aObjetoPlano en src/lib/firebase-sync.ts
+```
+
 ## 23/11/2026 - Revisión de la entrega 1464 (orden 335)
 
 - La entrega leía la fiesta por otro camino cuando la estaban probando (`'mock' in readData`): lo que se probaba no era lo

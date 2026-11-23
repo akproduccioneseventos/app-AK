@@ -1540,3 +1540,7 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 336 → pregunta 212
 - Orden 336 → pregunta 213
 - Orden 336 → pregunta 214
+- Orden 337 → pregunta 215
+- Orden 337 → pregunta 216
+- Orden 337 → pregunta 217
+- Orden 337 → pregunta 211

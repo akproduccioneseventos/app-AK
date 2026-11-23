@@ -187,6 +187,20 @@ const FORMAS = [
     comoSeArregla: 'Preguntarle al servidor si hay sesión de portal de esa fiesta (verificarSesionPortalCliente).',
   },
   {
+    pregunta: 216,
+    nombre: 'Un archivo del servidor leído con la ruta que viene de los datos',
+    porque: 'Cuatro descargas hacían fs.readFile(msg.mediaUrl) sin mirar que la ruta quedara en la carpeta de la fiesta (auditoría general 23/11/2026).',
+    buscar: /readFile\(\s*\w+\.(?:mediaUrl|fileName|url|path|ruta)\b/g,
+    comoSeArregla: 'Resolver la ruta y comprobar que empiece con la carpeta de esa fiesta antes de leer.',
+  },
+  {
+    pregunta: 217,
+    nombre: 'Una firma que no coincide y sigue con un valor por defecto',
+    porque: 'El ingreso con Google, con la firma del state mal, seguía como cuenta de la empresa (auditoría general 23/11/2026).',
+    buscar: /signature mismatch[^\n]*\n\s*return \{ kind: 'company' \}/g,
+    comoSeArregla: 'Con la firma mal se rechaza y se pide volver a conectar.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
@@ -241,6 +255,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   204: 'Pregunta tomada como orden: la prueba que pide la orden 333, bloque 9 (src/__tests__/auditoria-21-11-ia.test.ts).',
   210: 'Comportamiento que no es un texto fijo; lo cubren las pruebas que pide la orden 336 (Una lectura que falla, ¿puede terminar b).',
   213: 'Comportamiento que no es un texto fijo; lo cubren las pruebas que pide la orden 336 (Lo que gasta IA paga, ¿pasa por el tope ).',
+  215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
   207: 'Mirar que escribe: src/__tests__/mirar-no-escribe.test.ts (lectura de fiestas y reparación de presupuestos); el resto lo barre la orden 335.',
   208: 'Un botón que no llega a su función es un comportamiento en pantalla: lo cubren las pruebas de clic de la orden 335.',
   209: 'Cuenta regresiva sin la hora: la prueba con reloj fijo de la orden 335 (la-cuenta-regresiva-usa-la-hora).',

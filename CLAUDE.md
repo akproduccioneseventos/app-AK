@@ -2127,6 +2127,7 @@ con otra cara.
 | El asistente devolvía el presupuesto (o hacía la factura) de otro cliente con un nombre vacío, y el tope de IA tenía agujeros | `src/__tests__/el-asistente-lee-el-presupuesto-que-se-pidio.test.ts` y `src/__tests__/el-tope-de-ia-es-un-tope.test.ts` |
 | Una redirección llevaba a otra y pisaba la solapa: el que entraba por logística caía en otra pantalla | `src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts` |
 | Mirar la lista de fiestas guardaba códigos y abrir un presupuesto reescribía fechas, también con el auditor | `src/__tests__/mirar-no-escribe.test.ts` |
+| Un documento raro (fecha de la base, sin número, sin configuración) tiraba la lista de fiestas y nueve pantallas | `src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts` |
 
 ### Cómo se elige el matafuego
 

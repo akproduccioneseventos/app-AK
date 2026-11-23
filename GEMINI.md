@@ -13,6 +13,9 @@
 - **DESPUÉS de la 335, en otra propuesta: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Tu auditoría de
   la 2da vuelta, como lista de trabajo (`docs/auditorias/2026-11-23-gemini-2da-vuelta.md`). Confirmá cada hallazgo abriendo el
   archivo antes de arreglar; seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.
+- **DESPUÉS de la 336, en otra propuesta: orden 337 (`docs/ordenes/337-gemini-auditoria-general-maestra.md`).** La auditoría
+  general del 23/11: accesos que expulsan a invitados y colaboradores, descargas que leen rutas sin mirar, el ingreso con
+  Google, Ajustes que no abren su panel. La lista de fiestas ya la arregló Claude: no la toques.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen

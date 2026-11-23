@@ -1,29 +1,18 @@
 # Estado actual — 23 de noviembre de 2026
 
-## Publicado
-- **#1462** (23/11): órdenes 331 a 334.
-- **#1463** (23/11): mirar no escribe (`codigoDeFiesta`, reparación de fechas apagada en solo lectura) y orden 336 lista.
+## Publicado hoy
+- **#1462** (órdenes 331-334), **#1463** (mirar no escribe, orden 336), **#1464** (orden 335 + escaneos 211, 212, 214).
 
-## En revisión: orden 335 (rama `gemini/orden-335`, una sola propuesta)
-- Hecho: solapas (PDF del itinerario), cuatro impresos de mesa recuperados, ingreso de rentabilidad desde el presupuesto
-  (**plata: Claude revisa línea por línea**), "No disponible" ≠ "Al día", presencia sin datos, cuenta regresiva con hora,
-  motivo claro en muro y carga operativa.
+## En esta tanda (Claude, rama `claude/app-debug-stabilize-m70e6z`)
+- Auditoría general maestra: la lista de fiestas daba error en producción en nueve pantallas. Arreglado lo que un documento
+  raro rompía (objeto plano con `aObjetoPlano`, número del documento, 15 s, historial sin `configuracion`) y el tablero sin
+  invitados. **La causa exacta no se midió** (sin registros del servidor): si el dueño ve que sigue, la orden 337 bloque 5.
+- Orden 337 para Gemini, preguntas 215-217 (216 y 217 con escaneo).
 
-## Siguiente para Gemini (en propuesta nueva, después de la 335)
-- **Orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`):** lista de la 2da auditoría profunda; confirmar cada
-  hallazgo abriendo el archivo antes de tocar. Plata y permisos los revisa Claude.
-
-## Para Claude: barrido pregunta 207 (get/leer que escriben, sin arreglar)
-- No toca plata: `getFiestas`/`leerFiestaConEstado` (`codigoDeFiesta`), `getAlertasGlobalesConLeidas`,
-  `getMissionControl`, `getDigitalPresenceDashboard`.
-- Toca credenciales o plata (decidir vos): `getConnectedCompanyGoogleAccount`/`getCompanyGoogleAccountStatus` (guardan token
-  de Google), `getParteDeLaManana` (cachea resumen con cuotas).
-- Pantallas que guardan al abrir: `pagina-web.tsx` (arma con IA solo), campana de notificaciones (crea avisos).
-
-## Pregunta 208 (faltan pruebas de clic real)
-- Menú de las 6 casas, 26 solapas del planificador y ~44 tarjetas de `/fiestas/nueva`; `planner-dashboard-modules.test.ts`
-  usa una lista copiada vieja.
+## Para Gemini, en orden
+- **336** (`gemini/orden-336`): su auditoría de 99 avisos. **337** (`gemini/orden-337`): la general maestra.
 
 ## Ojo
-- La puerta falla seguido por carga de la máquina: `npm run otravez` antes de creer una falla.
+- La puerta falla seguido por carga de la máquina: `npm run otravez`, y si la app no cambió la puerta repite sólo lo fallado.
+- La corrida en segundo plano se corta a los 30 min si se lanza con el tiempo por defecto: lanzar con el máximo.
 - Se llena el disco: borrar `.next` y `test-results` de las copias aparte en el scratchpad.

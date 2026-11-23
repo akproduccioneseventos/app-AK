@@ -2042,3 +2042,18 @@ Auditoría de Gemini, 2da vuelta (23/11/2026): applyFaceSwap, multiagente y seis
 ### 214. Lo que el panel del portal mira para saber si hay sesión, ¿es lo mismo que mira el servidor?
 
 Auditoría de Gemini, 2da vuelta (23/11/2026): Cinco solapas del portal miran sessionStorage y rebotan a quien entró por /entrar (sección E.1). Barrido y arreglo: orden 336.
+
+### 215. Una lectura recortada, ¿después necesita lo que recortó?
+
+Auditoría general del 23/11/2026: el recap del invitado y el enlace externo de la carga operativa leían la fiesta recortada
+para afuera y después buscaban el pase del invitado o la lista de carga, que el recorte había sacado: 404 y lista vacía.
+
+### 216. Un archivo del servidor, ¿se lee con una ruta que viene de los datos?
+
+Auditoría general del 23/11/2026: cuatro descargas hacían `fs.readFile(msg.mediaUrl)` sin mirar que la ruta quedara
+adentro de la carpeta de esa fiesta. Lo busca el escaneo automático.
+
+### 217. Una firma que no coincide, ¿se rechaza o cae a un valor por defecto?
+
+Auditoría general del 23/11/2026: el ingreso con Google, con la firma del `state` mal, seguía como cuenta de la empresa.
+Lo busca el escaneo automático.

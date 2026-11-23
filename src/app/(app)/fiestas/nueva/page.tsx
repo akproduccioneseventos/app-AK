@@ -638,7 +638,7 @@ function PlannerDashboardContent() {
 
       {/* KPIs */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Invitados" value={fiesta.configuracion.invitadosEstimados.toString()} icon={Users} />
+        <KpiCard title="Invitados" value={String(fiesta.configuracion?.invitadosEstimados ?? 0)} icon={Users} />
         <KpiCard title="Tareas" value={fiesta.tareas?.filter(t => !t.completada).length || 0} icon={ListChecks} />
         <div className="hidden sm:block">
             <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado))} icon={DollarSign} />

@@ -856,6 +856,18 @@
     "214": {
       "fecha": "2026-11-23",
       "resultado": "Escaneo automático: 7 lugares en los paneles del portal, incluido portal--mensajes.tsx, que el informe no traía → orden 336 bloque 3."
+    },
+    "215": {
+      "fecha": "2026-11-23",
+      "resultado": "Recap del invitado y enlace externo de la carga operativa (confirmados por Claude) → orden 337 bloque 1; el resto de getFiestaById sin LECTURA_COMPLETA en pantallas públicas → barrido de la orden 337."
+    },
+    "216": {
+      "fecha": "2026-11-23",
+      "resultado": "Escaneo automático: buzón y galería social; el informe suma recuerdos y documentos → orden 337 bloque 2."
+    },
+    "217": {
+      "fecha": "2026-11-23",
+      "resultado": "Escaneo automático: 1 lugar, decodeGoogleState en google-workspace.ts → orden 337 bloque 2."
     }
   },
   "hallazgos": {
@@ -1282,6 +1294,10 @@
     "orden-336": {
       "fecha": "2026-11-23",
       "resultado": "Auditoría de Gemini 2da vuelta: 99 avisos (37 críticos). Claude confirmó tres a mano (entretenimiento, transmisión en vivo, borrado de facturas); el resto lo confirma Gemini antes de arreglar. Preguntas 210 a 214."
+    },
+    "orden-337": {
+      "fecha": "2026-11-23",
+      "resultado": "Auditoría general maestra: la lista de fiestas en producción la arregló Claude; accesos, descargas, Google y Ajustes → orden 337. Preguntas 215 a 217 (216 y 217 con escaneo)."
     }
   }
 }
