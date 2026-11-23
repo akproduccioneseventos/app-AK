@@ -2121,6 +2121,7 @@ con otra cara.
 | Una redirección con comodín tapaba la lista de presupuestos y "Nueva fiesta" | `src/__tests__/una-redireccion-no-tapa-una-pantalla.test.ts` |
 | El auditor cambiaba cuentas ajenas y el tope de IA, la voz del equipo no tenía tope, y una foto por Instagram se perdía como "mención" | `src/__tests__/auditoria-externa-21-11-quien-toca-que.test.ts` |
 | El asistente devolvía el presupuesto (o hacía la factura) de otro cliente con un nombre vacío, y el tope de IA tenía agujeros | `src/__tests__/el-asistente-lee-el-presupuesto-que-se-pidio.test.ts` y `src/__tests__/el-tope-de-ia-es-un-tope.test.ts` |
+| Una redirección llevaba a otra y pisaba la solapa: el que entraba por logística caía en otra pantalla | `src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts` |
 
 ### Cómo se elige el matafuego
 

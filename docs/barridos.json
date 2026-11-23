@@ -820,6 +820,10 @@
     "205": {
       "fecha": "2026-11-21",
       "resultado": "Error de lectura mostrado como normalidad: el panel de fallos de la IA → orden 333 bloque 9."
+    },
+    "206": {
+      "fecha": "2026-11-22",
+      "resultado": "Seis redirecciones encadenadas en la principal (respaldo, reporte de empleados, IA de marketing, contrato, checklist y plantillas de marketing): las arregló Claude en un salto. Las de la entrega 1462 → orden 334 bloque 1."
     }
   },
   "hallazgos": {
@@ -1237,7 +1241,7 @@
     },
     "orden-334": {
       "fecha": "2026-11-22",
-      "resultado": "Recorridas todas las 277 redirecciones de next.config.js: eliminados todos los saltos encadenados (Chained: 0) para que cada URL del planificador y sub-solapa conserve tab/subtab en un solo salto; verificado también tab/subtab fallback en PlanificadorSolapasShell y TabHostShell, subtab=pdf público con token en auth-guard y middleware, título Carga Operativa y contraste/flujo del simulador sin la portada vieja de dos botones."
+      "resultado": "Recorridas todas las 277 redirecciones de next.config.js: eliminados todos los saltos encadenados (Chained: 0) para que cada URL del planificador y sub-solapa conserve tab/subtab en un solo salto; verificado también tab/subtab fallback en PlanificadorSolapasShell y TabHostShell, subtab=pdf público con token en auth-guard y middleware, título Carga Operativa y contraste/flujo del simulador sin la portada vieja de dos botones. Pregunta 206: además seis encadenadas que ya estaban en la principal, arregladas por Claude en un salto; el control una-redireccion-no-lleva-a-otra-redireccion mira todo next.config.js."
     }
   }
 }

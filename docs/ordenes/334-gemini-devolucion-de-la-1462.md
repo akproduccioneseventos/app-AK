@@ -23,7 +23,8 @@ solapa** y el que entra por logística cae en otra cosa. Igual con `/fiestas/nue
 
 - Cada dirección vieja va **en un solo salto** a su destino final: `/fiestas/nueva/logistica` →
   `/fiestas/nueva/operacion?tab=logistica` (o la solapa que corresponda), y el PDF igual.
-- Recorré **todas** las redirecciones que agregaste y buscá las que apuntan a otra dirección que también se redirige.
+- Recorré **todas** las redirecciones que agregaste. El control `src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts`
+  (pregunta 206, ya está en la principal: traela con `git merge origin/main`) tiene que dar verde; dice cuál está encadenada.
 
 ## Bloque 2 — Las pantallas que no muestran lo que la prueba espera
 
@@ -69,4 +70,5 @@ no-usa: Elegí la experiencia para cotizar tu fiesta en tests/e2e/simulador-hub-
 prueba: tests/e2e/la-carga-operativa-avisa-cuando-no-alcanza.spec.ts
 prueba: tests/e2e/las-pantallas-no-quedan-cargando.spec.ts
 prueba: tests/e2e/public-smoke.spec.ts
+prueba: src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts
 ```
