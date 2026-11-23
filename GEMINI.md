@@ -10,6 +10,9 @@
   impresos de mesa que se borraron (recuperarlos de `54764d6bd^`), el ingreso de rentabilidad, "al día" que no es "anda",
   presencia digital sin datos, la cuenta regresiva con la hora, y el muro y la carga que no cargan. Lo de "mirar no escribe"
   ya lo hizo Claude: no lo toques. La plata (bloque 3) la revisa Claude línea por línea.
+- **DESPUÉS de la 335, en otra propuesta: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Tu auditoría de
+  la 2da vuelta, como lista de trabajo (`docs/auditorias/2026-11-23-gemini-2da-vuelta.md`). Confirmá cada hallazgo abriendo el
+  archivo antes de arreglar; seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen

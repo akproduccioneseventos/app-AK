@@ -2022,3 +2022,23 @@ Que la dirección conteste no alcanza: la prueba toca el botón y mira el conten
 
 Auditoría profunda del 23/11/2026 (hallazgo 8): la invitación contaba hasta la medianoche y terminaba 21 horas antes de la
 fiesta de las 21:00.
+
+### 210. Una lectura que falla, ¿puede terminar borrando lo que no leyó?
+
+Auditoría de Gemini, 2da vuelta (23/11/2026): readData devuelve vacío sin marca si la base tarda, y el guardado siguiente marca para borrar todo lo demás (sección A.1). Barrido y arreglo: orden 336.
+
+### 211. Una acción que guarda o borra datos de UNA fiesta, ¿mira que quien llama sea de esa fiesta y tenga el permiso?
+
+Auditoría de Gemini, 2da vuelta (23/11/2026): Entretenimiento, transmisión en vivo, carga operativa, buzón, video de vida y descargas ZIP con sólo sesión (sección B). Barrido y arreglo: orden 336.
+
+### 212. Un camino de respaldo por demora, ¿se saltea el control del camino principal?
+
+Auditoría de Gemini, 2da vuelta (23/11/2026): deleteInvoiceInner cae a un borrado sin transacción a los 1,5 s (sección A.2). Barrido y arreglo: orden 336.
+
+### 213. Lo que gasta IA paga, ¿pasa por el tope del mes y queda anotado?
+
+Auditoría de Gemini, 2da vuelta (23/11/2026): applyFaceSwap, multiagente y seis flujos más sin tope ni registro (sección G). Barrido y arreglo: orden 336.
+
+### 214. Lo que el panel del portal mira para saber si hay sesión, ¿es lo mismo que mira el servidor?
+
+Auditoría de Gemini, 2da vuelta (23/11/2026): Cinco solapas del portal miran sessionStorage y rebotan a quien entró por /entrar (sección E.1). Barrido y arreglo: orden 336.
