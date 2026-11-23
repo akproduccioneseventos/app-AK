@@ -37,3 +37,5 @@ export function generarCodigoFiestaUnico(
 
   return generarCodigoFiesta(LONGITUD_CODIGO_FIESTA);
 }
+
+export { codigoDeFiesta } from './codigo-de-fiesta';

@@ -2004,3 +2004,21 @@ Entrega 1462 (22/11/2026): `/fiestas/nueva/logistica` iba a `carga-operativa?tab
 redirigía a `operacion?tab=carga-operativa`. Encadenadas, la segunda pisaba la solapa y el que entraba por logística caía
 en otra pantalla. Cada dirección vieja va en un solo salto a su destino final. Lo mira toda la app
 `src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts`.
+
+### 207. Abrir una pantalla, ¿escribe algo?
+
+Auditoría profunda del 23/11/2026 (hallazgos 1 y 2): mirar la lista de fiestas inventaba y guardaba un código por cada
+fiesta, y abrir "Nuevo presupuesto" reescribía las fechas de todos los presupuestos, también con la sesión del auditor.
+Leer nunca guarda; una reparación es una acción aparte, con permiso y registro. Lo controla
+`src/__tests__/mirar-no-escribe.test.ts`.
+
+### 208. Cada botón y cada tarjeta, ¿llega a la función que anuncia?
+
+Auditoría profunda del 23/11/2026 (hallazgos 3 y 4): "Imprimir / PDF" del itinerario abría Personal, y Cartelería, Menú de
+Mesa, Números de Mesa y Carta de Tragos decían "Listo" y volvían al planificador porque sus pantallas se habían borrado.
+Que la dirección conteste no alcanza: la prueba toca el botón y mira el contenido de destino.
+
+### 209. Una cuenta regresiva o un "faltan", ¿usa la hora y la zona del evento?
+
+Auditoría profunda del 23/11/2026 (hallazgo 8): la invitación contaba hasta la medianoche y terminaba 21 horas antes de la
+fiesta de las 21:00.

@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
-import { normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
+import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -232,7 +232,7 @@ export async function entrarComoInvitado(input: {
 
   if (codigoNormalizado) {
     const fiesta = fiestasAbiertas.find(
-      (f) => normalizarCodigoFiesta(f.codigoFiesta) === codigoNormalizado,
+      (f) => codigoDeFiesta(f) === codigoNormalizado,
     );
     if (!fiesta) {
       return { status: 'no_encontrado', error: MENSAJE_NO_ENCONTRADO };
