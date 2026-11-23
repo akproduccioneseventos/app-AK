@@ -26,19 +26,27 @@ export function TabHostShell({
   const searchParams = useSearchParams();
 
   const activeTab = useMemo(() => {
-    const val = searchParams.get(queryKey) || tabs[0].id;
-    return tabs.some((t) => t.id === val) ? val : tabs[0].id;
+    const fromQueryKey = searchParams.get(queryKey);
+    const fromTabFallback = queryKey !== 'tab' ? searchParams.get('tab') : null;
+    const raw =
+      (fromQueryKey && tabs.some((t) => t.id === fromQueryKey) ? fromQueryKey : null) ??
+      (fromTabFallback && tabs.some((t) => t.id === fromTabFallback) ? fromTabFallback : null);
+    return raw || tabs[0].id;
   }, [searchParams, queryKey, tabs]);
 
   const selectTab = (tabId: string) => {
     const q = new URLSearchParams(searchParams.toString());
-    q.set(queryKey, tabId);
+    if (queryKey !== 'tab' && tabs.some((t) => t.id === q.get('tab'))) {
+      q.set('tab', tabId);
+    } else {
+      q.set(queryKey, tabId);
+    }
     router.replace(`${pathname}?${q.toString()}`);
   };
 
   return (
     <div className="space-y-4">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2 px-4 pt-4">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-1.5 px-4 pt-4">
         {tabs.map((t) => (
           <button
             key={t.id}

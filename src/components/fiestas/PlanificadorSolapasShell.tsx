@@ -22,6 +22,35 @@ export interface PlanificadorSolapasShellProps {
   defaultTab?: string;
 }
 
+const SUBTAB_TO_PANEL_TAB: Record<string, string> = {
+  scanner: 'invitados',
+  layout: 'invitados',
+  cocina: 'catering',
+  compras: 'catering',
+  logistica: 'carga-operativa',
+  organizacion: 'reuniones',
+  imprimir: 'reuniones',
+  recibos: 'personal',
+  'edicion-videos': 'fotografia',
+  playlist: 'muro-social',
+  'en-vivo': 'muro-social',
+  control: 'entretenimiento',
+  barra: 'entretenimiento',
+  pantallas: 'entretenimiento',
+  'zona-digital': 'entretenimiento',
+  'pagina-web': 'modulo-invitado',
+  'social-pro': 'modulo-invitado',
+  planner: 'gestion-costos-rentabilidad',
+  reporte: 'gestion-costos-rentabilidad',
+  experiencia: 'portal-cliente',
+  'cambio-fecha': 'gestion-documental',
+  'cancelacion-contrato': 'gestion-documental',
+  'cancelacion-parcial': 'gestion-documental',
+  'contrato-salon': 'gestion-documental',
+  'contrato-servicio': 'gestion-documental',
+  'recibo-pago': 'gestion-documental',
+};
+
 export function lazyFiestaPanel(loader: () => Promise<{ default: PanelComponent }>) {
   return dynamic(loader, {
     loading: () => (
@@ -46,7 +75,12 @@ export function PlanificadorSolapasShell({
   const fiestaId = searchParams.get('fiestaId');
 
   const activeTab = useMemo(() => {
-    const requested = searchParams.get('tab');
+    const rawTab = searchParams.get('tab');
+    const requested =
+      rawTab && !tabs.some((t) => t.id === rawTab) && SUBTAB_TO_PANEL_TAB[rawTab]
+        ? SUBTAB_TO_PANEL_TAB[rawTab]
+        : rawTab;
+
     if (requested) {
       const matched = tabs.find((item) => item.id === requested);
       if (matched) return matched;
@@ -113,7 +147,7 @@ export function PlanificadorSolapasShell({
         <div
           role="tablist"
           aria-label={titulo}
-          className="flex flex-wrap gap-2 border-b border-slate-200 pb-3"
+          className="flex flex-wrap gap-1.5 border-b border-slate-200 pb-3"
         >
           {tabs.map((item) => {
             const isActive = item.id === activeTab.id;

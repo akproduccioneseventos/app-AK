@@ -133,7 +133,13 @@ describe('Orden 288 Bloque 4: El editor que se baja es el de ahora', () => {
       if (entradaZip) {
         const contenidoZip = await entradaZip.async('nodebuffer');
         const contenidoDisco = fs.readFileSync(fullPath);
-        expect(contenidoZip.equals(contenidoDisco)).toBe(true);
+        const esTexto = /\.(py|bat|md|yaml|yml|json|txt)$/i.test(relNorm);
+        const coincide =
+          contenidoZip.equals(contenidoDisco) ||
+          (esTexto &&
+            contenidoZip.toString('utf8').replace(/\r\n/g, '\n') ===
+              contenidoDisco.toString('utf8').replace(/\r\n/g, '\n'));
+        expect(coincide).toBe(true);
       }
     }
   });

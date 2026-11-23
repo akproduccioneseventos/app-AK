@@ -22,12 +22,12 @@ function createSessionToken() {
 
 const RUTAS_INTERNAS = ['/mi-dia', '/settings', '/asistente', '/customers', '/presupuestos/nuevo', '/eventos', '/pagos-rapidos',
   '/empresa/menus', '/empresa/contabilidad/reportes', '/contabilidad/crm',
-  '/fiestas/nueva/reuniones', '/empresa/presencia-digital', '/fiestas/nueva/decoracion',
+  '/fiestas/nueva/operacion?tab=reuniones', '/empresa/presencia-digital', '/fiestas/nueva/show?tab=decoracion',
   // Pantallas que listan mucha gente o muchos ítems: con la fiesta de prueba de
   // 80 invitados en diez mesas es donde aparecen los desbordes de verdad.
-  '/fiestas/nueva/invitados',
-  '/fiestas/nueva/personal', '/fiestas/nueva/carga-operativa',
-  '/fiestas/nueva/gestion-costos-rentabilidad',
+  '/fiestas/nueva/datos?tab=invitados',
+  '/fiestas/nueva/operacion?tab=personal', '/fiestas/nueva/operacion?tab=carga-operativa',
+  '/fiestas/nueva/plata-y-papeles?tab=gestion-costos-rentabilidad',
   '/empresa/insumos', '/empresa/activos-fijos'];
 const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/presentacion-led', '/enlaces'];
 
@@ -55,7 +55,9 @@ test.describe('sin desborde horizontal en celular', () => {
     for (const ruta of RUTAS_INTERNAS) {
       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
-      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
+      const urlActual = new URL(page.url());
+      const comparada = ruta.includes('?') ? `${urlActual.pathname}${urlActual.search}` : urlActual.pathname;
+      expect(comparada, `${ruta} redirigio inesperadamente`).toBe(ruta);
       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
       // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
       await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
@@ -70,7 +72,9 @@ test.describe('sin desborde horizontal en celular', () => {
     for (const ruta of RUTAS_PUBLICAS) {
       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
-      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
+      const urlActual = new URL(page.url());
+      const comparada = ruta.includes('?') ? `${urlActual.pathname}${urlActual.search}` : urlActual.pathname;
+      expect(comparada, `${ruta} redirigio inesperadamente`).toBe(ruta);
       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
       // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
       await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});

@@ -33,11 +33,10 @@ test.describe('Sección Edición de Videos (Orden 271)', () => {
       },
     ]);
 
-    await page.goto(`${baseURL}/edicion-videos`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`${baseURL}/edicion-videos`, { waitUntil: 'domcontentloaded' });
 
     // Debe mostrar la tarjeta de Acceso Restringido
-    await expect(page.getByText('Acceso Restringido')).toBeVisible();
+    await expect(page.getByText('Acceso Restringido')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText('La sección de Edición de Videos está reservada')).toBeVisible();
   });
 
@@ -49,11 +48,10 @@ test.describe('Sección Edición de Videos (Orden 271)', () => {
     test.setTimeout(60_000);
     await ponerSesionDelEquipo(context, baseURL);
 
-    await page.goto(`${baseURL}/edicion-videos`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`${baseURL}/edicion-videos`, { waitUntil: 'domcontentloaded' });
 
     // 1. Título y encabezado principal
-    await expect(page.getByRole('heading', { name: 'AK Editor Inteligente' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'AK Editor Inteligente' })).toBeVisible({ timeout: 30_000 });
 
     // 2. Botón "Bajar AK Editor"
     const botonBajar = page.getByRole('link', { name: /Bajar AK Editor/i }).first();

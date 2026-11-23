@@ -1,9 +1,7 @@
 import { test, expect, Locator } from '@playwright/test';
 
 /**
- * Orden 231: Verificación de contraste real e inteligibilidad en /simulador.
- * Asegura que el título, subtítulo y opciones del hub mantengan contraste accesible
- * tanto en vista móvil como escritorio, sin ser transparentados por capas globales.
+ * Orden 334 Bloque 3: Verificación de contraste real en /simulador (redirige a /simulador-de-presupuesto).
  */
 
 const VIEWPORTS = [
@@ -13,33 +11,68 @@ const VIEWPORTS = [
 
 async function obtenerContrasteElemento(locator: Locator) {
   return locator.evaluate((el) => {
-    function parseRgb(colorStr: string): { r: number; g: number; b: number; a: number } {
+    const probeCanvas = document.createElement('canvas');
+    probeCanvas.width = 1;
+    probeCanvas.height = 1;
+    const probeCtx = probeCanvas.getContext('2d');
+
+    function parseCssColor(colorStr: string): { r: number; g: number; b: number; a: number } {
       const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-      if (!match) {
-        return { r: 255, g: 255, b: 255, a: 1 };
+      if (match) {
+        return {
+          r: parseInt(match[1], 10),
+          g: parseInt(match[2], 10),
+          b: parseInt(match[3], 10),
+          a: match[4] !== undefined ? parseFloat(match[4]) : 1,
+        };
       }
-      return {
-        r: parseInt(match[1], 10),
-        g: parseInt(match[2], 10),
-        b: parseInt(match[3], 10),
-        a: match[4] !== undefined ? parseFloat(match[4]) : 1,
-      };
+      if (probeCtx) {
+        probeCtx.clearRect(0, 0, 1, 1);
+        probeCtx.fillStyle = colorStr;
+        probeCtx.fillRect(0, 0, 1, 1);
+        const data = probeCtx.getImageData(0, 0, 1, 1).data;
+        return { r: data[0], g: data[1], b: data[2], a: data[3] / 255 };
+      }
+      return { r: 255, g: 255, b: 255, a: 1 };
     }
 
     const fgColor = window.getComputedStyle(el).color;
-    const fg = parseRgb(fgColor);
+    const fg = parseCssColor(fgColor);
 
-    // Subir por la cadena de ancestros hasta encontrar el primer fondo no transparente o componer alfa
     let curr: HTMLElement | null = el as HTMLElement;
     const layers: { r: number; g: number; b: number; a: number }[] = [];
+    const elRect = el.getBoundingClientRect();
 
     while (curr) {
       const bg = window.getComputedStyle(curr).backgroundColor;
       if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
-        const parsed = parseRgb(bg);
+        const parsed = parseCssColor(bg);
         if (parsed.a > 0) {
           layers.push(parsed);
           if (parsed.a >= 1) break;
+        }
+      }
+      // Revisar overlays absolutos hermanos que cubran el elemento (ej: bg-black/65 en hero)
+      if (curr.parentElement) {
+        const siblings = Array.from(curr.parentElement.children) as HTMLElement[];
+        for (const sib of siblings) {
+          if (sib === curr) break;
+          const sibStyle = window.getComputedStyle(sib);
+          if (sibStyle.position !== 'absolute') continue;
+          const sibRect = sib.getBoundingClientRect();
+          const covers =
+            sibRect.left <= elRect.left + 1 &&
+            sibRect.right >= elRect.right - 1 &&
+            sibRect.top <= elRect.top + 1 &&
+            sibRect.bottom >= elRect.bottom - 1;
+          if (!covers) continue;
+          const sibBg = sibStyle.backgroundColor;
+          if (sibBg && sibBg !== 'transparent' && sibBg !== 'rgba(0, 0, 0, 0)') {
+            const parsedSib = parseCssColor(sibBg);
+            if (parsedSib.a > 0) {
+              layers.push(parsedSib);
+            }
+          }
         }
       }
       curr = curr.parentElement;
@@ -48,7 +81,6 @@ async function obtenerContrasteElemento(locator: Locator) {
     let bgR = 255;
     let bgG = 255;
     let bgB = 255;
-
     for (let i = layers.length - 1; i >= 0; i--) {
       const layer = layers[i];
       bgR = Math.round(layer.r * layer.a + bgR * (1 - layer.a));
@@ -76,14 +108,16 @@ async function obtenerContrasteElemento(locator: Locator) {
   });
 }
 
-test.describe('Orden 231: Contraste real en Hub de Simulador (/simulador)', () => {
+test.describe('Orden 334 Bloque 3: Contraste real en Simulador de Presupuesto (/simulador)', () => {
   for (const vp of VIEWPORTS) {
     test(`mantiene contraste legible en viewport ${vp.nombre} (${vp.width}x${vp.height})`, async ({ page }) => {
+      test.setTimeout(120_000);
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto('/simulador', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/\/simulador-de-presupuesto/);
 
-      // 1. Título de sección h2
-      const heading = page.getByRole('heading', { name: /Elegí la experiencia para cotizar tu fiesta/i });
+      // 1. Título principal h1
+      const heading = page.getByRole('heading', { name: /Presupuesto para tu evento/i });
       await expect(heading).toBeVisible({ timeout: 15000 });
       const boxHeading = await heading.boundingBox();
       expect(boxHeading).not.toBeNull();
@@ -93,11 +127,11 @@ test.describe('Orden 231: Contraste real en Hub de Simulador (/simulador)', () =
       const contrasteHeading = await obtenerContrasteElemento(heading);
       expect(
         contrasteHeading.ratio,
-        `Contraste de título h2 en ${vp.nombre} (${contrasteHeading.ratio.toFixed(2)}:1)`
+        `Contraste de título h1 en ${vp.nombre} (${contrasteHeading.ratio.toFixed(2)}:1)`
       ).toBeGreaterThanOrEqual(4.5);
 
       // 2. Subtítulo explicativo
-      const subtitulo = page.getByText(/Ambas herramientas cuentan con el catálogo oficial/i);
+      const subtitulo = page.getByText(/Armá una propuesta con gastronomía, salón, tecnología y servicios reales/i);
       await expect(subtitulo).toBeVisible({ timeout: 15000 });
       const boxSubtitulo = await subtitulo.boundingBox();
       expect(boxSubtitulo).not.toBeNull();
@@ -110,30 +144,48 @@ test.describe('Orden 231: Contraste real en Hub de Simulador (/simulador)', () =
         `Contraste de subtítulo en ${vp.nombre} (${contrasteSubtitulo.ratio.toFixed(2)}:1)`
       ).toBeGreaterThanOrEqual(4.5);
 
-      // 3. Tres destinos: opción visual, opción Sofia asistente y link de WhatsApp
-      const opcionVisual = page.locator('[data-testid="simulator-option-visual"]');
-      const opcionAsistente = page.locator('[data-testid="simulator-option-assistant"]');
-      const opcionWhatsApp = page.getByRole('link', { name: /Consultar por WhatsApp/i });
+      // 3. Botón principal de cover
+      const botonCover = page.getByTestId('simulator-cover-start');
+      await expect(botonCover).toBeVisible({ timeout: 15000 });
+      const boxBoton = await botonCover.boundingBox();
+      expect(boxBoton).not.toBeNull();
+      expect(boxBoton!.width).toBeGreaterThan(0);
+      expect(boxBoton!.height).toBeGreaterThan(0);
 
-      const destinos = [
-        { nombre: 'Opción Visual', locator: opcionVisual },
-        { nombre: 'Opción Sofía Asistente', locator: opcionAsistente },
-        { nombre: 'Opción WhatsApp', locator: opcionWhatsApp },
-      ];
+      const contrasteBoton = await obtenerContrasteElemento(botonCover);
+      expect(
+        contrasteBoton.ratio,
+        `Contraste de botón principal en ${vp.nombre} (${contrasteBoton.ratio.toFixed(2)}:1)`
+      ).toBeGreaterThanOrEqual(3.0);
 
-      for (const destino of destinos) {
-        await expect(destino.locator).toBeVisible({ timeout: 15000 });
-        const boxDestino = await destino.locator.boundingBox();
-        expect(boxDestino).not.toBeNull();
-        expect(boxDestino!.width).toBeGreaterThan(0);
-        expect(boxDestino!.height).toBeGreaterThan(0);
+      await expect(botonCover).toBeEnabled({ timeout: 30000 });
+      await botonCover.click();
 
-        const contrasteDestino = await obtenerContrasteElemento(destino.locator);
-        expect(
-          contrasteDestino.ratio,
-          `Contraste de ${destino.nombre} en ${vp.nombre} (${contrasteDestino.ratio.toFixed(2)}:1)`
-        ).toBeGreaterThanOrEqual(3.0);
-      }
+      // 4. Enlace al pie hacia Sofía
+      const enlaceSofia = page.getByRole('link', { name: /Preferís armarlo conversando\? Probá con Sofía/i });
+      await expect(enlaceSofia).toBeVisible({ timeout: 15000 });
+      await expect(enlaceSofia).toHaveAttribute('href', /\/simulador-ak/);
+      const boxSofia = await enlaceSofia.boundingBox();
+      expect(boxSofia).not.toBeNull();
+      expect(boxSofia!.width).toBeGreaterThan(0);
+      expect(boxSofia!.height).toBeGreaterThan(0);
+
+      const contrasteSofia = await obtenerContrasteElemento(enlaceSofia);
+      expect(
+        contrasteSofia.ratio,
+        `Contraste de enlace a Sofía en ${vp.nombre} (${contrasteSofia.ratio.toFixed(2)}:1)`
+      ).toBeGreaterThanOrEqual(3.0);
+
+      // 5. Navegar al enlace de Sofía y verificar
+      await enlaceSofia.click();
+      await expect(page).toHaveURL(/\/simulador-ak/);
+      const headingSofia = page.getByRole('heading', { name: /Asistente Inteligente AK/i });
+      await expect(headingSofia).toBeVisible({ timeout: 15000 });
+      const contrasteHeadingSofia = await obtenerContrasteElemento(headingSofia);
+      expect(
+        contrasteHeadingSofia.ratio,
+        `Contraste de título de Sofía en ${vp.nombre} (${contrasteHeadingSofia.ratio.toFixed(2)}:1)`
+      ).toBeGreaterThanOrEqual(4.5);
     });
   }
 });

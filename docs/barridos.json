@@ -1234,6 +1234,10 @@
     "orden-333": {
       "fecha": "2026-11-21",
       "resultado": "Auditoría externa del 21/11 (seis módulos): unos 60 de 80 avisos ciertos. Permisos y plata urgentes arreglados por Claude (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta); el resto → orden 333. Barrido con las preguntas 188 y 198 a 202. Tercer informe (IA): IA-01 e IA-03 arreglados por Claude, preguntas 203 a 205."
+    },
+    "orden-334": {
+      "fecha": "2026-11-22",
+      "resultado": "Recorridas todas las 277 redirecciones de next.config.js: eliminados todos los saltos encadenados (Chained: 0) para que cada URL del planificador y sub-solapa conserve tab/subtab en un solo salto; verificado también tab/subtab fallback en PlanificadorSolapasShell y TabHostShell, subtab=pdf público con token en auth-guard y middleware, título Carga Operativa y contraste/flujo del simulador sin la portada vieja de dos botones."
     }
   }
 }

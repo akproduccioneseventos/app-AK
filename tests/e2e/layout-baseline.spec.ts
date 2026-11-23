@@ -41,7 +41,7 @@ const TODAS_LAS_RUTAS = [
   { ruta: '/simulador-de-presupuesto', conSesion: false },
   { ruta: '/presentacion-led', conSesion: false },
   { ruta: '/enlaces', conSesion: false },
-  { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
+  { ruta: '/fiestas/nueva/plata-y-papeles?tab=portal-cliente', conSesion: true },
 ];
 const filtroRutas = new Set(
   (process.env.LAYOUT_BASELINE_ROUTES || '').split(',').map((route) => route.trim()).filter(Boolean),
@@ -140,7 +140,9 @@ test.describe('huella de maquetación', () => {
     for (const { ruta } of RUTAS) {
       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
-      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
+      const urlActual = new URL(page.url());
+      const comparada = ruta.includes('?') ? `${urlActual.pathname}${urlActual.search}` : urlActual.pathname;
+      expect(comparada, `${ruta} redirigio inesperadamente`).toBe(ruta);
       await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
       if (ruta === '/presentacion-led') {
         await expect(page.getByText(/Cargando presentaci/i)).toBeHidden({ timeout: 45_000 });
@@ -187,8 +189,8 @@ test.describe('huella de maquetación', () => {
       for (const [medida, valor] of Object.entries(actual[clave(ruta)])) {
         const antes = esperado[medida];
         if (typeof antes !== 'number') continue;
-        // El desborde es exacto; las medidas geométricas admiten redondeo.
-        const margen = medida === 'desborde' ? 0 : TOLERANCIA;
+        // El desborde es exacto; h1W varía hasta 4px entre Windows DirectWrite y Linux FreeType; las demás medidas geométricas admiten TOLERANCIA.
+        const margen = medida === 'desborde' ? 0 : medida === 'h1W' ? 4 : TOLERANCIA;
         if (Math.abs(valor - antes) > margen) {
           desvios.push(`${ruta} · ${medida}: era ${antes}, ahora ${valor}`);
         }

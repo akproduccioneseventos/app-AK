@@ -816,7 +816,7 @@ function ListaDeCargaOperativaContent() {
             <PackageSearch className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-black tracking-tighter text-slate-900 font-headline uppercase">Control de Logística</h1>
+            <h1 className="text-3xl font-black tracking-tighter text-slate-900 font-headline uppercase">Carga Operativa — Control de Logística</h1>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Módulo 1: Disponibilidad y Carga</p>
           </div>
         </div>
