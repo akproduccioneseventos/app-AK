@@ -6,6 +6,8 @@
   seguimiento") y llamaba "total del período" a la suma de todos. Ahora sólo responde a una pregunta y dice lo que suma.
 - Tres enlaces llevaban al invitado al hub o al resumen sin su pase ("acceso no válido"): el error del check-in vuelve al
   hub con su pase, el QR sin pase va a la invitación, y la invitación no ofrece menú ni resumen sin los accesos del invitado.
+- La entrega hacía que, sin una cara en la selfie, la galería dijera "No encontramos fotos tuyas", como si no hubiera
+  fotos del invitado. Vuelve a decir "probá de nuevo"; la prueba acepta ese aviso y sigue exigiendo que la selfie no salga del teléfono.
 - El paquete del AK Editor que se baja había quedado viejo: se volvió a armar. La prueba que corre el editor en Python
   se saltea esa parte donde no está OpenCV (sólo está en la computadora del dueño) y mantiene las comprobaciones del texto.
 
@@ -13,6 +15,7 @@
 no-usa: f.includes('que') || en src/app/actions/centro-de-control.ts
 prueba: src/__tests__/el-editor-que-se-baja-es-el-de-ahora.test.ts
 usa: withGuestAccess en src/app/evento/actual/checkin/page.tsx
+usa: No pudimos activar la búsqueda por cara en tests/e2e/la-grilla-de-caras.spec.ts
 ```
 
 ## 22/11/2026 - Una redirección no lleva a otra redirección (pregunta 206)

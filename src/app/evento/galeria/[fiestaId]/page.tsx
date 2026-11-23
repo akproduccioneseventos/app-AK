@@ -407,7 +407,7 @@ export default function GaleriaPage() {
       detenerCamara();
       setCapturandoSelfie(false);
 
-      if (vectoresExtraidos.length === 0 && modoRegistroCara === 'registrar') {
+      if (vectoresExtraidos.length === 0) {
         setCamaraError('No pudimos activar la búsqueda por cara; probá de nuevo');
         return;
       }
@@ -447,10 +447,7 @@ export default function GaleriaPage() {
         }
       }
 
-      const resultado =
-        vectoresExtraidos.length > 0
-          ? buscarFotosDeUnaCara(vectoresExtraidos, caras)
-          : { seguras: [], dudosas: [] };
+      const resultado = buscarFotosDeUnaCara(vectoresExtraidos, caras);
       setConfirmedDudosas([]);
       setRejectedDudosas([]);
       setSelfieResult(resultado);
