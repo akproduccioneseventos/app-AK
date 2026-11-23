@@ -1,7 +1,8 @@
 # Orden 341 — La papelería de cada fiesta la diseña la IA, con los datos de la fiesta
 
 **Para Gemini. Propuesta aparte, rama nueva `gemini/orden-341` desde la principal recién actualizada, después de la 339
-(con su 340).** Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
+(con su 340). En esta misma propuesta va PRIMERO la orden 342 (el cerebro de IA): toda llamada a la IA de esta orden pasa
+por `src/ai/cerebro.ts`.** Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
 
 ## Por qué (pedido del dueño, 23/11/2026)
 El dueño hoy no imprime las plantillas de la app: arma **a mano con IA** la carta de tragos, el menú, el cronograma, el

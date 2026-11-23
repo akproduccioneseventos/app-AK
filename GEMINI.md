@@ -10,6 +10,9 @@
   si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
 - **En la misma propuesta que la 339, al final: orden 340 (`docs/ordenes/340-gemini-alinear-la-ia-de-google.md`).** Una sola
   lista de modelos con respaldo, Gemini 4 Hydrogen gratis primero, y el texto de la tarea diaria de Jules.
+- **Después de la 339/340, propuesta aparte: primero la orden 342 (`docs/ordenes/342-gemini-un-solo-cerebro-una-sola-puerta.md`)
+  y en la misma propuesta la 341.** Lo más importante para el dueño: toda la IA pasa por un solo cerebro (tope, modelos,
+  reglas, registro) y se encuentra en un solo lugar, Asistente AK.
 - **Después de la 339/340, propuesta aparte: orden 341 (`docs/ordenes/341-gemini-papeleria-con-ia.md`).** La carta de
   tragos, el menú, el cronograma, el afiche y el marco de fotocabina diseñados por la IA con los datos de la fiesta, y la
   IA revisa que no escribió mal ningún nombre ni hora.

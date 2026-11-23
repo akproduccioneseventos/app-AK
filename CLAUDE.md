@@ -1561,6 +1561,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Un solo cerebro de IA y una sola puerta (23 de noviembre de 2026).** Palabras suyas: *"lo más importante: que toda la
+  parte de inteligencia artificial tenga un mismo núcleo… que se haga automático, y que sea fácil: dónde lo encuentro"*. Toda
+  llamada a la IA pasa por `src/ai/cerebro.ts` (tope, modelos con respaldo, reglas, registro) y todo se ve en Asistente AK
+  (`/asistente`). Orden 342; lo frena `toda-la-ia-pasa-por-el-cerebro.test.ts`.
+
 - **La papelería la diseña la IA (23 de noviembre de 2026).** El dueño arma a mano con IA la carta, el menú, el cronograma,
   el afiche y el marco de fotocabina, y quiere que la app lo haga sola. Orden 341: la IA arma la pieza con los datos de la
   fiesta, se lee de nuevo para que no haya un nombre ni una hora mal, y las plantillas de hoy quedan de respaldo.
