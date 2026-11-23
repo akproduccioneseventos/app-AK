@@ -9,6 +9,11 @@
   el error diga el motivo.
 - `/fiestas/nueva` se caía con una fiesta sin invitados estimados: ahora muestra 0.
 
+## Auditoría funcional del 23/11/2026 → orden 338 (Gemini)
+- 15 hallazgos de la prueba en la app publicada, ubicados en el código y pasados a la orden 338; preguntas 218 a 226, seis con
+  escaneo automático. **H14 (el manual arranca con 10% de descuento) no es un error**: es la promoción del dueño; la orden sólo
+  pide que la línea se vea. Los datos "PRUEBA" que dejó el auditor no se borran en masa.
+
 ```comprobar
 prueba: src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts
 usa: aObjetoPlano en src/lib/firebase-sync.ts
