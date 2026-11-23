@@ -34,6 +34,20 @@ usa: carteleria en src/app/(app)/fiestas/nueva/page.tsx
 archivo: src/components/fiestas/panels/muro-social.tsx
 ```
 
+## 23/11/2026 - Mirar no escribe (auditoría profunda, hallazgos 1 y 2)
+
+- La entrega 1462 hacía que mirar la lista de fiestas (y abrir una) inventara y guardara un código por cada fiesta sin
+  código; con la sesión del auditor esa escritura se reintentaba en cada lectura. Ahora el código que falta se calcula fijo
+  desde el número de la fiesta (`codigoDeFiesta`), sin guardar nada, y es el mismo que usa la entrada por código.
+- Abrir "Nuevo presupuesto" reescribía las fechas de toda la lista; con una sesión de sólo mirar ya no escribe nada.
+- La lista de fiestas no cargaba en la app publicada. La causa exacta no se pudo medir (hacen falta los registros del
+  servidor); se sacó la escritura que había entrado con la 1462 y, si vuelve a fallar, la orden 335 pide que el error diga el motivo.
+
+```comprobar
+prueba: src/__tests__/mirar-no-escribe.test.ts
+usa: codigoDeFiesta en src/app/actions/fiesta/fiesta.actions.ts
+```
+
 ## 22/11/2026 - Revisión de la entrega 1462 (órdenes 331 a 333)
 
 - El Centro de control contestaba "tenés N presupuestos" a cualquier orden que tuviera "que" ("quiero que hagas

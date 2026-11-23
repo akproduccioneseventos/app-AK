@@ -1,3 +1,4 @@
+import { codigoDeFiesta } from '@/lib/fiesta/codigo-de-fiesta';
 import { Metadata } from 'next';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
@@ -82,7 +83,7 @@ export default async function InvitacionPublicaPage(props: PageProps) {
       config={config}
       fiestaId={params.fiestaId}
       horaEvento={fiesta.configuracion?.horaInicio || config.horaEvento}
-      codigoFiesta={fiesta.codigoFiesta}
+      codigoFiesta={codigoDeFiesta(fiesta)}
       socialConnections={socialConnections}
       galeriaUrl={fiesta.galeriaUrl}
       accesosVivos={accesosVivos}

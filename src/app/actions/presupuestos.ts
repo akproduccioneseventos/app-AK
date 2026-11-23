@@ -147,6 +147,10 @@ export async function repairVerifiedBudgetDates(_origen?: string): Promise<{ suc
   const auth = await verifySession();
   if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
   if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, changedCount: 0, error: 'Tu perfil no puede corregir presupuestos.' };
+  // Esta reparación corre sola al abrir una pantalla: con una sesión de sólo mirar (el auditor) no reescribe la lista
+  // de presupuestos. Abrir una pantalla no puede cambiar plata a escondidas (auditoría 23/11/2026, hallazgo 2).
+  const { esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
+  if (await esSesionDeSoloLectura()) return { success: true, changedCount: 0 };
 
   try {
     // Adentro del turno: esta funcion reescribe la lista ENTERA de presupuestos. Sin turno, un

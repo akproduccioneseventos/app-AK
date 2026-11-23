@@ -2,15 +2,19 @@
 
 ## Publicado
 - **#1462** (23/11): órdenes 331 a 334.
+- **#1463** (23/11): mirar no escribe (`codigoDeFiesta`, reparación de fechas apagada en solo lectura) y orden 336 lista.
 
 ## En revisión: orden 335 (rama `gemini/orden-335`, una sola propuesta)
 - Hecho: solapas (PDF del itinerario), cuatro impresos de mesa recuperados, ingreso de rentabilidad desde el presupuesto
   (**plata: Claude revisa línea por línea**), "No disponible" ≠ "Al día", presencia sin datos, cuenta regresiva con hora,
   motivo claro en muro y carga operativa.
-- Lo de "mirar no escribe" ya lo hizo Claude (#1463); no se tocó.
+
+## Siguiente para Gemini (en propuesta nueva, después de la 335)
+- **Orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`):** lista de la 2da auditoría profunda; confirmar cada
+  hallazgo abriendo el archivo antes de tocar. Plata y permisos los revisa Claude.
 
 ## Para Claude: barrido pregunta 207 (get/leer que escriben, sin arreglar)
-- No toca plata: `getFiestas`/`leerFiestaConEstado` (codigoFiesta, ya cubierto), `getAlertasGlobalesConLeidas`,
+- No toca plata: `getFiestas`/`leerFiestaConEstado` (`codigoDeFiesta`), `getAlertasGlobalesConLeidas`,
   `getMissionControl`, `getDigitalPresenceDashboard`.
 - Toca credenciales o plata (decidir vos): `getConnectedCompanyGoogleAccount`/`getCompanyGoogleAccountStatus` (guardan token
   de Google), `getParteDeLaManana` (cachea resumen con cuotas).
@@ -22,4 +26,4 @@
 
 ## Ojo
 - La puerta falla seguido por carga de la máquina: `npm run otravez` antes de creer una falla.
-- Se llena el disco: borrar `.next` y `test-results` de las copias aparte.
+- Se llena el disco: borrar `.next` y `test-results` de las copias aparte en el scratchpad.
