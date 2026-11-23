@@ -72,7 +72,7 @@ test.describe('Orden 331 — Un solo simulador, planificador agrupado y puerta d
     expect(urlComida.pathname).toBe('/fiestas/nueva/comida');
     expect(urlComida.searchParams.get('tab')).toBe('catering');
     expect(urlComida.searchParams.get('fiestaId')).toBe(fiestaId);
-    await expect(page.getByRole('heading', { name: 'Comida y catering' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Comida, barra e impresos' })).toBeVisible();
 
     await page.goto(`/fiestas/nueva/plan-pagos?fiestaId=${encodeURIComponent(fiestaId)}`, {
       waitUntil: 'domcontentloaded',

@@ -64,6 +64,7 @@ export default async function InvitacionSlugPage(props: PageProps) {
     <InvitacionPublicaClient
       config={config}
       fiestaId={fiesta.id}
+      horaEvento={fiesta.configuracion?.horaInicio || config.horaEvento}
       codigoFiesta={codigoDeFiesta(fiesta)}
       socialConnections={socialConnections}
       galeriaUrl={fiesta.galeriaUrl}

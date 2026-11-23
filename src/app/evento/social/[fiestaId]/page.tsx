@@ -1,6 +1,7 @@
 'use client';
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { idDelTelefono } from '@/lib/social-fiesta/id-del-telefono';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
@@ -1387,7 +1388,7 @@ export default function SocialEventPage() {
                 invitadoNombre={authorName}
                 origen="muro_social"
               />
-              {guestId && (
+              {guestId && guestAccessToken && (
                 <div className="p-3.5 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
                   <div className="text-xs text-slate-700">
                     <span className="font-bold text-slate-900 block sm:inline">¿Querés guardar el enlace de tus fotos?</span>{' '}
@@ -1397,9 +1398,7 @@ export default function SocialEventPage() {
                     href={`https://wa.me/?text=${encodeURIComponent(
                       `¡Hola! Guardá este enlace para ver tus fotos y el video recuerdo de la fiesta mañana: ${
                         typeof window !== 'undefined' ? window.location.origin : ''
-                      }/invitacion/${fiestaId}/recap?guestId=${encodeURIComponent(guestId)}${
-                        guestAccessToken ? `&token=${encodeURIComponent(guestAccessToken)}` : ''
-                      }`
+                      }${withGuestAccess(`/invitacion/${encodeURIComponent(fiestaId)}/recap`, guestId, guestAccessToken)}`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

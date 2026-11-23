@@ -309,7 +309,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </div>
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-10 sm:space-y-16 relative z-10">
                         <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">Cuenta regresiva</span>
-                        <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+                        <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} horaInicio={fiesta.configuracion.horaInicio} />
                     </div>
                 </section>
             )}

@@ -49,6 +49,11 @@ espera), recordatorios sin fiestas suspendidas/archivadas/de muestra, `perseguid
 borradores, y en el AK Editor el login de Wfolio y la subida.
 
 ## Barrido en toda la app
+
+**Escaneo automático de Claude (23/11), además del informe:** la forma de la pregunta 211 aparece también en
+`src/app/actions/games.actions.ts` (~129, ~141, ~147 y ~159), y la de la 214 también en `src/components/panels/portal--mensajes.tsx` (~42)
+y `src/components/panels/portal--tu-web.tsx` (~38).
+Los arreglás en el mismo bloque. `node scripts/las-formas-que-mienten.mjs --todo` tiene que dar 0 en las preguntas 211, 212 y 214.
 Cada forma nueva del informe se busca en toda la app con la búsqueda que el propio informe usó (está en cada sección), y lo
 que aparezca de más se arregla en la misma propuesta (plata y permisos: se lista para Claude). Preguntas 210 a 214 de
 `docs/COMO-AUDITAR.md`.
@@ -64,4 +69,7 @@ usa: unoSoloPorNombre en src/lib/assistant/tools/executors.ts
 usa: hayPresupuestoParaIA en src/app/actions/touchpix-ai.ts
 usa: hayPresupuestoParaIA en src/ai/flows/multiagent-flow.ts
 archivo: docs/auditorias/2026-11-23-gemini-2da-vuelta.md
+no-usa: sessionStorage.getItem(SESSION_KEY_PREFIX en src/components/panels/portal--mensajes.tsx
+no-usa: sessionStorage.getItem(SESSION_KEY_PREFIX en src/components/panels/portal--tu-web.tsx
+no-usa: await requireAppSession(); en src/app/actions/games.actions.ts
 ```

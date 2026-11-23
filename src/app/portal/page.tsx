@@ -72,6 +72,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn, hoyEnUruguay } from '@/lib/utils';
 import { textoDeCuentaRegresivaFecha } from '@/lib/portal/cuenta-regresiva';
+import { parseEventDate, parseEventDateTimeUruguay, parseEventHourParts } from '@/lib/public-experience/event-date';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -153,17 +154,6 @@ function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
 }
 
-function parseEventDate(dateString: string) {
-  if (dateString.includes('T')) {
-    return new Date(dateString);
-  }
-  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
-  }
-  return new Date(dateString);
-}
-
 function safeExternalUrl(url?: string) {
   if (!url) return null;
   try {
@@ -179,13 +169,8 @@ function safeExternalUrl(url?: string) {
 
 function formatDate(dateString?: string) {
   if (!dateString) return 'Fecha a confirmar';
-  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    const d = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
-    return d.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-  }
   const date = parseEventDate(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
+  if (!date || Number.isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
 
@@ -193,35 +178,48 @@ function formatCurrency(amount: number) {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 }
 
-function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
+function EventCountdown({ fechaEvento, horaInicio }: { fechaEvento: string; horaInicio?: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+  const [horaAlcanzada, setHoraAlcanzada] = useState(false);
 
   const hoy = hoyEnUruguay();
   const fechaStr = (fechaEvento || '').slice(0, 10);
   const yaPaso = fechaStr < hoy;
   const esHoy = fechaStr === hoy;
+  const tieneHora = Boolean(parseEventHourParts(horaInicio));
 
   useEffect(() => {
-    if (yaPaso || esHoy) return;
+    if (yaPaso) return;
+    if (esHoy && !tieneHora) {
+      setHoraAlcanzada(true);
+      return;
+    }
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const update = () => {
-      const target = parseEventDate(fechaEvento).getTime();
-      const diff = Math.max(0, target - Date.now());
-      setTimeLeft({
-        dias: Math.floor(diff / 86400000),
-        horas: Math.floor((diff % 86400000) / 3600000),
-        minutos: Math.floor((diff % 3600000) / 60000),
-        segundos: Math.floor((diff % 60000) / 1000),
-      });
-      if (diff > 0) {
-        timeoutId = setTimeout(update, diff > 86400000 ? 60000 : 1000);
+      const target =
+        (parseEventDateTimeUruguay(fechaEvento, horaInicio) ?? parseEventDate(fechaEvento, horaInicio))?.getTime() ??
+        NaN;
+      if (!Number.isFinite(target)) return;
+      const rawDiff = target - Date.now();
+      if (rawDiff <= 0) {
+        setHoraAlcanzada(true);
+        setTimeLeft({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+        return;
       }
+      setHoraAlcanzada(false);
+      setTimeLeft({
+        dias: Math.floor(rawDiff / 86400000),
+        horas: Math.floor((rawDiff % 86400000) / 3600000),
+        minutos: Math.floor((rawDiff % 3600000) / 60000),
+        segundos: Math.floor((rawDiff % 60000) / 1000),
+      });
+      timeoutId = setTimeout(update, rawDiff > 86400000 ? 60000 : 1000);
     };
 
     update();
     return () => clearTimeout(timeoutId);
-  }, [fechaEvento, yaPaso, esHoy]);
+  }, [fechaEvento, horaInicio, yaPaso, esHoy, tieneHora]);
 
   if (yaPaso) {
     return (
@@ -231,7 +229,7 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
     );
   }
 
-  if (esHoy) {
+  if (esHoy && (horaAlcanzada || !tieneHora)) {
     return (
       <div className="rounded-xl border border-primary-foreground/20 bg-background/20 p-4 text-center text-xl font-black backdrop-blur-sm">
         ¡Es hoy!
@@ -664,7 +662,12 @@ function ClientPortalContent() {
               </div>
             </div>
 
-            {fiesta.configuracion.fechaEvento && <EventCountdown fechaEvento={fiesta.configuracion.fechaEvento} />}
+            {fiesta.configuracion.fechaEvento && (
+              <EventCountdown
+                fechaEvento={fiesta.configuracion.fechaEvento}
+                horaInicio={fiesta.configuracion.horaInicio}
+              />
+            )}
           </div>
         </section>
 

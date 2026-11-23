@@ -44,6 +44,10 @@ export interface DigitalPresenceReview {
   date: string; // YYYY-MM-DD
   generatedAt: string;
   summary: string;
+  hasAnyDatedPost?: boolean;
+  activePlatformsWithRecentPosts?: PlatformName[];
+  hasAnyConnection?: boolean;
+  allConnectedPlatformsActive?: boolean;
   topPost: {
     id: string;
     platform: string;

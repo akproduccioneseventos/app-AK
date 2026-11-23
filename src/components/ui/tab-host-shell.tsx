@@ -36,12 +36,9 @@ export function TabHostShell({
 
   const selectTab = (tabId: string) => {
     const q = new URLSearchParams(searchParams.toString());
-    if (queryKey !== 'tab' && tabs.some((t) => t.id === q.get('tab'))) {
-      q.set('tab', tabId);
-    } else {
-      q.set(queryKey, tabId);
-    }
-    router.replace(`${pathname}?${q.toString()}`);
+    q.set(queryKey, tabId);
+    const query = q.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
   return (

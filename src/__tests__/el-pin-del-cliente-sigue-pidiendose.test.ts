@@ -6,7 +6,7 @@ jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null }));
 
 jest.mock('@/lib/data-service', () => ({
   readData: (...args: any[]) => mockReadData(...args),
-  readDataConDetalle: jest.fn(async (p: string, def: any) => ({ valor: def, huboFalla: false })),
+  readDataConDetalle: jest.fn(async (p: string, def: any) => { try { return { valor: await mockReadData(p, def), huboFalla: false }; } catch (e: any) { return { valor: def, huboFalla: true, motivo: e?.message }; } }),
   writeData: jest.fn(async () => {}),
   updateDataPartial: jest.fn(async () => {}),
 }));

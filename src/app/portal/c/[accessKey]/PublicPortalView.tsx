@@ -73,6 +73,7 @@ import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
+import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experience/event-date';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getGuestPartySize } from '@/lib/fiesta/guest-counts';
@@ -84,7 +85,7 @@ interface PublicPortalViewProps {
   presupuesto?: Presupuesto | null;
 }
 
-function useCountdown(targetDate: string | undefined) {
+function useCountdown(targetDate: string | undefined, horaInicio?: string) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -99,8 +100,8 @@ function useCountdown(targetDate: string | undefined) {
 
     const calculate = () => {
       const now = new Date().getTime();
-      const dateStr = targetDate.includes('T') ? targetDate : `${targetDate}T00:00:00`;
-      const target = new Date(dateStr).getTime();
+      const targetObj = parseEventDateTimeUruguay(targetDate, horaInicio) ?? parseEventDate(targetDate, horaInicio);
+      const target = targetObj ? targetObj.getTime() : NaN;
       if (isNaN(target)) return;
       const diff = target - now;
 
@@ -121,7 +122,7 @@ function useCountdown(targetDate: string | undefined) {
 
     calculate();
     return () => clearTimeout(timeoutId);
-  }, [targetDate]);
+  }, [targetDate, horaInicio]);
 
   return timeLeft;
 }
@@ -249,7 +250,7 @@ export default function PublicPortalView({
 }: PublicPortalViewProps) {
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const portalExperience = fiesta.clientePortalExperience ?? {};
-  const countdown = useCountdown(config.fechaEvento);
+  const countdown = useCountdown(config.fechaEvento, config.horaInicio);
 
   // Dynamic event color — clientePortalExperience.primaryColor has highest priority
   const eventColor =
@@ -451,10 +452,8 @@ export default function PublicPortalView({
 
   const eventDate = config.fechaEvento
     ? (() => {
-        const d = new Date(
-          config.fechaEvento.includes('T') ? config.fechaEvento : `${config.fechaEvento}T00:00:00`
-        );
-        return isNaN(d.getTime())
+        const d = parseEventDate(config.fechaEvento);
+        return !d || isNaN(d.getTime())
           ? config.fechaEvento
           : d.toLocaleDateString('es-UY', {
               weekday: 'long',
@@ -493,10 +492,8 @@ export default function PublicPortalView({
     ? countdown.isPast
     : config.fechaEvento
     ? (() => {
-        const d = new Date(
-          config.fechaEvento.includes('T') ? config.fechaEvento : `${config.fechaEvento}T23:59:59`
-        );
-        return !isNaN(d.getTime()) && d.getTime() < Date.now();
+        const d = parseEventDateTimeUruguay(config.fechaEvento, config.horaInicio || '23:59');
+        return !!d && !isNaN(d.getTime()) && d.getTime() < Date.now();
       })()
     : false;
 

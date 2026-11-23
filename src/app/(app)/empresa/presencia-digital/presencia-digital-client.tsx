@@ -859,7 +859,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-3 text-slate-300 text-sm">
           <AlertCircle className="w-5 h-5 text-slate-400 shrink-0" />
           <div>
-            <span className="font-bold text-white">Sin datos de publicaciones</span> — Todavía no hay registro de publicaciones recientes en tus redes conectadas.
+            <span className="font-bold text-white">Sin datos todavía</span> — Todavía no hay registro de publicaciones recientes en tus redes conectadas.
           </div>
         </div>
       ) : review.inactivePlatforms && review.inactivePlatforms.length > 0 ? (
@@ -892,7 +892,14 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             ))}
           </div>
         </div>
-      ) : review.inactivePlatforms.length === 0 ? (
+      ) : (
+        review.inactivePlatforms.length === 0 &&
+        review.hasAnyDatedPost === true &&
+        (review.hasAnyConnection ?? data.platformsStatus.some((p) => p.isConnected)) &&
+        (review.activePlatformsWithRecentPosts ? review.activePlatformsWithRecentPosts.length > 0 : true) &&
+        (review.allConnectedPlatformsActive ?? true) &&
+        !review.summary?.startsWith('Sin datos todavía')
+      ) ? (
         <div className="p-4 bg-emerald-950/30 border border-emerald-800/50 rounded-2xl flex items-center gap-3 text-emerald-200 text-sm">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
           <div>
@@ -903,7 +910,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-3 text-slate-300 text-sm">
           <AlertCircle className="w-5 h-5 text-slate-400 shrink-0" />
           <div>
-            <span className="font-bold text-white">Sin datos de publicaciones</span> — No se registran fechas de publicaciones recientes.
+            <span className="font-bold text-white">Sin datos todavía</span> — No se registran publicaciones con fecha reciente en tus redes conectadas.
           </div>
         </div>
       )}

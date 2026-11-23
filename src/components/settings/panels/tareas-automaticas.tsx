@@ -24,7 +24,12 @@ import {
   ejecutarTareaManual,
   dispararTareasVencidasDeFondo,
 } from '@/app/actions/tareas-automaticas.actions';
-import type { EstadoDeTarea, EstadoDespertador } from '@/lib/automatico/tareas-automaticas';
+import {
+  resumirTareasAutomaticas,
+  tieneFalloPosteriorAlExito,
+  type EstadoDeTarea,
+  type EstadoDespertador,
+} from '@/lib/automatico/resumen-tareas';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -119,10 +124,8 @@ export default function TareasAutomaticasPage() {
     return `Cada ${horas} horas`;
   };
 
-  const total = tareas.length;
-  const alDia = tareas.filter(t => t.estado === 'al-dia').length;
-  const atrasadas = tareas.filter(t => t.estado === 'atrasada').length;
-  const nunca = tareas.filter(t => t.estado === 'nunca').length;
+  const resumen = resumirTareasAutomaticas(tareas);
+  const { total, alDia, atrasadas, nunca, noDisponibles, conFalloReciente } = resumen;
 
   return (
     <div className="container max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
@@ -168,6 +171,56 @@ export default function TareasAutomaticasPage() {
         </div>
       </div>
 
+      {/* Aviso urgente arriba y en rojo si el despertador nunca corrió o está atrasado */}
+      {!loading && (!despertador || despertador.estado !== 'activo') && (
+        <div
+          role="alert"
+          data-testid="aviso-despertador-inactivo"
+          className="p-4 rounded-xl border-2 border-rose-700 bg-rose-600 text-white shadow-md flex items-start gap-3"
+        >
+          <ShieldAlert className="h-6 w-6 shrink-0 mt-0.5 text-white" />
+          <div className="space-y-1">
+            <p className="font-bold text-sm sm:text-base">
+              {despertador?.estado === 'atrasado'
+                ? 'El despertador automático dejó de responder'
+                : 'El despertador automático está sin ejecutar'}
+            </p>
+            <p className="text-xs sm:text-sm text-rose-50">
+              {despertador?.estado === 'atrasado'
+                ? despertador.mensaje
+                : 'Sin ejecutar: el despertador todavía no corrió ninguna vez en este entorno y las tareas no se disparan solas.'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Aviso en el resumen arriba si el último intento de una tarea falló después del último éxito */}
+      {conFalloReciente.length > 0 && (
+        <div
+          role="alert"
+          data-testid="aviso-fallos-recientes"
+          className="p-4 rounded-xl border border-rose-300 bg-rose-50 text-rose-900 shadow-sm space-y-2"
+        >
+          <div className="flex items-center gap-2 font-bold text-sm text-rose-900">
+            <XCircle className="h-5 w-5 text-rose-600 shrink-0" />
+            <span>
+              {conFalloReciente.length === 1
+                ? '1 tarea falló en su último intento después del último éxito'
+                : `${conFalloReciente.length} tareas fallaron en su último intento después del último éxito`}
+            </span>
+          </div>
+          <ul className="list-disc pl-6 text-xs text-rose-800 space-y-1">
+            {conFalloReciente.map((t) => (
+              <li key={t.id}>
+                <strong>{t.nombre}</strong>
+                {t.ultimoFallo?.fecha ? ` (${formatearFecha(t.ultimoFallo.fecha)})` : ''}:{' '}
+                {t.ultimoFallo?.error || 'Error sin detalle'}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Alertas */}
       {message && (
         <div
@@ -185,11 +238,11 @@ export default function TareasAutomaticasPage() {
       )}
 
       {/* Métricas resumen */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
         <Card className="border-slate-200 shadow-sm bg-white">
           <CardHeader className="p-4 pb-1">
             <CardDescription className="text-xs font-semibold text-slate-500">TOTAL TAREAS</CardDescription>
-            <CardTitle className="text-2xl font-bold text-slate-800">{total}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-slate-800" data-testid="contador-total">{total}</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0 text-xs text-slate-400">Declaradas en el sistema</CardContent>
         </Card>
@@ -197,7 +250,7 @@ export default function TareasAutomaticasPage() {
         <Card className="border-emerald-200 bg-emerald-50/40 shadow-sm">
           <CardHeader className="p-4 pb-1">
             <CardDescription className="text-xs font-semibold text-emerald-700">AL DÍA</CardDescription>
-            <CardTitle className="text-2xl font-bold text-emerald-700 flex items-center gap-2">
+            <CardTitle className="text-2xl font-bold text-emerald-700 flex items-center gap-2" data-testid="contador-al-dia">
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               {alDia}
             </CardTitle>
@@ -205,10 +258,21 @@ export default function TareasAutomaticasPage() {
           <CardContent className="p-4 pt-0 text-xs text-emerald-600 font-medium">Corrieron en tiempo y forma</CardContent>
         </Card>
 
+        <Card className="border-slate-300 bg-slate-100/70 shadow-sm">
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-slate-700">NO DISPONIBLE</CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2" data-testid="contador-no-disponible">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              {noDisponibles}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-slate-600 font-medium">Falta conexión externa</CardContent>
+        </Card>
+
         <Card className="border-amber-200 bg-amber-50/40 shadow-sm">
           <CardHeader className="p-4 pb-1">
             <CardDescription className="text-xs font-semibold text-amber-700">ATRASADAS</CardDescription>
-            <CardTitle className="text-2xl font-bold text-amber-700 flex items-center gap-2">
+            <CardTitle className="text-2xl font-bold text-amber-700 flex items-center gap-2" data-testid="contador-atrasadas">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
               {atrasadas}
             </CardTitle>
@@ -219,7 +283,7 @@ export default function TareasAutomaticasPage() {
         <Card className="border-rose-200 bg-rose-50/40 shadow-sm">
           <CardHeader className="p-4 pb-1">
             <CardDescription className="text-xs font-semibold text-rose-700">NUNCA CORRIERON</CardDescription>
-            <CardTitle className="text-2xl font-bold text-rose-700 flex items-center gap-2">
+            <CardTitle className="text-2xl font-bold text-rose-700 flex items-center gap-2" data-testid="contador-nunca">
               <XCircle className="h-5 w-5 text-rose-600" />
               {nunca}
             </CardTitle>
@@ -311,24 +375,32 @@ export default function TareasAutomaticasPage() {
           ) : (
             tareas.map((tarea) => {
               const isRunning = runningId === tarea.id;
-            const esNunca = tarea.estado === 'nunca';
-            const esAtrasada = tarea.estado === 'atrasada';
-            const esAlDia = tarea.estado === 'al-dia';
+            const esNoDisponible = tarea.estado === 'no-disponible' || Boolean(tarea.faltaConexion);
+            const esNunca = !esNoDisponible && tarea.estado === 'nunca';
+            const esAtrasada = !esNoDisponible && tarea.estado === 'atrasada';
+            const esAlDia = !esNoDisponible && tarea.estado === 'al-dia';
+            const falloPosterior = tarea.falloPosteriorAlExito ?? tieneFalloPosteriorAlExito(tarea);
 
             return (
               <div
                 key={tarea.id}
                 className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                  esNunca ? 'bg-rose-50/20' : esAtrasada ? 'bg-rose-50/25 border-l-4 border-l-rose-500' : 'hover:bg-slate-50/50'
+                  esNoDisponible
+                    ? 'bg-slate-50/80'
+                    : esNunca
+                      ? 'bg-rose-50/20'
+                      : esAtrasada
+                        ? 'bg-rose-50/25 border-l-4 border-l-rose-500'
+                        : 'hover:bg-slate-50/50'
                 }`}
               >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span className="font-bold text-base text-slate-900">{tarea.nombre}</span>
-                    {tarea.faltaConexion && (
+                    {esNoDisponible && (
                       <Badge className="bg-amber-100 text-amber-900 border-amber-300 gap-1 font-semibold text-xs">
                         <AlertTriangle className="h-3 w-3 text-amber-600" />
-                        No disponible: falta {tarea.faltaConexion}
+                        {tarea.faltaConexion ? `No disponible: falta ${tarea.faltaConexion}` : 'No disponible'}
                       </Badge>
                     )}
                     {esAlDia && (
@@ -347,6 +419,12 @@ export default function TareasAutomaticasPage() {
                       <Badge className="bg-rose-100 text-rose-900 border-rose-300 hover:bg-rose-100 gap-1 font-bold text-xs">
                         <XCircle className="h-3 w-3 text-rose-600" />
                         Nunca corrió
+                      </Badge>
+                    )}
+                    {falloPosterior && (
+                      <Badge className="bg-rose-100 text-rose-900 border-rose-300 gap-1 font-bold text-xs">
+                        <XCircle className="h-3 w-3 text-rose-600" />
+                        Último intento falló
                       </Badge>
                     )}
                     <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">
