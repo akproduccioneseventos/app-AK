@@ -56,12 +56,17 @@ La IA a veces escribe mal. Antes de mostrar la pieza:
 
 ## Bloque 4 — La hoja A4 lista para imprimir, como la arma hoy el dueño
 El dueño mandó cuatro PDF de cómo imprime (23/11/2026). La app arma la hoja sola:
-1. **Carta de tragos y menú:** el dueño las arma en Canva así: **vertical, tamaño A6 (10,5 × 14,8 cm), dos copias
-   una al lado de la otra en la mitad de arriba de una hoja A4**, cada una con borde negro fino para cortar. Hoy la carta
-   imprime una sola, apaisada de 15 × 10 cm (`carta-tragos.tsx` ~449 y `@page` ~464): **se suma** la opción "2 por hoja
-   A4 (A6 vertical)" y queda como la que viene elegida; la de 15 × 10 sigue disponible. Lo mismo en `menu-mesa.tsx`
-   (hoy A4 apaisado, `@page` ~242). El menú lleva secciones con foto de cada plato: Entradas, Plato principal, Menú
-   niños y adolescentes, Postres y Bebidas (sólo las que la fiesta tiene), el logo de AK y el WhatsApp de Ajustes.
+1. **Carta de tragos y menú:** el dueño hoy las arma afuera, las baja en PDF e imprime; **quiere hacerlo todo en la app**.
+   Formato: **vertical de 10 × 15 cm, con un borde negro fino alrededor (unos 3 mm, para cortar), dos piezas una al lado
+   de la otra en una hoja A4**, arriba. Hoy la carta imprime una sola, apaisada de 15 × 10 cm (`carta-tragos.tsx` ~449 y
+   `@page` ~464): se suma el formato "2 por hoja A4 (10 × 15 vertical)" y queda como el elegido; el de hoy sigue como
+   opción. Lo mismo en `menu-mesa.tsx` (hoy A4 apaisado, `@page` ~242). El menú lleva secciones con foto de cada plato:
+   Entradas, Plato principal, Menú niños y adolescentes, Postres y Bebidas (sólo las que la fiesta tiene), el logo de AK y
+   el WhatsApp de Ajustes.
+   **El tamaño no se puede mover:** el dueño pasa por PDF justamente para que la imagen no salga de otro tamaño. Por eso
+   el botón **"Imprimir"** arma un PDF A4 con la imagen puesta en **milímetros exactos** (jsPDF `addImage` con 100 × 150
+   mm, no `pdf.html`) y abre la ventana de imprimir de ese PDF; al lado, **"Descargar PDF"** con el mismo archivo. La
+   prueba mide en el PDF que la pieza mida 100 × 150 mm.
 2. **Números de mesa en torrecita: el armado YA EXISTE y está bien, no lo rehagas.** `numeros-mesa.tsx` ~188-220 ("Torres
    de Mesa A4", 2 por hoja): cada columna de 105 mm es una torre triangular, con la solapa de pegar de 30 mm, una cara en
    blanco de 87 mm y dos caras de 90 mm con "Mesa N", una girada 180° (~130). Es igual a como la imprime el dueño: se
@@ -98,4 +103,5 @@ prueba: src/__tests__/la-papeleria-con-ia-no-escribe-mal.test.ts
 prueba: src/__tests__/el-marco-con-ia-deja-las-ventanas-transparentes.test.ts
 usa: Diseñar con IA en src/components/fiestas/panels/numeros-mesa.tsx
 prueba: src/__tests__/la-hoja-a4-de-mesas-sale-completa.test.ts
+prueba: src/__tests__/la-carta-sale-de-10-por-15-exactos.test.ts
 ```
