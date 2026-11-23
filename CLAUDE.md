@@ -1312,6 +1312,10 @@ ninguna tenía escaneo automático. El dueño: *"los escaneos tienen que ir auto
 buscar con una expresión; la lista de "no se puede escanear" es sólo para lo que de verdad no se puede (un comportamiento,
 no un texto). Y el escaneo se prueba con un caso que tiene que dar positivo.
 
+**Y otra vez el 23 de noviembre de 2026:** las preguntas 208 a 214 quedaron como "las cubren las pruebas de la orden". Lo
+preguntó el dueño. Tres se podían buscar (211, 212, 214) y el escaneo encontró seis lugares más que el informe. **Antes de
+marcar una pregunta como no escaneable, intentar la expresión sobre el archivo entero (el escaneo lee el archivo completo).**
+
 ### 58. Tomar por dato de la corrida un cambio que una orden hizo a propósito
 
 **Pasó el 18 de noviembre de 2026.** Al juntar la 1429 vi una cédula vacía en `src/data/empleados.json` y la volví a la de la
