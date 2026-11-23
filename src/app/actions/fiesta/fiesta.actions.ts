@@ -555,13 +555,9 @@ async function leerFiestaConEstado(
     let readFailed = false;
     let readMotivo: string | undefined;
     try {
-        const readEsMock =
-            typeof readData === 'function' &&
-            ('mock' in readData ||
-                (typeof readDataConDetalle === 'function' &&
-                    'mock' in readDataConDetalle &&
-                    !readData.toString().includes('readDataConDetalle')));
-        if (readEsMock) {
+        // Sin preguntar si la están probando (control el-codigo-no-sabe-si-lo-prueban): se usa la lectura con detalle si existe.
+        const sinDetalle = typeof readDataConDetalle !== 'function';
+        if (sinDetalle) {
             const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
             if (active && active.id === fiestaId) {
                 fiesta = active;

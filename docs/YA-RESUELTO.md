@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/11/2026 - Revisión de la entrega 1464 (orden 335)
+
+- La entrega leía la fiesta por otro camino cuando la estaban probando (`'mock' in readData`): lo que se probaba no era lo
+  que corre en la app. Ahora usa siempre la lectura con detalle, y el control `el-codigo-no-sabe-si-lo-prueban` busca también
+  esa forma (se probó rompiéndolo: marca las dos líneas de la entrega).
+- Revisado a mano, bien: el ingreso de rentabilidad sale del presupuesto con el ajuste anual y sólo se muestra (no guarda).
+
+```comprobar
+no-usa: 'mock' in readData en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts
+```
+
 ## 23/11/2026 - Orden 335: cada botón llega a la función que anuncia
 
 - **Solapas:** "Imprimir / PDF" en Operación → Itinerario mandaba a Personal porque la solapa de adentro pisaba la de afuera.

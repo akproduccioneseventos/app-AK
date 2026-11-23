@@ -9,7 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const PROHIBIDO = [/\.mock\s*[!=]==/, /_isMockFunction/, /JEST_WORKER_ID/, /\.mock\?\.\w/];
+const PROHIBIDO = [/'mock' in \w/, /\.mock\s*[!=]==/, /_isMockFunction/, /JEST_WORKER_ID/, /\.mock\?\.\w/];
 
 function archivosDeLaApp(dir: string): string[] {
   const out: string[] = [];
@@ -39,6 +39,8 @@ describe('El código no sabe si lo prueban', () => {
   it('el control encuentra un atajo de prueba (se prueba rompiéndolo)', () => {
     expect(buscarAtajos({ 'x.ts': "if (typeof (saveFiesta as any).mock !== 'undefined') {}" })).toEqual(['x.ts:1']);
     expect(buscarAtajos({ 'y.ts': 'if (process.env.JEST_WORKER_ID) {}' })).toEqual(['y.ts:1']);
+    // Entrega 1464 (23/11/2026): "'mock' in readData" elegía otro camino bajo Jest.
+    expect(buscarAtajos({ 'z.ts': "const esMock = 'mock' in readData;" })).toEqual(['z.ts:1']);
     expect(buscarAtajos({ 'z.ts': 'const ok = 1;' })).toEqual([]);
   });
 
