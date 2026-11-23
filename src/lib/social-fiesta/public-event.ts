@@ -1,3 +1,4 @@
+import { codigoDeFiesta } from '@/lib/fiesta/codigo-de-fiesta';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { calculateLeaderboard } from '@/lib/games/game-engine';
 import { mapProgramaParaElCliente } from '@/lib/client-portal/public-fiesta';
@@ -68,7 +69,7 @@ export function toPublicSocialEvent(
 
   return {
     id: fiesta.id,
-    codigoFiesta: fiesta.codigoFiesta,
+    codigoFiesta: codigoDeFiesta(fiesta),
     configuracion: {
       nombreEvento: fiesta.configuracion.nombreEvento,
       fechaEvento: fiesta.configuracion.fechaEvento,

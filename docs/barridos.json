@@ -824,6 +824,38 @@
     "206": {
       "fecha": "2026-11-22",
       "resultado": "Seis redirecciones encadenadas en la principal (respaldo, reporte de empleados, IA de marketing, contrato, checklist y plantillas de marketing): las arregló Claude en un salto. Las de la entrega 1462 → orden 334 bloque 1."
+    },
+    "207": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido de get*/leer* que guardan: la lista y la lectura de fiestas (códigos) y la reparación de fechas de presupuestos, arreglados por Claude; el resto de la app → orden 335."
+    },
+    "208": {
+      "fecha": "2026-11-23",
+      "resultado": "PDF del itinerario (colisión tab/subtab en TabHostShell) y cuatro impresos borrados por la entrega de las órdenes 318-321 → orden 335 bloques 1 y 2; el recorrido de las demás tarjetas → orden 335."
+    },
+    "209": {
+      "fecha": "2026-11-23",
+      "resultado": "parseEventDate arma la fecha a medianoche y el contador de la invitación no usa la hora → orden 335 bloque 6; el resto de cuentas regresivas → barrido de la orden 335."
+    },
+    "210": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: readData devuelve vacío sin marca si la base tarda, y el guardado siguiente marca para borrar todo lo demás (sección A.1). → orden 336."
+    },
+    "211": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: Entretenimiento, transmisión en vivo, carga operativa, buzón, video de vida y descargas ZIP con sólo sesión (sección B). → orden 336."
+    },
+    "212": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: deleteInvoiceInner cae a un borrado sin transacción a los 1,5 s (sección A.2). → orden 336."
+    },
+    "213": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: applyFaceSwap, multiagente y seis flujos más sin tope ni registro (sección G). → orden 336."
+    },
+    "214": {
+      "fecha": "2026-11-23",
+      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: Cinco solapas del portal miran sessionStorage y rebotan a quien entró por /entrar (sección E.1). → orden 336."
     }
   },
   "hallazgos": {
@@ -1242,6 +1274,14 @@
     "orden-334": {
       "fecha": "2026-11-22",
       "resultado": "Recorridas todas las 277 redirecciones de next.config.js: eliminados todos los saltos encadenados (Chained: 0) para que cada URL del planificador y sub-solapa conserve tab/subtab en un solo salto; verificado también tab/subtab fallback en PlanificadorSolapasShell y TabHostShell, subtab=pdf público con token en auth-guard y middleware, título Carga Operativa y contraste/flujo del simulador sin la portada vieja de dos botones. Pregunta 206: además seis encadenadas que ya estaban en la principal, arregladas por Claude en un salto; el control una-redireccion-no-lleva-a-otra-redireccion mira todo next.config.js."
+    },
+    "orden-335": {
+      "fecha": "2026-11-23",
+      "resultado": "Auditoría profunda del 23/11: nueve hallazgos, todos ciertos. Claude arregló las lecturas que escribían (fiestas y presupuestos); el resto → orden 335, con las preguntas 207 a 209 (y 205 para los estados que dicen 'al día' o felicitan sin datos)."
+    },
+    "orden-336": {
+      "fecha": "2026-11-23",
+      "resultado": "Auditoría de Gemini 2da vuelta: 99 avisos (37 críticos). Claude confirmó tres a mano (entretenimiento, transmisión en vivo, borrado de facturas); el resto lo confirma Gemini antes de arreglar. Preguntas 210 a 214."
     }
   }
 }

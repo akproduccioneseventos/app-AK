@@ -1,3 +1,4 @@
+import { codigoDeFiesta } from '@/lib/fiesta/codigo-de-fiesta';
 import { Metadata } from 'next';
 import { getFiestaBySlug } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
@@ -63,7 +64,7 @@ export default async function InvitacionSlugPage(props: PageProps) {
     <InvitacionPublicaClient
       config={config}
       fiestaId={fiesta.id}
-      codigoFiesta={fiesta.codigoFiesta}
+      codigoFiesta={codigoDeFiesta(fiesta)}
       socialConnections={socialConnections}
       galeriaUrl={fiesta.galeriaUrl}
       accesosVivos={accesosVivos}
