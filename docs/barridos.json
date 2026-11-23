@@ -843,11 +843,11 @@
     },
     "211": {
       "fecha": "2026-11-23",
-      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: Entretenimiento, transmisión en vivo, carga operativa, buzón, video de vida y descargas ZIP con sólo sesión (sección B). → orden 336."
+      "resultado": "Escaneo automático (las-formas-que-mienten): 6 lugares, entre ellos entretenimiento.actions.ts (2) y games.actions.ts (2), que el informe no traía → orden 336 bloque 1."
     },
     "212": {
       "fecha": "2026-11-23",
-      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: deleteInvoiceInner cae a un borrado sin transacción a los 1,5 s (sección A.2). → orden 336."
+      "resultado": "Escaneo automático: 1 lugar, invoices.ts (deleteInvoiceInner) → orden 336 bloque 1."
     },
     "213": {
       "fecha": "2026-11-23",
@@ -855,7 +855,7 @@
     },
     "214": {
       "fecha": "2026-11-23",
-      "resultado": "Barrido hecho por los auditores de Gemini en toda la app: Cinco solapas del portal miran sessionStorage y rebotan a quien entró por /entrar (sección E.1). → orden 336."
+      "resultado": "Escaneo automático: 7 lugares en los paneles del portal, incluido portal--mensajes.tsx, que el informe no traía → orden 336 bloque 3."
     }
   },
   "hallazgos": {
