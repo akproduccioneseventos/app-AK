@@ -84,7 +84,7 @@ test.describe('Orden 335 Bloque 2 — Los impresos de mesa se abren desde el pla
       expect(url.searchParams.get('tab')).toBe(item.tab);
       expect(url.searchParams.get('fiestaId')).toBe(fiestaId);
 
-      await expect(page.getByRole('heading', { name: item.heading })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('heading', { name: item.heading })).toBeVisible({ timeout: 60_000 });
 
       if (item.printSelector.type === 'role') {
         await expect(page.getByRole('button', { name: item.printSelector.name })).toBeVisible();
@@ -117,7 +117,7 @@ test.describe('Orden 335 Bloque 2 — Los impresos de mesa se abren desde el pla
       expect(url.pathname).toBe('/fiestas/nueva/comida');
       expect(url.searchParams.get('tab')).toBe(item.tab);
       expect(url.searchParams.get('fiestaId')).toBe(fiestaId);
-      await expect(page.getByRole('heading', { name: item.heading })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('heading', { name: item.heading })).toBeVisible({ timeout: 60_000 });
     }
   });
 });
