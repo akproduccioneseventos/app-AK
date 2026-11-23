@@ -12,6 +12,7 @@ jest.mock('@/lib/data-service', () => {
   return {
     ...real,
     readData: jest.fn(async (archivo: string, porDefecto: any) => (almacen[archivo] === undefined ? porDefecto : copia(almacen[archivo]))),
+    readDataConDetalle: jest.fn(async (archivo: string, porDefecto: any) => ({ valor: almacen[archivo] === undefined ? porDefecto : copia(almacen[archivo]), huboFalla: false })),
     writeData: jest.fn(async (archivo: string, datos: any) => { almacen[archivo] = copia(datos); }),
   };
 });
