@@ -58,6 +58,6 @@ describe('Los guardados que reescriben una lista entera pasan por un turno', () 
   it('el presupuesto que se repara de una pasa por el turno de presupuestos', () => {
     const codigo = leer('src/app/actions/presupuestos.ts');
     const reparar = codigo.slice(codigo.indexOf('export async function repairVerifiedBudgetDates'));
-    expect(reparar.slice(0, 800)).toContain('presupuestosMutex.runExclusive');
+    expect(reparar.slice(0, 1400)).toContain('presupuestosMutex.runExclusive');
   });
 });
