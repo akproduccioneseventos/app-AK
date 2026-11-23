@@ -107,7 +107,8 @@ test.describe('Orden 335 Bloque 2 — Los impresos de mesa se abren desde el pla
       const res = await context.request.get(oldUrl, { maxRedirects: 0 });
       expect([307, 308]).toContain(res.status());
       const location = res.headers()['location'] || '';
-      expect(location).toContain(`/fiestas/nueva/comida?tab=${item.tab}`);
+      expect(new URL(location, "http://x").pathname).toBe("/fiestas/nueva/comida");
+      expect(new URL(location, "http://x").searchParams.get("tab")).toBe(item.tab);
       expect(location).toContain(`fiestaId=${encodeURIComponent(fiestaId)}`);
 
       await page.goto(oldUrl, { waitUntil: 'domcontentloaded' });
