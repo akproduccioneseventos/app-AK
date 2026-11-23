@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
+import { getEffectiveInvoiceStatus, getInvoiceBalanceDue } from '@/lib/invoice-money';
 import type { Customer as InvoiceCustomerType } from '@/types/customer';
 import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/actions/invoices';
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
@@ -40,6 +41,8 @@ export default function EditInvoicePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
+  const hasPendingBalance = invoice ? getInvoiceBalanceDue(invoice) > 0 : true;
+
   const loadInvoiceAndCustomers = useCallback(async () => {
     if (!invoiceId) {
       setNotFound(true);
@@ -62,7 +65,7 @@ export default function EditInvoicePage() {
         setSelectedCustomerId(loadedInvoice.customer.id);
         setIssueDate(new Date(loadedInvoice.issueDate));
         setDueDate(new Date(loadedInvoice.dueDate));
-        setStatus(loadedInvoice.status);
+        setStatus(getEffectiveInvoiceStatus(loadedInvoice));
         setNotes(loadedInvoice.notes || '');
         setCurrency(loadedInvoice.currency || 'UYU');
         setTaxRate(loadedInvoice.taxRate || 0);
@@ -200,7 +203,7 @@ export default function EditInvoicePage() {
                     <Select value={status} onValueChange={(value) => setStatus(value as InvoiceStatus)} disabled={isSaving}>
                     <SelectTrigger id="status-select" className="text-base p-3 h-auto"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                        {(['Draft', 'Sent', 'Viewed', 'Paid', 'Overdue'] as InvoiceStatus[]).map(s => (<SelectItem key={s} value={s} className="text-base">{s === 'Draft' ? 'Borrador' : s === 'Sent' ? 'Enviada' : s === 'Viewed' ? 'Vista' : s === 'Paid' ? 'Pagada' : 'Vencida'}</SelectItem>))}
+                        {(['Draft', 'Sent', 'Viewed', 'Paid', 'Overdue'] as InvoiceStatus[]).map(s => (<SelectItem key={s} value={s} disabled={s === 'Paid' && hasPendingBalance} className="text-base">{s === 'Draft' ? 'Borrador' : s === 'Sent' ? 'Enviada' : s === 'Viewed' ? 'Vista' : s === 'Paid' ? 'Pagada' : 'Vencida'}</SelectItem>))}
                     </SelectContent>
                     </Select>
                 </div>

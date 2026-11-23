@@ -17,7 +17,7 @@ import { dibujarFiltroDeCara, reflejarCarasEnHorizontal, type CaraDetectada } fr
 const leer = (r: string) => readFileSync(join(process.cwd(), r), 'utf8');
 
 describe('1. mesas: una asignacion que falla no se anuncia como guardada', () => {
-  const src = leer('src/app/(app)/fiestas/nueva/invitados/page.tsx');
+  const src = leer('src/components/fiestas/panels/invitados.tsx');
   const cuerpo = src.slice(src.indexOf('const handleConfirmarMesas'), src.indexOf('const [guestQrModal'));
   it('mira la respuesta de cada guardado y corta antes del cartel de exito', () => {
     expect(cuerpo).toMatch(/await updateInvitadoFiestaActual\([^)]*\{[\s\S]*?\}\);/);

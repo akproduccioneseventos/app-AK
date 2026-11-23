@@ -67,6 +67,7 @@ import {
   updateClientGuestTable,
   updateClientPackingList,
   resumenDeLaFiestaParaElCliente,
+  verificarSesionPortalCliente as verifyPortalSession,
   type ResumenFiestaCliente,
 } from '@/app/actions/fiesta/portal.actions';
 import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
@@ -181,6 +182,19 @@ function PortalClientePageInner() {
       return;
     }
     try {
+      const hasValidServerSession = await verifyPortalSession(fiestaId).catch(() => false);
+      if (hasValidServerSession) {
+        const data = await getFiestaForPortalSession(fiestaId);
+        if (data) {
+          setFiesta(data);
+          const rootItems = data.clienteDebeLlevar;
+          setDebeLlevarItems(rootItems?.length ? rootItems : defaultClienteDebeLlevar);
+          setIsAuth(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const storedKey = sessionStorage.getItem(sessionKey);
       if (!storedKey) return;
       const sessionResult = await initializePortalSession(fiestaId, storedKey);

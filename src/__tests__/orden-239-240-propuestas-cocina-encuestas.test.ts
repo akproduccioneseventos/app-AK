@@ -124,7 +124,7 @@ describe('orden 240: cocina y encuestas', () => {
 
 describe('pregunta 103: sincronizar con el presupuesto guarda antes', () => {
   it('handleSyncPresupuesto espera el guardado antes de sincronizar', () => {
-    const src = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/configuracion/page.tsx'), 'utf8');
+    const src = fs.readFileSync(path.join(process.cwd(), 'src/components/fiestas/panels/configuracion.tsx'), 'utf8');
     const cuerpo = src.slice(src.indexOf('const handleSyncPresupuesto'));
     const guardar = cuerpo.indexOf('await saveNow()');
     const sincronizar = cuerpo.indexOf('syncFiestaFromBudget(');

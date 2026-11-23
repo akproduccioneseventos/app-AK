@@ -7,9 +7,9 @@ const read = (relativePath: string) =>
 describe('estética: contratos de portal e invitación', () => {
   const invitation = read('src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx');
   const fiestaTypes = read('src/types/fiesta.ts');
-  const configuration = read('src/app/(app)/fiestas/nueva/configuracion/page.tsx');
+  const configuration = read('src/components/fiestas/panels/configuracion.tsx');
   const clientPortal = read('src/app/portal/c/[accessKey]/PublicPortalView.tsx');
-  const teamPortal = read('src/app/(app)/fiestas/nueva/portal-cliente/page.tsx');
+  const teamPortal = read('src/components/fiestas/panels/portal-cliente.tsx');
   const globals = read('src/app/globals.css');
 
   it("quita 'Tal vez' de la respuesta pública sin borrar el dato histórico", () => {

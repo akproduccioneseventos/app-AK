@@ -24,7 +24,7 @@ const leer = (rel: string) => fs.readFileSync(path.join(process.cwd(), rel), 'ut
 
 describe('enlaces: el destino lee el dato que le mandan', () => {
   it('post-evento y control de entretenimiento mandan fiestaId (no id)', () => {
-    const post = leer('src/app/(app)/fiestas/nueva/post-evento/page.tsx');
+    const post = leer('src/components/fiestas/panels/post-evento.tsx');
     expect(post).toContain('/fiestas/nueva?fiestaId=${fiestaId}');
     expect(post).toContain('reporte?fiestaId=${fiestaId}');
     expect(post).not.toMatch(/\?id=\$\{fiestaId\}/);
@@ -35,7 +35,7 @@ describe('enlaces: el destino lee el dato que le mandan', () => {
     for (const destino of [
       'src/app/(app)/fiestas/nueva/page.tsx',
       'src/components/panels/costos--reporte.tsx',
-      'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx',
+      'src/components/fiestas/panels/entretenimiento.tsx',
     ]) expect(leer(destino)).toContain("searchParams.get('fiestaId')");
   });
 
@@ -99,7 +99,7 @@ describe('importar invitados: el reintento conserva la fila entera y no mira el 
   });
 
   it('la pantalla ya no usa "as any" ni filtra por nombre', () => {
-    const pantalla = leer('src/app/(app)/fiestas/nueva/invitados/page.tsx');
+    const pantalla = leer('src/components/fiestas/panels/invitados.tsx');
     expect(pantalla).not.toContain('lineaOriginal ||');
     expect(pantalla).not.toContain('nombresFallidos');
     expect(pantalla).toContain('filasFallidas');

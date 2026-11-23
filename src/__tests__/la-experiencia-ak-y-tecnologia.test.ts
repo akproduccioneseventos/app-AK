@@ -39,7 +39,8 @@ describe('Orden 106 + Orden 321 — Páginas /experiencia y /tecnologia', () => 
 
     expect(content).toContain('Paso 1');
     expect(content).toContain('Paso 6');
-    expect(content).toContain('/simulador-ak');
+    // Orden 331: /simulador-ak consolidado en /simulador-de-presupuesto
+    expect(content).toContain('/simulador-de-presupuesto');
     expect(content).toContain('wa.me');
   });
 

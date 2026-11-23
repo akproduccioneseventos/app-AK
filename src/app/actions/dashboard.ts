@@ -113,7 +113,7 @@ export async function getDashboardKpiData() {
     const [
       presupuestosData,
       invoicesData,
-      fiestasData,
+      fiestasRaw,
       leadsData,
       notificationsData,
       prioridadesDescartadas,
@@ -125,6 +125,8 @@ export async function getDashboardKpiData() {
       loadDashboardSource('notificaciones', getNotifications, [], sourceStatus),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
+    const { esFiestaDemo } = await import('@/lib/events/event-ordering');
+    const fiestasData = fiestasRaw.filter(f => !esFiestaDemo(f));
 
     if (Object.values(sourceStatus).every((available) => !available)) {
       return { success: false, error: 'DASHBOARD_DATA_UNAVAILABLE' };

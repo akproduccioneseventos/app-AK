@@ -9,6 +9,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { marcarHitoPrograma } from '@/app/actions/fiesta/itinerario.actions';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const ROLES = [
   { id: 'Todos', label: 'Todo el Equipo' },
@@ -169,7 +170,22 @@ export default function StaffCronogramaPage() {
 
       <main className="max-w-xl mx-auto p-4 space-y-4">
         {/* BLOQUE: LO TUYO AHORA MISMO */}
-        {currentItem ? (
+        {(() => {
+          const fechaEventoStr = fiesta?.configuracion.fechaEvento ? String(fiesta.configuracion.fechaEvento).slice(0, 10) : '';
+          const hoyUy = hoyEnUruguay();
+          const esAntesDelEvento = Boolean(fechaEventoStr && fechaEventoStr > hoyUy);
+          if (esAntesDelEvento) {
+            return (
+              <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-6 text-center text-slate-300">
+                <Clock className="h-8 w-8 mx-auto mb-2 text-amber-400" />
+                <h3 className="font-black text-base text-white">Lo primero, el día del evento</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  El cronograma en vivo estará disponible el {fechaEventoStr}.
+                </p>
+              </div>
+            );
+          }
+          return currentItem ? (
           <div className="rounded-2xl border-2 border-amber-500/60 bg-gradient-to-br from-amber-500/20 via-slate-900 to-slate-900 p-5 shadow-xl">
             <div className="flex items-center justify-between mb-3 border-b border-amber-500/30 pb-2">
               <span className="text-[11px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
@@ -214,7 +230,8 @@ export default function StaffCronogramaPage() {
               Excelente trabajo coordinando este evento.
             </p>
           </div>
-        )}
+        );
+        })()}
 
         {/* BLOQUE: PRÓXIMO HITO */}
         {nextItem && (

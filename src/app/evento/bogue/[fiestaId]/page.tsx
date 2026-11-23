@@ -135,6 +135,7 @@ export default function VoguePage() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [queuedOffline, setQueuedOffline] = useState(false);
   const [retakesCount, setRetakesCount] = useState(0);
 
   const [selectedFrame, setSelectedFrame] = useState('none');
@@ -389,6 +390,10 @@ export default function VoguePage() {
     setFinalVideoUrl(null);
     setFinalStripUrl(null);
     setUploadedPostUrl(null);
+    setQrCodeUrl('');
+    setUploadError(null);
+    setQueuedOffline(false);
+    setGifUrl(null);
     setIsUploading(false);
     setProgressMsg('');
     if (role === 'display') {
@@ -779,6 +784,7 @@ export default function VoguePage() {
 
     setIsUploading(true);
     setUploadError(null);
+    setQueuedOffline(false);
     setProgressMsg('Subiendo al muro social de la fiesta...');
 
     // Aviso sobre la tira de fotos: si no subió, se guarda en la cola del equipo y se dice.
@@ -901,7 +907,10 @@ export default function VoguePage() {
           guestAccessToken: capturedGuestAccessToken,
           accessToken: capturedAccessToken,
         });
-        setProgressMsg('Tu Boomerang quedó guardado en el equipo y se subirá cuando vuelva la señal.');
+        setQrCodeUrl('');
+        setUploadError(null);
+        setQueuedOffline(true);
+        setProgressMsg('Guardada sin señal: se sube sola cuando vuelva');
         setLocalStatus('done');
         speak("Tu Boomerang quedó guardado y se subirá cuando vuelva la señal.");
         if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
@@ -1425,24 +1434,40 @@ export default function VoguePage() {
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">{fiesta?.station?.brandText || 'Llevate el recuerdo'}</h3>
-                <p className="text-sm text-zinc-400">{fiesta?.station?.qrCallout || 'Escaneá el QR desde tu celular para descargar el loop animado.'}</p>
+                <p className="text-sm text-zinc-400">
+                  {queuedOffline && !qrCodeUrl
+                    ? 'Guardada sin señal: se sube sola cuando vuelva'
+                    : (fiesta?.station?.qrCallout || 'Escaneá el QR desde tu celular para descargar el loop animado.')}
+                </p>
               </div>
 
               {/* QR Code Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QrRecuerdo qrCodeUrl={qrCodeUrl} />
-                ) : uploadError ? (
-                  <div className="w-40 h-40 flex flex-col items-center justify-center gap-2 text-rose-500 bg-rose-50/10 rounded-lg">
-                    <Zap className="w-8 h-8 opacity-50" />
-                    <span className="text-xs font-semibold px-4 text-center">Fallo conexión</span>
-                  </div>
-                ) : (
-                  <div className="w-40 h-40 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
-                  </div>
-                )}
-              </div>
+              {queuedOffline && !qrCodeUrl ? (
+                <div
+                  role="status"
+                  data-testid="aviso-cola-offline"
+                  className="w-full rounded-3xl border border-amber-400/40 bg-amber-500/15 p-5 text-center shadow-2xl"
+                >
+                  <p className="text-sm font-black text-amber-200">
+                    Guardada sin señal: se sube sola cuando vuelva
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
+                  {qrCodeUrl ? (
+                    <QrRecuerdo qrCodeUrl={qrCodeUrl} />
+                  ) : uploadError ? (
+                    <div className="w-40 h-40 flex flex-col items-center justify-center gap-2 text-rose-500 bg-rose-50/10 rounded-lg">
+                      <Zap className="w-8 h-8 opacity-50" />
+                      <span className="text-xs font-semibold px-4 text-center">Fallo conexión</span>
+                    </div>
+                  ) : (
+                    <div className="w-40 h-40 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+                    </div>
+                  )}
+                </div>
+              )}
               {uploadError && (
                 <p className="text-xs text-rose-400 text-center font-medium bg-rose-500/10 p-2 rounded-md">
                   {uploadError}

@@ -26,6 +26,7 @@ import { toWhatsAppDigits } from '@/lib/commercial/contact';
 interface Props {
   config: InvitacionDigitalConfig;
   fiestaId: string;
+  codigoFiesta?: string;
   socialConnections?: SocialConnection[];
   galeriaUrl?: string;
   isEditorMode?: boolean;
@@ -190,11 +191,12 @@ function Countdown({
   const muroSocialActivo = accesosVivos ? accesosVivos.muroSocialActivo : Boolean(portalSocialActivo);
   const miMesaActivo = accesosVivos ? accesosVivos.miMesaActivo : true;
   const menuDigitalActivo = accesosVivos ? accesosVivos.menuDigitalActivo : false;
-  const menuDigitalUrl = accesosVivos?.menuDigitalUrl || `/evento/hub/${encodedId}#menu-noche-title`;
+  // Sin los accesos vivos no hay credencial del invitado: el menú y el resumen no se ofrecen (llevarían a "acceso no válido").
+  const menuDigitalUrl = accesosVivos?.menuDigitalUrl || "";
   const albumUrl = galeriaUrl || accesosVivos?.albumUrl || `/evento/album/${encodedId}`;
   const albumActivo = accesosVivos ? accesosVivos.albumActivo : Boolean(galeriaUrl || portalSocialActivo);
-  const recapActivo = accesosVivos ? accesosVivos.recapActivo : true;
-  const recapUrl = accesosVivos?.recapUrl || `/invitacion/${encodedId}/recap`;
+  const recapActivo = accesosVivos ? accesosVivos.recapActivo : false;
+  const recapUrl = accesosVivos?.recapUrl || "";
 
   useEffect(() => {
     if (pasoPorFecha || esHoy) return;
@@ -1226,7 +1228,7 @@ function EditableText({
 }
 
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange, accesosVivos }: Props) {
+export function InvitacionPublicaClient({ config, fiestaId, codigoFiesta, socialConnections = [], galeriaUrl, isEditorMode = false, onConfigChange, accesosVivos }: Props) {
   const baseStyles = getTemplateStyles(config.plantillaId);
   const configConEstilo = config as InvitacionConfigConEstilo;
   const fondoActivo = getFondoInvitacionById(configConEstilo.fondoId);
@@ -1824,6 +1826,21 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             </div>
           </div>
         </Section>
+      )}
+
+      {codigoFiesta?.trim() && (
+        <div
+          data-testid="invitacion-codigo-fiesta"
+          className="px-4 py-6 text-center bg-gray-50 border-t border-gray-200"
+        >
+          <p className="text-sm sm:text-base font-medium text-gray-800">
+            Código de tu fiesta:{' '}
+            <strong className="font-mono font-black tracking-wider" style={{ color: 'var(--inv-primary)' }}>
+              {codigoFiesta.trim()}
+            </strong>{' '}
+            — escribilo en la app de AK para entrar
+          </p>
+        </div>
       )}
 
       {/* ============= FOOTER ============= */}

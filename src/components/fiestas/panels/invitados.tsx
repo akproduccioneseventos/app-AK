@@ -1,0 +1,1040 @@
+'use client';
+import __akDynamic from 'next/dynamic';
+import { Suspense as __AkSuspense } from 'react';
+import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
+const __AkPanel1 = __akDynamic(() => import('@/components/panels/invitados--checkin-scanner'));
+const __AkPanel2 = __akDynamic(() => import('@/components/panels/invitados--layout'));
+import { armarMesasInteligente, type ResultadoAsignacionMesas } from '@/lib/fiesta/armador-mesas-inteligente';
+
+import React, { useState, type FormEvent, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, RefreshCw, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Copy, Check, KeyRound } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRestriction } from '@/types/invitado';
+import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
+import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
+import { InvitadoQR } from '@/components/invitados/InvitadoQR';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
+import { evaluarResultadoImportacionInvitados, type FilaErrorImportacion } from '@/lib/invitados/aviso-importacion-invitados';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
+import { Suspense } from 'react';
+import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
+import { leerPlanillaDeInvitados, type ResumenDePlanilla } from '@/lib/invitados/leer-planilla';
+import { prepararReintentoDePlanilla } from '@/lib/invitados/reintento-de-planilla';
+import { ponerIdsDeIntentoAFilas } from '@/lib/invitados/ids-de-planilla';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
+
+const DIETARY_OPTIONS: DietaryRestriction[] = [
+  'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
+];
+
+const PERFIL_OPTIONS: { value: PerfilInvitado; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string }[] = [
+  { value: 'General', label: 'General', icon: User, color: 'text-slate-500' },
+  { value: 'VIP', label: 'VIP', icon: Crown, color: 'text-amber-600' },
+  { value: 'Familia', label: 'Familia', icon: Users, color: 'text-blue-600' },
+  { value: 'Necesidades Especiales', label: 'Accesibilidad', icon: Accessibility, color: 'text-green-600' },
+];
+
+function InvitadosEventoContent() {
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
+
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [invitados, setInvitados] = useState<Invitado[]>([]);
+  const [tableNames, setTableNames] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // New guest form state
+  const [nuevoNombre, setNuevoNombre] = useState('');
+  const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
+  const [nuevoCeliaco, setNuevoCeliaco] = useState(false);
+  const [nuevoTag, setNuevoTag] = useState('');
+  const [nuevoPerfil, setNuevoPerfil] = useState<PerfilInvitado>('General');
+
+  // Edit modal state
+  const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  // QR modal state
+  const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
+  const [propuestaMesas, setPropuestaMesas] = useState<ResultadoAsignacionMesas | null>(null);
+  const [isConfirmingMesas, setIsConfirmingMesas] = useState(false);
+  const [codigoCopiado, setCodigoCopiado] = useState(false);
+
+  const codigoFiesta = (fiesta as (FiestaEnPlanificacion & { codigoFiesta?: string }) | null)?.codigoFiesta;
+
+  const handleCopiarCodigoFiesta = async () => {
+    if (!codigoFiesta) return;
+    try {
+      await navigator.clipboard.writeText(codigoFiesta);
+      setCodigoCopiado(true);
+      toast({ title: 'Código copiado', description: `El código ${codigoFiesta} está listo para pasarle al DJ.` });
+      setTimeout(() => setCodigoCopiado(false), 2500);
+    } catch {
+      toast({
+        title: 'No se pudo copiar automático',
+        description: `Código de la fiesta: ${codigoFiesta}`,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleArmarMesasSolo = () => {
+    const lista = invitados.map((inv) => ({
+      id: inv.id,
+      nombre: inv.nombre,
+      grupoAfinidad: inv.categoria || inv.perfil || 'General',
+      cantidadAcompaniantes: (inv.partySize || 1) - 1,
+      tableNumber: inv.tableNumber,
+    }));
+    const res = armarMesasInteligente(lista, { capacidadPorMesa: 10 });
+    setPropuestaMesas(res);
+  };
+
+  const handleConfirmarMesas = async () => {
+    if (!propuestaMesas || !fiestaId) return;
+    setIsConfirmingMesas(true);
+    try {
+      let noGuardadas = 0;
+      for (const mesa of propuestaMesas.mesas) {
+        for (const invAsignado of mesa.invitados) {
+          const invOriginal = invitados.find((i) => i.id === invAsignado.id);
+          if (invOriginal) {
+            const respuesta = await updateInvitadoFiestaActual(fiestaId, {
+              ...invOriginal,
+              tableNumber: `Mesa ${mesa.numero}`,
+            });
+            if (!respuesta?.success) noGuardadas += 1;
+          }
+        }
+      }
+      await fetchInvitados();
+      if (noGuardadas > 0) {
+        toast({
+          title: `No se guardaron ${noGuardadas} asignaciones de mesa`,
+          description: 'La propuesta sigue abierta: probá confirmar de nuevo.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({ title: '¡Mesas asignadas y guardadas con éxito!' });
+      setPropuestaMesas(null);
+    } catch {
+      toast({ title: 'Error al guardar asignación de mesas', variant: 'destructive' });
+    } finally {
+      setIsConfirmingMesas(false);
+    }
+  };
+  const [guestQrModal, setGuestQrModal] = useState<Invitado | null>(null);
+
+  // Import spreadsheet modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [planillaTexto, setPlanillaTexto] = useState('');
+  const [previewPlanilla, setPreviewPlanilla] = useState<ResumenDePlanilla | null>(null);
+
+  // Pregunta 58: id de intento por fila de planilla, estable aunque se relea el mismo texto.
+  const idsDePlanilla = useRef<Map<string, string>>(new Map());
+
+  const procesarTextoPlanilla = (texto: string, listaActual: Invitado[]) => {
+    // La lectura de la planilla vive en src/lib/invitados/leer-planilla.ts y tiene su
+    // propia prueba. Estaba escrita aca adentro y no la comprobaba nadie: la unica
+    // prueba que la miraba necesitaba abrir una pantalla interna, que en el entorno
+    // de pruebas no ve las fiestas de prueba, asi que nunca comprobo nada.
+    setPreviewPlanilla(
+      ponerIdsDeIntentoAFilas(
+        leerPlanillaDeInvitados(texto, listaActual.map((i) => i.nombre)),
+        idsDePlanilla.current,
+        () => crypto.randomUUID(),
+      ),
+    );
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = String(evt.target?.result || '');
+      setPlanillaTexto(text);
+      procesarTextoPlanilla(text, invitados);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleConfirmarImportacion = async () => {
+    if (!fiestaId || !previewPlanilla || previewPlanilla.filasSinNombre.length > 0) return;
+    setIsImporting(true);
+    try {
+      const validos = previewPlanilla.filas.filter(f => !f.error && f.nombre);
+      let guardados = 0;
+      const fallidos: FilaErrorImportacion[] = [];
+      const filasFallidas = new Set<number>();
+
+      for (const item of validos) {
+        try {
+          const res = await addInvitado(fiestaId, {
+            nombre: item.nombre,
+            categoria: item.categoria,
+            tableNumber: item.tableNumber,
+            companionNames: item.companionNames && item.companionNames.length > 0 ? item.companionNames : undefined,
+            dietaryRestriction: item.dietaryRestriction,
+            contacto: item.contacto,
+            rsvp: 'Confirmado',
+            partySize: 1 + (item.companionNames?.length || 0),
+            isCeliac: item.dietaryRestriction === 'Celiaco',
+          }, { idIntento: item.idIntento });
+          if (res.success) {
+            guardados++;
+          } else {
+            filasFallidas.add(item.filaNum);
+            fallidos.push({
+              nombre: item.nombre,
+              motivo: res.error || 'Error al guardar en el servidor',
+            });
+          }
+        } catch (err: any) {
+          filasFallidas.add(item.filaNum);
+          fallidos.push({
+            nombre: item.nombre,
+            motivo: err?.message || 'Fallo de conexión o servidor',
+          });
+        }
+      }
+
+      const informe = evaluarResultadoImportacionInvitados({
+        totalEsperados: validos.length,
+        guardados,
+        fallidos,
+      });
+
+      await fetchInvitados();
+
+      if (informe.esCompleta) {
+        toast({
+          title: informe.titulo,
+          description: informe.detalle,
+        });
+        idsDePlanilla.current.clear();
+        setIsImportModalOpen(false);
+        setPlanillaTexto('');
+        setPreviewPlanilla(null);
+      } else {
+        // Si quedó a medias o falló, avisamos con detalle y conservamos solo las filas fallidas
+        toast({
+          title: informe.titulo,
+          description: informe.detalle,
+          variant: 'destructive',
+          duration: 8000,
+        });
+        const reintento = prepararReintentoDePlanilla(previewPlanilla, filasFallidas);
+        setPreviewPlanilla(reintento.resumen);
+        setPlanillaTexto(reintento.texto);
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error en la importación',
+        description: err?.message || 'Ocurrió un error al guardar los invitados.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const fetchInvitados = useCallback(async () => {
+    if (!fiestaId) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError("No se pudo cargar la fiesta");
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
+
+      setFiesta(fiestaData);
+      setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
+      const tables = (fiestaData.decoracion?.salonElements || [])
+        .filter(el => el.category?.toLowerCase().includes('mesa'))
+        .map(el => el.name);
+      setTableNames(tables);
+    } catch {
+      setError("No se pudo cargar la fiesta");
+      toast({ title: "Error al cargar", description: "No se pudo cargar la fiesta", variant: "destructive"});
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fiestaId, toast]);
+
+  useEffect(() => { fetchInvitados(); }, [fetchInvitados]);
+
+  const stats = useMemo(() => {
+    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestAdultsCount(i) : 0), 0);
+    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestKidsCount(i) : 0), 0);
+    const celiacs = invitados.reduce(
+      (sum, i) =>
+        sum +
+        ((i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado'
+          ? (i.partySize || 1)
+          : 0),
+      0,
+    );
+    const vips = invitados.filter(i => i.perfil === 'VIP').length;
+
+    return {
+        adults: { confirmed: adultsConfirmed, contracted: Number(fiesta?.configuracion.invitadosAdultos) || 0 },
+        kids: { confirmed: kidsConfirmed, contracted: Number(fiesta?.configuracion.invitadosNinos) || 0 },
+        celiacs,
+        vips,
+    };
+  }, [invitados, fiesta]);
+
+  const handleAddInvitado = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!nuevoNombre.trim() || !fiestaId) return;
+    setIsSaving(true);
+    const carga = {
+      nombre: nuevoNombre.trim(),
+      categoria: nuevaCategoria,
+      rsvp: 'Confirmado' as const,
+      partySize: 1,
+      isCeliac: nuevoCeliaco,
+      tag: nuevoTag || undefined,
+      perfil: nuevoPerfil,
+    };
+    // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se duplica.
+    const alcanceIntento = `invitado-nuevo:${fiestaId}`;
+    const idIntento = await obtenerIntento(alcanceIntento, carga);
+    const result = await addInvitadoFiestaActual(fiestaId, carga, { idIntento });
+    if (result.success) {
+      terminarIntento(alcanceIntento);
+      setNuevoNombre(''); setNuevoTag(''); setNuevoCeliaco(false); setNuevoPerfil('General');
+      await fetchInvitados();
+      toast({ title: "Invitado Añadido" });
+    } else {
+      toast({ title: "No se pudo agregar", description: result.error || "Intenta nuevamente.", variant: "destructive" });
+    }
+    setIsSaving(false);
+  };
+
+  const handleDeleteInvitado = async (invitadoId: string) => {
+    if (!fiestaId) return;
+    const result = await deleteInvitadoFiestaActual(fiestaId, invitadoId);
+    if (result.success) {
+      await fetchInvitados();
+      toast({ title: "Eliminado", variant: "destructive" });
+    } else {
+      toast({ title: "No se pudo eliminar", description: result.error || "Intenta nuevamente.", variant: "destructive" });
+    }
+  };
+
+  const openEditModal = (inv: Invitado) => {
+    setEditingInvitado({ ...inv });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!fiestaId || !editingInvitado) return;
+    setIsSavingEdit(true);
+    const result = await updateInvitadoFiestaActual(fiestaId, editingInvitado);
+    if (result.success) {
+      await fetchInvitados();
+      setIsEditModalOpen(false);
+      toast({ title: "✅ Invitado actualizado" });
+    } else {
+      toast({ title: "Error", description: result.error ?? "No se pudo guardar.", variant: "destructive" });
+    }
+    setIsSavingEdit(false);
+  };
+
+  if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (error) return (
+    <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
+      <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+      <p className="text-muted-foreground">{error}</p>
+      <Button onClick={() => fetchInvitados()} variant="outline">
+        <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+      </Button>
+    </div>
+  );
+  if (!fiesta) return <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex justify-between items-center print:hidden">
+        <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportModalOpen(true)} className="bg-card text-purple-700 border-purple-300 hover:bg-purple-50" data-testid="btn-abrir-importar-planilla">
+            <Upload className="w-4 h-4 mr-2" /> Importar Planilla
+          </Button>
+          <Button variant="outline" onClick={() => window.print()} className="bg-card"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
+          <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+        </div>
+      </div>
+
+      {codigoFiesta && (
+        <Card className="border-indigo-200 bg-indigo-50/60 print:hidden" data-testid="codigo-fiesta-card">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                <KeyRound className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-indigo-800">
+                  Código de la fiesta para el DJ y la app
+                </p>
+                <p className="font-mono text-2xl font-black tracking-[0.2em] text-slate-900">
+                  {codigoFiesta}
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              onClick={handleCopiarCodigoFiesta}
+              className="min-h-[44px] bg-indigo-600 font-bold text-white hover:bg-indigo-700"
+            >
+              {codigoCopiado ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+              {codigoCopiado ? 'Copiado' : 'Copiar'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="hidden print:block mb-4">
+        <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
+        <p className="text-sm text-muted-foreground">Generado el {new Date().toLocaleDateString()}</p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:hidden">
+          <Card className="border-blue-200 bg-blue-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-blue-800">Adultos</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0">
+                  <div className="flex justify-between items-end mb-2"><span className="text-2xl font-black">{stats.adults.confirmed}</span><span className="text-xs text-muted-foreground">de {stats.adults.contracted}</span></div>
+                  <Progress value={stats.adults.contracted > 0 ? (stats.adults.confirmed / stats.adults.contracted) * 100 : 0} className="h-1.5" />
+              </CardContent>
+          </Card>
+          <Card className="border-purple-200 bg-purple-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-purple-800">Niños/Adol.</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0">
+                  <div className="flex justify-between items-end mb-2"><span className="text-2xl font-black">{stats.kids.confirmed}</span><span className="text-xs text-muted-foreground">de {stats.kids.contracted}</span></div>
+                  <Progress value={stats.kids.contracted > 0 ? (stats.kids.confirmed / stats.kids.contracted) * 100 : 0} className="h-1.5" />
+              </CardContent>
+          </Card>
+          <Card className="border-amber-200 bg-amber-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-amber-800">Celíacos</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-amber-600">{stats.celiacs}</span></CardContent>
+          </Card>
+          <Card className="border-yellow-200 bg-yellow-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-yellow-800">Cliente VIP</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-yellow-600">{stats.vips}</span></CardContent>
+          </Card>
+      </div>
+
+      {/* Armador Inteligente de Mesas */}
+      <Card className="border-indigo-200 bg-indigo-50/50 print:hidden mb-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-600" /> Armador Inteligente de Mesas
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Agrupa invitados por afinidad automáticamente y respeta la capacidad de cada mesa.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            size="sm"
+            onClick={handleArmarMesasSolo}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+          >
+            Armar mesas solo
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Modal de Propuesta de Mesas Inteligente */}
+      {propuestaMesas && (
+        <Dialog open={true} onOpenChange={(open) => !open && setPropuestaMesas(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black">Propuesta de Distribución de Mesas</DialogTitle>
+              <DialogDescription>
+                Se armaron {propuestaMesas.totalMesasUsadas} mesas con {propuestaMesas.totalAsignados} invitados.
+                Revisá la propuesta. Nada se guarda hasta que confirmes.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 my-2">
+              {propuestaMesas.mesas.map((m) => (
+                <div key={m.numero} className="p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
+                  <div className="flex justify-between items-center font-bold text-slate-800">
+                    <span>{m.etiqueta}</span>
+                    <span className="text-slate-500">{m.totalPersonas} / {m.capacidadMaxima} personas</span>
+                  </div>
+                  <p className="text-slate-600">
+                    {m.invitados.map((i) => i.nombre).join(', ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setPropuestaMesas(null)}
+                disabled={isConfirmingMesas}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleConfirmarMesas}
+                disabled={isConfirmingMesas}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
+                {isConfirmingMesas ? 'Guardando en la fiesta...' : 'Confirmar y Guardar Mesas'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* QR Buscador de Mesas */}
+      <Card className="border-purple-200 bg-purple-50/50 print:hidden">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <QrCode className="w-4 h-4 text-purple-600" /> QR Buscador de Mesas
+          </CardTitle>
+          <CardDescription className="text-xs">Imprimí un QR para el banner de entrada.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button size="sm" onClick={() => setIsMesaQrOpen(true)} className="w-full bg-purple-700 hover:bg-purple-800">
+            <Printer className="w-4 h-4 mr-2" /> Generar QR
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Add Guest Form */}
+      <Card className="print:hidden">
+        <CardHeader><CardTitle>Nuevo Invitado</CardTitle></CardHeader>
+        <CardContent>
+          <form onSubmit={handleAddInvitado} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label>Nombre</Label>
+                <Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required placeholder="Nombre completo" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Categoría</Label>
+                <Select value={nuevaCategoria} onValueChange={v => setNewCategoria(v as CategoriaInvitado)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Adulto">Adulto</SelectItem>
+                    <SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Perfil</Label>
+                <Select value={nuevoPerfil} onValueChange={v => setNuevoPerfil(v as PerfilInvitado)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PERFIL_OPTIONS.map(p => (
+                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Switch checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
+                <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
+              </div>
+              <Button type="submit" disabled={isSaving}>
+                <Plus className="w-4 h-4 mr-2"/>Añadir Invitado
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Guest List */}
+      <Card className="print:shadow-none print:border-none print:p-0">
+        <CardHeader className="print:hidden"><CardTitle>Lista de Invitados ({invitados.length})</CardTitle></CardHeader>
+        <CardContent className="p-0">
+            <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Perfil</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Mesa</TableHead>
+                    <TableHead className="text-right print:hidden">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {invitados.map(inv => (
+                        <TableRow key={inv.id} className={inv.isCeliac || inv.dietaryRestriction === 'Celiaco' ? "bg-amber-50/20" : ""}>
+                            <TableCell className="font-bold">
+                                <div className="flex flex-wrap items-center gap-1">
+                                  <span>{inv.nombre}</span>
+                                  {(inv.isCeliac || inv.dietaryRestriction === 'Celiaco') && <Badge className="bg-amber-500 text-white text-[8px] h-4">CELIACO</Badge>}
+                                  {inv.perfil === 'VIP' && <Badge className="bg-yellow-500 text-white text-[8px] h-4">VIP</Badge>}
+                                  {inv.perfil === 'Familia' && <Badge className="bg-blue-500 text-white text-[8px] h-4">FAMILIA</Badge>}
+                                  {(inv.perfil === 'Necesidades Especiales' || inv.requiereAccesibilidad) && <Badge className="bg-green-500 text-white text-[8px] h-4">ACCESIB.</Badge>}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-[10px] font-black uppercase text-slate-400">{inv.perfil ?? 'General'}</span>
+                            </TableCell>
+                            <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>
+                            <TableCell>{inv.tableNumber || '-'}</TableCell>
+                            <TableCell className="text-right print:hidden">
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Ver pase QR de acceso"
+                                  onClick={() => setGuestQrModal(inv)}
+                                >
+                                  <QrCode className="w-4 h-4 text-purple-600"/>
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => openEditModal(inv)}>
+                                  <Edit3 className="w-4 h-4 text-slate-500"/>
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-destructive">
+                                      <Trash2 className="w-4 h-4"/>
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>¿Eliminar invitado?</AlertDialogTitle>
+                                      <AlertDialogDescription>Esta acción no se puede deshacer. Se eliminará a {inv.nombre} de la lista.</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteInvitado(inv.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Eliminar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {invitados.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-slate-400 py-8">No hay invitados aún. ¡Añadí el primero!</TableCell>
+                      </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </CardContent>
+      </Card>
+
+      {/* Edit Guest Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Invitado</DialogTitle>
+            <DialogDescription>Actualizá los datos del invitado, incluyendo su perfil y restricciones alimentarias.</DialogDescription>
+          </DialogHeader>
+          {editingInvitado && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Nombre</Label>
+                  <Input value={editingInvitado.nombre} onChange={e => setEditingInvitado(prev => prev ? { ...prev, nombre: e.target.value } : prev)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Contacto (email/tel)</Label>
+                  <Input value={editingInvitado.contacto ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, contacto: e.target.value } : prev)} placeholder="+598 99..." />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Categoría</Label>
+                  <Select value={editingInvitado.categoria ?? 'Adulto'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, categoria: v as CategoriaInvitado } : prev)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Adulto">Adulto</SelectItem>
+                      <SelectItem value="Niño/Adolescente">Niño/Adolescente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Estado RSVP</Label>
+                  <Select value={editingInvitado.rsvp} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, rsvp: v as RsvpStatus } : prev)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pendiente">Pendiente</SelectItem>
+                      <SelectItem value="Confirmado">Confirmado</SelectItem>
+                      <SelectItem value="Rechazado">Rechazado</SelectItem>
+                      <SelectItem value="Tal vez">Tal vez</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Perfil (Fase 3)</Label>
+                  <Select value={editingInvitado.perfil ?? 'General'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, perfil: v as PerfilInvitado } : prev)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PERFIL_OPTIONS.map(p => (
+                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Mesa asignada</Label>
+                  {tableNames.length > 0 ? (
+                    <Select value={editingInvitado.tableNumber ?? 'sin-mesa'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, tableNumber: v === 'sin-mesa' ? undefined : v } : prev)}>
+                      <SelectTrigger><SelectValue placeholder="Sin asignar" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sin-mesa">Sin mesa</SelectItem>
+                        {tableNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input value={editingInvitado.tableNumber ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, tableNumber: e.target.value || undefined } : prev)} placeholder="Ej: Mesa 1" />
+                  )}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Restricción alimentaria</Label>
+                <Select value={editingInvitado.dietaryRestriction ?? 'Ninguna'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, dietaryRestriction: v as DietaryRestriction } : prev)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DIETARY_OPTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {editingInvitado.dietaryRestriction && editingInvitado.dietaryRestriction !== 'Ninguna' && (
+                <div className="space-y-1.5">
+                  <Label>Detalle de alergias (opcional)</Label>
+                  <Input value={editingInvitado.alergiasEspecificas ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, alergiasEspecificas: e.target.value } : prev)} placeholder="Ej: alergia a maní..." />
+                </div>
+              )}
+              {editingInvitado.perfil === 'VIP' && (
+                <div className="space-y-1.5">
+                  <Label>Mensaje personalizado para VIP</Label>
+                  <Textarea value={editingInvitado.mensajePersonalizado ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, mensajePersonalizado: e.target.value } : prev)} placeholder="Mensaje especial que verá este invitado en su portal..." rows={3} />
+                </div>
+              )}
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={editingInvitado.isCeliac ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, isCeliac: v } : prev)} />
+                  <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch checked={editingInvitado.requiereAccesibilidad ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, requiereAccesibilidad: v } : prev)} />
+                  <Label className="text-xs font-bold text-green-600">Requiere Accesibilidad</Label>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveEdit} disabled={isSavingEdit} className="bg-indigo-600 hover:bg-indigo-700">
+              {isSavingEdit ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+              Guardar Cambios
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mesa QR Dialog */}
+      <Dialog open={isMesaQrOpen} onOpenChange={setIsMesaQrOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>🪑 QR Buscador de Mesas</DialogTitle>
+            <DialogDescription>
+              Imprimí este QR en un banner para la entrada. Los invitados escanean y encuentran su mesa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="p-4 bg-white rounded-xl border border-slate-200">
+              <QRCodeStylized
+                id="qr-buscador-mesas"
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/mi-mesa/${fiestaId}`}
+                size={200}
+              />
+            </div>
+            <p className="text-xs text-slate-500 text-center">
+              Apunta a: <span className="font-mono text-purple-700 break-all">/evento/mi-mesa/{fiestaId}</span>
+            </p>
+            <Button
+              onClick={() => {
+                const canvas = document.getElementById('qr-buscador-mesas') as HTMLCanvasElement;
+                if (canvas) {
+                  const pngUrl = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
+                  const link = document.createElement('a');
+                  link.href = pngUrl;
+                  link.download = `QR-Buscador-Mesas-${fiestaId}.png`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              <Download className="w-4 h-4 mr-2" /> Descargar QR
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Individual Guest QR Pass Dialog */}
+      <Dialog open={!!guestQrModal} onOpenChange={(open) => !open && setGuestQrModal(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>🎟️ Pase QR del Invitado</DialogTitle>
+            <DialogDescription>
+              Código de acceso personalizado para el control de entrada en la puerta del evento.
+            </DialogDescription>
+          </DialogHeader>
+          {guestQrModal && (
+            <div className="py-2 flex justify-center">
+              <InvitadoQR
+                invitado={guestQrModal}
+                fiestaId={fiestaId || ''}
+                nombreEvento={fiesta?.configuracion.nombreEvento}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Spreadsheet Dialog */}
+      <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
+        <DialogContent
+          className="fixed inset-x-3 top-6 bottom-6 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-3xl sm:h-[85vh] sm:max-h-[85vh] flex flex-col min-w-0 p-0 gap-0 overflow-hidden bg-background shadow-2xl"
+        >
+          <DialogHeader className="p-4 sm:p-6 pb-3 border-b shrink-0 bg-background relative z-30 pr-10">
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <FileSpreadsheet className="w-5 h-5 text-purple-600 shrink-0" />
+              Importar lista de invitados desde una planilla
+            </DialogTitle>
+            <DialogDescription>
+              Subí un archivo CSV o pegá los datos. Podés previsualizar y validar toda la lista antes de guardar.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="input-archivo-planilla">Archivo CSV / Planilla</Label>
+              <Input
+                id="input-archivo-planilla"
+                data-testid="input-archivo-planilla"
+                type="file"
+                accept=".csv, .tsv, .txt"
+                onChange={handleFileUpload}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="textarea-pegar-planilla">O pegá el contenido de tu planilla acá (formato CSV o tabla copiada):</Label>
+              <Textarea
+                id="textarea-pegar-planilla"
+                data-testid="textarea-pegar-planilla"
+                placeholder={"Nombre,Mesa,Categoria,Acompañantes,Restricción\nJuan Pérez,Mesa 1,Adulto,María Gómez,Ninguna\nLucas Silva,Mesa 2,Niño,,Celiaco"}
+                value={planillaTexto}
+                rows={4}
+                onChange={(e) => {
+                  setPlanillaTexto(e.target.value);
+                  procesarTextoPlanilla(e.target.value, invitados);
+                }}
+                className="font-mono text-xs"
+              />
+            </div>
+
+            {previewPlanilla && (
+              <div className="space-y-3 pt-2" data-testid="preview-importacion">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" data-testid="total-filas">
+                    Total filas: {previewPlanilla.filas.length}
+                  </Badge>
+                  <Badge className="bg-emerald-600 text-white" data-testid="total-validos">
+                    Válidos: {previewPlanilla.validos}
+                  </Badge>
+                  {previewPlanilla.repetidos > 0 && (
+                    <Badge className="bg-amber-600 text-white" data-testid="total-repetidos">
+                      Repetidos: {previewPlanilla.repetidos}
+                    </Badge>
+                  )}
+                  {previewPlanilla.filasSinNombre.length > 0 && (
+                    <Badge variant="destructive" data-testid="total-errores">
+                      Sin nombre: {previewPlanilla.filasSinNombre.length}
+                    </Badge>
+                  )}
+                </div>
+
+                {previewPlanilla.filasSinNombre.length > 0 && (
+                  <div
+                    data-testid="alerta-fila-sin-nombre"
+                    className="rounded-lg border border-rose-500/50 bg-rose-500/10 p-3 text-sm text-rose-700 dark:text-rose-300 space-y-1"
+                  >
+                    <p className="font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      Atención: no se puede guardar la planilla completa porque hay filas sin nombre
+                    </p>
+                    <div className="text-xs space-y-0.5">
+                      {previewPlanilla.filasSinNombre.map((fn) => (
+                        <p key={fn}>• Fila {fn}: falta el nombre del invitado. Corregila antes de continuar.</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-x-auto w-full max-w-full">
+                  <Table className="text-xs min-w-[500px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">#</TableHead>
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead>Mesa</TableHead>
+                        <TableHead>Acompañantes</TableHead>
+                        <TableHead>Dieta</TableHead>
+                        <TableHead>Estado</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {previewPlanilla.filas.map((f) => (
+                        <TableRow
+                          key={f.filaNum}
+                          data-testid="preview-fila"
+                          className={f.error ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''}
+                        >
+                          <TableCell className="font-mono text-muted-foreground">{f.filaNum}</TableCell>
+                          <TableCell className="font-medium">
+                            {f.nombre ? (
+                              f.nombre
+                            ) : (
+                              <span className="text-rose-600 font-semibold italic">Sin nombre (Error)</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{f.categoria}</TableCell>
+                          <TableCell>{f.tableNumber || '-'}</TableCell>
+                          <TableCell>{f.companionNames?.join(', ') || '-'}</TableCell>
+                          <TableCell>{f.dietaryRestriction !== 'Ninguna' ? f.dietaryRestriction : '-'}</TableCell>
+                          <TableCell>
+                            {f.error ? (
+                              <Badge variant="destructive">Error</Badge>
+                            ) : f.esRepetido ? (
+                              <Badge variant="secondary">Repetido</Badge>
+                            ) : (
+                              <Badge className="bg-emerald-600 text-white">Válido</Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="p-3 sm:p-4 border-t bg-background shrink-0 relative z-30 flex flex-row gap-2 justify-end items-center">
+            <Button variant="outline" onClick={() => setIsImportModalOpen(false)} className="min-h-[44px]">
+              Cancelar
+            </Button>
+            <Button
+              data-testid="btn-confirmar-guardado-planilla"
+              disabled={
+                isImporting ||
+                !previewPlanilla ||
+                previewPlanilla.filasSinNombre.length > 0 ||
+                previewPlanilla.validos === 0
+              }
+              onClick={handleConfirmarImportacion}
+              className="bg-purple-600 hover:bg-purple-700 text-white min-h-[44px] touch-manipulation shadow-md flex-1 sm:flex-initial"
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-2" /> Confirmar e importar {previewPlanilla?.validos || 0} invitados
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function InvitadosEventoPageInner() {
+    return (
+        <Suspense fallback={null}><InvitadosEventoContent/></Suspense>
+    )
+}
+
+
+
+export default function InvitadosEventoPage() {
+  return (
+    <__AkSuspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando…</div>}>
+      <__AkTabHostShell
+        queryKey="subtab"
+        tabs={[{"id":"invitados","label":"Invitados"},{"id":"scanner","label":"Check-in scanner"},{"id":"layout","label":"Distribución de mesas"}]}
+        renderDefault={() => <InvitadosEventoPageInner />}
+        renderTab={(tab) => { if (tab === 'scanner') return <__AkPanel1 />; if (tab === 'layout') return <__AkPanel2 />; return null; }}
+      />
+    </__AkSuspense>
+  );
+}

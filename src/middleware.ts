@@ -13,7 +13,7 @@ function isPublicPath(request: NextRequest): boolean {
   if (BUDGET_VIEW_REGEX.test(pathname)) return true;
 
   // Printable shared documents validate their token inside the page.
-  if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) return true;
+  if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || ((searchParams.get('tab') === 'pdf' || searchParams.get('subtab') === 'pdf') && searchParams.has('token'))) return true;
 
   // Provider shared views validate their token inside the page.
   if ((pathname.endsWith('/fotografia') || pathname.endsWith('/catering')) && searchParams.has('token')) return true;

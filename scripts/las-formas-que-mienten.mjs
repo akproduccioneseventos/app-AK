@@ -218,6 +218,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   200: 'Sumas de plata con fiestas de muestra: src/__tests__/auditoria-21-11-plata.test.ts (orden 333, bloque 1).',
   201: 'Sin conexión o enviado ante un no del servidor: src/__tests__/auditoria-21-11-entrar-y-portal.test.ts (orden 333).',
   204: 'Pregunta tomada como orden: la prueba que pide la orden 333, bloque 9 (src/__tests__/auditoria-21-11-ia.test.ts).',
+  206: 'Redirección que lleva a otra redirección: src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts (mira todo next.config.js).',
   205: 'Error de lectura mostrado como normalidad: la prueba que pide la orden 333, bloque 9 (auditoria-21-11-ia.test.ts).',
   195: 'Datos como conceptos: src/__tests__/cierre-de-ronda-18-11.test.ts (Adultos y Niños no son artículos).',
   190: 'Período al revés: src/__tests__/un-solo-numero-de-plata.test.ts (inicio posterior al fin).',

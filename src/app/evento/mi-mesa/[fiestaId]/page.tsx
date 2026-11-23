@@ -4,7 +4,8 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { CompanyLogo } from '@/components/company-logo';
 import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +23,11 @@ const CONTACT_WHATSAPP = AK_WHATSAPP_NUMBER;
 
 export default function MiMesaPage() {
   const { fiestaId } = useParams<{ fiestaId: string }>();
+  const searchParams = useSearchParams();
+  const queryGuestId = searchParams.get('guestId') || '';
+  const queryToken = searchParams.get('token') || '';
 
+  const [storedCred, setStoredCred] = useState<{ guestId: string; token: string } | null>(null);
   const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -39,6 +44,20 @@ export default function MiMesaPage() {
       // ignore
     } finally {
       setIsLoading(false);
+    }
+  }, [fiestaId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem('ak_invitado_credencial');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { fiestaId?: string; guestId?: string; token?: string };
+      if (parsed?.fiestaId === fiestaId && parsed.guestId && parsed.token) {
+        setStoredCred({ guestId: parsed.guestId, token: parsed.token });
+      }
+    } catch {
+      // ignore invalid localStorage data
     }
   }, [fiestaId]);
 
@@ -112,6 +131,12 @@ export default function MiMesaPage() {
 
   // ── Result: Found ──────────────────────────────────────────
   if (selected) {
+    const token = queryToken || storedCred?.token || '';
+    const guestIdForHub = queryGuestId || storedCred?.guestId || selected.id;
+    const hubHref = guestIdForHub && token
+      ? withGuestAccess(`/evento/hub/${encodeURIComponent(fiestaId)}`, guestIdForHub, token)
+      : `/evento/hub/${encodeURIComponent(fiestaId)}?guestId=${encodeURIComponent(selected.id)}&token=${encodeURIComponent(token)}`;
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4"
         style={{ background: `linear-gradient(135deg, ${primaryColor}22, #0f172a)` }}>
@@ -134,7 +159,7 @@ export default function MiMesaPage() {
           </div>
           <div className="flex flex-col gap-3">
             <Link
-              href={selected?.id ? `/evento/hub/${fiestaId}?guestId=${encodeURIComponent(selected.id)}` : `/evento/hub/${fiestaId}`}
+              href={hubHref}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
             >
               <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo

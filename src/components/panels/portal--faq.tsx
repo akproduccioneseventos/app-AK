@@ -60,7 +60,10 @@ export default function PortalFaqPage() {
       const alcance = `consulta-portal:${fiestaId}`;
       const idIntento = await obtenerIntento(alcance, { qText });
       const enviada = await addChatMessage(fiestaId, `❓ Consulta de Cliente: ${qText}`, 'Cliente VIP Portal', {}, { idIntento });
-      if (enviada.success) terminarIntento(alcance);
+      if (!enviada.success) {
+        throw new Error((enviada as any).error || 'No se pudo enviar la consulta.');
+      }
+      terminarIntento(alcance);
       setUserQuestions(prev => [...prev, { q: qText, status: 'Enviada al equipo' }]);
       setNewQuestion('');
       toast({

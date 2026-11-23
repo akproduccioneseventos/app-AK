@@ -1,32 +1,18 @@
-# Estado actual — 21 de noviembre de 2026
+# Estado actual — 23 de noviembre de 2026
 
-## Publicado
-- **#1458** (21/11): entrega de Gemini de las órdenes 322 a 330 (redes, Wfolio, caras de los invitados, achique de 1443)
-  con la revisión de Claude: pruebas con fecha vencida, botones de la galería a tamaño de dedo, menús/LED/decoración sin
-  texto apretado en tableta. Se cerraron las PR 1443 y 1451 (quedaron adentro de la 1458).
-- En la misma: **órdenes 331 y 332 para Gemini**, y `GEMINI.md` → "TU TRABAJO DE HOY" ya las nombra.
-
-## Esperando a Gemini (una sola propuesta, rama nueva desde la principal)
-- **331:** el simulador de siempre primero e IGUAL que hoy; Sofía aparte en su página, con un enlace chico al pie del
-  simulador y "Reintentar" si no guarda (hoy el prospecto de Sofía se pierde callado), planificador de 28 a 5 pantallas sin perder partes, una puerta
-  para las estaciones.
-- **332:** la app de Play Store: "¿Quién sos?" con prospecto directo al simulador, invitado con su celular o el código corto
-  de la fiesta (sin QR obligatorio), equipo con Google, "Bajá la app" y publicación en redes. iPhone y PC desde la web
-  (el dueño no paga la tienda de Apple).
-
-- **333:** lo confirmado de la auditoría externa del 21/11 (unos 60 de 80 avisos). Claude ya arregló lo urgente de
-  permisos y plata (auditor, voz del equipo, registro de auditoría, documentos, aviso de Meta).
-
-- **Publicado el 21/11 (#1460):** permisos y plata urgentes de las auditorías externas, y Poner al día con el ajuste anual.
-  En la tanda siguiente (Claude): el asistente ya no lee el presupuesto de otro cliente y el tope de IA es un tope.
-
-## Para Claude, cuando llegue la entrega
-- Revisar línea por línea `entrarComoInvitado` (quién ve qué: devuelve sólo la credencial del invitado, nunca la lista).
-- Copia aparte, tipos + Jest + `ordenes?` primero; después la puerta completa, **sin nada corriendo al lado** (la subida con
-  `git push` corre su propio filtro: no subir mientras corre la puerta).
+## En verificación: #1462 (rama `gemini/ordenes-331-332`)
+- Trae las órdenes 331 (menos pantallas), 332 (entrada de la app de Play Store), 333 (auditoría externa del 21/11) y 334
+  (devolución: redirecciones en un salto y pruebas siguiendo a las solapas), más lo de Claude: pregunta 206 con su control
+  (`una-redireccion-no-lleva-a-otra-redireccion`), seis redirecciones viejas arregladas, enlaces del invitado con su pase,
+  Centro de control, paquete del AK Editor y la galería que no dice "no hay fotos tuyas" cuando la selfie no tiene cara.
+- Revisado a mano: `entrarComoInvitado` (sólo la credencial propia), invitados desde el portal sólo con la sesión de esa
+  fiesta, factura "pagada" con saldo frenada, y la puerta pública de los PDF con `tab/subtab=pdf` + token (los datos los
+  siguen cuidando las acciones del servidor).
+- Falta: la puerta completa en verde y fusionar con `expectedHeadSha`; después "Novedades" en `QUE-HAY-EN-LA-APP.md`.
+- Mi rama `claude/app-debug-stabilize-m70e6z` ya está adentro de la 1462: no hace falta fusionarla aparte.
 
 ## Ojo
-- La puerta falla seguido por carga de la máquina (pruebas distintas cada vez que pasan solas): `npm run otravez` y volver a
-  correr la puerta, que repite sólo lo que falló.
-- No pude confirmar que la app esté en Play Store (desde acá no se llega a la tienda y Google no la muestra todavía). El
-  paquete es `uy.akproducciones.app`.
+- La puerta falla seguido por carga de la máquina (fotocabina con IA, resumen del simulador): `npm run otravez` antes de
+  creer una falla. Si la misma falla dos veces seguidas, se para y se avisa.
+- Se llena el disco: borrar `.next` y `test-results` de las copias aparte en el scratchpad.
+- Play Store: no se pudo confirmar desde acá (paquete `uy.akproducciones.app`).

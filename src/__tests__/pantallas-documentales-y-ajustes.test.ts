@@ -45,7 +45,7 @@ describe('Pantallas operativas, documentales y configuración de cuenta', () => 
   });
 
   it('la pantalla /fiestas/nueva/gestion-documental requiere fiesta seleccionada con EventSelectionRequired', () => {
-    const filePath = path.join(root, 'src/app/(app)/fiestas/nueva/gestion-documental/page.tsx');
+    const filePath = path.join(root, 'src/components/fiestas/panels/gestion-documental.tsx');
     expect(fs.existsSync(filePath)).toBe(true);
     const content = fs.readFileSync(filePath, 'utf8');
     expect(content).toContain('EventSelectionRequired');

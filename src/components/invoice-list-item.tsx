@@ -1,5 +1,6 @@
 
 import type { Invoice } from '@/types/invoice';
+import { getEffectiveInvoiceStatus } from '@/lib/invoice-money';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from './status-badge';
@@ -61,7 +62,7 @@ export function InvoiceListItem({
         {formatCurrency(invoice.totalAmount, invoice.currency)}
       </TableCell>
       <TableCell>
-        <StatusBadge status={invoice.status} />
+        <StatusBadge status={getEffectiveInvoiceStatus(invoice)} />
       </TableCell>
       <TableCell className="text-center">
         {onToggleAssign && (

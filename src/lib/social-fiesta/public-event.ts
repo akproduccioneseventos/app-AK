@@ -20,6 +20,7 @@ export function ocultarRespuestaCorrecta(game: ActiveGameData | undefined): Acti
 export type PublicSocialEvent = Pick<
   FiestaEnPlanificacion,
   | 'id'
+  | 'codigoFiesta'
   | 'socialGallerySettings'
   | 'modulosContratados'
   | 'zonaDigitalAdolescentes'
@@ -67,6 +68,7 @@ export function toPublicSocialEvent(
 
   return {
     id: fiesta.id,
+    codigoFiesta: fiesta.codigoFiesta,
     configuracion: {
       nombreEvento: fiesta.configuracion.nombreEvento,
       fechaEvento: fiesta.configuracion.fechaEvento,

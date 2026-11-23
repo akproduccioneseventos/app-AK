@@ -16,7 +16,8 @@ describe('Orden 21: Recorrido de Pantallas y Lista Automática', () => {
     const routes = getAllRoutes();
     expect(routes.length).toBeGreaterThan(100);
     // 186: orden 327: página de enlaces de la biografía (/enlaces).
-    expect(routes.length).toBeLessThanOrEqual(186);
+    // 155: orden 331: consolidación de simulador, planificador (28 -> 5) y estaciones (151 pantallas reales).
+    expect(routes.length).toBeLessThanOrEqual(155);
     expect(routes.every((r: any) => typeof r.testUrl === 'string' && r.testUrl.startsWith('/'))).toBe(true);
     expect(routes.every((r: any) => typeof r.moduleName === 'string' && r.moduleName.length > 0)).toBe(true);
   });
@@ -49,7 +50,8 @@ describe('Orden 21: Recorrido de Pantallas y Lista Automática', () => {
     const metricas = calcularMetricasAuditadas();
     expect(metricas.totalPantallas).toBeGreaterThan(100);
     // 186: orden 327: página de enlaces de la biografía (/enlaces).
-    expect(metricas.totalPantallas).toBeLessThanOrEqual(186);
+    // 155: orden 331: consolidación de simulador, planificador (28 -> 5) y estaciones (151 pantallas reales).
+    expect(metricas.totalPantallas).toBeLessThanOrEqual(155);
     expect(metricas.totalModulos).toBe(16);
     expect(metricas.totalAuditadasNivel4Mas).toBeGreaterThanOrEqual(5);
     expect(metricas.porcentaje).toBeGreaterThanOrEqual(1);

@@ -15,6 +15,7 @@ import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { PublicFooter } from "@/components/public-footer";
+import { BajaLaApp } from "@/components/BajaLaApp";
 import defaultTestimonials from "@/data/testimonials.json";
 import defaultGaleriaPublica from "@/data/galeria-publica.json";
 import { GLITTER_BAR_FOTO_DE_EJEMPLO } from "@/lib/catering/menu-images";
@@ -861,7 +862,17 @@ export default async function HomePage() {
             promo={promo}
           />
         }
-        footer={<PublicFooter variant="dark" />}
+        footer={
+          <>
+            <div className="border-t border-white/10 bg-zinc-950 px-4 py-4 text-center">
+              <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-3 text-sm text-zinc-200 sm:flex-row">
+                <span className="font-semibold">Bajá la app de AK</span>
+                <BajaLaApp compact />
+              </div>
+            </div>
+            <PublicFooter variant="dark" />
+          </>
+        }
         floatingActions={<FloatingActions whatsappNumber={whatsapp} />}
         winSech={null}
       />

@@ -135,23 +135,36 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       }));
 
       let total = 0;
-      if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
-        const invoices = await Promise.all(fiestaData.invoiceIds.map(id => getInvoiceById(id)));
-        total = invoices.reduce((sum, inv) => {
-          return sum + (inv?.payments?.reduce((pSum, p) => pSum + p.amount, 0) || 0);
-        }, 0);
-        setTotalPagado(total);
-        setContractText(buildCancelacionText({
-          companyName: companyData.companyName,
-          clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
-          clienteCi: clienteData?.taxId,
-          fechaEvento: fiestaData.configuracion.fechaEvento,
-          fechaContrato: presupuestoData?.timestamp,
-          presupuestoTotal: presupuestoTotalDraft,
-          multa: multaDraft,
-          totalPagado: total,
-        }));
-      }
+      const pagosDelCliente = (presupuestoData?.pagosCliente || []).filter(p => p.estadoPago !== 'rechazado' && p.estadoPago !== 'pendiente_confirmacion');
+      const pagosInvoices = fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0 ? await Promise.all(fiestaData.invoiceIds.map(id => getInvoiceById(id))) : [];
+      const invoicePaymentsTotal = pagosInvoices.reduce((sum, inv) => {
+        return sum + (inv?.payments?.reduce((pSum, p) => pSum + p.amount, 0) || 0);
+      }, 0);
+      const existingInvoicePaymentKeys = new Set<string>();
+      pagosInvoices.forEach(inv => {
+        (inv?.payments || []).forEach(p => {
+          if (p.id) existingInvoicePaymentKeys.add(p.id);
+          if (p.operacionId) existingInvoicePaymentKeys.add(p.operacionId);
+          if (p.notes) existingInvoicePaymentKeys.add(p.notes.trim());
+          const fechaDia = p.paymentDate ? String(p.paymentDate).slice(0, 10) : '';
+          if (p.amount !== undefined && fechaDia) {
+            existingInvoicePaymentKeys.add(`${p.amount}|${fechaDia}`);
+          }
+        });
+      });
+      const filteredPagosDelCliente = pagosDelCliente.filter(p => {
+        const idKey = p.id;
+        const refKey = p.referencia?.trim();
+        const fechaDia = p.fecha ? String(p.fecha).slice(0, 10) : '';
+        const montoFechaKey = fechaDia ? `${p.monto}|${fechaDia}` : '';
+        if (idKey && existingInvoicePaymentKeys.has(idKey)) return false;
+        if (refKey && existingInvoicePaymentKeys.has(refKey)) return false;
+        if (montoFechaKey && existingInvoicePaymentKeys.has(montoFechaKey)) return false;
+        return true;
+      });
+      const pagosClienteTotal = filteredPagosDelCliente.reduce((sum, p) => sum + (p.monto || 0), 0);
+      total = invoicePaymentsTotal + pagosClienteTotal;
+      setTotalPagado(total);
 
       const presupuestoTotal = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
       const cancelacionTemplate = templates.find(t => t.type === 'cancelacion') || templates[0];
@@ -189,7 +202,6 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
         generated = generated.replaceAll(key, val);
       });
       setContractText(generated);
-      await updateContratoFiestaActual(fiestaId, generated, 'cancelacion', cancelacionTemplate?.id || 'default-cancelacion');
 
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error desconocido";
@@ -210,6 +222,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
     if (!fiestaId) return;
     setIsSavingHistory(true);
     try {
+      await updateContratoFiestaActual(fiestaId, contractText, 'cancelacion', 'default-cancelacion');
       const file = new File([contractText], `cancelacion_total_${fiestaId}.txt`, { type: 'text/plain' });
       const formData = new FormData();
       formData.append('file', file);

@@ -88,13 +88,16 @@ export async function getProfitAndLossData(
     if (desdeMs > hastaMs) {
       return { success: false, error: 'La fecha de inicio es posterior a la de fin.' };
     }
-    const [allInvoices, presupuestos, fiestas, roles, gastosGenerales] = await Promise.all([
+    const [allInvoices, presupuestos, fiestasRaw, roles, gastosGenerales] = await Promise.all([
       getInvoices(),
       getPresupuestos(),
       getAllFiestas(),
       leerRolesInterno(),
       getGastosGenerales(),
     ]);
+    const { esFiestaDemo } = await import('@/lib/events/event-ordering');
+    const { esPrecioDeVentaCopiado } = await import('@/lib/costos/ganancia-evento');
+    const fiestas = fiestasRaw.filter(f => !esFiestaDemo(f));
 
     const targetFiesta = scope.fiestaId
       ? fiestas.find(fiesta => fiesta.id === scope.fiestaId)
@@ -242,8 +245,9 @@ export async function getProfitAndLossData(
         totalCostos += monto;
       });
 
-      const costosItems = targetFiesta.gestionCostos?.costosItems || [];
-      const costosSinMermaDuplicada = costosItems.filter(item => item.id !== 'auto_merma_bebidas');
+      const costosItems = (targetFiesta.gestionCostos?.costosItems || [])
+        .filter(item => item.id !== 'auto_merma_bebidas')
+        .map(item => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
       const otros = targetFiesta.gestionCostos?.others || {};
       const personalCalculado = (targetFiesta.personalAsignado ?? []).reduce((sum, pa) => {
         const rol = roles.find(r => r.id === pa.rolId);
@@ -252,7 +256,7 @@ export async function getProfitAndLossData(
         return sum + sueldo + aportes;
       }, 0);
       const costosPlanificados = [
-        ...costosSinMermaDuplicada.map(item => ({
+        ...costosItems.map(item => ({
           id: item.id,
           monto: montoCosto(item.montoEstimado),
         })),
@@ -306,8 +310,9 @@ export async function getProfitAndLossData(
         });
 
         if (fechaEvento && inRange(fechaEvento, from, to)) {
-          const costosItems = fiesta.gestionCostos?.costosItems || [];
-          const costosSinMermaDuplicada = costosItems.filter(item => item.id !== 'auto_merma_bebidas');
+          const costosItems = (fiesta.gestionCostos?.costosItems || [])
+            .filter(item => item.id !== 'auto_merma_bebidas')
+            .map(item => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
           const otros = fiesta.gestionCostos?.others || {};
           const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
             const rol = roles.find(r => r.id === pa.rolId);
@@ -316,7 +321,7 @@ export async function getProfitAndLossData(
             return sum + sueldo + aportes;
           }, 0);
           const costosPlanificados = [
-            ...costosSinMermaDuplicada.map(item => ({
+            ...costosItems.map(item => ({
               id: item.id,
               monto: montoCosto(item.montoEstimado),
             })),

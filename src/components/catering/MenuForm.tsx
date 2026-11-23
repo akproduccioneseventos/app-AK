@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import { avisosDeUnidadesDelMenu } from '@/lib/catering/unidades';
 
 const ALLERGEN_OPTIONS: { id: string; label: string; emoji: string }[] = [
   { id: 'gluten', label: 'Gluten', emoji: '🌾' },
@@ -679,6 +680,18 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       </div>
 
                       <TooltipProvider>
+                        {(() => {
+                          const avisos = avisosDeUnidadesDelMenu(item.ingredients || [], catalogoInsumos);
+                          return avisos.length > 0 ? (
+                            <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1">
+                              {avisos.map((aviso, idx) => (
+                                <p key={idx} className="text-xs text-amber-800 flex items-center gap-1.5 font-medium">
+                                  ⚠️ {aviso}
+                                </p>
+                              ))}
+                            </div>
+                          ) : null;
+                        })()}
                         {item.ingredients?.map((ing, ingIdx) => {
                           const otherOptions = catalogoInsumos.filter(c =>
                             c.id !== ing.origenId &&

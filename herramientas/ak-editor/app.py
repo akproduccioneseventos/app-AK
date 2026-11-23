@@ -170,7 +170,20 @@ def ejecutar_modo_automatico(
     ESTADO_AUTOMATICO["paso_actual"] = "exportacion_mp4"
     ESTADO_AUTOMATICO["mensaje"] = "Exportando MP4 terminado con color y sonido..."
     ruta_video_final = os.path.join(carpeta_salida, f"{fiesta_nombre}_terminado.mp4")
-    exportar_ok = exportar_video_ffmpeg(cortes, ruta_video_final, ruta_musica=ruta_musica)
+    errores: List[str] = []
+    if len(rutas_video) == 0:
+        errores.append("No se encontraron videos para procesar en la carpeta de entrada.")
+    exportar_ok = False
+    try:
+        exportar_ok = bool(exportar_video_ffmpeg(cortes, ruta_video_final, ruta_musica=ruta_musica))
+    except Exception as e_exp:
+        exportar_ok = False
+        errores.append(f"Error exportando el video principal: {e_exp}")
+    if not exportar_ok and len(rutas_video) > 0:
+        if len(cortes) == 0:
+            errores.append("No se pudieron armar cortes válidos de los videos de entrada.")
+        else:
+            errores.append("FFmpeg no pudo exportar el video principal.")
 
     # 4. Video de Vida si hay fotos
     ESTADO_AUTOMATICO["paso_actual"] = "video_vida"
@@ -197,9 +210,6 @@ def ejecutar_modo_automatico(
     ESTADO_AUTOMATICO["mensaje"] = "Generando clips para redes..."
     carpeta_redes = os.path.join(carpeta_salida, "redes")
     clips_redes = []
-    errores: List[str] = []
-    if len(rutas_video) == 0:
-        errores.append("No se encontraron videos para procesar en la carpeta de entrada.")
     try:
         if rutas_video:
             res_redes = redes.generar_videos_redes(
@@ -225,17 +235,24 @@ def ejecutar_modo_automatico(
     except Exception as e_wf:
         print(f"[Automático] Wfolio omitido: {e_wf}")
 
+    todo_ok = bool(exportar_ok) and len(errores) == 0
+    motivo_fallo = "; ".join(errores) if errores else ("" if exportar_ok else "Falló la exportación del video principal.")
+
     resumen_resultado = {
-        "ok": len(errores) == 0,
+        "ok": todo_ok,
         "errores": errores,
         "fiesta": fiesta_nombre,
         "total_videos_procesados": len(rutas_video),
         "total_cortes_generados": len(cortes),
-        "video_final_mp4": ruta_video_final if os.path.exists(ruta_video_final) else None,
+        "video_final_mp4": ruta_video_final if (exportar_ok and os.path.exists(ruta_video_final)) else None,
         "video_de_vida_mp4": ruta_vida_mp4 if (ruta_vida_mp4 and os.path.exists(ruta_vida_mp4)) else None,
         "videos_redes": clips_redes,
         "wfolio": resumen_wfolio,
-        "mensaje_entrega_listo": f"Hola {fiesta_nombre}, tu material ya está editado y listo para ver.",
+        "mensaje_entrega_listo": (
+            f"Hola {fiesta_nombre}, tu material ya está editado y listo para ver."
+            if todo_ok
+            else f"No se pudo armar el video: {motivo_fallo}"
+        ),
     }
 
     # Guardar resumen_automatico.json
@@ -244,7 +261,11 @@ def ejecutar_modo_automatico(
         json.dump(resumen_resultado, f, indent=2, ensure_ascii=False)
 
     ESTADO_AUTOMATICO["en_progreso"] = False
-    ESTADO_AUTOMATICO["mensaje"] = "Edición automática completada con éxito."
+    ESTADO_AUTOMATICO["mensaje"] = (
+        "Edición automática completada con éxito."
+        if todo_ok
+        else f"No se pudo armar el video: {motivo_fallo}"
+    )
     ESTADO_AUTOMATICO["resultado"] = resumen_resultado
     return resumen_resultado
 

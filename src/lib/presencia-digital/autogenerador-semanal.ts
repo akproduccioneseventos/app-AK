@@ -1,16 +1,20 @@
 import 'server-only';
 
 import type { SocialPost } from '@/types/social-media';
-import { createDataItem, readDataConDetalle } from '@/lib/data-service';
+import { createDataItem, readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { getReglaParaTarea } from '@/lib/ia/reglas-de-la-ia';
 import { getFiestaTimeRange } from '@/lib/staff-agenda-conflicts';
 import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
 import { fotosPromocionalesDeFiesta, validarFotosPromocionalesAlEnviar } from '@/lib/asistente/comercial-borrador';
 import { hoyEnUruguay } from '@/lib/utils';
+import { AK_PLAY_STORE_URL } from '@/lib/public-contact';
+import type { AjustesPublicarSolo } from '@/lib/presencia-digital/publicador';
 
 const POSTS_FILE = 'social-posts.json';
 const POSTS_COLLECTION = 'social_posts';
+const AJUSTES_PRESENCIA_FILE = 'presencia-digital-ajustes.json';
+const ANUNCIO_APP_POST_ID = 'anuncio-app-play-store';
 
 export interface AutoGeneracionSemanasResult {
   success: boolean;
@@ -45,6 +49,46 @@ export async function autoGenerarBorradoresSemanales(): Promise<AutoGeneracionSe
     createdCount += result.createdCount;
     if (result.createdCount > 0) creados.push(...result.posts.filter((post) => post.status === 'Borrador'));
   }
+
+  if (typeof readData === 'function' && typeof writeData === 'function') {
+    try {
+      const settings = await readData<AjustesPublicarSolo>(AJUSTES_PRESENCIA_FILE, { activo: true });
+      if (!settings?.anuncioAppCreado) {
+        const ahora = new Date();
+        const borradorApp: SocialPost = {
+          id: ANUNCIO_APP_POST_ID,
+          sourceId: ANUNCIO_APP_POST_ID,
+          platform: 'Instagram',
+          isGeneralCampaign: true,
+          publishDate: new Date(ahora.getTime() + 12 * 60 * 60 * 1000).toISOString(),
+          text: `¡Ya tenemos app! Bajala gratis en Google Play: presupuesto al instante, fotos de tu fiesta y más\n\n${AK_PLAY_STORE_URL}`,
+          status: 'Borrador',
+          createdAt: ahora.toISOString(),
+          updatedAt: ahora.toISOString(),
+        };
+        try {
+          await createDataItem(POSTS_FILE, POSTS_COLLECTION, borradorApp.id, borradorApp);
+          createdCount++;
+          creados.push(borradorApp);
+        } catch (err) {
+          const actuales = await readDataConDetalle<SocialPost[]>(POSTS_FILE, []);
+          const yaExiste = !actuales.huboFalla && actuales.valor.some((item) => item.id === borradorApp.id);
+          if (!yaExiste) {
+            console.warn('[autogenerador-semanal] No se pudo crear el borrador del anuncio de la app:', err);
+          }
+        }
+        await writeData(AJUSTES_PRESENCIA_FILE, {
+          ...settings,
+          activo: settings?.activo ?? true,
+          anuncioAppCreado: true,
+          actualizadoAt: ahora.toISOString(),
+        });
+      }
+    } catch (err) {
+      console.warn('[autogenerador-semanal] No se pudo revisar/marcar anuncioAppCreado:', err);
+    }
+  }
+
   return { success: true, createdCount, tipoOrigen: createdCount ? 'fiesta_reciente' : 'sin_material',
     ...(createdCount ? {} : { motivo: 'No se crearon borradores nuevos: los existentes se conservan y solo se usa material autorizado.' }), posts: creados };
 }

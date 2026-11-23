@@ -127,6 +127,58 @@ import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionam
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
+function QrModal({
+  showQrModal,
+  onClose,
+  brandText,
+  qrCallout,
+}: {
+  showQrModal: boolean;
+  onClose: () => void;
+  brandText?: string;
+  qrCallout?: string;
+}) {
+  if (!showQrModal) return null;
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        onClick={e => e.stopPropagation()}
+        className="relative bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="text-4xl mb-3">📲</div>
+        <h3 className="text-xl font-black text-white mb-2">{brandText || 'Compartí la experiencia'}</h3>
+        <p className="text-sm text-zinc-400 mb-6">{qrCallout || 'Escaneá este QR para abrir Touchpix en otro dispositivo'}</p>
+
+        <div className="bg-white rounded-2xl p-4 inline-block mb-6">
+          <QRCodeSVG value={shareUrl} size={200} level="H" />
+        </div>
+
+        <p className="text-xs text-zinc-500 break-all">{shareUrl}</p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function TouchpixPage() {
   usePantallaPrendida();
   const params = useParams();
@@ -174,6 +226,7 @@ export default function TouchpixPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [queuedOffline, setQueuedOffline] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -1137,6 +1190,7 @@ export default function TouchpixPage() {
     setIsProcessing(false);
     setProcessingResult(null);
     setQueuedOffline(false);
+    setUploadError(null);
     setShowSuccess(false);
     setWizardStep(0);
     setConsentAccepted(false);
@@ -1175,6 +1229,7 @@ export default function TouchpixPage() {
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
+    setUploadError(null);
     const sessionForThisUpload = currentPhotoSessionIdRef.current || photoSessionId;
     activeUploadSessionIdRef.current = sessionForThisUpload;
 
@@ -1210,14 +1265,16 @@ export default function TouchpixPage() {
       }
       uploadConfirmed = true;
 
-      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-      await updateEntertainmentSessionStatus(
+      const statusRes = await updateEntertainmentSessionStatus(
         fiestaId,
         'espejoMagicoIA',
         'done',
         { mediaUrl: res.post?.imageUrl, reviewPending: false },
         accessToken
       );
+      if (!statusRes.success) {
+        console.warn('[Touchpix] No se pudo actualizar el estado de sesión:', statusRes.error);
+      }
 
       if (!isLiveSession()) {
         return;
@@ -1301,10 +1358,23 @@ export default function TouchpixPage() {
           return;
         } catch (offlineError) {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
+          const errObj = offlineError as { name?: string; message?: string } | null;
+          const sinEspacio =
+            errObj?.name === 'QuotaExceededError' ||
+            /quota|space|storage/i.test(String(errObj?.message || ''));
+          if (isLiveSession()) {
+            setUploadError(
+              sinEspacio
+                ? 'No hay lugar en este dispositivo para guardar la foto sin señal. Descargala ahora o avisale al encargado.'
+                : 'No se pudo guardar la foto en la cola sin señal. Descargala en este dispositivo o volvé a intentar.',
+            );
+          }
+          return;
         }
       }
       if (isLiveSession()) {
         console.error('[Touchpix] No se pudo subir la foto:', errMsg);
+        setUploadError(errMsg || 'No se pudo subir la foto. Podés descargarla en este dispositivo o volver a intentar.');
       }
     } finally {
       if (isLiveSession()) {
@@ -1320,64 +1390,6 @@ export default function TouchpixPage() {
       return theme?.cssFilter || 'none';
     }
     return 'none';
-  };
-
-  /* ── QR Modal ── */
-  const QrModal = () => {
-    const [QRComponent, setQRComponent] = useState<any>(null);
-
-    useEffect(() => {
-      import('qrcode.react').then(mod => {
-        setQRComponent(() => mod.QRCodeSVG);
-      // no pasa nada si falla: es el dibujo del codigo QR; si no carga, la pantalla sigue
-      // andando y la foto se sube igual.
-      }).catch(() => {});
-    }, []);
-
-    if (!showQrModal) return null;
-
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6"
-        onClick={() => setShowQrModal(false)}
-      >
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          onClick={e => e.stopPropagation()}
-          className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center"
-        >
-          <button
-            onClick={() => setShowQrModal(false)}
-            className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          <div className="text-4xl mb-3">📲</div>
-          <h3 className="text-xl font-black text-white mb-2">{fiesta?.station?.brandText || 'Compartí la experiencia'}</h3>
-          <p className="text-sm text-zinc-400 mb-6">{fiesta?.station?.qrCallout || 'Escaneá este QR para abrir Touchpix en otro dispositivo'}</p>
-
-          <div className="bg-white rounded-2xl p-4 inline-block mb-6">
-            {QRComponent ? (
-              <QRComponent value={shareUrl} size={200} level="H" />
-            ) : (
-              <div className="w-[200px] h-[200px] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
-              </div>
-            )}
-          </div>
-
-          <p className="text-xs text-zinc-500 break-all">{shareUrl}</p>
-        </motion.div>
-      </motion.div>
-    );
   };
 
   const tabs: { id: TabMode; label: string; emoji: string; icon: React.ReactNode }[] = [
@@ -1552,6 +1564,16 @@ export default function TouchpixPage() {
       {errorMsg && (
         <div className="absolute left-1/2 top-20 z-50 w-[min(90vw,34rem)] -translate-x-1/2 rounded-xl border border-rose-500/30 bg-zinc-950/95 p-4 text-center text-sm font-bold text-rose-300 shadow-2xl">
           {errorMsg}
+        </div>
+      )}
+
+      {uploadError && (
+        <div
+          role="alert"
+          data-testid="touchpix-upload-error"
+          className="absolute left-1/2 top-20 z-50 w-[min(90vw,34rem)] -translate-x-1/2 rounded-xl border border-rose-500/40 bg-zinc-950/95 p-4 text-center text-sm font-bold text-rose-200 shadow-2xl"
+        >
+          {uploadError}
         </div>
       )}
 
@@ -2235,7 +2257,12 @@ export default function TouchpixPage() {
         </div>
       </div>
 
-      <QrModal />
+      <QrModal
+        showQrModal={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        brandText={fiesta?.station?.brandText}
+        qrCallout={fiesta?.station?.qrCallout}
+      />
       <KioskUnlockButton />
       <SyncStatusIndicator
         fiestaId={fiestaId}

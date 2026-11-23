@@ -324,6 +324,71 @@ function SimuladorContent() {
       }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
     const [step, setStep] = useState(1);
+    const [serverActionReloadError, setServerActionReloadError] = useState(false);
+
+    useEffect(() => {
+        try {
+            const raw = sessionStorage.getItem('ak-simulator-saved-state');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed.submissionId) {
+                    submissionIdRef.current = parsed.submissionId;
+                }
+                if (parsed.step) setStep(parsed.step);
+                if (parsed.clienteNombre) setClienteNombre(parsed.clienteNombre);
+                if (parsed.clienteContacto) setClienteContacto(parsed.clienteContacto);
+                if (parsed.eventoTipo) setEventoTipo(parsed.eventoTipo);
+                if (parsed.adultos) setAdultos(parsed.adultos);
+                if (parsed.ninosYAdolescentes !== undefined) setNinosYAdolescentes(parsed.ninosYAdolescentes);
+                if (parsed.duracionHoras) setDuracionHoras(parsed.duracionHoras);
+                if (parsed.eventoFecha) setEventoFecha(new Date(parsed.eventoFecha));
+                if (parsed.selectedEntradas) setSelectedEntradas(parsed.selectedEntradas);
+                if (parsed.selectedPrincipal) setSelectedPrincipal(parsed.selectedPrincipal);
+                if (parsed.selectedInfantil) setSelectedInfantil(parsed.selectedInfantil);
+                if (parsed.selectedPaqueteId) setSelectedPaqueteId(parsed.selectedPaqueteId);
+                if (parsed.salonChoice) setSalonChoice(parsed.salonChoice);
+                if (parsed.excludedPackageServiceIds) setExcludedPackageServiceIds(parsed.excludedPackageServiceIds);
+                if (parsed.serviciosSeleccionados) {
+                    setFormData({ serviciosSeleccionados: new Map(parsed.serviciosSeleccionados) });
+                }
+                sessionStorage.removeItem('ak-simulator-saved-state');
+            }
+        } catch {}
+    }, []);
+
+    const safeGenerateBudgetAndLeadFromSimulator = async (data: any, options: any) => {
+        try {
+            return await generateBudgetAndLeadFromSimulator(data, options);
+        } catch (e: any) {
+            const message = e instanceof Error ? e.message : String(e);
+            if (message.includes('Server Action') || message.includes('failed-to-find-server-action')) {
+                const stateToSave = {
+                    submissionId: submissionIdRef.current,
+                    step,
+                    clienteNombre,
+                    clienteContacto,
+                    eventoTipo,
+                    adultos,
+                    ninosYAdolescentes,
+                    duracionHoras,
+                    eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+                    selectedEntradas,
+                    selectedPrincipal,
+                    selectedInfantil,
+                    selectedPaqueteId,
+                    salonChoice,
+                    excludedPackageServiceIds,
+                    serviciosSeleccionados: Array.from(formData.serviciosSeleccionados.entries()),
+                };
+                try {
+                    sessionStorage.setItem('ak-simulator-saved-state', JSON.stringify(stateToSave));
+                } catch {}
+                setServerActionReloadError(true);
+                throw new Error('SERVER_ACTION_RELOAD');
+            }
+            throw e;
+        }
+    };
     const currentYear = new Date().getFullYear();
 
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -1031,7 +1096,7 @@ function SimuladorContent() {
                 items: simulatorDetailsToBudgetItems(stats.detallados),
             };
             try {
-                const result = await generateBudgetAndLeadFromSimulator(data, {
+                const result = await safeGenerateBudgetAndLeadFromSimulator(data, {
                     source: 'simulator_common',
                     eventoTipo,
                     acquisition,
@@ -1044,6 +1109,7 @@ function SimuladorContent() {
                     setStep(6);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
+                if (e.message === 'SERVER_ACTION_RELOAD') return;
                 toast({ title: "Error", description: e.message, variant: "destructive" });
             } finally {
                 setIsGenerating(false);
@@ -1163,7 +1229,7 @@ function SimuladorContent() {
         };
 
         try {
-            const result = await generateBudgetAndLeadFromSimulator(data, {
+            const result = await safeGenerateBudgetAndLeadFromSimulator(data, {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
@@ -1174,6 +1240,7 @@ function SimuladorContent() {
                 if (result.token) setGeneratedToken(result.token);
             } else throw new Error(result.error || "Error al actualizar.");
         } catch (e: any) {
+            if (e.message === 'SERVER_ACTION_RELOAD') return;
             toast({ title: "Error al actualizar presupuesto", description: e.message, variant: "destructive" });
         } finally {
             setIsGenerating(false);
@@ -1316,7 +1383,7 @@ function SimuladorContent() {
         };
 
         try {
-            const result = await generateBudgetAndLeadFromSimulator(data, {
+            const result = await safeGenerateBudgetAndLeadFromSimulator(data, {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
@@ -1328,6 +1395,7 @@ function SimuladorContent() {
                 toast({ title: "Presupuesto actualizado", description: `Se ha cambiado al paquete ${newPackageName} con éxito.` });
             } else throw new Error(result.error || "Error al generar.");
         } catch (e: any) {
+            if (e.message === 'SERVER_ACTION_RELOAD') return;
             toast({ title: "Error", description: e.message, variant: "destructive" });
         } finally {
             setIsGenerating(false);
@@ -1390,7 +1458,7 @@ function SimuladorContent() {
         };
 
         try {
-            const result = await generateBudgetAndLeadFromSimulator(data, {
+            const result = await safeGenerateBudgetAndLeadFromSimulator(data, {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
@@ -1401,6 +1469,7 @@ function SimuladorContent() {
                 if (result.token) setGeneratedToken(result.token);
             } else throw new Error(result.error || "Error al actualizar.");
         } catch (e: any) {
+            if (e.message === 'SERVER_ACTION_RELOAD') return;
             toast({ title: "Error al personalizar el paquete", description: e.message, variant: "destructive" });
         } finally {
             setIsGenerating(false);
@@ -1540,7 +1609,7 @@ function SimuladorContent() {
             try {
                 // Este es el prospecto que llega desde Google: si no queda guardado,
                 // se perdio una venta y nadie se entera.
-                const guardado = await generateBudgetAndLeadFromSimulator(data, {
+                const guardado = await safeGenerateBudgetAndLeadFromSimulator(data, {
                     source: 'simulator_common',
                     eventoTipo,
                     acquisition,
@@ -1549,7 +1618,8 @@ function SimuladorContent() {
                 if (!guardado?.success) {
                     console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
                 }
-            } catch (e) {
+            } catch (e: any) {
+                if (e.message === 'SERVER_ACTION_RELOAD') return;
                 console.error("Failed to auto-sync budget changes:", e);
             }
         }, 1000);
@@ -1622,6 +1692,7 @@ function SimuladorContent() {
                                       <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
                                   )}
                               </Button>
+
                               <VideoDeAyuda lugar="simulador" />
                             </div>
                         </div>
@@ -2145,6 +2216,15 @@ function SimuladorContent() {
 
     return (
         <div className="ak-public-page flex min-h-screen flex-col items-center justify-start sm:justify-center gap-2 sm:gap-4 p-2 sm:p-6 lg:p-8">
+
+            {serverActionReloadError && (
+                <div className="w-full max-w-4xl p-4 mb-4 bg-amber-500/20 border-2 border-amber-500 text-amber-900 rounded-2xl flex items-center justify-between gap-4">
+                    <span className="text-sm font-bold">Hay una versión nueva de la página. Tocá Recargar y seguís donde estabas</span>
+                    <Button onClick={() => window.location.reload()} className="bg-amber-600 hover:bg-amber-700 text-white font-black">
+                        Recargar
+                    </Button>
+                </div>
+            )}
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                 <CardHeader className="text-center bg-slate-50 p-3 sm:p-10 border-b border-slate-200">
                     <div className="flex justify-between items-center mb-2 sm:mb-4">
@@ -3318,6 +3398,26 @@ function SimuladorContent() {
                     </div>
                 </div>
             )}
+            {(() => {
+                const sofiaQuery = new URLSearchParams();
+                ['source', 'campaign', 'refFiesta', 'ref', 'tipo', 'eventType'].forEach(key => {
+                    const val = searchParams.get(key);
+                    if (val) sofiaQuery.set(key, val);
+                });
+                searchParams.forEach((val, key) => {
+                    if (key.startsWith('utm_')) {
+                        sofiaQuery.set(key, val);
+                    }
+                });
+                const sofiaHref = `/simulador-ak${sofiaQuery.toString() ? `?${sofiaQuery.toString()}` : ''}`;
+                return (
+                    <div className="w-full max-w-4xl text-center py-4">
+                        <Link href={sofiaHref} className="text-xs text-slate-500 hover:text-primary underline font-medium">
+                            ¿Preferís armarlo conversando? Probá con Sofía, nuestra asistente
+                        </Link>
+                    </div>
+                );
+            })()}
         </div>
     );
 }

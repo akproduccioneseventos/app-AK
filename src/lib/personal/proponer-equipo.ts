@@ -1,6 +1,8 @@
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Rol } from '@/types/rol';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 
 export interface RequiredRoleItem {
   roleId: string;
@@ -46,7 +48,7 @@ export function proponerEquipoParaFiesta(
   }
 
   for (const fiesta of todasLasFiestas) {
-    if (fiesta.estado === 'Archivado') continue;
+    if (fiesta.estado === 'Archivado' || esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) continue;
     const fiestaFechaStr = (fiesta.configuracion?.fechaEvento || '').slice(0, 10);
 
     const esMismoDia = Boolean(fechaActualStr && fiestaFechaStr && fechaActualStr === fiestaFechaStr);

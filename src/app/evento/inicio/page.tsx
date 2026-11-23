@@ -1,6 +1,35 @@
 'use client';
 
-import { KioskSetup } from '@/components/kiosk/kiosk-setup';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { KioskSetup, type KioskRole } from '@/components/kiosk/kiosk-setup';
+
+const ROLES_VALIDOS: readonly KioskRole[] = [
+  'barra',
+  'muro-en-vivo',
+  'plataforma-360',
+  'totem',
+  'fotocabina',
+  'espejo-magico',
+  'touchpix',
+  'buzon',
+  'video-vida',
+  'impresion',
+  'dj',
+  'bogue',
+];
+
+function esRolValido(valor: string | null): valor is KioskRole {
+  return valor !== null && (ROLES_VALIDOS as readonly string[]).includes(valor);
+}
+
+function InicioDeLasEstacionesContent() {
+  const searchParams = useSearchParams();
+  const rolParam = searchParams.get('rol');
+  const rol: KioskRole = esRolValido(rolParam) ? rolParam : 'fotocabina';
+
+  return <KioskSetup defaultRole={rol} />;
+}
 
 /**
  * La pantalla donde se elige el entretenimiento, con los iconos a la vista.
@@ -14,9 +43,13 @@ import { KioskSetup } from '@/components/kiosk/kiosk-setup';
  * llegar. Por eso parecía que no existía. Esta es la puerta: una sola dirección
  * para todas.
  *
- * Arranca en la fotocabina porque es la que más se usa, pero se cambia tocando
- * cualquier otro icono.
+ * Arranca en la fotocabina porque es la que más se usa, o en el `?rol=`
+ * indicado en la dirección, y se cambia tocando cualquier otro icono.
  */
 export default function InicioDeLasEstacionesPage() {
-  return <KioskSetup defaultRole="fotocabina" />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <InicioDeLasEstacionesContent />
+    </Suspense>
+  );
 }

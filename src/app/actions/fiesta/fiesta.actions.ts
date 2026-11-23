@@ -63,9 +63,22 @@ import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiest
 import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 import { marcarItemLectura, marcaDe, huellaDe, sacarMarcas, CLAVE_DE_LA_MARCA } from '@/lib/marca-de-lectura';
+import { generarCodigoFiestaUnico, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
+
+async function obtenerCodigosFiestaExistentes(): Promise<string[]> {
+  try {
+    const fiestas = await leerFiestasCrudas(true);
+    return fiestas
+      .map((f) => normalizarCodigoFiesta(f?.codigoFiesta))
+      .filter(Boolean);
+  } catch (err) {
+    logger.warn('[fiesta.actions] No se pudieron leer los códigos de fiesta existentes:', err);
+    return [];
+  }
+}
 
 function shouldUseLocalJsonOnly(): boolean {
   return process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
@@ -234,6 +247,23 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
   await requireAppSession();
   const mostrar = await requireEquipo();
   const crudas = dedupeImportedEventCopies(await leerFiestasCrudas(includeArchived));
+  const codigosUsados = new Set(
+    crudas.map((f) => normalizarCodigoFiesta(f?.codigoFiesta)).filter(Boolean),
+  );
+  for (const f of crudas) {
+    if (!normalizarCodigoFiesta(f.codigoFiesta)) {
+      const nuevoCodigo = generarCodigoFiestaUnico(codigosUsados);
+      codigosUsados.add(nuevoCodigo);
+      f.codigoFiesta = nuevoCodigo;
+      if (f.estado !== 'Archivado') {
+        try {
+          await updateDataPartial<FiestaEnPlanificacion>(`${FIESTAS_DIR}/${f.id}.json`, { codigoFiesta: nuevoCodigo });
+        } catch (err) {
+          logger.warn(`[fiesta.actions] No se pudo persistir codigoFiesta inicial para ${f.id}:`, err);
+        }
+      }
+    }
+  }
   return crudas.map((f) => marcarItemLectura(mostrar(f) as unknown as Record<string, unknown>, (f as any)._syncedAt, CAMPOS_DE_PLATA_Y_CONTRATO) as unknown as FiestaEnPlanificacion);
 }
 
@@ -317,6 +347,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 
   const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
   const guardada = await getFiestaByIdRaw(fiestaData.id);
+  const codigoGenerado =
+    !normalizarCodigoFiesta(guardada?.codigoFiesta) && !normalizarCodigoFiesta(fiestaData.codigoFiesta)
+      ? generarCodigoFiestaUnico(await obtenerCodigosFiestaExistentes())
+      : undefined;
 
   if (guardada) {
     const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
@@ -395,6 +429,14 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
       if (recortadoAlLeer) {
         resultado = reponerLoDelPerfil(resultado, actual, usuarioQueGuarda);
       }
+      const codigoExistente = normalizarCodigoFiesta(actual.codigoFiesta);
+      if (codigoExistente) {
+        resultado.codigoFiesta = codigoExistente;
+      } else if (!normalizarCodigoFiesta(resultado.codigoFiesta)) {
+        resultado.codigoFiesta = codigoGenerado || generarCodigoFiestaUnico([]);
+      } else {
+        resultado.codigoFiesta = normalizarCodigoFiesta(resultado.codigoFiesta);
+      }
       return conLaConstanciaGuardada(resultado, actual);
     });
 
@@ -405,12 +447,15 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
-    await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
+    const fiestaConCodigo: FiestaEnPlanificacion = normalizarCodigoFiesta(fiestaData.codigoFiesta)
+      ? { ...fiestaData, codigoFiesta: normalizarCodigoFiesta(fiestaData.codigoFiesta) }
+      : { ...fiestaData, codigoFiesta: codigoGenerado || generarCodigoFiestaUnico([]) };
+    await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaConCodigo));
     const { verifySession } = await import('@/lib/auth/session-token');
     const sesion = await verifySession();
     if (!sesion.success) return { success: true };
     const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
-    return { success: true, fiesta: recortarFiestaPorPerfil(fiestaData, sesion.user) };
+    return { success: true, fiesta: recortarFiestaPorPerfil(fiestaConCodigo, sesion.user) };
   } catch (error: any) {
     return { success: false, error: 'No se pudo guardar el evento.' };
   }
@@ -585,6 +630,15 @@ async function leerFiestaConEstado(
             const { recortarFiestaParaAfuera } = await import('@/lib/fiesta/recortar-para-afuera');
             fiesta = recortarFiestaParaAfuera(fiesta, { esCliente });
         } else if (lectura !== LECTURA_COMPLETA) {
+            if (!normalizarCodigoFiesta(fiesta.codigoFiesta) && fiesta.estado !== 'Archivado') {
+                const nuevoCodigo = generarCodigoFiestaUnico(await obtenerCodigosFiestaExistentes());
+                fiesta = { ...fiesta, codigoFiesta: nuevoCodigo };
+                try {
+                    await updateDataPartial<FiestaEnPlanificacion>(`${FIESTAS_DIR}/${fiesta.id}.json`, { codigoFiesta: nuevoCodigo });
+                } catch (err) {
+                    logger.warn(`[fiesta.actions] No se pudo persistir codigoFiesta inicial para ${fiesta.id}:`, err);
+                }
+            }
             // Orden 183: al equipo también se le saca lo que su perfil no ve (costos, sueldos, pagos).
             const { verifySession } = await import('@/lib/auth/session-token');
             const sesion = await verifySession();

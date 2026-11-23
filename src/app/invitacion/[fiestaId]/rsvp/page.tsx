@@ -203,6 +203,19 @@ function RsvpFormContent() {
     );
   }
 
+  const rsvpActivo = fiesta.invitacionConfig?.rsvpActivo ?? true;
+  if (!rsvpActivo && !confirmedGuest) {
+    return (
+      <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
+        <p className="text-xl font-semibold">Las confirmaciones están cerradas</p>
+        <p className="mt-2 max-w-sm text-slate-500">
+          Las confirmaciones ya no están disponibles para este evento.
+        </p>
+      </div>
+    );
+  }
+
   const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 

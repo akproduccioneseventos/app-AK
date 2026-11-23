@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { BajaLaApp } from '@/components/BajaLaApp';
 
 const SITE_URL = 'https://akproducciones.uy';
 
@@ -59,6 +60,11 @@ export default function EnlacesPage() {
           >
             Instagram / Facebook
           </Link>
+
+          <div className="w-full rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 text-center">
+            <p className="mb-2 text-xs font-semibold text-neutral-300">Bajá la app de AK</p>
+            <BajaLaApp />
+          </div>
         </div>
 
         <footer className="text-xs text-neutral-500 pt-8 text-center">

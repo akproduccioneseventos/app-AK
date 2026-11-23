@@ -109,7 +109,7 @@ function ExperienciaContent() {
               Demostración de muestra
             </Badge>
             <Button size="sm" asChild className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs">
-              <Link href="/simulador-ak">
+              <Link href="/simulador-de-presupuesto">
                 <Calculator className="w-3.5 h-3.5 mr-1" />
                 Armar presupuesto
               </Link>
@@ -442,7 +442,7 @@ function ExperienciaContent() {
 
                   <div className="pt-2 flex flex-col gap-2">
                     <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm">
-                      <Link href="/simulador-ak">
+                      <Link href="/simulador-de-presupuesto">
                         <Calculator className="w-4 h-4 mr-2" />
                         Armar presupuesto para mi fiesta
                       </Link>

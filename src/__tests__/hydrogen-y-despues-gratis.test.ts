@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Hydrogen primero, y después el modelo gratis', () => {
-  const yaml = fs.readFileSync(path.join(process.cwd(), 'apphosting.yaml'), 'utf8');
+  const yaml = fs.readFileSync(path.join(process.cwd(), 'apphosting.yaml'), 'utf8').replace(/\r\n/g, '\n');
 
   it.each(['GEMINI_MODEL_PRO', 'GEMINI_MODEL_MARKETING', 'GEMINI_MODEL_COMMERCIAL'])('%s usa Gemini 4 Hydrogen', (variable) => {
     const bloque = yaml.slice(yaml.indexOf(`variable: ${variable}\n`)).split('- variable:')[0];

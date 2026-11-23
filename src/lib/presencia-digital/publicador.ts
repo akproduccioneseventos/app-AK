@@ -550,6 +550,7 @@ const AJUSTES_PRESENCIA_FILE = 'presencia-digital-ajustes.json';
 export interface AjustesPublicarSolo {
   activo: boolean;
   publicarSolo?: boolean;
+  anuncioAppCreado?: boolean;
   actualizadoAt?: string;
 }
 

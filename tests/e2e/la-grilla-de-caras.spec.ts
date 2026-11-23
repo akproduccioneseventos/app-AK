@@ -280,6 +280,9 @@ test.describe('Orden 36: La grilla de caras', () => {
     for (let i = 0; i < (await titulos.count()); i += 1) {
       if (await titulos.nth(i).isVisible()) visibles += 1;
     }
-    expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);
+    // La cámara de prueba no tiene una cara: lo correcto es decirlo ("probá de nuevo"), no mostrar
+    // "No encontramos fotos tuyas", que le haría creer al invitado que no hay fotos de él (22/11/2026).
+    const avisoSinCara = await page.getByText(/No pudimos activar la búsqueda por cara/i).isVisible().catch(() => false);
+    expect(visibles + (avisoSinCara ? 1 : 0), 'muestra los resultados o pide probar de nuevo, siempre en el propio teléfono').toBeGreaterThan(0);
   });
 });

@@ -55,8 +55,8 @@ describe('las pantallas de proveedor validan el token', () => {
   const raiz = path.resolve(__dirname, '..');
 
   it.each([
-    ['app/(app)/fiestas/nueva/fotografia/page.tsx', 'fotografia'],
-    ['app/(app)/fiestas/nueva/catering/page.tsx', 'reposteria'],
+    ['components/fiestas/panels/fotografia.tsx', 'fotografia'],
+    ['components/fiestas/panels/catering.tsx', 'reposteria'],
   ])('%s verifica contra la lista de accesos', (archivo, modulo) => {
     const source = fs.readFileSync(path.join(raiz, archivo), 'utf8');
 

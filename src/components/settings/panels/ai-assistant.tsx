@@ -40,7 +40,8 @@ export default function AiAssistantSettingsPage() {
   const [appFunctionalityContext, setAppFunctionalityContext] = useState('');
   const [isScanningApp, setIsScanningApp] = useState(false);
   const [operationalStatus, setOperationalStatus] = useState<AssistantOperationalStatus | null>(null);
-  const [fallosHoy, setFallosHoy] = useState<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>>({});
+  const [fallosHoy, setFallosHoy] = useState<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }> | null>(null);
+  const [fallosError, setFallosError] = useState(false);
   const [decisionesRapidasActivas, setDecisionesRapidasActivas] = useState(true);
   const { toast } = useToast();
 
@@ -48,9 +49,9 @@ export default function AiAssistantSettingsPage() {
     Promise.all([
       getAiAssistantSettings(),
       getAssistantOperationalStatus(),
-      getAiAssistantFallosHoy().catch(() => ({})),
+      getAiAssistantFallosHoy().then(res => ({ data: res, error: false })).catch(() => ({ data: {}, error: true })),
     ])
-      .then(([data, status, fallos]) => {
+      .then(([data, status, fallosRes]) => {
         setCustomInstructions(data.customInstructions || '');
         setOperationalInstructions(data.operationalInstructions || '');
         setSalesMarketingInstructions(data.salesMarketingInstructions || '');
@@ -61,7 +62,8 @@ export default function AiAssistantSettingsPage() {
         setDecisionesRapidasActivas(data.decisionesRapidasActivas !== false);
         setUpdatedAt(data.updatedAt || '');
         setOperationalStatus(status);
-        setFallosHoy(fallos || {});
+        setFallosHoy(fallosRes.data || {});
+        setFallosError(fallosRes.error);
       })
       .catch(() => {
         toast({ title: 'Error al cargar', description: 'No se pudieron cargar los ajustes del asistente.', variant: 'destructive' });
@@ -324,10 +326,15 @@ export default function AiAssistantSettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {Object.keys(fallosHoy).length === 0 ? (
-            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
-              <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
-              <span>Ninguna respuesta de respaldo hoy. La IA funcionó con normalidad en todas sus funciones.</span>
+          {fallosError ? (
+            <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>No se pudo leer el registro de fallos</span>
+            </div>
+          ) : !fallosHoy || Object.keys(fallosHoy).length === 0 ? (
+            <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200">
+              <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
+              <span>No se registraron fallos hoy</span>
             </div>
           ) : (
             <div className="space-y-3">

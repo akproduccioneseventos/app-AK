@@ -59,7 +59,7 @@ Prueba de regresion propuesta abajo PENDIENTE, no implementada/ejecutada porCode
 
 ```comprobar
 archivo: src/app/actions/fiesta/portal.actions.ts
-usa: approveClientPayment en src/app/(app)/fiestas/nueva/plan-pagos/page.tsx
+usa: approveClientPayment en src/components/fiestas/panels/plan-pagos.tsx
 usa: addPagoToPresupuesto en src/app/actions/fiesta/portal.actions.ts
 prueba: docs/evidencias/260-aprobacion-reintento.mjs
 prueba: docs/evidencias/263-aprobacion-sdk.mjs

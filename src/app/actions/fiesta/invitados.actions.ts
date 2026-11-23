@@ -10,6 +10,7 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getGuestAdultsCount, getGuestKidsCount, getGuestPartySize } from '@/lib/fiesta/guest-counts';
@@ -89,6 +90,13 @@ export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
 
 // ─── Guest CRUD ──────────────────────────────────────────────────────────────
 
+async function requireEquipoOPortal(fiestaId: string) {
+  if (await verifyPortalSession(fiestaId)) {
+    return;
+  }
+  await requireAppSession();
+}
+
 /**
  * Alta, cambio y baja de invitados: son cosa del equipo, no del invitado.
  *
@@ -104,7 +112,7 @@ export async function addInvitado(
   nuevoInvitadoData: Omit<Invitado, 'id'>,
   opciones?: OpcionesDeIntento,
 ) {
-  await requireAppSession();
+  await requireEquipoOPortal(fiestaId);
   // Pregunta 58: si la respuesta se perdio y la persona reintenta, el invitado ya esta con ese id.
   const idDeLaPantalla = idDelIntento('inv', opciones?.idIntento);
   let nuevoInvitado: Invitado | null = null;
@@ -126,7 +134,7 @@ export async function addInvitado(
 }
 
 export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
-  await requireAppSession();
+  await requireEquipoOPortal(fiestaId);
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv =>
       inv.id === invitadoActualizado.id ? invitadoActualizado : inv
@@ -137,7 +145,7 @@ export async function updateInvitado(fiestaId: string, invitadoActualizado: Invi
 }
 
 export async function deleteInvitado(fiestaId: string, invitadoId: string) {
-  await requireAppSession();
+  await requireEquipoOPortal(fiestaId);
   return updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
     return { ...data, invitados };
@@ -561,6 +569,9 @@ export async function submitPublicRsvp(
     : undefined;
 
   const result = await updateFiestaData(fiestaId, data => {
+    if (data.invitacionConfig?.rsvpActivo === false) {
+      throw new Error('Las confirmaciones están cerradas.');
+    }
     const currentInvitados = data.invitados || [];
     const tokenIndex =
       submission.guestId && submission.guestAccessToken

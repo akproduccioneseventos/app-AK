@@ -53,14 +53,13 @@ test('simulator hub connects both options with the visual first step', async ({ 
   test.setTimeout(240_000);
   await page.goto('/simulador', { waitUntil: 'domcontentloaded' });
 
-  const visualOption = page.getByTestId('simulator-option-visual');
-  const assistantOption = page.getByTestId('simulator-option-assistant');
-  await expect(visualOption).toHaveAttribute('href', /\/simulador-de-presupuesto/);
-  await expect(assistantOption).toHaveAttribute('href', /\/simulador-ak/);
-
-  await visualOption.click();
   await expect(page).toHaveURL(/\/simulador-de-presupuesto/);
   await page.getByTestId('simulator-cover-start').click();
+
+  const sofiaLink = page.getByRole('link', { name: /Preferís armarlo conversando\? Probá con Sofía/i });
+  await expect(sofiaLink).toBeVisible();
+  await expect(sofiaLink).toHaveAttribute('href', /\/simulador-ak/);
+
   const firstStepCta = page.getByTestId('simulator-first-step-cta');
   await expect(firstStepCta).toBeVisible();
   await firstStepCta.click();

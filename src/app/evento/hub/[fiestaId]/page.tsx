@@ -99,7 +99,15 @@ export default function EventoHubPage() {
       if (portalData && typeof window !== 'undefined') {
         try {
           localStorage.setItem('ak_invitado_fiesta', fiestaId);
-        } catch {}
+          if (guestId && guestAccessToken) {
+            localStorage.setItem(
+              'ak_invitado_credencial',
+              JSON.stringify({ fiestaId, guestId, token: guestAccessToken }),
+            );
+          }
+        } catch (err) {
+          console.warn('[EventoHubPage] No se pudo guardar acceso en localStorage:', err);
+        }
       }
       setStations(portalData?.entertainmentLinks ?? []);
       setPhotoCount(approvedPostCount);
@@ -136,6 +144,18 @@ export default function EventoHubPage() {
             Si creés que es un error, comunicate con AK Producciones o con el organizador del evento para que te reenvíen tu invitación personal con el acceso correcto.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/entrar"
+              onClick={() => {
+                try {
+                  localStorage.removeItem('ak_invitado_fiesta');
+                  localStorage.removeItem('ak_invitado_credencial');
+                } catch {}
+              }}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-red-500"
+            >
+              Volver a entrar
+            </Link>
             <Link
               href="/"
               className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-slate-200"
@@ -198,8 +218,11 @@ export default function EventoHubPage() {
                 onClick={() => {
                   try {
                     localStorage.removeItem('ak_invitado_fiesta');
+                    localStorage.removeItem('ak_invitado_credencial');
                     localStorage.removeItem('ak_portal_fiesta');
-                  } catch {}
+                  } catch (err) {
+                    console.warn('[EventoHubPage] No se pudo limpiar localStorage:', err);
+                  }
                   window.location.href = '/entrar';
                 }}
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/25 bg-black/20 px-3 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-black/40"

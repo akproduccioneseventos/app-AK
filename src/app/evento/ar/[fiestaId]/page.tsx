@@ -6,8 +6,31 @@ import { motion } from 'framer-motion';
 import { Camera, ArrowLeft, AlertCircle, Sparkles, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getPublicSocialEvent } from '@/app/actions/social-gallery';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import * as THREE from 'three';
+
+function readGuestAccessFromClient(fiestaId: string): { guestId: string; token: string } {
+  if (typeof window === 'undefined') return { guestId: '', token: '' };
+  const params = new URLSearchParams(window.location.search);
+  const queryGuestId = (params.get('guestId') || '').trim();
+  const queryToken = (params.get('token') || '').trim();
+  if (queryGuestId && queryToken) {
+    return { guestId: queryGuestId, token: queryToken };
+  }
+  try {
+    const raw = localStorage.getItem('ak_invitado_credencial');
+    if (raw) {
+      const parsed = JSON.parse(raw) as { fiestaId?: string; guestId?: string; token?: string };
+      if (parsed?.fiestaId === fiestaId && parsed.guestId && parsed.token) {
+        return { guestId: parsed.guestId, token: parsed.token };
+      }
+    }
+  } catch {
+    // ignore invalid localStorage data
+  }
+  return { guestId: '', token: '' };
+}
 
 /**
  * Realidad Aumentada de Invitación Impresa con MindAR.
@@ -19,6 +42,10 @@ export default function EventoRealidadAumentadaPage() {
   const router = useRouter();
   const fiestaId = params.fiestaId as string;
 
+  const [guestAccess, setGuestAccess] = useState<{ guestId: string; token: string }>({
+    guestId: '',
+    token: '',
+  });
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -28,6 +55,10 @@ export default function EventoRealidadAumentadaPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const mindArInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    setGuestAccess(readGuestAccessFromClient(fiestaId));
+  }, [fiestaId]);
 
   useEffect(() => {
     let active = true;
@@ -50,6 +81,10 @@ export default function EventoRealidadAumentadaPage() {
   // Busca el archivo compilado .mind para la invitación física
   const tieneMindConfigurado = Boolean(fiesta?.tieneRealidadAumentada || fiesta?.mindTargetUrl || (fiesta as any)?.invitacionMindUrl);
   const mindTargetUrl = fiesta?.mindTargetUrl || (fiesta as any)?.invitacionMindUrl || `/models/ar/${fiestaId}.mind`;
+  const encodedFiestaId = encodeURIComponent(fiestaId);
+  const backHref = guestAccess.guestId && guestAccess.token
+    ? withGuestAccess(`/evento/hub/${encodedFiestaId}`, guestAccess.guestId, guestAccess.token)
+    : `/invitacion/${encodedFiestaId}`;
 
   const startAR = useCallback(async () => {
     try {
@@ -146,7 +181,7 @@ export default function EventoRealidadAumentadaPage() {
             Cuando se termine de diseñar la tarjeta impresa se activa la vista sobre el papel. Podés entrar a todas las fotos, barra y música desde acá:
           </p>
           <Button
-            onClick={() => router.push(`/evento/hub/${fiestaId}`)}
+            onClick={() => router.push(backHref)}
             className="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold"
           >
             Ir al Menú del Evento
@@ -174,7 +209,7 @@ export default function EventoRealidadAumentadaPage() {
       {/* Cabecera flotante */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
         <button
-          onClick={() => router.push(`/evento/hub/${fiestaId}`)}
+          onClick={() => router.push(backHref)}
           className="p-2.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-black/70 transition"
           aria-label="Volver al menú"
         >

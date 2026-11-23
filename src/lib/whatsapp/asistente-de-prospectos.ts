@@ -279,6 +279,25 @@ function mismosTelefonos(a?: string | null, b?: string | null): boolean {
   return digitsA.length >= 7 && digitsB.length >= 7 && digitsA === digitsB;
 }
 
+function coincideLeadConCanal(l: CrmLead, canal: CanalProspecto, remitenteId: string): boolean {
+  if (canal === 'whatsapp') {
+    return Boolean(l.phone && mismosTelefonos(l.phone, remitenteId));
+  }
+  const clave = `${canal}:${remitenteId}`;
+  const expectedKey = createHash('sha256')
+    .update(`sin-telefono|${clave}|${clave}`)
+    .digest('hex');
+  if (l.publicIdentityKey === expectedKey || l.id === `lead_public_${expectedKey.slice(0, 24)}`) {
+    return true;
+  }
+  if (Array.isArray(l.conversacion)) {
+    return l.conversacion.some(
+      (m) => m.canal === canal && String(m.meta?.senderId || '') === remitenteId,
+    );
+  }
+  return false;
+}
+
 async function sincronizarEstadoEnCrmLead(
   canal: CanalProspecto,
   remitenteId: string,
@@ -289,7 +308,7 @@ async function sincronizarEstadoEnCrmLead(
     if (!Array.isArray(leads) || leads.length === 0) return undefined;
 
     const idx = leads.findIndex((l) => {
-      if (canal === 'whatsapp' && l.phone && mismosTelefonos(l.phone, remitenteId)) return true;
+      if (coincideLeadConCanal(l, canal, remitenteId)) return true;
       if (l.referenciaCodigo && patch.referenciaCodigo && l.referenciaCodigo === patch.referenciaCodigo) return true;
       return false;
     });
@@ -307,12 +326,11 @@ async function sincronizarEstadoEnCrmLead(
   }
 }
 
-async function verificarLeadPidePersona(canal: CanalProspecto, remitenteId: string): Promise<boolean> {
-  if (canal !== 'whatsapp') return false;
+export async function verificarLeadPidePersona(canal: CanalProspecto, remitenteId: string): Promise<boolean> {
   try {
     const leads = await readData<CrmLead[]>('crm-leads.json', []);
     if (!Array.isArray(leads)) return false;
-    const lead = leads.find((l) => l.phone && mismosTelefonos(l.phone, remitenteId));
+    const lead = leads.find((l) => coincideLeadConCanal(l, canal, remitenteId));
     return lead?.atiende === 'persona';
   } catch {
     return false;

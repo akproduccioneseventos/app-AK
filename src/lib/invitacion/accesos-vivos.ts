@@ -1,5 +1,11 @@
 import type { FiestaEnPlanificacion, ZonaDigitalFeatureId } from '@/types/fiesta';
 import { withZonaDigitalDefaults } from '@/lib/zona-digital-adolescentes';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
+
+export interface GuestAccessCredential {
+  guestId?: string;
+  token?: string;
+}
 
 export interface InvitacionAccesosVivos {
   muroSocialActivo: boolean;
@@ -59,9 +65,14 @@ export function buildAccesosVivosInvitacion(
     | 'menuSeleccionPortal'
     | 'galeriaUrl'
   >,
-  fiestaId?: string
+  fiestaId?: string,
+  guestAccess?: GuestAccessCredential | string,
+  guestAccessToken?: string
 ): InvitacionAccesosVivos {
   const id = encodeURIComponent(fiestaId || fiesta.id || '');
+  const guestId = (typeof guestAccess === 'string' ? guestAccess : guestAccess?.guestId || '').trim();
+  const token = (typeof guestAccess === 'string' ? guestAccessToken || '' : guestAccess?.token || '').trim();
+  const hasGuestCredential = Boolean(guestId && token);
   const muroContratado = fiesta.modulosContratados?.muroSocial !== false;
   const muroPrendido = fiesta.socialGallerySettings?.enabled !== false;
   const zonaMuroActiva = isZonaFeatureActive(fiesta, 'muro_social');
@@ -82,14 +93,21 @@ export function buildAccesosVivosInvitacion(
     fiesta.zonaDigitalAdolescentes?.recapEnabled !== false &&
     isZonaFeatureActive(fiesta, 'recap');
 
+  const menuDigitalUrl = hasGuestCredential
+    ? `${withGuestAccess(`/evento/hub/${id}`, guestId, token)}#menu-noche-title`
+    : '';
+  const recapUrl = hasGuestCredential
+    ? withGuestAccess(`/invitacion/${id}/recap`, guestId, token)
+    : '';
+
   return {
     muroSocialActivo: muroContratado && muroPrendido && zonaMuroActiva,
     miMesaActivo,
     menuDigitalActivo,
-    menuDigitalUrl: `/evento/hub/${id}#menu-noche-title`,
+    menuDigitalUrl,
     albumActivo,
     albumUrl: fiesta.galeriaUrl || `/evento/album/${id}`,
     recapActivo,
-    recapUrl: `/invitacion/${id}/recap`,
+    recapUrl,
   };
 }

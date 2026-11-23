@@ -1,6 +1,7 @@
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
+import { hoyEnUruguay } from '@/lib/utils';
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -122,7 +123,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isAddingPago, setIsAddingPago] = useState(false);
   const [isSavingPago, setIsSavingPago] = useState(false);
   const [isDeletingPagoId, setIsDeletingPagoId] = useState<string | null>(null);
-  const [newPagoFecha, setNewPagoFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [newPagoFecha, setNewPagoFecha] = useState(hoyEnUruguay());
   const [newPagoMonto, setNewPagoMonto] = useState('');
   const [newPagoMetodo, setNewPagoMetodo] = useState<MetodoPago>('Efectivo');
   const [newPagoReferencia, setNewPagoReferencia] = useState('');
@@ -768,7 +769,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           adjustmentPct={adjustmentPct}
           annualProjection={isContracted ? annualProjection : undefined}
           pricePerPerson={pricePerPerson}
-          bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
+          bookingDepositAmount={seniaDelPresupuesto}
           clienteNombre={cliente?.name || presupuesto.clienteNombre}
           showSignatures={false}
           clubUruguayCosto={clubUruguayCosto}
@@ -1340,7 +1341,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 adjustmentPct={adjustmentPct}
                 annualProjection={isContracted ? annualProjection : undefined}
                 pricePerPerson={pricePerPerson}
-                bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
+                bookingDepositAmount={seniaDelPresupuesto}
                 clienteNombre={cliente?.name || presupuesto.clienteNombre}
                 showSignatures={shouldShowBudgetSignatures}
                 clubUruguayCosto={clubUruguayCosto}

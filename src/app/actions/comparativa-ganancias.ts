@@ -3,6 +3,7 @@
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import type { Comparativa } from '@/lib/costos/comparativa';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 /**
  * La comparación de ganancia entre todas las fiestas.
@@ -23,7 +24,8 @@ export async function getComparativaDeGanancias(): Promise<{
   const { compararGanancias } = await import('@/lib/costos/comparativa');
 
   // Con archivadas incluidas: la comparación sirve justamente para mirar atrás.
-  const fiestas = await getFiestas(true);
+  const rawFiestas = await getFiestas(true);
+  const fiestas = rawFiestas.filter(f => !esFiestaDemo(f));
   // Los cobros de cada presupuesto, para restar la comisión real de Mercado Pago.
   const { getPresupuestos } = await import('@/app/actions/presupuestos');
   const presupuestos = await getPresupuestos(true);

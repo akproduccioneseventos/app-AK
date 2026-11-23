@@ -1,10 +1,10 @@
-'use client';
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
-import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+﻿'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,14 +35,14 @@ import {
 import {
   isPackageApplicableToEventType,
   type ArmadoRapidoConfig,
+  defaultClubUruguayConfig,
 } from '@/types/armado-rapido';
-import { defaultClubUruguayConfig } from '@/types/armado-rapido';
-import { getCateringDishImage, getCateringMenuImage, fotoDelPlatoParaMostrar } from '@/lib/catering/menu-images';
+import { getCateringMenuImage, fotoDelPlatoParaMostrar } from '@/lib/catering/menu-images';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE, DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
-import { isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { buildWhatsAppLink, isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
 import type { Presupuesto } from '@/types/presupuesto';
 
 const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
@@ -62,9 +62,9 @@ type EventType = 'cumpleanos' | 'cumpleanosInfantil' | 'quince' | 'boda' | 'empr
 const EVENT_META: Record<EventType, { label: string; emoji: string }> = {
   cumpleanos: { label: 'Cumpleaños', emoji: '🎂' },
   cumpleanosInfantil: { label: 'Cumpleaños infantil', emoji: '🧒' },
-  quince:     { label: '15 años',   emoji: '🎀' },
-  boda:       { label: 'Boda',      emoji: '💍' },
-  empresarial:{ label: 'Evento empresarial', emoji: '🏢' },
+  quince: { label: '15 años', emoji: '🎀' },
+  boda: { label: 'Boda', emoji: '💍' },
+  empresarial: { label: 'Evento empresarial', emoji: '🏢' },
 };
 
 interface ChatMessage {
@@ -96,21 +96,21 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
   };
 };
 
-export default function Page() {
+export default function SimuladorAkPage() {
   return (
-    <HydrationGuard fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8" /></div>}>
-      <SimuladorAKContent />
-    </HydrationGuard>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+          <Loader2 className="animate-spin w-8 h-8 text-primary" />
+        </div>
+      }
+    >
+      <SimuladorAkContent />
+    </Suspense>
   );
 }
 
-function HydrationGuard({ children, fallback }: { children: React.ReactNode, fallback: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted ? <>{children}</> : <>{fallback}</>;
-}
-
-function SimuladorAKContent() {
+function SimuladorAkContent({ onClose }: { onClose?: () => void }) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -148,9 +148,9 @@ function SimuladorAKContent() {
   const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
   const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
   const [selectedInfantil, setSelectedInfantil] = useState<string>('');
-  const [incluirClubUruguay, setIncluirClubUruguay] = useState(false);
-  const [tieneSalon, setTieneSalon] = useState<boolean | null>(null);
-  const [eventoHoraInicio, setEventoHoraInicio] = useState<string>('21:00');
+  const [incluirClubUruguay] = useState(false);
+  const [tieneSalon] = useState<boolean | null>(null);
+  const [eventoHoraInicio] = useState<string>('21:00');
 
   // Flow State
   const [currentChatStep, setCurrentChatStep] = useState<string>('name');
@@ -173,6 +173,8 @@ function SimuladorAKContent() {
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSucceeded, setSaveSucceeded] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const autoSaveAttemptRef = useRef<string | null>(null);
   const budgetDocumentRef = useRef<HTMLDivElement>(null);
@@ -185,7 +187,9 @@ function SimuladorAKContent() {
       .then((armadoConfig) => {
         if (active && armadoConfig) setConfig(armadoConfig);
       })
-      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
+      .catch((err) => {
+        console.warn('[SofiaChat] No se pudo cargar la configuración del simulador:', err);
+      });
 
     getBudgetDisplaySettings()
       .then((budgetSettings) => {
@@ -196,7 +200,9 @@ function SimuladorAKContent() {
           setBookingDepositAmount(budgetSettings.bookingDepositAmount);
         }
       })
-      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
+      .catch((err) => {
+        console.warn('[SofiaChat] No se pudieron cargar los ajustes de visualización:', err);
+      });
 
     const servicesRequest = getServiciosEmpresaPublicos()
       .then((servicios) => {
@@ -204,13 +210,17 @@ function SimuladorAKContent() {
           setServiciosCatalogo(servicios.filter((service) => service.tipoItem === 'Servicio'));
         }
       })
-      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
+      .catch((err) => {
+        console.warn('[SofiaChat] No se pudieron cargar los servicios públicos:', err);
+      });
 
     const menusRequest = getMenusPublicos()
       .then((menus) => {
         if (active && Array.isArray(menus)) setAvailableMenus(menus);
       })
-      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
+      .catch((err) => {
+        console.warn('[SofiaChat] No se pudieron cargar los menús públicos:', err);
+      });
 
     Promise.allSettled([configRequest, servicesRequest, menusRequest]).then(() => {
       if (active) setIsReferenceDataLoading(false);
@@ -220,7 +230,9 @@ function SimuladorAKContent() {
       .then((phoneNumber) => {
         if (active && phoneNumber) setEmpresaPhone(phoneNumber);
       })
-      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
+      .catch((err) => {
+        console.warn('[SofiaChat] No se pudo cargar el WhatsApp público:', err);
+      });
 
     return () => {
       active = false;
@@ -229,8 +241,8 @@ function SimuladorAKContent() {
 
   // Scroll to bottom of chat
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory, isAiLoading, currentChatStep]);
+    chatEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
+  }, [chatHistory, isAiLoading, currentChatStep, saveError]);
 
   // Extract menus dynamically
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
@@ -435,7 +447,7 @@ function SimuladorAKContent() {
     setSuggestionPill(null);
 
     let nextStep = currentChatStep;
-    let changesToApply: any = {};
+    const changesToApply: Record<string, any> = {};
     let shouldReAskPhone = false;
 
     // Guided step-by-step validations
@@ -526,7 +538,7 @@ function SimuladorAKContent() {
       changesToApply.ninosYAdolescentes = kidsVal;
       changesToApply.currentChatStep = 'hours';
     } else if (currentChatStep === 'hours') {
-      const isMore = text.toLowerCase().includes('más') || text.toLowerCase().includes('más') || text.includes('5');
+      const isMore = text.toLowerCase().includes('más') || text.includes('5');
       const hours = isMore ? 5 : 3;
       setDuracionHoras(hours);
       nextStep = 'menu';
@@ -644,6 +656,8 @@ function SimuladorAKContent() {
         if (changesBudget) {
           setGeneratedId(null);
           setGeneratedAt(null);
+          setSaveSucceeded(false);
+          setSaveError(null);
         }
         if (changes.eventoTipo !== undefined && changes.eventoTipo in EVENT_META) {
           setEventoTipo(changes.eventoTipo as EventType);
@@ -721,20 +735,35 @@ function SimuladorAKContent() {
         acquisition,
       });
 
-      if (result.success && result.presupuestoId) {
-        setGeneratedId(result.presupuestoId);
-        setGeneratedAt(new Date().toISOString());
+      if (result.success) {
+        setSaveError(null);
+        setSaveSucceeded(true);
+        if (result.presupuestoId) {
+          setGeneratedId(result.presupuestoId);
+          setGeneratedAt(new Date().toISOString());
+        }
         if (result.token) setToken(result.token);
+      } else {
+        setSaveSucceeded(false);
+        setSaveError(result.error || 'No pudimos guardar tu presupuesto. Tocá Reintentar o escribinos por WhatsApp');
       }
     } catch (err) {
       console.error(err);
+      setSaveSucceeded(false);
+      setSaveError('No pudimos guardar tu presupuesto. Tocá Reintentar o escribinos por WhatsApp');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleRetrySaveBudget = () => {
+    autoSaveAttemptRef.current = null;
+    setSaveError(null);
+    void handleSaveBudget();
+  };
+
   useEffect(() => {
-    if (currentChatStep !== 'budget_ready' || !priceStats || isSubmitting || generatedId) return;
+    if (currentChatStep !== 'budget_ready' || !priceStats || isSubmitting || generatedId || saveSucceeded || saveError) return;
     const normalizedPhone = normalizeUruguayPhone(clienteContacto);
     if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(normalizedPhone)) return;
     const attemptKey = [
@@ -752,13 +781,15 @@ function SimuladorAKContent() {
     void handleSaveBudget();
     // handleSaveBudget intentionally uses the latest simulator snapshot from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentChatStep, priceStats, isSubmitting, generatedId, selectedPaqueteId, selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil, adultos, ninosYAdolescentes, eventoFecha, clienteNombre, clienteContacto]);
+  }, [currentChatStep, priceStats, isSubmitting, generatedId, saveSucceeded, saveError, selectedPaqueteId, selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil, adultos, ninosYAdolescentes, eventoFecha, clienteNombre, clienteContacto]);
 
   const handleSwitchPackage = async (paqueteId: string) => {
     setIsAiLoading(true);
     setSelectedPaqueteId(paqueteId);
     setGeneratedId(null); // Clear ID to force regenerations
     setGeneratedAt(null);
+    setSaveSucceeded(false);
+    setSaveError(null);
 
     const pkg = config?.paquetes.find(p => p.id === paqueteId);
     const textToSend = `Quiero cambiar al paquete ${pkg?.nombre || 'básico'}`;
@@ -820,6 +851,7 @@ function SimuladorAKContent() {
     const salonLine = clubUruguayDetails
       ? `\n*Club Uruguay (alquiler independiente):* ${formatCurrency(clubUruguayDetails.precioActual)}${clubUruguayDetails.projection.applies ? ` · referencia ${clubUruguayDetails.projection.eventYear}: ${formatCurrency(clubUruguayDetails.projection.adjustedTotal)}` : ''}`
       : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const text = `¡Hola AK Producciones! Estuve chateando con Sofía y armé un presupuesto para mi fiesta.
 *Cliente:* ${clienteNombre}
 *Teléfono:* ${clienteContacto}
@@ -829,9 +861,23 @@ function SimuladorAKContent() {
 *Paquete:* ${pkgName}
 *Total servicios AK:* ${totalEst}${salonLine}
 *Presupuesto:* #${generatedId || 'A generar'}
-${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : ''}`;
+${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : ''}`;
 
-    return `https://wa.me/${empresaPhone}?text=${encodeURIComponent(text)}`;
+    return buildWhatsAppLink(empresaPhone, text);
+  };
+
+  const buildSaveErrorWhatsAppHref = () => {
+    const pkgName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || 'A medida';
+    const totalEst = priceStats ? formatCurrency(priceStats.totalFinal) : '$0';
+    const text = `¡Hola AK Producciones! Armé un presupuesto con Sofía pero no se pudo guardar en la web.
+*Cliente:* ${clienteNombre || 'A definir'}
+*Teléfono:* ${clienteContacto || 'A definir'}
+*Fecha:* ${eventoFecha ? eventoFecha.toLocaleDateString('es-UY') : 'A definir'}
+*Fiesta:* ${eventoTipo ? EVENT_META[eventoTipo]?.label : 'A definir'}
+*Paquete:* ${pkgName}
+*Total servicios AK:* ${totalEst}`;
+
+    return buildWhatsAppLink(empresaPhone, text);
   };
 
   const handleDownloadBudgetPdf = async () => {
@@ -901,11 +947,23 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           </div>
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-          <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
-            <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0) > 0 ? `&guests=${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0)}` : ''}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
-              <span>Simulador Manual</span>
-            </Link>
-          </Button>
+          {onClose ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onClose}
+              data-testid="sofia-chat-close"
+              className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none"
+            >
+              <span>Volver al simulador</span>
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
+              <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0) > 0 ? `&guests=${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0)}` : ''}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
+                <span>Simulador Manual</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </header>
 
@@ -1232,6 +1290,45 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 </div>
               )}
 
+              {saveError && (
+                <div
+                  role="alert"
+                  data-testid="sofia-save-error"
+                  className="max-w-2xl mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-xs text-foreground shadow-sm space-y-3"
+                >
+                  <p className="font-bold text-destructive">
+                    No pudimos guardar tu presupuesto. Tocá Reintentar o escribinos por WhatsApp
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isSubmitting}
+                      onClick={handleRetrySaveBudget}
+                      className="h-9 rounded-lg bg-primary px-4 text-xs font-bold text-primary-foreground hover:bg-primary/90"
+                    >
+                      {isSubmitting ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+                      Reintentar
+                    </Button>
+                    <Button
+                      asChild
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-9 rounded-lg border-border bg-card px-4 text-xs font-bold text-foreground hover:bg-muted"
+                    >
+                      <a
+                        href={buildSaveErrorWhatsAppHref()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Escribinos por WhatsApp
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {/* BUDGET SUMMARY CARD AT THE END */}
               {currentChatStep === 'budget_ready' && priceStats && (
                 <div className="max-w-2xl mt-4 space-y-6">
@@ -1448,7 +1545,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             llevaba WhatsApp. Se sube para dejar libre la barra de escritura. */}
         <FloatingWhatsApp className="bottom-36 sm:bottom-28" />
         <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
-</div>
+      </div>
     );
   }
 }

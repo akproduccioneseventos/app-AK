@@ -47,12 +47,54 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
       const zip = new JSZip();
       
       // Add all documents from 'otrosDocumentos'
+      let addedCount = 0;
       if (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) {
         const docsDir = path.join(DOCS_DIR, fiestaId);
         for (const doc of fiesta.othersDocumentos) {
-          const filePath = path.join(docsDir, doc.fileName);
-          await addFileToZip(zip, filePath, doc.fileName);
+          if (!doc.fileName) continue;
+          if (doc.fileName.startsWith('http')) {
+            try {
+              const res = await fetch(doc.fileName);
+              if (res.ok) {
+                const buf = Buffer.from(await res.arrayBuffer());
+                const name = path.basename(doc.fileName.split('?')[0]) || 'archivo';
+                zip.file(name, buf);
+                addedCount++;
+              }
+            } catch (e) {
+              console.error('Error fetching remote doc:', e);
+            }
+          } else if (doc.fileName.startsWith('data:')) {
+            try {
+              const parts = doc.fileName.split(',');
+              const base64Data = parts[1];
+              if (base64Data) {
+                const buf = Buffer.from(base64Data, 'base64');
+                const mimeMatch = parts[0].match(/data:(.*?);/);
+                const ext = mimeMatch ? '.' + mimeMatch[1].split('/')[1] : '';
+                const name = `documento-${Date.now()}${ext}`;
+                zip.file(name, buf);
+                addedCount++;
+              }
+            } catch (e) {
+              console.error('Error decoding base64 doc:', e);
+            }
+          } else {
+            const filePath = path.join(docsDir, doc.fileName);
+            try {
+              await fs.access(filePath);
+              const fileContent = await fs.readFile(filePath);
+              zip.file(doc.fileName, fileContent);
+              addedCount++;
+            } catch (error) {
+              console.warn(`File not found, skipping: ${filePath}`);
+            }
+          }
         }
+      }
+
+      if (addedCount === 0) {
+        return NextResponse.json({ error: 'No hay documentos para bajar' }, { status: 404 });
       }
 
       const zipContent = await zip.generateAsync({ type: 'nodebuffer' });

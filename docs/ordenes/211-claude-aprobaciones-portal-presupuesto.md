@@ -92,8 +92,8 @@ contabilidad/contrato por estos doce casos ni marcar cinco arreglos por grep.
 
 ```comprobar
 archivo: src/app/actions/fiesta/portal.actions.ts
-usa: approveClientMenuChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
-usa: approveClientServiceChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
+usa: approveClientMenuChangeRequest en src/components/fiestas/panels/portal-cliente.tsx
+usa: approveClientServiceChangeRequest en src/components/fiestas/panels/portal-cliente.tsx
 archivo: src/app/actions/presupuestos.ts
 usa: presupuestoRecalculado en src/app/actions/fiesta/portal.actions.ts
 usa: aprobarConPresupuesto< en src/app/actions/fiesta/portal.actions.ts

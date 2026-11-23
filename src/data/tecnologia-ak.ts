@@ -202,7 +202,7 @@ export const TECNOLOGIAS_AK: ItemTecnologiaAK[] = [
     nombre: 'Simulador de Presupuestos Transparente',
     descripcionCorta: 'Elegí tus servicios y calculá el costo exacto con ajuste anual claro.',
     grupo: 'organizacion',
-    rutaApp: '/simulador-ak',
+    rutaApp: '/simulador-de-presupuesto',
     pasoDemo: 1,
     foto: '/tecnologia/simulador.webp',
   },

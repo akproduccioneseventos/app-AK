@@ -50,7 +50,10 @@ import {
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
-import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
+import {
+  asegurarModelosFaciales,
+  extraerDescriptorFacial,
+} from '@/lib/caras/extractor-facial';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'invitados';
@@ -58,36 +61,10 @@ type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' |
 /**
  * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
  * Todo corre en el navegador local, NUNCA se manda ninguna imagen al servidor.
+ * Si los modelos faciales no cargan o no detectan rostro, devuelve null (nunca compara por brillo).
  */
 async function extraerVectorLocal(video: HTMLVideoElement): Promise<VectorDeCara | null> {
-  const descriptorReal = await extraerDescriptorFacial(video);
-  if (descriptorReal) return descriptorReal;
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 160;
-    canvas.height = 160;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    ctx.drawImage(video, 0, 0, 160, 160);
-    const imgData = ctx.getImageData(0, 0, 160, 160);
-    const data = imgData.data;
-    const vector = new Array(128).fill(0);
-    const blockSize = Math.floor((data.length / 4) / 128);
-    for (let i = 0; i < 128; i++) {
-      let sum = 0;
-      const start = i * blockSize * 4;
-      const end = Math.min(start + blockSize * 4, data.length);
-      for (let j = start; j < end; j += 4) {
-        sum += 0.299 * data[j] + 0.587 * data[j + 1] + 0.114 * data[j + 2];
-      }
-      const count = (end - start) / 4 || 1;
-      vector[i] = (sum / count) / 255;
-    }
-    const norma = Math.sqrt(vector.reduce((acc, v) => acc + v * v, 0)) || 1;
-    return vector.map((v) => v / norma);
-  } catch {
-    return null;
-  }
+  return extraerDescriptorFacial(video);
 }
 
 export default function GaleriaPage() {
@@ -383,6 +360,18 @@ export default function GaleriaPage() {
         await new Promise((r) => setTimeout(r, 50));
       }
 
+      const modelosListos = await asegurarModelosFaciales();
+      if (selfieCanceladaRef.current) {
+        detenerCamara();
+        return;
+      }
+      if (!modelosListos) {
+        detenerCamara();
+        setCapturandoSelfie(false);
+        setCamaraError('No pudimos activar la búsqueda por cara; probá de nuevo');
+        return;
+      }
+
       // Tomar cuadros automáticamente (Bloque 3) con límite de tiempo total de 2.2s
       const vectoresExtraidos: VectorDeCara[] = [];
       const limiteTiempoTotal = Date.now() + 2200;
@@ -417,9 +406,15 @@ export default function GaleriaPage() {
       // La selfie NUNCA sale del teléfono ni se sube. Se detiene la cámara de inmediato.
       detenerCamara();
       setCapturandoSelfie(false);
+
+      if (vectoresExtraidos.length === 0) {
+        setCamaraError('No pudimos activar la búsqueda por cara; probá de nuevo');
+        return;
+      }
+
       setShowSelfieModal(false);
 
-      if (modoRegistroCara === 'registrar' && vectoresExtraidos.length > 0 && guestId && guestAccessToken) {
+      if (modoRegistroCara === 'registrar' && guestId && guestAccessToken) {
         setGuardandoCara(true);
         try {
           const regRes = await registrarCaraInvitado({
@@ -452,10 +447,7 @@ export default function GaleriaPage() {
         }
       }
 
-      const vectoresABuscar =
-        vectoresExtraidos.length > 0 ? vectoresExtraidos : [new Array(128).fill(0.01)];
-
-      const resultado = buscarFotosDeUnaCara(vectoresABuscar, caras);
+      const resultado = buscarFotosDeUnaCara(vectoresExtraidos, caras);
       setConfirmedDudosas([]);
       setRejectedDudosas([]);
       setSelfieResult(resultado);

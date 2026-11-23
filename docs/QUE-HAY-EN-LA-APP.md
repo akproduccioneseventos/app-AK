@@ -6,6 +6,10 @@
 
 ## Novedades del 31 de octubre al 12 de noviembre de 2026 (publicado)
 
+- **Menos pantallas, la app de Play Store y la auditoría del 21/11** (23/11, órdenes 331 a 334): un solo simulador (el de
+  siempre) con Sofía aparte; el planificador agrupado en solapas sin perder partes; la app abre en "¿Quién sos?" (prospecto al
+  simulador, invitado con su celular o el código de la fiesta, equipo con Google); lo confirmado de la auditoría externa; y
+  cada dirección vieja lleva en un solo salto a su pantalla.
 - **Todas las fotos a Wfolio y cada invitado encuentra las suyas** (21/11, órdenes 328 a 330): fotógrafo, fotocabina, 360 e
   invitados al mismo álbum de Wfolio en carpetas, con portada y diseño solos; de ahí sale el video y el borrador para redes.
   Las caras se indexan solas (también las del fotógrafo); botón "Buscarme" siempre visible, el invitado deja su selfie una vez

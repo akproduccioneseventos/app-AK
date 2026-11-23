@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { mutateGenericJsonArray, readGenericJsonFile } from '@/lib/generic-json-store';
-import { geminiCommercialModel } from '@/ai/genkit';
+import { geminiCommercialModel, generateWithGeminiFallback } from '@/ai/genkit';
 import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 export interface CompetenciaCuenta {
@@ -111,25 +111,27 @@ export async function generarResumenCompetenciaIA(): Promise<string> {
     return 'No hay datos suficientes de la competencia para generar un resumen.';
   }
 
-  try {
-    await reservarConsumoIA('decisiones');
-  } catch {
-    // Continuar sin saldo
+  const reserva = await reservarConsumoIA('decisiones');
+  if (!reserva) {
+    return 'No hay análisis esta semana';
   }
 
   try {
     const prompt = `Analizá los siguientes datos de cuentas de la competencia en Instagram y redactá exactamente 3 líneas basadas solo en los datos guardados:
 ${JSON.stringify(cuentas, null, 2)}`;
 
-    const model = geminiCommercialModel as {
-      generate?: (opts: { prompt: string }) => Promise<{ text: () => string }>;
-    };
-    if (typeof model.generate === 'function') {
-      const resp = await model.generate({ prompt });
-      return resp.text() || 'Resumen de competencia generado correctamente.';
+    const resp = await generateWithGeminiFallback({
+      model: geminiCommercialModel,
+      prompt,
+    });
+    const resText = resp?.text?.trim();
+    if (!resText) {
+      await reserva.liberar().catch(() => undefined);
+      return 'No hay análisis esta semana';
     }
-    return 'Competencia analizada con éxito. Seguidores y publicaciones estables.';
+    return resText;
   } catch (err: any) {
-    return `Error generando resumen de competencia: ${err?.message || 'Desconocido'}`;
+    await reserva.liberar().catch(() => undefined);
+    return 'No hay análisis esta semana';
   }
 }

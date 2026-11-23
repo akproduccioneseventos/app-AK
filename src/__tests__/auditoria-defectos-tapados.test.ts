@@ -21,7 +21,7 @@ import path from 'path';
 import * as defaults from '@/lib/fiesta-defaults';
 
 const RAIZ = process.cwd();
-const PANTALLAS = 'src/app/(app)/fiestas/nueva';
+const PANTALLAS = 'src/components/fiestas/panels';
 
 function archivos(carpeta: string): string[] {
   const completa = path.join(RAIZ, carpeta);

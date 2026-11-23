@@ -106,7 +106,7 @@ pasa el candado (`src/__tests__/el-candado-de-la-plata.test.ts`).
 
 ## Bloque 3 — Planificador, cocina y personal
 
-1. `src/app/(app)/fiestas/nueva/invitados/page.tsx` ~696: `<SelectItem value="">` rompe el selector; usá un valor
+1. `src/components/fiestas/panels/invitados.tsx` ~696: `<SelectItem value="">` rompe el selector; usá un valor
    (`"sin-mesa"`) y convertilo a vacío al guardar.
 2. **El personal externo (DJ, utilero, decorador) va al ingreso:** sus enlaces son `/fiestas/nueva/<x>/pdf?token=…`, y
    `next.config.mjs` ~440-443 los manda a `?tab=pdf`, que `src/app/auth-guard.tsx` ~36-39 no deja pasar con token.
@@ -121,7 +121,7 @@ pasa el candado (`src/__tests__/el-candado-de-la-plata.test.ts`).
 6. **Hoja de cocina:** `src/components/panels/catering--hoja-de-cocina.tsx` ~59-67 también lee el menú asignado
    (`menuAsignadoId`), como la lista de compras; y `src/lib/catering/hoja-de-cocina.ts` ~92-94 cuenta al celíaco vegano
    en los dos grupos (usá `condicionesDelInvitado`).
-7. `src/app/(app)/fiestas/nueva/alergias/page.tsx` ~250/256/262: las tarjetas cuentan personas (`getGuestPartySize`).
+7. `src/components/fiestas/panels/alergias.tsx` ~250/256/262: las tarjetas cuentan personas (`getGuestPartySize`).
 8. **Lista de compras:** `src/components/panels/catering--lista-compras.tsx` ~662-664 muestra al lado del costo
    faltante la **cantidad faltante** (y el stock). `src/lib/compras/compras-del-menu-asignado.ts` ~47: los platos
    infantiles se multiplican por los niños, no por todos.
@@ -191,7 +191,7 @@ no se toca) y **AK-03 ya lo arregló Claude** (Poner al día cobraba el saldo si
 3. **AK-05, "publicaste hace poco" sin fechas:** `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`
    ~860-898 usa lo contrario de `inactivePlatforms.length`. Tres estados: reciente (con fecha), inactivo y *"Sin datos de
    publicaciones"*. Sin fechas no hay verde.
-4. **AK-06, "4 de 4 puestos cubiertos" con rol desconocido y nadie confirmado:** `src/app/(app)/fiestas/nueva/personal/page.tsx`
+4. **AK-06, "4 de 4 puestos cubiertos" con rol desconocido y nadie confirmado:** `src/components/fiestas/panels/personal.tsx`
    (~530, "Rol Desconocido"): el pie cuenta por separado requeridos, asignados y confirmados, y un rol que no existe no
    cuenta como cubierto.
 5. **AK-07, el panel de tareas automáticas:** separar "corrió" de "entregó" (si falta WhatsApp, dice *"Corrió, pero no
@@ -303,7 +303,7 @@ usa: rsvpActivo en src/app/invitacion/[fiestaId]/rsvp/page.tsx
 usa: rsvpActivo en src/app/actions/fiesta/invitados.actions.ts
 prueba: src/__tests__/auditoria-21-11-entrar-y-portal.test.ts
 usa: /portal/:id/decoracion en next.config.js
-usa: sin-mesa en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: sin-mesa en src/components/fiestas/panels/invitados.tsx
 usa: tab=pdf en src/app/auth-guard.tsx
 prueba: src/__tests__/auditoria-21-11-planificador.test.ts
 usa: esFiestaSuspendida en src/app/actions/agenda.ts
@@ -311,7 +311,7 @@ usa: esFiestaSuspendida en src/lib/personal/proponer-equipo.ts
 usa: esFiestaSuspendida en src/app/(app)/mi-dia/page.tsx
 usa: esFiestaSuspendida en src/app/(app)/eventos/page.tsx
 usa: menuAsignadoId en src/components/panels/catering--hoja-de-cocina.tsx
-usa: getGuestPartySize en src/app/(app)/fiestas/nueva/alergias/page.tsx
+usa: getGuestPartySize en src/components/fiestas/panels/alergias.tsx
 usa: Guardada sin señal en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: Guardada sin señal en src/app/evento/bogue/[fiestaId]/page.tsx
 usa: CentroTrivia en src/app/evento/control-pantalla/[fiestaId]/page.tsx
@@ -327,7 +327,7 @@ usa: hoyEnUruguay en src/lib/automatico/al-entrar-a-la-app.ts
 usa: \r\n en src/__tests__/hydrogen-y-despues-gratis.test.ts
 usa: Hay una versión nueva de la página en src/app/simulador-de-presupuesto/page.tsx
 usa: Sin datos de publicaciones en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
-usa: confirmados en src/app/(app)/fiestas/nueva/personal/page.tsx
+usa: confirmados en src/components/fiestas/panels/personal.tsx
 usa: Lo primero, el día del evento en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
 usa: hoyEnUruguay en src/components/invitacion/edit/SeccionCuentaRegresiva.tsx
 prueba: src/__tests__/la-factura-dice-el-estado-de-sus-pagos.test.ts

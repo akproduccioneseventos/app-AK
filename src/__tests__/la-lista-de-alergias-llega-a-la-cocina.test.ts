@@ -16,7 +16,7 @@ import fs from 'fs';
 import path from 'path';
 
 const PANTALLA = fs.readFileSync(
-  path.join(process.cwd(), 'src', 'app', '(app)', 'fiestas', 'nueva', 'alergias', 'page.tsx'),
+  path.join(process.cwd(), 'src', 'components', 'fiestas', 'panels', 'alergias.tsx'),
   'utf-8',
 );
 

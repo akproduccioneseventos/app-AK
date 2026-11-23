@@ -5,7 +5,7 @@ const read = (relativePath: string) => readFileSync(join(process.cwd(), relative
 
 describe('internal operations integrity', () => {
   it('persists manual staff rows and rolls optimistic edits back on save failure', () => {
-    const personal = read('src/app/(app)/fiestas/nueva/personal/page.tsx');
+    const personal = read('src/components/fiestas/panels/personal.tsx');
 
     // Lo que importa no es el tipo exacto que devuelve el guardado, sino que
     // ante una falla devuelva algo vacio y la pantalla deshaga el cambio. El
@@ -28,10 +28,10 @@ describe('internal operations integrity', () => {
   it('shows a real event-selection state instead of an endless loader', () => {
     const component = read('src/components/fiestas/event-selection-required.tsx');
     const routes = [
-      read('src/app/(app)/fiestas/nueva/catering/page.tsx'),
-      read('src/app/(app)/fiestas/nueva/invitados/page.tsx'),
-      read('src/app/(app)/fiestas/nueva/personal/page.tsx'),
-      read('src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx'),
+      read('src/components/fiestas/panels/catering.tsx'),
+      read('src/components/fiestas/panels/invitados.tsx'),
+      read('src/components/fiestas/panels/personal.tsx'),
+      read('src/components/fiestas/panels/orden-de-evento.tsx'),
     ];
 
     expect(component).toContain('href="/eventos"');
@@ -42,7 +42,7 @@ describe('internal operations integrity', () => {
     // Antes también se vigilaba `mission-control`, que se unificó en el Centro
     // de Fiesta. El Centro no consulta en bucle: el reloj se calcula solo en el
     // navegador, sin pedirle nada al servidor.
-    const carga = read('src/app/(app)/fiestas/nueva/carga-operativa/page.tsx');
+    const carga = read('src/components/fiestas/panels/carga-operativa.tsx');
 
     expect(carga).toContain("document.visibilityState !== 'visible'");
     expect(carga).toContain('15_000');

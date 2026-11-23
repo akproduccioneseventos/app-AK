@@ -31,6 +31,10 @@ describe('El menú es corto (Orden 283)', () => {
       path.join(process.cwd(), 'src/app/(app)/settings/page.tsx'),
       'utf-8',
     );
+    const contenidoSimulador = fs.readFileSync(
+      path.join(process.cwd(), 'src/app/simulador-de-presupuesto/page.tsx'),
+      'utf-8',
+    );
 
     const rutasQueSalieronDelMenu = [
       '/incidentes',
@@ -75,11 +79,12 @@ describe('El menú es corto (Orden 283)', () => {
       const tieneRedirect = contenidoNextConfig.includes(`'${href}'`);
       expect(existeArchivo || tieneRedirect).toBe(true);
 
-      // 2. Debe estar accesible en el mapa, el catálogo de navegación, Ajustes o redirigida en next.config.js
+      // 2. Debe estar accesible en el mapa, el catálogo de navegación, Ajustes, el pie del simulador o redirigida en next.config.js
       const accesible =
         contenidoMapa.includes(href) ||
         contenidoMainNav.includes(href) ||
         contenidoAjustes.includes(href) ||
+        contenidoSimulador.includes(href) ||
         tieneRedirect;
       expect(accesible).toBe(true);
     }

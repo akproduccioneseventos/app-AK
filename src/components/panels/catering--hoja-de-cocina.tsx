@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { armarHojaDeCocina, type HojaDeCocina } from '@/lib/catering/hoja-de-cocina';
+import { getMenuById } from '@/app/actions/menus-catering';
 
 /**
  * La hoja que se imprime y se pega en la cocina la noche del evento.
@@ -63,6 +64,24 @@ function HojaDeCocinaContenido() {
           item.idServicioCatalogo?.startsWith('new_item_'),
         )
         .map((item) => ({ nombre: item.nombreServicio, categoria: item.categoriaServicio }));
+
+      if (fiesta.menuAsignadoId) {
+        try {
+          const menuData: any = await getMenuById(fiesta.menuAsignadoId);
+          if (menuData?.secciones) {
+            menuData.secciones.forEach((sec: any) => {
+              sec.platos?.forEach((plato: any) => {
+                platos.push({
+                  nombre: plato.nombre,
+                  categoria: sec.nombre || 'Menú Asignado',
+                });
+              });
+            });
+          }
+        } catch {
+          // ignore menu fetch error if any
+        }
+      }
 
       setHoja(armarHojaDeCocina(fiesta, platos, { adultos, chicos }));
     } catch (e) {

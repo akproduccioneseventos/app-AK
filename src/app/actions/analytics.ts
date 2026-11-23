@@ -100,13 +100,15 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
   try {
     await requireAppSession();
-    const [presupuestosData, invoicesData, fiestasData, rolesData, empleadosData] = await Promise.all([
+    const [presupuestosData, invoicesData, fiestasRaw, rolesData, empleadosData] = await Promise.all([
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
       leerRolesInterno(),
       getEmpleados(),
     ]);
+    const { esFiestaDemo } = await import('@/lib/events/event-ordering');
+    const fiestasData = fiestasRaw.filter(f => !esFiestaDemo(f));
 
     const now = new Date();
     const today = startOfToday();

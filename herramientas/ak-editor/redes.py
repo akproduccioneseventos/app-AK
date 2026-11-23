@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import zipfile
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -208,6 +209,18 @@ def cargar_material_redes(origen: str) -> Dict[str, Any]:
     }
 
 
+def _leer_imagen_unicode(ruta: Optional[str], flags: int = cv2.IMREAD_COLOR) -> Optional[np.ndarray]:
+    if not ruta or not os.path.exists(ruta):
+        return None
+    try:
+        datos_bytes = np.fromfile(ruta, dtype=np.uint8)
+        if datos_bytes.size == 0:
+            return None
+        return cv2.imdecode(datos_bytes, flags)
+    except Exception:
+        return None
+
+
 def renderizar_video_formato(
     fotos: List[str],
     ruta_salida: str,
@@ -224,7 +237,7 @@ def renderizar_video_formato(
     if carpeta:
         os.makedirs(carpeta, exist_ok=True)
 
-    logo_img = cv2.imread(ruta_logo_ak) if ruta_logo_ak and os.path.exists(ruta_logo_ak) else None
+    logo_img = _leer_imagen_unicode(ruta_logo_ak)
 
     # El último segundo (fps cuadros) está reservado para la placa de cierre con el logo de AK
     cuadros_cierre = fps * 1
@@ -233,13 +246,16 @@ def renderizar_video_formato(
 
     cuadros_por_foto = max(fps, cuadros_fotos // max(1, len(fotos)))
 
+    tiene_audio = bool(ruta_audio and os.path.exists(ruta_audio))
+    ruta_render_video = ruta_salida + ".video.mp4" if tiene_audio else ruta_salida
+
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    writer = cv2.VideoWriter(ruta_salida, fourcc, float(fps), (ancho, alto))
+    writer = cv2.VideoWriter(ruta_render_video, fourcc, float(fps), (ancho, alto))
 
     try:
         # Renderizar tramos de fotos con movimiento y fondo sin barras
         for idx, r_foto in enumerate(fotos):
-            img_raw = cv2.imread(r_foto)
+            img_raw = _leer_imagen_unicode(r_foto)
             if img_raw is None:
                 continue
 
@@ -266,6 +282,35 @@ def renderizar_video_formato(
 
     finally:
         writer.release()
+
+    if tiene_audio:
+        try:
+            cmd = [
+                "ffmpeg", "-y",
+                "-i", ruta_render_video,
+                "-i", ruta_audio,
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-shortest",
+                ruta_salida,
+            ]
+            res = subprocess.run(cmd, capture_output=True, check=False)
+            if res.returncode == 0 and os.path.exists(ruta_salida) and os.path.getsize(ruta_salida) > 0:
+                try:
+                    os.remove(ruta_render_video)
+                except Exception:
+                    pass
+            else:
+                if os.path.exists(ruta_render_video):
+                    if os.path.exists(ruta_salida):
+                        try:
+                            os.remove(ruta_salida)
+                        except Exception:
+                            pass
+                    os.rename(ruta_render_video, ruta_salida)
+        except Exception:
+            if os.path.exists(ruta_render_video) and not os.path.exists(ruta_salida):
+                os.rename(ruta_render_video, ruta_salida)
 
     return ruta_salida
 
