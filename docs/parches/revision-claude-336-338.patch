@@ -1,0 +1,195 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 001e00c7b..fd2b35e33 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -2152,6 +2152,7 @@ con otra cara.
+ | Mirar la lista de fiestas guardaba códigos y abrir un presupuesto reescribía fechas, también con el auditor | `src/__tests__/mirar-no-escribe.test.ts` |
+ | Un documento raro (fecha de la base, sin número, sin configuración) tiraba la lista de fiestas y nueve pantallas | `src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts` |
+ | Pantallas con la fiesta de muestra, carteles de "sincronizado" fijos, desplegables con opción vacía, marcadores y fechas sin convertir, enlaces sin credencial | Escaneos 218 y 220 a 224 en `scripts/las-formas-que-mienten.mjs` |
++| Una fórmula nueva de unidades daba platos mil veces más caros en lo que no podía convertir | `src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts` (pregunta 227) |
+ 
+ ### Cómo se elige el matafuego
+ 
+diff --git a/docs/COMO-AUDITAR.md b/docs/COMO-AUDITAR.md
+index 32481c8ce..24a6cdbef 100644
+--- a/docs/COMO-AUDITAR.md
++++ b/docs/COMO-AUDITAR.md
+@@ -2101,3 +2101,11 @@ abría un borrador viejo en lugar de la propuesta recién armada.
+ ### 226. Lo que se crea para probar (borrador, prueba, muestra), ¿se ve en lo que mira un desconocido?
+ 
+ Auditoría funcional del 23/11/2026: un menú de prueba del auditor quedó visible en la presentación LED pública.
++
++### 227. Una fórmula de plata que se reemplaza, ¿da lo mismo que la vieja sobre los datos reales, salvo donde se quiso cambiar?
++
++Revisión de la entrega 336 (24/11/2026): la fórmula nueva de unidades de receta convertía bien gramos a kilos, pero lo que
++no podía convertir (gramos contra litros o contra "unidad") lo multiplicaba directo, y 4 de 377 recetas salían mil veces más
++caras. Se mide corriendo las dos fórmulas sobre todas las recetas o presupuestos guardados y mirando cada diferencia: cada
++una tiene que ser un arreglo buscado, no un efecto de costado. Lo cubre
++`src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts`.
+diff --git a/docs/YA-RESUELTO.md b/docs/YA-RESUELTO.md
+index c31f58928..a36acc59e 100644
+--- a/docs/YA-RESUELTO.md
++++ b/docs/YA-RESUELTO.md
+@@ -1,5 +1,27 @@
+ # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+ 
++
++## 24/11/2026 - Revisión de las entregas 336, 337 y 338 (Gemini)
++
++- **El costo de algunos platos salía mil veces más caro.** La fórmula nueva de unidades (336) multiplicaba directo lo que no
++  podía convertir: 4 de 377 recetas (gramos contra un insumo en litros o por unidad, mililitros contra kilos). Ahora lo que
++  no se convierte se calcula como siempre (gramos o mililitros contra una unidad grande, dividido por mil); lo que sí se
++  convierte (gr, grs, mililitros, kg contra g) queda con la fórmula nueva. Medido: con la fórmula de hoy ninguna receta
++  cambia respecto de la vieja salvo las que se quisieron corregir.
++- **El portal del cliente buscaba la clave también en la copia en disco** (337). Si la base conoce esa fiesta, ahora manda
++  la base: una copia vieja no abre un portal que se apagó.
++- Revisado y correcto: presupuesto facturado no se edita ni se le borra un cobro; el cupón anota el total del presupuesto
++  (antes anotaba el descuento en ese lugar); cambio de fecha a otro año activa el ajuste anual; el portal guarda cancelación,
++  cambio de fecha y clave con turno; el auditor no cambia la clave maestra; el ingreso con Google compara el usuario.
++- **Las entregas 339 a 342 (#1467 y #1468) se devolvieron:** borraron casi entera esta lista (de 17.000 líneas a 30),
++  chocan con la 336-338 en la IA (consumo, decisiones, audios de WhatsApp) y agregan `pdfjs-dist` sin anotarlo en
++  `package-lock.json`, con lo que la publicación no instala.
++
++```comprobar
++prueba: src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
++usa: comoAntes en src/lib/catering/unidades.ts
++```
++
+ ## 24/11/2026 - Orden 338: auditoría funcional del 23/11/2026 (fiesta de la dirección, guardados reales, presentación LED, finanzas y accesos públicos)
+ 
+ - **Bloque 1 + P218 (Fiesta de la dirección):** `video-vida.tsx`, `fiesta--entretenimiento-control.tsx`, `portal--videos-invitados.tsx` y pestañas de entretenimiento leen `fiestaId`/`id` de la URL sin caer a `getFiestaActual()` ni armar enlaces con `undefined`; muestran cartel `"Abrí esta pantalla desde una fiesta"` con enlace a `/eventos`.
+diff --git a/docs/barridos.json b/docs/barridos.json
+index 353c6e228..bfe4c13a3 100644
+--- a/docs/barridos.json
++++ b/docs/barridos.json
+@@ -904,6 +904,10 @@
+     "226": {
+       "fecha": "2026-11-23",
+       "resultado": "Menú de prueba en la presentación LED (confirmado en el informe); el resto de lo público → barrido de la orden 338."
++    },
++    "227": {
++      "fecha": "2026-11-24",
++      "resultado": "Fórmula vieja contra nueva sobre las 377 recetas: 4 salían ×1000 (gramos contra litro/unidad, ml contra kg); arreglado. Las otras fórmulas de plata de la entrega 336-338 (total del presupuesto, cupón, compras por evento) revisadas a mano: cambios buscados."
+     }
+   },
+   "hallazgos": {
+diff --git a/scripts/las-formas-que-mienten.mjs b/scripts/las-formas-que-mienten.mjs
+index b66414ed5..ee38afb5f 100644
+--- a/scripts/las-formas-que-mienten.mjs
++++ b/scripts/las-formas-que-mienten.mjs
+@@ -299,6 +299,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
+   213: 'Comportamiento que no es un texto fijo; lo cubren las pruebas que pide la orden 336 (Lo que gasta IA paga, ¿pasa por el tope ).',
+   219: 'Agregar antes de confirmar es un comportamiento: lo cubre tests/e2e de la orden 338 (carta de tragos, cancelar no deja nada).',
+   225: 'Lo guardado para volver que nadie lee cruza archivos: lo cubre tests/e2e/la-presentacion-led-no-pierde-la-propuesta.spec.ts (orden 338).',
++  227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
+   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
+   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
+   207: 'Mirar que escribe: src/__tests__/mirar-no-escribe.test.ts (lectura de fiestas y reparación de presupuestos); el resto lo barre la orden 335.',
+diff --git a/src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts b/src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
+new file mode 100644
+index 000000000..0f73325a9
+--- /dev/null
++++ b/src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
+@@ -0,0 +1,26 @@
++/**
++ * Revisión de la entrega 336 (24/11/2026): la fórmula nueva de unidades multiplicaba
++ * directo cuando no podía convertir (gramos contra litros o contra "unidad"), y el
++ * costo de esos platos salía mil veces más caro en todos los presupuestos.
++ * Lo que no se puede convertir se calcula como se calculó siempre.
++ */
++import { calcularCostoIngredienteEnReceta } from '@/lib/catering/unidades';
++
++describe('el costo de un ingrediente no se multiplica por mil', () => {
++  it('gramos contra un insumo en litros se divide por mil, como antes', () => {
++    expect(calcularCostoIngredienteEnReceta(200, 100, 'Gramos', 'Litro')).toBeCloseTo(20);
++  });
++  it('gramos contra un insumo por unidad se divide por mil, como antes', () => {
++    expect(calcularCostoIngredienteEnReceta(50, 300, 'Gramos', 'Unidad')).toBeCloseTo(15);
++  });
++  it('mililitros contra un insumo en kilos se divide por mil, como antes', () => {
++    expect(calcularCostoIngredienteEnReceta(100, 400, 'ml', 'Kg')).toBeCloseTo(40);
++  });
++  it('sin unidad en la receta se multiplica directo, como antes', () => {
++    expect(calcularCostoIngredienteEnReceta(2, 400, '', 'kg')).toBeCloseTo(800);
++  });
++  it('lo que sí se convierte sigue bien', () => {
++    expect(calcularCostoIngredienteEnReceta(500, 400, 'gr', 'kg')).toBeCloseTo(200);
++    expect(calcularCostoIngredienteEnReceta(2, 10, 'kg', 'g')).toBeCloseTo(20000);
++  });
++});
+diff --git a/src/app/actions/fiesta/portal.actions.ts b/src/app/actions/fiesta/portal.actions.ts
+index de64241aa..831aa0703 100644
+--- a/src/app/actions/fiesta/portal.actions.ts
++++ b/src/app/actions/fiesta/portal.actions.ts
+@@ -534,6 +534,9 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
+                 f.clientPortalSettings?.enabled === true &&
+                 f.clientPortalSettings?.accessKey === safeAccessKey
+             ) ?? null;
++            // Si la base conoce esa fiesta, manda la base: una copia vieja en disco no
++            // puede abrir un portal que se apagó o una fiesta que se borró.
++            if (fiesta && fiestas.some((enBase) => String(enBase.id) === String(fiesta?.id))) fiesta = null;
+             if (fiesta) break;
+           }
+         } catch {}
+diff --git a/src/lib/catering/unidades.ts b/src/lib/catering/unidades.ts
+index 2ee352ed9..a44da3c2f 100644
+--- a/src/lib/catering/unidades.ts
++++ b/src/lib/catering/unidades.ts
+@@ -32,14 +32,14 @@ export function calcularCostoIngredienteEnReceta(
+   const recipeUnit = (recipeUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
+   const catalogUnit = (catalogUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
+ 
+-  if (!recipeUnit || recipeUnit === 'no definido') {
+-    const catalogNorm = normalizarUnidad(catalogUnit);
+-    const catalogIsSmall = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
+-    if (!catalogIsSmall && (catalogNorm.unidad === 'kg' || catalogNorm.unidad === 'l' || !catalogUnit)) {
+-      return (quantity / 1000) * unitCost;
+-    }
+-    return quantity * unitCost;
+-  }
++  // Lo que no se puede convertir se calcula como siempre: gramos o mililitros contra
++  // cualquier unidad grande se dividen por mil. Multiplicar directo daba platos mil
++  // veces más caros (receta en gramos con el insumo en litros o por unidad).
++  const recetaChica = PESO_CHICO.has(recipeUnit) || VOLUMEN_CHICO.has(recipeUnit) || recipeUnit === 'no definido';
++  const catalogoChico = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
++  const comoAntes = () => (recetaChica && !catalogoChico ? quantity / 1000 : quantity) * unitCost;
++
++  if (!recipeUnit || recipeUnit === 'no definido') return comoAntes();
+ 
+   // Si el catálogo no especifica unidad pero la receta está en gramos/mililitros, se asume kg/l.
+   let targetUnit = catalogUnit;
+@@ -55,7 +55,7 @@ export function calcularCostoIngredienteEnReceta(
+     }
+   }
+ 
+-  return quantity * unitCost;
++  return comoAntes();
+ }
+ 
+ /**
+diff --git a/tests/firebase/carta-tragos-y-carga-se-guardan.test.ts b/tests/firebase/carta-tragos-y-carga-se-guardan.test.ts
+index 012aab05a..7f0f8408a 100644
+--- a/tests/firebase/carta-tragos-y-carga-se-guardan.test.ts
++++ b/tests/firebase/carta-tragos-y-carga-se-guardan.test.ts
+@@ -10,7 +10,7 @@ jest.mock('next/headers', () => ({
+   headers: async () => new Headers(),
+ }));
+ jest.mock('@/lib/auth/session-token', () => ({
+-  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno', userId: 'dueno-338' } }),
++  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno' } }),
+ }));
+ jest.mock('@/lib/auth/event-access', () => ({
+   requireEventPermission: async () => undefined,
+diff --git a/tests/firebase/quitar-un-plato-queda.test.ts b/tests/firebase/quitar-un-plato-queda.test.ts
+index 2d4917871..48c71c583 100644
+--- a/tests/firebase/quitar-un-plato-queda.test.ts
++++ b/tests/firebase/quitar-un-plato-queda.test.ts
+@@ -10,7 +10,7 @@ jest.mock('next/headers', () => ({
+   headers: async () => new Headers(),
+ }));
+ jest.mock('@/lib/auth/session-token', () => ({
+-  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno', userId: 'dueno-338' } }),
++  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno' } }),
+ }));
+ jest.mock('@/lib/auth/event-access', () => ({
+   requireEventPermission: async () => undefined,
