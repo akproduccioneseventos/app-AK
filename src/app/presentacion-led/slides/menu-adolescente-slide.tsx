@@ -17,6 +17,7 @@ interface MenuAdolescenteSlideProps {
   mostrarPrecios?: boolean;
   onSelect: (id: string | null) => void;
   onNext: () => void;
+  onOpenGallery?: (categoria: string) => void;
 }
 
 function isSafeUrl(url: string | null | undefined): boolean {
@@ -36,23 +37,22 @@ function TeenCard({
   onSelect,
   mostrarPrecios,
   photoUrl,
+  onOpenGallery,
 }: {
   option: MenuItem;
   isSelected: boolean;
   onSelect: () => void;
   mostrarPrecios: boolean;
   photoUrl?: string | null;
+  onOpenGallery?: () => void;
 }) {
   const [showDesc, setShowDesc] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
   const safePhoto = photoUrl && isSafeUrl(photoUrl) && !imgFailed ? photoUrl : null;
 
   const handleGallery = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('desde_presentacion_led', 'true');
-      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
-      sessionStorage.setItem('presentacion_slide_regreso', slide);
-      window.location.assign('/galeria-led?categoria=Catering');
+    if (onOpenGallery) {
+      onOpenGallery();
     }
   };
 
@@ -160,6 +160,7 @@ export function MenuAdolescenteSlide({
   mostrarPrecios = true,
   onSelect,
   onNext,
+  onOpenGallery,
 }: MenuAdolescenteSlideProps) {
   const requiresSelection = adolescentesCount > 0 && options.length > 0;
   const canContinue = !requiresSelection || !!selectedOptionId;
@@ -205,6 +206,7 @@ export function MenuAdolescenteSlide({
                   onSelect={() => onSelect(opt.id)}
                   mostrarPrecios={mostrarPrecios}
                   photoUrl={ledFotoMap[opt.id] || getCateringDishImage(opt) || null}
+                  onOpenGallery={onOpenGallery ? () => onOpenGallery('Catering') : undefined}
                 />
               </motion.div>
             ))}

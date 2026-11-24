@@ -531,6 +531,19 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
   // Si la lectura falló, lo primero que lee el usuario es eso (no queda enterrado en el medio).
   const avisar = (respuesta: string) => conAvisoDeLectura(respuesta, context.sinLeer, context.falloTotal);
 
+  const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+  const tienePresupuesto = await hayPresupuestoParaIA().catch(() => false);
+  if (!tienePresupuesto) {
+    return {
+      success: true,
+      response: avisar(buildFallback(agentType, context)),
+      agentType,
+      agentName: name,
+      action: { type: 'none' },
+      modoRespaldo: true,
+    };
+  }
+
   try {
     // ── Flujo dedicado de marketing ─────────────────────────────────────────
     if (shouldUseMarketingFlow(agentType, input.message)) {
@@ -541,6 +554,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
         eventType:         fiestaTipo(context.fiesta),
         attachmentDataUri: input.imageDataUri,
       });
+      await registrarConsumoIA('multiagente').catch(() => null);
 
       await saveAgentLearning({
         agentType: 'marketing',
@@ -587,6 +601,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       prompt,
       config: generationConfig,
     });
+    await registrarConsumoIA('multiagente').catch(() => null);
 
     let finalResponse = '';
     let action: any = { type: 'none' };

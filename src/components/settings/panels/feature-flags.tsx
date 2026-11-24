@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ToggleLeft, ToggleRight, Loader2, Shield, Zap, Crown, Star } from 'lucide-react';
+import { ToggleLeft, ToggleRight, Loader2, Shield, Zap, Crown, Star, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -40,19 +40,42 @@ const TIER_ACTIVE_COLORS: Record<ServiceTier, string> = {
   Elite: 'bg-violet-600 text-white border-violet-600 shadow-lg shadow-violet-200',
 };
 
+const LOAD_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function FeatureFlagsPage() {
   const [flags, setFlags] = useState<GlobalFeatureFlags | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchFlags = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const data = await getFeatureFlags();
+      const data = await withTimeout(
+        getFeatureFlags(),
+        LOAD_TIMEOUT_MS,
+        'La carga de opciones avanzadas tardó demasiado. Reintentá en unos segundos.',
+      );
+      if (!data) {
+        throw new Error('No se pudieron obtener las opciones avanzadas.');
+      }
       setFlags(data);
-    } catch {
-      toast({ title: 'Error', description: 'No se pudieron cargar los Feature Flags.', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.message ? err.message : 'No se pudieron cargar los Feature Flags.';
+      setLoadError(msg);
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -109,8 +132,27 @@ export default function FeatureFlagsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-primary/30 animate-spin" />
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-sm font-medium">Cargando opciones avanzadas…</p>
+      </div>
+    );
+  }
+
+  if (loadError || !flags) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold">No se pudieron cargar las opciones avanzadas</h2>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {loadError || 'No se pudieron obtener los Feature Flags en este momento.'}
+          </p>
+        </div>
+        <Button onClick={() => fetchFlags()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
       </div>
     );
   }

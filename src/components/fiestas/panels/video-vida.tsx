@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import React, { Suspense, useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,7 @@ import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, Chec
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
-import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
 import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto, deleteAllVideoVidaPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import { Separator } from '@/components/ui/separator';
@@ -111,8 +112,10 @@ const PhotoUploadSlot: React.FC<{
 };
 
 
-export default function VideoVidaAdminPage() {
+function VideoVidaAdminContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaIdParam = (searchParams.get('fiestaId') ?? searchParams.get('id') ?? '').trim();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [videoVidaData, setVideoVidaData] = useState<VideoVidaData | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
@@ -121,12 +124,24 @@ export default function VideoVidaAdminPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaIdParam) {
+      setFiesta(null);
+      setVideoVidaData(null);
+      setPhotoSlots([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaIdParam);
+      if (!fiestaData) {
+        throw new Error('No se encontró la fiesta.');
+      }
       setFiesta(fiestaData);
       const currentVideoVidaData = fiestaData.videoVida || { galleryEnabled: true, photosUploaded: false, photoCount: 50 };
       const rawCount = currentVideoVidaData.photoCount || TOPE_DE_FOTOS;
@@ -139,7 +154,12 @@ export default function VideoVidaAdminPage() {
 
       const lectura = await getLifeStoryVideoPhotos(fiestaData.id);
       // Orden 148: un error de lectura no se muestra como galería vacía.
-      if (lectura.estado === 'error') throw new Error(lectura.error);
+      if (lectura.estado === 'error') {
+        setPhotoLoadError(lectura.error);
+        toast({ title: 'Error al leer fotos', description: lectura.error, variant: 'destructive' });
+        return;
+      }
+      setPhotoLoadError(null);
       const photoUrls = lectura.urls;
       if (lectura.estado === 'parcial') {
         toast({ title: 'Faltan fotos por mostrar', description: `No pudimos leer ${lectura.fallidas} foto(s) ahora; no se perdieron. Recargá en un rato.`, variant: 'destructive' });
@@ -157,12 +177,12 @@ export default function VideoVidaAdminPage() {
       setPhotoSlots(slots);
 
     } catch (err: any) {
-      setError("No se pudieron cargar los datos.");
+      setError(err?.message || "No se pudieron cargar los datos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [fiestaIdParam, toast]);
 
   useEffect(() => {
     loadData();
@@ -286,8 +306,30 @@ export default function VideoVidaAdminPage() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
+  if (!fiestaIdParam) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Camera className="mx-auto w-12 h-12 text-muted-foreground" />
+        <h2 className="text-xl font-bold">Abrí esta pantalla desde una fiesta</h2>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para gestionar su Video de Vida.
+        </p>
+        <Button asChild>
+          <Link href="/eventos">Ir a Eventos</Link>
+        </Button>
+      </div>
+    );
+  }
   if (error) {
-    return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
+    return (
+      <div className="text-center text-destructive p-6 space-y-4">
+        <AlertTriangle className="mx-auto w-10 h-10" />
+        <p>{error}</p>
+        <Button asChild variant="outline">
+          <Link href="/eventos">Volver a Eventos</Link>
+        </Button>
+      </div>
+    );
   }
   if (!fiesta || !videoVidaData) return null;
 
@@ -308,7 +350,10 @@ export default function VideoVidaAdminPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Camera className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Recopilación de Fotos - Video de Vida</h1>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Recopilación de Fotos - Video de Vida</h1>
+            <p className="text-sm text-muted-foreground">{fiesta.configuracion?.nombreEvento || fiesta.id}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
@@ -373,11 +418,23 @@ export default function VideoVidaAdminPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Galería de Fotos Subidas ({photosUploadedCount} de {videoVidaData.photoCount || 50})</CardTitle>
+          <CardTitle>
+            {photoLoadError
+              ? 'Galería de Fotos Subidas'
+              : `Galería de Fotos Subidas (${photosUploadedCount} de ${videoVidaData.photoCount || 50})`}
+          </CardTitle>
           <CardDescription>Aquí verás las fotos que el cliente ha subido, en su orden correcto.</CardDescription>
         </CardHeader>
         <CardContent>
-           {photoSlots.length > 0 ? (
+           {photoLoadError && (
+            <div role="alert" className="mb-4 flex flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <span>{photoLoadError}</span>
+              <Button type="button" variant="outline" size="sm" onClick={loadData}>
+                Reintentar
+              </Button>
+            </div>
+           )}
+           {!photoLoadError && photoSlots.length > 0 ? (
             <>
               <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
                 {photoSlots.map(slot => (
@@ -426,13 +483,21 @@ export default function VideoVidaAdminPage() {
                  </div>
                )}
             </>
-           ) : (
+           ) : !photoLoadError ? (
              <div className="text-center py-8 text-muted-foreground">
                 <p>El cliente aún no ha subido las fotos.</p>
              </div>
-           )}
+           ) : null}
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function VideoVidaAdminPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <VideoVidaAdminContent />
+    </Suspense>
   );
 }

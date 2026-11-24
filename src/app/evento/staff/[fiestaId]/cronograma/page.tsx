@@ -28,6 +28,7 @@ export default function StaffCronogramaPage() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>('Todos');
   const [currentTime, setCurrentTime] = useState<string>('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -36,8 +37,10 @@ export default function StaffCronogramaPage() {
     try {
       const data = await getFiestaById(fiestaId);
       setFiesta(data);
+      setLoadError(false);
     } catch (err) {
       console.error('Error cargando cronograma de staff:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -124,7 +127,25 @@ export default function StaffCronogramaPage() {
     );
   }
 
-  const eventName = fiesta?.configuracion.nombreEvento || 'Fiesta AK';
+  if (!fiesta) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-6 text-center">
+        <div className="max-w-md space-y-3">
+          <AlertCircle className="h-10 w-10 mx-auto text-amber-400" />
+          <h1 className="text-2xl font-black text-white">
+            {loadError ? 'No pudimos cargar el cronograma' : 'Evento no encontrado'}
+          </h1>
+          <p className="text-sm text-slate-400">
+            {loadError
+              ? 'Hubo un problema al consultar el cronograma de esta fiesta. Probá de nuevo.'
+              : 'Este evento no está disponible o el enlace no es válido.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const eventName = fiesta.configuracion.nombreEvento || 'Fiesta AK';
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-20">

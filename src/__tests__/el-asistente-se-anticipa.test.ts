@@ -91,6 +91,7 @@ jest.mock('@/app/actions/multiagent', () => ({
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true, user: { perfil: 'dueno', role: 'admin' } })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({

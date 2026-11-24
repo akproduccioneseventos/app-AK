@@ -97,7 +97,8 @@ export default function AlertasPage() {
           titulo: a.title,
           mensaje: a.description,
           tipo: a.severity === 'high' ? 'urgente' : a.severity === 'medium' ? 'atencion' : 'recordatorio',
-          fiestaId: '',
+          fiestaId: '__sin_fiesta__',
+          fiestaName: 'Plata y agenda',
           fiestaNombre: 'Plata y agenda',
           enlace: a.href || '/admin',
           rutaDestino: a.href || '/admin',
@@ -236,14 +237,19 @@ export default function AlertasPage() {
 
   const fiestas = useMemo(() => {
     const nombres = new Map<string, string>();
-    alertas.forEach(a => nombres.set(a.fiestaId, a.fiestaName));
+    alertas.forEach(a => {
+      const id = a.fiestaId?.trim() || '__sin_fiesta__';
+      const nombre = a.fiestaName?.trim() || (a as any).fiestaNombre?.trim() || 'Plata y agenda';
+      nombres.set(id, nombre);
+    });
     return Array.from(nombres.entries());
   }, [alertas]);
 
   const filtradas = useMemo(() => {
     return alertas.filter(a => {
       if (filtroTipo !== 'todas' && a.tipo !== filtroTipo) return false;
-      if (filtroFiesta !== 'todas' && a.fiestaId !== filtroFiesta) return false;
+      const idAlerta = a.fiestaId?.trim() || '__sin_fiesta__';
+      if (filtroFiesta !== 'todas' && idAlerta !== filtroFiesta) return false;
       // Las leídas tapaban a las nuevas: se quedaban en la lista con el color
       // apagado. Ahora arranca mostrando sólo las que faltan mirar.
       if (soloSinLeer && a.leida) return false;
@@ -260,8 +266,9 @@ export default function AlertasPage() {
   const agrupadas = useMemo(() => {
     const map = new Map<string, AlertaAutomatica[]>();
     filtradas.forEach(a => {
-      if (!map.has(a.fiestaId)) map.set(a.fiestaId, []);
-      map.get(a.fiestaId)!.push(a);
+      const id = a.fiestaId?.trim() || '__sin_fiesta__';
+      if (!map.has(id)) map.set(id, []);
+      map.get(id)!.push(a);
     });
     return map;
   }, [filtradas]);
@@ -362,9 +369,14 @@ export default function AlertasPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas las fiestas</SelectItem>
-                {fiestas.map(([id, nombre]) => (
-                  <SelectItem key={id} value={id}>{nombre}</SelectItem>
-                ))}
+                {fiestas
+                  .filter(([id]) => Boolean(id?.trim()))
+                  .map(([id, nombre]) => {
+                    const fiestaValue = id.trim();
+                    return (
+                      <SelectItem key={fiestaValue} value={fiestaValue}>{nombre}</SelectItem>
+                    );
+                  })}
               </SelectContent>
             </Select>
           </div>
@@ -428,7 +440,7 @@ export default function AlertasPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <CardTitle className="text-sm font-black text-foreground flex items-center gap-2">
                       <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', tieneUrgente ? 'bg-red-500' : 'bg-slate-400')} />
-                      <span>{items[0].fiestaName}</span>
+                      <span>{items[0].fiestaName || (items[0] as any).fiestaNombre || 'Plata y agenda'}</span>
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       {tieneUrgente && (

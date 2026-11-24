@@ -1,5 +1,5 @@
 import { autoGenerarBorradoresSemanales } from '@/lib/presencia-digital/autogenerador-semanal';
-import { hoyEnUruguay } from '@/lib/utils';
+import { getUruguayParts, hoyEnUruguay } from '@/lib/utils';
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
@@ -226,13 +226,15 @@ export async function GET(request: Request) {
     fallos.push(`Error evaluando fechas comerciales: ${err.message}`);
   }
 
-  // 5b. REDES SOCIALES: GENERACIÓN SEMANAL DE BORRADORES
+  // 5b. REDES SOCIALES: GENERACIÓN SEMANAL DE BORRADORES (Lunes en hora de Uruguay)
   try {
-    if (ahora.getDay() === 1 || process.env.NODE_ENV === 'test') {
+    const uyHoy = getUruguayParts(ahora);
+    const diaSemanaUy = new Date(Date.UTC(uyHoy.year, uyHoy.month - 1, uyHoy.day, 12, 0, 0)).getUTCDay();
+    if (diaSemanaUy === 1 || process.env.NODE_ENV === 'test') {
       const resBorradores = await autoGenerarBorradoresSemanales();
       if (resBorradores && resBorradores.createdCount > 0) {
         nuevasParaAgregar.push({
-          clave: `borradores-redes:${ahora.toISOString().slice(0, 10)}`,
+          clave: `borradores-redes:${hoyEnUruguay(ahora)}`,
           area: 'ventas',
           titulo: `Redes Sociales: ${resBorradores.createdCount} nuevos borradores preparados`,
           quePasa: `Se generaron borradores automáticos para la semana basados en ${resBorradores.tipoOrigen}.`,
@@ -261,7 +263,7 @@ export async function GET(request: Request) {
   if (esMadrugada) {
     try {
       await guardarResumenMientrasNoEstabas({
-        fecha: ahora.toISOString().split('T')[0],
+        fecha: hoyEnUruguay(ahora),
         fiestasRevisadas: fiestas.length,
         presupuestosRevisados: presupuestos.length,
         cobrosRevisados: presupuestos.filter((p: any) => (p.totalConDescuento || p.costoTotalEstimado || 0) > 0).length,
@@ -340,18 +342,24 @@ export async function GET(request: Request) {
     }
   }
 
-  // 9. MARCAR CORRIDA
-  await marcarCorrida('asistente-proactivo');
+  // 9. MARCAR CORRIDA solo si ningún paso interno falló
+  const ok = fallos.length === 0;
+  if (ok) {
+    await marcarCorrida('asistente-proactivo');
+  }
 
-  return NextResponse.json(respuestaDeLaTarea(puerta, {
-    ok: true,
-    ejecutadoEn: ahora.toISOString(),
-    propuestasGeneradas: nuevasParaAgregar.length,
-    propuestasNuevasAgregadas: resultadoPersistencia.agregadas.length,
-    propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
-    avisoDuenio: avisoDuenioRes,
-    avisosOperativos,
-    fallos,
-  }));
+  return NextResponse.json(
+    respuestaDeLaTarea(puerta, {
+      ok,
+      ejecutadoEn: ahora.toISOString(),
+      propuestasGeneradas: nuevasParaAgregar.length,
+      propuestasNuevasAgregadas: resultadoPersistencia.agregadas.length,
+      propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
+      avisoDuenio: avisoDuenioRes,
+      avisosOperativos,
+      fallos,
+    }),
+    { status: ok ? 200 : 500 },
+  );
 }
 

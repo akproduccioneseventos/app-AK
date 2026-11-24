@@ -4,7 +4,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaForPortalSession, initializePortalSession } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,6 @@ import {
   Loader2, ArrowLeft, AlertTriangle, CheckCircle2, XCircle, HelpCircle,
   Users, Accessibility, Utensils, Music, Clock, Search, Filter,
 } from 'lucide-react';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const rsvpConfig: Record<RsvpStatus, { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; cls: string; badge: string }> = {
   Confirmado: { icon: CheckCircle2, cls: 'text-green-500', badge: 'bg-green-100 text-green-700 border-green-200' },
@@ -52,20 +50,16 @@ export default function ConfirmarInvitadosPortalPage() {
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
-    const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) {
-      sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
-      router.replace(`/portal-cliente/${fiestaId}`);
-      return;
-    }
-    initializePortalSession(fiestaId, accessKey)
-      .then(async session => {
-        if (!session.success) return null;
+    verificarSesionPortalCliente(fiestaId)
+      .then(async hasSession => {
+        if (!hasSession) {
+          router.replace(`/portal-cliente/${fiestaId}`);
+          return null;
+        }
         return getFiestaForPortalSession(fiestaId);
       })
       .then(data => {
         if (!data) {
-          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
           setError('La sesión del portal venció o no corresponde a este evento.');
           return;
         }

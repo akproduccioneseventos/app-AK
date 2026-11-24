@@ -1090,12 +1090,14 @@ export default function GuestBuzonPage() {
     let pendingFileName = '';
     let pendingMimeType = '';
     let mediaType = 'audio';
+    let snapshotDurationSeconds = 0;
 
     if (activeTab === 'photo' && photoFile) {
       pendingBlob = photoFile;
       pendingFileName = photoFile.name;
       pendingMimeType = photoFile.type || 'image/jpeg';
       mediaType = 'photo';
+      snapshotDurationSeconds = 0;
       formData.append('file', photoFile, photoFile.name);
       formData.append('mediaType', 'photo');
       formData.append('durationSeconds', '0');
@@ -1104,17 +1106,19 @@ export default function GuestBuzonPage() {
       pendingFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
       pendingMimeType = audioBlob.type || 'audio/webm';
       mediaType = 'audio';
+      snapshotDurationSeconds = Math.max(0, Math.round(recordingSeconds));
       formData.append('file', audioBlob, pendingFileName);
       formData.append('mediaType', 'audio');
-      formData.append('durationSeconds', recordingSeconds.toString());
+      formData.append('durationSeconds', snapshotDurationSeconds.toString());
     } else if (activeTab === 'video' && videoFile) {
       pendingBlob = videoFile;
       pendingFileName = videoFile.name;
       pendingMimeType = videoFile.type || 'video/webm';
       mediaType = 'video';
+      snapshotDurationSeconds = Math.max(0, Math.round(videoDuration));
       formData.append('file', videoFile, videoFile.name);
       formData.append('mediaType', 'video');
-      formData.append('durationSeconds', Math.round(videoDuration).toString());
+      formData.append('durationSeconds', snapshotDurationSeconds.toString());
     } else {
       toast({
         title: 'Error de envío',
@@ -1171,6 +1175,9 @@ export default function GuestBuzonPage() {
             authorName: snapshotName,
             metadata: {
               mediaType,
+              durationSeconds: snapshotDurationSeconds,
+              isTimeCapsule: snapshotIsTimeCapsule || undefined,
+              unlockYears: snapshotIsTimeCapsule ? snapshotUnlockYears : undefined,
               timeCapsuleYears: snapshotIsTimeCapsule ? snapshotUnlockYears : undefined,
               recipientNote: snapshotRecipientNote || undefined,
             },

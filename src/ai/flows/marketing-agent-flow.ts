@@ -93,6 +93,11 @@ export async function chatWithMarketingAgent(
     promptParts.push({ media: { url: input.attachmentDataUri } });
   }
 
+  const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+  if (!(await hayPresupuestoParaIA().catch(() => false))) {
+    throw new Error('Se alcanzó el tope mensual de IA.');
+  }
+
   const model = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
   const { text } = await generateWithGeminiFallback({
     model,
@@ -100,6 +105,8 @@ export async function chatWithMarketingAgent(
     prompt: promptParts,
     config: getGeminiGenerationConfigForAgent('marketing', { deep: true }),
   });
+
+  await registrarConsumoIA('agente-marketing').catch(() => undefined);
 
   return {
     content: text ?? 'No se pudo generar el contenido. Intentá de nuevo.',

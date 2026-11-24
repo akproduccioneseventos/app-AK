@@ -25,6 +25,7 @@ export type CompraCruda = {
   origen: string;
   origenId?: string;
   isOrder?: boolean;
+  porEvento?: boolean;
   /** Stock del catalogo, en `unidadStock` (si falta la unidad, se toma la de la receta). */
   stockDisponible?: number;
   unidadStock?: string;
@@ -45,6 +46,7 @@ export type CompraConsolidada = {
   origen: string;
   origenId?: string;
   isOrder?: boolean;
+  porEvento?: boolean;
 };
 
 export type OpcionesConsolidado = {
@@ -66,11 +68,20 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
     const key = claveDeConsolidado(raw.nombre, proveedorId, raw.unit);
     const { factor } = normalizarUnidad(raw.unit);
     const base = unidadDeMuestra(raw.unit);
+    const esPorEvento = Boolean(
+      raw.porEvento || (raw.unit || '').trim().toLowerCase() === 'por evento'
+    );
     // Se suma en la unidad del renglon. Una unidad desconocida tiene factor 1.
     const enBase = convertir(raw.cantidadNecesaria, raw.unit, base) ?? raw.cantidadNecesaria;
     const existente = grupos.get(key);
     if (existente) {
-      existente.item.cantidadNecesaria += enBase;
+      if (esPorEvento || existente.fuente.porEvento) {
+        existente.item.cantidadNecesaria = Math.max(existente.item.cantidadNecesaria, enBase);
+        existente.item.porEvento = true;
+        existente.fuente = { ...existente.fuente, porEvento: true };
+      } else {
+        existente.item.cantidadNecesaria += enBase;
+      }
       existente.granularidad = Math.min(existente.granularidad, factor);
       if (opciones.juntarOrigenes && !existente.item.origen.includes(raw.origen)) {
         existente.item.origen += `, ${raw.origen}`;
@@ -84,7 +95,7 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
       stock = convertir(stockCrudo, unidadStock, base) ?? 0;
     }
     grupos.set(key, {
-      fuente: raw,
+      fuente: esPorEvento ? { ...raw, porEvento: true } : raw,
       granularidad: factor,
       item: {
         id: key,
@@ -100,6 +111,7 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
         origen: raw.origen,
         origenId: raw.origenId,
         isOrder: raw.isOrder,
+        ...(esPorEvento ? { porEvento: true } : {}),
       },
     });
   });

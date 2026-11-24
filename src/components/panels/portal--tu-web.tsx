@@ -9,12 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   getFiestaForPortalSession,
-  initializePortalSession,
+  verificarSesionPortalCliente,
 } from '@/app/actions/fiesta/portal.actions';
 import { elegirPropuestaDeWeb } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import type { FiestaEnPlanificacion, PropuestaDeWeb } from '@/types/fiesta';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 export default function TuWebPortalPage() {
   const params = useParams<{ id: string }>();
@@ -33,16 +31,8 @@ export default function TuWebPortalPage() {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      let data = await getFiestaForPortalSession(fiestaId);
-      if (!data) {
-        const savedKey = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId) : null;
-        if (savedKey) {
-          const initRes = await initializePortalSession(fiestaId, savedKey);
-          if (initRes.success) {
-            data = await getFiestaForPortalSession(fiestaId);
-          }
-        }
-      }
+      const hasSession = await verificarSesionPortalCliente(fiestaId);
+      const data = hasSession ? await getFiestaForPortalSession(fiestaId) : null;
 
       if (!data) {
         setUnauthorized(true);

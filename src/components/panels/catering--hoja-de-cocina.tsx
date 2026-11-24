@@ -57,7 +57,7 @@ function HojaDeCocinaContenido() {
       const adultos = presupuesto?.invitadosAdultos ?? (Number(fiesta.configuracion?.invitadosEstimados) || 0);
       const chicos = (presupuesto?.invitadosNinos || 0) + (presupuesto?.invitadosAdolescentes || 0);
 
-      const platos = (presupuesto?.itemsPresupuestados || [])
+      const platos: Array<{ nombre: string; categoria?: string; alergenos?: string[] }> = (presupuesto?.itemsPresupuestados || [])
         .filter((item) =>
           item.idServicioCatalogo?.startsWith('dish_') ||
           item.idServicioCatalogo?.startsWith('menu_') ||
@@ -67,14 +67,15 @@ function HojaDeCocinaContenido() {
 
       if (fiesta.menuAsignadoId) {
         try {
-          const menuData: any = await getMenuById(fiesta.menuAsignadoId);
-          if (menuData?.secciones) {
-            menuData.secciones.forEach((sec: any) => {
-              sec.platos?.forEach((plato: any) => {
-                platos.push({
-                  nombre: plato.nombre,
-                  categoria: sec.nombre || 'Menú Asignado',
-                });
+          const menuData = await getMenuById(fiesta.menuAsignadoId);
+          if (Array.isArray(menuData?.items)) {
+            const yaIncluidos = new Set(platos.map((p) => p.nombre.trim().toLowerCase()));
+            menuData.items.forEach((plato) => {
+              if (!plato?.name || yaIncluidos.has(plato.name.trim().toLowerCase())) return;
+              platos.push({
+                nombre: plato.name,
+                categoria: plato.type || 'Menú Asignado',
+                alergenos: plato.allergenTags,
               });
             });
           }

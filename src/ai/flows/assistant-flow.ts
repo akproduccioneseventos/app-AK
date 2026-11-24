@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
 import { buildAssistantProCapabilitiesPrompt } from '@/lib/assistant/assistant-pro-capabilities';
 import { buildOperativeBudgetExtractionPrompt } from '@/lib/assistant/operative-budget-import';
 import { z } from 'genkit';
@@ -158,7 +158,11 @@ export const chatWithAssistant = ai.defineFlow(
       promptInput.media = [{ url: input.imageDataUri }];
     }
 
-    const { output } = await assistantPrompt(promptInput as AssistantInput);
+    const { output } = await ejecutarPromptConFallback(
+      assistantPrompt as unknown as (i: AssistantInput, opts?: { model?: string }) => Promise<{ output?: AssistantOutput }>,
+      promptInput as AssistantInput,
+      geminiModel,
+    );
 
     if (!output) {
       return {

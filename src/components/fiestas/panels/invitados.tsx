@@ -407,9 +407,11 @@ function InvitadosEventoContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center print:hidden">
-        <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
-        <div className="flex gap-2">
+      <div className="flex flex-wrap justify-between items-center gap-3 print:hidden">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-3xl font-bold font-headline truncate">Gestión de Invitados</h1>
+        </div>
+        <div className="flex flex-wrap gap-2 shrink-0">
           <Button variant="outline" onClick={() => setIsImportModalOpen(true)} className="bg-card text-purple-700 border-purple-300 hover:bg-purple-50" data-testid="btn-abrir-importar-planilla">
             <Upload className="w-4 h-4 mr-2" /> Importar Planilla
           </Button>
@@ -640,17 +642,30 @@ function InvitadosEventoContent() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  aria-label={`Ver pase QR de ${inv.nombre}`}
                                   title="Ver pase QR de acceso"
                                   onClick={() => setGuestQrModal(inv)}
                                 >
                                   <QrCode className="w-4 h-4 text-purple-600"/>
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => openEditModal(inv)}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={`Editar invitado ${inv.nombre}`}
+                                  title="Editar invitado"
+                                  onClick={() => openEditModal(inv)}
+                                >
                                   <Edit3 className="w-4 h-4 text-slate-500"/>
                                 </Button>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="text-destructive">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      aria-label={`Eliminar invitado ${inv.nombre}`}
+                                      title="Eliminar invitado"
+                                      className="text-destructive"
+                                    >
                                       <Trash2 className="w-4 h-4"/>
                                     </Button>
                                   </AlertDialogTrigger>

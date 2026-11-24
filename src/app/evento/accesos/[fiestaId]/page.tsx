@@ -83,7 +83,7 @@ function AccessControlContent() {
     setScanResult({ status: 'processing' });
 
     try {
-      const url = new URL(decodedText);
+      const url = new URL(decodedText, window.location.origin);
       const scannedFiestaId = url.searchParams.get('fiestaId');
       const guestId = url.searchParams.get('guestId');
       const token = url.searchParams.get('token'); // guestAccessToken support
@@ -94,14 +94,14 @@ function AccessControlContent() {
         return;
       }
 
-      // Resolve guest: prefer token-based lookup, fallback to guestId
+      // Resolve guest: prefer token-based lookup if guestId is absent; server checkInGuest validates token authoritatively.
       let resolvedGuestId = guestId;
       if (!resolvedGuestId && token && fiesta) {
         const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.guestAccessToken === token);
         resolvedGuestId = match?.id ?? null;
-      } else if (token && fiesta) {
-        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.id === guestId && i.guestAccessToken === token);
-        if (!match && guestId) {
+      } else if (token && fiesta && guestId) {
+        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.id === guestId);
+        if (match?.guestAccessToken && match.guestAccessToken !== token) {
           setScanResult({ status: 'invalid', message: 'El token del QR no es válido para este invitado.' });
           scheduleReset();
           return;

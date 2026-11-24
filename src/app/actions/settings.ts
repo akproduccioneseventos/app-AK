@@ -11,6 +11,7 @@ import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-mark
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
+import { probarConexionGeminiCerebro } from '@/ai/cerebro';
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
@@ -125,7 +126,7 @@ Firma cliente: __________________________`,
 export async function getCompanyInfo(): Promise<CompanyInfo> {
   // Guarda las cuentas bancarias de la empresa. La version que usan las pantallas
   // abiertas es `getCompanyInfoPublica`, que no las trae.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   return leerCompanyInfo();
 }
 
@@ -230,7 +231,7 @@ function mergeContractTemplates(saved: ContractTemplateItem[], fallbackServicios
 }
 
 export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const [savedTemplates, legacyServiciosTemplate] = await Promise.all([
       readData<ContractTemplateItem[]>(CONTRACT_TEMPLATES_FILE, []),
@@ -243,7 +244,7 @@ export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
 }
 
 export async function getContractTemplate(): Promise<string> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const templates = await getContractTemplates();
     const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
@@ -325,7 +326,7 @@ export async function deleteContractTemplate(id: string): Promise<{ success: boo
 }
 
 export async function getContractTemplateByType(type: ContractType): Promise<ContractTemplateItem> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   const templates = await getContractTemplates();
   const found = templates.find(t => t.type === type);
   if (found) return found;
@@ -425,7 +426,7 @@ export async function saveWhatsAppSettings(
 
 // --- Contract Settings ---
 export async function getContractSettings(): Promise<ContractSettings> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const data = await readData<Partial<ContractSettings>>(CONTRACT_SETTINGS_FILE, {});
     let clauses = defaultContractSettings.clauses;
@@ -528,7 +529,7 @@ const defaultAiAssistantSettings: AiAssistantSettings = {
 };
 
 export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
   return {
     ...defaultAiAssistantSettings,
@@ -590,7 +591,7 @@ export async function saveAiAssistantSettings(
 }
 
 export async function getAiAssistantFallosHoy(): Promise<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   const { getFallosIAHoy } = await import('@/lib/ai/consumo-servidor');
   return getFallosIAHoy();
 }
@@ -636,7 +637,7 @@ async function collectPageRoutes(dir: string, appDir: string, routes: string[]):
 }
 
 export async function scanAiAssistantAppContext(): Promise<{ success: boolean; context?: string; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   try {
     const appDir = path.join(process.cwd(), 'src', 'app');
     const routes: string[] = [];
@@ -661,54 +662,10 @@ export async function scanAiAssistantAppContext(): Promise<{ success: boolean; c
   }
 }
 
-const GEMINI_CONNECTION_TIMEOUT_MS = 15000;
-const GEMINI_CONNECTION_MODELS = [
-  'gemini-3.8-flash',
-  'gemini-flash-latest',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash',
-] as const;
-
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return {
-      ok: false,
-      error: 'La API key de Gemini no está configurada en el servidor. Verificá que el secreto "google-api-key" esté creado en Firebase y que el backend tenga acceso a él.',
-    };
-  }
-  try {
-    let lastModelError = '';
-    for (const model of GEMINI_CONNECTION_MODELS) {
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Respondé solo la palabra: ok' }] }],
-            generationConfig: { maxOutputTokens: 5 },
-          }),
-          signal: AbortSignal.timeout(GEMINI_CONNECTION_TIMEOUT_MS),
-        }
-      );
-      if (resp.ok) return { ok: true };
-
-      const errData = await resp.json().catch(() => ({}));
-      const msg = (errData as any)?.error?.message || `HTTP ${resp.status}`;
-      lastModelError = `${model}: ${msg}`;
-      if (![404, 429, 500, 502, 503, 504].includes(resp.status)) {
-        return { ok: false, error: `Gemini respondió con error: ${msg}` };
-      }
-    }
-    return { ok: false, error: `Gemini no respondió con ningún modelo compatible. ${lastModelError}` };
-  } catch (error: any) {
-    return { ok: false, error: error?.message || String(error) };
-  }
+  const res = await probarConexionGeminiCerebro();
+  return res.ok ? { ok: true } : { ok: false, error: res.error };
 }
 
 /**

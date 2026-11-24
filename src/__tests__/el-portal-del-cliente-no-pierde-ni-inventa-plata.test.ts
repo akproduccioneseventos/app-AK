@@ -27,12 +27,22 @@ jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async
 jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({ getFiestaByIdRaw: jest.fn() }));
 let turnoFiesta: Promise<unknown> = Promise.resolve();
 jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
-  actualizarFiesta: jest.fn((_id: string, cambiar: (f: any) => any) => {
+  actualizarFiesta: jest.fn((_id: string, cambiar: (f: any) => any, _options?: any) => {
     const r = turnoFiesta.then(async () => {
-      const nueva = await cambiar(copia(fiesta));
-      await esperar();
-      fiesta = copia(nueva);
-      return { success: true, updatedFiesta: copia(nueva) };
+      try {
+        const base = copia(fiesta);
+        const nueva = await cambiar(base);
+        const { saveFiesta } = require('@/app/actions/fiesta/fiesta.actions');
+        const resSave = await saveFiesta(nueva);
+        if (resSave && resSave.success === false) {
+          return { success: false, error: resSave.error || 'No se pudo guardar' };
+        }
+        await esperar();
+        fiesta = copia(nueva);
+        return { success: true, updatedFiesta: copia(nueva) };
+      } catch (e: any) {
+        return { success: false, error: e.message };
+      }
     });
     turnoFiesta = r.catch(() => undefined);
     return r;
@@ -42,7 +52,10 @@ jest.mock('@/lib/notifications/create-notification', () => ({ createNotification
 jest.mock('@/app/actions/google-workspace-extended', () => ({
   notifyClientPaymentApproved: jest.fn(async () => undefined), notifyClientPaymentRejected: jest.fn(async () => undefined), notifyClientPaymentSubmitted: jest.fn(async () => undefined),
 }));
-jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: (...a: any[]) => subir(...a) }));
+jest.mock('@/lib/firebase/storage', () => ({
+  uploadToStorage: (...a: any[]) => subir(...a),
+  isStorageAvailable: jest.fn(() => true),
+}));
 jest.mock('@/lib/ai/decisiones', () => ({ decidir: jest.fn(async () => null) }));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn() }));
 jest.mock('@/app/actions/presupuestos', () => ({ addPagoToPresupuesto: jest.fn(async () => ({ success: true })), getPresupuestoById: jest.fn() }));
@@ -51,6 +64,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(async () => copia(fiesta)),
   getFiestas: jest.fn(async () => []),
   saveFiesta: jest.fn(async (f: any) => { await esperar(); fiesta = copia(f); return { success: true }; }),
+  requireFiestaWriteAccess: jest.fn(async () => undefined),
 }));
 let turno: Promise<unknown> = Promise.resolve();
 jest.mock('@/lib/data-service', () => ({

@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus,
-  Info, Eye, X, LayoutGrid, Rows2,
+  Info, Eye, X, LayoutGrid, Rows2, Sparkles, Download,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
@@ -30,6 +30,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { PapeleriaIAModal } from '@/components/fiestas/panels/papeleria-ia-modal';
+import { descargarPdfArchivo, generarPdfTorresMesasA4, imprimirPdfEnNavegador } from '@/lib/papeleria/pdf-impresion';
+import { imagenUrlADataUrl } from '@/lib/papeleria/imagen-a-data-url';
 
 /** Fondo neutro mientras no se cargo una foto. Antes se traia una al azar de internet. */
 const FONDO_SIN_FOTO =
@@ -111,9 +114,10 @@ const TableCardFace: React.FC<{
   logoUrl: string | null;
   tableNumber: number;
   customLabel?: string;
+  fondoIaUrl?: string | null;
   inverted?: boolean;
   small?: boolean;
-}> = ({ fiesta, data, logoUrl, tableNumber, customLabel, inverted, small }) => {
+}> = ({ fiesta, data, logoUrl, tableNumber, customLabel, fondoIaUrl, inverted, small }) => {
   const protagonistaNombre = data.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Protagonista';
   const eventDate = data.fechaEvento || formatDate(fiesta.configuracion.fechaEvento);
   const fontSize = small
@@ -129,18 +133,26 @@ const TableCardFace: React.FC<{
         small ? 'p-2' : 'p-4',
         inverted && 'transform rotate-180',
       )}
-      style={{ backgroundColor: bgColor }}
+      style={{ backgroundColor: fondoIaUrl ? '#ffffff' : bgColor }}
     >
-      {!data.cardBgColor && (
-        <div className="absolute inset-0 opacity-100 -z-10">
-          <NextImage
-            src={data.backgroundImageUrl || FONDO_SIN_FOTO}
-            layout="fill"
-            objectFit="cover"
-            alt=""
-            data-ai-hint="white lilies flowers border frame"
-          />
-        </div>
+      {fondoIaUrl ? (
+        <img
+          src={fondoIaUrl}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+      ) : (
+        !data.cardBgColor && (
+          <div className="absolute inset-0 opacity-100 -z-10">
+            <NextImage
+              src={data.backgroundImageUrl || FONDO_SIN_FOTO}
+              layout="fill"
+              objectFit="cover"
+              alt=""
+              data-ai-hint="white lilies flowers border frame"
+            />
+          </div>
+        )
       )}
 
       <div className="text-center z-10 space-y-1">
@@ -191,15 +203,16 @@ const TentColumn: React.FC<{
   fiesta: FiestaEnPlanificacion;
   data: NumerosMesaData;
   logoUrl: string | null;
-}> = ({ tableNumber, fiesta, data, logoUrl }) => (
+  fondoIaUrl?: string | null;
+}> = ({ tableNumber, fiesta, data, logoUrl, fondoIaUrl }) => (
   <div className="w-[105mm] h-full flex flex-col">
-    <div className="h-[30mm] w-full border-b border-dashed border-slate-300 bg-slate-50/20" />
+    <div className="h-[30mm] w-full border-b border-dashed border-slate-300 bg-white" />
     <div className="h-[87mm] w-full border-b border-dashed border-slate-300 bg-white" />
     <div className="h-[90mm] w-full border-b border-dashed border-slate-300">
-      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} inverted />
+      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} fondoIaUrl={fondoIaUrl} inverted />
     </div>
     <div className="h-[90mm] w-full">
-      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} />
+      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} fondoIaUrl={fondoIaUrl} />
     </div>
   </div>
 );
@@ -210,15 +223,16 @@ const TentColumnSmall: React.FC<{
   fiesta: FiestaEnPlanificacion;
   data: NumerosMesaData;
   logoUrl: string | null;
-}> = ({ tableNumber, fiesta, data, logoUrl }) => (
+  fondoIaUrl?: string | null;
+}> = ({ tableNumber, fiesta, data, logoUrl, fondoIaUrl }) => (
   <div className="w-[105mm] h-[148.5mm] flex flex-col border-b border-black">
-    <div className="h-[15mm] w-full border-b border-dashed border-slate-300 bg-slate-50/20" />
+    <div className="h-[15mm] w-full border-b border-dashed border-slate-300 bg-white" />
     <div className="h-[43.5mm] w-full border-b border-dashed border-slate-300 bg-white" />
     <div className="h-[45mm] w-full border-b border-dashed border-slate-300">
-      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} inverted small />
+      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} fondoIaUrl={fondoIaUrl} inverted small />
     </div>
     <div className="h-[45mm] w-full">
-      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} small />
+      <TableCardFace tableNumber={tableNumber} fiesta={fiesta} data={data} logoUrl={logoUrl} customLabel={data.labels?.[tableNumber]} fondoIaUrl={fondoIaUrl} small />
     </div>
   </div>
 );
@@ -237,6 +251,10 @@ function NumerosDeMesaContent() {
   const [tableCount, setTableCount] = useState(20);
   const [layoutMode, setLayoutMode] = useState<'2-per-page' | '4-per-page'>('2-per-page');
   const [previewTable, setPreviewTable] = useState<number | null>(null);
+  const [isIaModalOpen, setIsIaModalOpen] = useState(false);
+  const [usarFondoIa, setUsarFondoIa] = useState(true);
+  const [fondoIaBase64Cache, setFondoIaBase64Cache] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data,
@@ -321,6 +339,63 @@ function NumerosDeMesaContent() {
 
   const pagesFor2 = Math.ceil(tableCount / 2);
   const pagesFor4 = Math.ceil(tableCount / 4);
+  const fondoIaUrlGuardado = fiesta.papeleriaIA?.fondoMesas?.url || null;
+  const fondoIaActivoUrl = usarFondoIa ? fondoIaUrlGuardado : null;
+
+  const handleTorresPdf = async (modo: 'imprimir' | 'descargar') => {
+    setIsGeneratingPdf(true);
+    try {
+      const mesas = Array.from({ length: tableCount }, (_, i) => {
+        const numero = i + 1;
+        const subtitulo = data.labels?.[numero]?.trim() || undefined;
+        return { numero, subtitulo };
+      });
+      const nombreAgasajado =
+        (data.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || '').trim() || undefined;
+      const fechaCortaRaw =
+        (data.fechaEvento && data.fechaEvento !== '____________' ? data.fechaEvento : '') ||
+        (fiesta.configuracion.fechaEvento ? formatDate(fiesta.configuracion.fechaEvento) : '');
+      const fechaCorta = fechaCortaRaw && fechaCortaRaw !== '____________' ? fechaCortaRaw : undefined;
+
+      let fondoDataUrl: string | undefined;
+      if (fondoIaActivoUrl) {
+        const resuelto =
+          fondoIaBase64Cache && /^data:image\//i.test(fondoIaBase64Cache)
+            ? fondoIaBase64Cache
+            : await imagenUrlADataUrl(fondoIaActivoUrl);
+        if (!resuelto) {
+          toast({
+            title: 'No se pudo cargar el fondo IA',
+            description: 'No pudimos preparar la imagen de fondo para armar el PDF A4 completo.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        fondoDataUrl = resuelto;
+      }
+
+      const pdf = generarPdfTorresMesasA4({
+        mesas,
+        nombreAgasajado,
+        fechaCorta,
+        fondoDataUrl,
+      });
+
+      if (modo === 'imprimir') {
+        imprimirPdfEnNavegador(pdf);
+      } else {
+        descargarPdfArchivo(pdf, `torres-mesas-${fiestaId}.pdf`);
+      }
+    } catch (e: unknown) {
+      toast({
+        title: 'Error al generar el PDF',
+        description: e instanceof Error ? e.message : 'No se pudo generar el PDF multipágina.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   return (
     <div className="bg-slate-100 min-h-screen flex flex-col md:flex-row">
@@ -330,9 +405,56 @@ function NumerosDeMesaContent() {
           <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
               <ArrowLeft className="w-5 h-5" />
             </Link></Button>
-          <h1 className="font-headline text-xl font-bold text-slate-800">Torres de Mesa A4</h1>
+          <div>
+            <h1 className="font-headline text-xl font-bold text-slate-800">Torres de Mesa A4</h1>
+            <Link href="/asistente" className="text-xs font-medium text-primary hover:underline">
+              Ver en Asistente AK
+            </Link>
+          </div>
         </div>
         <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+
+        {/* Fondo único con IA */}
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-3 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-slate-800">Fondo IA para las mesas</span>
+            {fondoIaUrlGuardado && (
+              <Badge variant="outline" className="text-[10px] border-emerald-200 bg-emerald-50 text-emerald-700">
+                {usarFondoIa ? 'Activo' : 'En pausa'}
+              </Badge>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-600 leading-snug">
+            Genera un único fondo para toda la fiesta (sólo en las dos caras numeradas de 90 mm; la solapa y la base quedan blancas).
+          </p>
+          {fondoIaUrlGuardado && (
+            <div className="flex items-center gap-2">
+              <img
+                src={fondoIaUrlGuardado}
+                alt="Fondo IA mesas"
+                className="w-12 h-10 object-cover rounded border border-indigo-200 bg-white shrink-0"
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs flex-1"
+                onClick={() => setUsarFondoIa(v => !v)}
+              >
+                {usarFondoIa ? 'Usar plantilla original' : 'Usar fondo IA'}
+              </Button>
+            </div>
+          )}
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setIsIaModalOpen(true)}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+            Diseñar con IA
+          </Button>
+        </div>
 
         <Separator />
 
@@ -491,13 +613,21 @@ function NumerosDeMesaContent() {
           </div>
         </div>
 
-        <div className="pt-4 space-y-3">
-          <Button onClick={saveNow} disabled={isSaving} className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20">
+        <div className="pt-4 space-y-2.5">
+          <Button onClick={saveNow} disabled={isSaving} className="w-full rounded-xl h-11 font-bold shadow-lg shadow-primary/20">
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Guardar ahora
           </Button>
-          <Button onClick={handlePrint} variant="secondary" className="w-full rounded-xl h-12 font-bold">
-            <PrinterIcon className="w-4 h-4 mr-2" /> 🖨️ Imprimir en A4
+          <Button onClick={() => handleTorresPdf('imprimir')} disabled={isGeneratingPdf} variant="secondary" className="w-full rounded-xl h-11 font-bold">
+            {isGeneratingPdf ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PrinterIcon className="w-4 h-4 mr-2" />}
+            Imprimir PDF A4 completo
+          </Button>
+          <Button onClick={() => handleTorresPdf('descargar')} disabled={isGeneratingPdf} variant="outline" className="w-full rounded-xl h-11 font-bold">
+            {isGeneratingPdf ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+            Descargar PDF
+          </Button>
+          <Button onClick={handlePrint} variant="ghost" className="w-full rounded-xl h-10 text-xs">
+            <PrinterIcon className="w-3.5 h-3.5 mr-1.5" /> Imprimir vista actual del navegador
           </Button>
         </div>
       </div>
@@ -540,11 +670,11 @@ function NumerosDeMesaContent() {
               <div className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-row p-0 border border-slate-300 print:border-none overflow-hidden">
                 {/* Columna 1 */}
                 <div className="border-r border-black">
-                  <TentColumn tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl} />
+                  <TentColumn tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl} fondoIaUrl={fondoIaActivoUrl} />
                 </div>
                 {/* Columna 2 */}
                 {tableNum2 <= tableCount ? (
-                  <TentColumn tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl} />
+                  <TentColumn tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl} fondoIaUrl={fondoIaActivoUrl} />
                 ) : (
                   <div className="w-[105mm] h-full bg-slate-50 flex items-center justify-center opacity-10">
                     <PrinterIcon className="w-32 h-32 text-slate-300" />
@@ -577,7 +707,7 @@ function NumerosDeMesaContent() {
                 {nums.map((n, idx) => (
                   n <= tableCount ? (
                     <div key={n} className={cn('flex flex-col border-black', idx % 2 === 0 ? 'border-r' : '')}>
-                      <TentColumnSmall tableNumber={n} fiesta={fiesta} data={data} logoUrl={logoUrl} />
+                      <TentColumnSmall tableNumber={n} fiesta={fiesta} data={data} logoUrl={logoUrl} fondoIaUrl={fondoIaActivoUrl} />
                     </div>
                   ) : (
                     <div key={n} className={cn('bg-slate-50 flex items-center justify-center opacity-10 border-black', idx % 2 === 0 ? 'border-r' : '')}>
@@ -611,6 +741,7 @@ function NumerosDeMesaContent() {
                   data={data}
                   logoUrl={logoUrl}
                   customLabel={data.labels?.[previewTable]}
+                  fondoIaUrl={fondoIaActivoUrl}
                 />
               </div>
               <p className="text-xs text-muted-foreground text-center">
@@ -664,6 +795,34 @@ function NumerosDeMesaContent() {
           )}
         </DialogContent>
       </Dialog>
+
+      <PapeleriaIAModal
+        open={isIaModalOpen}
+        onOpenChange={setIsIaModalOpen}
+        fiestaId={fiestaId}
+        pieza="fondoMesas"
+        tituloPieza="Fondo único para Torres de Mesa"
+        imagenGuardadaUrl={fondoIaUrlGuardado}
+        onGuardado={(piezaGuardada, meta) => {
+          setFiesta((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  papeleriaIA: {
+                    ...(prev.papeleriaIA || {}),
+                    fondoMesas: piezaGuardada,
+                  },
+                }
+              : prev
+          );
+          setFondoIaBase64Cache(meta?.fondoBase64 || null);
+          setUsarFondoIa(meta?.usarFondoEnPlantilla !== false);
+        }}
+        onVolverPlantilla={() => {
+          setUsarFondoIa(false);
+          setIsIaModalOpen(false);
+        }}
+      />
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');

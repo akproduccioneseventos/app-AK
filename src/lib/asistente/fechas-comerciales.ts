@@ -1,3 +1,5 @@
+import { getUruguayParts } from '@/lib/utils';
+
 /**
  * @fileOverview Fechas comerciales y efemérides de Uruguay para anticipación proactiva.
  * Fijas y móviles con cálculo dinámico para el año corriente.
@@ -17,18 +19,18 @@ export interface FechaComercialUruguay {
  * Calcula el n-ésimo domingo de un mes dado para un año dado.
  */
 function getNthSunday(anio: number, mesIndex0: number, n: number): Date {
-  const date = new Date(anio, mesIndex0, 1);
+  const date = new Date(Date.UTC(anio, mesIndex0, 1, 12, 0, 0));
   let sundaysFound = 0;
-  while (date.getMonth() === mesIndex0) {
-    if (date.getDay() === 0) {
+  while (date.getUTCMonth() === mesIndex0) {
+    if (date.getUTCDay() === 0) {
       sundaysFound++;
       if (sundaysFound === n) {
         return new Date(date);
       }
     }
-    date.setDate(date.getDate() + 1);
+    date.setUTCDate(date.getUTCDate() + 1);
   }
-  return new Date(anio, mesIndex0, 14); // Fallback aproximado
+  return new Date(Date.UTC(anio, mesIndex0, 14, 12, 0, 0)); // Fallback aproximado
 }
 
 export const FECHAS_COMERCIALES_URUGUAY: FechaComercialUruguay[] = [
@@ -124,7 +126,9 @@ export function obtenerProximasFechasComerciales(
   fechaBase: Date = new Date(),
   diasVentana: number = 28
 ): FechaProximaDetectada[] {
-  const anioActual = fechaBase.getFullYear();
+  const uy = getUruguayParts(fechaBase);
+  const anioActual = uy.year;
+  const baseMediodiaUtc = Date.UTC(uy.year, uy.month - 1, uy.day, 12, 0, 0);
   const resultados: FechaProximaDetectada[] = [];
 
   for (const anio of [anioActual, anioActual + 1]) {
@@ -133,12 +137,12 @@ export function obtenerProximasFechasComerciales(
       if (fc.esMovil && fc.calcularFecha) {
         fechaEv = fc.calcularFecha(anio);
       } else {
-        fechaEv = new Date(anio, fc.mes - 1, fc.dia);
+        fechaEv = new Date(Date.UTC(anio, fc.mes - 1, fc.dia, 12, 0, 0));
       }
 
-      // Diferencia en días
-      const diffMs = fechaEv.getTime() - fechaBase.getTime();
-      const diasFaltantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      // Diferencia en días calendario de Uruguay
+      const diffMs = fechaEv.getTime() - baseMediodiaUtc;
+      const diasFaltantes = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
       if (diasFaltantes >= 0 && diasFaltantes <= diasVentana) {
         resultados.push({

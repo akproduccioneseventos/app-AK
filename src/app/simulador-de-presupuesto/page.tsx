@@ -63,6 +63,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { getGuestCountForItem } from '@/lib/calculations';
 import { cn, hoyEnUruguay, parseUruguayDate, toSentenceCase } from '@/lib/utils';
 import {
+  buildAnnualAdjustmentProjection,
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
 import { Badge } from '@/components/ui/badge';
@@ -682,16 +683,20 @@ function SimuladorContent() {
     }, []);
 
     const clubUruguayDetails = useMemo(() => {
-        const club = config?.clubUruguayConfig;
         if (salonChoice !== 'club') return null;
         const precioBasePromo = config?.clubUruguayConfig?.precio || 16900;
         const precioReal = precioBasePromo * 2;
 
-        const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
-        const diffYears = Math.max(0, eventYear - 2026);
-        const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
-        const multiplier = 1 + (diffYears * (adjustmentPct / 100));
-        const costoFinal = Math.round(precioBasePromo * multiplier);
+        const adjustmentPct = budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE ?? 15;
+        const projection = buildAnnualAdjustmentProjection({
+            baseTotal: precioBasePromo,
+            eventDate: eventoFecha,
+            currentYear,
+            adjustmentPct,
+        });
+        const eventYear = projection.eventYear;
+        const diffYears = Math.max(0, eventYear - projection.currentYear);
+        const costoFinal = projection.applies ? projection.adjustedTotal : precioBasePromo;
 
         return {
             nombre: 'Salón Club Uruguay',
@@ -702,7 +707,7 @@ function SimuladorContent() {
             diffYears,
             aclaracion: `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioBasePromo)}${diffYears > 0 ? `, con ajuste ${eventYear}: ${formatCurrency(costoFinal)}` : ''}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
         };
-    }, [config?.clubUruguayConfig, salonChoice, eventoFecha]);
+    }, [config?.clubUruguayConfig, salonChoice, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
 
     const technologyServices = useMemo(() => {
         if (budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null) {
@@ -725,6 +730,12 @@ function SimuladorContent() {
         }
         return getTierMissingServices(config, selectedPaqueteId, allSimuladorServices);
     }, [config, selectedPaqueteId, allSimuladorServices]);
+
+    const nextPackageLabel = useMemo(() => {
+        const name = tierMissingData.nextPackageName.trim();
+        if (!name) return '';
+        return /^(plan|paquete)\b/i.test(name) ? name : `Plan ${name}`;
+    }, [tierMissingData.nextPackageName]);
 
     const toggleTechnologyService = useCallback((service: ServicioEmpresa, selected: boolean) => {
         setFormData(previous => {
@@ -1051,13 +1062,19 @@ function SimuladorContent() {
 
         if (step === 3) {
             if (!selectedPrincipal && principalesDisponibles.length > 0) {
-                setSelectedPrincipal(principalesDisponibles[0].id);
+                const defaultPrincipalId = principalesDisponibles[0].id;
+                setSelectedPrincipal(defaultPrincipalId);
+                handleGastronomicSelectionChange('principal', defaultPrincipalId);
             }
             if (selectedEntradas.length === 0 && entradasDisponibles.length > 0) {
-                setSelectedEntradas([entradasDisponibles[0].id]);
+                const defaultEntradas = [entradasDisponibles[0].id];
+                setSelectedEntradas(defaultEntradas);
+                handleGastronomicSelectionChange('entradas', defaultEntradas);
             }
             if (ninosYAdolescentes > 0 && !selectedInfantil && menusNinoDisponibles.length > 0) {
-                setSelectedInfantil(menusNinoDisponibles[0].id);
+                const defaultInfantilId = menusNinoDisponibles[0].id;
+                setSelectedInfantil(defaultInfantilId);
+                handleGastronomicSelectionChange('infantil', defaultInfantilId);
             }
             setStep(4);
             return;
@@ -1835,7 +1852,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(5); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Sacá servicios que no querés
@@ -1851,7 +1868,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(3); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Cambiá de paquete
@@ -2576,7 +2593,7 @@ function SimuladorContent() {
                                                     <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
-                                                <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
+                                                <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -2612,7 +2629,7 @@ function SimuladorContent() {
                                                     <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
-                                                <RadioGroupItem value={s.id} className="h-6 w-6"/>
+                                                <RadioGroupItem value={s.id} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -2649,7 +2666,7 @@ function SimuladorContent() {
                                                         <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
                                                       </div>
                                                     )}
-                                                    <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
+                                                    <RadioGroupItem value={s.id} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
                                                         <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-900 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -2714,7 +2731,7 @@ function SimuladorContent() {
                                                     <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Presupuesto Estimado</span></p>
                                                     <p className="text-[10px] font-bold text-slate-500">{formatCurrency(estimatedPricePerPerson)} por persona</p>
                                                 </div>
-                                                <RadioGroupItem value={p.id} className="h-6 w-6"/>
+                                                <RadioGroupItem value={p.id} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0"/>
                                             </div>
 
                                             <div className="space-y-3 border-t border-slate-200 pt-4">
@@ -2991,10 +3008,10 @@ function SimuladorContent() {
                                                     </div>
                                                     <div>
                                                         <h4 className="text-base font-black uppercase tracking-wide text-amber-300 flex items-center gap-2">
-                                                            🔥 ¡Subí tu evento al Plan {tierMissingData.nextPackageName}!
+                                                            🔥 ¡Subí tu evento al {nextPackageLabel}!
                                                         </h4>
                                                         <p className="text-xs text-white/90 font-semibold mt-0.5">
-                                                            Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete {tierMissingData.nextPackageName} y asegurá una experiencia inolvidable para todos tus invitados:
+                                                            Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en {nextPackageLabel} y asegurá una experiencia inolvidable para todos tus invitados:
                                                         </p>
                                                     </div>
                                                 </div>
@@ -3004,7 +3021,7 @@ function SimuladorContent() {
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
                                                         className="min-h-[2.75rem] h-auto py-2.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs tracking-tight shadow-xl transition-all w-full sm:w-auto text-center"
                                                     >
-                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
+                                                        ⚡ Pasarme al {nextPackageLabel}
                                                     </Button>
                                                 )}
                                             </div>
@@ -3278,16 +3295,16 @@ function SimuladorContent() {
                     <DialogHeader className="text-left space-y-2">
                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                             <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
-                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
+                            UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
                         </div>
                         <DialogTitle className="text-xl font-black text-white leading-tight">
                             {tierMissingData.missingServices.length > 0
-                                ? `¿Querés sumar los extras del Plan ${tierMissingData.nextPackageName}?`
+                                ? `¿Querés sumar los extras del ${nextPackageLabel}?`
                                 : `🌟 ¡Elegiste la propuesta más completa para tu fiesta!`}
                         </DialogTitle>
                         <DialogDescription className="text-xs font-semibold text-slate-300 leading-relaxed">
                             {tierMissingData.missingServices.length > 0
-                                ? `El Plan ${tierMissingData.nextPackageName} incluye servicios clave para potenciar la ambientación y diversión de tus invitados.`
+                                ? `El ${nextPackageLabel} incluye servicios clave para potenciar la ambientación y diversión de tus invitados.`
                                 : `Tenés la cobertura más avanzada de AK Producciones. Podés descargar tu presupuesto oficial en PDF o coordinar con nuestro equipo por WhatsApp.`}
                         </DialogDescription>
                     </DialogHeader>
@@ -3317,13 +3334,13 @@ function SimuladorContent() {
                                     handleSwitchPackage(tierMissingData.targetPackageId!);
                                     setIsUpgradePromptOpen(false);
                                     toast({
-                                        title: `Actualizado a Plan ${tierMissingData.nextPackageName}`,
+                                        title: `Actualizado a ${nextPackageLabel}`,
                                         description: "Se incluyeron todos los servicios adicionales del paquete superior.",
                                     });
                                 }}
                                 className="w-full min-h-[3rem] h-auto py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm tracking-tight rounded-2xl shadow-xl transition transform hover:scale-105 text-center leading-snug"
                             >
-                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                                ⚡ Pasarme al {nextPackageLabel} con 1-Click
                             </Button>
                         ) : (
                             <Button

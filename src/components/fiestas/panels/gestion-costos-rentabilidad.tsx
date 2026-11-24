@@ -68,6 +68,7 @@ export function GestionCostosRentabilidadContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [cateringSyncWarning, setCateringSyncWarning] = useState<string | null>(null);
 
   const [newCostoNombre, setNewCostoNombre] = useState('');
   const [newCostoCategoria, setNewCostoCategoria] = useState<CostoCategoria>('Otro Costo Directo');
@@ -113,7 +114,14 @@ export function GestionCostosRentabilidadContent() {
       try {
           const res = await syncAllEventCosts(fiestaId);
           if (res.success) {
-              toast({ title: "¡Sincronización Total!", description: "Se han actualizado los costos basándose en catálogos, presupuesto y personal." });
+              if (res.cateringSinCostoCargado) {
+                  const aviso = res.cateringAviso || 'Catering sin costo cargado: asigná el menú';
+                  setCateringSyncWarning(aviso);
+                  toast({ title: 'Sincronizado con aviso', description: aviso, variant: 'destructive' });
+              } else {
+                  setCateringSyncWarning(null);
+                  toast({ title: "¡Sincronización Total!", description: "Se han actualizado los costos basándose en catálogos, presupuesto y personal." });
+              }
               await loadData(false);
           } else throw new Error(res.error);
       } catch (e: any) {
@@ -224,6 +232,41 @@ export function GestionCostosRentabilidadContent() {
       cobrosSinComisionInformada: g.cobrosSinComisionInformada,
     };
   }, [gestionCostos, ingresoInfo, pagosProveedores, cobrosCliente, fiesta, rolesPersonal]);
+
+  const cateringSinCosto = useMemo(() => {
+    const totalCatering = gestionCostos.others?.totalCateringCost || 0;
+    if (totalCatering > 0) return null;
+    if (cateringSyncWarning) return cateringSyncWarning;
+    if (gestionCostos.cateringSinCostoCargado) {
+      return gestionCostos.cateringAviso || 'Catering sin costo cargado: asigná el menú';
+    }
+    const tieneCateringEnPresupuesto = (presupuesto?.itemsPresupuestados || []).some((item) => {
+      const idCat = (item.idServicioCatalogo || '').toLowerCase();
+      const cat = (item.categoriaServicio || '').toLowerCase();
+      const nombre = (item.nombreServicio || '').toLowerCase();
+      return (
+        idCat.startsWith('dish_') ||
+        idCat.startsWith('menu_') ||
+        cat.includes('catering') ||
+        cat.includes('entrada') ||
+        cat.includes('plato principal') ||
+        cat.includes('postre') ||
+        cat.includes('menú') ||
+        cat.includes('menu') ||
+        nombre.includes('catering') ||
+        nombre.includes('menú') ||
+        nombre.includes('menu')
+      );
+    });
+    const conf = fiesta?.configuracion as unknown as Record<string, unknown> | undefined;
+    const tieneComidaEnConfig = Boolean(
+      conf && (conf.comida || conf.catering || conf.menu || conf.incluyeComida || conf.incluyeCatering)
+    );
+    if ((tieneCateringEnPresupuesto || tieneComidaEnConfig) && !fiesta?.menuAsignadoId) {
+      return 'Catering sin costo cargado: asigná el menú';
+    }
+    return null;
+  }, [gestionCostos, cateringSyncWarning, presupuesto, fiesta]);
 
   const costItemsForSelect = useMemo(() => {
       const automatic = [
@@ -364,7 +407,16 @@ export function GestionCostosRentabilidadContent() {
                                       {/* CATERING */}
                                       <TableRow className="border-slate-50">
                                           <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><ChefHat className="w-5 h-5 text-primary"/><p className="font-bold text-slate-700">Producción Gastronómica (Recetas)</p></div></TableCell>
-                                          <TableCell className="text-right pr-8 font-black">{formatCurrency(gestionCostos.others?.totalCateringCost || 0)}</TableCell>
+                                          <TableCell className="text-right pr-8 font-black">
+                                            {cateringSinCosto ? (
+                                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
+                                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                                {cateringSinCosto}
+                                              </span>
+                                            ) : (
+                                              formatCurrency(gestionCostos.others?.totalCateringCost || 0)
+                                            )}
+                                          </TableCell>
                                       </TableRow>
                                       {/* BEBIDAS */}
                                       <TableRow className="border-slate-50">

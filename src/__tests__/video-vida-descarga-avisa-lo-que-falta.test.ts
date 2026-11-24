@@ -26,6 +26,9 @@ let fotosNoLeidas = 0;
 let sesion = true;
 jest.mock('@/app/actions/fiesta/video-vida.actions', () => ({ getLifeStoryVideoPhotos: jest.fn(async () => lecturaFalla ? { estado: 'error', urls: [], fallidas: 0, error: 'No pudimos leer' } : { estado: fotosNoLeidas ? 'parcial' : 'ok', urls: fotos, fallidas: fotosNoLeidas }) }));
 jest.mock('@/lib/auth/require-session', () => ({ hasAppSession: jest.fn(async () => sesion) }));
+jest.mock('@/lib/auth/event-access', () => ({
+  requireEventPermission: jest.fn(async () => ({ id: 'f1' })),
+}));
 jest.mock('next/server', () => ({
   NextResponse: class {
     status: number; headers: Headers; body: any;

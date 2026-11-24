@@ -134,7 +134,18 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
           formData.append('authorName', item.authorName || 'Invitado');
           formData.append('mediaType', item.metadata?.mediaType || 'audio');
           if (runtimeCredentials.accessToken) formData.append('accessToken', runtimeCredentials.accessToken);
-          if (item.metadata?.timeCapsuleYears) formData.append('timeCapsuleYears', String(item.metadata.timeCapsuleYears));
+          if (item.metadata?.durationSeconds !== undefined && item.metadata?.durationSeconds !== null) {
+            formData.append('durationSeconds', String(item.metadata.durationSeconds));
+          }
+          const unlockYears = item.metadata?.unlockYears ?? item.metadata?.timeCapsuleYears;
+          const isTimeCapsule = Boolean(item.metadata?.isTimeCapsule || unlockYears);
+          if (isTimeCapsule) {
+            formData.append('isTimeCapsule', 'true');
+            if (unlockYears) {
+              formData.append('unlockYears', String(unlockYears));
+              formData.append('timeCapsuleYears', String(unlockYears));
+            }
+          }
           if (item.metadata?.recipientNote) formData.append('recipientNote', item.metadata.recipientNote);
 
           const res = await uploadBuzonMessage(formData);

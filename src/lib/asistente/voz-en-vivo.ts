@@ -124,7 +124,9 @@ import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
  * código. La ficha y el socket SIEMPRE salen de la misma versión: la ruta la lee una sola vez
  * (`versionApiEnVivo()`) y se la pasa a las dos direcciones.
  */
-import { VOCES_IA_DISPONIBLES, VOZ_POR_OMISION } from '@/lib/asistente/voz-gemini';
+import { VOCES_IA_DISPONIBLES, VOZ_POR_OMISION } from '@/lib/asistente/voces-ia';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { construirUrlFichaVozEnVivo, construirUrlSocketVozEnVivo } from '@/ai/direcciones-google';
 
 export const VOZ_EN_VIVO_USO_FILE = 'asistente/voz-en-vivo-uso.json';
 /** Lo máximo que se reserva por conversación; la sesión corta sola al llegar. */
@@ -133,12 +135,12 @@ export const MINUTOS_POR_DIA_POR_OMISION = 10;
 /** Referencia de precio de Google, para el texto de Ajustes (no se cobra desde la app). */
 export const PRECIO_REFERENCIA_POR_MINUTO_USD = 0.023;
 
-export const MODELOS_EN_VIVO_POR_OMISION = 'gemini-3.8-live,gemini-2.5-flash-native-audio-preview-12-2025';
+export const MODELOS_EN_VIVO_POR_OMISION = MODELOS_GEMINI.enVivo.join(',');
 export const VERSION_API_EN_VIVO_POR_OMISION = 'v1beta';
 
 export function modelosEnVivo(env: string | undefined = process.env.GEMINI_LIVE_MODEL): string[] {
-  const lista = (env || MODELOS_EN_VIVO_POR_OMISION).split(',').map((m) => m.trim()).filter(Boolean);
-  return lista.length ? lista : MODELOS_EN_VIVO_POR_OMISION.split(',');
+  const lista = (env || '').split(',').map((m) => m.trim()).filter(Boolean);
+  return lista.length ? lista : [...MODELOS_GEMINI.enVivo];
 }
 
 export function versionApiEnVivo(env: string | undefined = process.env.GEMINI_LIVE_API_VERSION): string {
@@ -212,14 +214,11 @@ export function armarCuerpoFicha({ modelo, voz, instrucciones, minutos, ahora = 
 }
 
 export function direccionDeLaFicha(apiKey: string, version = versionApiEnVivo()): string {
-  return `https://generativelanguage.googleapis.com/${version}/auth_tokens?key=${encodeURIComponent(apiKey)}`;
+  return construirUrlFichaVozEnVivo(apiKey, version);
 }
 
 export function direccionDelSocket(ficha: string, version = versionApiEnVivo()): string {
-  return (
-    `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${version}` +
-    `.GenerativeService.BidiGenerateContentConstrained?access_token=${encodeURIComponent(ficha)}`
-  );
+  return construirUrlSocketVozEnVivo(ficha, version);
 }
 
 /** Cuánto contexto del negocio se le da a la voz (corto: se lo va a decir hablando). */

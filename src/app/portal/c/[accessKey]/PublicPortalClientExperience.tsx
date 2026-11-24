@@ -42,6 +42,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -708,9 +709,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
    * momento no tiene texto para el cliente, va sin texto. Antes, cuando faltaba el
    * texto del cliente, se mostraba la anotacion del equipo.
    */
-  const programaItems = (fiesta?.programa ?? [])
-    .filter((item: any) => item?.visibleParaCliente !== false)
-    .map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || '' }));
+  const programaItems = ordenarPorHoraDelEvento(
+    (fiesta?.programa ?? []).filter((item: any) => item?.visibleParaCliente !== false),
+    fiesta?.configuracion?.horaInicio,
+  ).map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || '' }));
   const timelineItems = programaItems.length > 0
     ? programaItems
     : (fiesta?.timeline ?? []).map((item: any) => ({ id: item.id, time: formatShortDate(item.fechaProgramada), title: item.nombre, text: item.notas }));
@@ -1519,6 +1521,16 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.notaDecoracionParaElCliente && !fiesta?.decoracion?.salonPreview3dUrl && (!fiesta?.decoracion?.salonElements || fiesta.decoracion.salonElements.length === 0) && (
                       <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />
                     )}
+                    {fiesta?.id && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                        <a href={`/portal/${fiesta.id}/decoracion`} className="inline-flex items-center justify-center rounded-lg border px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">
+                          Abrir propuesta de decoración
+                        </a>
+                        <a href={`/portal/${fiesta.id}/moodboard`} className="inline-flex items-center justify-center rounded-lg border px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">
+                          Abrir moodboard
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1571,6 +1583,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   Se ha pagado {formatPortalMoney(paymentSummary.paid)} de un total de {formatPortalMoney(paymentSummary.total)}
                 </p>
               </div>
+              {fiesta?.id && (fiesta?.contratoServicioTexto || fiesta?.contratoFirmaInfo) && (
+                <div className="rounded-xl border bg-slate-50 p-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      {fiesta.contratoFirmaInfo?.isSigned ? 'Contrato firmado ✅' : 'Contrato pendiente de firma'}
+                    </p>
+                    <p className="text-xs text-slate-500">Revisá y firmá digitalmente tu contrato del evento.</p>
+                  </div>
+                  <a href={`/portal/${fiesta.id}/contrato`} className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800 shrink-0">
+                    {fiesta.contratoFirmaInfo?.isSigned ? 'Ver contrato' : 'Firmar contrato'}
+                  </a>
+                </div>
+              )}
 
               {nextPaymentInfo && nextPaymentInfo.daysLeft !== null && (
                 <div className={`rounded-xl border p-4 text-sm mt-3 flex items-start gap-3 ${

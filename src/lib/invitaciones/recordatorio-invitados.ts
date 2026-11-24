@@ -3,6 +3,18 @@ import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+
+function debeOmitirFiestaEnRecordatorios(fiesta: FiestaEnPlanificacion | null | undefined): boolean {
+  if (!fiesta) return true;
+  if ((fiesta as { esMuestra?: boolean }).esMuestra || esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) {
+    return true;
+  }
+  const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
+  return ['suspendida', 'suspendido', 'archivada', 'archivado', 'cancelada', 'cancelado'].includes(estado);
+}
 
 export async function correrTareaRecordatorioInvitados(): Promise<{
   ok: boolean;
@@ -15,6 +27,7 @@ export async function correrTareaRecordatorioInvitados(): Promise<{
   const errores: string[] = [];
 
   for (const fiesta of fiestas) {
+    if (debeOmitirFiestaEnRecordatorios(fiesta)) continue;
     const fechaStr = fiesta.configuracion?.fechaEvento;
     if (!fechaStr) continue;
 

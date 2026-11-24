@@ -24,7 +24,7 @@ describe("entertainment runtime boundaries", () => {
 
   it("keeps configuration administrative while public uploads require scoped station access", () => {
     const source = read("src/app/actions/fiesta/entretenimiento.actions.ts");
-    const protectedCalls = source.match(/await requireAppSession\(\);/g) ?? [];
+    const protectedCalls = source.match(/await (?:requireAppSession\(\)|requireEventPermission\([^)]+\));/g) ?? [];
 
     expect(protectedCalls.length).toBeGreaterThanOrEqual(3);
     expect(source).toContain(

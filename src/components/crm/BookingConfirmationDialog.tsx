@@ -101,10 +101,11 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
       const result = await confirmBookingWithContract(formData);
       if (result.success && result.fiestaId) {
+        const avisoSena = result.avisoDeLaSena || result.aviso;
         toast({
           title: "¡Contratación Exitosa!",
-          description: result.aviso || "Se ha creado el cliente y activado el evento automáticamente.",
-          ...(result.aviso ? { variant: "destructive" as const } : {}),
+          description: avisoSena || "Se ha creado el cliente y activado el evento automáticamente.",
+          ...(avisoSena ? { variant: "destructive" as const } : {}),
         });
         onConfirmed(result.fiestaId);
       } else {

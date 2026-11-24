@@ -746,7 +746,9 @@ export async function ejecutarAccionSecretario(input: {
   resultado?: any;
   error?: string;
 }> {
-  await requireAppSession();
+  const { requirePermisoAlguno } = await import('@/lib/auth/require-session');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const { accion, datos = {}, confirmado } = input;
 
   if (accion === 'agendar_reunion') {
@@ -764,6 +766,8 @@ export async function ejecutarAccionSecretario(input: {
     }
 
     try {
+      const { exigirQueNoSalgaAfuera } = await import('@/lib/auth/solo-lectura');
+      await exigirQueNoSalgaAfuera();
       const { upsertGoogleCalendarEvent } = await import('@/lib/google-workspace');
       const { readData } = await import('@/lib/data-service');
       const accounts = await readData<any[]>('_google-workspace-accounts.json', []);
@@ -847,6 +851,8 @@ export async function ejecutarAccionSecretario(input: {
     }
 
     try {
+      const { exigirQueNoSalgaAfuera } = await import('@/lib/auth/solo-lectura');
+      await exigirQueNoSalgaAfuera();
       const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
       const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
 

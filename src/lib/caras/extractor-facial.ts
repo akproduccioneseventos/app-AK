@@ -85,19 +85,24 @@ export async function extraerDescriptorFacial(
 
     const faceapi = await import(/* webpackMode: "eager" */ '@vladmandic/face-api');
 
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const inferencia = (async () => {
-      const deteccion = await faceapi
-        .detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
-        .withFaceLandmarks(true)
-        .withFaceDescriptor();
+      try {
+        const deteccion = await faceapi
+          .detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+          .withFaceLandmarks(true)
+          .withFaceDescriptor();
 
-      if (!deteccion?.descriptor) return null;
-      return Array.from(deteccion.descriptor);
+        if (!deteccion?.descriptor) return null;
+        return Array.from(deteccion.descriptor);
+      } finally {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+      }
     })();
 
-    const timeoutInferencia = new Promise<null>((resolve) =>
-      setTimeout(() => resolve(null), 1000)
-    );
+    const timeoutInferencia = new Promise<null>((resolve) => {
+      timeoutId = setTimeout(() => resolve(null), 8000);
+    });
 
     return await Promise.race([inferencia, timeoutInferencia]);
   } catch (err) {

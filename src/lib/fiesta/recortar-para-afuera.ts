@@ -34,6 +34,11 @@ export const CAMPOS_DEL_EQUIPO = [
   'referidosGenerados',
 ] as const;
 
+export const CAMPOS_PROTEGIDOS_DEL_PORTAL = [
+  'modulosContratados',
+  'clientPortalSettings',
+] as const;
+
 export const CAMPOS_DEL_CLIENTE = [
   'clientPortalSettings',
   'contratoServicioTexto',

@@ -575,6 +575,33 @@ export async function applyFaceSwap(
 
   try {
     await ensureTouchpixAccess(fiestaId, accessToken || undefined);
+
+    const photoSessionId = formData.get("photoSessionId") as string | null;
+    const guestIdentity = photoSessionId
+      ? `touchpix-swap-${fiestaId}-${photoSessionId}`
+      : sourceFile
+      ? `swap-${sourceFile.name}-${sourceFile.size}`
+      : `fiesta-${fiestaId}`;
+    try {
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai",
+        identity: guestIdentity,
+        limit: 3,
+        windowMs: 15 * 60_000,
+      });
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai-estacion",
+        identity: `fiesta-${fiestaId}`,
+        ignoreClientAddress: true,
+        limit: 150,
+        windowMs: 60 * 60_000,
+      });
+    } catch (rateError: any) {
+      if (rateError?.message === "Rate limit exceeded") {
+        return { success: false, error: "Límite de 3 intentos alcanzado para esta foto. Por favor, toma una nueva foto." };
+      }
+      return { success: false, error: rateError?.message || "Sesión no autorizada." };
+    }
   } catch (error: any) {
     return { success: false, error: error.message || "Sesion no autorizada." };
   }
@@ -620,6 +647,19 @@ export async function applyFaceSwap(
         faceSwapApplied: false,
       };
     }
+
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import(
+      "@/lib/ai/consumo-servidor"
+    );
+    if (!(await hayPresupuestoParaIA())) {
+      logger.warn("[touchpix-ai] Tope de gasto mensual alcanzado — se devuelve la foto sin face swap.");
+      return {
+        success: true,
+        imageBase64: sourceBase64,
+        faceSwapApplied: false,
+      };
+    }
+    await registrarConsumoIA("touchpix");
 
     const imageReferences = [
       { base64: sourceBase64, contentType: sourceContentType },

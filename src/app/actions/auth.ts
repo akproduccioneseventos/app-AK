@@ -1459,6 +1459,10 @@ export async function chequearAvisoAuditor14Dias(ahora: Date = new Date()): Prom
   abiertoEl?: string;
   activo?: boolean;
 }> {
+  const session = await verifySession();
+  if (!session.success || !session.user || perfilDe(session.user) !== 'dueno') {
+    return { debeAvisar: false };
+  }
   if (!dbAdmin) return { debeAvisar: false };
 
   try {

@@ -1022,6 +1022,34 @@ def generar_intro_ak(
     return cuadro
 
 
+def _emparejar_fotos_boda_paralelo(fotos_ordenadas: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Empareja fotos de 'Él' y 'Ella' en cuadros en pantalla partida cuando ambos tienen fotos."""
+    fotos_el = [f for f in fotos_ordenadas if f.get("rol_boda") == "el" or f.get("capitulo") == "Él"]
+    fotos_ella = [f for f in fotos_ordenadas if f.get("rol_boda") == "ella" or f.get("capitulo") == "Ella"]
+
+    if not fotos_el or not fotos_ella:
+        return fotos_ordenadas
+
+    pares = min(len(fotos_el), len(fotos_ella))
+    ids_ella_consumidas = {id(fotos_ella[i]) for i in range(pares)}
+    indice_ella_por_el = {id(fotos_el[i]): fotos_ella[i] for i in range(pares)}
+
+    resultado: List[Dict[str, Any]] = []
+    for f in fotos_ordenadas:
+        if id(f) in ids_ella_consumidas:
+            continue
+        pareja = indice_ella_por_el.get(id(f))
+        if pareja is not None:
+            copia = dict(f)
+            copia["ruta_paralelo_ella"] = pareja.get("ruta")
+            copia["orientacion_ella"] = pareja.get("orientacion", 1)
+            copia["capitulo"] = "Él · Ella"
+            resultado.append(copia)
+        else:
+            resultado.append(f)
+    return resultado
+
+
 def exportar_video_de_vida(
     fotos_ordenadas: List[Dict[str, Any]],
     ruta_salida_mp4: str,
@@ -1039,6 +1067,7 @@ def exportar_video_de_vida(
     - Vista previa liviana (480p) o Final (1080p).
     - Intro con logo AK y nombre.
     - Fotos con movimiento suave hacia la cara y transiciones.
+    - En modo boda con fotos de Él y Ella, usa pantalla partida lado a lado.
     - Cierre con dedicatoria.
     """
     if es_vista_previa:
@@ -1049,6 +1078,8 @@ def exportar_video_de_vida(
     carpeta_padre = os.path.dirname(ruta_salida_mp4)
     if carpeta_padre:
         os.makedirs(carpeta_padre, exist_ok=True)
+
+    fotos_render = _emparejar_fotos_boda_paralelo(fotos_ordenadas)
 
     plantilla = cargar_plantilla(plantilla_id)
     plantilla_final = combinar_estilo_con_plantilla(plantilla, config_estilo)
@@ -1062,7 +1093,7 @@ def exportar_video_de_vida(
             golpes = []
 
     # Ajustar tiempos de las fotos a los golpes de música (Orden 298 - Bloque 2)
-    tiempos_cambio = ajustar_tiempos_a_golpes(len(fotos_ordenadas), golpes)
+    tiempos_cambio = ajustar_tiempos_a_golpes(len(fotos_render), golpes)
 
     # Configurar VideoWriter
     tiene_audio = bool(ruta_audio and os.path.exists(ruta_audio))
@@ -1087,11 +1118,11 @@ def exportar_video_de_vida(
             writer.write(cuadro_nombre)
 
         # 3. Fotos con movimiento
-        total_fotos = len(fotos_ordenadas)
+        total_fotos = len(fotos_render)
         duraciones_seg = 3.0
         cuadros_por_foto = int(duraciones_seg * fps)
 
-        for idx, f in enumerate(fotos_ordenadas):
+        for idx, f in enumerate(fotos_render):
             if progreso_callback:
                 progreso_callback(idx + 1, total_fotos, f"Procesando foto {idx+1}/{total_fotos}")
 
@@ -1111,12 +1142,24 @@ def exportar_video_de_vida(
             # Mejorar suave
             img_mej, _ = mejorar_foto_suave(img_ori)
 
-            # Fondo 16:9 sin barras negras
-            img_lienzo = preparar_fondo_16_9(img_mej, ancho, alto)
+            ruta_ella = f.get("ruta_paralelo_ella")
+            img_ella_mej = None
+            if ruta_ella and os.path.exists(ruta_ella):
+                img_ella_raw = _leer_imagen_unicode(ruta_ella, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
+                if img_ella_raw is not None:
+                    img_ella_ori = corregir_orientacion(img_ella_raw, f.get("orientacion_ella", 1))
+                    img_ella_mej, _ = mejorar_foto_suave(img_ella_ori)
 
-            # Detección de caras y encuadre
-            caras = detectar_caras(img_lienzo)
-            cara_ppal = caras[0] if caras else None
+            if img_ella_mej is not None:
+                # Boda en paralelo: Él (izquierda) y Ella (derecha) en pantalla partida
+                img_lienzo = generar_cuadro_boda_paralelo(img_mej, img_ella_mej, ancho, alto)
+                cara_ppal = None
+            else:
+                # Fondo 16:9 sin barras negras
+                img_lienzo = preparar_fondo_16_9(img_mej, ancho, alto)
+                # Detección de caras y encuadre
+                caras = detectar_caras(img_lienzo)
+                cara_ppal = caras[0] if caras else None
             sentido = "acercar" if idx % 2 == 0 else "alejar"
 
             # Duración adaptada a los golpes de música

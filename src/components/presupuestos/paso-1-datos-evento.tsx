@@ -74,7 +74,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
 
-  const finalEventType = formData.eventoTipo.trim();
+  const finalEventType = (formData.eventoTipo || '').trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
 
   return (

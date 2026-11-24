@@ -45,6 +45,7 @@ import {
   buildAnnualAdjustmentProjection,
   calculatePricePerPerson,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+  getYearFromDate,
 } from '@/lib/budget/formal-budget';
 import { montoDeSenia } from '@/lib/budget/monto-de-senia';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
@@ -253,7 +254,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
     const brutoVenta = itemsRecalculados.filter(i => !i.esRegalo).reduce((sum, i) => sum + i.costoTotalItem, 0);
     const regalosVal = itemsRecalculados.filter(i => i.esRegalo).reduce((sum, i) => {
-        const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitario };
+        const precioVentaRegalo = (Number(i.precioUnitarioPresupuesto) > 0 ? i.precioUnitarioPresupuesto : undefined) ?? i.precioUnitario;
+        const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: precioVentaRegalo };
         return sum + recalcularCostoItem(itemNormal, adultos, adolescentes, ninos);
     }, 0);
 
@@ -262,7 +264,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     else if (presupuesto.descuentoTipo === 'fijo') bonificacion = presupuesto.descuentoValor || 0;
 
     const discountAmount = financials.discount || Math.round(bonificacion);
-    const totalVigente = Math.max(0, brutoVenta - discountAmount);
+    const totalVigente = financials.total;
 
     const agrupados = itemsRecalculados.reduce((acc, item) => {
       const cat = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros');
@@ -280,10 +282,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const sortedAgrupados: Record<string, any[]> = {};
     sortedCategories.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
+    const baseYear = getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? new Date().getFullYear();
     const projection = buildAnnualAdjustmentProjection({
       baseTotal: totalVigente,
       eventDate: presupuesto.eventoFecha,
-      currentYear: new Date(presupuesto.timestamp).getFullYear(),
+      currentYear: baseYear,
       adjustmentPct: adjustmentPct,
     });
 
@@ -308,26 +311,72 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const handlePrint = async () => {
     if (!presupuesto || !budgetDocumentRef.current || isDownloading) return;
     setIsDownloading(true);
+    let tempWrapper: HTMLDivElement | null = null;
     try {
       const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      await pdf.html(budgetDocumentRef.current, {
+      const sourceEl = budgetDocumentRef.current;
+
+      tempWrapper = document.createElement('div');
+      tempWrapper.style.position = 'fixed';
+      tempWrapper.style.left = '-12000px';
+      tempWrapper.style.top = '0';
+      tempWrapper.style.width = '794px';
+      tempWrapper.style.maxWidth = '794px';
+      tempWrapper.style.boxSizing = 'border-box';
+      tempWrapper.style.backgroundColor = '#ffffff';
+      tempWrapper.style.pointerEvents = 'none';
+
+      const clone = sourceEl.cloneNode(true) as HTMLElement;
+      clone.style.width = '794px';
+      clone.style.maxWidth = '794px';
+      clone.style.boxSizing = 'border-box';
+      clone.style.margin = '0';
+
+      const printArea = clone.id === 'budget-print-area'
+        ? clone
+        : (clone.querySelector('#budget-print-area') as HTMLElement | null);
+      if (printArea) {
+        printArea.style.width = '794px';
+        printArea.style.maxWidth = '794px';
+        printArea.style.boxSizing = 'border-box';
+        printArea.style.border = 'none';
+        printArea.style.borderRadius = '0';
+        printArea.style.boxShadow = 'none';
+        printArea.style.padding = '24px';
+        printArea.style.overflowWrap = 'anywhere';
+      }
+      clone.querySelectorAll('.budget-print-page-number').forEach((el) => el.remove());
+
+      tempWrapper.appendChild(clone);
+      document.body.appendChild(tempWrapper);
+
+      await pdf.html(clone, {
         autoPaging: 'text',
-        margin: [12, 12, 16, 12],
-        width: 186,
-        windowWidth: 1024,
+        margin: [10, 10, 10, 10],
+        width: 190,
+        windowWidth: 794,
         html2canvas: {
           backgroundColor: '#ffffff',
-          scale: 0.8,
+          scale: 1,
           useCORS: true,
         },
       });
+
+      while (pdf.getNumberOfPages() > 1) {
+        const lastPage = pdf.getNumberOfPages();
+        const pageStream = (pdf as any).internal?.pages?.[lastPage];
+        const content = Array.isArray(pageStream) ? pageStream.join('\n') : '';
+        if (/\b(Tj|TJ|Do)\b/.test(content)) break;
+        pdf.deletePage(lastPage);
+      }
+
       const totalPages = pdf.getNumberOfPages();
       for (let page = 1; page <= totalPages; page += 1) {
         pdf.setPage(page);
         pdf.setFontSize(8);
         pdf.setTextColor(100);
-        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+        pdf.text(`Página ${page} de ${totalPages}`, 200, 291, { align: 'right' });
       }
       const filename = `presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`;
       if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -356,6 +405,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         variant: 'destructive',
       });
     } finally {
+      if (tempWrapper && tempWrapper.parentNode) {
+        tempWrapper.parentNode.removeChild(tempWrapper);
+      }
       setIsDownloading(false);
     }
   };
@@ -739,11 +791,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     Boolean(presupuesto.fechaFirmaContrato);
   const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
   const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+  const contractBaseYear = isContracted
+    ? (getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? currentYear)
+    : currentYear;
   const annualProjection = buildAnnualAdjustmentProjection({
     baseTotal: calculatedValues.totalVigente,
     eventDate: presupuesto.eventoFecha,
     adjustmentPct,
-    currentYear,
+    currentYear: contractBaseYear,
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 

@@ -127,6 +127,7 @@ export default function MuroEnVivoPage() {
   const [eventPrograma, setEventPrograma] = useState<any[]>([]);
   const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>(undefined);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [eventNotFound, setEventNotFound] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
   const [qrUrl, setQrUrl] = useState<string>('');
@@ -274,6 +275,7 @@ export default function MuroEnVivoPage() {
       }
 
       if (fiestaData) {
+        setEventNotFound(false);
         if (!eventName) setEventName(fiestaData.configuracion?.nombreEvento || '');
         if (fiestaData.programa) setEventPrograma(fiestaData.programa);
         if (fiestaData.socialGallerySettings?.mobileControlCoverUrl) {
@@ -284,12 +286,19 @@ export default function MuroEnVivoPage() {
         setRankingTrivia(fiestaData.rankingJuegos?.trivia ?? []);
 
         if (isZonaDigitalFeatureEnabled(fiestaData.zonaDigitalAdolescentes, 'transmision_invitado')) {
-          getActiveLiveStreamForScreen(fiestaId)
+          const screenToken =
+            typeof window !== 'undefined'
+              ? new URLSearchParams(window.location.search).get('access') || undefined
+              : undefined;
+          getActiveLiveStreamForScreen(fiestaId, screenToken)
             .then((stream) => setActiveLiveStream(stream))
             .catch(() => undefined);
         } else {
           setActiveLiveStream(null);
         }
+      } else {
+        setEventNotFound(true);
+        setActiveLiveStream(null);
       }
       if (fiestaData?.socialGallerySettings) {
         setSettings((prev) => ({ ...prev, ...fiestaData.socialGallerySettings }));
@@ -621,14 +630,33 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
+          {/* Evento no encontrado */}
+          {isLoaded && eventNotFound && (
+            <section
+              data-testid="live-wall-not-found"
+              className="absolute inset-0 grid place-items-center bg-slate-950 px-8 text-center text-white"
+              aria-live="polite"
+            >
+              <div className="max-w-2xl space-y-5">
+                <Camera className="mx-auto h-14 w-14 text-slate-400" aria-hidden="true" />
+                <h1 className="text-4xl font-black leading-tight sm:text-5xl">
+                  Evento no encontrado
+                </h1>
+                <p className="text-lg text-slate-300">
+                  Este muro no está disponible o la fiesta no existe. Revisá el enlace con el organizador.
+                </p>
+              </div>
+            </section>
+          )}
+
           {/* Empty state (solo en slide de mural; otros slides muestran su propio estado vacío) */}
-          {isLoaded && settings.privateDedicationsMode !== true && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length === 0 && settings.enabled !== false && (
+          {isLoaded && !eventNotFound && settings.privateDedicationsMode !== true && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length === 0 && settings.enabled !== false && (
             <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
           {/* Muro apagado para esta fiesta. Sin este cartel la pantalla del salon
               quedaba completamente en blanco y nadie sabia por que. */}
-          {isLoaded && settings.enabled === false && settings.privateDedicationsMode !== true && (
+          {isLoaded && !eventNotFound && settings.enabled === false && settings.privateDedicationsMode !== true && (
             <section
               data-testid="live-wall-disabled"
               className="absolute inset-0 grid place-items-center bg-slate-950 px-8 text-center text-white"
@@ -648,7 +676,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
-          {isLoaded && settings.privateDedicationsMode === true &&
+          {isLoaded && !eventNotFound && settings.privateDedicationsMode === true &&
             (!activeScreenItem || ['mural', 'dedicaciones', 'chat'].includes(activeScreenItem.type)) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white animate-fade-in">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_60%)] animate-pulse" />
@@ -689,7 +717,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Mural / photo slideshow — only shown when wall is enabled */}
-          {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
+          {isLoaded && !eventNotFound && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
             settings.currentLayout === 'masonry'
               ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
               : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} eventName={eventName} />
@@ -875,7 +903,15 @@ export default function MuroEnVivoPage() {
         </div>
 
         {activeLiveStream && shouldDisplayLiveStreamOnScreen(activeLiveStream) && (
-          <LiveStreamScreenReceiver fiestaId={fiestaId} streamRequest={activeLiveStream} />
+          <LiveStreamScreenReceiver
+          fiestaId={fiestaId}
+          streamRequest={activeLiveStream}
+          screenToken={
+            typeof window !== 'undefined'
+              ? new URLSearchParams(window.location.search).get('access') || undefined
+              : undefined
+          }
+        />
         )}
 
         {/* ── Right side panel: poll or game overlay ── */}
@@ -1424,6 +1460,7 @@ function AudioRhythmSlide({
   const [audioLevel, setAudioLevel] = useState(0.45);
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
   const rafRef = useRef<number | null>(null);
   const visiblePosts = posts.slice(0, 9);
 
@@ -1448,6 +1485,10 @@ function AudioRhythmSlide({
       if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
     };
   }, [config.enabled]);
 
@@ -1469,8 +1510,12 @@ function AudioRhythmSlide({
         return;
       }
       mediaStreamRef.current = stream;
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContextCtor();
+      audioCtxRef.current = context;
       const source = context.createMediaStreamSource(stream);
       const analyzer = context.createAnalyser();
       analyzer.fftSize = 128;

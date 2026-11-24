@@ -60,8 +60,8 @@ function PhotoUploadRow({ id, label, currentUrl, onUploaded }: PhotoUploadRowPro
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
-      <div className="relative h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
+    <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-zinc-800 bg-zinc-900">
+      <div className="relative h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 flex items-center justify-center">
         {previewUrl && !imgError && isSafeUrl(previewUrl) ? (
           <Image
             src={previewUrl}
@@ -72,15 +72,15 @@ function PhotoUploadRow({ id, label, currentUrl, onUploaded }: PhotoUploadRowPro
             onError={() => setImgError(true)}
           />
         ) : (
-          <Camera className="h-6 w-6 text-white/30" />
+          <Camera className="h-6 w-6 text-zinc-400" />
         )}
       </div>
 
       {/* Label */}
       <div className="flex-1 min-w-0">
-        <p className="text-white/80 text-sm font-medium truncate">{label}</p>
+        <p className="text-zinc-100 text-sm font-medium truncate">{label}</p>
         {previewUrl && !imgError && (
-          <p className="text-emerald-400 text-xs flex items-center gap-1 mt-0.5">
+          <p className="text-emerald-300 text-xs flex items-center gap-1 mt-0.5">
             <Check className="h-3 w-3" /> Foto cargada
           </p>
         )}
@@ -91,7 +91,7 @@ function PhotoUploadRow({ id, label, currentUrl, onUploaded }: PhotoUploadRowPro
         type="button"
         disabled={uploading}
         onClick={() => inputRef.current?.click()}
-        className="shrink-0 flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
+        className="shrink-0 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/50 text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
       >
         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
         {uploading ? 'Subiendo...' : 'Subir foto'}
@@ -202,23 +202,23 @@ export default function PresentacionLedConfiguracionPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+      <div className="flex items-center justify-center min-h-screen bg-zinc-950 rounded-2xl">
         <Loader2 className="h-12 w-12 text-indigo-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur-sm border-b border-white/10 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-800 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Link href="/empresa" className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+          <Link href="/empresa" className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
             <h1 className="text-white font-black text-xl">Fotos del Presentador LED</h1>
-            <p className="text-slate-200 text-sm">Subí fotos directamente desde tu PC para cada servicio y menú</p>
+            <p className="text-zinc-300 text-sm">Subí fotos directamente desde tu PC para cada servicio y menú</p>
           </div>
         </div>
         <Button
@@ -233,9 +233,9 @@ export default function PresentacionLedConfiguracionPage() {
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-10">
         {/* Info banner */}
-        <div className="bg-indigo-500/10 border border-indigo-400/30 rounded-2xl p-4 flex items-start gap-3">
+        <div className="bg-indigo-950 border border-indigo-500/40 rounded-2xl p-4 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-indigo-300 shrink-0 mt-0.5" />
-          <p className="text-indigo-200 text-sm">
+          <p className="text-indigo-100 text-sm">
             Estas fotos se muestran en el Presentador LED durante la presentación con el cliente.
             Las fotos se suben directamente desde tu computadora y quedan guardadas permanentemente.
           </p>
@@ -243,28 +243,28 @@ export default function PresentacionLedConfiguracionPage() {
 
         {/* Plan de pagos image */}
         <section>
-          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-white/10">
+          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-zinc-800">
             Imagen — Slide Plan de Pagos
           </h2>
-          <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
-            <div className="h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
+          <div className="flex flex-wrap items-center gap-4 p-3 rounded-xl border border-zinc-800 bg-zinc-900">
+            <div className="h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 flex items-center justify-center">
               {planPagosUrl && isSafeUrl(planPagosUrl) ? (
                 <div className="relative h-full w-full">
                   <Image src={planPagosUrl} alt="Plan de pagos" fill unoptimized className="object-cover" />
                 </div>
               ) : (
-                <Camera className="h-6 w-6 text-white/30" />
+                <Camera className="h-6 w-6 text-zinc-400" />
               )}
             </div>
             <div className="flex-1 min-w-[10rem]">
-              <p className="text-white/80 text-sm font-medium">Foto de fondo para el slide "Plan de Pagos"</p>
-              {planPagosUrl && <p className="text-emerald-400 text-xs flex items-center gap-1 mt-0.5"><Check className="h-3 w-3" /> Cargada</p>}
+              <p className="text-zinc-100 text-sm font-medium">Foto de fondo para el slide "Plan de Pagos"</p>
+              {planPagosUrl && <p className="text-emerald-300 text-xs flex items-center gap-1 mt-0.5"><Check className="h-3 w-3" /> Cargada</p>}
             </div>
             <button
               type="button"
               disabled={uploadingPlanPagos}
               onClick={() => planPagosRef.current?.click()}
-              className="shrink-0 flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
+              className="shrink-0 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/50 text-white rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
             >
               {uploadingPlanPagos ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               {uploadingPlanPagos ? 'Subiendo...' : 'Subir foto'}
@@ -285,11 +285,11 @@ export default function PresentacionLedConfiguracionPage() {
 
         {/* Services photos */}
         <section>
-          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-white/10">
+          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-zinc-800">
             Fotos por Servicio ({servicios.length})
           </h2>
           {servicios.length === 0 ? (
-            <p className="text-white/50 text-sm">No hay servicios configurados.</p>
+            <p className="text-zinc-300 text-sm">No hay servicios configurados.</p>
           ) : (
             <div className="space-y-2">
               {servicios.map(srv => (
@@ -307,11 +307,11 @@ export default function PresentacionLedConfiguracionPage() {
 
         {/* Menu items photos */}
         <section>
-          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-white/10">
+          <h2 className="text-white font-bold text-lg mb-4 pb-2 border-b border-zinc-800">
             Fotos por Ítem de Menú ({allMenuItems.length})
           </h2>
           {allMenuItems.length === 0 ? (
-            <p className="text-white/50 text-sm">No hay ítems de menú configurados.</p>
+            <p className="text-zinc-300 text-sm">No hay ítems de menú configurados.</p>
           ) : (
             <div className="space-y-2">
               {allMenuItems.map(item => (
@@ -328,7 +328,7 @@ export default function PresentacionLedConfiguracionPage() {
         </section>
 
         {/* Save button at bottom */}
-        <div className="flex justify-end pt-4 border-t border-white/10">
+        <div className="flex justify-end pt-4 border-t border-zinc-800">
           <Button
             onClick={handleSave}
             disabled={saving}

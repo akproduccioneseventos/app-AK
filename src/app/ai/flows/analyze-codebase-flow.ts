@@ -1,6 +1,8 @@
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { z } from 'genkit';
 
 const AnalyzeCodebaseInputSchema = z.object({
@@ -24,6 +26,11 @@ const AnalyzeCodebaseOutputSchema = z.object({
 export type AnalyzeCodebaseOutput = z.infer<typeof AnalyzeCodebaseOutputSchema>;
 
 export async function analyzeCodebase(input: AnalyzeCodebaseInput): Promise<AnalyzeCodebaseOutput> {
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
+  if (!(await hayPresupuestoParaIA().catch(() => false))) {
+    return fallbackAnalysis('Se alcanzó el tope mensual de IA.');
+  }
   return analyzeCodebaseFlow(input);
 }
 
@@ -74,10 +81,12 @@ const analyzeCodebaseFlow = ai.defineFlow(
   },
   async input => {
     try {
-      const { output } = await prompt(input);
+      const { registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+      const { output } = await ejecutarPromptConFallback(prompt, input, geminiModel);
       if (!output) {
         return fallbackAnalysis('La IA no devolvió un diagnóstico válido. Se evita mostrar un falso “todo completo”.');
       }
+      await registrarConsumoIA('analisis-codigo').catch(() => undefined);
       return output;
     } catch (error) {
       return fallbackAnalysis(error instanceof Error ? error.message : 'Error desconocido en el análisis automático.');

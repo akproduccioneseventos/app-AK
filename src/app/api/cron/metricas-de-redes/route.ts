@@ -95,6 +95,7 @@ async function correrTarea(request: Request) {
     })).catch(() => ({ error: 'No se pudo actualizar la cola de decoracion.' }));
 
     // Generar revisión diaria con IA y 3 propuestas para hoy
+    let revisionError: string | null = null;
     try {
       const [posts, connections] = await Promise.all([
         readData<any[]>('social-posts.json', []),
@@ -104,27 +105,58 @@ async function correrTarea(request: Request) {
       if (revision) {
         await mutarDocumento('presencia-digital-revision.json', revision, () => revision);
       }
-    } catch (err) {
+    } catch (err: any) {
+      revisionError = err?.message || 'Error generando revisión diaria.';
       console.warn('[cron-metricas-redes] Error generando revisión diaria:', err);
     }
 
-    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
-    // una tarea automatica esta funcionando o solo esta escrita.
-    await marcarCorrida('metricas-de-redes');
+    const fallos: string[] = [];
+    if ((historialMeta as any)?.error) fallos.push(`Meta: ${(historialMeta as any).error}`);
+    else if (Array.isArray(historialMeta?.platforms)) {
+      for (const p of historialMeta.platforms) {
+        if (p?.mode !== 'skipped' && p?.error) fallos.push(`Meta (${p.platform}): ${p.error}`);
+      }
+    }
+    if ((historialYouTube as any)?.error) fallos.push(`YouTube: ${(historialYouTube as any).error}`);
+    if ((historialOtrasRedes as any)?.error) fallos.push(`Otras redes: ${(historialOtrasRedes as any).error}`);
+    else if (Array.isArray(historialOtrasRedes?.platforms)) {
+      for (const p of historialOtrasRedes.platforms as any[]) {
+        if (p?.mode !== 'skipped' && p?.error) fallos.push(`${p.platform || 'Red'}: ${p.error}`);
+      }
+    }
+    if ((comentariosSincronizados as any)?.error) fallos.push(`Comentarios: ${(comentariosSincronizados as any).error}`);
+    if (competencia && 'ok' in competencia && competencia.ok === false) {
+      fallos.push(`Competencia: ${(competencia as any).error || 'Error en sincronización de competencia'}`);
+    }
+    if (decoracion && 'error' in decoracion && (decoracion as any).error) {
+      fallos.push(`Decoración: ${(decoracion as any).error}`);
+    }
+    if (revisionError) fallos.push(`Revisión diaria: ${revisionError}`);
 
-    return NextResponse.json(respuestaDeLaTarea(puerta, {
-      ok: true,
-      guardado: resultado.guardado,
-      fecha: resultado.fecha,
-      historialPublico: {
-        meta: historialMeta,
-        youtube: historialYouTube,
-        otrasRedes: historialOtrasRedes,
-      },
-      comentarios: comentariosSincronizados,
-      competencia,
-      decoracion,
-    }));
+    const ok = fallos.length === 0;
+    if (ok) {
+      // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
+      // una tarea automatica esta funcionando o solo esta escrita.
+      await marcarCorrida('metricas-de-redes');
+    }
+
+    return NextResponse.json(
+      respuestaDeLaTarea(puerta, {
+        ok,
+        guardado: resultado.guardado,
+        fecha: resultado.fecha,
+        historialPublico: {
+          meta: historialMeta,
+          youtube: historialYouTube,
+          otrasRedes: historialOtrasRedes,
+        },
+        comentarios: comentariosSincronizados,
+        competencia,
+        decoracion,
+        ...(fallos.length > 0 ? { fallos } : {}),
+      }),
+      { status: ok ? 200 : 500 },
+    );
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);
     return NextResponse.json(

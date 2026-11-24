@@ -1,6 +1,8 @@
 'use server';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { exigirQueNoSalgaAfuera } from '@/lib/auth/solo-lectura';
 import {
   getStoredComments,
   getCommentsBackfillState,
@@ -38,7 +40,8 @@ export interface CommentsDashboardResponse {
  */
 export async function getSocialCommentsDashboardAction(): Promise<CommentsDashboardResponse> {
   try {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
 
     const comments = await getStoredComments();
     const backfillState = await getCommentsBackfillState();
@@ -81,7 +84,9 @@ export async function getSocialCommentsDashboardAction(): Promise<CommentsDashbo
  */
 export async function triggerCommentsSyncAction(full: boolean = false) {
   try {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    await exigirQueNoSalgaAfuera();
 
     const result = await syncCommentsFromNetworks({ full });
     return { success: true, result };
@@ -95,7 +100,9 @@ export async function triggerCommentsSyncAction(full: boolean = false) {
  */
 export async function restoreHiddenCommentAction(commentId: string) {
   try {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    await exigirQueNoSalgaAfuera();
 
     return await restoreHiddenCommentInternal(commentId);
   } catch (error: any) {
@@ -108,7 +115,9 @@ export async function restoreHiddenCommentAction(commentId: string) {
  */
 export async function hideCommentAction(commentId: string) {
   try {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    await exigirQueNoSalgaAfuera();
 
     return await hideCommentInternal(commentId);
   } catch (error: any) {
@@ -124,7 +133,9 @@ export async function publishCommentAsTestimonialAction(
   screenshotUrl?: string
 ) {
   try {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+    await exigirQueNoSalgaAfuera();
 
     const comments = await readData<SocialComment[]>(COMMENTS_FILE, []);
     const idx = comments.findIndex((c) => c.id === commentId);

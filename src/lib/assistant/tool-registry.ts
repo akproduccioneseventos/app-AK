@@ -98,6 +98,7 @@ const registrarPagoSchema = z.object({
   monto: z.number().positive('El monto debe ser mayor a cero'),
   metodoPago: z.enum(['Efectivo', 'Transferencia', 'Tarjeta', 'Cheque', 'Otro']).optional(),
   referencia: z.string().optional(),
+  confirmado: z.boolean().optional(),
 });
 
 const crearEventoSchema = z.object({

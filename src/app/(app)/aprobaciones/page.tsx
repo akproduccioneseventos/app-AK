@@ -316,9 +316,14 @@ function AprobacionesContent() {
               <Select value={form.tipoCambio} onValueChange={(v) => setForm(f => ({ ...f, tipoCambio: v as TipoCambio }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(tipoCambioLabel).map(([k, v]) => (
-                    <SelectItem key={k} value={k}>{v}</SelectItem>
-                  ))}
+                  {Object.entries(tipoCambioLabel)
+                    .filter(([k]) => Boolean(k?.trim()))
+                    .map(([k, v]) => {
+                      const tipoValue = k.trim();
+                      return (
+                        <SelectItem key={tipoValue} value={tipoValue}>{v}</SelectItem>
+                      );
+                    })}
                 </SelectContent>
               </Select>
             </div>

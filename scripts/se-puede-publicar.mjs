@@ -101,6 +101,12 @@ const PASOS = [
     queSignifica: 'Alguna de las pantallas del sistema falló al abrirse o renderizarse en producción.',
     caro: true,
   },
+  {
+    nombre: 'Auditor robot (pantallas tocadas)',
+    comando: 'node scripts/robot-puerta.mjs',
+    queSignifica: 'El auditor robot encontró una falla de comportamiento (contexto, guardado, cancelar, PDF, públicos o lectura fallida) en una pantalla tocada por este cambio.',
+    caro: true,
+  },
 ];
 
 /**
@@ -127,6 +133,8 @@ const PUEDE_CAMBIAR_LA_APP = [
   // Sin esto, un cambio al corredor de navegador se salteaba justo el paso del
   // navegador: la puerta se sacaba sola el control que ese cambio afecta.
   /^scripts\/run-playwright-production\.mjs$/,
+  /^scripts\/robot-correr\.mjs$/,
+  /^scripts\/robot-puerta\.mjs$/,
   /^scripts\/build-next-with-memory\.mjs$/,
   /^playwright\.config\.ts$/,
 ];
@@ -166,6 +174,7 @@ function laAppPudoCambiar() {
   for (const archivo of archivos) {
     if (PUEDE_CAMBIAR_LA_APP.some((patron) => patron.test(archivo))) return true;
     if (archivo.startsWith('tests/e2e/') && !soloComentarios(archivo, ref)) return true;
+    if (archivo.startsWith('tests/robot/') && !soloComentarios(archivo, ref)) return true;
   }
   return false;
 }
@@ -268,6 +277,7 @@ const NO_AFECTA_AL_NAVEGADOR = [
 const PASOS_DEL_NAVEGADOR = new Set([
   'La app usada de verdad',
   'Recorrido de todas las pantallas',
+  'Auditor robot (pantallas tocadas)',
 ]);
 
 /**

@@ -20,6 +20,9 @@ let perfil = 'admin';
 
 jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => sesion),
+  requireSession: jest.fn(async () =>
+    sesion ? { ok: true, user: { userId: 'u_test', perfil } } : { ok: false, error: 'No autorizado' },
+  ),
   requirePermiso: jest.fn(async () => (perfil === 'admin' ? { ok: true, user: {} } : { ok: false, error: 'Tu perfil no tiene acceso a esta parte.' })),
 }));
 jest.mock('@/lib/data-service', () => ({
@@ -87,7 +90,7 @@ describe('Los dos interruptores', () => {
     return POST({ json: async () => ({ texto: 'Hola' }) } as any);
   };
   // Con clave puesta: si el interruptor o el tope no frenaran, se llamaría a Gemini de verdad.
-  beforeEach(() => { sesion = true; usoGuardado = {}; process.env.GEMINI_API_KEY = 'clave-de-prueba-12345'; });
+  beforeEach(() => { sesion = true; perfil = 'dueno'; usoGuardado = {}; process.env.GEMINI_API_KEY = 'clave-de-prueba-12345'; });
   afterAll(() => { delete process.env.GEMINI_API_KEY; });
 
   it('con la voz de Gemini apagada no se llama a Gemini y dice si la del teléfono está prendida', async () => {
@@ -156,6 +159,7 @@ describe('El tope y el texto (auditoría 66)', () => {
     process.env.GEMINI_API_KEY = 'clave-de-prueba-12345';
     (globalThis as any).fetch = jest.fn(async () => respuestaConAudio(Buffer.from([1, 2])));
     sesion = true;
+    perfil = 'dueno';
     const { POST } = require('@/app/api/asistente/voz-parte/route');
     const respuestas = await Promise.all(Array.from({ length: 10 }, () => POST({ json: async () => ({ texto: 'Hola' }) } as any)));
     expect(respuestas.filter((r: any) => r.status === 200)).toHaveLength(1);

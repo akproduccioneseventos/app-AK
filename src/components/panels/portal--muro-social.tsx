@@ -3,7 +3,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaForPortalSession, initializePortalSession } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import { saveSocialSettingsByClient, getSocialPostsByClient, moderateSocialPostByClient } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
@@ -47,8 +47,6 @@ import {
   Activity
 } from 'lucide-react';
 import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const BRAND_PRESET_COLORS = [
   { name: 'Rojo AK', value: '#e11d48' },
@@ -113,7 +111,6 @@ export default function ClientMuroSocialPage() {
 
   // Fetch posts for Moderation Express
   const loadPosts = useCallback(async (key = accessKey) => {
-    if (!key) return;
     try {
       const result = await getSocialPostsByClient(fiestaId, key);
       if (result.success) {
@@ -127,13 +124,16 @@ export default function ClientMuroSocialPage() {
   }, [accessKey, fiestaId]);
 
   // Load initial settings
-  const loadData = useCallback(async (key: string) => {
+  const loadData = useCallback(async () => {
     try {
-      const session = await initializePortalSession(fiestaId, key);
-      const data = session.success ? await getFiestaForPortalSession(fiestaId) : null;
+      const hasSession = await verificarSesionPortalCliente(fiestaId);
+      if (!hasSession) {
+        router.replace(`/portal-cliente/${fiestaId}`);
+        return;
+      }
+      const data = await getFiestaForPortalSession(fiestaId);
       if (!data || data.id !== fiestaId) {
-        sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
-        setError('El acceso no corresponde a este evento.');
+        setError('La sesión del portal venció o no corresponde a este evento.');
         setIsLoading(false);
         return;
       }
@@ -168,33 +168,27 @@ export default function ClientMuroSocialPage() {
       setSorteoOnScreen(settings.sorteoOnScreen ?? false);
       setSorteoWinner(settings.activeSorteoWinner || null);
 
-      await loadPosts(key);
+      await loadPosts('');
     } catch {
       setError('Error al cargar la información del evento.');
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, loadPosts]);
+  }, [fiestaId, loadPosts, router]);
 
   useEffect(() => {
-    const key = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!key) {
-      sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
-      router.replace(`/portal-cliente/${fiestaId}`);
-      return;
-    }
-    setAccessKey(key);
-    loadData(key);
-  }, [fiestaId, router, loadData]);
+    setAccessKey('');
+    loadData();
+  }, [fiestaId, loadData]);
 
   // Polling for posts & settings every 4 seconds in live tab or moderation tab
   useEffect(() => {
-    if (isLoading || !accessKey) return;
+    if (isLoading || !fiesta) return;
     const interval = setInterval(() => {
       loadPosts();
     }, 4000);
     return () => clearInterval(interval);
-  }, [isLoading, accessKey, loadPosts]);
+  }, [isLoading, fiesta, loadPosts]);
 
   useEffect(() => {
     return () => {

@@ -13,7 +13,7 @@ import re
 import subprocess
 import sys
 import threading
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable, Dict, List, Optional
 import urllib.parse
 import cv2
@@ -1016,7 +1016,18 @@ class AKEditorHandler(BaseHTTPRequestHandler):
             return
 
         if ruta == "/api/wfolio/login":
-            threading.Thread(target=wfolio.abrir_navegador_para_login, daemon=True).start()
+            def tarea_login_wfolio():
+                ESTADO_WFOLIO["mensaje"] = "Navegador abierto para iniciar sesión en Wfolio..."
+                try:
+                    res = wfolio.abrir_navegador_para_login()
+                    if isinstance(res, dict) and not res.get("exito", True):
+                        ESTADO_WFOLIO["mensaje"] = res.get("error") or "No se pudo abrir Wfolio para iniciar sesión."
+                    else:
+                        ESTADO_WFOLIO["mensaje"] = "Sesión de Wfolio lista."
+                except Exception as e_login:
+                    ESTADO_WFOLIO["mensaje"] = f"Error al iniciar sesión en Wfolio: {e_login}"
+
+            threading.Thread(target=tarea_login_wfolio, daemon=True).start()
             self._responder_json(200, {"ok": True, "mensaje": "Navegador abierto para iniciar sesión en Wfolio"})
             return
 
@@ -1913,7 +1924,7 @@ HTML_INTERFAZ = """<!DOCTYPE html>
 
 
 def iniciar_servidor(puerto: int = PUERTO) -> None:
-    servidor = HTTPServer(("127.0.0.1", puerto), AKEditorHandler)
+    servidor = ThreadingHTTPServer(("127.0.0.1", puerto), AKEditorHandler)
     print(f"AK Editor Inteligente escuchando en http://localhost:{puerto}")
     try:
         servidor.serve_forever()

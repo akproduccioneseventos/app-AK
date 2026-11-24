@@ -5,6 +5,7 @@ export interface Ingredient {
   name: string;
   quantityPerPerson: string; // Cantidad por persona para esta receta (ej: "100", "0.5")
   unit: string; // Unidad de la cantidad (ej: g, ml, ud)
+  porEvento?: boolean;
   // COSTO BASE DEL INSUMO
   costoUnitario: number; // Costo por la unidad de compra (ej: $180 por KG, $500 por LT)
   // COSTO CALCULADO PARA LA RECETA
@@ -39,6 +40,7 @@ export interface FullMenu { // Representa un Menú completo guardado
   dataAiHint?: string; // Hint para la IA sobre la imagen
   items: MenuItem[]; // Lista de platos
   templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú Infantil' | 'Menú del personal'; // Tipo de plantilla/menu
+  estadoPublicacion?: 'borrador' | 'publicado';
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
 }

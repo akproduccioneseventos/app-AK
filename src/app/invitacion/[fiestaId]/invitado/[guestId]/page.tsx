@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import Link from 'next/link';
 import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -782,7 +783,7 @@ function GuestPortalContent() {
           >
             <p className="text-xs font-black uppercase text-emerald-700"><Clock className="mr-1.5 inline h-4 w-4" />Programa</p>
             <ul className="mt-6 space-y-4">
-              {fiesta.programa.map((item) => (
+              {ordenarPorHoraDelEvento(fiesta.programa, fiesta.configuracion?.horaInicio).map((item) => (
                 <li key={item.id} className="flex gap-4 items-start">
                   <span className="w-16 shrink-0 text-sm font-black text-emerald-700">{item.hora}</span>
                   <div>
@@ -888,6 +889,8 @@ function GuestPortalContent() {
           fiestaId={fiestaId}
           invitadoNombre={guest.nombre}
           mesaAsignada={guest.tableNumber}
+          guestId={guest.id}
+          guestAccessToken={guestAccessToken}
         />
       )}
 

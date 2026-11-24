@@ -4,7 +4,7 @@ import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Simulador de Presupuesto en Salto | AK Producciones Eventos',
+  title: 'Simulador de Presupuesto en Salto',
   description:
     'Armá tu presupuesto con comida, salón, discoteca y servicios reales de AK Producciones en Salto. Conocé el precio vigente y el valor por persona al instante.',
   alternates: {

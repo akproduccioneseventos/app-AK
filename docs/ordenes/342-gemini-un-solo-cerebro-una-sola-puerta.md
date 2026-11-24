@@ -68,6 +68,7 @@ usa: ./modelos en src/ai/cerebro.ts
 no-usa: generativelanguage.googleapis.com en src/lib/asistente/whatsapp-media.ts
 no-usa: generativelanguage.googleapis.com en src/lib/asistente/voz-gemini.ts
 no-usa: generativelanguage.googleapis.com en src/lib/ai/decisiones.ts
+# Bloque 2
 usa: estadoDeLasTareas en src/app/(app)/asistente/page.tsx
 usa: Ver en Asistente AK en src/components/fiestas/panels/carta-tragos.tsx
 prueba: src/__tests__/toda-la-ia-pasa-por-el-cerebro.test.ts

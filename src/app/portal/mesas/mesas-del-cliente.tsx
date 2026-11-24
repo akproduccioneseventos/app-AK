@@ -34,6 +34,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 
+function safePercent(numerator: number, denominator: number): number {
+  if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
+    return 0;
+  }
+  return Math.min(100, Math.max(0, (numerator / denominator) * 100));
+}
+
 function AsignacionMesasContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -100,8 +107,8 @@ function AsignacionMesasContent() {
     }
   };
 
-  const totalContractedAdults = fiesta ? Number(fiesta.configuracion.invitadosAdultos) || 0 : 0;
-  const totalContractedKids = fiesta ? Number(fiesta.configuracion.invitadosNinos) || 0 : 0;
+  const totalContractedAdults = fiesta ? Math.max(0, Number(fiesta.configuracion?.invitadosAdultos) || 0) : 0;
+  const totalContractedKids = fiesta ? Math.max(0, Number(fiesta.configuracion?.invitadosNinos) || 0) : 0;
 
   const currentTotalAdults = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestAdultsCount(inv), 0) || 0;
   const currentTotalKids = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestKidsCount(inv), 0) || 0;
@@ -200,12 +207,13 @@ function AsignacionMesasContent() {
         .filter(el => el.category?.includes("Mesa"))
         .map(el => {
             const assigned = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
-            const occupiedSeats = assigned.reduce((sum, g) => sum + (g.partySize || 1), 0);
+            const occupiedSeats = assigned.reduce((sum, g) => sum + Math.max(1, Number(g.partySize) || 1), 0);
+            const totalSeats = Math.max(0, Number(el.seats) || 0);
             return {
                 name: el.name,
-                seats: el.seats || 0,
+                seats: totalSeats,
                 occupied: occupiedSeats,
-                remaining: (el.seats || 0) - occupiedSeats
+                remaining: totalSeats - occupiedSeats
             };
         });
   }, [fiesta]);
@@ -250,7 +258,7 @@ function AsignacionMesasContent() {
     );
   }
 
-  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda'
+  const relationshipOptions = fiesta.configuracion?.tipoCelebracion === 'Boda'
     ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
     : ["Familia", "Amigos", "Trabajo", "Otros"];
 
@@ -261,7 +269,7 @@ function AsignacionMesasContent() {
         <div className="max-w-5xl mx-auto space-y-6">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline text-primary">{fiesta.configuracion.nombreEvento}</h1>
+                    <h1 className="text-3xl font-bold font-headline text-primary">{fiesta.configuracion?.nombreEvento || 'Mi Evento'}</h1>
                     <p className="text-muted-foreground italic">Gestión de Lista de Invitados y Mesas</p>
                 </div>
                 <Button asChild variant="outline"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
@@ -332,7 +340,7 @@ function AsignacionMesasContent() {
                             <span>Adultos</span>
                             <span className="font-black">{currentTotalAdults} / {totalContractedAdults}</span>
                         </CardTitle>
-                        <Progress value={(currentTotalAdults / totalContractedAdults) * 100} className="h-2 bg-blue-100" />
+                        <Progress value={totalContractedAdults > 0 ? safePercent(currentTotalAdults, totalContractedAdults) : 0} className="h-2 bg-blue-100" />
                     </CardHeader>
                 </Card>
                 <Card className="shadow-md border-purple-200">
@@ -341,7 +349,7 @@ function AsignacionMesasContent() {
                             <span>Niños y Adolescentes</span>
                             <span className="font-black">{currentTotalKids} / {totalContractedKids}</span>
                         </CardTitle>
-                        <Progress value={(currentTotalKids / totalContractedKids) * 100} className="h-2 bg-purple-100" />
+                        <Progress value={totalContractedKids > 0 ? safePercent(currentTotalKids, totalContractedKids) : 0} className="h-2 bg-purple-100" />
                     </CardHeader>
                 </Card>
             </div>

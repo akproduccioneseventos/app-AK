@@ -86,7 +86,7 @@ function boolCount(items: Array<{ enabled: boolean }>) {
 
 function ZonaDigitalPageContent() {
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = (searchParams.get('fiestaId') || searchParams.get('id') || '').trim();
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [settings, setSettings] = useState<ZonaDigitalAdolescentesSettings>(withZonaDigitalDefaults());
@@ -95,7 +95,11 @@ function ZonaDigitalPageContent() {
 
   useEffect(() => {
     async function load() {
-      if (!fiestaId) return;
+      if (!fiestaId) {
+        setFiesta(null);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       const current = await getFiestaById(fiestaId);
       setFiesta(current);
@@ -167,10 +171,23 @@ function ZonaDigitalPageContent() {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-red-600" /></div>;
   }
 
-  if (!fiestaId || !fiesta) {
+  if (!fiestaId) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Sparkles className="mx-auto h-12 w-12 text-red-600" />
+        <h1 className="text-2xl font-black">Abrí esta pantalla desde una fiesta</h1>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para configurar su Zona Digital.
+        </p>
+        <Button asChild className="mt-2"><Link href="/eventos">Ir a Eventos</Link></Button>
+      </div>
+    );
+  }
+
+  if (!fiesta) {
     return (
       <div className="mx-auto max-w-3xl p-6 text-center">
-        <h1 className="text-2xl font-black">No encontre la fiesta</h1>
+        <h1 className="text-2xl font-black">No encontré la fiesta</h1>
         <Button asChild className="mt-4"><Link href="/eventos">Volver a eventos</Link></Button>
       </div>
     );

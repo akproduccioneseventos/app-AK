@@ -3,7 +3,11 @@
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { necesidadPorEquipo } from '@/lib/logistica/necesidad-por-equipo';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
+import * as logger from '@/lib/logger';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
 import { verifySession } from '@/lib/auth/session-token';
@@ -14,6 +18,7 @@ import {
 } from '@/app/actions/accesos-personal';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   applyCargaOperativaItemPatch,
@@ -23,6 +28,47 @@ import {
 } from '@/lib/logistics/carga-operativa';
 
 const MASTER_TEMPLATE_FILE = 'carga-operativa-master-template.json';
+
+function generarRefCargaAccion(prefijo: string): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirMotivoCargaAccion(err: unknown, respaldo: string): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const msg = raw.toLowerCase();
+  if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada') || msg.includes('no autorizado')) {
+    return 'Tu sesión venció o no tiene permisos para modificar esta carga.';
+  }
+  if (msg.includes('fiesta no encontrada')) {
+    return 'No se encontró la fiesta en la base de datos.';
+  }
+  if (msg.includes('el elemento de carga ya no existe')) {
+    return 'El equipo ya no está en la lista. Recargá la pantalla.';
+  }
+  if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+    return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
+  }
+  if (msg.includes('permission') || msg.includes('permiso') || msg.includes('unauthenticated')) {
+    return 'No se pudo validar el permiso con la base de datos.';
+  }
+  return respaldo;
+}
+
+function sinIndefinidos<V>(valor: V): V {
+  if (Array.isArray(valor)) {
+    return valor.map((v) => (v === undefined ? null : sinIndefinidos(v))) as unknown as V;
+  }
+  if (valor && typeof valor === 'object' && Object.getPrototypeOf(valor) === Object.prototype) {
+    const limpio: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(valor as Record<string, unknown>)) {
+      if (v !== undefined) limpio[k] = sinIndefinidos(v);
+    }
+    return limpio as V;
+  }
+  return valor;
+}
 const defaultMasterTemplate: ListaDeCargaOperativa = {
   id: "master",
   name: "Plantilla Maestra de Carga Operativa",
@@ -100,7 +146,7 @@ export async function getCargaOperativaAccessView(
     }
 
     const [fiesta, settings] = await Promise.all([
-      getFiestaById(fiestaId),
+      getFiestaById(fiestaId, LECTURA_COMPLETA),
       getInvoiceTemplateSettings().catch(() => ({ logoUrl: null })),
     ]);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
@@ -144,22 +190,24 @@ export async function updateCargaOperativaItemState(input: {
       return { success: false, error: 'No hay cambios válidos para guardar.' };
     }
 
-    try {
-      if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
-        const { dbAdmin } = await import('@/lib/firebase/server');
-        if (dbAdmin) {
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        try {
           const ref = dbAdmin.collection('fiestas').doc(input.fiestaId);
           const updatedData = await dbAdmin.runTransaction(async (transaction) => {
             const snapshot = await transaction.get(ref);
             if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
             const fiesta = snapshot.data() as FiestaEnPlanificacion;
             const current = fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
-            const updated = applyCargaOperativaItemPatch(
-              current,
-              input.categoryId,
-              input.itemId,
-              allowedPatch,
-              operatorName,
+            const updated = sinIndefinidos(
+              applyCargaOperativaItemPatch(
+                current,
+                input.categoryId,
+                input.itemId,
+                allowedPatch,
+                operatorName,
+              ),
             );
             transaction.update(ref, {
               listaDeCargaOperativa: updated,
@@ -168,13 +216,22 @@ export async function updateCargaOperativaItemState(input: {
             return updated;
           });
           return { success: true, updatedData };
+        } catch (error) {
+          const refError = generarRefCargaAccion('CARGA-TX');
+          logger.error(
+            `[CargaOperativa] (${refError}) Error en transacción al actualizar ítem ${input.itemId} en fiesta ${input.fiestaId}:`,
+            logger.compactError(error),
+          );
+          const motivo = describirMotivoCargaAccion(
+            error,
+            'No se pudo guardar el cambio en la base de datos.',
+          );
+          return { success: false, error: `${motivo} (Ref: ${refError})` };
         }
       }
-    } catch (error) {
-      // Si falla en Firestore, se intenta con almacenamiento estándar (saveFiesta / local JSON)
     }
 
-    const fiesta = await getFiestaById(input.fiestaId);
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const updatedData = applyCargaOperativaItemPatch(
       fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
@@ -184,12 +241,17 @@ export async function updateCargaOperativaItemState(input: {
       operatorName,
     );
     const result = await saveFiesta({ ...fiesta, listaDeCargaOperativa: updatedData });
-    if (!result.success) return { success: false, error: result.error };
+    if (!result.success) return { success: false, error: result.error || 'No se pudo guardar el cambio.' };
     return { success: true, updatedData };
   } catch (error) {
+    const refError = generarRefCargaAccion('CARGA');
+    logger.error(
+      `[CargaOperativa] (${refError}) Error inesperado actualizando ítem ${input.itemId}:`,
+      logger.compactError(error),
+    );
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudo actualizar la lista.',
+      error: `${describirMotivoCargaAccion(error, 'No se pudo actualizar la lista.')} (Ref: ${refError})`,
     };
   }
 }
@@ -208,7 +270,14 @@ export async function checkAssetConflicts(
   await requireAppSession();
     const allFiestas = await getFiestas(false); // Solo activas
     const assetsCatalog = await getActivosFijos();
-    const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && f.configuracion.fechaEvento === date);
+    const otherFiestasSameDay = allFiestas.filter(f => {
+      if (f.id === fiestaId || !f.configuracion?.fechaEvento || f.configuracion.fechaEvento !== date) {
+        return false;
+      }
+      if (esFiestaDemo(f) || esFiestaSuspendida(f)) return false;
+      const estado = String(f.estado || '').trim().toLowerCase();
+      return !['archivado', 'archivada', 'cancelado', 'cancelada', 'cerrado', 'cerrada'].includes(estado);
+    });
 
     // La base es la lista completa que manda la pantalla, o si no la manda, la guardada de
     // esta fiesta. Si hay duda, se cuenta de mas: un aviso de mas se ve, un faltante no.
@@ -293,11 +362,7 @@ export async function saveCargaOperativaMasterTemplate(
 
 export async function updateListaDeCargaOperativa(fiestaId: string, lista: ListaDeCargaOperativa): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
   try {
-    if (!(await verifySession()).success) {
-      return { success: false, error: 'Debes iniciar sesión para editar la estructura de carga.' };
-    }
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const fiesta = await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE]);
 
     // Módulo 1: Al guardar, refrescamos los estados de conflicto
     let listaWithConflicts = lista;
@@ -309,28 +374,41 @@ export async function updateListaDeCargaOperativa(fiestaId: string, lista: Lista
         listaWithConflicts = { ...lista, categorias: updatedCategorias };
     }
 
-    try {
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
       const { dbAdmin } = await import('@/lib/firebase/server');
       if (dbAdmin) {
-        const ref = dbAdmin.collection('fiestas').doc(fiestaId);
-        const updatedData = await dbAdmin.runTransaction(async (transaction) => {
-          const snapshot = await transaction.get(ref);
-          if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
-          const currentFiesta = snapshot.data() as FiestaEnPlanificacion;
-          const updated = mergeCargaOperativaStructure(
-            listaWithConflicts,
-            currentFiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
-          );
-          transaction.update(ref, {
-            listaDeCargaOperativa: updated,
-            _syncedAt: new Date().toISOString(),
+        try {
+          const ref = dbAdmin.collection('fiestas').doc(fiestaId);
+          const updatedData = await dbAdmin.runTransaction(async (transaction) => {
+            const snapshot = await transaction.get(ref);
+            if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+            const currentFiesta = snapshot.data() as FiestaEnPlanificacion;
+            const updated = sinIndefinidos(
+              mergeCargaOperativaStructure(
+                listaWithConflicts,
+                currentFiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+              ),
+            );
+            transaction.update(ref, {
+              listaDeCargaOperativa: updated,
+              _syncedAt: new Date().toISOString(),
+            });
+            return updated;
           });
-          return updated;
-        });
-        return { success: true, updatedData };
+          return { success: true, updatedData };
+        } catch (transactionError) {
+          const refError = generarRefCargaAccion('CARGA-LIST');
+          logger.error(
+            `[CargaOperativa] (${refError}) Error en transacción al guardar lista de ${fiestaId}:`,
+            logger.compactError(transactionError),
+          );
+          const motivo = describirMotivoCargaAccion(
+            transactionError,
+            'No se pudo guardar la lista de carga en la base de datos.',
+          );
+          return { success: false, error: `${motivo} (Ref: ${refError})` };
+        }
       }
-    } catch (transactionError) {
-      if (process.env.NODE_ENV === 'production') throw transactionError;
     }
 
     const updatedData = mergeCargaOperativaStructure(
@@ -342,7 +420,15 @@ export async function updateListaDeCargaOperativa(fiestaId: string, lista: Lista
     if (!result.success) throw new Error(result.error);
     return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa || updatedData };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    const refError = generarRefCargaAccion('CARGA-LIST');
+    logger.error(
+      `[CargaOperativa] (${refError}) Error inesperado guardando lista de ${fiestaId}:`,
+      logger.compactError(e),
+    );
+    return {
+      success: false,
+      error: `${describirMotivoCargaAccion(e, e?.message || 'No se pudo guardar la lista de carga.')} (Ref: ${refError})`,
+    };
   }
 }
 
@@ -365,7 +451,7 @@ export async function generateCargaFromActivos(
   await requireAppSession();
   try {
     const [fiesta, activos] = await Promise.all([
-      getFiestaById(fiestaId),
+      getFiestaById(fiestaId, LECTURA_COMPLETA),
       getActivosFijos(),
     ]);
 
@@ -391,10 +477,12 @@ export async function generateCargaFromActivos(
         if (asset.calculationMethod === 'porPersona') {
           qty = totalInvitados;
         } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad && asset.invitadosPorUnidad > 0) {
-          qty = Math.ceil(totalInvitados / asset.invitadosPorUnidad);
+          const porUnidad = Number(asset.cantidad) > 0 ? Number(asset.cantidad) : 1;
+          qty = Math.ceil(totalInvitados / asset.invitadosPorUnidad) * porUnidad;
         } else {
+          const cantidadFija = Number(asset.cantidad);
           const precioVenta = Number(asset.precioVenta);
-          qty = precioVenta > 0 ? precioVenta : (asset.cantidadDisponible || 1);
+          qty = cantidadFija > 0 ? cantidadFija : (precioVenta > 0 ? precioVenta : (asset.cantidadDisponible || 1));
         }
 
         const existing = existingItemsByOrigenId[asset.id];

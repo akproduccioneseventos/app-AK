@@ -16,9 +16,15 @@ import {
   notifyClientPaymentRejected,
   notifyClientPaymentSubmitted,
 } from '../google-workspace-extended';
+import { createHash, timingSafeEqual } from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
-import { uploadToStorage } from '@/lib/firebase/storage';
+import { uploadToStorage, isStorageAvailable } from '@/lib/firebase/storage';
+import { sinDepositoDisponible } from '@/lib/firebase/modo-local';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { buildAnnualAdjustmentProjection, getYearFromDate } from '@/lib/budget/formal-budget';
 import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { requireEventPermission, PERMISOS } from '@/lib/auth/event-access';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
@@ -138,11 +144,32 @@ import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
 import { presupuestoRecalculado } from '@/lib/budget/recalcular-presupuesto';
 import type { Presupuesto } from '@/types/presupuesto';
 
+function coincideClaveEnTiempoConstante(guardada: unknown, ingresada: unknown): boolean {
+  if (typeof guardada !== 'string' || typeof ingresada !== 'string' || guardada.length === 0) {
+    return false;
+  }
+  const h1 = createHash('sha256').update(guardada).digest();
+  const h2 = createHash('sha256').update(ingresada).digest();
+  return timingSafeEqual(h1, h2);
+}
+
+function telefonosCoinciden(telefonoA: string, telefonoB: string): boolean {
+  const digitsA = (telefonoA || '').replace(/\D/g, '');
+  const digitsB = (telefonoB || '').replace(/\D/g, '');
+  if (!digitsA || !digitsB) return false;
+  if (digitsA === digitsB) return true;
+  const uruA = normalizeUruguayPhone(telefonoA);
+  const uruB = normalizeUruguayPhone(telefonoB);
+  return uruA.length >= 6 && uruA === uruB;
+}
+
 export async function entrarAlPortalPorTelefono(
   telefono: string,
   clave: string,
+  fiestaIdElegida?: string,
 ): Promise<{ success: boolean; fiestaId?: string; fiestas?: Array<{ id: string; nombreEvento: string }>; error?: string }> {
-  const telefonoNormalizado = (telefono || '').replace(/\D/g, '');
+  const telefonoDigits = (telefono || '').replace(/\D/g, '');
+  const telefonoNormalizado = normalizeUruguayPhone(telefono) || telefonoDigits;
   const claveLimpia = (clave || '').trim();
 
   try {
@@ -183,8 +210,8 @@ export async function entrarAlPortalPorTelefono(
   const matchingCustomerIds = new Set<string>();
   for (const c of customers) {
     if (!c) continue;
-    const telCustomer = String(c.phone || c.telefono || c.celular || c.phone1 || c.tel || '').replace(/\D/g, '');
-    if (telCustomer && telCustomer === telefonoNormalizado && c.id) {
+    const telCustomer = String(c.phone || c.telefono || c.celular || c.phone1 || c.tel || '');
+    if (telefonosCoinciden(telCustomer, telefono) && c.id) {
       matchingCustomerIds.add(String(c.id));
     }
   }
@@ -197,10 +224,10 @@ export async function entrarAlPortalPorTelefono(
       return false;
     }
 
-    const telFiesta = String(f.configuracion?.telefono || f.telefono || '').replace(/\D/g, '');
+    const telFiesta = String(f.configuracion?.telefono || f.telefono || '');
     const clienteId = f.configuracion?.clienteId || f.clienteId;
 
-    const coincideTelefono = telFiesta.length > 0 && telFiesta === telefonoNormalizado;
+    const coincideTelefono = telefonosCoinciden(telFiesta, telefono);
     const coincideCliente = clienteId && matchingCustomerIds.has(String(clienteId));
 
     return Boolean(coincideTelefono || coincideCliente);
@@ -210,15 +237,16 @@ export async function entrarAlPortalPorTelefono(
     return { success: false, error: 'No encontramos una fiesta con esos datos' };
   }
 
-  const fiestasValidas: Array<{ id: string; nombreEvento: string }> = [];
+  const fiestasValidas: Array<{ id: string; nombreEvento: string; accessKey: string }> = [];
 
   for (const f of fiestasCandidatas) {
     const fid = String(f.id);
-    const sessionRes = await initializePortalSession(fid, claveLimpia);
-    if (sessionRes.success) {
+    const claveGuardada = f.clientPortalSettings?.accessKey;
+    if (f.clientPortalSettings?.enabled && coincideClaveEnTiempoConstante(claveGuardada, claveLimpia)) {
       fiestasValidas.push({
         id: fid,
         nombreEvento: f.configuracion?.nombreEvento || f.nombreEvento || f.nombre || 'Fiesta',
+        accessKey: claveGuardada,
       });
     }
   }
@@ -227,15 +255,39 @@ export async function entrarAlPortalPorTelefono(
     return { success: false, error: 'No encontramos una fiesta con esos datos' };
   }
 
+  if (fiestaIdElegida) {
+    const elegida = fiestasValidas.find((f) => f.id === fiestaIdElegida);
+    if (!elegida) {
+      return { success: false, error: 'No encontramos una fiesta con esos datos' };
+    }
+    await setPortalSessionCookie(elegida.id, elegida.accessKey);
+    return { success: true, fiestaId: elegida.id };
+  }
+
   if (fiestasValidas.length === 1) {
+    await setPortalSessionCookie(fiestasValidas[0].id, fiestasValidas[0].accessKey);
     return { success: true, fiestaId: fiestasValidas[0].id };
   }
 
-  return { success: true, fiestas: fiestasValidas };
+  return {
+    success: true,
+    fiestas: fiestasValidas.map(({ id, nombreEvento }) => ({ id, nombreEvento })),
+  };
 }
 
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
+    try {
+      await enforcePublicRateLimit({
+        scope: 'portal-session-init',
+        identity: fiestaId || 'desconocido',
+        limit: 10,
+        windowMs: 15 * 60 * 1000,
+      });
+    } catch {
+      return { success: false, error: 'Demasiados intentos. Esperá unos minutos.' };
+    }
+
     const fiesta = await getFiestaByIdRaw(fiestaId);
     const claveGuardada = fiesta?.clientPortalSettings?.accessKey;
     // Sin clave guardada no se entra. Antes, un evento sin clave dejaba pasar a
@@ -243,9 +295,7 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
     if (
       !fiesta ||
       !fiesta.clientPortalSettings?.enabled ||
-      typeof claveGuardada !== 'string' ||
-      claveGuardada.length === 0 ||
-      claveGuardada !== accessKey
+      !coincideClaveEnTiempoConstante(claveGuardada, accessKey)
     ) {
       return { success: false, error: 'Acceso denegado.' };
     }
@@ -254,6 +304,37 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
+}
+
+export async function getPortalPublicPreview(fiestaId: string): Promise<{
+  id: string;
+  enabled: boolean;
+  configuracion: {
+    nombreEvento?: string;
+    fechaEvento?: string;
+    horaInicio?: string;
+    nombreLugar?: string;
+    primaryColor?: string;
+    protagonistaFotoUrl?: string;
+    tipoCelebracion?: string;
+  };
+} | null> {
+  if (!fiestaId || typeof fiestaId !== 'string') return null;
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta || !fiesta.clientPortalSettings?.enabled) return null;
+  return {
+    id: fiesta.id,
+    enabled: true,
+    configuracion: {
+      nombreEvento: fiesta.configuracion?.nombreEvento,
+      fechaEvento: fiesta.configuracion?.fechaEvento,
+      horaInicio: fiesta.configuracion?.horaInicio,
+      nombreLugar: fiesta.configuracion?.nombreLugar,
+      primaryColor: fiesta.configuracion?.primaryColor,
+      protagonistaFotoUrl: fiesta.configuracion?.protagonistaFotoUrl,
+      tipoCelebracion: fiesta.configuracion?.tipoCelebracion,
+    },
+  };
 }
 
 export async function getFiestaForPortalSession(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
@@ -428,11 +509,40 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
 
   try {
     const fiestas = await leerFiestasCrudas(false);
-    const fiesta = fiestas.find(
+    let fiesta = fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
         f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
+
+    if (!fiesta) {
+      const localListCandidates = [
+        path.join(process.cwd(), 'data', 'fiestas.json'),
+        path.join(process.cwd(), 'src', 'data', 'fiestas.json'),
+      ];
+      for (const lp of localListCandidates) {
+        try {
+          const raw = await fs.readFile(lp, 'utf-8');
+          const fiestasJson = JSON.parse(raw);
+          if (Array.isArray(fiestasJson)) {
+            fiesta = fiestasJson.find(
+              f =>
+                f &&
+                f.estado !== 'Archivado' &&
+                f.estado !== 'suspendida' &&
+                f.estado !== 'Suspendida' &&
+                f.clientPortalSettings?.enabled === true &&
+                f.clientPortalSettings?.accessKey === safeAccessKey
+            ) ?? null;
+            // Si la base conoce esa fiesta, manda la base: una copia vieja en disco no
+            // puede abrir un portal que se apagó o una fiesta que se borró.
+            if (fiesta && fiestas.some((enBase) => String(enBase.id) === String(fiesta?.id))) fiesta = null;
+            if (fiesta) break;
+          }
+        } catch {}
+      }
+    }
+
     return mapFiestaToClientPortal(fiesta);
   } catch (error) {
     // "No existe" (null, arriba) es distinto de "no se pudo leer": una falla de lectura
@@ -1773,6 +1883,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
     await fs.mkdir(dirPath, { recursive: true });
     await fs.writeFile(path.join(dirPath, filename), docContent, 'utf-8');
+    if (!sinDepositoDisponible() && isStorageAvailable()) {
+      await uploadToStorage(Buffer.from(docContent, 'utf-8'), `documentos-varios-fiesta/${fiestaId}/${filename}`, 'text/plain; charset=utf-8', false);
+    }
 
     // Update Fiesta in database
     const newDoc = {
@@ -1783,14 +1896,13 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       timestamp: new Date().toISOString(),
     };
 
-    const updatedFiesta = {
-      ...fiesta,
-      othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
-    };
-    const guardado = await saveFiesta(updatedFiesta);
-    if (!guardado.success) {
+    const actualizacao = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
+      othersDocumentos: [...(actual.othersDocumentos || []), newDoc]
+    }), { publicRsvp: true });
+    if (!actualizacao.success) {
       await revertir();
-      return { success: false, error: guardado.error || 'No se pudo guardar la cancelación.' };
+      return { success: false, error: actualizacao.error || 'No se pudo guardar la cancelación.' };
     }
     fiestaGuardada = true;
 
@@ -1934,6 +2046,15 @@ Firma AK Producciones: _________________   Fecha: __/__/____
 
     // Update Budget in database
     presupuesto.eventoFecha = payload.newDate;
+    const contractYear = getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? new Date().getFullYear();
+    const annualProj = buildAnnualAdjustmentProjection({
+      baseTotal: 100,
+      eventDate: payload.newDate,
+      currentYear: contractYear,
+    });
+    if (annualProj.applies) {
+      presupuesto.ajusteAnualActivo = true;
+    }
     presupuesto.itemsPresupuestados = updatedItems;
     presupuesto.costoTotalEstimado = updatedItems
       .filter(item => !item.esRegalo)
@@ -1977,6 +2098,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
         return {
           ...actual,
           eventoFecha: antes.eventoFecha,
+          ajusteAnualActivo: antes.ajusteAnualActivo,
           itemsPresupuestados: antes.itemsPresupuestados,
           costoTotalEstimado: restarLoNuestro(actual.costoTotalEstimado, antes.costoTotalEstimado, presupuesto.costoTotalEstimado),
           totalConDescuento: restarLoNuestro(actual.totalConDescuento, antes.totalConDescuento, presupuesto.totalConDescuento),
@@ -1991,6 +2113,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
     await fs.mkdir(dirPath, { recursive: true });
     await fs.writeFile(path.join(dirPath, filename), docContent, 'utf-8');
+    if (!sinDepositoDisponible() && isStorageAvailable()) {
+      await uploadToStorage(Buffer.from(docContent, 'utf-8'), `documentos-varios-fiesta/${fiestaId}/${filename}`, 'text/plain; charset=utf-8', false);
+    }
 
     // Update Fiesta in database
     const newDoc = {
@@ -2001,18 +2126,17 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       timestamp: new Date().toISOString(),
     };
 
-    if (fiesta.configuracion) {
-      fiesta.configuracion.fechaEvento = payload.newDate;
-    }
-
-    const updatedFiesta = {
-      ...fiesta,
-      othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
-    };
-    const guardado = await saveFiesta(updatedFiesta);
-    if (!guardado.success) {
+    const actualizacao = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
+      configuracion: {
+        ...actual.configuracion,
+        fechaEvento: payload.newDate
+      },
+      othersDocumentos: [...(actual.othersDocumentos || []), newDoc]
+    }), { publicRsvp: true });
+    if (!actualizacao.success) {
       await revertir();
-      return { success: false, error: guardado.error || 'No se pudo guardar el cambio de fecha.' };
+      return { success: false, error: actualizacao.error || 'No se pudo guardar el cambio de fecha.' };
     }
     fiestaGuardada = true;
 
@@ -2066,14 +2190,14 @@ export async function cambiarClavePortal(
     const motivo = motivoClaveInvalida(claveNueva, fiesta);
     if (motivo) return { success: false, error: motivo };
 
-    const guardadoOk = await saveFiesta({
-      ...fiesta,
+    const guardadoOk = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
       clientPortalSettings: {
-        ...(fiesta.clientPortalSettings as ClientPortalSettings),
+        ...(actual.clientPortalSettings as any),
         accessKey: claveNueva.trim(),
         claveCambiadaPorCliente: true,
       },
-    });
+    }), { publicRsvp: true });
     if (!guardadoOk?.success) {
       return { success: false, error: 'No se pudo guardar la clave nueva. Proba de nuevo.' };
     }

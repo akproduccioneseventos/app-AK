@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @next/next/no-img-element */
 import __akDynamic from 'next/dynamic';
 import { Suspense as __AkSuspense } from 'react';
 import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell';
@@ -13,11 +14,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, EyeOff, X, Sparkles } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, EyeOff, X, Sparkles, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate, PapeleriaIAPieza } from '@/types/fiesta';
 import type { TipoEvento } from '@/types/presupuesto';
 import { sugerirPlantillaPorTipo, ordenarPlantillasPorTipo } from '@/lib/itinerario/sugerir-plantilla';
 import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
@@ -26,6 +27,9 @@ import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
+import { PapeleriaIAModal } from '@/components/fiestas/panels/papeleria-ia-modal';
+import { descargarPdfArchivo, generarPdfA4Entero, imprimirPdfEnNavegador } from '@/lib/papeleria/pdf-impresion';
+import { imagenUrlADataUrl } from '@/lib/papeleria/imagen-a-data-url';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -162,6 +166,9 @@ function ItinerarioContent() {
   const [clientViewMode, setClientViewMode] = useState(false);
   const [isGeneratingIA, setIsGeneratingIA] = useState(false);
   const [fiestaInfo, setFiestaInfo] = useState<{tipo: string, inicio: string, servicios: string[]}>({tipo: 'Fiesta', inicio: '21:00', servicios: []});
+  const [cronogramaIA, setCronogramaIA] = useState<PapeleriaIAPieza | null>(null);
+  const [isIaModalOpen, setIsIaModalOpen] = useState(false);
+  const [isGeneratingPdfIA, setIsGeneratingPdfIA] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -209,6 +216,7 @@ function ItinerarioContent() {
       } else {
         setPrograma([]);
       }
+      setCronogramaIA(fiestaData.papeleriaIA?.cronograma || null);
 
       // Si el programa está vacío, sugerir plantilla según tipoEvento
       try {
@@ -392,6 +400,36 @@ function ItinerarioContent() {
     }
   }
 
+  const handleCronogramaIaPdf = async (modo: 'imprimir' | 'descargar') => {
+    if (!cronogramaIA?.url || !fiestaId) return;
+    setIsGeneratingPdfIA(true);
+    try {
+      const dataUrl = await imagenUrlADataUrl(cronogramaIA.url);
+      if (!dataUrl) {
+        toast({
+          title: 'No se pudo generar el PDF',
+          description: 'No pudimos preparar la imagen del cronograma para hoja A4. Probá regenerarlo con IA.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const pdf = generarPdfA4Entero(dataUrl);
+      if (modo === 'imprimir') {
+        imprimirPdfEnNavegador(pdf);
+      } else {
+        descargarPdfArchivo(pdf, `cronograma-${fiestaId}.pdf`);
+      }
+    } catch (e: unknown) {
+      toast({
+        title: 'Error al generar PDF',
+        description: e instanceof Error ? e.message : 'No se pudo armar el PDF A4.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingPdfIA(false);
+    }
+  };
+
   if (!fiestaId) {
     return (
       <EmptyStateModulo
@@ -532,12 +570,24 @@ function ItinerarioContent() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Clock className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
+            <Link href="/asistente" className="text-xs font-medium text-primary hover:underline">
+              Ver en Asistente AK
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => setIsIaModalOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />Diseñar con IA
+            </Button>
             <Button
               variant={clientViewMode ? 'default' : 'secondary'}
               size="sm"
@@ -549,6 +599,51 @@ function ItinerarioContent() {
             <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
+
+      {/* ── Cronograma diseñado con IA guardado (A4 210×297 mm) ─── */}
+      {cronogramaIA?.url && (
+        <Card className="border-indigo-200 bg-indigo-50/40">
+          <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img
+                src={cronogramaIA.url}
+                alt="Vista previa cronograma diseñado con IA"
+                className="w-14 h-20 object-cover rounded border border-indigo-200 bg-white shrink-0"
+              />
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px]">
+                    Cronograma IA guardado
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Hoja A4 vertical (210×297 mm)</span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Podés imprimirlo o descargar el PDF A4 listo para entregar o pegar en la fiesta.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleCronogramaIaPdf('imprimir')}
+                disabled={isGeneratingPdfIA}
+              >
+                {isGeneratingPdfIA ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Printer className="w-4 h-4 mr-1.5" />}
+                Imprimir
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleCronogramaIaPdf('descargar')}
+                disabled={isGeneratingPdfIA}
+              >
+                {isGeneratingPdfIA ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Download className="w-4 h-4 mr-1.5" />}
+                Descargar PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── Sugerencia de plantilla por tipo de evento ─── */}
       {suggestedTemplate && programa.length === 0 && (
@@ -649,6 +744,21 @@ function ItinerarioContent() {
           </DndContext>
         </CardContent>
       </Card>
+
+      {fiestaId && (
+        <PapeleriaIAModal
+          open={isIaModalOpen}
+          onOpenChange={setIsIaModalOpen}
+          fiestaId={fiestaId}
+          pieza="cronograma"
+          tituloPieza="Cronograma de la Fiesta"
+          esA4Entero={true}
+          imagenGuardadaUrl={cronogramaIA?.url ?? null}
+          itemsItinerario={programa}
+          onGuardado={(pieza) => setCronogramaIA(pieza)}
+          onVolverPlantilla={() => setIsIaModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

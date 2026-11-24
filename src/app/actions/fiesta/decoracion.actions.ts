@@ -36,7 +36,8 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
   // desde su portal. El guardado de abajo ya pide sesion del equipo O la clave del
   // cliente de esta fiesta.
   try {
-    const result = await updateFiestaPartial(fiestaId, { decoracion }, { allowPortal: true });
+    const decoracionInicializada: DecoracionData = { ...(decoracion ?? {}) };
+    const result = await updateFiestaPartial(fiestaId, { decoracion: decoracionInicializada }, { allowPortal: true });
     if (!result.success) throw new Error(result.error || 'No se pudo guardar la decoración.');
 
     /**
@@ -54,17 +55,17 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
     const equipo = await usuarioDelEquipo();
     const puedeRecalcular = Boolean(equipo)
       && [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION].some((p) => puede(equipo, p));
-    if (!puedeRecalcular) return { success: true, updatedData: decoracion };
-    const sincronizado = await sincronizarGastosDeco(fiestaId, decoracion.itemsDecoracion || []);
+    if (!puedeRecalcular) return { success: true, updatedData: decoracionInicializada };
+    const sincronizado = await sincronizarGastosDeco(fiestaId, decoracionInicializada.itemsDecoracion || []);
     if (!sincronizado.success) {
       return {
         success: false,
         error: sincronizado.error || 'La decoracion se guardo, pero los gastos no se pudieron actualizar.',
-        updatedData: decoracion,
+        updatedData: decoracionInicializada,
       };
     }
 
-    return { success: true, updatedData: decoracion };
+    return { success: true, updatedData: decoracionInicializada };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

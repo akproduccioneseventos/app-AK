@@ -30,6 +30,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
+import { normalizarUnidad, convertir } from '@/lib/compras/unidades';
 import { comprasDelMenuAsignado } from '@/lib/compras/compras-del-menu-asignado';
 import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
@@ -95,6 +96,7 @@ function ListaDeComprasContent() {
   // salteaban en silencio: la cocina compraba sin saber que le faltaba un plato
   // entero, y se enteraba el dia de la fiesta.
   const [platosSinIngredientes, setPlatosSinIngredientes] = useState<string[]>([]);
+  const [unidadesIncompatibles, setUnidadesIncompatibles] = useState<string[]>([]);
   const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
   const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
 
@@ -123,7 +125,7 @@ function ListaDeComprasContent() {
           presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
       }
 
-      const adultos = presupuestoData?.invitadosAdultos || Number(fiestaData.configuracion.invitadosEstimados) || 0;
+      const adultos = presupuestoData?.invitadosAdultos ?? (Number(fiestaData.configuracion.invitadosEstimados) || 0);
       const ninos = (presupuestoData?.invitadosNinos || 0) + (presupuestoData?.invitadosAdolescentes || 0);
       const totalInvitados = adultos + ninos;
 
@@ -136,6 +138,17 @@ function ListaDeComprasContent() {
           if (cat.includes('plato principal') || name.includes('principal')) return adultos;
           return totalInvitados;
       };
+
+      const esInsumoPorEvento = (
+          itemPorEvento?: boolean,
+          unidad?: string | null,
+          catalogInsumo?: { porEvento?: boolean; unidad?: string }
+      ) => Boolean(
+          itemPorEvento ||
+          catalogInsumo?.porEvento ||
+          (unidad || '').trim().toLowerCase() === 'por evento' ||
+          (catalogInsumo?.unidad || '').trim().toLowerCase() === 'por evento'
+      );
 
       // Los platos que no tienen receta y los que ya se sumaron. Van afuera del bloque del presupuesto: una fiesta con
       // menú asignado y SIN presupuesto también compra, y sus bebidas y postres también (auditoría del 18/11/2026,
@@ -162,26 +175,27 @@ function ListaDeComprasContent() {
               }
               if (!catalogDish.ingredients?.length) {
                   sinIngredientes.push(catalogDish.name);
+                  return;
               }
-              if (catalogDish) {
-                  const targetGuests = getTargetGuests(budgetItem);
-                  catalogDish.ingredients.forEach(ing => {
-                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
-                      if (qtyPerPerson > 0) {
-                          const totalNeeded = qtyPerPerson * targetGuests;
-                          const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
-                          rawList.push({
-                              nombre: ing.name,
-                              cantidadNecesaria: totalNeeded,
-                              unit: ing.unit,
-                              costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
-                              proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
-                              origen: `Catering: ${catalogDish.name}`,
-                              origenId: ing.origenId,
-                          });
-                      }
-                  });
-              }
+              const targetGuests = getTargetGuests(budgetItem);
+              (catalogDish.ingredients || []).forEach(ing => {
+                  const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
+                  if (qtyPerPerson > 0) {
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
+                      const porEvento = esInsumoPorEvento(ing.porEvento, ing.unit, catalogInsumo);
+                      const totalNeeded = porEvento ? qtyPerPerson : qtyPerPerson * targetGuests;
+                      rawList.push({
+                          nombre: ing.name,
+                          cantidadNecesaria: totalNeeded,
+                          unit: ing.unit,
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
+                          proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
+                          origen: `Catering: ${catalogDish.name}`,
+                          origenId: ing.origenId,
+                          porEvento,
+                      });
+                  }
+              });
           });
 
       }
@@ -207,6 +221,7 @@ function ListaDeComprasContent() {
                   // compraba una unidad igual.
                   if (Number(item.cantidadNecesaria) === 0) return;
                   const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                  const porEvento = esInsumoPorEvento(undefined, item.unidadCantidad, catalogInsumo);
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: item.cantidadNecesaria || 1,
@@ -215,15 +230,19 @@ function ListaDeComprasContent() {
                       proveedor: item.proveedorHabitual || catalogInsumo?.proveedor || 'Proveedor Bebidas',
                       origen: `Bebidas: ${cat.nombreDisplay}`,
                       origenId: item.origenId,
-                      isOrder: true
+                      isOrder: true,
+                      porEvento,
                   });
               });
               cat.recetas?.forEach((receta: any) => {
                   const factorEscala = totalInvitados / (receta.porcionesBase || 1);
                   receta.ingredientes?.forEach((ing: any) => {
-                      const totalNeeded = (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
+                      const porEvento = esInsumoPorEvento(ing.porEvento, ing.unidad, catalogInsumo);
+                      const totalNeeded = porEvento
+                          ? (ing.cantidad || 0)
+                          : (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
                       if (totalNeeded > 0) {
-                          const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
                           rawList.push({
                               nombre: ing.nombre,
                               cantidadNecesaria: totalNeeded,
@@ -232,6 +251,7 @@ function ListaDeComprasContent() {
                               proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
                               origen: `Bebidas (Receta): ${receta.nombre}`,
                               origenId: ing.id,
+                              porEvento,
                           });
                       }
                   });
@@ -244,8 +264,9 @@ function ListaDeComprasContent() {
           if (hasBarra) {
               const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
               barraTemplate?.items.forEach(item => {
-                  const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
                   const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                  const porEvento = esInsumoPorEvento(undefined, item.unidadCantidad, catalogInsumo);
+                  const totalNeeded = porEvento ? (item.cantidadNecesaria || 0) : (item.cantidadNecesaria || 0) * totalInvitados;
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: totalNeeded,
@@ -254,6 +275,7 @@ function ListaDeComprasContent() {
                       proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
                       origen: 'Barra de Tragos',
                       origenId: item.origenId,
+                      porEvento,
                   });
               });
           }
@@ -265,6 +287,8 @@ function ListaDeComprasContent() {
               cat.items.forEach(item => {
                   // Igual que en bebidas: cantidad cero es "no se pide".
                   if (Number(item.cantidad) === 0) return;
+                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                  const porEvento = esInsumoPorEvento(undefined, item.unidad, catalogInsumo);
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: item.cantidad || 1,
@@ -273,7 +297,8 @@ function ListaDeComprasContent() {
                       proveedor: item.proveedor || 'Sin especificar',
                       origen: `Repostería: ${cat.nombreDisplay}`,
                       origenId: item.origenId,
-                      isOrder: true
+                      isOrder: true,
+                      porEvento,
                   });
               });
           });
@@ -284,15 +309,20 @@ function ListaDeComprasContent() {
       // (orden 139): 200 g + 2 kg son 2,20 kg, no "202". La cuenta vive en
       // `consolidarCompras`, la misma que usa el resumen de planificacion; la clave del
       // renglon (claveDeConsolidado(nombre, proveedor, unidad)) se arma adentro.
+      const incompatibles: string[] = [];
       const crudos: CompraCruda[] = rawList.map(raw => {
           const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
           const resolvedProvider = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
-          const unidadRecetaMin = String(raw.unit || '').toLowerCase().trim();
-          // Si el catalogo no dice en que unidad esta el precio y la receta va en gramos o
-          // mililitros, se sigue suponiendo kilo o litro, como antes.
-          const unidadCostoSupuesta = ['g', 'gramos'].includes(unidadRecetaMin)
+          const unidadRecetaBase = normalizarUnidad(raw.unit).unidad;
+          // Si el catálogo no dice en qué unidad está el precio y la receta va en peso o
+          // volumen, se supone kilo o litro respectivamente (cubre g, gr, grs, ml, cc, mililitros).
+          const unidadCostoSupuesta = unidadRecetaBase === 'kg'
               ? 'kg'
-              : ['ml', 'cc', 'cc.'].includes(unidadRecetaMin) ? 'l' : undefined;
+              : unidadRecetaBase === 'l' ? 'l' : undefined;
+          if (matchedInsumo?.unidad && raw.unit && convertir(1, raw.unit, matchedInsumo.unidad) === null) {
+              incompatibles.push(`${raw.nombre} (receta en "${raw.unit}", catálogo en "${matchedInsumo.unidad}")`);
+          }
+          const porEvento = esInsumoPorEvento(raw.porEvento, raw.unit, matchedInsumo);
           return {
               nombre: raw.nombre,
               cantidadNecesaria: raw.cantidadNecesaria,
@@ -304,10 +334,12 @@ function ListaDeComprasContent() {
               origen: raw.origen,
               origenId: raw.origenId,
               isOrder: raw.isOrder,
+              porEvento,
               stockDisponible: matchedInsumo?.cantidadDisponible || 0,
               unidadStock: matchedInsumo?.unidad,
           };
       });
+      setUnidadesIncompatibles(Array.from(new Set(incompatibles)));
 
       // Lo que hay que comprar se redondea SIEMPRE para arriba. La receta da
       // numeros con coma (0,25 litros por persona por 83 personas son 20,75
@@ -504,6 +536,20 @@ function ListaDeComprasContent() {
         </div>
 
         {fiesta && <ObservacionesPosfiesta fiestaId={fiesta.id} />}
+
+        {unidadesIncompatibles.length > 0 && (
+          <div className="rounded-xl border border-rose-300 bg-rose-50 p-4">
+            <p className="font-bold text-rose-900">
+              Ojo: hay ingredientes con unidades distintas entre la receta y el catálogo (ej. peso contra volumen)
+            </p>
+            <p className="mt-1 text-sm text-rose-800">
+              No se pueden convertir automáticamente. Revisá el costo y la cantidad antes de comprar:
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-sm font-semibold text-rose-900">
+              {unidadesIncompatibles.map(desc => <li key={desc}>{desc}</li>)}
+            </ul>
+          </div>
+        )}
 
         {platosSinIngredientes.length > 0 && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">

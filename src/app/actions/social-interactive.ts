@@ -398,7 +398,9 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
   try {
     const [fiesta, adminSession] = await Promise.all([
       getFiestaById(fiestaId),
-      hasAppSession(),
+      requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION])
+        .then(() => true)
+        .catch(() => false),
     ]);
     if (!fiesta) return [];
     const privateMode = fiesta.socialGallerySettings?.privateDedicationsMode === true;
@@ -622,7 +624,9 @@ export async function getClientGuestbookMessages(
     }
 
     const [staffSession, portalSession] = await Promise.all([
-      hasAppSession(),
+      requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION])
+        .then(() => true)
+        .catch(() => false),
       verifyPortalSession(fiestaId),
     ]);
     const cleanKey = accessKey?.trim();

@@ -17,6 +17,7 @@ interface RegalosSlideProps {
   catalogoFotos?: CatalogoFoto[];
   /** Map of service ID → uploaded LED photo URL */
   ledFotoMap?: Record<string, string>;
+  onOpenGallery?: (categoria: string) => void;
 }
 
 const DEFAULT_REGALOS = [
@@ -37,7 +38,7 @@ function isSafeHttpsUrl(url: string | null | undefined): boolean {
   }
 }
 
-export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFotoMap = {} }: RegalosSlideProps) {
+export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFotoMap = {}, onOpenGallery }: RegalosSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
   const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo');
   const itemsToShow = gifts.length > 0
@@ -65,12 +66,8 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFot
   };
 
   const handleGallery = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('desde_presentacion_led', 'true');
-      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
-      sessionStorage.setItem('presentacion_slide_regreso', slide);
-      // Always navigate to the gift/exclusivo category in the gallery
-      window.location.assign('/galeria-led?categoria=Regalo+exclusivo');
+    if (onOpenGallery) {
+      onOpenGallery('Regalo exclusivo');
     }
   };
 

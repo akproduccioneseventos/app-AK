@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Video,
@@ -24,10 +24,10 @@ import { guardarVideoParaInvitados, borrarVideoParaInvitados } from '@/app/actio
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
-export default function VideosInvitadosPage() {
+function VideosInvitadosContent() {
   const params = useParams();
-  const router = useRouter();
-  const fiestaId = params.id as string;
+  const searchParams = useSearchParams();
+  const fiestaId = ((params?.id as string) || searchParams.get('fiestaId') || searchParams.get('id') || '').trim();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +52,10 @@ export default function VideosInvitadosPage() {
   const recordedChunksRef = useRef<Blob[]>([]);
 
   const cargarDatos = useCallback(async () => {
+    if (!fiestaId) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const data = await getFiestaForPortalSession(fiestaId);
@@ -235,6 +239,23 @@ export default function VideosInvitadosPage() {
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4">
         <Loader2 className="w-8 h-8 animate-spin text-rose-500 mb-4" />
         <p className="text-sm text-slate-300">Cargando tus dedicatorias...</p>
+      </div>
+    );
+  }
+
+  if (!fiestaId) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-6 text-center">
+        <AlertCircle className="w-12 h-12 text-rose-500 mb-4" />
+        <h1 className="text-xl font-bold mb-2">Abrí esta pantalla desde una fiesta</h1>
+        <p className="text-sm text-slate-400 mb-6 max-w-sm">
+          Entrá desde el portal de tu fiesta para grabar o ver videos para invitados.
+        </p>
+        <Link href="/entrar">
+          <Button variant="outline" className="text-white border-white/20">
+            Volver al ingreso
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -497,5 +518,19 @@ export default function VideosInvitadosPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function VideosInvitadosPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4">
+          <Loader2 className="w-8 h-8 animate-spin text-rose-500 mb-4" />
+        </div>
+      }
+    >
+      <VideosInvitadosContent />
+    </Suspense>
   );
 }

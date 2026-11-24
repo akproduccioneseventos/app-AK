@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, Percent, GlassWater, Save, Search, CakeSlice, Candy, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
+import { getMenus, saveMenu, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
 import { getMisPermisos, esSesionDeSoloLectura } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
@@ -130,6 +130,27 @@ function GestionMenusPageInner() {
       } else throw new Error(result.error);
     } catch (err: any) {
       toast({ title: 'Error al Duplicar', description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleTogglePublicacion = async (menu: FullMenu) => {
+    setProcessingId(menu.id);
+    try {
+      const nextEstado = menu.estadoPublicacion === 'borrador' ? 'publicado' : 'borrador';
+      const result = await conTopeDeEspera(saveMenu({ ...menu, estadoPublicacion: nextEstado }));
+      if (result.success) {
+        toast({
+          title: nextEstado === 'publicado' ? "Menú publicado" : "Menú pasado a borrador",
+          description: `"${menu.name}" ahora está ${nextEstado}.`,
+        });
+        fetchData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setProcessingId(null);
     }
@@ -405,9 +426,25 @@ function GestionMenusPageInner() {
                     <CardDescription className="text-xs line-clamp-2 h-8 font-medium">{menu.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow space-y-4 pt-0">
-                    <div className="flex items-center justify-between"><Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-500 border-none px-3 font-bold text-[10px]">{menu.items.length} PLATOS</Badge></div>
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-500 border-none px-3 font-bold text-[10px]">{menu.items.length} PLATOS</Badge>
+                      <Badge variant={menu.estadoPublicacion === 'borrador' ? 'outline' : 'default'} className="rounded-full px-2.5 py-0.5 text-[10px] font-bold">
+                        {menu.estadoPublicacion === 'borrador' ? 'Borrador' : 'Publicado'}
+                      </Badge>
+                    </div>
                     </CardContent>
-                    <CardFooter className="flex justify-end gap-2 border-t border-slate-50 bg-slate-50/50 p-4">
+                    <CardFooter className="flex justify-between items-center gap-2 border-t border-slate-50 bg-slate-50/50 p-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 rounded-xl text-xs font-bold"
+                      onClick={() => handleTogglePublicacion(menu)}
+                      disabled={processingId === menu.id}
+                    >
+                      {processingId === menu.id ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1"/> : null}
+                      {menu.estadoPublicacion === 'borrador' ? 'Publicar' : 'Pasar a borrador'}
+                    </Button>
+                    <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-400 hover:bg-white" onClick={() => handleDuplicateMenu(menu.id, menu.name)} disabled={!!processingId}>
                         {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                     </Button>
@@ -425,6 +462,7 @@ function GestionMenusPageInner() {
                         </AlertDialogContent>
                     </AlertDialog>
                     )}
+                    </div>
                     </CardFooter>
                 </Card>
                 ))}

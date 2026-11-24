@@ -16,6 +16,7 @@ interface MenuAdultoSlideProps {
   mostrarPrecios?: boolean;
   onSelect: (id: string | null) => void;
   onNext: () => void;
+  onOpenGallery?: (categoria: string) => void;
 }
 
 function isSafeUrl(url: string | null | undefined): boolean {
@@ -39,12 +40,14 @@ function MenuCard({
   onSelect,
   mostrarPrecios,
   photoUrl,
+  onOpenGallery,
 }: {
   menu: FullMenu;
   isSelected: boolean;
   onSelect: () => void;
   mostrarPrecios: boolean;
   photoUrl?: string | null;
+  onOpenGallery?: () => void;
 }) {
   const [showDesc, setShowDesc] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
@@ -52,12 +55,8 @@ function MenuCard({
   const platoPrincipal = getPlatoPrincipal(menu);
 
   const handleGallery = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('desde_presentacion_led', 'true');
-      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
-      sessionStorage.setItem('presentacion_slide_regreso', slide);
-      // Always navigate to the Catering category in the gallery
-      window.location.assign('/galeria-led?categoria=Catering');
+    if (onOpenGallery) {
+      onOpenGallery();
     }
   };
 
@@ -167,6 +166,7 @@ export function MenuAdultoSlide({
   mostrarPrecios = true,
   onSelect,
   onNext,
+  onOpenGallery,
 }: MenuAdultoSlideProps) {
   const canContinue = !!selectedMenuId;
 
@@ -213,6 +213,7 @@ export function MenuAdultoSlide({
                   onSelect={() => onSelect(menu.id)}
                   mostrarPrecios={mostrarPrecios}
                   photoUrl={ledFotoMap[menu.id] || getCateringMenuImage(menu) || null}
+                  onOpenGallery={onOpenGallery ? () => onOpenGallery('Catering') : undefined}
                 />
               </motion.div>
             ))}

@@ -47,7 +47,11 @@ export interface GoogleOAuthState {
   kind: GoogleWorkspaceAccountKind;
   employeeId?: string;
   returnTo?: string;
+  uid?: string;
+  iat?: number;
 }
+
+const GOOGLE_OAUTH_STATE_MAX_AGE_MS = 30 * 60 * 1000;
 
 function base64UrlEncode(value: string) {
   return Buffer.from(value, 'utf8')
@@ -78,30 +82,44 @@ function getGoogleStateSecret(): string {
 }
 
 export function encodeGoogleState(state: GoogleOAuthState) {
-  const payload = base64UrlEncode(JSON.stringify(state));
+  const payloadObj: GoogleOAuthState = {
+    ...state,
+    iat: typeof state.iat === 'number' ? state.iat : Date.now(),
+  };
+  const payload = base64UrlEncode(JSON.stringify(payloadObj));
   const sig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
   return `${payload}.${sig}`;
 }
 
-export function decodeGoogleState(rawState: string | null): GoogleOAuthState {
-  if (!rawState) return { kind: 'company' };
+export function decodeGoogleState(rawState: string | null): GoogleOAuthState | null {
+  if (!rawState || typeof rawState !== 'string') return null;
   try {
     const parts = rawState.split('.');
-    if (parts.length !== 2) return { kind: 'company' };
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
     const [payload, sig] = parts;
     const expectedSig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
     if (!clavesIguales(sig, expectedSig)) {
       console.warn('[google-workspace] HMAC signature mismatch en state');
-      return { kind: 'company' };
+      return null;
     }
     const parsed = JSON.parse(base64UrlDecode(payload));
+    if (!parsed || typeof parsed !== 'object') return null;
+    if (parsed.kind !== 'company' && parsed.kind !== 'employee') return null;
+    if (typeof parsed.iat === 'number') {
+      const ageMs = Date.now() - parsed.iat;
+      if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs > GOOGLE_OAUTH_STATE_MAX_AGE_MS) {
+        return null;
+      }
+    }
     return {
-      kind: parsed.kind === 'employee' ? 'employee' : 'company',
+      kind: parsed.kind,
       employeeId: typeof parsed.employeeId === 'string' ? parsed.employeeId : undefined,
       returnTo: typeof parsed.returnTo === 'string' ? parsed.returnTo : undefined,
+      uid: typeof parsed.uid === 'string' ? parsed.uid : undefined,
+      iat: typeof parsed.iat === 'number' ? parsed.iat : undefined,
     };
   } catch {
-    return { kind: 'company' };
+    return null;
   }
 }
 
@@ -569,6 +587,15 @@ export function buildEmployeeCalendarEvent(
   };
 }
 
+function escapeHtml(value?: string | number | null): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function buildStaffEmailHtml(
   fiesta: FiestaEnPlanificacion,
   employee: Empleado,
@@ -586,14 +613,14 @@ export function buildStaffEmailHtml(
   return `
     <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
       <h2 style="color:#b91c1c;margin-bottom:8px">Nueva asignacion AK</h2>
-      <p>Hola ${employee.nombre}, tenes una fiesta asignada.</p>
+      <p>Hola ${escapeHtml(employee.nombre)}, tenes una fiesta asignada.</p>
       <ul>
-        <li><strong>Fiesta:</strong> ${getFiestaTitle(fiesta)}</li>
-        <li><strong>Fecha:</strong> ${dateLabel}</li>
-        <li><strong>Rol:</strong> ${roleName}</li>
-        ${cfg.nombreLugar ? `<li><strong>Lugar:</strong> ${cfg.nombreLugar}</li>` : ''}
-        ${cfg.direccionLugar ? `<li><strong>Direccion:</strong> ${cfg.direccionLugar}</li>` : ''}
-        ${assignment.eventSalary ? `<li><strong>Pago del evento:</strong> ${assignment.eventSalary}</li>` : ''}
+        <li><strong>Fiesta:</strong> ${escapeHtml(getFiestaTitle(fiesta))}</li>
+        <li><strong>Fecha:</strong> ${escapeHtml(dateLabel)}</li>
+        <li><strong>Rol:</strong> ${escapeHtml(roleName)}</li>
+        ${cfg.nombreLugar ? `<li><strong>Lugar:</strong> ${escapeHtml(cfg.nombreLugar)}</li>` : ''}
+        ${cfg.direccionLugar ? `<li><strong>Direccion:</strong> ${escapeHtml(cfg.direccionLugar)}</li>` : ''}
+        ${assignment.eventSalary ? `<li><strong>Pago del evento:</strong> ${escapeHtml(assignment.eventSalary)}</li>` : ''}
       </ul>
       <p>Si hay un cambio de fecha o de rol, AK te vuelve a avisar.</p>
     </div>

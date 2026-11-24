@@ -11,15 +11,18 @@ import type { ServicioEmpresa } from '@/types/empresa';
  * solo se puede llamar desde adentro del servidor.
  */
 const INSUMOS_FILE = 'insumos.json';
+const CACHE_TTL_MS = 60_000;
 
 let cache: ServicioEmpresa[] | null = null;
+let cacheAt = 0;
 
 export function limpiarCacheInsumos() {
   cache = null;
+  cacheAt = 0;
 }
 
 export async function leerInsumosCrudos(): Promise<ServicioEmpresa[]> {
-  if (cache) return cache;
+  if (cache && Date.now() - cacheAt < CACHE_TTL_MS) return cache;
   const items = await readData<Array<Record<string, unknown>>>(INSUMOS_FILE, []);
   const mapped = (Array.isArray(items) ? items : []).map((item) => ({
     ...item,
@@ -34,5 +37,6 @@ export async function leerInsumosCrudos(): Promise<ServicioEmpresa[]> {
         : undefined,
   })) as ServicioEmpresa[];
   cache = mapped;
+  cacheAt = Date.now();
   return mapped;
 }

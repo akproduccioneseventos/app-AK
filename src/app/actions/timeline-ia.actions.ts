@@ -12,6 +12,10 @@ export async function generateTimelineAction(
 ): Promise<{ success: boolean; data?: ProgramaEventoItem[]; error?: string }> {
   await requireAppSession();
   try {
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+    if (!(await hayPresupuestoParaIA().catch(() => false))) {
+      return { success: false, error: 'Se alcanzó el tope mensual de IA.' };
+    }
     const items = await generateTimelineFlow({
       eventoTipo,
       horaInicio,
@@ -22,6 +26,8 @@ export async function generateTimelineAction(
     if (!items || items.length === 0) {
       return { success: false, error: 'La IA no pudo generar el cronograma.' };
     }
+
+    await registrarConsumoIA('itinerario-ia').catch(() => undefined);
 
     const formatItems: ProgramaEventoItem[] = items.map((item, index) => ({
       id: `prog_ia_${Date.now()}_${index}`,

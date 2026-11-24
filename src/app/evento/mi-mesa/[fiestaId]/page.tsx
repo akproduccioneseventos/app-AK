@@ -133,9 +133,9 @@ export default function MiMesaPage() {
   if (selected) {
     const token = queryToken || storedCred?.token || '';
     const guestIdForHub = queryGuestId || storedCred?.guestId || selected.id;
-    const hubHref = guestIdForHub && token
-      ? withGuestAccess(`/evento/hub/${encodeURIComponent(fiestaId)}`, guestIdForHub, token)
-      : `/evento/hub/${encodeURIComponent(fiestaId)}?guestId=${encodeURIComponent(selected.id)}&token=${encodeURIComponent(token)}`;
+    const hasGuestAccess = Boolean(guestIdForHub && token);
+    const hubHref = hasGuestAccess ? withGuestAccess(`/evento/hub/${encodeURIComponent(fiestaId)}`, guestIdForHub, token) : null;
+    const barraHref = hasGuestAccess ? withGuestAccess(`/evento/barra/${encodeURIComponent(fiestaId)}`, guestIdForHub, token) : `/evento/barra/${encodeURIComponent(fiestaId)}`;
 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4"
@@ -158,14 +158,20 @@ export default function MiMesaPage() {
             <p className="text-sm opacity-60">¡Que disfrutes el evento! 🎉</p>
           </div>
           <div className="flex flex-col gap-3">
+            {hubHref ? (
+              <Link
+                href={hubHref}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
+              >
+                <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
+              </Link>
+            ) : (
+              <div className="p-3 bg-white/10 border border-white/20 rounded-xl text-xs text-white/80 text-center font-medium">
+                Para entrar a la fiesta abrí tu invitación (WhatsApp o correo)
+              </div>
+            )}
             <Link
-              href={hubHref}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
-            >
-              <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
-            </Link>
-            <Link
-              href={`/evento/barra/${fiestaId}`}
+              href={barraHref}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-3 text-sm font-bold text-white transition-all"
             >
               Ver la carta de barra

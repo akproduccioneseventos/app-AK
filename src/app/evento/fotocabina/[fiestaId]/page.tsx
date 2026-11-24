@@ -271,15 +271,25 @@ export default function FotocabinaPage() {
     }
   };
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextCtor) return;
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioContextCtor();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       const osc = ctx.createOscillator();
       osc.frequency.value = freq;
       osc.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + duration);
-    } catch(e) {}
+    } catch {}
   };
 
   const stopCamera = useCallback(() => {
@@ -296,8 +306,20 @@ export default function FotocabinaPage() {
     desmontadoRef.current = false;
     return () => {
       desmontadoRef.current = true;
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (videoRecuerdoUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(videoRecuerdoUrl);
+      }
+    };
+  }, [videoRecuerdoUrl]);
 
   const startCamera = useCallback(async () => {
     setErrorMsg(null);
@@ -776,6 +798,8 @@ export default function FotocabinaPage() {
         imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
         overlayName: fiesta?.station.overlayName,
+        marcoOverlayUrl: fiesta?.papeleriaIA?.marcoFotocabina?.url || undefined,
+        printLayout: disenoImpresion === 'una' ? 'single_photo' : undefined,
       });
       setCapturedImage(recuerdo);
     } catch (err) {
@@ -1253,11 +1277,12 @@ export default function FotocabinaPage() {
     if (role !== 'display') return;
     if (localStatus !== 'done') return;
     if (!capturedImage || yaSeImprimio) return;
-    if (fotosDeLaTanda.length < FOTOS_POR_TANDA) return;
+    const limiteFotos = fiesta?.station.fotosPorTanda || FOTOS_POR_TANDA;
+    if (fotosDeLaTanda.length < limiteFotos) return;
     handleImprimir(true);
     // handleImprimir se recrea en cada dibujo; alcanza con mirar el recuerdo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [capturedImage, localStatus, role, yaSeImprimio, fotosDeLaTanda.length]);
+  }, [capturedImage, localStatus, role, yaSeImprimio, fotosDeLaTanda.length, fiesta?.station.fotosPorTanda]);
 
   const handleOperatorStart = async () => {
     setErrorMsg(null);
@@ -1715,10 +1740,10 @@ export default function FotocabinaPage() {
                   ))}
                 </div>
                 <p className="text-sm font-black uppercase tracking-widest text-amber-300">
-                  Foto {fotoEnCurso} de {FOTOS_POR_TANDA}
+                  Foto {fotoEnCurso} de {fiesta?.station.fotosPorTanda || FOTOS_POR_TANDA}
                 </p>
                 <p className="max-w-md text-lg font-bold text-white drop-shadow-lg sm:text-xl">
-                  {GUIA_POR_FOTO[fotoEnCurso - 1]}
+                  {GUIA_POR_FOTO[fotoEnCurso - 1] || '¡Otra pose increíble!'}
                 </p>
               </div>
             )}
@@ -1840,7 +1865,9 @@ export default function FotocabinaPage() {
                       ? 'Foto guardada en este equipo'
                       : errorMsg
                         ? 'No se pudo publicar'
-                        : 'Tus tres fotos'}
+                        : fotosDeLaTanda.length === 1
+                          ? 'Tu foto'
+                          : `Tus ${fotosDeLaTanda.length} fotos`}
                 </h3>
                 <p className="text-sm text-zinc-400">
                   {qrCodeUrl

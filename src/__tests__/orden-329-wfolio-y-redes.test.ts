@@ -1,10 +1,10 @@
 /** @jest-environment node */
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import JSZip from 'jszip';
 
 describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
+  const fiestaId = `fiesta-329-test-${Date.now()}`;
   let tempDir: string;
   let fotoCabinaPath: string;
   let fotoTiraPath: string;
@@ -15,7 +15,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   let fotoPendientePath: string;
 
   beforeAll(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-orden-329-'));
+    tempDir = path.join(process.cwd(), 'src', 'data', 'social-gallery', fiestaId);
+    await fs.mkdir(tempDir, { recursive: true });
     fotoCabinaPath = path.join(tempDir, 'cabina_01.jpg');
     fotoTiraPath = path.join(tempDir, 'tira_02.jpg');
     video360Path = path.join(tempDir, 'clip_360.mp4');
@@ -46,6 +47,16 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
     jest.isolateModules(() => {
       jest.doMock('@/lib/auth/require-session', () => ({
         hasAppSession: jest.fn(async () => hasSession),
+        requireAppSession: jest.fn(async () => {
+          if (!hasSession) throw new Error('Unauthorized');
+          return { user: { role: 'admin' } };
+        }),
+      }));
+      jest.doMock('@/lib/auth/event-access', () => ({
+        requireEventPermission: jest.fn(async () => {
+          if (!hasSession) throw new Error('No autorizado');
+          return { id: fiestaId };
+        }),
       }));
       jest.doMock('@/app/actions/social-gallery', () => ({
         getPhotoFilePathsForZip: jest.fn(async () => ({
@@ -55,6 +66,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoCabinaPath,
               imageUrl: fotoCabinaPath,
               name: 'cabina_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'fotocabina',
@@ -64,6 +76,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoTiraPath,
               imageUrl: fotoTiraPath,
               name: 'tira_02.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               caption: 'Tira de recuerdos',
               source: 'entertainment',
@@ -73,6 +86,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: video360Path,
               imageUrl: video360Path,
               name: 'clip_360.mp4',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'plataforma-360',
@@ -83,6 +97,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoInvitadoPath,
               imageUrl: fotoInvitadoPath,
               name: 'invitado_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'guest',
             },
@@ -91,6 +106,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoVoguePath,
               imageUrl: fotoVoguePath,
               name: 'vogue_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'vogue',
@@ -100,6 +116,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoOcultaPath,
               imageUrl: fotoOcultaPath,
               name: 'oculta_01.jpg',
+              approved: false,
               moderationStatus: 'hidden' as const,
               source: 'guest',
             },
@@ -108,6 +125,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoPendientePath,
               imageUrl: fotoPendientePath,
               name: 'pendiente_01.jpg',
+              approved: false,
               moderationStatus: 'pending' as const,
               source: 'entertainment',
               sourceModule: 'fotocabina',
@@ -129,8 +147,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('sin sesión responde 401 igual que hoy', async () => {
     const ruta = cargarRuta(false);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download?carpetas=1'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download?carpetas=1`),
+      { params: Promise.resolve({ fiestaId }) },
     );
     expect(res.status).toBe(401);
   });
@@ -138,8 +156,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('con sesión y ?carpetas=1 entrega las carpetas esperadas sin las fotos ocultas ni pendientes', async () => {
     const ruta = cargarRuta(true);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download?carpetas=1'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download?carpetas=1`),
+      { params: Promise.resolve({ fiestaId }) },
     );
 
     expect(res.status).toBe(200);
@@ -162,8 +180,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('sin ?carpetas=1 conserva la descarga plana actual', async () => {
     const ruta = cargarRuta(true);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download`),
+      { params: Promise.resolve({ fiestaId }) },
     );
 
     expect(res.status).toBe(200);

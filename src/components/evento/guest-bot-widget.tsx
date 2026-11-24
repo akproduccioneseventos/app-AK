@@ -31,7 +31,7 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
     setIsTyping(true);
 
     try {
-      const res = await chatWithGuestBot(fiesta, userText, currentHistory);
+      const res = await chatWithGuestBot(fiesta.id, userText, currentHistory);
       setMessages(prev => [...prev, { role: 'bot' as const, text: res.response }]);
     } catch (e) {
       console.error(e);

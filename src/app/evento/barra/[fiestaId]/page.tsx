@@ -443,14 +443,21 @@ export default function BarraTecnologicaTouchPage() {
     return () => clearInterval(interval);
   }, [loadData, fiestaId]);
 
+  const isRecordingRef = useRef(false);
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
-    if (isRecording) {
-      mediaRecorderRef.current?.stop();
+    if (isRecordingRef.current || (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive')) {
+      try {
+        mediaRecorderRef.current?.stop();
+      } catch {}
       setIsRecording(false);
     }
-  }, [isRecording]);
+  }, []);
 
   useEffect(() => {
     return () => stopCamera();
@@ -709,25 +716,33 @@ export default function BarraTecnologicaTouchPage() {
         toast({ title: 'Error', description: result.error, variant: 'destructive' });
       }
     } catch {
-      enqueueOfflineAction({
-        type: 'barra_pedido',
-        fiestaId,
-        payload: {
-          drinkId: currentDrink.id,
-          drinkName: currentDrink.nombre,
-          guestName,
-          tableNumber: 'Totem Táctil',
-          clientRequestId: pedidoId,
-          version: drinkVersion,
-        },
-      });
-      currentClientRequestIdRef.current = null;
-      setLastOrderedDrink(currentDrink);
-      setSelectedDrink(null);
-      toast({
-        title: 'Pedido guardado sin conexión',
-        description: 'Tu pedido se enviará a la barra automáticamente cuando vuelva la señal.',
-      });
+      try {
+        enqueueOfflineAction({
+          type: 'barra_pedido',
+          fiestaId,
+          payload: {
+            drinkId: currentDrink.id,
+            drinkName: currentDrink.nombre,
+            guestName,
+            tableNumber: 'Totem Táctil',
+            clientRequestId: pedidoId,
+            version: drinkVersion,
+          },
+        });
+        currentClientRequestIdRef.current = null;
+        setLastOrderedDrink(currentDrink);
+        setSelectedDrink(null);
+        toast({
+          title: 'Pedido guardado sin conexión',
+          description: 'Tu pedido se enviará a la barra automáticamente cuando vuelva la señal.',
+        });
+      } catch {
+        toast({
+          title: 'Sin espacio para guardar el pedido',
+          description: 'No hay conexión ni lugar libre en este equipo. Avisale al barman.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       isSubmittingOrderRef.current = false;
       setIsOrdering(false);

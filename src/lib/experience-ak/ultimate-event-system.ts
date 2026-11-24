@@ -133,7 +133,7 @@ export function buildSmartQrTargets(fiesta: FiestaEnPlanificacion): SmartQrTarge
       id: 'cliente',
       label: 'Cliente',
       description: 'Abrir portal del cliente con pagos, documentos, invitados, tareas y datos de la fiesta.',
-      href: portalKey ? `/portal/c/${encodeURIComponent(portalKey)}` : withFiestaId('/fiestas/nueva/portal-cliente', fiestaId),
+      href: portalKey ? `/portal/c/${encodeURIComponent(portalKey)}` : `/portal?fiestaId=${encodeURIComponent(fiestaId)}`,
       audience: 'cliente',
       priority: 2,
     },

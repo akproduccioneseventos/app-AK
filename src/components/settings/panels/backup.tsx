@@ -28,6 +28,18 @@ import { comoEstaElRespaldo } from '@/lib/respaldos/como-esta-el-respaldo';
 import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
+const BACKUP_QUERY_TIMEOUT_MS = 12_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, timeoutMessage: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(timeoutMessage)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function BackupPage() {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
@@ -36,6 +48,7 @@ export default function BackupPage() {
   const [backupStatus, setBackupStatus] = useState<AutoBackupStatus | null>(null);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [statusLoadError, setStatusLoadError] = useState(false);
+  const [statusErrorMessage, setStatusErrorMessage] = useState<string | null>(null);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
   const [puedeBorrar, setPuedeBorrar] = useState(false);
@@ -100,18 +113,60 @@ export default function BackupPage() {
   const loadRestorePoints = useCallback(async () => {
     setIsLoadingPoints(true);
     setStatusLoadError(false);
+    setStatusErrorMessage(null);
     try {
-      const [points, status] = await Promise.all([
-        getRestorePoints(),
-        getBackupStatus().catch(() => null),
+      const [pointsRes, statusRes] = await Promise.allSettled([
+        withTimeout(
+          getRestorePoints(),
+          BACKUP_QUERY_TIMEOUT_MS,
+          'La consulta de puntos de restauración tardó más de 12 segundos.'
+        ),
+        withTimeout(
+          getBackupStatus(),
+          BACKUP_QUERY_TIMEOUT_MS,
+          'La consulta del estado de respaldos en Firestore tardó más de 12 segundos.'
+        ),
       ]);
-      setRestorePoints(points);
-      setBackupStatus(status);
-      if (!status) {
-        setStatusLoadError(true);
+
+      if (pointsRes.status === 'fulfilled') {
+        setRestorePoints(Array.isArray(pointsRes.value) ? pointsRes.value : []);
       }
-    } catch (e) {
+
+      if (statusRes.status === 'fulfilled' && statusRes.value) {
+        setBackupStatus(statusRes.value);
+      } else {
+        setBackupStatus(null);
+        setStatusLoadError(true);
+        const reason =
+          statusRes.status === 'rejected'
+            ? statusRes.reason
+            : pointsRes.status === 'rejected'
+              ? pointsRes.reason
+              : null;
+        const msg =
+          reason instanceof Error && reason.message
+            ? reason.message
+            : typeof reason === 'string' && reason.trim()
+              ? reason.trim()
+              : 'El servidor no devolvió el estado de los respaldos automáticos.';
+        setStatusErrorMessage(msg);
+      }
+
+      if (pointsRes.status === 'rejected') {
+        const msg =
+          pointsRes.reason instanceof Error && pointsRes.reason.message
+            ? pointsRes.reason.message
+            : 'No se pudieron cargar los puntos de restauración.';
+        toast({ title: 'Error', description: msg, variant: 'destructive' });
+      }
+    } catch (e: unknown) {
+      setBackupStatus(null);
       setStatusLoadError(true);
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : 'No se pudo consultar el estado de los respaldos.';
+      setStatusErrorMessage(msg);
       toast({ title: "Error", description: "No se pudieron cargar los puntos de restauración.", variant: "destructive" });
     } finally {
       setIsLoadingPoints(false);
@@ -234,17 +289,33 @@ export default function BackupPage() {
           return (
             <Card className="shadow-md overflow-hidden border-amber-300 bg-gradient-to-r from-amber-50 to-white" data-testid="card-backup-desconocido">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
                     <AlertTriangle className="w-6 h-6 text-amber-600" />
                     Estado de Respaldo
                   </CardTitle>
-                  <Badge className="bg-amber-600 text-white border-none">
-                    ESTADO DESCONOCIDO: NO SE PUDO SABER
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="bg-amber-600 text-white border-none">
+                      ESTADO DESCONOCIDO: NO SE PUDO SABER
+                    </Badge>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loadRestorePoints()}
+                      disabled={isLoadingPoints}
+                      className="border-amber-300 bg-white text-amber-900 hover:bg-amber-100"
+                    >
+                      <RotateCw className="w-3.5 h-3.5 mr-1.5" />
+                      Reintentar consulta
+                    </Button>
+                  </div>
                 </div>
-                <CardDescription className="text-amber-800">
-                  No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.
+                <CardDescription className="text-amber-800 space-y-1">
+                  {statusErrorMessage && (
+                    <span className="block font-semibold">{statusErrorMessage}</span>
+                  )}
+                  <span>No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.</span>
                 </CardDescription>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-3">

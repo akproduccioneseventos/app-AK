@@ -13,9 +13,11 @@ import { submitScreenLiveStreamAnswer } from '@/app/actions/social-live-stream';
 export function LiveStreamScreenReceiver({
   fiestaId,
   streamRequest,
+  screenToken,
 }: {
   fiestaId: string;
   streamRequest: LiveStreamRequest;
+  screenToken?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -88,6 +90,7 @@ export function LiveStreamScreenReceiver({
           streamRequest.id,
           JSON.stringify(answer),
           localCandidates,
+          screenToken,
         );
         if (!answerRes.success) {
           console.warn('[LiveStreamScreenReceiver] No se pudo enviar respuesta WebRTC');

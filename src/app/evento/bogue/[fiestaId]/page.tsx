@@ -227,6 +227,23 @@ export default function VoguePage() {
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const selectedFrameRef = useRef('none');
 
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (finalVideoUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(finalVideoUrl);
+      }
+    };
+  }, [finalVideoUrl]);
+
   const speak = (text: string) => {
     if (!voiceEnabled) return;
     try {

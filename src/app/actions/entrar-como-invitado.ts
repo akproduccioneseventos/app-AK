@@ -5,6 +5,7 @@ import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -88,6 +89,7 @@ function esFiestaAbiertaParaInvitados(
   limiteFecha: string,
 ): fiesta is FiestaEnPlanificacion {
   if (!fiesta || !fiesta.id) return false;
+  if (esFiestaDemo(fiesta)) return false;
   if ((fiesta as { archivada?: boolean }).archivada === true) return false;
   const estado = String(fiesta.estado || '').trim().toLowerCase();
   const status = String((fiesta as { status?: string }).status || '').trim().toLowerCase();
@@ -167,7 +169,7 @@ export async function entrarComoInvitado(input: {
     await enforcePublicRateLimit({
       scope: 'entrar-como-invitado-ip',
       identity: 'ip',
-      limit: 20,
+      limit: 120,
       windowMs: 15 * 60 * 1000,
     });
   } catch (err) {
@@ -192,21 +194,28 @@ export async function entrarComoInvitado(input: {
   if (telefonoNormalizado.length >= 6) {
     const coincidencias: Array<{ fiesta: FiestaEnPlanificacion; invitado: Invitado }> = [];
     for (const fiesta of fiestasAbiertas) {
-      const invitado = (fiesta.invitados || []).find((inv) => {
+      const invitadosCoincidentes = (fiesta.invitados || []).filter((inv) => {
         const telInv = normalizeUruguayPhone(inv.contacto);
         return telInv.length >= 6 && telInv === telefonoNormalizado;
       });
-      if (invitado) {
+      for (const invitado of invitadosCoincidentes) {
         coincidencias.push({ fiesta, invitado });
       }
     }
 
     if (input?.fiestaIdElegida) {
-      const elegida = coincidencias.find((c) => c.fiesta.id === input.fiestaIdElegida);
-      if (!elegida) {
+      const elegidas = coincidencias.filter((c) => c.fiesta.id === input.fiestaIdElegida);
+      if (elegidas.length === 0) {
         return { status: 'no_encontrado', error: MENSAJE_NO_ENCONTRADO };
       }
-      return await emitirCredencialInvitado(elegida.fiesta, elegida.invitado);
+      if (elegidas.length > 1) {
+        return {
+          status: 'ir_a_invitacion',
+          fiestaId: elegidas[0].fiesta.id,
+          url: `/invitacion/${encodeURIComponent(elegidas[0].fiesta.id)}`,
+        };
+      }
+      return await emitirCredencialInvitado(elegidas[0].fiesta, elegidas[0].invitado);
     }
 
     if (coincidencias.length === 1) {
@@ -214,9 +223,21 @@ export async function entrarComoInvitado(input: {
     }
 
     if (coincidencias.length > 1) {
+      const fiestasUnicas = new Map<string, FiestaEnPlanificacion>();
+      for (const { fiesta } of coincidencias) {
+        if (!fiestasUnicas.has(fiesta.id)) fiestasUnicas.set(fiesta.id, fiesta);
+      }
+      if (fiestasUnicas.size === 1) {
+        const unica = coincidencias[0].fiesta;
+        return {
+          status: 'ir_a_invitacion',
+          fiestaId: unica.id,
+          url: `/invitacion/${encodeURIComponent(unica.id)}`,
+        };
+      }
       return {
         status: 'multiple',
-        opciones: coincidencias.map(({ fiesta }) => ({
+        opciones: Array.from(fiestasUnicas.values()).map((fiesta) => ({
           fiestaId: fiesta.id,
           nombreEvento:
             fiesta.configuracion?.nombreEvento ||
@@ -239,11 +260,11 @@ export async function entrarComoInvitado(input: {
     }
 
     if (nombreNormalizado) {
-      const invitado = (fiesta.invitados || []).find(
+      const invitadosCoincidentes = (fiesta.invitados || []).filter(
         (inv) => normalizeGuestName(inv.nombre || '') === nombreNormalizado,
       );
-      if (invitado) {
-        return await emitirCredencialInvitado(fiesta, invitado);
+      if (invitadosCoincidentes.length === 1) {
+        return await emitirCredencialInvitado(fiesta, invitadosCoincidentes[0]);
       }
     }
 

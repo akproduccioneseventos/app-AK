@@ -27,7 +27,9 @@ import { Button } from '@/components/ui/button';
 import { InstalarEstaEstacion } from './instalar-esta-estacion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
+import { getFiestaActivaDeHoy, getFiestasParaKiosco, type KioscoFiestaOption } from '@/app/actions/fiesta-actual';
+import { getKioskStationGuestToken } from '@/app/actions/fiesta/entretenimiento.actions';
+import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 
 export type KioskRole =
   | 'barra'
@@ -63,18 +65,40 @@ const ETIQUETAS_DE_ESTACION: Record<string, string> = {
   bogue: 'Vogue Booth',
 };
 
+const ROLE_TO_ENTERTAINMENT_MODULE: Partial<Record<KioskRole, EntertainmentModuleId>> = {
+  fotocabina: 'fotocabina',
+  'plataforma-360': 'plataforma360',
+  bogue: 'bogue',
+  'espejo-magico': 'espejoMagicoFirma',
+  touchpix: 'espejoMagicoIA',
+  totem: 'totems',
+  buzon: 'capsulaTiempo',
+};
+
+function buildStationPath(role: string, fiestaId: string, totem: string, accessToken?: string): string {
+  const basePath = role === 'totem'
+    ? `/evento/totem/${fiestaId}/${totem.trim() || 'totem-principal'}`
+    : `/evento/${role}/${fiestaId}`;
+  if (!accessToken) return basePath;
+  return `${basePath}?access=${encodeURIComponent(accessToken)}`;
+}
+
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const router = useRouter();
   const fiestaSelectId = useId();
   const rolesGroupId = useId();
   const totemInputId = useId();
+  const codigoInputId = useId();
   const resolvedDefaultRole = (defaultRole in ETIQUETAS_DE_ESTACION ? defaultRole : 'fotocabina') as KioskRole;
 
   // Loading and State
   const [status, setStatus] = useState<'checking' | 'setup' | 'redirecting'>('checking');
-  const [fiestas, setFiestas] = useState<any[]>([]);
+  const [fiestas, setFiestas] = useState<KioscoFiestaOption[]>([]);
   const [selectedFiestaId, setSelectedFiestaId] = useState('');
   const [selectedRole, setSelectedRole] = useState<KioskRole>(resolvedDefaultRole);
+  const [requiereCodigo, setRequiereCodigo] = useState(false);
+  const [codigoFiestaInput, setCodigoFiestaInput] = useState('');
+  const [codigoFiestaActivo, setCodigoFiestaActivo] = useState('');
 
   useEffect(() => {
     setSelectedRole(resolvedDefaultRole);
@@ -93,10 +117,14 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const [totemId, setTotemId] = useState('');
   const [enlaceCopiado, setEnlaceCopiado] = useState(false);
 
-  const loadFiestaOptions = useCallback(async (preferredFiestaId?: string) => {
+  const loadFiestaOptions = useCallback(async (preferredFiestaId?: string, codigoBusqueda?: string) => {
     try {
-      const allFiestas = await getFiestas(false);
-      const sorted = [...allFiestas].sort((a, b) =>
+      const res = await getFiestasParaKiosco(codigoBusqueda);
+      if (!res.success && res.error) {
+        setErrorMessage(res.error);
+      }
+      setRequiereCodigo(Boolean(res.requiereCodigo));
+      const sorted = [...(res.fiestas || [])].sort((a, b) =>
         new Date(b.configuracion?.fechaEvento || 0).getTime() -
         new Date(a.configuracion?.fechaEvento || 0).getTime()
       );
@@ -107,47 +135,102 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
             ? preferredFiestaId || sorted[0].id
             : sorted[0].id
         );
+      } else {
+        setSelectedFiestaId('');
+      }
+      if (codigoBusqueda?.trim()) {
+        setCodigoFiestaActivo(codigoBusqueda.trim().toUpperCase());
       }
       setStatus('setup');
-    } catch (err) {
+    } catch {
       setErrorMessage('No se pudieron cargar los eventos del servidor.');
       setStatus('setup');
     }
   }, []);
 
-  const navigateToRole = useCallback((role: string, fiestaId: string, totem: string) => {
-    if (role === 'totem') {
-      router.push(`/evento/totem/${fiestaId}/${totem}`);
-    } else {
-      router.push(`/evento/${role}/${fiestaId}`);
+  const resolveStationPath = useCallback(async (
+    role: string,
+    fiestaId: string,
+    totem: string,
+    codigo?: string,
+  ): Promise<{ path: string | null; token?: string; error?: string }> => {
+    const moduleId = ROLE_TO_ENTERTAINMENT_MODULE[role as KioskRole];
+    if (!moduleId) {
+      return { path: buildStationPath(role, fiestaId, totem) };
     }
-  }, [router]);
+    try {
+      const tokenRes = await getKioskStationGuestToken(fiestaId, moduleId, codigo);
+      if (tokenRes.success && tokenRes.guestToken) {
+        return {
+          path: buildStationPath(role, fiestaId, totem, tokenRes.guestToken),
+          token: tokenRes.guestToken,
+        };
+      }
+      return {
+        path: null,
+        error: tokenRes.error || 'No se pudo habilitar el acceso para esta estación.',
+      };
+    } catch {
+      return {
+        path: null,
+        error: 'No se pudo obtener el pase de la estación. Revisá la conexión.',
+      };
+    }
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
     // 1. Check if device is already locked in localStorage
     const savedFiestaId = localStorage.getItem('kiosk_locked_fiesta_id');
     const savedRole = localStorage.getItem('kiosk_role');
     const savedTotemId = localStorage.getItem('kiosk_totem_id') || '';
+    const savedCodigo = localStorage.getItem('kiosk_fiesta_codigo') || undefined;
+    const savedToken = localStorage.getItem('kiosk_access_token') || undefined;
 
     if (savedFiestaId && savedRole && (savedRole !== 'totem' || savedTotemId.trim())) {
       setStatus('redirecting');
-      navigateToRole(savedRole, savedFiestaId, savedTotemId);
-      return;
+      void (async () => {
+        const resolved = await resolveStationPath(savedRole, savedFiestaId, savedTotemId, savedCodigo);
+        if (cancelled) return;
+        if (resolved.path) {
+          if (resolved.token) {
+            localStorage.setItem('kiosk_access_token', resolved.token);
+          }
+          router.push(resolved.path);
+          return;
+        }
+        if (savedToken && ROLE_TO_ENTERTAINMENT_MODULE[savedRole as KioskRole]) {
+          router.push(buildStationPath(savedRole, savedFiestaId, savedTotemId, savedToken));
+          return;
+        }
+        setErrorMessage(resolved.error || 'No se pudo abrir la estación guardada.');
+        void loadFiestaOptions(savedFiestaId, savedCodigo);
+      })();
+      return () => {
+        cancelled = true;
+      };
     }
 
     // 2. Otherwise, check if today has an active event scheduled
     async function checkTodayEvent() {
       try {
         const result = await getFiestaActivaDeHoy();
-        await loadFiestaOptions(result.success ? result.fiestaId : undefined);
+        if (!cancelled) {
+          await loadFiestaOptions(result.success ? result.fiestaId : undefined);
+        }
       } catch (err) {
         console.error('Error auto-detecting today\'s event:', err);
-        loadFiestaOptions();
+        if (!cancelled) {
+          void loadFiestaOptions();
+        }
       }
     }
 
-    checkTodayEvent();
-  }, [defaultRole, loadFiestaOptions, navigateToRole]);
+    void checkTodayEvent();
+    return () => {
+      cancelled = true;
+    };
+  }, [defaultRole, loadFiestaOptions, resolveStationPath, router]);
 
   /**
    * Un acceso directo para dejarle al empleado, sin explicarle nada.
@@ -157,11 +240,19 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
    * clicks queda abierta la estacion de esa fiesta**. Es el formato de acceso
    * directo de Windows, que es lo que el usa.
    */
-  const direccionDeLaEstacion = () => {
-    const rol = selectedRole === 'totem'
-      ? `totem/${selectedFiestaId}/${totemId.trim() || 'totem-principal'}`
-      : `${selectedRole}/${selectedFiestaId}`;
-    return `${window.location.origin}/evento/${rol}`;
+  const direccionDeLaEstacion = async (): Promise<string | null> => {
+    setErrorMessage('');
+    const resolved = await resolveStationPath(
+      selectedRole,
+      selectedFiestaId,
+      totemId.trim() || 'totem-principal',
+      codigoFiestaActivo || codigoFiestaInput.trim() || undefined,
+    );
+    if (!resolved.path) {
+      setErrorMessage(resolved.error || 'No se pudo armar el enlace de la estación.');
+      return null;
+    }
+    return `${window.location.origin}${resolved.path}`;
   };
 
   /**
@@ -177,8 +268,10 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       setErrorMessage('Elegí primero de qué fiesta es.');
       return;
     }
+    const direccion = await direccionDeLaEstacion();
+    if (!direccion) return;
     try {
-      await navigator.clipboard.writeText(direccionDeLaEstacion());
+      await navigator.clipboard.writeText(direccion);
       setEnlaceCopiado(true);
       setTimeout(() => setEnlaceCopiado(false), 2500);
     } catch {
@@ -186,14 +279,15 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     }
   };
 
-  const bajarAccesoDirecto = () => {
+  const bajarAccesoDirecto = async () => {
     if (!selectedFiestaId) {
       setErrorMessage('Elegí primero de qué fiesta es.');
       return;
     }
+    const direccion = await direccionDeLaEstacion();
+    if (!direccion) return;
     const fiesta = fiestas.find((f) => f.id === selectedFiestaId);
     const nombreFiesta = (fiesta?.configuracion?.nombreEvento || 'Fiesta').replace(/[\\/:*?"<>|]/g, ' ').trim();
-    const direccion = direccionDeLaEstacion();
 
     const contenido = `[InternetShortcut]\r\nURL=${direccion}\r\nIconIndex=0\r\n`;
     const enlace = document.createElement('a');
@@ -205,7 +299,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     URL.revokeObjectURL(enlace.href);
   };
 
-  const handleLockDevice = () => {
+  const handleLockDevice = async () => {
     if (!selectedFiestaId) {
       setErrorMessage('Por favor selecciona un evento.');
       return;
@@ -216,15 +310,33 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       return;
     }
 
+    setErrorMessage('');
+    const codigoUsado = codigoFiestaActivo || codigoFiestaInput.trim() || undefined;
+    const resolved = await resolveStationPath(selectedRole, selectedFiestaId, totemId.trim(), codigoUsado);
+    if (!resolved.path) {
+      setErrorMessage(resolved.error || 'No se pudo habilitar esta estación.');
+      return;
+    }
+
     // Lock the configuration
     localStorage.setItem('kiosk_locked_fiesta_id', selectedFiestaId);
     localStorage.setItem('kiosk_role', selectedRole);
     if (selectedRole === 'totem') {
       localStorage.setItem('kiosk_totem_id', totemId.trim());
     }
+    if (codigoUsado) {
+      localStorage.setItem('kiosk_fiesta_codigo', codigoUsado);
+    } else {
+      localStorage.removeItem('kiosk_fiesta_codigo');
+    }
+    if (resolved.token) {
+      localStorage.setItem('kiosk_access_token', resolved.token);
+    } else {
+      localStorage.removeItem('kiosk_access_token');
+    }
 
     setStatus('redirecting');
-    navigateToRole(selectedRole, selectedFiestaId, totemId.trim());
+    router.push(resolved.path);
   };
 
   if (status === 'checking') {
@@ -319,6 +431,29 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                 </select>
               ) : (
                 <p className="text-slate-500 text-xs py-2">No se encontraron eventos activos en el sistema.</p>
+              )}
+              {requiereCodigo && (
+                <div className="pt-1 flex gap-2">
+                  <Input
+                    id={codigoInputId}
+                    aria-label="Código de la fiesta"
+                    value={codigoFiestaInput}
+                    onChange={(e) => setCodigoFiestaInput(e.target.value.toUpperCase())}
+                    placeholder="Código de la fiesta (si es otro día)"
+                    className="bg-slate-950 border-slate-800 text-xs h-10 text-slate-100 placeholder:text-slate-400 uppercase"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setErrorMessage('');
+                      void loadFiestaOptions(undefined, codigoFiestaInput.trim());
+                    }}
+                    className="h-10 border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-900 text-xs font-bold shrink-0"
+                  >
+                    Buscar
+                  </Button>
+                </div>
               )}
             </div>
 

@@ -135,6 +135,7 @@ export interface BudgetDocumentProps {
   subtotalBrutoOverride?: number;
   descuentoPromoOverride?: number;
   totalFinalOverride?: number;
+  forPdf?: boolean;
 }
 
 export default function BudgetDocument({
@@ -154,6 +155,7 @@ export default function BudgetDocument({
   subtotalBrutoOverride,
   descuentoPromoOverride,
   totalFinalOverride,
+  forPdf = false,
 }: BudgetDocumentProps) {
   const budgetNumber =
     presupuesto.numero ||
@@ -245,7 +247,19 @@ export default function BudgetDocument({
 
   return (
     <>
-      <div className="budget-formal-print-template bg-white text-slate-800 p-4 sm:p-10 border border-slate-200 rounded-2xl shadow-sm print:border-none print:p-0 print:shadow-none" id="budget-print-area">
+      <div
+        className={`budget-formal-print-template ak-budget-pdf-root bg-white text-slate-800 box-border ${
+          forPdf
+            ? 'w-[794px] max-w-[794px] p-6 border-none rounded-none shadow-none'
+            : 'w-full max-w-[794px] mx-auto p-4 sm:p-10 border border-slate-200 rounded-2xl shadow-sm'
+        } print:w-[794px] print:max-w-[794px] print:border-none print:p-0 print:shadow-none`}
+        style={
+          forPdf
+            ? { width: '794px', maxWidth: '794px', boxSizing: 'border-box', overflowWrap: 'anywhere' }
+            : { boxSizing: 'border-box', overflowWrap: 'anywhere' }
+        }
+        id="budget-print-area"
+      >
         {/* HEADER */}
         <h1
           className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-4 pb-1"
@@ -364,46 +378,46 @@ export default function BudgetDocument({
         </section>
 
         {/* Client + event info */}
-        <section className="mb-4 border border-slate-200 rounded-xl px-4 py-3 bg-slate-50/50">
+        <section className="mb-4 border border-slate-200 rounded-xl px-4 py-3 bg-slate-50/50 budget-print-avoid-break">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs print:text-[8pt]">
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                 Cliente
               </p>
-              <p className="font-bold text-slate-700">{clientName}</p>
+              <p className="font-bold text-slate-700 break-words" style={{ overflowWrap: 'anywhere' }}>{clientName}</p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                 Fecha del evento
               </p>
               <p className="font-bold text-slate-700">{formatDateLong(presupuesto.eventoFecha)}</p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                 Tipo de evento
               </p>
-              <p className="font-bold text-slate-700">{presupuesto.eventoTipo}</p>
+              <p className="font-bold text-slate-700 break-words" style={{ overflowWrap: 'anywhere' }}>{presupuesto.eventoTipo}</p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                 Invitados
               </p>
               <p className="font-bold text-slate-700">{totalGuests || presupuesto.invitadosCantidad || 0}</p>
             </div>
             {presupuesto.salonFiestas && (
-              <div>
+              <div className="min-w-0">
                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                   Salón
                 </p>
-                <p className="font-bold text-slate-700">{presupuesto.salonFiestas}</p>
+                <p className="font-bold text-slate-700 break-words" style={{ overflowWrap: 'anywhere' }}>{presupuesto.salonFiestas}</p>
               </div>
             )}
             {presupuesto.clienteContacto && (
-              <div>
+              <div className="min-w-0">
                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
                   Contacto
                 </p>
-                <p className="font-bold text-slate-700">{presupuesto.clienteContacto}</p>
+                <p className="font-bold text-slate-700 break-words" style={{ overflowWrap: 'anywhere' }}>{presupuesto.clienteContacto}</p>
               </div>
             )}
           </div>
@@ -439,7 +453,7 @@ export default function BudgetDocument({
         {/* Items table */}
         {showPriceBreakdown && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
           <section className="mb-4">
-            <table className="w-full text-xs print:text-[8pt] border-collapse">
+            <table className="w-full text-xs print:text-[8pt] border-collapse table-fixed" style={{ tableLayout: 'fixed', width: '100%' }}>
               <thead>
                 <tr className="bg-slate-900 text-white">
                   <th
@@ -448,19 +462,19 @@ export default function BudgetDocument({
                   >
                     Artículo
                   </th>
-                  <th className="border border-slate-800 px-3 py-2 text-center font-semibold">
+                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '10%' }}>
                     Cantidad
                   </th>
-                  <th className="border border-slate-800 px-3 py-2 text-center font-semibold">
+                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '11%' }}>
                     Unidad
                   </th>
-                  <th className="border border-slate-800 px-3 py-2 text-right font-semibold">
+                  <th className="border border-slate-800 px-2 py-2 text-right font-semibold" style={{ width: '14%' }}>
                     Precio
                   </th>
-                  <th className="border border-slate-800 px-3 py-2 text-center font-semibold">
+                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '9%' }}>
                     Desc.%
                   </th>
-                  <th className="border border-slate-800 px-3 py-2 text-right font-semibold">
+                  <th className="border border-slate-800 px-3 py-2 text-right font-semibold" style={{ width: '18%' }}>
                     Importe total
                   </th>
                 </tr>
@@ -476,10 +490,11 @@ export default function BudgetDocument({
 
                   return (
                     <React.Fragment key={categoria}>
-                      <tr className="bg-slate-100/80">
+                      <tr className="bg-slate-100/80 budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                         <td
                           colSpan={6}
                           className="border border-slate-300 px-3 py-1 font-bold text-slate-700 uppercase tracking-wide text-[10px] print:text-[7.5pt]"
+                          style={{ overflowWrap: 'anywhere' }}
                         >
                           {categoria}
                         </td>
@@ -490,17 +505,18 @@ export default function BudgetDocument({
                         return (
                           <tr
                             key={`${catIdx}-${itemIdx}`}
-                            className="bg-white border-b border-slate-200"
+                            className="bg-white border-b border-slate-200 budget-print-avoid-break"
+                            style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
                           >
                             <td
-                              className="border border-slate-200 px-3 py-2 align-top"
-                              style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
+                              className="border border-slate-200 px-3 py-2 align-top break-words"
+                              style={{ color: item.esRegalo ? '#dc2626' : '#334155', overflowWrap: 'anywhere' }}
                             >
                               {item.esRegalo ? (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 min-w-0">
                                   <Gift className="w-3.5 h-3.5 text-rose-600 shrink-0 print:hidden" />
-                                  <div>
-                                    <span className="italic font-bold text-rose-600">{displayName}</span>
+                                  <div className="min-w-0">
+                                    <span className="italic font-bold text-rose-600 break-words" style={{ overflowWrap: 'anywhere' }}>{displayName}</span>
                                     <span className="text-[10px] text-slate-400 italic block print:text-[7pt]">Regalo incluido</span>
                                   </div>
                                 </div>
@@ -508,16 +524,16 @@ export default function BudgetDocument({
                                 displayName
                               )}
                             </td>
-                            <td className="border border-slate-200 px-3 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                            <td className="border border-slate-200 px-2 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
                               {item.cantidad}
                             </td>
-                            <td className="border border-slate-200 px-3 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                            <td className="border border-slate-200 px-2 py-2 text-center align-top break-words" style={{ color: item.esRegalo ? '#dc2626' : undefined, overflowWrap: 'anywhere' }}>
                               {getItemUnitLabel(item)}
                             </td>
-                            <td className="border border-slate-200 px-3 py-2 text-right align-top font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                            <td className="border border-slate-200 px-2 py-2 text-right align-top font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
                               {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
                             </td>
-                            <td className="border border-slate-200 px-3 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                            <td className="border border-slate-200 px-2 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
                               {item.esRegalo ? '100%' : '—'}
                             </td>
                             <td className="border border-slate-200 px-3 py-2 text-right align-top font-semibold font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
@@ -529,12 +545,14 @@ export default function BudgetDocument({
                     </React.Fragment>
                   );
                 })}
-
+              </tbody>
+              <tbody className="budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                 {descuentoPromo > 0 && (
-                  <tr className="bg-slate-50">
+                  <tr className="bg-slate-50 budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                     <td
                       colSpan={5}
                       className="border border-slate-200 px-3 py-2 text-right font-semibold text-slate-700"
+                      style={{ overflowWrap: 'anywhere' }}
                     >
                       {presupuesto.nombrePromocion
                         ? `Descuento (${presupuesto.nombrePromocion}):`
@@ -547,7 +565,7 @@ export default function BudgetDocument({
                 )}
 
                 {/* Total row */}
-                <tr className="bg-slate-900 text-white font-bold">
+                <tr className="bg-slate-900 text-white font-bold budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <td
                     colSpan={5}
                     className="border border-slate-900 px-3 py-2.5 text-right text-sm print:text-[10pt]"
@@ -559,7 +577,7 @@ export default function BudgetDocument({
                   </td>
                 </tr>
                 {pricePerPerson > 0 && (
-                  <tr className="bg-white">
+                  <tr className="bg-white budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                     <td
                       colSpan={5}
                       className="border border-slate-200 px-3 py-1.5 text-right font-semibold text-slate-500"
@@ -675,8 +693,28 @@ export default function BudgetDocument({
           </section>
         )}
 
+        {presupuesto.notas && presupuesto.notas.trim().length > 0 && (
+          <section
+            className="mb-4 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 budget-print-avoid-break"
+            style={{ breakInside: 'avoid', pageBreakInside: 'avoid', overflowWrap: 'anywhere' }}
+          >
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">
+              Notas y Condiciones
+            </p>
+            <p
+              className="text-xs print:text-[8pt] text-slate-700 whitespace-pre-line leading-relaxed break-words"
+              style={{ overflowWrap: 'anywhere' }}
+            >
+              {presupuesto.notas.trim()}
+            </p>
+          </section>
+        )}
+
         {/* Footer */}
-        <footer className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3">
+        <footer
+          className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3 budget-print-avoid-break"
+          style={{ breakInside: 'avoid', pageBreakInside: 'avoid', overflowWrap: 'anywhere' }}
+        >
           <p className="font-semibold text-slate-700 print:text-black">
             {buildFormalBudgetBookingNote({
               hasAnnualAdjustment: isContracted && Boolean(presupuesto.ajusteAnualActivo || projectionRows.length > 0),
@@ -719,6 +757,17 @@ export default function BudgetDocument({
       <div className="budget-print-page-number" />
 
       <style jsx global>{`
+        .ak-budget-pdf-root {
+          box-sizing: border-box;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+        .ak-budget-pdf-root .budget-print-avoid-break,
+        .ak-budget-pdf-root tr,
+        .ak-budget-pdf-root footer {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
         @media print {
           @page {
             size: A4 portrait;
@@ -737,6 +786,8 @@ export default function BudgetDocument({
             display: none !important;
           }
           .budget-formal-print-template {
+            width: 794px !important;
+            max-width: 794px !important;
             background-color: #ffffff !important;
             display: block !important;
             border: none !important;

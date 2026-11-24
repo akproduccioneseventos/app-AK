@@ -69,10 +69,72 @@ function isFirmBudgetStatus(estado?: string) {
   return estado === 'Aceptado' || estado === 'Facturado';
 }
 
+function calcularCostosPendientesDeFiesta(
+  fiesta: {
+    gestionCostos?: any;
+    personalAsignado?: any[];
+  },
+  roles: any[],
+  pagosPorCosto: Map<string, number>,
+  esPrecioDeVentaCopiado: (id: string | undefined) => boolean,
+): number {
+  const costosItems = (fiesta.gestionCostos?.costosItems || [])
+    .filter((item: any) => item.id !== 'auto_merma_bebidas')
+    .map((item: any) => (esPrecioDeVentaCopiado(item.id) && !item.costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
+  const otros = fiesta.gestionCostos?.others || {};
+  const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
+    const rol = roles.find(r => r.id === pa.rolId);
+    const sueldo = montoCosto(pa.eventSalary || pa.sueldo || rol?.sueldoPorEvento || 0);
+    const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
+    return sum + sueldo + aportes;
+  }, 0);
+
+  let restante = 0;
+  for (const item of costosItems) {
+    const pagado = pagosPorCosto.get(item.id) || 0;
+    const estimado = montoCosto(item.montoEstimado);
+    if (pagado > 0 && item.cerrado) continue;
+    restante += Math.max(0, estimado - pagado);
+  }
+
+  const bloquesAutomaticos: Array<{ id: string; monto: number }> = [
+    { id: 'cat_catering', monto: montoCosto(otros.totalCateringCost) },
+    { id: 'cat_bebidas', monto: montoCosto(otros.totalBebidasCost) },
+    { id: 'cat_reposteria', monto: montoCosto(otros.totalReposteriaCost) },
+    { id: 'cat_personal', monto: Math.max(montoCosto(otros.totalPersonalCost), personalCalculado) },
+  ];
+  for (const bloque of bloquesAutomaticos) {
+    const pagado = pagosPorCosto.get(bloque.id) || 0;
+    if (pagado > 0) continue;
+    restante += bloque.monto;
+  }
+
+  return restante;
+}
+
+function generarRefReportePL(): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 4).toUpperCase();
+  return `REF-PL-${tiempo}${azar}`;
+}
+
+function sanitizarMotivoReporte(raw: string): string {
+  const primeraLinea = raw.split(/\r?\n/)[0]?.trim() || '';
+  const limpio = primeraLinea
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, '[token]')
+    .replace(/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '[token]')
+    .replace(/([?&](?:token|key|apiKey|secret|password|auth)=)[^&\s]+/gi, '$1[oculto]')
+    .replace(/[a-zA-Z]:\\[^\s'"]+/g, '[ruta]')
+    .replace(/\/(?:Users|home|var|tmp|app|srv|opt|etc)\/[^\s'"]+/g, '[ruta]')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return limpio ? limpio.slice(0, 180) : 'Error interno al consolidar el reporte contable';
+}
+
 export async function getProfitAndLossData(
   range: DateRange,
   scope: ProfitAndLossScope = {},
-): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
+): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string; codigoError?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.GANANCIAS); // revisión de plata, 6/10/2026: no cualquier sesión (ganancias, sólo el dueño)
     const auth = await verifySession();
@@ -245,33 +307,12 @@ export async function getProfitAndLossData(
         totalCostos += monto;
       });
 
-      const costosItems = (targetFiesta.gestionCostos?.costosItems || [])
-        .filter(item => item.id !== 'auto_merma_bebidas')
-        .map(item => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
-      const otros = targetFiesta.gestionCostos?.others || {};
-      const personalCalculado = (targetFiesta.personalAsignado ?? []).reduce((sum, pa) => {
-        const rol = roles.find(r => r.id === pa.rolId);
-        const sueldo = montoCosto(pa.eventSalary || rol?.sueldoPorEvento || 0);
-        const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
-        return sum + sueldo + aportes;
-      }, 0);
-      const costosPlanificados = [
-        ...costosItems.map(item => ({
-          id: item.id,
-          monto: montoCosto(item.montoEstimado),
-        })),
-        { id: 'cat_catering', monto: montoCosto(otros.totalCateringCost) },
-        { id: 'cat_bebidas', monto: montoCosto(otros.totalBebidasCost) },
-        { id: 'cat_reposteria', monto: montoCosto(otros.totalReposteriaCost) },
-        {
-          id: 'cat_personal',
-          monto: Math.max(montoCosto(otros.totalPersonalCost), personalCalculado),
-        },
-      ];
-      const restantePlanificado = costosPlanificados.reduce((sum, costo) => {
-        const pagadoParaCosto = pagosPorCosto.get(costo.id) || 0;
-        return sum + Math.max(0, costo.monto - pagadoParaCosto);
-      }, 0);
+      const restantePlanificado = calcularCostosPendientesDeFiesta(
+        targetFiesta,
+        roles,
+        pagosPorCosto,
+        esPrecioDeVentaCopiado,
+      );
       if (restantePlanificado > 0) {
         costosDetalle.push({
           id: `pendiente-costos-${targetFiesta.id}`,
@@ -310,33 +351,12 @@ export async function getProfitAndLossData(
         });
 
         if (fechaEvento && inRange(fechaEvento, from, to)) {
-          const costosItems = (fiesta.gestionCostos?.costosItems || [])
-            .filter(item => item.id !== 'auto_merma_bebidas')
-            .map(item => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
-          const otros = fiesta.gestionCostos?.others || {};
-          const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
-            const rol = roles.find(r => r.id === pa.rolId);
-            const sueldo = montoCosto(pa.eventSalary || rol?.sueldoPorEvento || 0);
-            const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
-            return sum + sueldo + aportes;
-          }, 0);
-          const costosPlanificados = [
-            ...costosItems.map(item => ({
-              id: item.id,
-              monto: montoCosto(item.montoEstimado),
-            })),
-            { id: 'cat_catering', monto: montoCosto(otros.totalCateringCost) },
-            { id: 'cat_bebidas', monto: montoCosto(otros.totalBebidasCost) },
-            { id: 'cat_reposteria', monto: montoCosto(otros.totalReposteriaCost) },
-            {
-              id: 'cat_personal',
-              monto: Math.max(montoCosto(otros.totalPersonalCost), personalCalculado),
-            },
-          ];
-          const restantePlanificado = costosPlanificados.reduce((sum, costo) => {
-            const pagadoParaCosto = pagosPorCosto.get(costo.id) || 0;
-            return sum + Math.max(0, costo.monto - pagadoParaCosto);
-          }, 0);
+          const restantePlanificado = calcularCostosPendientesDeFiesta(
+            fiesta,
+            roles,
+            pagosPorCosto,
+            esPrecioDeVentaCopiado,
+          );
           if (restantePlanificado > 0) {
             costosDetalle.push({
               id: `pendiente-costos-${fiesta.id}`,
@@ -366,8 +386,23 @@ export async function getProfitAndLossData(
       },
     };
   } catch (error: any) {
-    console.error('Error calculating global P&L:', error);
-    return { success: false, error: 'Fallo al consolidar el reporte contable global.' };
+    const refId = generarRefReportePL();
+    const rawMessage = error instanceof Error ? error.message : String(error ?? '');
+    if (/permis|autoriz|contabilidad|ganancias|tu perfil no tiene acceso/i.test(rawMessage)) {
+      console.warn(`[reportes] Permiso denegado en getProfitAndLossData (${refId}):`, rawMessage);
+      return {
+        success: false,
+        error: 'No tenés permiso de Contabilidad o Ganancias para ver el reporte contable.',
+        codigoError: refId,
+      };
+    }
+    console.error(`Error calculating global P&L (${refId}):`, error);
+    const motivo = sanitizarMotivoReporte(rawMessage);
+    return {
+      success: false,
+      error: `${motivo} (Ref: ${refId})`,
+      codigoError: refId,
+    };
   }
 }
 

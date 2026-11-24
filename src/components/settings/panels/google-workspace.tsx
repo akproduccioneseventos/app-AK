@@ -70,6 +70,7 @@ export default function GoogleWorkspaceSettingsPage() {
   const [fiestaId, setFiestaId] = useState('');
   const [dashboard, setDashboard] = useState<GoogleWorkspaceDashboard | null>(null);
   const [message, setMessage] = useState<string>('');
+  const [oauthError, setOauthError] = useState<string>('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
@@ -90,7 +91,15 @@ export default function GoogleWorkspaceSettingsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setFiestaId(new URLSearchParams(window.location.search).get('fiestaId') || '');
+      const params = new URLSearchParams(window.location.search);
+      setFiestaId(params.get('fiestaId') || '');
+      const errorParam = params.get('error');
+      const connectedParam = params.get('connected');
+      if (errorParam) {
+        setOauthError(errorParam);
+      } else if (connectedParam === '1') {
+        setMessage('Cuenta de Google conectada correctamente.');
+      }
     }
     loadDashboard();
   }, []);
@@ -196,6 +205,12 @@ export default function GoogleWorkspaceSettingsPage() {
               <p className="mt-1">URL que debe ir en Google Cloud como redirect: {dashboard.redirectUri || 'se completa con la URL publica de la app'}.</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {oauthError && (
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-900">
+          {oauthError}
         </div>
       )}
 

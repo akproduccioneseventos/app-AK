@@ -104,6 +104,7 @@ export interface ServicioEmpresa {
   tipoCosto?: TipoCosto; // Naturaleza del costo para sincronización financiera
   proveedor?: string; // Nombre del proveedor o responsable del costo
   unidad?: UnidadServicio | string;
+  porEvento?: boolean;
   notas?: string;
 
   // Pricing fields (primarily for 'Servicio' type)
@@ -118,6 +119,7 @@ export interface ServicioEmpresa {
   contactoPrincipal?: string;
   imageUrl?: string; // URL de imagen representativa del servicio (para galería)
   isFeatured?: boolean; // Orden comercial preferente en simuladores
+  estadoPublicacion?: 'borrador' | 'publicado';
 
   // Gestión de mantenimiento preventivo y correctivo (opcional)
   mantenimiento?: {
