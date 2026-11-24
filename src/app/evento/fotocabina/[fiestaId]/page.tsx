@@ -776,6 +776,8 @@ export default function FotocabinaPage() {
         imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
         overlayName: fiesta?.station.overlayName,
+        marcoOverlayUrl: fiesta?.papeleriaIA?.marcoFotocabina?.url || undefined,
+        printLayout: disenoImpresion === 'una' ? 'single_photo' : undefined,
       });
       setCapturedImage(recuerdo);
     } catch (err) {

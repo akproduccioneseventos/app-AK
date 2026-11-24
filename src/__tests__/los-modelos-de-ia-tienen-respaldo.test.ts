@@ -66,7 +66,7 @@ describe('Orden 340: una sola lista de modelos de Gemini y respaldo automático'
 
     const whatsappMedia = leer('src/lib/asistente/whatsapp-media.ts');
     expect(whatsappMedia).toMatch(/from ['"]@\/ai\/modelos['"]/);
-    expect(whatsappMedia).toMatch(/generateWithGeminiFallback/);
+    expect(whatsappMedia).toMatch(/leerImagen|generateWithGeminiFallback/);
     expect(whatsappMedia).not.toContain('models/gemini-2.5-flash:generateContent');
   });
 

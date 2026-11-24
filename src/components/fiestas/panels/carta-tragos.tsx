@@ -5,21 +5,35 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Download, Info, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Download, Info, RefreshCw, Sparkles, FileDown, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago, PapeleriaIAPieza } from '@/types/fiesta';
 import { getFiestaById, getFiestaParaPantalla, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
+import { quitarPapeleriaIAAction } from '@/app/actions/fiesta/papeleria-ia.actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMenu';
+import { PapeleriaIAModal } from './papeleria-ia-modal';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import NextImage from 'next/image';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions';
 import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
+import {
+  descargarPdfArchivo,
+  generarPdfCuadritos10x15,
+  imprimirPdfEnNavegador,
+} from '@/lib/papeleria/pdf-impresion';
+import {
+  asegurarDataUrl,
+  dataUrlAFile,
+  imagenUrlADataUrl,
+} from '@/lib/papeleria/imagen-a-data-url';
 
 
 function CartaTragosContent() {
@@ -37,6 +51,10 @@ function CartaTragosContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncingMaster, setIsSyncingMaster] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formatoHoja, setFormatoHoja] = useState<'a4-2-vertical' | '15x10-apaisado'>('a4-2-vertical');
+  const [isIAModalOpen, setIsIAModalOpen] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isQuittingIA, setIsQuittingIA] = useState(false);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -182,7 +200,133 @@ function CartaTragosContent() {
     }
   }
 
-  const handlePrint = () => window.print();
+  const imagenIAUrl = fiesta?.papeleriaIA?.cartaTragos?.url || null;
+
+  const obtenerImagenParaPdf = async (): Promise<string> => {
+    if (imagenIAUrl) {
+      return await imagenUrlADataUrl(imagenIAUrl);
+    }
+    if (!printRef.current) {
+      throw new Error('No se encontró la vista previa de la carta de tragos.');
+    }
+    const canvas = await html2canvas(printRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    });
+    return canvas.toDataURL('image/png');
+  };
+
+  const handlePrint = async () => {
+    if (formatoHoja === '15x10-apaisado') {
+      window.print();
+      return;
+    }
+    setIsExportingPdf(true);
+    try {
+      const dataUrl = await obtenerImagenParaPdf();
+      const pdf = generarPdfCuadritos10x15(dataUrl);
+      imprimirPdfEnNavegador(pdf);
+    } catch (e: any) {
+      toast({
+        title: 'Error al imprimir PDF',
+        description: e?.message || 'No se pudo preparar el PDF de la carta de tragos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    setIsExportingPdf(true);
+    try {
+      const dataUrl = await obtenerImagenParaPdf();
+      const nombreBase = `carta-tragos-${fiesta?.configuracion?.nombreEvento || fiestaId}.pdf`;
+      if (formatoHoja === 'a4-2-vertical') {
+        const pdf = generarPdfCuadritos10x15(dataUrl);
+        descargarPdfArchivo(pdf, nombreBase);
+      } else {
+        const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [150, 100] });
+        pdf.addImage(dataUrl, 'PNG', 0, 0, 150, 100);
+        descargarPdfArchivo(pdf, nombreBase);
+      }
+      toast({ title: '¡Descarga iniciada!', description: 'El PDF de la carta de tragos se está descargando.' });
+    } catch (e: any) {
+      toast({
+        title: 'Error al generar PDF',
+        description: e?.message || 'No se pudo crear el archivo PDF.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
+  const handleQuitarIA = async () => {
+    if (!fiestaId || isQuittingIA) return;
+    setIsQuittingIA(true);
+    try {
+      const res = await quitarPapeleriaIAAction({ fiestaId, pieza: 'cartaTragos' });
+      if (res.success) {
+        setFiesta((prev) => {
+          if (!prev) return prev;
+          const nextPapeleria = { ...(prev.papeleriaIA || {}) };
+          delete nextPapeleria.cartaTragos;
+          return { ...prev, papeleriaIA: nextPapeleria };
+        });
+        toast({ title: 'Volviste a la plantilla', description: 'Se quitó la versión generada con IA.' });
+      } else {
+        throw new Error(res.error || 'No se pudo volver a la plantilla.');
+      }
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e?.message || 'No se pudo volver a la plantilla.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsQuittingIA(false);
+    }
+  };
+
+  const handleIAGuardado = async (
+    piezaGuardada: PapeleriaIAPieza,
+    meta?: { usarFondoEnPlantilla?: boolean; fondoBase64?: string },
+  ) => {
+    if (meta?.usarFondoEnPlantilla && meta.fondoBase64 && fiestaId) {
+      const dataUrl = asegurarDataUrl(meta.fondoBase64);
+      let fondoUrl = dataUrl;
+      const archivo = dataUrlAFile(dataUrl, `fondo-carta-${Date.now()}.png`);
+      if (archivo) {
+        const formData = new FormData();
+        formData.append('folder', fiestaId);
+        formData.append('file', archivo);
+        const subido = await uploadPublicPageAsset(formData).catch(() => null);
+        if (subido?.success && subido.url) {
+          fondoUrl = subido.url;
+        }
+      }
+      setCartaTragos((prev) => ({ ...prev, backgroundImageUrl: fondoUrl }));
+      toast({
+        title: 'Fondo aplicado a la plantilla',
+        description: 'Tocá Guardar para conservar este fondo en la carta de tragos.',
+      });
+      return;
+    }
+
+    setFiesta((prev) =>
+      prev
+        ? {
+            ...prev,
+            papeleriaIA: {
+              ...(prev.papeleriaIA || {}),
+              cartaTragos: piezaGuardada,
+            },
+          }
+        : prev,
+    );
+  };
 
   const handleDownloadJpg = async () => {
     if (!printRef.current) return;
@@ -376,11 +520,31 @@ function CartaTragosContent() {
             <div className="flex items-center gap-2">
                 <Button asChild variant="ghost" size="icon"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-5 h-5"/></Link></Button>
                 <div>
-                  <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>
+                  <h1 className="font-headline text-lg">
+                    Editor de Carta de Tragos ({formatoHoja === 'a4-2-vertical' ? '10×15 cm' : '15×10 cm'})
+                  </h1>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Módulo maestro sincronizado: {masterItems.length} tragos base</p>
                 </div>
+                <Button asChild variant="ghost" size="sm" className="ml-1">
+                  <Link href="/asistente">
+                    <Sparkles className="w-3.5 h-3.5 mr-1 text-primary" />
+                    Ver en Asistente AK
+                  </Link>
+                </Button>
             </div>
             <div className="flex flex-wrap gap-2 items-end">
+                <div className="flex flex-col min-w-[210px]">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Formato hoja</Label>
+                    <Select value={formatoHoja} onValueChange={(value: 'a4-2-vertical' | '15x10-apaisado') => setFormatoHoja(value)}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="a4-2-vertical">2 por hoja A4 (10 × 15 vertical)</SelectItem>
+                        <SelectItem value="15x10-apaisado">15 × 10 apaisado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
                 <div className="flex flex-col">
                     <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Borde</Label>
                     <Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-8 p-0.5"/>
@@ -421,7 +585,16 @@ function CartaTragosContent() {
                     <input id="fondo-carta-upload" type="file" accept="image/*" className="hidden" onChange={handleBackgroundImageUpload} />
                 </div>
 
-               <div className="flex items-end gap-2 ml-2">
+               <div className="flex flex-wrap items-end gap-2 ml-2">
+                 <Button
+                   size="sm"
+                   variant="secondary"
+                   onClick={() => setIsIAModalOpen(true)}
+                   title="Diseñar carta de tragos con IA"
+                 >
+                   <Sparkles className="w-4 h-4 mr-1.5 text-primary" />
+                   Diseñar con IA
+                 </Button>
                  <Button asChild size="sm" variant="outline" title="Abrir módulo general de tragos"><Link href="/empresa/menus/tragos">Módulo General</Link></Button>
                  <Button size="sm" variant="outline" onClick={handleSyncMaster} disabled={isSyncingMaster} title="Sincronizar tragos base">
                     {isSyncingMaster ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <RefreshCw className="w-4 h-4 mr-2"/>}
@@ -437,17 +610,65 @@ function CartaTragosContent() {
                  <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG">
                     <Download className="w-4 h-4 mr-2"/> JPG
                  </Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF">
-                    <PrinterIcon className="w-4 h-4 mr-2"/> PDF
+                 <Button onClick={handleDownloadPdf} size="sm" variant="outline" disabled={isExportingPdf} title="Descargar PDF">
+                    {isExportingPdf ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FileDown className="w-4 h-4 mr-2"/>}
+                    Descargar PDF
+                 </Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline" disabled={isExportingPdf} title="Imprimir">
+                    {isExportingPdf ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <PrinterIcon className="w-4 h-4 mr-2"/>}
+                    Imprimir
                  </Button>
                </div>
             </div>
         </div>
 
         <div className="flex flex-col items-center py-10 print:py-0">
+          {imagenIAUrl && (
+            <div className="mb-4 flex items-center gap-3 print:hidden bg-white px-4 py-2 rounded-lg border shadow-sm">
+              <Badge variant="default" className="gap-1">
+                <Sparkles className="w-3 h-3" />
+                Diseño con IA activo
+              </Badge>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={handleQuitarIA}
+                disabled={isQuittingIA}
+              >
+                {isQuittingIA ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Volver a plantilla
+              </Button>
+            </div>
+          )}
           <Card className="p-0 border-none shadow-2xl print:shadow-none bg-white">
-            <div ref={printRef} className="w-[15cm] h-[10cm] bg-white print:mx-auto">
-                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={(newData) => setCartaTragos(prev => ({ ...prev, ...newData }))} openEditModal={openEditModal} />
+            <div
+              ref={printRef}
+              className={
+                formatoHoja === 'a4-2-vertical'
+                  ? 'w-[10cm] h-[15cm] bg-white print:mx-auto overflow-hidden'
+                  : 'w-[15cm] h-[10cm] bg-white print:mx-auto'
+              }
+            >
+              {imagenIAUrl ? (
+                <img
+                  src={imagenIAUrl}
+                  alt="Carta de tragos diseñada con IA"
+                  className="w-full h-full object-contain bg-white"
+                />
+              ) : (
+                <CartaTragosMenu
+                  fiesta={fiesta}
+                  carta={cartaTragos}
+                  isPreview={true}
+                  onUpdate={(newData) => setCartaTragos(prev => ({ ...prev, ...newData }))}
+                  openEditModal={openEditModal}
+                />
+              )}
             </div>
           </Card>
           <div className="mt-6 text-sm text-muted-foreground flex items-center gap-2 print:hidden bg-white/80 p-3 rounded-lg border border-dashed">
@@ -455,6 +676,27 @@ function CartaTragosContent() {
               <p>Doble clic en los textos para editar. Haz clic en las imágenes de los tragos para cambiarlas.</p>
           </div>
         </div>
+
+        {fiestaId && (
+          <PapeleriaIAModal
+            open={isIAModalOpen}
+            onOpenChange={setIsIAModalOpen}
+            fiestaId={fiestaId}
+            pieza="cartaTragos"
+            tituloPieza="Carta de Tragos"
+            esA4Entero={false}
+            imagenGuardadaUrl={imagenIAUrl}
+            onGuardado={handleIAGuardado}
+            onVolverPlantilla={() => {
+              setFiesta((prev) => {
+                if (!prev) return prev;
+                const nextPapeleria = { ...(prev.papeleriaIA || {}) };
+                delete nextPapeleria.cartaTragos;
+                return { ...prev, papeleriaIA: nextPapeleria };
+              });
+            }}
+          />
+        )}
 
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');

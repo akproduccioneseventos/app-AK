@@ -47,6 +47,8 @@ export interface DatosDeLaTira {
   logoUrl?: string;
   /** Nombre del marco/overlay configurado para la estación */
   overlayName?: string;
+  /** Lámina PNG transparente full canvas generada con IA para superponer sobre las fotos */
+  marcoOverlayUrl?: string;
 }
 
 function cargarImagen(src: string): Promise<HTMLImageElement> {
@@ -318,6 +320,15 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
     ctx.textBaseline = 'middle';
     ctx.fillText(textoDeMarca.toUpperCase(), ANCHO - MARGEN - 10, ALTO - MARGEN - 10);
     ctx.restore();
+  }
+
+  if (datos.marcoOverlayUrl) {
+    try {
+      const imgMarco = await cargarImagen(datos.marcoOverlayUrl);
+      ctx.drawImage(imgMarco, 0, 0, ANCHO, ALTO);
+    } catch {
+      // Si falla cargar el marco IA, no se rompe el recuerdo: queda la tira normal.
+    }
   }
 
   return canvas.toDataURL('image/jpeg', 0.92);

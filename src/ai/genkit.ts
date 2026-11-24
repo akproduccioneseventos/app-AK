@@ -114,7 +114,7 @@ export const ai = genkit({
   plugins: apiKey ? [googleAI({ apiKey })] : [],
 });
 
-type GeminiGenerateRequest = Awaited<Parameters<typeof ai.generate>[0]>;
+export type GeminiGenerateRequest = Awaited<Parameters<typeof ai.generate>[0]>;
 
 function configuredFallbackModels(): string[] {
   const configured = (process.env.GEMINI_MODEL_FALLBACKS || '')

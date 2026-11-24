@@ -3,6 +3,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 import { aplicarEstiloAK } from '@/lib/entretenimiento/estilo-ak';
@@ -1179,7 +1180,12 @@ export default function EspejoMagicoPage() {
                 <Radio className="w-5 h-5 animate-pulse text-rose-500" /> {modeCopy.title}
               </h1>
             </div>
-            <div className="w-9" />
+            <Link
+              href="/asistente"
+              className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-200 hover:bg-white/15 transition"
+            >
+              Ver en Asistente AK
+            </Link>
           </div>
 
           {/* Aviso antes de que llegue el primer invitado: si la IA no esta

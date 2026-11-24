@@ -34,7 +34,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { VOCES_IA_DISPONIBLES } from '@/lib/asistente/voz-gemini';
+import { VOCES_IA_DISPONIBLES } from '@/lib/asistente/voces-ia';
 import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 export default function AsistenteSettingsPage() {

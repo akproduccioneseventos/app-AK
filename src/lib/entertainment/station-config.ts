@@ -94,6 +94,11 @@ export interface PublicEntertainmentEvent {
     instagram?: string;
     facebook?: string;
   };
+  papeleriaIA?: {
+    marcoFotocabina?: {
+      url: string;
+    };
+  };
   station: EntertainmentStationRuntimeConfig;
 }
 
@@ -263,6 +268,9 @@ export function getPublicEntertainmentEvent(
       instagram: fiesta.guestExperienceSettings?.instagramUrl,
       facebook: fiesta.guestExperienceSettings?.facebookUrl,
     },
+    papeleriaIA: fiesta.papeleriaIA?.marcoFotocabina?.url
+      ? { marcoFotocabina: { url: fiesta.papeleriaIA.marcoFotocabina.url } }
+      : undefined,
     station: getEntertainmentStationConfig(fiesta, moduleId),
   };
 }

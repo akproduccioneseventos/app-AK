@@ -1,8 +1,7 @@
 import 'server-only';
 
-import { generateWithGeminiFallback } from '@/ai/genkit';
-import { MODELOS_GEMINI, esErrorCuotaIA, esErrorModeloRetirado } from '@/ai/modelos';
-import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { leerImagen } from '@/ai/cerebro';
+import { MODELOS_GEMINI } from '@/ai/modelos';
 
 export interface MediaWhatsApp {
   mimeType: string;
@@ -89,32 +88,23 @@ export async function descargarMediaWhatsApp(
 async function consultarGemini(media: MediaWhatsApp, instruccion: string): Promise<string> {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('Falta configurar Gemini para procesar archivos de WhatsApp.');
-  const reserva = await reservarConsumoIA('whatsapp-media');
-  if (!reserva) throw new Error('Se llegó al tope mensual de IA.');
 
-  let respuesta: Awaited<ReturnType<typeof generateWithGeminiFallback>>;
-  try {
-    respuesta = await generateWithGeminiFallback({
-      model: MODELOS_GEMINI.texto[0],
-      prompt: [
-        { media: { url: `data:${media.mimeType};base64,${media.base64}`, contentType: media.mimeType } },
-        { text: instruccion },
-      ],
-    });
-  } catch (error) {
-    const candidate = error as { status?: number; code?: number | string };
-    const status = Number(candidate?.status || candidate?.code);
-    if (
-      [400, 401, 403, 404, 413, 429].includes(status) ||
-      esErrorModeloRetirado(error) ||
-      esErrorCuotaIA(error)
-    ) {
-      await reserva.liberar().catch(() => undefined);
+  const resultado = await leerImagen({
+    imagenBase64: media.base64,
+    mimeType: media.mimeType,
+    prompt: instruccion,
+    quien: 'whatsapp-media',
+    modelos: [...MODELOS_GEMINI.texto],
+  });
+
+  if (!resultado.ok) {
+    if (resultado.topeAlcanzado) {
+      throw new Error('Se llegó al tope mensual de IA.');
     }
     throw new Error('Gemini no pudo procesar el archivo recibido.');
   }
 
-  const text = (respuesta?.text || '').trim();
+  const text = (resultado.texto || '').trim();
   if (!text) throw new Error('Gemini no devolvió un resultado legible.');
   return text;
 }

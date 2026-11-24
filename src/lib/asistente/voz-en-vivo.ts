@@ -124,8 +124,9 @@ import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
  * código. La ficha y el socket SIEMPRE salen de la misma versión: la ruta la lee una sola vez
  * (`versionApiEnVivo()`) y se la pasa a las dos direcciones.
  */
-import { VOCES_IA_DISPONIBLES, VOZ_POR_OMISION } from '@/lib/asistente/voz-gemini';
+import { VOCES_IA_DISPONIBLES, VOZ_POR_OMISION } from '@/lib/asistente/voces-ia';
 import { MODELOS_GEMINI } from '@/ai/modelos';
+import { construirUrlFichaVozEnVivo, construirUrlSocketVozEnVivo } from '@/ai/direcciones-google';
 
 export const VOZ_EN_VIVO_USO_FILE = 'asistente/voz-en-vivo-uso.json';
 /** Lo máximo que se reserva por conversación; la sesión corta sola al llegar. */
@@ -213,14 +214,11 @@ export function armarCuerpoFicha({ modelo, voz, instrucciones, minutos, ahora = 
 }
 
 export function direccionDeLaFicha(apiKey: string, version = versionApiEnVivo()): string {
-  return `https://generativelanguage.googleapis.com/${version}/auth_tokens?key=${encodeURIComponent(apiKey)}`;
+  return construirUrlFichaVozEnVivo(apiKey, version);
 }
 
 export function direccionDelSocket(ficha: string, version = versionApiEnVivo()): string {
-  return (
-    `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${version}` +
-    `.GenerativeService.BidiGenerateContentConstrained?access_token=${encodeURIComponent(ficha)}`
-  );
+  return construirUrlSocketVozEnVivo(ficha, version);
 }
 
 /** Cuánto contexto del negocio se le da a la voz (corto: se lo va a decir hablando). */

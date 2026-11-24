@@ -42,7 +42,10 @@ export type FuncionConCosto =
   | 'asistente-dot-contador'
   | 'recorte-decoracion'
   | 'respuesta-profunda'
-  | 'decisiones';
+  | 'decisiones'
+  | 'papeleria'
+  | 'sofia'
+  | 'cerebro';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -87,6 +90,9 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'respuesta-profunda': 3,
   // Preguntas cerradas con gemini-decision-1 (sin tokens de salida): estimacion minima por consulta.
   decisiones: 1,
+  papeleria: 6,
+  sofia: 1,
+  cerebro: 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

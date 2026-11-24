@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   Bot,
   Mic,
@@ -290,18 +291,27 @@ export default function CentroDeControlPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6">
       {/* Encabezado Principal */}
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-          <Bot className="w-7 h-7" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+            <Bot className="w-7 h-7" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Centro de Control
+            </h1>
+            <p className="text-sm md:text-base text-slate-500">
+              Mandale a la IA, dale el visto bueno a lo que preparó y mirá cómo aprende de vos.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Centro de Control
-          </h1>
-          <p className="text-sm md:text-base text-slate-500">
-            Mandale a la IA, dale el visto bueno a lo que preparó y mirá cómo aprende de vos.
-          </p>
-        </div>
+        <Link
+          href="/asistente"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+        >
+          <Bot className="w-3.5 h-3.5 text-indigo-600" />
+          Ver en Asistente AK
+        </Link>
       </div>
 
       {/* Caja Superior Grande: ¿Qué querés que haga? */}

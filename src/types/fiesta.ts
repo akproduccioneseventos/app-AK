@@ -1717,6 +1717,26 @@ export interface FiestaEnPlanificacion {
     alergiasOIntolerancias?: string;
     [key: string]: any;
   };
+  /** Piezas de papelería generadas con IA (Orden 341). */
+  papeleriaIA?: PapeleriaIAData;
+}
+
+export interface PapeleriaIAPieza {
+  url: string;
+  creadoEn?: string;
+  modelo?: string;
+  bajaResolucion?: boolean;
+  anchoPx?: number;
+  altoPx?: number;
+}
+
+export interface PapeleriaIAData {
+  cartaTragos?: PapeleriaIAPieza;
+  menuMesa?: PapeleriaIAPieza;
+  cronograma?: PapeleriaIAPieza;
+  afiche?: PapeleriaIAPieza;
+  marcoFotocabina?: PapeleriaIAPieza;
+  fondoMesas?: PapeleriaIAPieza;
 }
 
 export interface BuzonConfig {

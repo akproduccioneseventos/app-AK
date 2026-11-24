@@ -1001,6 +1001,12 @@ function DecoracionYDisenoEventoContent() {
           </Badge>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/asistente">
+              <Sparkles className="w-4 h-4 mr-1.5 text-primary" />
+              Ver en Asistente AK
+            </Link>
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => loadDecoracionData(true)}>
             <RefreshCw className="w-4 h-4 mr-2" /> Sincronizar
           </Button>
