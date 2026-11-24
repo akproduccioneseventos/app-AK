@@ -21,6 +21,9 @@ jest.mock('@/lib/auth/event-access', () => ({
 jest.mock('@/lib/notifications/create-notification', () => ({
   createNotification: async () => null,
 }));
+jest.mock('@/lib/backup/schedule-after-write', () => ({
+  scheduleAutoBackupAfterWrite: async () => undefined,
+}));
 jest.mock('@/lib/whatsapp-automation-engine', () => ({
   triggerWhatsAppAutomation: async () => ({ scheduled: 0, errors: [] }),
 }));

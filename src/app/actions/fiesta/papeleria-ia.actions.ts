@@ -21,10 +21,10 @@ import type {
   PapeleriaIAPieza,
   ProgramaEventoItem,
 } from '@/types/fiesta';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import {
   getFiestaById,
   requireFiestaWriteAccess,
-  updateFiestaPartial,
 } from './fiesta.actions';
 
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
@@ -204,12 +204,17 @@ export async function guardarPapeleriaIAAction(
       ...(input.altoPx !== undefined ? { altoPx: input.altoPx } : {}),
     };
 
-    const papeleriaIA: PapeleriaIAData = {
-      ...(fiesta.papeleriaIA || {}),
-      [input.pieza]: nuevaPieza,
-    };
-
-    const guardado = await updateFiestaPartial(input.fiestaId, { papeleriaIA });
+    const guardado = await actualizarFiesta(
+      input.fiestaId,
+      (actual) => ({
+        ...actual,
+        papeleriaIA: {
+          ...(actual.papeleriaIA || {}),
+          [input.pieza]: nuevaPieza,
+        },
+      }),
+      { soloEquipo: true },
+    );
     if (!guardado.success) {
       return {
         success: false,
@@ -244,12 +249,18 @@ export async function quitarPapeleriaIAAction(input: {
     return { success: false, error: 'Fiesta no encontrada.' };
   }
 
-  const siguientePapeleria: PapeleriaIAData = { ...(fiesta.papeleriaIA || {}) };
-  delete siguientePapeleria[input.pieza];
-
-  const guardado = await updateFiestaPartial(input.fiestaId, {
-    papeleriaIA: siguientePapeleria,
-  });
+  const guardado = await actualizarFiesta(
+    input.fiestaId,
+    (actual) => {
+      const siguientePapeleria: PapeleriaIAData = { ...(actual.papeleriaIA || {}) };
+      delete siguientePapeleria[input.pieza];
+      return {
+        ...actual,
+        papeleriaIA: siguientePapeleria,
+      };
+    },
+    { soloEquipo: true },
+  );
 
   if (!guardado.success) {
     return {

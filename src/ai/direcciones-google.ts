@@ -9,6 +9,8 @@ export const GEMINI_IMAGE_API_BASE = 'https://generativelanguage.googleapis.com/
 
 export const GEMINI_DECISIONS_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/decisions';
 
+export const GEMINI_FILES_PREFIX = 'https://generativelanguage.googleapis.com/';
+
 function limpiarNombreModelo(modelo: string): string {
   return (modelo || '').trim().replace(/^googleai\//, '').replace(/^models\//, '');
 }

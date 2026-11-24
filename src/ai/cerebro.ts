@@ -18,6 +18,7 @@ import { serializeUntrustedPromptData } from '@/lib/ai/intelligence-guardrails';
 import { generateWithGeminiFallback, type GeminiGenerateRequest } from './genkit';
 import {
   GEMINI_DECISIONS_ENDPOINT,
+  GEMINI_FILES_PREFIX,
   GEMINI_IMAGE_API_BASE,
   construirUrlModeloV1Beta,
 } from './direcciones-google';
@@ -105,13 +106,19 @@ function limpiarPrefijoModelo(modelo: string): string {
   return (modelo || '').trim().replace(/^googleai\//, '').replace(/^models\//, '');
 }
 
+async function anotarFalloSeguro(funcion: FuncionConCosto | 'gemini-modelo-retirado', motivo: string): Promise<void> {
+  if (typeof anotarFalloIA === 'function') {
+    // no pasa nada si falla: anotar el fallo en telemetría no debe tumbar la respuesta de la IA.
+    await anotarFalloIA(funcion, motivo).catch(() => {});
+  }
+}
+
 function debeLiberarReserva(error: unknown): boolean {
   const status = extraerStatusError(error);
-  return (
-    [400, 401, 403, 404, 413, 429].includes(status) ||
-    esErrorModeloRetirado(error) ||
-    esErrorCuotaIA(error)
-  );
+  if (status === 408 || status >= 500) return false;
+  if ([400, 401, 403, 404, 413, 429].includes(status)) return true;
+  if (!status) return false;
+  return esErrorModeloRetirado(error) || esErrorCuotaIA(error);
 }
 
 export interface PedirTextoOpciones {
@@ -227,6 +234,7 @@ async function ejecutarTextoConRespaldo({
   }
 
   let lastError: unknown;
+  let huboIntentoIncierto = false;
 
   for (const modelo of modelos) {
     const request: GeminiGenerateRequest = {
@@ -245,6 +253,7 @@ async function ejecutarTextoConRespaldo({
 
       const texto = (res?.text || '').trim();
       if (!texto) {
+        huboIntentoIncierto = true;
         lastError = new Error('Gemini devolvió una respuesta vacía.');
         continue;
       }
@@ -252,25 +261,30 @@ async function ejecutarTextoConRespaldo({
       return { ok: true, texto, modelo, topeAlcanzado: false };
     } catch (err) {
       lastError = err;
+      if (!debeLiberarReserva(err)) {
+        huboIntentoIncierto = true;
+      }
       const msg = extraerMensajeError(err);
 
       if (esErrorModeloRetirado(err)) {
-        await anotarFalloIA('gemini-modelo-retirado', `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro('gemini-modelo-retirado', `${modelo}: ${msg}`);
         continue;
       }
 
       if (isRecoverableGeminiModelError(err)) {
-        await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
         continue;
       }
 
-      await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+      await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
       break;
     }
   }
 
-  if (debeLiberarReserva(lastError)) {
-    await reserva?.liberar().catch(() => undefined);
+  if (!huboIntentoIncierto && debeLiberarReserva(lastError)) {
+    if (typeof reserva?.liberar === 'function') {
+      await reserva.liberar().catch(() => undefined);
+    }
   }
 
   return {
@@ -374,13 +388,17 @@ export async function pedirImagen({
 
   const apiKey = (process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey || apiKey === 'dummy') {
-    await reserva?.liberar().catch(() => undefined);
+    if (typeof reserva?.liberar === 'function') {
+      await reserva.liberar().catch(() => undefined);
+    }
     return { ok: false, topeAlcanzado: false, base64: null, error: 'Falta configurar la clave de Gemini.' };
   }
 
   const fetchImpl = fetchFn || globalThis.fetch;
   if (!fetchImpl) {
-    await reserva?.liberar().catch(() => undefined);
+    if (typeof reserva?.liberar === 'function') {
+      await reserva.liberar().catch(() => undefined);
+    }
     return { ok: false, topeAlcanzado: false, base64: null, error: 'No se puede llamar a Gemini: falta fetch.' };
   }
 
@@ -389,6 +407,7 @@ export async function pedirImagen({
     .filter(Boolean);
 
   let lastError: unknown;
+  let huboIntentoIncierto = false;
 
   for (const modelo of candidatos) {
     const urlImagen = `${GEMINI_IMAGE_API_BASE}/${encodeURIComponent(modelo)}:generateContent`;
@@ -435,16 +454,19 @@ export async function pedirImagen({
         const msg = `Gemini no pudo generar la imagen (HTTP ${response.status})${detail ? `: ${detail}` : '.'}`;
         const err = Object.assign(new Error(msg), { status: response.status });
         lastError = err;
+        if (!debeLiberarReserva(err)) {
+          huboIntentoIncierto = true;
+        }
 
         if (esErrorModeloRetirado(err)) {
-          await anotarFalloIA('gemini-modelo-retirado', `${modelo}: ${msg}`).catch(() => {});
+          await anotarFalloSeguro('gemini-modelo-retirado', `${modelo}: ${msg}`);
           continue;
         }
         if (isRecoverableGeminiModelError(err)) {
-          await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+          await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
           continue;
         }
-        await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
         break;
       }
 
@@ -472,6 +494,7 @@ export async function pedirImagen({
       }
 
       if (!base64) {
+        huboIntentoIncierto = true;
         lastError = new Error('Gemini no devolvió ninguna imagen.');
         continue;
       }
@@ -479,22 +502,27 @@ export async function pedirImagen({
       return { ok: true, base64, modelo, topeAlcanzado: false };
     } catch (err) {
       lastError = err;
+      if (!debeLiberarReserva(err)) {
+        huboIntentoIncierto = true;
+      }
       const msg = extraerMensajeError(err);
       if (esErrorModeloRetirado(err)) {
-        await anotarFalloIA('gemini-modelo-retirado', `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro('gemini-modelo-retirado', `${modelo}: ${msg}`);
         continue;
       }
       if (isRecoverableGeminiModelError(err)) {
-        await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
         continue;
       }
-      await anotarFalloIA(quien, `${modelo}: ${msg}`).catch(() => {});
+      await anotarFalloSeguro(quien, `${modelo}: ${msg}`);
       break;
     }
   }
 
-  if (debeLiberarReserva(lastError)) {
-    await reserva?.liberar().catch(() => undefined);
+  if (!huboIntentoIncierto && debeLiberarReserva(lastError)) {
+    if (typeof reserva?.liberar === 'function') {
+      await reserva.liberar().catch(() => undefined);
+    }
   }
 
   return {
@@ -652,11 +680,11 @@ export async function pedirVoz({
       const datos = typeof response.json === 'function' ? await response.json().catch(() => ({} as Record<string, unknown>)) : {};
       const mensajeError = (datos as { error?: { message?: string } })?.error?.message || response.statusText || '';
       if (esErrorModeloRetirado({ status: response.status, message: mensajeError })) {
-        await anotarFalloIA('gemini-modelo-retirado', `${modelo}: ${mensajeError || 'Modelo no disponible'}`).catch(() => {});
+        await anotarFalloSeguro('gemini-modelo-retirado', `${modelo}: ${mensajeError || 'Modelo no disponible'}`);
         ultimoError = `El modelo de voz ${modelo} no existe.`;
         continue;
       }
-      await anotarFalloIA(quien, `${modelo}: HTTP ${response.status} ${mensajeError}`).catch(() => {});
+      await anotarFalloSeguro(quien, `${modelo}: HTTP ${response.status} ${mensajeError}`);
       throw new Error(`Gemini no dio la voz (${response.status}): ${mensajeError}`);
     }
 
@@ -666,16 +694,18 @@ export async function pedirVoz({
     const audio = datos?.candidates?.[0]?.content?.parts?.find((p) => p?.inlineData?.data)?.inlineData?.data;
     if (!audio) throw new Error('La respuesta de Gemini no trae audio.');
 
+    // no pasa nada si falla: el audio ya se generó y anotar el consumo no debe tumbar la respuesta.
     await registrarConsumoIA(quien).catch(() => {});
     return pcmAWav(Buffer.from(audio, 'base64'));
   }
 
-  await anotarFalloIA(quien, ultimoError).catch(() => {});
+  await anotarFalloSeguro(quien, ultimoError);
   throw new Error(ultimoError);
 }
 
 const GEMINI_DECISIONS_MODEL = 'gemini-decision-1';
 const DECISIONS_TIMEOUT_MS = 3000;
+const MAX_DECISIONS_IMAGE_BYTES = 10 * 1024 * 1024;
 const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
 const DEFINITIVE_REJECTION_STATUSES = new Set([400, 401, 403, 404, 413, 429]);
 
@@ -746,6 +776,69 @@ function normalizarParteDecision(entrada: EntradaDecision): GeminiInputPart | nu
     return { fileData: { fileUri: url, ...(entrada.mimeType ? { mimeType: entrada.mimeType } : {}) } };
   }
   return null;
+}
+
+async function descargarUrlAInlineData(
+  url: string,
+  mimeTypeHint?: string,
+  timeoutMs = DECISIONS_TIMEOUT_MS,
+  fetchImpl: typeof fetch | undefined = globalThis.fetch,
+): Promise<GeminiInputPart | null> {
+  if (!url.startsWith('https://') || !fetchImpl) return null;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetchImpl(url, { signal: controller.signal, cache: 'no-store' });
+    if (!res || !res.ok) return null;
+
+    const contentLengthHeader = res.headers?.get?.('content-length');
+    const contentLength = contentLengthHeader ? Number(contentLengthHeader) : NaN;
+    if (Number.isFinite(contentLength) && contentLength > MAX_DECISIONS_IMAGE_BYTES) {
+      return null;
+    }
+
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (!buffer.length || buffer.length > MAX_DECISIONS_IMAGE_BYTES) {
+      return null;
+    }
+
+    const contentType =
+      res.headers?.get?.('content-type')?.split(';')[0].trim().toLowerCase() ||
+      mimeTypeHint ||
+      'image/jpeg';
+
+    return {
+      inlineData: {
+        mimeType: contentType,
+        data: buffer.toString('base64'),
+      },
+    };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function normalizarParteDecisionAsync(
+  entrada: EntradaDecision,
+  timeoutMs: number,
+  fetchImpl?: typeof fetch,
+): Promise<GeminiInputPart | null> {
+  if (typeof entrada === 'object' && entrada !== null && 'url' in entrada) {
+    const url = String(entrada.url ?? '').trim();
+    if (!url) return null;
+    const dataMatch = url.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+    if (dataMatch) {
+      return { inlineData: { mimeType: dataMatch[1], data: dataMatch[2] } };
+    }
+    if (url.startsWith(GEMINI_FILES_PREFIX)) {
+      return { fileData: { fileUri: url, ...(entrada.mimeType ? { mimeType: entrada.mimeType } : {}) } };
+    }
+    return descargarUrlAInlineData(url, entrada.mimeType, timeoutMs, fetchImpl);
+  }
+  return normalizarParteDecision(entrada);
 }
 
 function traducirPreguntaDecision(pregunta: PreguntaDecision): Record<string, unknown> {
@@ -883,9 +976,10 @@ export async function decidirConCerebro({
 
   if (!(await decisionesRapidasHabilitadas())) return null;
 
-  const parts = (entradas ?? [])
-    .map(normalizarParteDecision)
-    .filter((p): p is GeminiInputPart => p !== null);
+  const fetchImpl = fetchFn || globalThis.fetch;
+  const parts = (
+    await Promise.all((entradas ?? []).map((entrada) => normalizarParteDecisionAsync(entrada, timeoutMs, fetchImpl)))
+  ).filter((p): p is GeminiInputPart => p !== null);
   const clavesPreguntas = Object.keys(preguntas ?? {});
   if (parts.length === 0 || clavesPreguntas.length === 0) return null;
 
@@ -908,9 +1002,10 @@ export async function decidirConCerebro({
 
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const fetchImpl = fetchFn || globalThis.fetch;
   if (!fetchImpl) {
-    await reserva.liberar().catch(() => undefined);
+    if (typeof reserva?.liberar === 'function') {
+      await reserva.liberar().catch(() => undefined);
+    }
     return null;
   }
 
@@ -939,15 +1034,17 @@ export async function decidirConCerebro({
 
     const response = await Promise.race([fetchPromise, timeoutPromise]);
     if (!response) {
-      await anotarFalloIA(funcion, 'Tiempo de espera agotado en Gemini Decisions').catch(() => {});
+      await anotarFalloSeguro(funcion, 'Tiempo de espera agotado en Gemini Decisions');
       return null;
     }
 
     if (!response.ok) {
       if (DEFINITIVE_REJECTION_STATUSES.has(response.status)) {
-        await reserva.liberar().catch(() => undefined);
+        if (typeof reserva?.liberar === 'function') {
+          await reserva.liberar().catch(() => undefined);
+        }
       }
-      await anotarFalloIA(funcion, `Gemini Decisions HTTP ${response.status}`).catch(() => {});
+      await anotarFalloSeguro(funcion, `Gemini Decisions HTTP ${response.status}`);
       return null;
     }
 
@@ -969,7 +1066,7 @@ export async function decidirConCerebro({
 
     return Object.keys(salida).length > 0 ? salida : null;
   } catch (err) {
-    await anotarFalloIA(funcion, extraerMensajeError(err)).catch(() => {});
+    await anotarFalloSeguro(funcion, extraerMensajeError(err));
     return null;
   } finally {
     if (timer !== undefined) clearTimeout(timer);
@@ -1024,7 +1121,7 @@ export async function probarConexionGeminiCerebro(
       lastModelError = `${modelo}: ${msg}`;
 
       if (esErrorModeloRetirado({ status: resp.status, message: msg })) {
-        await anotarFalloIA('gemini-modelo-retirado', `${modelo}: ${msg}`).catch(() => {});
+        await anotarFalloSeguro('gemini-modelo-retirado', `${modelo}: ${msg}`);
         continue;
       }
 

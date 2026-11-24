@@ -6,7 +6,9 @@ jest.mock('@/lib/auth/require-session', () => ({ requirePermiso: jest.fn() }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   requireFiestaWriteAccess: jest.fn(async () => undefined),
-  updateFiestaPartial: jest.fn(),
+}));
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(),
 }));
 jest.mock('@/lib/firebase/storage', () => ({
   uploadToStorageWithDownloadToken: jest.fn(),
@@ -38,7 +40,8 @@ import {
 } from '@/app/actions/fiesta/papeleria-ia.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { requirePermiso } from '@/lib/auth/require-session';
-import { getFiestaById, updateFiestaPartial } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { uploadToStorageWithDownloadToken } from '@/lib/firebase/storage';
 
 describe('Orden 341 - Acciones de Papelería con IA', () => {
@@ -68,7 +71,10 @@ describe('Orden 341 - Acciones de Papelería con IA', () => {
     (requirePermiso as jest.Mock).mockResolvedValueOnce({ ok: true, user: {} });
     (getFiestaById as jest.Mock).mockResolvedValueOnce({ id: 'fiesta-123' });
     (uploadToStorageWithDownloadToken as jest.Mock).mockResolvedValueOnce('https://storage.url/img.png');
-    (updateFiestaPartial as jest.Mock).mockResolvedValueOnce({ success: true });
+    (actualizarFiesta as jest.Mock).mockImplementationOnce(async (_id, fn) => ({
+      success: true,
+      updatedFiesta: typeof fn === 'function' ? await fn({ id: 'fiesta-123' }) : fn,
+    }));
 
     const res = await guardarPapeleriaIAAction({
       fiestaId: 'fiesta-123',
@@ -78,13 +84,14 @@ describe('Orden 341 - Acciones de Papelería con IA', () => {
 
     expect(res.success).toBe(true);
     expect(res.url).toBe('https://storage.url/img.png');
-    expect(updateFiestaPartial).toHaveBeenCalledWith(
+    expect(actualizarFiesta).toHaveBeenCalledWith(
       'fiesta-123',
-      expect.objectContaining({
-        papeleriaIA: expect.objectContaining({
-          cartaTragos: expect.objectContaining({ url: 'https://storage.url/img.png' }),
-        }),
-      }),
+      expect.any(Function),
+      { soloEquipo: true },
+    );
+    const resultadoMutacion = await (actualizarFiesta as jest.Mock).mock.results[0].value;
+    expect(resultadoMutacion.updatedFiesta.papeleriaIA.cartaTragos).toEqual(
+      expect.objectContaining({ url: 'https://storage.url/img.png' }),
     );
   });
 
@@ -94,12 +101,24 @@ describe('Orden 341 - Acciones de Papelería con IA', () => {
       id: 'fiesta-123',
       papeleriaIA: { cartaTragos: { url: 'https://x.png' } },
     });
-    (updateFiestaPartial as jest.Mock).mockResolvedValueOnce({ success: true });
+    (actualizarFiesta as jest.Mock).mockImplementationOnce(async (_id, fn) => ({
+      success: true,
+      updatedFiesta:
+        typeof fn === 'function'
+          ? await fn({ id: 'fiesta-123', papeleriaIA: { cartaTragos: { url: 'https://x.png' } } })
+          : fn,
+    }));
 
     const res = await quitarPapeleriaIAAction({ fiestaId: 'fiesta-123', pieza: 'cartaTragos' });
 
     expect(res.success).toBe(true);
-    expect(updateFiestaPartial).toHaveBeenCalledWith('fiesta-123', { papeleriaIA: {} });
+    expect(actualizarFiesta).toHaveBeenCalledWith(
+      'fiesta-123',
+      expect.any(Function),
+      { soloEquipo: true },
+    );
+    const resultadoMutacion = await (actualizarFiesta as jest.Mock).mock.results[0].value;
+    expect(resultadoMutacion.updatedFiesta.papeleriaIA).toEqual({});
   });
 });
 

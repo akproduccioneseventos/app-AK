@@ -43,6 +43,12 @@ export type FuncionConCosto =
   | 'recorte-decoracion'
   | 'respuesta-profunda'
   | 'decisiones'
+  | 'perfil-dj'
+  | 'itinerario-ia'
+  | 'asistente-clasico'
+  | 'agente-marketing'
+  | 'extraccion-contrato'
+  | 'analisis-codigo'
   | 'papeleria'
   | 'sofia'
   | 'cerebro';
@@ -90,6 +96,12 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'respuesta-profunda': 3,
   // Preguntas cerradas con gemini-decision-1 (sin tokens de salida): estimacion minima por consulta.
   decisiones: 1,
+  'perfil-dj': 1,
+  'itinerario-ia': 1,
+  'asistente-clasico': 1,
+  'agente-marketing': 2,
+  'extraccion-contrato': 1,
+  'analisis-codigo': 1,
   papeleria: 6,
   sofia: 1,
   cerebro: 1,
