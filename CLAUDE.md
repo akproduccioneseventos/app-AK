@@ -1561,6 +1561,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **El simulador, el 15% y empezar 2027 de cero (24 de noviembre de 2026).** "En 2 minutos" y "válido 30 días" son
+  ciertos y van; el reloj queda. Un interruptor en Ajustes esconde el precio de cada servicio en todo lo que ve el
+  prospecto (encendido = como hoy) y el detalle aparece recién con el contrato. Paquetes pre-armados por tipo de fiesta
+  (civil sólo en bodas, sin cuadro de firmas en infantiles). El ajuste es **"15% acumulativo"** (no "compuesto": *"no se
+  entiende"*), sin mostrar montos de años futuros; los contratos viejos pueden ir con **15% simple**. No había cobros: se
+  borra todo lo anterior a 2027 **con una tarea de una sola vez, sin botones** (*"no quiero botones para borrar"*), y lo de
+  2027 en adelante queda cargado con su contrato y el del salón. Órdenes 343, 344 y 345.
+
 - **Un solo cerebro de IA y una sola puerta (23 de noviembre de 2026).** Palabras suyas: *"lo más importante: que toda la
   parte de inteligencia artificial tenga un mismo núcleo… que se haga automático, y que sea fácil: dónde lo encuentro"*. Toda
   llamada a la IA pasa por `src/ai/cerebro.ts` (tope, modelos con respaldo, reglas, registro) y todo se ve en Asistente AK

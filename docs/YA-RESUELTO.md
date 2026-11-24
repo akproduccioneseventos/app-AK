@@ -1,6 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+
+## 24/11/2026 - Publicadas las entregas 336 a 342 de Gemini, juntas
+
+- Las dos ramas corregidas (`gemini/orden-338` con 336-338 y `gemini/orden-341` con 339-342) se juntaron en una propuesta.
+  En la IA (`consumo.ts`, `decisiones.ts`, `whatsapp-media.ts`) quedó la versión del cerebro de la 341, que ya trae las
+  protecciones de la 336 (reserva liberada sólo en rechazo firme, imagen por enlace con tope de 10 MB).
+- Cinco pruebas chocaban al juntarlas, ninguna por un defecto de la app: la del robot exigía que los defectos que la 338
+  arregló siguieran en el código; la de la 325 tardaba más de 5 s con el tope mirado antes de elegir modelo; y tres de
+  pantalla (entrada del invitado, estaciones e impresos) usaban una fiesta de prueba marcada "Demo AK", que desde la 338 no
+  recibe invitados ni se ofrece en las estaciones, o buscaban los botones de imprimir de antes de la 341.
+- Revisión de la LED (para la orden 344): la reserva del plan de pagos se mostraba como 30% del total; la seña es la de
+  Ajustes ($5.000) y el 30% es la multa por cancelar.
+
+
 ## 24/11/2026 - Revisión de las entregas 336, 337 y 338 (Gemini)
 
 - **El costo de algunos platos salía mil veces más caro.** La fórmula nueva de unidades (336) multiplicaba directo lo que no

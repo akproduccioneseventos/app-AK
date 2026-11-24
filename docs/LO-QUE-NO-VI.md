@@ -1558,3 +1558,6 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 340 → no es un defecto
 - Orden 341 → no es un defecto
 - Orden 342 → no es un defecto
+- Orden 343 → no es un defecto
+- Orden 344 → propia de Claude
+- Orden 345 → no es un defecto

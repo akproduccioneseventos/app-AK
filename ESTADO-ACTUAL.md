@@ -1,18 +1,15 @@
 # Estado actual — 24 de noviembre de 2026
 
 ## Publicado
-- `#1462` a `#1465` (órdenes 331-336 anteriores y las órdenes 338-342 escritas), más `docs/parches/revision-claude-336-338.patch` en `main`.
+- #1462 a #1465, #1471, y las entregas 336 a 342 de Gemini juntas (robot auditor, cerebro único de IA, papelería con IA,
+  auditorías 336-338), con los arreglos de Claude.
 
-## Lista para revisión/fusión por Claude
-- **336+337+338 (`gemini/orden-338`, #1470):** parche de Claude (`revision-claude-336-338.patch`) aplicado sin cambios + arreglos de las 5 pruebas E2E pendientes.
-- Verificado en verde tras los últimos cambios: `npm run check:acentos`, `npm run typecheck`, `npm run lint`, `npm run build`, `npx jest --silent`, `npm run test:rules` y las pruebas E2E de los accesos externos, presentación LED y pantalla de fiesta por URL.
-
-## Siguiente en curso
-- **339+340+342+341 (`gemini/orden-341`, #1468):** actualizar desde `main` y resolver los 5 puntos pendientes en `GEMINI.md`:
-  1. Conservar `YA-RESUELTO.md` y `ESTADO-ACTUAL.md` completos sumando arriba lo nuevo.
-  2. Mantener todos los nombres de `consumo.ts` (ambas ramas).
-  3. Integrar `decisiones.ts` y `whatsapp-media.ts` con reservas de tope, descargas con límite y tipos.
-  4. Sumar `pdfjs-dist` en `package-lock.json` y correr las validaciones completas.
+## Para Gemini (en `GEMINI.md`, "TU TRABAJO DE HOY") — una sola propuesta, rama `gemini/orden-343`
+- **343** simulador que vende solo (bienvenida única, color y movimiento, interruptor de precios, paquetes por tipo).
+- **344** presentación LED (nada tapado, foto propia por servicio, sin promesas, seña real en el plan de pagos).
+- **345** 15% acumulativo sin montos futuros, 15% simple para contratos viejos, "Cargar contrato" con IA y la tarea de una
+  sola vez que deja sólo 2027 en adelante. **Plata: revisar línea por línea.**
 
 ## Ojo
-- La máquina de 8 GB requiere correr `build`, `jest`, `test:rules`, Playwright (`AK_TRABAJADORES=2`) y `graphify` de a uno por vez sin solapar procesos pesados.
+- La puerta falla seguido por carga de la máquina: `npm run otravez`; `AK_TRABAJADORES=2`; lanzar con el tiempo máximo.
+- Si la misma prueba falla dos veces, no es la máquina: buscar qué cambió (así salieron las tres de "Demo AK").

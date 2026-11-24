@@ -2,45 +2,22 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 24/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá. Claude revisó tus cinco
-entregas (#1466 a #1470). **Ninguna se publicó todavía.** Son dos arreglos, en este orden:
+**Actualizado el 24/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-### 1. PRIMERO: terminar la 336 + 337 + 338 (rama `gemini/orden-338`, que ya trae las tres)
-Seguí en `gemini/orden-338` y entregá ahí (la #1470).
-1. **Aplicá los arreglos de Claude** con `git apply docs/parches/revision-claude-336-338.patch`.
-   Trae: el costo por unidad de `src/lib/catering/unidades.ts` (con tu fórmula, 4 de 377 recetas salían mil veces más
-   caras: gramos contra litro o unidad, ml contra kg), que la copia en disco no abra un portal que la base conoce
-   (`portal.actions.ts`, `getFiestaByAccessKey`), el usuario simulado de tus dos pruebas de `tests/firebase/` (el
-   `userId: 'dueno-338'` no existe en la base y la sesión se cerraba) y la pregunta 227. **No los cambies.**
-2. **Cinco pruebas de navegador tuyas no pasan** (la puerta las corre primero). Hacelas pasar arreglando la app, no
-   aflojando la prueba; corrélas con `npm run test:e2e:production -- <archivo>`:
-   - `tests/e2e/los-accesos-de-afuera-llegan.spec.ts`: en `/q/[fiestaId]` el botón Cliente apunta a
-     `/portal?fiestaId=…` y la prueba espera `/portal/c/clave-portal-e2e-337` (línea ~198); y `/recap` con credencial
-     válida / inválida.
-   - `tests/e2e/la-presentacion-led-no-pierde-la-propuesta.spec.ts`: las dos (datos + galería + 10%, y recuperar desde
-     sessionStorage).
-   - `tests/e2e/cada-pantalla-usa-la-fiesta-de-la-direccion.spec.ts`.
-3. Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos` y esas cinco en verde.
-
-### 2. DESPUÉS: la 339 + 340 + 342 + 341 (rama `gemini/orden-341`, entregar en la #1468)
-Cuando la 338 esté publicada, actualizá `gemini/orden-341` desde la principal (`git fetch origin main ; git merge
-origin/main`) y resolvé:
-1. **`docs/YA-RESUELTO.md`: lo vaciaste** (de 17.000 líneas quedaron 30). Tomá la versión de la principal entera y sumá
-   arriba sólo tus secciones nuevas. Lo mismo con `ESTADO-ACTUAL.md`.
-2. **`src/lib/ai/consumo.ts`:** quedan los nombres de las dos ramas (`perfil-dj`, `itinerario-ia`, `asistente-clasico`,
-   `agente-marketing`, `extraccion-contrato`, `analisis-codigo` **y** `papeleria`, `sofia`, `cerebro`), en el tipo y en la
-   tabla de costos.
-3. **`src/lib/ai/decisiones.ts` y `src/lib/asistente/whatsapp-media.ts`:** pasan por el cerebro, pero el cerebro se lleva
-   las protecciones que la 336 les puso: liberar la reserva del tope cuando Google rechaza en firme (400, 401, 403, 404,
-   413, 429) y conservarla si no hubo respuesta; bajar una imagen por enlace a `inlineData` con tope de 10 MB y tiempo
-   límite; y los tipos `EntradaDecision`/`PreguntaDecision`/`RespuestaDecision`. Las pruebas de la 336 sobre esos dos
-   archivos tienen que seguir pasando sin tocarlas.
-4. **`pdfjs-dist` está en `package.json` y no en `package-lock.json`:** la publicación hace `npm ci` y falla. Corré
-   `npm install` para que quede en el lock.
-5. Las mismas comprobaciones de arriba, y las pruebas del robot y de la papelería en verde.
-
-Antes de decir "terminé", en las dos: leé `docs/ANTES-DE-ENTREGAR.md`. No toques plata, cobros ni permisos fuera de lo que
-piden las órdenes.
+- **Ya publicadas:** 336 a 342 (Claude las juntó, arregló cinco pruebas que chocaban entre sí y las publicó). No las
+  rehagas.
+- **AHORA, UNA sola propuesta con tres órdenes, rama nueva `gemini/orden-343` desde la principal recién actualizada:**
+  1. **Orden 343 (`docs/ordenes/343-gemini-el-simulador-que-vende-solo.md`):** el simulador es el primer canal de venta
+     del dueño. Una sola bienvenida que vende antes del precio, color y movimiento en un punto medio, el interruptor de
+     precios en Ajustes y los paquetes armados por tipo de fiesta.
+  2. **Orden 344 (`docs/ordenes/344-gemini-la-presentacion-led-como-el-catalogo.md`):** la presentación LED sin nada
+     tapado, cada servicio con su foto, sin promesas, y la seña real en el plan de pagos.
+  3. **Orden 345 (`docs/ordenes/345-gemini-ajuste-acumulativo-y-empezar-2027.md`):** el 15% "acumulativo" sin montos
+     futuros, el 15% simple para contratos viejos, "Cargar contrato" con IA y la tarea de una sola vez que deja sólo
+     2027 en adelante. **Toca plata: Claude la revisa línea por línea.**
+  - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
+  - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
+    `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.
 
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
