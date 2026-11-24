@@ -1,12 +1,15 @@
 'use client';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText, Share2 } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { sharedFAQs } from '@/data/event-catalogs/shared';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 import { cn } from '@/lib/utils';
 import type { CompanyInfo } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -79,6 +82,39 @@ export function CierreSlide({
   ctaTexto,
   onCtaAction,
 }: CierreSlideProps) {
+  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
+
+  useEffect(() => {
+    let active = true;
+    getBudgetDisplaySettings()
+      .then((settings) => {
+        if (!active) return;
+        const amount = Number(settings?.bookingDepositAmount);
+        if (Number.isFinite(amount) && amount >= 0) {
+          setBookingDepositAmount(amount);
+        }
+      })
+      // no pasa nada si falla: si falla la lectura de ajustes, se mantiene el monto de seña por defecto.
+      .catch((err) => {
+        console.warn('[cierre-slide] No se pudieron leer ajustes de seña:', err);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const depositLabel = new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(bookingDepositAmount);
+
+  const faqsConSenia = sharedFAQs.slice(0, 4).map((faq) => ({
+    ...faq,
+    answerResolved: faq.answer.replace(/\{SENIA\}/g, depositLabel),
+  }));
+
   const contenido = getContenidoPorTipo(tipoFiesta);
   const safeEmail = isSafeEmail(companyInfo.companyContact) ? companyInfo.companyContact : null;
   const waMessage = clientData.nombre
@@ -315,7 +351,7 @@ export function CierreSlide({
         </div>
 
         {/* FAQs */}
-        {sharedFAQs.length > 0 && (
+        {faqsConSenia.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -327,13 +363,13 @@ export function CierreSlide({
               Preguntas frecuentes
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {sharedFAQs.slice(0, 4).map((faq) => (
+              {faqsConSenia.map((faq) => (
                 <div
                   key={faq.id}
                   className="p-4 bg-white/5 border border-white/10 rounded-2xl"
                 >
                   <p className="text-white/90 text-xs font-bold mb-1">{faq.question}</p>
-                  <p className="text-white/50 text-xs leading-relaxed">{faq.answer}</p>
+                  <p className="text-white/50 text-xs leading-relaxed">{faq.answerResolved}</p>
                 </div>
               ))}
             </div>

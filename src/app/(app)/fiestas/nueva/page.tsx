@@ -473,9 +473,9 @@ function PlannerDashboardContent() {
     <div className="space-y-6 sm:space-y-10 pb-24 px-1 sm:px-0">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6 w-full md:w-auto">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6 w-full md:flex-1 min-w-0">
           <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] shadow-2xl text-white shrink-0"><PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" /></div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/70 mb-0.5">Centro de Producción Premium</p>
             <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-foreground font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
             <div className="text-muted-foreground font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
@@ -484,7 +484,7 @@ function PlannerDashboardContent() {
             </div>
           </div>
         </motion.div>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto md:shrink-0">
             {estaSuspendida ? (
               <Button
                 onClick={handleReactivar}

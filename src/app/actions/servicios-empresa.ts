@@ -50,6 +50,8 @@ async function leerServiciosEmpresa(): Promise<ServicioEmpresa[]> {
         tramosDePrecio: item.tramosDePrecio || undefined,
         unidad: item.unidad || 'Unidad',
         imageUrl: item.imageUrl || undefined,
+        porEvento: Boolean(item.porEvento),
+        estadoPublicacion: item.estadoPublicacion || undefined,
       }));
     }, 15_000);
 }
@@ -60,12 +62,14 @@ async function leerServiciosEmpresa(): Promise<ServicioEmpresa[]> {
  */
 export async function getServiciosEmpresaPublicos(): Promise<ServicioEmpresa[]> {
   const servicios = await leerServiciosEmpresa();
-  return servicios.map((s) => ({
-    ...s,
-    valorUnitarioEstimado: 0,
-    proveedor: undefined,
-    notas: undefined,
-  }));
+  return servicios
+    .filter((s) => s.estadoPublicacion !== 'borrador')
+    .map((s) => ({
+      ...s,
+      valorUnitarioEstimado: 0,
+      proveedor: undefined,
+      notas: undefined,
+    }));
 }
 
 export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
@@ -126,7 +130,9 @@ export async function saveServicioEmpresa(
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Servicio con ID ${itemId} no encontrado.` };
 
-    inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
+    const estadoPub = dataWithParsedNumbers.estadoPublicacion ?? inventario[index].estadoPublicacion;
+
+    inventario[index] = { ...inventario[index], ...dataWithParsedNumbers, estadoPublicacion: estadoPub } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
     // Pregunta 58: reintento de una respuesta perdida = exito con el servicio que ya esta, no "ya existe".
@@ -136,7 +142,7 @@ export async function saveServicioEmpresa(
     const existingItem = inventario.find(s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() && s.categoria === dataWithParsedNumbers.categoria);
     if (existingItem) return { success: false, error: `Ya existe un servicio con el nombre "${dataWithParsedNumbers.nombre!.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
     itemId = idDeLaPantalla ?? `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
+    finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId, estadoPublicacion: dataWithParsedNumbers.estadoPublicacion ?? 'borrador' };
     inventario.push(finalItemData as ServicioEmpresa);
   }
 
@@ -171,9 +177,11 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
     )
   );
   if (presupuestosEnUso.length > 0) {
+    const pList = presupuestosEnUso.slice(0, 5).map(p => `#${p.numero ?? p.id}${p.clienteNombre ? ` (${p.clienteNombre})` : ''}`).join('; ');
+    const pExtra = presupuestosEnUso.length > 5 ? ` (+${presupuestosEnUso.length - 5} más)` : '';
     return {
       success: false,
-      error: `No se puede eliminar el servicio porque está siendo utilizado en ${presupuestosEnUso.length} presupuesto(s).`,
+      error: `No se puede eliminar el servicio porque está siendo utilizado en presupuesto(s): ${pList}${pExtra}.`,
     };
   }
 

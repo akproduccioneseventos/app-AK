@@ -87,6 +87,7 @@
         "categoria":  "Insumos varios",
         "valorUnitarioEstimado":  1000,
         "unidad":  "Kg",
+        "porEvento":  true,
         "proveedor":  "AK PRODUCCIONES"
     },
     {

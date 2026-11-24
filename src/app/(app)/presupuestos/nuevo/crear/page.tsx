@@ -27,6 +27,8 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { obtenerIntentoPresupuestoManual, terminarIntentoPresupuestoManual } from '@/lib/budget/intento-configurador';
+import { parseUruguayDate } from '@/lib/utils';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -55,18 +57,39 @@ const initialFormData: PresupuestoFormData = {
   vigenciaPromocion: 'Válido por 30 días',
 };
 
-function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFormData {
-    if (typeof window === 'undefined') return initialState;
+function readStoredDraftFromSession(): PresupuestoFormData | null {
+    if (typeof window === 'undefined') return null;
     try {
         const storedState = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (storedState) {
             const parsed = JSON.parse(storedState);
             parsed.serviciosSeleccionados = new Map(parsed.serviciosSeleccionados);
             parsed.eventoFecha = parsed.eventoFecha ? new Date(parsed.eventoFecha) : undefined;
-            return parsed;
+            return parsed as PresupuestoFormData;
         }
     } catch (error) { console.error("Failed to parse form state", error); }
-    return initialState;
+    return null;
+}
+
+function hasDraftWithContent(draft: PresupuestoFormData | null | undefined): boolean {
+    if (!draft) return false;
+    return Boolean(
+        draft.clienteNombre?.trim()
+        || draft.clienteContacto?.trim()
+        || draft.eventoTipo?.trim()
+        || draft.eventoFecha
+        || draft.salonFiestas?.trim()
+        || draft.protagonista1Nombre?.trim()
+        || draft.protagonista2Nombre?.trim()
+        || draft.nombreEmpresa?.trim()
+        || draft.selectedMenuId?.trim()
+        || draft.notas?.trim()
+        || (draft.serviciosSeleccionados && draft.serviciosSeleccionados.size > 0)
+    );
+}
+
+function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFormData {
+    return readStoredDraftFromSession() ?? initialState;
 }
 
 /**
@@ -100,6 +123,13 @@ function CrearPresupuestoContent() {
     const [entradasDePresentacion, setEntradasDePresentacion] = useState<string[]>([]);
     const [paso, setPaso] = useState(1);
     
+    const [initialStoredDraft] = useState<PresupuestoFormData | null>(() => readStoredDraftFromSession());
+    const conflictResolvedRef = useRef(false);
+    const [pendingIncomingProposal, setPendingIncomingProposal] = useState<{
+        draftClientName: string;
+        formData: PresupuestoFormData;
+        entradas: string[];
+    } | null>(null);
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
@@ -263,7 +293,7 @@ function CrearPresupuestoContent() {
                         } as PresupuestoFormData);
                     }
                 } else {
-                    const leadName = searchParams.get('leadName');
+                    const leadName = searchParams.get('leadName') || searchParams.get('cliente');
                     const leadPhone = searchParams.get('leadPhone');
                     const serviciosParams = searchParams.getAll('servicios');
                     const serviciosParam = searchParams.get('servicios');
@@ -285,9 +315,24 @@ function CrearPresupuestoContent() {
                     const tipoParam = searchParams.get('tipoFiesta');
                     const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
                     const salonParam = searchParams.get('salon');
-                    const hasPlannerParams = Boolean(leadName || leadPhone || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam || entradasParams.length > 0);
+                    const hasIncomingProposalParams = Boolean(
+                        leadName
+                        || leadPhone
+                        || fechaParam
+                        || tipoParam
+                        || duracionParam !== undefined
+                        || salonParam
+                        || adultosParam !== undefined
+                        || ninosParam !== undefined
+                        || serviciosParams.length > 0
+                        || serviciosParam
+                        || menuIdParam
+                        || teenMenuIdParam
+                        || entradasParams.length > 0
+                    );
+                    let waitForDraftChoice = false;
 
-                    if (hasPlannerParams) {
+                    if (hasIncomingProposalParams) {
                         const baseForm: PresupuestoFormData = {
                             ...initialFormData,
                             serviciosSeleccionados: new Map(),
@@ -295,12 +340,13 @@ function CrearPresupuestoContent() {
                         if (leadName) baseForm.clienteNombre = safeDecodeParam(leadName);
                         if (leadPhone) baseForm.clienteContacto = safeDecodeParam(leadPhone);
                         if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
-                        if (fechaParam) {
-                            const soloDia = fechaParam.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
-                            const parsedDate = soloDia
-                                ? new Date(Number(soloDia[1]), Number(soloDia[2]) - 1, Number(soloDia[3]), 12, 0, 0)
-                                : new Date(fechaParam);
-                            if (!Number.isNaN(parsedDate.getTime())) baseForm.eventoFecha = parsedDate;
+                        if (fechaParam && fechaParam.trim()) {
+                            const trimmedFecha = fechaParam.trim();
+                            const parsedDate = parseUruguayDate(trimmedFecha);
+                            const isValidDateInput = /^\d{4}-\d{2}-\d{2}$/.test(trimmedFecha) || !Number.isNaN(Date.parse(trimmedFecha));
+                            if (isValidDateInput && !Number.isNaN(parsedDate.getTime())) {
+                                baseForm.eventoFecha = parsedDate;
+                            }
                         }
                         if (duracionParam !== undefined && duracionParam > 0) {
                             baseForm.duracionHoras = duracionParam;
@@ -347,9 +393,8 @@ function CrearPresupuestoContent() {
                             }
                         }
 
-                        if (entradasParams.length > 0) {
-                            const validEntradas = entradasParams.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
-                            setEntradasDePresentacion(validEntradas);
+                        const validEntradas = entradasParams.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+                        if (validEntradas.length > 0) {
                             validEntradas.forEach(addSelection);
                         }
 
@@ -361,13 +406,17 @@ function CrearPresupuestoContent() {
                             addSelection(teenMenuIdParam);
                         }
 
-                        setFormData(baseForm);
-                    } else if (leadName || leadPhone) {
-                        setFormData(prev => ({
-                            ...prev,
-                            ...(leadName ? { clienteNombre: safeDecodeParam(leadName) } : {}),
-                            ...(leadPhone ? { clienteContacto: safeDecodeParam(leadPhone) } : {}),
-                        }));
+                        if (!conflictResolvedRef.current && hasDraftWithContent(initialStoredDraft)) {
+                            waitForDraftChoice = true;
+                            setPendingIncomingProposal({
+                                draftClientName: initialStoredDraft?.clienteNombre?.trim() || 'otro cliente',
+                                formData: baseForm,
+                                entradas: validEntradas,
+                            });
+                        } else {
+                            setEntradasDePresentacion(validEntradas);
+                            setFormData(baseForm);
+                        }
                     }
 
                     // Viene de la ficha de una fiesta: se adelantan cliente, fecha e invitados que ya
@@ -377,16 +426,18 @@ function CrearPresupuestoContent() {
                         try {
                             const fiesta = await getFiestaById(fiestaIdParam);
                             if (fiesta) {
-                                const precarga = precargaDesdeFiesta(fiesta);
-                                setFormData(prev => {
-                                    const siguiente: Record<string, unknown> = { ...prev };
-                                    for (const [clave, valor] of Object.entries(precarga)) {
-                                        const actual = (prev as unknown as Record<string, unknown>)[clave];
-                                        const inicial = (initialFormData as unknown as Record<string, unknown>)[clave];
-                                        if (actual === undefined || actual === '' || actual === inicial) siguiente[clave] = valor;
-                                    }
-                                    return siguiente as unknown as PresupuestoFormData;
-                                });
+                                if (!waitForDraftChoice) {
+                                    const precarga = precargaDesdeFiesta(fiesta);
+                                    setFormData(prev => {
+                                        const siguiente: Record<string, unknown> = { ...prev };
+                                        for (const [clave, valor] of Object.entries(precarga)) {
+                                            const actual = (prev as unknown as Record<string, unknown>)[clave];
+                                            const inicial = (initialFormData as unknown as Record<string, unknown>)[clave];
+                                            if (actual === undefined || actual === '' || actual === inicial) siguiente[clave] = valor;
+                                        }
+                                        return siguiente as unknown as PresupuestoFormData;
+                                    });
+                                }
                                 setFiestaDelPresupuesto({ id: fiesta.id, nombre: nombreDeLaFiesta(fiesta), presupuestoId: fiesta.presupuestoId });
                             } else {
                                 toast({ title: 'No encontramos la fiesta', description: 'El presupuesto se arma en blanco.', variant: 'destructive' });
@@ -404,7 +455,7 @@ function CrearPresupuestoContent() {
             }
         };
         fetchInitialData();
-    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion, mapMenuItemToSeleccion]);
+    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion, mapMenuItemToSeleccion, initialStoredDraft]);
 
     const handleNext = () => {
         if (paso === 1) {
@@ -564,8 +615,58 @@ function CrearPresupuestoContent() {
         }
     };
     
+    const isPromo10Activa =
+        formData.descuentoTipo === 'porcentaje'
+        && Number(formData.descuentoValor) === 10
+        && !formData.cuponCodigo;
+    const descuentoPromo10Monto = isPromo10Activa ? Math.round(totalCalculado * 0.1) : 0;
+
     return (
         <div data-testid="presupuesto-wizard" className="space-y-6">
+            <Dialog
+                open={Boolean(pendingIncomingProposal)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        conflictResolvedRef.current = true;
+                        setPendingIncomingProposal(null);
+                    }
+                }}
+            >
+                <DialogContent data-testid="borrador-vs-propuesta-dialog">
+                    <DialogHeader>
+                        <DialogTitle>Tenés un presupuesto guardado</DialogTitle>
+                        <DialogDescription>
+                            Tenés un presupuesto a medio hacer de {pendingIncomingProposal?.draftClientName}. ¿Seguís con ése o empezás con esta propuesta?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            data-testid="btn-continuar-borrador"
+                            onClick={() => {
+                                conflictResolvedRef.current = true;
+                                setPendingIncomingProposal(null);
+                            }}
+                        >
+                            Seguir con el borrador
+                        </Button>
+                        <Button
+                            type="button"
+                            data-testid="btn-aplicar-propuesta"
+                            onClick={() => {
+                                if (!pendingIncomingProposal) return;
+                                conflictResolvedRef.current = true;
+                                setEntradasDePresentacion(pendingIncomingProposal.entradas);
+                                setFormData(pendingIncomingProposal.formData);
+                                setPendingIncomingProposal(null);
+                            }}
+                        >
+                            Empezar con esta propuesta
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
                 <Button asChild variant="outline" disabled={isSaving}><Link href="/presupuestos/nuevo"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
@@ -602,7 +703,22 @@ function CrearPresupuestoContent() {
                             )}
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} occupiedDates={occupiedDates} />}
                             {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} config={armadoConfig} />}
-                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} annualAdjustmentPercentage={annualAdjustmentPercentage} />}
+                            {paso === 3 && (
+                                <>
+                                    <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} annualAdjustmentPercentage={annualAdjustmentPercentage} />
+                                    {isPromo10Activa && (
+                                        <div
+                                            data-testid="resumen-descuento-promocional-10"
+                                            className="mt-4 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900"
+                                        >
+                                            <span>Descuento promocional 10%</span>
+                                            <span className="font-mono font-bold">
+                                                −{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(descuentoPromo10Monto)}
+                                            </span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </>
                     )}
                 </CardContent>

@@ -182,6 +182,76 @@ export default function PresentacionLedPage() {
   const [showBudgetPanel, setShowBudgetPanel] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const hydratedRef = useRef(false);
+  const pendingSlideRestoreRef = useRef<number | null>(null);
+
+  // Hydrate state from sessionStorage on mount
+  useEffect(() => {
+    if (typeof window === 'undefined' || hydratedRef.current) return;
+    try {
+      const clientDataRaw = sessionStorage.getItem('presentacion_cliente_data');
+      if (clientDataRaw) {
+        const parsed = JSON.parse(clientDataRaw);
+        if (parsed && typeof parsed === 'object') {
+          setClientData(prev => ({ ...prev, ...parsed }));
+        }
+      }
+
+      const serviciosRaw = sessionStorage.getItem('presentacion_servicios_seleccionados');
+      if (serviciosRaw) {
+        const parsed = JSON.parse(serviciosRaw);
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter(id => typeof id === 'string' && /^[\w-]+$/.test(id));
+          if (valid.length > 0) setSelectedServices(valid);
+        }
+      }
+
+      const entradasRaw = sessionStorage.getItem('presentacion_entradas_seleccionadas');
+      if (entradasRaw) {
+        const parsed = JSON.parse(entradasRaw);
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter(id => typeof id === 'string' && /^[\w-]+$/.test(id));
+          if (valid.length > 0) setSelectedEntradasIds(valid);
+        }
+      }
+
+      const menuSel = sessionStorage.getItem('presentacion_menu_seleccionado');
+      if (menuSel && /^[\w-]+$/.test(menuSel)) {
+        setSelectedMenuId(menuSel);
+      }
+
+      const teenMenuSel = sessionStorage.getItem('presentacion_menu_adolescente');
+      if (teenMenuSel && /^[\w-]+$/.test(teenMenuSel)) {
+        setSelectedTeenMenuId(teenMenuSel);
+      }
+
+      const menuEntradasRaw = sessionStorage.getItem('presentacion_menu_entradas');
+      if (menuEntradasRaw === '2') {
+        setClientData(prev => ({
+          ...prev,
+          duracionHoras: prev.duracionHoras ? prev.duracionHoras : String(ENTRADA_DUAL_DURATION_THRESHOLD)
+        }));
+      }
+
+      const desdeLed = sessionStorage.getItem('desde_presentacion_led');
+      const slideRegreso = sessionStorage.getItem('presentacion_slide_regreso');
+      const slideActual = sessionStorage.getItem('presentacion_slide_actual');
+      const targetSlideStr = desdeLed === 'true' && slideRegreso != null ? slideRegreso : slideActual;
+      if (targetSlideStr != null) {
+        const parsedSlide = parseInt(targetSlideStr, 10);
+        if (!isNaN(parsedSlide)) {
+          pendingSlideRestoreRef.current = parsedSlide;
+        }
+      }
+
+      sessionStorage.removeItem('desde_presentacion_led');
+      sessionStorage.removeItem('presentacion_slide_regreso');
+    } catch {
+      // ignore storage errors
+    }
+    hydratedRef.current = true;
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -419,6 +489,42 @@ export default function PresentacionLedPage() {
 
   const totalSlides = data ? contratarnosSlideIndex + 1 : 0;
 
+  // Set total slides & apply pending slide restoration once data is loaded and totalSlides is known
+  useEffect(() => {
+    if (!data || totalSlides <= 0) return;
+    const pending = pendingSlideRestoreRef.current;
+    if (pending !== null) {
+      pendingSlideRestoreRef.current = null;
+      const clamped = Math.max(0, Math.min(pending, totalSlides - 1));
+      setCurrentSlide(clamped);
+    }
+  }, [data, totalSlides]);
+
+  // Persist changes to sessionStorage after hydration
+  useEffect(() => {
+    if (!hydratedRef.current || typeof window === 'undefined') return;
+    try {
+      if (clientData.nombre || clientData.fechaEvento || clientData.tipoFiesta) {
+        sessionStorage.setItem('presentacion_cliente_data', JSON.stringify(clientData));
+      }
+      if (selectedServices.length > 0) {
+        sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(selectedServices));
+      }
+      if (selectedEntradasIds.length > 0) {
+        sessionStorage.setItem('presentacion_entradas_seleccionadas', JSON.stringify(selectedEntradasIds));
+      }
+      if (selectedMenuId) {
+        sessionStorage.setItem('presentacion_menu_seleccionado', selectedMenuId);
+      }
+      if (selectedTeenMenuId) {
+        sessionStorage.setItem('presentacion_menu_adolescente', selectedTeenMenuId);
+      }
+      sessionStorage.setItem('presentacion_menu_entradas', String(requiredEntradasCount));
+    } catch {
+      // ignore storage errors
+    }
+  }, [clientData, selectedServices, selectedEntradasIds, selectedMenuId, selectedTeenMenuId, requiredEntradasCount]);
+
   const isPortadaSlide = currentSlide === 0;
   const isBeneficiosSlide = currentSlide === 1;
   const isDatosEventoSlide = currentSlide === 2;
@@ -545,7 +651,7 @@ export default function PresentacionLedPage() {
     );
   }, []);
 
-  const handleGenerateBudget = useCallback(() => {
+  const persistAndBuildBudgetQuery = useCallback((extraParams?: Record<string, string>) => {
     let effectiveEntradasIds = selectedEntradasIds;
     if (effectiveEntradasIds.length === 0 && typeof window !== 'undefined') {
       try {
@@ -558,7 +664,6 @@ export default function PresentacionLedPage() {
         // ignore parse error
       }
     }
-    // IDs come from server-fetched ServicioEmpresa records (alphanumeric + hyphens/underscores)
     const safeIds = Array.from(new Set([...selectedServices, ...effectiveEntradasIds])).filter(id => /^[\w-]+$/.test(id));
     if (safeIds.length > 0) {
       sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
@@ -599,29 +704,32 @@ export default function PresentacionLedPage() {
     effectiveEntradasIds.forEach((id) => params.append('entradas', id));
     if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) params.set('menuId', selectedMenuId);
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => params.set(k, v));
+    }
+    return params;
+  }, [selectedServices, selectedEntradasIds, clientData, selectedMenuId, selectedTeenMenuId, requiredEntradasCount]);
+
+  const handleGenerateBudget = useCallback(() => {
+    const params = persistAndBuildBudgetQuery();
     const query = params.toString();
     router.push(query ? `/presupuestos/nuevo/crear?${query}` : '/presupuestos/nuevo/crear');
-  }, [selectedServices, selectedEntradasIds, clientData, selectedMenuId, selectedTeenMenuId, requiredEntradasCount, router]);
+  }, [persistAndBuildBudgetQuery, router]);
 
   const handlePrint = useCallback(() => {
     window.print();
   }, []);
 
   const handlePlanPagos = useCallback(() => {
-    const params = new URLSearchParams();
-    if (clientData.nombre) params.set('cliente', clientData.nombre.slice(0, 200));
-    if (clientData.fechaEvento) params.set('fecha', clientData.fechaEvento);
+    const params = persistAndBuildBudgetQuery();
     const query = params.toString();
     router.push(query ? `/presupuestos/nuevo/crear?${query}` : '/presupuestos/nuevo/crear');
-  }, [clientData, router]);
+  }, [persistAndBuildBudgetQuery, router]);
 
   const handleContrato = useCallback(() => {
-    const params = new URLSearchParams();
-    params.set('doc', 'contrato');
-    if (clientData.nombre) params.set('cliente', clientData.nombre.slice(0, 200));
-    if (clientData.fechaEvento) params.set('fecha', clientData.fechaEvento);
+    const params = persistAndBuildBudgetQuery({ doc: 'contrato' });
     router.push(`/presupuestos/nuevo/crear?${params.toString()}`);
-  }, [router, clientData.nombre, clientData.fechaEvento]);
+  }, [persistAndBuildBudgetQuery, router]);
 
   const handleCompartirPropuesta = useCallback(() => {
     const serviciosNombres = (data?.servicios || [])
@@ -900,6 +1008,7 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               catalogoFotos={catalogoFotos}
               ledFotoMap={presentacionSettings?.ledFotosServicios || {}}
+              onOpenGallery={handleOpenGallery}
             />
           )}
           {isTestimoniosSlide && (

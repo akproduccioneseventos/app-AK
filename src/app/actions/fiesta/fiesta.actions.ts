@@ -1779,11 +1779,44 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
   return await saveFiesta({ ...f, numerosMesa: data });
 }
 
-export async function updateCartaTragos(fiestaId: string, data: CartaTragosData) {
-  await requireAppSession();
-  const f = await getFiestaById(fiestaId);
-  if (!f) return { success: false };
-  return await saveFiesta({ ...f, cartaTragos: data });
+export async function updateCartaTragos(
+  fiestaId: string,
+  data: CartaTragosData,
+): Promise<{ success: boolean; cartaTragos?: CartaTragosData; error?: string }> {
+  try {
+    const { requireEventPermission } = await import('@/lib/auth/event-access');
+    await requireEventPermission(fiestaId, [
+      PERMISOS.ORGANIZACION,
+      PERMISOS.NOCHE,
+      PERMISOS.ADMINISTRACION,
+    ]);
+    const cleanData = sacarMarcas(data);
+    const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+    const result = await libActualizarFiesta(
+      fiestaId,
+      (actual) => ({ ...actual, cartaTragos: cleanData }),
+      { soloEquipo: true },
+    );
+    if (!result.success || !result.updatedFiesta) {
+      return {
+        success: false,
+        error: result.error || 'No se pudo guardar la carta de tragos.',
+      };
+    }
+    return {
+      success: true,
+      cartaTragos: result.updatedFiesta.cartaTragos,
+    };
+  } catch (error: unknown) {
+    logger.error(
+      `[updateCartaTragos] Error al guardar carta de tragos de ${fiestaId}:`,
+      logger.compactError(error),
+    );
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'No se pudo guardar la carta de tragos.',
+    };
+  }
 }
 
 /**

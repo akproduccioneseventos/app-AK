@@ -49,5 +49,7 @@ export function mergeMasterTragosWithFiesta(
   }
 
   const extras = fiestaItems.filter((item) => !masterItems.some((master) => master.id === item.id));
-  return [...synced, ...extras];
+  // Los tragos personalizados de la fiesta van primero para que no queden escondidos
+  // despues de los 10 lugares visibles de CartaTragosMenu al recargar.
+  return [...extras, ...synced];
 }

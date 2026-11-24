@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Monitor, Loader2, Sparkles, Printer } from 'lucide-react';
+import { ArrowLeft, Monitor, Loader2, Printer } from 'lucide-react';
 import {
   TableroControlEstaciones,
   EstadoEstacionOperador,
@@ -18,10 +18,10 @@ import {
 import { calcularPuestaAPuntoEstaciones } from '@/lib/entretenimiento/calculo-estaciones';
 import { Button } from '@/components/ui/button';
 
-export default function ControlEntretenimientoPage() {
+function ControlEntretenimientoContent() {
   const params = useParams();
-  const router = useRouter();
-  const fiestaId = params.id as string;
+  const searchParams = useSearchParams();
+  const fiestaId = ((params?.id as string) || searchParams.get('fiestaId') || searchParams.get('id') || '').trim();
 
   const [nombreEvento, setNombreEvento] = useState('Fiesta');
   const [estaciones, setEstaciones] = useState<EstadoEstacionOperador[]>([]);
@@ -31,6 +31,11 @@ export default function ControlEntretenimientoPage() {
   const [sePudoContar, setSePudoContar] = useState(true);
 
   const cargarDatos = useCallback(async () => {
+    if (!fiestaId) {
+      setEstaciones([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const res = await getEntretenimientoFiesta(fiestaId);
@@ -182,13 +187,28 @@ export default function ControlEntretenimientoPage() {
     void cargarDatos();
   }, [cargarDatos]);
 
+  if (!fiestaId) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Monitor className="mx-auto h-12 w-12 text-amber-500" />
+        <h1 className="text-2xl font-black text-slate-900">Abrí esta pantalla desde una fiesta</h1>
+        <p className="text-sm text-slate-600">
+          Elegí una fiesta del listado para abrir el Tablero de Operación en Vivo.
+        </p>
+        <Button asChild>
+          <Link href="/eventos">Ir a Eventos</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6">
+    <div className="container mx-auto max-w-7xl rounded-3xl border border-zinc-800 bg-zinc-950 py-8 px-4 text-white sm:px-6">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
             href={`/fiestas/nueva/entretenimiento?fiestaId=${fiestaId}`}
-            className="rounded-lg border border-white/10 bg-zinc-900 p-2 text-slate-400 hover:text-white transition"
+            className="rounded-lg border border-white/15 bg-zinc-900 p-2 text-slate-300 hover:text-white transition"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -197,7 +217,7 @@ export default function ControlEntretenimientoPage() {
               <Monitor className="h-6 w-6 text-amber-400" />
               Tablero de Operación en Vivo
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Monitoreo centralizado de todas las estaciones para {nombreEvento}
             </p>
           </div>
@@ -256,5 +276,19 @@ export default function ControlEntretenimientoPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function ControlEntretenimientoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
+        </div>
+      }
+    >
+      <ControlEntretenimientoContent />
+    </Suspense>
   );
 }

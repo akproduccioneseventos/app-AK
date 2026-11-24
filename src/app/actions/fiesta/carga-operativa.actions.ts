@@ -7,6 +7,7 @@ import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
+import * as logger from '@/lib/logger';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
 import { verifySession } from '@/lib/auth/session-token';
@@ -27,6 +28,47 @@ import {
 } from '@/lib/logistics/carga-operativa';
 
 const MASTER_TEMPLATE_FILE = 'carga-operativa-master-template.json';
+
+function generarRefCargaAccion(prefijo: string): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ERR-${prefijo}-${tiempo}${azar}`;
+}
+
+function describirMotivoCargaAccion(err: unknown, respaldo: string): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const msg = raw.toLowerCase();
+  if (msg.includes('sesion') || msg.includes('sesión') || msg.includes('no autorizada') || msg.includes('no autorizado')) {
+    return 'Tu sesión venció o no tiene permisos para modificar esta carga.';
+  }
+  if (msg.includes('fiesta no encontrada')) {
+    return 'No se encontró la fiesta en la base de datos.';
+  }
+  if (msg.includes('el elemento de carga ya no existe')) {
+    return 'El equipo ya no está en la lista. Recargá la pantalla.';
+  }
+  if (msg.includes('tiempo') || msg.includes('timeout') || msg.includes('demorada') || msg.includes('deadline')) {
+    return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
+  }
+  if (msg.includes('permission') || msg.includes('permiso') || msg.includes('unauthenticated')) {
+    return 'No se pudo validar el permiso con la base de datos.';
+  }
+  return respaldo;
+}
+
+function sinIndefinidos<V>(valor: V): V {
+  if (Array.isArray(valor)) {
+    return valor.map((v) => (v === undefined ? null : sinIndefinidos(v))) as unknown as V;
+  }
+  if (valor && typeof valor === 'object' && Object.getPrototypeOf(valor) === Object.prototype) {
+    const limpio: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(valor as Record<string, unknown>)) {
+      if (v !== undefined) limpio[k] = sinIndefinidos(v);
+    }
+    return limpio as V;
+  }
+  return valor;
+}
 const defaultMasterTemplate: ListaDeCargaOperativa = {
   id: "master",
   name: "Plantilla Maestra de Carga Operativa",
@@ -148,22 +190,24 @@ export async function updateCargaOperativaItemState(input: {
       return { success: false, error: 'No hay cambios válidos para guardar.' };
     }
 
-    try {
-      if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
-        const { dbAdmin } = await import('@/lib/firebase/server');
-        if (dbAdmin) {
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        try {
           const ref = dbAdmin.collection('fiestas').doc(input.fiestaId);
           const updatedData = await dbAdmin.runTransaction(async (transaction) => {
             const snapshot = await transaction.get(ref);
             if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
             const fiesta = snapshot.data() as FiestaEnPlanificacion;
             const current = fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
-            const updated = applyCargaOperativaItemPatch(
-              current,
-              input.categoryId,
-              input.itemId,
-              allowedPatch,
-              operatorName,
+            const updated = sinIndefinidos(
+              applyCargaOperativaItemPatch(
+                current,
+                input.categoryId,
+                input.itemId,
+                allowedPatch,
+                operatorName,
+              ),
             );
             transaction.update(ref, {
               listaDeCargaOperativa: updated,
@@ -172,10 +216,19 @@ export async function updateCargaOperativaItemState(input: {
             return updated;
           });
           return { success: true, updatedData };
+        } catch (error) {
+          const refError = generarRefCargaAccion('CARGA-TX');
+          logger.error(
+            `[CargaOperativa] (${refError}) Error en transacción al actualizar ítem ${input.itemId} en fiesta ${input.fiestaId}:`,
+            logger.compactError(error),
+          );
+          const motivo = describirMotivoCargaAccion(
+            error,
+            'No se pudo guardar el cambio en la base de datos.',
+          );
+          return { success: false, error: `${motivo} (Ref: ${refError})` };
         }
       }
-    } catch (error) {
-      // Si falla en Firestore, se intenta con almacenamiento estándar (saveFiesta / local JSON)
     }
 
     const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
@@ -188,12 +241,17 @@ export async function updateCargaOperativaItemState(input: {
       operatorName,
     );
     const result = await saveFiesta({ ...fiesta, listaDeCargaOperativa: updatedData });
-    if (!result.success) return { success: false, error: result.error };
+    if (!result.success) return { success: false, error: result.error || 'No se pudo guardar el cambio.' };
     return { success: true, updatedData };
   } catch (error) {
+    const refError = generarRefCargaAccion('CARGA');
+    logger.error(
+      `[CargaOperativa] (${refError}) Error inesperado actualizando ítem ${input.itemId}:`,
+      logger.compactError(error),
+    );
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'No se pudo actualizar la lista.',
+      error: `${describirMotivoCargaAccion(error, 'No se pudo actualizar la lista.')} (Ref: ${refError})`,
     };
   }
 }
@@ -316,28 +374,41 @@ export async function updateListaDeCargaOperativa(fiestaId: string, lista: Lista
         listaWithConflicts = { ...lista, categorias: updatedCategorias };
     }
 
-    try {
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
       const { dbAdmin } = await import('@/lib/firebase/server');
       if (dbAdmin) {
-        const ref = dbAdmin.collection('fiestas').doc(fiestaId);
-        const updatedData = await dbAdmin.runTransaction(async (transaction) => {
-          const snapshot = await transaction.get(ref);
-          if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
-          const currentFiesta = snapshot.data() as FiestaEnPlanificacion;
-          const updated = mergeCargaOperativaStructure(
-            listaWithConflicts,
-            currentFiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
-          );
-          transaction.update(ref, {
-            listaDeCargaOperativa: updated,
-            _syncedAt: new Date().toISOString(),
+        try {
+          const ref = dbAdmin.collection('fiestas').doc(fiestaId);
+          const updatedData = await dbAdmin.runTransaction(async (transaction) => {
+            const snapshot = await transaction.get(ref);
+            if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+            const currentFiesta = snapshot.data() as FiestaEnPlanificacion;
+            const updated = sinIndefinidos(
+              mergeCargaOperativaStructure(
+                listaWithConflicts,
+                currentFiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+              ),
+            );
+            transaction.update(ref, {
+              listaDeCargaOperativa: updated,
+              _syncedAt: new Date().toISOString(),
+            });
+            return updated;
           });
-          return updated;
-        });
-        return { success: true, updatedData };
+          return { success: true, updatedData };
+        } catch (transactionError) {
+          const refError = generarRefCargaAccion('CARGA-LIST');
+          logger.error(
+            `[CargaOperativa] (${refError}) Error en transacción al guardar lista de ${fiestaId}:`,
+            logger.compactError(transactionError),
+          );
+          const motivo = describirMotivoCargaAccion(
+            transactionError,
+            'No se pudo guardar la lista de carga en la base de datos.',
+          );
+          return { success: false, error: `${motivo} (Ref: ${refError})` };
+        }
       }
-    } catch (transactionError) {
-      if (process.env.NODE_ENV === 'production') throw transactionError;
     }
 
     const updatedData = mergeCargaOperativaStructure(
@@ -349,7 +420,15 @@ export async function updateListaDeCargaOperativa(fiestaId: string, lista: Lista
     if (!result.success) throw new Error(result.error);
     return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa || updatedData };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    const refError = generarRefCargaAccion('CARGA-LIST');
+    logger.error(
+      `[CargaOperativa] (${refError}) Error inesperado guardando lista de ${fiestaId}:`,
+      logger.compactError(e),
+    );
+    return {
+      success: false,
+      error: `${describirMotivoCargaAccion(e, e?.message || 'No se pudo guardar la lista de carga.')} (Ref: ${refError})`,
+    };
   }
 }
 

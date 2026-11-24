@@ -59,6 +59,7 @@ const DISH_TYPE_EMOJI: Record<string, string> = {
 interface PlatoConMenu extends MenuItem {
   menuId: string;
   menuName: string;
+  menuEstadoPublicacion?: 'borrador' | 'publicado';
 }
 
 const formatCurrency = (amount?: number) => {
@@ -107,10 +108,11 @@ export default function CatalogoPlatosPage() {
 
   const todosLosPlatos: PlatoConMenu[] = useMemo(() => {
     return allMenus.flatMap(menu =>
-      menu.items.map(item => ({
+      menu.items.filter(item => !item.id.endsWith('_virtual_buffet')).map(item => ({
         ...item,
         menuId: menu.id,
         menuName: menu.name,
+        menuEstadoPublicacion: menu.estadoPublicacion,
       }))
     ).sort((a, b) =>
       Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) ||
@@ -230,10 +232,15 @@ export default function CatalogoPlatosPage() {
         throw new Error("No se encontró el menú original para eliminar el plato.");
       }
 
-      const updatedItems = menuToUpdate.items.filter(item => item.id !== dishId);
+      const updatedItems = menuToUpdate.items.filter(item => item.id !== dishId && !item.id.endsWith('_virtual_buffet'));
       const result = await saveMenu({ ...menuToUpdate, items: updatedItems });
 
       if (result.success) {
+        if (result.menu) {
+          setAllMenus(prev => prev.map(m => m.id === menuId ? result.menu! : m));
+        } else {
+          setAllMenus(prev => prev.map(m => m.id === menuId ? { ...m, items: updatedItems } : m));
+        }
         toast({ title: "Plato Eliminado", description: `Se eliminó "${dishName}" del menú.` });
         await loadData();
       } else {
@@ -362,7 +369,12 @@ export default function CatalogoPlatosPage() {
                                         </div>
                                         <div className="min-w-0">
                                           <p className="font-medium truncate">{plato.name}</p>
-                                          <p className="text-xs text-muted-foreground truncate">Del menú: "{plato.menuName}"</p>
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            <p className="text-xs text-muted-foreground truncate">Del menú: "{plato.menuName}"</p>
+                                            {plato.menuEstadoPublicacion === 'borrador' && (
+                                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">Borrador</Badge>
+                                            )}
+                                          </div>
                                           {(plato.allergenTags || []).length > 0 && (
                                             <div className="flex flex-wrap gap-0.5 mt-0.5">
                                               {(plato.allergenTags || []).map(a => (

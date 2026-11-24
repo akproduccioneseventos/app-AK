@@ -1248,6 +1248,8 @@ export interface GestionCostosData {
   ingresosTotalesEstimados: number;
   notasGeneralesCostos?: string;
   others?: Record<string, number>;
+  cateringSinCostoCargado?: boolean;
+  cateringAviso?: string;
 }
 
 export interface VideoVidaData {

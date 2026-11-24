@@ -145,7 +145,10 @@ async function loadAuthoritativePricingData(): Promise<{
   };
   return {
     config,
-    services: buildAuthoritativeSimulatorServices(catalogServices, menus),
+    services: buildAuthoritativeSimulatorServices(
+      catalogServices.filter((s) => s.estadoPublicacion !== 'borrador'),
+      menus.filter((m) => m.estadoPublicacion !== 'borrador')
+    ),
     budgetSettings: { ...defaultBudgetDisplaySettings, ...budgetSettings },
   };
 }

@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { ItemPresupuestado } from '@/types/presupuesto';
@@ -85,10 +86,33 @@ const getServicioCalculatedData = (servicio: ServicioEmpresa, adultos: number) =
 };
 
 export default function CatalogoServiciosSettingsPage() {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const handleTogglePublicacion = async (servicio: ServicioEmpresa) => {
+    setTogglingId(servicio.id);
+    try {
+      const nextEstado = servicio.estadoPublicacion === 'borrador' ? 'publicado' : 'borrador';
+      const result = await saveServicioEmpresa({ ...servicio, estadoPublicacion: nextEstado });
+      if (result.success) {
+        setServicios(prev => prev.map(s => s.id === servicio.id ? { ...s, estadoPublicacion: nextEstado } : s));
+        toast({
+          title: nextEstado === 'publicado' ? "Servicio publicado" : "Servicio pasado a borrador",
+          description: `"${servicio.nombre}" ahora está ${nextEstado}.`,
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -297,8 +321,25 @@ export default function CatalogoServiciosSettingsPage() {
                             return (
                               <Card key={servicio.id} className="border border-border bg-muted/20 rounded-xl">
                                 <CardHeader className="pb-2">
-                                  <CardTitle className="text-base">{servicio.nombre}</CardTitle>
-                                  <div className="flex gap-2 flex-wrap">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <CardTitle className="text-base">{servicio.nombre}</CardTitle>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <Badge variant={servicio.estadoPublicacion === 'borrador' ? 'outline' : 'default'} className="text-[10px]">
+                                        {servicio.estadoPublicacion === 'borrador' ? 'Borrador' : 'Publicado'}
+                                      </Badge>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-7 px-2 text-xs"
+                                        onClick={() => handleTogglePublicacion(servicio)}
+                                        disabled={togglingId === servicio.id}
+                                      >
+                                        {togglingId === servicio.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                                        {servicio.estadoPublicacion === 'borrador' ? 'Publicar' : 'Pasar a borrador'}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 flex-wrap pt-1">
                                     <Badge variant="secondary">{getCalculationMethodLabel(servicio.calculationMethod)}</Badge>
                                     {servicio.subcategoria && <Badge variant="outline">{servicio.subcategoria}</Badge>}
                                   </div>

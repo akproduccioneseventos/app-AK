@@ -415,13 +415,36 @@ function MuroSocialContent() {
 
       // La biblioteca global recorre otras fiestas: si falla, degradamos sin bloquear este evento.
       try {
-        const globalAssets = await getGlobalScreenMediaLibrary();
-        setGlobalLibrary(Array.isArray(globalAssets) ? globalAssets : []);
+        const globalResult = await getGlobalScreenMediaLibrary();
+        if (Array.isArray(globalResult)) {
+          setGlobalLibrary(globalResult);
+        } else if (globalResult && typeof globalResult === 'object') {
+          setGlobalLibrary(Array.isArray(globalResult.assets) ? globalResult.assets : []);
+          if (globalResult.error) {
+            const ref = globalResult.codigoError || generarRefMuro('MURO-LIB');
+            const motivo = describirErrorMuroSeguro(
+              globalResult.error,
+              'Error al consultar la base de datos.',
+            );
+            warnings.push(
+              `No se pudo cargar la biblioteca global de medios: ${motivo} (Ref: ${ref}). Podés seguir operando con los archivos del evento.`,
+            );
+          } else if (globalResult.skippedFiestas > 0) {
+            warnings.push(
+              `Se omitieron ${globalResult.skippedFiestas} fiesta(s) con datos incompatibles al armar la biblioteca global de medios.`,
+            );
+          }
+        } else {
+          setGlobalLibrary([]);
+        }
       } catch (libErr: unknown) {
         const ref = generarRefMuro('MURO-LIB');
         console.error(`[MuroSocial] (${ref}) Error al cargar biblioteca global de pantalla:`, libErr);
+        const motivo = describirErrorMuroSeguro(libErr, 'Error inesperado al consultar las fiestas.');
         setGlobalLibrary([]);
-        warnings.push(`No se pudo cargar la biblioteca global de medios (Ref: ${ref}). Podés seguir operando con los archivos del evento.`);
+        warnings.push(
+          `No se pudo cargar la biblioteca global de medios: ${motivo} (Ref: ${ref}). Podés seguir operando con los archivos del evento.`,
+        );
       }
 
       // Load active poll independently to avoid blocking the main data load

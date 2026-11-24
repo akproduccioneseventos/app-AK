@@ -254,9 +254,14 @@ export function ScreenPlaylistAdmin({ fiestaId }: ScreenPlaylistAdminProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(typeLabels).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
+                      {Object.entries(typeLabels)
+                        .filter(([key]) => Boolean(key?.trim()))
+                        .map(([key, label]) => {
+                          const itemTypeValue = key.trim();
+                          return (
+                            <SelectItem key={itemTypeValue} value={itemTypeValue}>{label}</SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                 </div>

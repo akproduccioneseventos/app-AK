@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 24/11/2026 - Orden 338: auditoría funcional del 23/11/2026 (fiesta de la dirección, guardados reales, presentación LED, finanzas y accesos públicos)
+
+- **Bloque 1 + P218 (Fiesta de la dirección):** `video-vida.tsx`, `fiesta--entretenimiento-control.tsx`, `portal--videos-invitados.tsx` y pestañas de entretenimiento leen `fiestaId`/`id` de la URL sin caer a `getFiestaActual()` ni armar enlaces con `undefined`; muestran cartel `"Abrí esta pantalla desde una fiesta"` con enlace a `/eventos`.
+- **Bloque 2 + P219/P220 (Guardados reales):** `updateCartaTragos` exige `requireEventPermission` y mutación atómica con `actualizarFiesta(..., { soloEquipo: true })`; `mergeMasterTragosWithFiesta` antepone tragos extras para que no queden ocultos; `"+ Trago Personalizado"` no entra a la lista antes de confirmar; `carga-operativa.actions.ts` limpia `undefined` antes de la transacción Firestore, expone error real con referencia y `carga-operativa.tsx` reemplaza `"Tildes sincronizadas online"` por estado dinámico del último guardado y revierte si falla.
+- **Bloque 3 + P221 (Pantallas que se caen o vacían):** `alertas.actions.ts` usa `'__sin_fiesta__'` y los `<Select>` filtran valores vacíos (`mi-dia--alertas.tsx`, `aprobaciones/page.tsx`, `InvitacionConfigPanel.tsx`, `ScreenPlaylistAdmin.tsx`); `customers` usa `getCustomersConDetalle()` separado de fiestas con reintento; biblioteca global del muro saltea fiestas con formato roto en lugar de caerse.
+- **Bloque 4 + P223/P225 (Presentación LED, presupuesto manual y PDF):** PDF (`BudgetDocument.tsx`, `ver/page.tsx`, `simulador-ak/page.tsx`) se clona a ancho fijo A4 `794px` sin desborde ni hojas vacías; galerías de slides abren el modal interno `onOpenGallery` en lugar de `window.location.assign`; `presentacion-led/page.tsx` hidrata y persiste claves `presentacion_*` en `sessionStorage` y manda propuesta completa (`leadName`, entradas, menú) desde `Plan de Pagos` y `Contrato`; `crear/page.tsx` usa `parseUruguayDate`, pregunta antes de pisar un borrador `presupuestoEnProgreso_v3` y muestra visible `"Descuento promocional 10%"` (**porqué: el 10% queda activo por decisión comercial del dueño**).
+- **Bloque 5 (Finanzas y compras — revisar Claude):** `getProfitAndLossData` devuelve motivo sanitizado + `REF-PL-...` y permiso claro; `finanzas.tsx` muestra error + reintentar sin ceros falsos; `costos.actions.ts` y `gestion-costos-rentabilidad.tsx` muestran `"Catering sin costo cargado: asigná el menú"`; insumos `porEvento: true` (ej. `ing-gas`) no se multiplican por invitados ni se suman entre recetas (`Math.max`).
+- **Bloque 6 + P224/P226 (Accesos y catálogos público/borrador — revisar Claude):** `mi-mesa` elimina enlace con token vacío y pide abrir invitación; `FullMenu` y `ServicioEmpresa` suman `estadoPublicacion?: 'borrador' | 'publicado'`: los nuevos/duplicados nacen en `'borrador'`, lo público (`getMenusPublicos`, `getServiciosEmpresaPublicos`, `public-simulator-persistence.ts`) los filtra y **los registros legacy sin ese campo siguen visibles para no romper el catálogo vigente**; `deleteMenuInterno` detalla números de presupuesto y nombres de fiesta reales; `menus--catalogo.tsx` excluye `_virtual_buffet` y conserva borrado de platos al recargar.
+- **Bloque 7 + P222 (Señales):** `cierre-slide.tsx` reemplaza `{SENIA}` con el monto de Ajustes; `personal.actions.ts` evita correos Google si cambian sólo puestos manuales sin persona; `invitados.tsx` suma `aria-label` y `fiestas/nueva/page.tsx` usa `truncate`.
+
+```comprobar
+prueba: src/__tests__/auditoria-338-plata-y-lo-publico.test.ts
+prueba: tests/firebase/carta-tragos-y-carga-se-guardan.test.ts
+prueba: tests/firebase/quitar-un-plato-queda.test.ts
+prueba: tests/e2e/cada-pantalla-usa-la-fiesta-de-la-direccion.spec.ts
+prueba: tests/e2e/la-presentacion-led-no-pierde-la-propuesta.spec.ts
+prueba: tests/e2e/el-pdf-del-presupuesto-entra-en-la-hoja.spec.ts
+```
+
 ## 24/11/2026 - Orden 337: auditoría general maestra (accesos externos, seguridad de descargas/Google y Ajustes)
 
 - **Accesos externos que expulsaban a invitados, clientes y colaboradores (Bloque 1 + Pregunta 215):**

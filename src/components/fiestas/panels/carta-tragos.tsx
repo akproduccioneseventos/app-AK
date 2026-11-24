@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Download, Info, RefreshCw } from 'lucide-react';
@@ -25,8 +25,7 @@ import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
 function CartaTragosContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
-  const router = useRouter();
+  const fiestaId = (searchParams.get('fiestaId') ?? searchParams.get('id') ?? '').trim();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cartaTragos, setCartaTragos] = useState<CartaTragosData>(defaultCartaTragosData);
@@ -44,13 +43,15 @@ function CartaTragosContent() {
   // Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Trago | null>(null);
+  const [isNewCustomDrink, setIsNewCustomDrink] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      toast({ title: "Error", description: "No se encontró ID de evento.", variant: "destructive" });
-      router.push('/eventos');
+      setFiesta(null);
+      setError(null);
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -86,7 +87,7 @@ function CartaTragosContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId, router]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -170,17 +171,27 @@ function CartaTragosContent() {
     setIsSaving(true);
     try {
       const result = await updateCartaTragosAction(fiestaId, cartaTragos);
-      if (result.success) {
-        toast({ title: "¡Guardado!", description: "La carta de tragos ha sido actualizada." });
-      } else {
-        throw new Error(result.error);
+      if (!result?.success) {
+        throw new Error(result?.error || 'No se pudo guardar la carta de tragos.');
       }
+      if (result.cartaTragos) {
+        const fechaEvento = fiesta?.configuracion?.fechaEvento || (fiesta as any)?.fecha;
+        setCartaTragos({
+          ...result.cartaTragos,
+          items: mergeMasterTragosWithFiesta(masterItems, result.cartaTragos.items || [], fechaEvento),
+        });
+      }
+      toast({ title: "¡Guardado!", description: "La carta de tragos ha sido actualizada." });
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({
+        title: "Error al guardar",
+        description: e?.message || "No se pudo guardar la carta de tragos.",
+        variant: "destructive",
+      });
     } finally {
-        setIsSaving(false);
+      setIsSaving(false);
     }
-  }
+  };
 
   const handlePrint = () => window.print();
 
@@ -204,7 +215,16 @@ function CartaTragosContent() {
   };
 
 
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setIsNewCustomDrink(false);
+    setEditingItem(null);
+    setFileToUpload(null);
+    setPreviewUrl(null);
+  };
+
   const openEditModal = (item: Trago) => {
+    setIsNewCustomDrink(false);
     setEditingItem(item);
     setPreviewUrl(item.imageUrl ?? null);
     setFileToUpload(null);
@@ -214,9 +234,14 @@ function CartaTragosContent() {
   const handleUpdateItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItem) return;
+    const nombreLimpio = editingItem.nombre.trim();
+    if (!nombreLimpio) {
+      toast({ title: "Nombre requerido", description: "Ingresá el nombre del trago antes de guardar.", variant: "destructive" });
+      return;
+    }
 
     let finalImageUrl = editingItem.imageUrl;
-    let finalItem = { ...editingItem };
+    const finalItem: Trago = { ...editingItem, nombre: nombreLimpio };
 
     if (fileToUpload) {
       if (!fiestaId) {
@@ -229,7 +254,7 @@ function CartaTragosContent() {
         formData.append('folder', fiestaId);
         formData.append('file', fileToUpload);
         const result = await uploadPublicPageAsset(formData);
-        if(result.success && result.url) {
+        if (result.success && result.url) {
           finalImageUrl = result.url;
         } else {
           throw new Error(result.error);
@@ -245,17 +270,21 @@ function CartaTragosContent() {
 
     finalItem.imageUrl = finalImageUrl;
 
-    setCartaTragos(prev => ({
-      ...prev,
-      items: prev.items.map(item =>
-        item.id === finalItem.id ? finalItem : item
-      ),
-    }));
+    if (isNewCustomDrink) {
+      setCartaTragos(prev => ({
+        ...prev,
+        items: [finalItem, ...(prev.items || [])],
+      }));
+    } else {
+      setCartaTragos(prev => ({
+        ...prev,
+        items: (prev.items || []).map(item =>
+          item.id === finalItem.id ? finalItem : item
+        ),
+      }));
+    }
 
-    setIsEditModalOpen(false);
-    setEditingItem(null);
-    setFileToUpload(null);
-    setPreviewUrl(null);
+    closeEditModal();
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -267,23 +296,34 @@ function CartaTragosContent() {
   };
 
   const handleAddCustomDrink = () => {
-    const newDrink: Trago = {
+    const draftDrink: Trago = {
       id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      nombre: 'Destornillador',
+      nombre: '',
       imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
-      descripcion: 'El clásico trago de Vodka con Jugo de Naranja, fresco y enérgico.',
-      ingredientes: ['Vodka', 'Jugo de Naranja', 'Hielo'],
+      descripcion: '',
+      ingredientes: [],
       stockDisponible: 120,
     };
-    setCartaTragos((prev) => ({
-      ...prev,
-      items: [newDrink, ...(prev.items || [])],
-    }));
-    openEditModal(newDrink);
+    setIsNewCustomDrink(true);
+    setEditingItem(draftDrink);
+    setPreviewUrl(draftDrink.imageUrl ?? null);
+    setFileToUpload(null);
+    setIsEditModalOpen(true);
   };
 
   if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
+  if (!fiestaId) {
+    return (
+      <div className="p-8 max-w-xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">Abrí esta pantalla desde una fiesta</h2>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para editar su carta de tragos.
+        </p>
+        <Button asChild><Link href="/eventos">Ir a Eventos</Link></Button>
+      </div>
+    );
   }
   if (error) {
     return (
@@ -308,16 +348,30 @@ function CartaTragosContent() {
 
   return (
     <div className="bg-gray-100 min-h-screen pb-10 print:bg-white print:pb-0">
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <Dialog
+            open={isEditModalOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    closeEditModal();
+                } else {
+                    setIsEditModalOpen(true);
+                }
+            }}
+        >
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Editar Trago</DialogTitle>
+                    <DialogTitle>{isNewCustomDrink ? 'Nuevo Trago Personalizado' : 'Editar Trago'}</DialogTitle>
                 </DialogHeader>
                 {editingItem && (
                     <form onSubmit={handleUpdateItem} className="space-y-4 py-2">
                         <div className="space-y-1">
                             <Label htmlFor="item-name">Nombre del Trago</Label>
-                            <Input id="item-name" value={editingItem.nombre} onChange={e => setEditingItem(prev => prev ? {...prev, nombre: e.target.value} : null)} />
+                            <Input
+                                id="item-name"
+                                value={editingItem.nombre}
+                                placeholder="Ej: Destornillador"
+                                onChange={e => setEditingItem(prev => prev ? {...prev, nombre: e.target.value} : null)}
+                            />
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor="item-image-upload">Cambiar Imagen</Label>
@@ -346,7 +400,7 @@ function CartaTragosContent() {
                             />
                          </div>
                          <DialogFooter className="flex justify-between items-center w-full">
-                            {editingItem.id.startsWith('custom_') && (
+                            {!isNewCustomDrink && editingItem.id.startsWith('custom_') && (
                               <Button
                                 type="button"
                                 variant="destructive"
@@ -355,8 +409,7 @@ function CartaTragosContent() {
                                     ...prev,
                                     items: prev.items.filter(item => item.id !== editingItem.id)
                                   }));
-                                  setIsEditModalOpen(false);
-                                  setEditingItem(null);
+                                  closeEditModal();
                                 }}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                               >
@@ -364,7 +417,9 @@ function CartaTragosContent() {
                               </Button>
                             )}
                             <div className="flex gap-2 ml-auto">
-                              <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                              <DialogClose asChild>
+                                <Button type="button" variant="outline" onClick={closeEditModal}>Cancelar</Button>
+                              </DialogClose>
                               <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Trago</Button>
                             </div>
                         </DialogFooter>

@@ -112,10 +112,29 @@ function calcularCostosPendientesDeFiesta(
   return restante;
 }
 
+function generarRefReportePL(): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 4).toUpperCase();
+  return `REF-PL-${tiempo}${azar}`;
+}
+
+function sanitizarMotivoReporte(raw: string): string {
+  const primeraLinea = raw.split(/\r?\n/)[0]?.trim() || '';
+  const limpio = primeraLinea
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, '[token]')
+    .replace(/[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '[token]')
+    .replace(/([?&](?:token|key|apiKey|secret|password|auth)=)[^&\s]+/gi, '$1[oculto]')
+    .replace(/[a-zA-Z]:\\[^\s'"]+/g, '[ruta]')
+    .replace(/\/(?:Users|home|var|tmp|app|srv|opt|etc)\/[^\s'"]+/g, '[ruta]')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return limpio ? limpio.slice(0, 180) : 'Error interno al consolidar el reporte contable';
+}
+
 export async function getProfitAndLossData(
   range: DateRange,
   scope: ProfitAndLossScope = {},
-): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
+): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string; codigoError?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.GANANCIAS); // revisión de plata, 6/10/2026: no cualquier sesión (ganancias, sólo el dueño)
     const auth = await verifySession();
@@ -367,8 +386,23 @@ export async function getProfitAndLossData(
       },
     };
   } catch (error: any) {
-    console.error('Error calculating global P&L:', error);
-    return { success: false, error: 'Fallo al consolidar el reporte contable global.' };
+    const refId = generarRefReportePL();
+    const rawMessage = error instanceof Error ? error.message : String(error ?? '');
+    if (/permis|autoriz|contabilidad|ganancias|tu perfil no tiene acceso/i.test(rawMessage)) {
+      console.warn(`[reportes] Permiso denegado en getProfitAndLossData (${refId}):`, rawMessage);
+      return {
+        success: false,
+        error: 'No tenés permiso de Contabilidad o Ganancias para ver el reporte contable.',
+        codigoError: refId,
+      };
+    }
+    console.error(`Error calculating global P&L (${refId}):`, error);
+    const motivo = sanitizarMotivoReporte(rawMessage);
+    return {
+      success: false,
+      error: `${motivo} (Ref: ${refId})`,
+      codigoError: refId,
+    };
   }
 }
 

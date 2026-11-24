@@ -17,6 +17,7 @@ interface EntradaSlideProps {
   mostrarPrecios?: boolean;
   onToggle: (id: string) => void;
   onNext: () => void;
+  onOpenGallery?: (categoria: string) => void;
 }
 
 function isSafeUrl(url: string | null | undefined): boolean {
@@ -37,6 +38,7 @@ function EntradaCard({
   mostrarPrecios,
   photoUrl,
   isRecomendada,
+  onOpenGallery,
 }: {
   entrada: MenuItem;
   isSelected: boolean;
@@ -44,18 +46,15 @@ function EntradaCard({
   mostrarPrecios: boolean;
   photoUrl?: string | null;
   isRecomendada?: boolean;
+  onOpenGallery?: () => void;
 }) {
   const [showDesc, setShowDesc] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
   const safePhoto = photoUrl && isSafeUrl(photoUrl) && !imgFailed ? photoUrl : null;
 
   const handleGallery = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('desde_presentacion_led', 'true');
-      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
-      sessionStorage.setItem('presentacion_slide_regreso', slide);
-      // Always navigate to the Entrada category in the gallery
-      window.location.assign('/galeria-led?categoria=Entrada');
+    if (onOpenGallery) {
+      onOpenGallery();
     }
   };
 
@@ -174,8 +173,16 @@ export function EntradaSlide({
   mostrarPrecios = true,
   onToggle,
   onNext,
+  onOpenGallery,
 }: EntradaSlideProps) {
   const canContinue = selectedIds.length >= requiredCount;
+
+  const handleCardGallery = () => {
+    if (onOpenGallery) {
+      onOpenGallery('Entrada');
+      return;
+    }
+  };
 
   return (
     <SlideLayout overflowScroll>
@@ -228,6 +235,7 @@ export function EntradaSlide({
                   mostrarPrecios={mostrarPrecios}
                   photoUrl={ledFotoMap[entrada.id] || getCateringDishImage(entrada) || null}
                   isRecomendada={i < requiredCount}
+                  onOpenGallery={handleCardGallery}
                 />
               </motion.div>
             ))}

@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { RefreshCw,  ArrowLeft, ExternalLink, Loader2, MonitorPlay, Plus, Printer, QrCode, Save, Sparkles, Trash2, Tv  } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -83,9 +83,8 @@ function normalizeTotems(fiesta: FiestaEnPlanificacion | null, origin = '') {
 }
 
 function PantallasTotemContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = (searchParams.get('fiestaId') || searchParams.get('id') || '').trim();
   const { toast } = useToast();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -149,7 +148,7 @@ function PantallasTotemContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      router.replace('/eventos');
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -176,7 +175,7 @@ function PantallasTotemContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, router, toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
@@ -245,6 +244,20 @@ function PantallasTotemContent() {
 
   if (isLoading) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+  if (!fiestaId) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Tv className="mx-auto h-12 w-12 text-primary" />
+        <h2 className="text-xl font-bold">Abrí esta pantalla desde una fiesta</h2>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para configurar sus pantallas tótem.
+        </p>
+        <Button asChild>
+          <Link href="/eventos">Ir a Eventos</Link>
+        </Button>
+      </div>
+    );
   }
   if (error) {
     return (

@@ -10,11 +10,11 @@ import { buildWhatsAppLink } from '@/lib/commercial/contact';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays, MessageCircle } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays, MessageCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
-import { getCustomers, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
+import { getCustomersConDetalle, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import {
   AlertDialog,
@@ -125,27 +125,64 @@ function CustomersPageInner() {
   const { toast } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [customersError, setCustomersError] = useState<string | null>(null);
+  const [fiestasWarning, setFiestasWarning] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
+    setCustomersError(null);
+    setFiestasWarning(null);
     try {
-      const [customersData, fiestasData] = await Promise.all([
-        getCustomers(),
-        getAllFiestas()
+      const [customersResult, fiestasResult] = await Promise.allSettled([
+        getCustomersConDetalle(),
+        getAllFiestas(),
       ]);
+
+      if (customersResult.status === 'rejected') {
+        const motivo = customersResult.reason instanceof Error
+          ? customersResult.reason.message
+          : 'No se pudo consultar la base de datos de clientes.';
+        setCustomers([]);
+        setCustomersError(motivo);
+        toast({ title: 'Error', description: 'No se pudieron cargar los clientes.', variant: 'destructive' });
+        return;
+      }
+
+      const { customers: customersData, huboFalla, motivo } = customersResult.value;
+      const safeCustomersData = Array.isArray(customersData) ? customersData : [];
+
+      if (huboFalla && safeCustomersData.length === 0) {
+        const detalle = motivo || 'No se pudo leer la colección de clientes desde la base de datos.';
+        setCustomers([]);
+        setCustomersError(detalle);
+        toast({ title: 'Error', description: 'No se pudieron cargar los clientes.', variant: 'destructive' });
+        return;
+      }
+
+      let safefiestasData: Awaited<ReturnType<typeof getAllFiestas>> = [];
+      if (fiestasResult.status === 'fulfilled' && Array.isArray(fiestasResult.value)) {
+        safefiestasData = fiestasResult.value;
+      } else {
+        setFiestasWarning('No se pudieron consultar las fiestas para asociar fechas y estado. Se muestran los clientes guardados.');
+      }
+
+      if (huboFalla && safeCustomersData.length > 0) {
+        setFiestasWarning(
+          motivo
+            ? `No se pudo leer la base principal (${motivo}). Se muestra la copia local disponible.`
+            : 'No se pudo leer la base principal. Se muestra la copia local disponible.',
+        );
+      }
 
       const now = new Date();
       now.setHours(0, 0, 0, 0);
 
-      const safeCustomersData = Array.isArray(customersData) ? customersData : [];
-      const safefiestasData = Array.isArray(fiestasData) ? fiestasData : [];
-
       const customersWithData = safeCustomersData.map(customer => {
           const customerFiestas = safefiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
 
-          let calculatedStatus: CustomerStatus = 'Actual';
+          let calculatedStatus: CustomerStatus = customer.estadoCliente || 'Actual';
           let displayDate = customer.partyDate;
 
           if (customerFiestas.length > 0) {
@@ -195,6 +232,9 @@ function CustomersPageInner() {
 
       setCustomers(sortedData);
     } catch (error) {
+      const motivo = error instanceof Error ? error.message : 'No se pudieron cargar los clientes.';
+      setCustomers([]);
+      setCustomersError(motivo);
       toast({ title: "Error", description: "No se pudieron cargar los clientes.", variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -272,10 +312,30 @@ function CustomersPageInner() {
             </div>
         </CardHeader>
         <CardContent className="space-y-8">
+          {fiestasWarning && !isLoading && !customersError && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 print:hidden" role="status">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                <span>{fiestasWarning}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={fetchCustomers} className="shrink-0 bg-white">
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Reintentar
+              </Button>
+            </div>
+          )}
           {isLoading ? (
             <div className="flex items-center justify-center py-10 print:hidden">
               <Loader2 className="w-10 h-10 animate-spin text-primary" />
               <p className="ml-3 text-muted-foreground">Cargando clientes...</p>
+            </div>
+          ) : customersError ? (
+            <div className="py-10 text-center space-y-3 print:hidden" role="alert">
+              <AlertTriangle className="w-14 h-14 mx-auto text-destructive/80" />
+              <p className="text-lg font-semibold text-foreground">No se pudieron cargar los clientes</p>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">{customersError}</p>
+              <Button onClick={fetchCustomers} variant="outline" className="mt-2">
+                <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+              </Button>
             </div>
           ) : filteredCustomers.length > 0 ? (
             <>

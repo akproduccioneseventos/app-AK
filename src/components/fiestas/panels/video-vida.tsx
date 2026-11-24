@@ -14,7 +14,7 @@ import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, Chec
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
-import { getFiestaActual, getFiestaById, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
 import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto, deleteAllVideoVidaPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import { Separator } from '@/components/ui/separator';
@@ -115,7 +115,7 @@ const PhotoUploadSlot: React.FC<{
 function VideoVidaAdminContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const fiestaIdParam = searchParams.get('fiestaId') ?? searchParams.get('id');
+  const fiestaIdParam = (searchParams.get('fiestaId') ?? searchParams.get('id') ?? '').trim();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [videoVidaData, setVideoVidaData] = useState<VideoVidaData | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
@@ -127,12 +127,18 @@ function VideoVidaAdminContent() {
   const [photoLoadError, setPhotoLoadError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaIdParam) {
+      setFiesta(null);
+      setVideoVidaData(null);
+      setPhotoSlots([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = fiestaIdParam
-        ? await getFiestaById(fiestaIdParam)
-        : await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaIdParam);
       if (!fiestaData) {
         throw new Error('No se encontró la fiesta.');
       }
@@ -300,8 +306,30 @@ function VideoVidaAdminContent() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
+  if (!fiestaIdParam) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Camera className="mx-auto w-12 h-12 text-muted-foreground" />
+        <h2 className="text-xl font-bold">Abrí esta pantalla desde una fiesta</h2>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para gestionar su Video de Vida.
+        </p>
+        <Button asChild>
+          <Link href="/eventos">Ir a Eventos</Link>
+        </Button>
+      </div>
+    );
+  }
   if (error) {
-    return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
+    return (
+      <div className="text-center text-destructive p-6 space-y-4">
+        <AlertTriangle className="mx-auto w-10 h-10" />
+        <p>{error}</p>
+        <Button asChild variant="outline">
+          <Link href="/eventos">Volver a Eventos</Link>
+        </Button>
+      </div>
+    );
   }
   if (!fiesta || !videoVidaData) return null;
 

@@ -127,6 +127,8 @@ async function saveInsumoInterno(
         cambios.valorUnitarioEstimado = Number(v);
       } else if (k === 'cantidadDisponible') {
         cambios.cantidadDisponible = Number(v);
+      } else if (k === 'porEvento') {
+        cambios.porEvento = Boolean(v);
       } else if (k === 'subcategoria') {
         cambios.subcategoria = (v as string)?.trim() || undefined;
       } else if (k === 'notas') {
@@ -166,6 +168,7 @@ async function saveInsumoInterno(
       tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
       valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
       cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
+      ...(itemData.porEvento !== undefined ? { porEvento: Boolean(itemData.porEvento) } : {}),
       subcategoria: itemData.subcategoria?.trim() || undefined,
       notas: (itemData as any).notas?.trim() || undefined,
     };

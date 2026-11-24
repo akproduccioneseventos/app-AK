@@ -98,7 +98,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const router = useRouter();
   const { toast } = useToast();
   const [menu, setMenu] = useState<Partial<FullMenu>>(
-    existingMenu || { name: '', items: [] }
+    existingMenu || { name: '', items: [], estadoPublicacion: 'borrador' }
   );
   const [isSaving, setIsSaving] = useState(false);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
@@ -497,13 +497,25 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                   <ImageIcon className="h-6 w-6 text-slate-300" />
                 )}
               </div>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Checkbox checked={Boolean(menu.featured)} onCheckedChange={(checked) => handleMenuChange('featured', Boolean(checked))} />
-                <span className="space-y-0.5">
-                  <span className="block text-sm font-bold text-slate-800">Destacar en simulador</span>
-                  <span className="block text-xs text-slate-500">Sus platos aparecen primero, antes del orden por precio.</span>
-                </span>
-              </label>
+              <div className="space-y-3">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox checked={Boolean(menu.featured)} onCheckedChange={(checked) => handleMenuChange('featured', Boolean(checked))} />
+                  <span className="space-y-0.5">
+                    <span className="block text-sm font-bold text-slate-800">Destacar en simulador</span>
+                    <span className="block text-xs text-slate-500">Sus platos aparecen primero, antes del orden por precio.</span>
+                  </span>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer pt-2 border-t border-slate-100">
+                  <Checkbox
+                    checked={menu.estadoPublicacion !== 'borrador'}
+                    onCheckedChange={(checked) => handleMenuChange('estadoPublicacion', checked ? 'publicado' : 'borrador')}
+                  />
+                  <span className="space-y-0.5">
+                    <span className="block text-sm font-bold text-slate-800">Publicado en catálogo público y presentación LED</span>
+                    <span className="block text-xs text-slate-500">Los menús nuevos nacen en borrador para que no se vean en la presentación LED ni en el simulador hasta que los publiques.</span>
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </CardHeader>
