@@ -1322,6 +1322,15 @@ marcar una pregunta como no escaneable, intentar la expresión sobre el archivo 
 principal pensando que la había borrado una prueba. La había sacado la orden 311 (datos personales fuera del repositorio); lo
 frenó su prueba en la puerta. **Antes de devolver un archivo de datos, `git log -1 -- <archivo>` en la rama que lo trae.**
 
+### 59. Creer que las preguntas y escaneos cerraban la app, con las pruebas sin ninguna fiesta activa
+
+**Pasó el 23 de noviembre de 2026.** El dueño: *"generaste más preguntas y más escaneo; inventá un mecanismo… cada auditoría
+trae un montón"*. Medido: las pruebas de navegador corren con `AK_USE_LOCAL_JSON_ONLY` y nunca vieron una fiesta activa, y la
+lista de cierre nunca corrió (456 de 456 sin mirar).
+
+**Qué se hace distinto:** el auditor robot (orden 339): reglas generales de comportamiento sobre todas las pantallas, con dos
+fiestas en el emulador. Un hallazgo nuevo del auditor se suma como **regla del robot**, no sólo como pregunta.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1551,6 +1560,20 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Un solo cerebro de IA y una sola puerta (23 de noviembre de 2026).** Palabras suyas: *"lo más importante: que toda la
+  parte de inteligencia artificial tenga un mismo núcleo… que se haga automático, y que sea fácil: dónde lo encuentro"*. Toda
+  llamada a la IA pasa por `src/ai/cerebro.ts` (tope, modelos con respaldo, reglas, registro) y todo se ve en Asistente AK
+  (`/asistente`). Orden 342; lo frena `toda-la-ia-pasa-por-el-cerebro.test.ts`.
+
+- **La papelería la diseña la IA (23 de noviembre de 2026).** El dueño arma a mano con IA la carta, el menú, el cronograma,
+  el afiche y el marco de fotocabina, y quiere que la app lo haga sola. Orden 341: la IA arma la pieza con los datos de la
+  fiesta, se lee de nuevo para que no haya un nombre ni una hora mal, y las plantillas de hoy quedan de respaldo.
+
+- **Jules y el ecosistema gratis de Google (23 de noviembre de 2026).** Palabras suyas: *"se podría sumar con el límite de
+  15 tareas por día… alinear con la IA de Gemini"*. Jules (plan gratis) toma cada día un rojo del auditor robot y deja una
+  propuesta; **nunca fusiona** y no toca plata, permisos ni textos del cliente. Stitch Loop: lista de espera. Sólo lo gratis
+  (orden 340).
 
 - **WhatsApp de prospectos al CRM y el asistente que contesta (19 de noviembre de 2026).** Palabras suyas: *"todos los mensajes
   deberían llegar al CRM… siempre diferenciando los de anuncios de los personales; los demás no"*. Entran al CRM y los atiende el
@@ -2127,6 +2150,8 @@ con otra cara.
 | El asistente devolvía el presupuesto (o hacía la factura) de otro cliente con un nombre vacío, y el tope de IA tenía agujeros | `src/__tests__/el-asistente-lee-el-presupuesto-que-se-pidio.test.ts` y `src/__tests__/el-tope-de-ia-es-un-tope.test.ts` |
 | Una redirección llevaba a otra y pisaba la solapa: el que entraba por logística caía en otra pantalla | `src/__tests__/una-redireccion-no-lleva-a-otra-redireccion.test.ts` |
 | Mirar la lista de fiestas guardaba códigos y abrir un presupuesto reescribía fechas, también con el auditor | `src/__tests__/mirar-no-escribe.test.ts` |
+| Un documento raro (fecha de la base, sin número, sin configuración) tiraba la lista de fiestas y nueve pantallas | `src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts` |
+| Pantallas con la fiesta de muestra, carteles de "sincronizado" fijos, desplegables con opción vacía, marcadores y fechas sin convertir, enlaces sin credencial | Escaneos 218 y 220 a 224 en `scripts/las-formas-que-mienten.mjs` |
 
 ### Cómo se elige el matafuego
 

@@ -388,7 +388,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
              * (un titulo o un cartel de aviso).
              */
             const explicaQueFalta =
-              /no se proporcion|no encontrad|no existe|no es v[aá]lid|fue desactivad|iniciar sesi[oó]n|no est[aá] activ|sin permiso|enlace inv[aá]lid/i.test(texto);
+              /no se proporcion|no (se )?encontr|no existe|no es v[aá]lid|fue desactivad|iniciar sesi[oó]n|no est[aá] activ|no (est[aá] )?disponible|sin permiso|enlace inv[aá]lid/i.test(texto);
             const loMuestraEnPantalla = await page
               .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [role="alert"], [data-slot="alert-title"], [data-slot="card-title"]')
               .first()

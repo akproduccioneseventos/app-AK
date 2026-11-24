@@ -167,7 +167,7 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   }
 
   if (error) {
-    return <div className="flex justify-center items-center min-h-screen p-4 text-center text-destructive"><AlertTriangle className="w-8 h-8 mr-2"/>{error}</div>
+    return <div role="alert" className="flex justify-center items-center min-h-screen p-4 text-center text-destructive"><AlertTriangle className="w-8 h-8 mr-2"/>{error}</div>
   }
 
   if (isSubmitted) {

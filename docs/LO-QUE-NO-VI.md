@@ -1540,3 +1540,21 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 336 → pregunta 212
 - Orden 336 → pregunta 213
 - Orden 336 → pregunta 214
+- Orden 337 → pregunta 215
+- Orden 337 → pregunta 216
+- Orden 337 → pregunta 217
+- Orden 337 → pregunta 211
+- Orden 338 → pregunta 218
+- Orden 338 → pregunta 219
+- Orden 338 → pregunta 220
+- Orden 338 → pregunta 221
+- Orden 338 → pregunta 222
+- Orden 338 → pregunta 223
+- Orden 338 → pregunta 224
+- Orden 338 → pregunta 225
+- Orden 338 → pregunta 226
+- Orden 338 → pregunta 210
+- Orden 339 → pregunta 218
+- Orden 340 → no es un defecto
+- Orden 341 → no es un defecto
+- Orden 342 → no es un defecto

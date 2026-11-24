@@ -195,7 +195,7 @@ function RsvpFormContent() {
     return (
       <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
         <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
-        <p className="text-xl font-semibold">Este enlace no está disponible</p>
+        <h1 className="text-xl font-semibold">Este enlace no está disponible</h1>
         <p className="mt-2 max-w-sm text-slate-500">
           Puede que la invitación haya cambiado o que el enlace ya no sirva.
           Pedile el enlace nuevo a quien te invitó y probá otra vez.
