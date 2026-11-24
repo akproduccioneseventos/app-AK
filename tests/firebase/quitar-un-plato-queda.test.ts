@@ -10,7 +10,7 @@ jest.mock('next/headers', () => ({
   headers: async () => new Headers(),
 }));
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno', userId: 'dueno-338' } }),
+  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno' } }),
 }));
 jest.mock('@/lib/auth/event-access', () => ({
   requireEventPermission: async () => undefined,
