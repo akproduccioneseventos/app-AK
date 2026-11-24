@@ -4,15 +4,28 @@
 
 **Actualizado el 23/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Las órdenes 331 a 334 ya están publicadas** (#1462). No las rehagas.
-- **AHORA: orden 335 (`docs/ordenes/335-gemini-auditoria-profunda-23-noviembre.md`).** Una sola propuesta, rama nueva
-  `gemini/orden-335` desde la principal recién actualizada. Cada botón llega a su función: el PDF del itinerario, los cuatro
-  impresos de mesa que se borraron (recuperarlos de `54764d6bd^`), el ingreso de rentabilidad, "al día" que no es "anda",
-  presencia digital sin datos, la cuenta regresiva con la hora, y el muro y la carga que no cargan. Lo de "mirar no escribe"
-  ya lo hizo Claude: no lo toques. La plata (bloque 3) la revisa Claude línea por línea.
-- **DESPUÉS de la 335, en otra propuesta: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Tu auditoría de
-  la 2da vuelta, como lista de trabajo (`docs/auditorias/2026-11-23-gemini-2da-vuelta.md`). Confirmá cada hallazgo abriendo el
-  archivo antes de arreglar; seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.
+- **Ya publicadas:** 331 a 335 (#1462 y #1464). No las rehagas.
+- **LO MÁS IMPORTANTE: orden 339 (`docs/ordenes/339-gemini-el-auditor-robot.md`).** El auditor robot: reglas que se
+  aplican solas a todas las pantallas con dos fiestas de verdad en el emulador. Si no arrancaste la 336, empezá por la 339;
+  si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
+- **En la misma propuesta que la 339, al final: orden 340 (`docs/ordenes/340-gemini-alinear-la-ia-de-google.md`).** Una sola
+  lista de modelos con respaldo, Gemini 4 Hydrogen gratis primero, y el texto de la tarea diaria de Jules.
+- **Después de la 339/340, propuesta aparte: primero la orden 342 (`docs/ordenes/342-gemini-un-solo-cerebro-una-sola-puerta.md`)
+  y en la misma propuesta la 341.** Lo más importante para el dueño: toda la IA pasa por un solo cerebro (tope, modelos,
+  reglas, registro) y se encuentra en un solo lugar, Asistente AK.
+- **Después de la 339/340, propuesta aparte: orden 341 (`docs/ordenes/341-gemini-papeleria-con-ia.md`).** La carta de
+  tragos, el menú, el cronograma, el afiche y el marco de fotocabina diseñados por la IA con los datos de la fiesta, y la
+  IA revisa que no escribió mal ningún nombre ni hora.
+- **AHORA: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Una sola propuesta, rama nueva
+  `gemini/orden-336` desde la principal recién actualizada. Confirmá cada hallazgo abriendo el archivo antes de arreglar;
+  seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.
+- **DESPUÉS de la 336, en otra propuesta: orden 337 (`docs/ordenes/337-gemini-auditoria-general-maestra.md`).** Accesos que
+  expulsan a invitados y colaboradores, descargas que leen rutas sin mirar, el ingreso con Google, Ajustes. La lista de
+  fiestas ya la arregló Claude: no la toques.
+- **DESPUÉS de la 337, en otra propuesta: orden 338 (`docs/ordenes/338-gemini-auditoria-funcional-23-noviembre.md`).** Cada
+  pantalla con la fiesta de la dirección (nunca la de muestra), guardados que digan la verdad (carta de tragos, lista de
+  carga), la presentación LED que no pierde la propuesta, el PDF del presupuesto y finanzas que no muestran ceros falsos.
+  **El 10% de descuento promocional del manual queda**: es decisión del dueño.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen
