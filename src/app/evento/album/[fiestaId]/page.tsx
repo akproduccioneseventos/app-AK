@@ -90,11 +90,13 @@ export default function PublicAlbumPage() {
   }, [musicaActiva]);
 
   useEffect(() => {
-    const elementoAudio = audioRef.current;
+    const pararMusica = () => {
+      audioRef.current?.pause();
+    };
+    window.addEventListener('pagehide', pararMusica);
     return () => {
-      if (elementoAudio) {
-        elementoAudio.pause();
-      }
+      window.removeEventListener('pagehide', pararMusica);
+      pararMusica();
     };
   }, []);
 
@@ -107,6 +109,7 @@ export default function PublicAlbumPage() {
   const [copied, setCopied] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [videoModalAbierto, setVideoModalAbierto] = useState(false);
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
 
   const fotosParaVideo = useMemo(() => {
     const soloFotos = posts.filter((p) => p.imageUrl && !isVideo(p.imageUrl));
@@ -203,6 +206,11 @@ export default function PublicAlbumPage() {
     return agruparEnPersonas(carasDisponibles);
   }, [fiesta]);
 
+  const selectedPersona = useMemo(
+    () => personasCaras.find((p) => p.id === selectedPersonaId) || null,
+    [personasCaras, selectedPersonaId],
+  );
+
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
     const title = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
@@ -274,11 +282,13 @@ export default function PublicAlbumPage() {
   };
 
   const filteredPosts = useMemo(() => {
-    if (activeTab === 'invitados') {
-      return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
-    }
-    return filtrarPorEstacion(posts, activeTab);
-  }, [posts, activeTab]);
+    const base = activeTab === 'invitados'
+      ? posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado')
+      : filtrarPorEstacion(posts, activeTab);
+    if (!selectedPersona) return base;
+    const fotoIds = new Set(selectedPersona.fotoIds);
+    return base.filter((p) => fotoIds.has(p.id));
+  }, [posts, activeTab, selectedPersona]);
 
   const showNext = useCallback(() => {
     if (lightboxIndex === null) return;
@@ -653,6 +663,64 @@ export default function PublicAlbumPage() {
                 </button>
               ))}
             </div>
+
+            {activeTab !== 'mensajes' && personasCaras.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    Filtrar por persona
+                  </p>
+                  {selectedPersona && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPersonaId(null)}
+                      className="text-xs font-bold text-amber-400 hover:text-amber-300"
+                    >
+                      Ver todas las personas
+                    </button>
+                  )}
+                </div>
+                <div
+                  data-testid="album-grilla-caras"
+                  className="flex items-center gap-3 overflow-x-auto pb-2 pt-1 hide-scrollbar -mx-2 px-2"
+                >
+                  {personasCaras.map((persona) => {
+                    const fotoRep = posts.find((p) => p.id === persona.representante.fotoId);
+                    const isSelected = selectedPersonaId === persona.id;
+                    return (
+                      <button
+                        key={persona.id}
+                        type="button"
+                        onClick={() => setSelectedPersonaId(isSelected ? null : persona.id)}
+                        aria-label="Ver fotos de esta cara"
+                        aria-pressed={isSelected}
+                        className={`relative flex-shrink-0 rounded-full transition-all duration-200 focus:outline-none ${
+                          isSelected
+                            ? 'ring-4 ring-amber-400 scale-110 shadow-lg shadow-amber-400/30'
+                            : 'hover:scale-105 opacity-85 hover:opacity-100 ring-2 ring-white/10 hover:ring-white/30'
+                        }`}
+                      >
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-zinc-800">
+                          {fotoRep ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={fotoRep.thumbnailUrl || fotoRep.imageUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                              <Camera className="w-6 h-6" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {activeTab === 'mensajes' ? (
               errorDedications ? (

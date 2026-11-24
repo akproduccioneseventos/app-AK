@@ -1329,7 +1329,7 @@ def aprender_mi_estilo(
             muestras_altas = []
 
             for ruta_img in rutas_jpg[:50]:  # Analizar hasta 50 fotos
-                img = cv2.imread(ruta_img)
+                img = leer_foto(ruta_img)
                 if img is None:
                     continue
                 # Reducir para cálculo ágil

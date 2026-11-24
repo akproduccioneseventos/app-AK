@@ -63,6 +63,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { getGuestCountForItem } from '@/lib/calculations';
 import { cn, hoyEnUruguay, parseUruguayDate, toSentenceCase } from '@/lib/utils';
 import {
+  buildAnnualAdjustmentProjection,
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
 import { Badge } from '@/components/ui/badge';
@@ -682,16 +683,20 @@ function SimuladorContent() {
     }, []);
 
     const clubUruguayDetails = useMemo(() => {
-        const club = config?.clubUruguayConfig;
         if (salonChoice !== 'club') return null;
         const precioBasePromo = config?.clubUruguayConfig?.precio || 16900;
         const precioReal = precioBasePromo * 2;
 
-        const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
-        const diffYears = Math.max(0, eventYear - 2026);
-        const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
-        const multiplier = 1 + (diffYears * (adjustmentPct / 100));
-        const costoFinal = Math.round(precioBasePromo * multiplier);
+        const adjustmentPct = budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE ?? 15;
+        const projection = buildAnnualAdjustmentProjection({
+            baseTotal: precioBasePromo,
+            eventDate: eventoFecha,
+            currentYear,
+            adjustmentPct,
+        });
+        const eventYear = projection.eventYear;
+        const diffYears = Math.max(0, eventYear - projection.currentYear);
+        const costoFinal = projection.applies ? projection.adjustedTotal : precioBasePromo;
 
         return {
             nombre: 'Salón Club Uruguay',
@@ -702,7 +707,7 @@ function SimuladorContent() {
             diffYears,
             aclaracion: `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioBasePromo)}${diffYears > 0 ? `, con ajuste ${eventYear}: ${formatCurrency(costoFinal)}` : ''}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
         };
-    }, [config?.clubUruguayConfig, salonChoice, eventoFecha]);
+    }, [config?.clubUruguayConfig, salonChoice, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
 
     const technologyServices = useMemo(() => {
         if (budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null) {
@@ -1051,13 +1056,19 @@ function SimuladorContent() {
 
         if (step === 3) {
             if (!selectedPrincipal && principalesDisponibles.length > 0) {
-                setSelectedPrincipal(principalesDisponibles[0].id);
+                const defaultPrincipalId = principalesDisponibles[0].id;
+                setSelectedPrincipal(defaultPrincipalId);
+                handleGastronomicSelectionChange('principal', defaultPrincipalId);
             }
             if (selectedEntradas.length === 0 && entradasDisponibles.length > 0) {
-                setSelectedEntradas([entradasDisponibles[0].id]);
+                const defaultEntradas = [entradasDisponibles[0].id];
+                setSelectedEntradas(defaultEntradas);
+                handleGastronomicSelectionChange('entradas', defaultEntradas);
             }
             if (ninosYAdolescentes > 0 && !selectedInfantil && menusNinoDisponibles.length > 0) {
-                setSelectedInfantil(menusNinoDisponibles[0].id);
+                const defaultInfantilId = menusNinoDisponibles[0].id;
+                setSelectedInfantil(defaultInfantilId);
+                handleGastronomicSelectionChange('infantil', defaultInfantilId);
             }
             setStep(4);
             return;
@@ -1835,7 +1846,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(5); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Sacá servicios que no querés
@@ -1851,7 +1862,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(3); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Cambiá de paquete

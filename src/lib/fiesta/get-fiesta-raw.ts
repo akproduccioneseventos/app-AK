@@ -23,8 +23,9 @@ const ARCHIVE_DIR = 'archive';
 export async function preserveFiestaSecrets(
   fiestaId: string,
   data: FiestaEnPlanificacion,
+  storedOverride?: FiestaEnPlanificacion | null,
 ): Promise<FiestaEnPlanificacion> {
-  const stored = await getFiestaByIdRaw(fiestaId);
+  const stored = storedOverride !== undefined ? storedOverride : await getFiestaByIdRaw(fiestaId);
   if (!stored) return data;
   // Lo que `getFiestaById` le recorta a quien no es del equipo llega AUSENTE: se repone, para
   // que una pantalla pública que lee y guarda no borre los sueldos, el contrato ni el contacto

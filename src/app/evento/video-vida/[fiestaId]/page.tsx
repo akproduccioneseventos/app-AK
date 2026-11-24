@@ -3,7 +3,7 @@
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 
-import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
@@ -237,10 +237,30 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
     loadData();
   }, [loadData]);
 
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const urls = blobUrlsRef.current;
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+      urls.clear();
+    };
+  }, []);
+
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
+    if (url?.startsWith('blob:')) {
+      blobUrlsRef.current.add(url);
+    }
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
-            return { ...s, imageUrl: `${url}?t=${new Date().getTime()}` };
+            if (s.imageUrl?.startsWith('blob:') && s.imageUrl !== url) {
+              URL.revokeObjectURL(s.imageUrl);
+              blobUrlsRef.current.delete(s.imageUrl);
+            }
+            const nextUrl = url.startsWith('blob:') || url.startsWith('data:')
+              ? url
+              : `${url}?t=${new Date().getTime()}`;
+            return { ...s, imageUrl: nextUrl };
         }
         return s;
     }));

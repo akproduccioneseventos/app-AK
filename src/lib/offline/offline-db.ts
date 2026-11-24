@@ -62,28 +62,40 @@ export function sePuedeReclamar(item: OfflineMediaItem | undefined | null, ahora
   return true;
 }
 
+function closeDatabase(db: IDBDatabase | null | undefined) {
+  try {
+    if (db && typeof db.close === 'function') {
+      db.close();
+    }
+  } catch {}
+}
+
 /** Lee, decide y escribe en UNA transacción: dos pestañas no pueden ganar las dos. */
 async function decidirYGuardar(
   id: string,
   decidir: (item: OfflineMediaItem | undefined) => OfflineMediaItem | null,
 ): Promise<boolean> {
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const getReq = store.get(id);
-    getReq.onsuccess = () => {
-      const cambiado = decidir(getReq.result as OfflineMediaItem | undefined);
-      if (!cambiado) {
-        resolve(false);
-        return;
-      }
-      const putReq = store.put(cambiado);
-      putReq.onsuccess = () => resolve(true);
-      putReq.onerror = () => reject(putReq.error);
-    };
-    getReq.onerror = () => reject(getReq.error);
-  });
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const getReq = store.get(id);
+      getReq.onsuccess = () => {
+        const cambiado = decidir(getReq.result as OfflineMediaItem | undefined);
+        if (!cambiado) {
+          resolve(false);
+          return;
+        }
+        const putReq = store.put(cambiado);
+        putReq.onsuccess = () => resolve(true);
+        putReq.onerror = () => reject(putReq.error);
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 /**
@@ -218,65 +230,158 @@ export async function saveOfflineMedia(
     lastError: null,
   };
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const req = store.add(item);
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.add(item);
 
-    req.onsuccess = () => {
-      // Disparar evento personalizado para actualizar los contadores en pantalla
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
-      }
-      resolve(id);
-    };
-    req.onerror = () => reject(req.error || new Error('No se pudo guardar el archivo en IndexedDB'));
-  });
+      req.onsuccess = () => {
+        // Disparar evento personalizado para actualizar los contadores en pantalla
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
+        }
+        resolve(id);
+      };
+      req.onerror = () => reject(req.error || new Error('No se pudo guardar el archivo en IndexedDB'));
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 /**
  * Retorna todos los archivos multimedia pendientes de subida.
  */
 export async function getPendingOfflineMedia(fiestaId?: string): Promise<OfflineMediaItem[]> {
+  let db: IDBDatabase | null = null;
   try {
-    const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+    db = await openDatabase();
+    const database = db;
+    const { items, dirtyItems } = await new Promise<{
+      items: OfflineMediaItem[];
+      dirtyItems: OfflineMediaItem[];
+    }>((resolve, reject) => {
+      const tx = database.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
 
       req.onsuccess = () => {
         const storedItems: OfflineMediaItem[] = req.result || [];
-        let items = storedItems.map((item) => {
+        const dirty: OfflineMediaItem[] = [];
+        const sanitized = storedItems.map((item) => {
           const metadata = sanitizeOfflineMetadata(item.metadata);
           if (metadata === item.metadata) return item;
-
           const sanitizedItem = { ...item, metadata };
-          store.put(sanitizedItem);
+          dirty.push(sanitizedItem);
           return sanitizedItem;
         });
-        if (fiestaId) {
-          items = items.filter((it) => it.fiestaId === fiestaId);
-        }
-        // Orden cronologico ascendente (los mas antiguos primero)
-        items.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-        resolve(items);
+        resolve({ items: sanitized, dirtyItems: dirty });
       };
       req.onerror = () => reject(req.error || new Error('Error al leer cola de IndexedDB'));
     });
+
+    if (dirtyItems.length > 0) {
+      await new Promise<void>((resolve) => {
+        const tx = database.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        let pendingPuts = dirtyItems.length;
+        for (const dirtyItem of dirtyItems) {
+          const putReq = store.put(dirtyItem);
+          putReq.onsuccess = () => {
+            pendingPuts -= 1;
+            if (pendingPuts <= 0) resolve();
+          };
+          putReq.onerror = () => {
+            pendingPuts -= 1;
+            if (pendingPuts <= 0) resolve();
+          };
+        }
+      });
+    }
+
+    let result = items;
+    if (fiestaId) {
+      result = result.filter((it) => it.fiestaId === fiestaId);
+    }
+    // Orden cronologico ascendente (los mas antiguos primero)
+    result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return result;
   } catch {
     return [];
+  } finally {
+    closeDatabase(db);
   }
 }
 
 /**
- * Cuenta la cantidad de capturas pendientes de subida.
+ * Cuenta la cantidad de capturas pendientes de subida sin cargar todos los Blobs
+ * cuando el navegador soporta `count()` o cursores por índice.
  */
 export async function getPendingOfflineMediaCount(
   fiestaId?: string,
   moduleId?: string
 ): Promise<number> {
+  let db: IDBDatabase | null = null;
   try {
+    db = await openDatabase();
+    const database = db;
+    const countFromStore = await new Promise<number | null>((resolve) => {
+      const tx = database.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+
+      if (!fiestaId && !moduleId && typeof store.count === 'function') {
+        const req = store.count();
+        req.onsuccess = () => resolve(Number(req.result || 0));
+        req.onerror = () => resolve(null);
+        return;
+      }
+
+      if (fiestaId && !moduleId && typeof store.index === 'function') {
+        try {
+          const idx = store.index('fiestaId');
+          if (typeof idx.count === 'function') {
+            const req = idx.count(fiestaId);
+            req.onsuccess = () => resolve(Number(req.result || 0));
+            req.onerror = () => resolve(null);
+            return;
+          }
+        } catch {}
+      }
+
+      if (typeof store.openCursor === 'function') {
+        let count = 0;
+        const req = store.openCursor();
+        req.onsuccess = () => {
+          const cursor = req.result;
+          if (!cursor) {
+            resolve(count);
+            return;
+          }
+          const val = cursor.value as OfflineMediaItem | undefined;
+          if (
+            val &&
+            (!fiestaId || val.fiestaId === fiestaId) &&
+            (!moduleId || val.moduleId === moduleId)
+          ) {
+            count += 1;
+          }
+          cursor.continue();
+        };
+        req.onerror = () => resolve(null);
+        return;
+      }
+
+      resolve(null);
+    });
+
+    if (countFromStore !== null) {
+      return countFromStore;
+    }
+
+    // Fallback para entornos sin cursor/count (ej. mocks básicos de pruebas)
+    closeDatabase(db);
+    db = null;
     const items = await getPendingOfflineMedia(fiestaId);
     if (moduleId) {
       return items.filter((it) => it.moduleId === moduleId).length;
@@ -284,6 +389,8 @@ export async function getPendingOfflineMediaCount(
     return items.length;
   } catch {
     return 0;
+  } finally {
+    closeDatabase(db);
   }
 }
 
@@ -292,19 +399,23 @@ export async function getPendingOfflineMediaCount(
  */
 export async function removeOfflineMedia(id: string): Promise<void> {
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const req = store.delete(id);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.delete(id);
 
-    req.onsuccess = () => {
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
-      }
-      resolve();
-    };
-    req.onerror = () => reject(req.error || new Error('Error al eliminar de IndexedDB'));
-  });
+      req.onsuccess = () => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
+        }
+        resolve();
+      };
+      req.onerror = () => reject(req.error || new Error('Error al eliminar de IndexedDB'));
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 /**
@@ -312,33 +423,37 @@ export async function removeOfflineMedia(id: string): Promise<void> {
  */
 export async function updateOfflineMediaAttempt(id: string, error: string): Promise<void> {
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const getReq = store.get(id);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const getReq = store.get(id);
 
-    getReq.onsuccess = () => {
-      const item: OfflineMediaItem = getReq.result;
-      if (!item) {
-        resolve();
-        return;
-      }
-      item.metadata = sanitizeOfflineMetadata(item.metadata);
-      item.attempts += 1;
-      item.lastError = error;
-      // El rescate no salió: queda para el próximo intento de la cola, no reclamado.
-      delete item.subiendoDesde;
-      const putReq = store.put(item);
-      putReq.onsuccess = () => {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
+      getReq.onsuccess = () => {
+        const item: OfflineMediaItem = getReq.result;
+        if (!item) {
+          resolve();
+          return;
         }
-        resolve();
+        item.metadata = sanitizeOfflineMetadata(item.metadata);
+        item.attempts += 1;
+        item.lastError = error;
+        // El rescate no salió: queda para el próximo intento de la cola, no reclamado.
+        delete item.subiendoDesde;
+        const putReq = store.put(item);
+        putReq.onsuccess = () => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
+          }
+          resolve();
+        };
+        putReq.onerror = () => reject(putReq.error);
       };
-      putReq.onerror = () => reject(putReq.error);
-    };
-    getReq.onerror = () => reject(getReq.error);
-  });
+      getReq.onerror = () => reject(getReq.error);
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }
 
 /**
@@ -346,16 +461,20 @@ export async function updateOfflineMediaAttempt(id: string, error: string): Prom
  */
 export async function clearAllOfflineMedia(): Promise<void> {
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const req = store.clear();
-    req.onsuccess = () => {
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
-      }
-      resolve();
-    };
-    req.onerror = () => reject(req.error);
-  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.clear();
+      req.onsuccess = () => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('ak-offline-media-updated'));
+        }
+        resolve();
+      };
+      req.onerror = () => reject(req.error);
+    });
+  } finally {
+    closeDatabase(db);
+  }
 }

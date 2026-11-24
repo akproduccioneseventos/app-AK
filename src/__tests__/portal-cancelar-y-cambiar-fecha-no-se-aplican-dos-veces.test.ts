@@ -22,14 +22,25 @@ jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({ getFiestaByIdRaw: jest.fn() })
 // La transaccion de la fiesta: de a una por vez, sobre copias.
 let turnoFiesta: Promise<unknown> = Promise.resolve();
 jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
-  actualizarFiesta: jest.fn((_id: string, cambiar: (f: any) => any) => {
+  actualizarFiesta: jest.fn((_id: string, cambiar: (f: any) => any, _options?: any) => {
     const r = turnoFiesta.then(async () => {
+      if (guardarFiestaFalla) {
+        return { success: false, error: 'Fallo simulado de guardado' };
+      }
       try {
-        const nueva = await cambiar(copia(fiesta));
+        const base = copia(fiesta);
+        const nueva = await cambiar(base);
+        const { saveFiesta } = require('@/app/actions/fiesta/fiesta.actions');
+        const resSave = await saveFiesta(nueva);
+        if (resSave && resSave.success === false) {
+          return { success: false, error: resSave.error || 'No se pudo guardar' };
+        }
         await esperar();
         fiesta = copia(nueva);
-        return { success: true };
-      } catch (e: any) { return { success: false, error: e.message }; }
+        return { success: true, updatedFiesta: copia(nueva) };
+      } catch (e: any) {
+        return { success: false, error: e.message };
+      }
     });
     turnoFiesta = r.catch(() => undefined);
     return r;
@@ -41,7 +52,10 @@ jest.mock('@/app/actions/google-workspace-extended', () => ({
   notifyClientPaymentRejected: jest.fn(),
   notifyClientPaymentSubmitted: jest.fn(),
 }));
-jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: jest.fn() }));
+jest.mock('@/lib/firebase/storage', () => ({
+  uploadToStorage: jest.fn(),
+  isStorageAvailable: jest.fn(() => true),
+}));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn() }));
 jest.mock('@/app/actions/presupuestos', () => ({ addPagoToPresupuesto: jest.fn(async () => ({ success: true })), getPresupuestoById: jest.fn(), updatePresupuesto: jest.fn() }));
 jest.mock('fs/promises', () => ({ mkdir: jest.fn(async () => undefined), writeFile: jest.fn(async () => undefined) }));
@@ -54,6 +68,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
     fiesta = copia(f);
     return { success: true };
   }),
+  requireFiestaWriteAccess: jest.fn(async () => undefined),
 }));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async () => copia(presupuestos)),

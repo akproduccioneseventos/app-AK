@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaForPortalSession, initializePortalSession } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
 import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
@@ -31,8 +31,6 @@ import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModa
 import { MensajesParaVosSection } from '@/components/album/MensajesParaVosSection';
 import { QuienEsQuienCarasPanel } from '@/components/portal/QuienEsQuienCarasPanel';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const estadoLabel: Record<string, { label: string; cls: string }> = {
   'Pendiente':          { label: 'Pendiente',          cls: 'bg-slate-100 text-slate-600' },
@@ -100,37 +98,36 @@ export default function FotosVideoPortalPage() {
   };
 
   useEffect(() => {
-    const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) {
-      sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
-      router.replace(`/portal-cliente/${fiestaId}`);
-      return;
-    }
-
-    Promise.all([
-      initializePortalSession(fiestaId, accessKey).then(session => session.success ? getFiestaForPortalSession(fiestaId) : null),
-      getSocialPosts(fiestaId)
-        .then((data) => {
-          setErrorFotos(false);
-          return data || [];
-        })
-        .catch(() => {
-          setErrorFotos(true);
-          return [];
-        }),
-      getDedications(fiestaId)
-        .then((data) => {
-          setErrorAudios(false);
-          return data || [];
-        })
-        .catch(() => {
-          setErrorAudios(true);
-          return [];
-        })
-    ])
+    verificarSesionPortalCliente(fiestaId)
+      .then(async (hasSession) => {
+        if (!hasSession) {
+          router.replace(`/portal-cliente/${fiestaId}`);
+          return [null, [], []] as const;
+        }
+        return Promise.all([
+          getFiestaForPortalSession(fiestaId),
+          getSocialPosts(fiestaId)
+            .then((data) => {
+              setErrorFotos(false);
+              return data || [];
+            })
+            .catch(() => {
+              setErrorFotos(true);
+              return [];
+            }),
+          getDedications(fiestaId)
+            .then((data) => {
+              setErrorAudios(false);
+              return data || [];
+            })
+            .catch(() => {
+              setErrorAudios(true);
+              return [];
+            }),
+        ] as const);
+      })
       .then(([fiestaData, postsData, dedsData]) => {
         if (!fiestaData) {
-          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
           setError('La sesión del portal venció o no corresponde a este evento.');
           return;
         }

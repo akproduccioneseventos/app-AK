@@ -11,6 +11,16 @@ export interface OfflineAction<T = any> {
 }
 
 const STORAGE_KEY = 'ak_offline_queue_v1';
+let isFlushingActions = false;
+
+function isQuotaError(error: any): boolean {
+  return (
+    error?.name === 'QuotaExceededError' ||
+    error?.code === 22 ||
+    error?.code === 1014 ||
+    /quota|space|storage/i.test(String(error?.message || ''))
+  );
+}
 
 function getStorage(): Storage | null {
   if (typeof window === 'undefined') return null;
@@ -41,6 +51,9 @@ export function saveOfflineQueue(queue: OfflineAction[]): void {
     storage.setItem(STORAGE_KEY, JSON.stringify(queue));
   } catch (error) {
     console.error('[OfflineQueue] Error guardando cola offline:', error);
+    if (isQuotaError(error)) {
+      throw error;
+    }
   }
 }
 
@@ -113,53 +126,92 @@ export function getPendingOfflineActions(fiestaId?: string, type?: OfflineAction
  *
  * Con `types`, cada pantalla toca unicamente lo suyo.
  */
+async function conCandadoDeCola<T>(tarea: () => Promise<T>, siOcupado: T): Promise<T> {
+  const locks = typeof navigator !== 'undefined' ? (navigator as any).locks : undefined;
+  if (!locks?.request) {
+    if (isFlushingActions) return siOcupado;
+    isFlushingActions = true;
+    try {
+      return await tarea();
+    } finally {
+      isFlushingActions = false;
+    }
+  }
+  const resultado = await locks.request(
+    'ak-cola-acciones-sin-internet',
+    { ifAvailable: true },
+    async (lock: unknown) => {
+      if (!lock || isFlushingActions) return siOcupado;
+      isFlushingActions = true;
+      try {
+        return await tarea();
+      } finally {
+        isFlushingActions = false;
+      }
+    },
+  );
+  return resultado as T;
+}
+
 export async function flushOfflineQueue(
   executor: (action: OfflineAction) => Promise<{ success: boolean; error?: string }>,
   options?: { fiestaId?: string; types?: OfflineActionType[] }
 ): Promise<{ processed: number; failed: number; remaining: number }> {
-  const queue = loadOfflineQueue();
-  const toProcess = queue.filter((action) => {
-    if (options?.fiestaId && action.fiestaId !== options.fiestaId) return false;
-    if (options?.types && !options.types.includes(action.type)) return false;
-    return true;
-  });
+  return conCandadoDeCola(async () => {
+    const queue = loadOfflineQueue();
+    const toProcess = queue.filter((action) => {
+      if (options?.fiestaId && action.fiestaId !== options.fiestaId) return false;
+      if (options?.types && !options.types.includes(action.type)) return false;
+      return true;
+    });
 
-  let processed = 0;
-  let failed = 0;
+    let processed = 0;
+    let failed = 0;
+    const failedById = new Map<string, OfflineAction>();
 
-  for (const action of toProcess) {
-    try {
-      const result = await executor(action);
-      if (result.success) {
-        dequeueOfflineAction(action.id);
-        processed++;
-      } else {
-        action.retryCount = (action.retryCount || 0) + 1;
-        action.lastError = result.error || 'Error de envío';
+    for (const action of toProcess) {
+      try {
+        const result = await executor(action);
+        if (result.success) {
+          dequeueOfflineAction(action.id);
+          processed++;
+        } else {
+          const updatedAction: OfflineAction = {
+            ...action,
+            retryCount: (action.retryCount || 0) + 1,
+            lastError: result.error || 'Error de envío',
+          };
+          failedById.set(action.id, updatedAction);
+          failed++;
+        }
+      } catch (err: any) {
+        const updatedAction: OfflineAction = {
+          ...action,
+          retryCount: (action.retryCount || 0) + 1,
+          lastError: err?.message || 'Error desconocido',
+        };
+        failedById.set(action.id, updatedAction);
         failed++;
       }
-    } catch (err: any) {
-      action.retryCount = (action.retryCount || 0) + 1;
-      action.lastError = err?.message || 'Error desconocido';
-      failed++;
     }
-  }
 
-  // Guardar reintentos actualizados si hubo fallos
-  if (failed > 0) {
-    const currentQueue = loadOfflineQueue();
-    const updated = currentQueue.map((item) => {
-      const failedMatch = toProcess.find((p) => p.id === item.id);
-      return failedMatch || item;
-    });
-    saveOfflineQueue(updated);
-  }
+    // Guardar reintentos actualizados sin pisar acciones nuevas encoladas mientras tanto
+    if (failed > 0) {
+      const currentQueue = loadOfflineQueue();
+      const updated = currentQueue.map((item) => failedById.get(item.id) || item);
+      saveOfflineQueue(updated);
+    }
 
-  return {
-    processed,
-    failed,
+    return {
+      processed,
+      failed,
+      remaining: loadOfflineQueue().length,
+    };
+  }, {
+    processed: 0,
+    failed: 0,
     remaining: loadOfflineQueue().length,
-  };
+  });
 }
 
 export const processOfflineQueue = flushOfflineQueue;

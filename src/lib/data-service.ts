@@ -8,9 +8,30 @@ import { syncToFirestore, readFromFirestore } from "./firebase-sync";
 import { readGenericJsonFile, syncGenericJsonFile, leerGenericJsonParaGuardarEncima } from "./generic-json-store";
 import { isSafeTopLevelJsonFile } from "./backup/backup-registry";
 import * as logger from "./logger";
-import { sacarMarcas } from "./marca-de-lectura";
+import { esLecturaFallida, marcarLecturaFallida, sacarMarcas } from "./marca-de-lectura";
 import { scheduleAutoBackupAfterWrite } from "./backup/schedule-after-write";
 import { exigirQueSePuedaGuardar } from "./auth/solo-lectura";
+
+const VENTANA_LECTURA_FALLIDA_MS = 5 * 60 * 1000;
+const lecturasFallidasRecientes = new Map<string, number>();
+
+function registrarLecturaFallida(normalizedFilePath: string): void {
+  lecturasFallidasRecientes.set(normalizedFilePath, Date.now());
+}
+
+function fueLecturaFallidaReciente(normalizedFilePath: string): boolean {
+  const ts = lecturasFallidasRecientes.get(normalizedFilePath);
+  if (!ts) return false;
+  if (Date.now() - ts > VENTANA_LECTURA_FALLIDA_MS) {
+    lecturasFallidasRecientes.delete(normalizedFilePath);
+    return false;
+  }
+  return true;
+}
+
+export function limpiarLecturasFallidasDePrueba(): void {
+  lecturasFallidasRecientes.clear();
+}
 
 export interface WriteDataOptions {
   skipAutoBackup?: boolean;
@@ -216,7 +237,12 @@ export async function readData<T>(
   filePath: string,
   defaultValue: T,
 ): Promise<T> {
-  const { valor } = await readDataConDetalle(filePath, defaultValue);
+  const { valor, huboFalla, motivo } = await readDataConDetalle(filePath, defaultValue);
+  if (huboFalla) {
+    const normalizedFilePath = filePath.replace(/\\/g, "/");
+    registrarLecturaFallida(normalizedFilePath);
+    return marcarLecturaFallida(valor, motivo);
+  }
   return valor;
 }
 
@@ -231,6 +257,12 @@ export async function writeData<T>(
     throw new Error("Invalid data file path");
 
   const normalizedFilePath = filePath.replace(/\\/g, "/");
+  if (options?.esRestauracion) {
+    lecturasFallidasRecientes.delete(normalizedFilePath);
+  }
+  const lecturaFallida = !options?.esRestauracion && (
+    esLecturaFallida(data) || fueLecturaFallidaReciente(normalizedFilePath)
+  );
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn)
     dataToWrite = [...data].sort(sortFn) as unknown as T;
@@ -246,7 +278,10 @@ export async function writeData<T>(
   }
 
   try {
-    await syncToFirestore(normalizedFilePath, dataToWrite, { esRestauracion: options?.esRestauracion });
+    await syncToFirestore(normalizedFilePath, dataToWrite, {
+      esRestauracion: options?.esRestauracion,
+      lecturaFallida,
+    });
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       const persisted = await readFromFirestore(normalizedFilePath);
       if (persisted === null || persisted === undefined) {

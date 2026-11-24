@@ -316,8 +316,8 @@ async function evaluarImagenConDecisionesRapidas(
 
   if (!decision) return null;
 
-  const apropiado = decision.apropiado?.siNo !== false;
-  const esDeLaFiesta = decision.es_de_la_fiesta?.siNo !== false;
+  const apropiado = decision.apropiado?.siNo === true;
+  const esDeLaFiesta = decision.es_de_la_fiesta?.siNo === true;
   const calidadRaw = decision.calidad?.nota;
   const calidad =
     typeof calidadRaw === 'number' && Number.isFinite(calidadRaw) && calidadRaw >= 1 && calidadRaw <= 3
@@ -386,15 +386,14 @@ async function resolveSocialInteractionContext(
 
 async function getClientSocialFiesta(
   fiestaId: string,
-  accessKey: string,
+  accessKey?: string,
 ): Promise<FiestaEnPlanificacion | null> {
   if (!(await verifyPortalSession(fiestaId))) return null;
   const fiesta = await getFiestaByIdRaw(fiestaId);
-  if (
-    !fiesta?.clientPortalSettings?.enabled
-    || !accessKey
-    || fiesta.clientPortalSettings.accessKey !== accessKey
-  ) {
+  if (!fiesta?.clientPortalSettings?.enabled) {
+    return null;
+  }
+  if (accessKey && fiesta.clientPortalSettings.accessKey !== accessKey) {
     return null;
   }
   return fiesta;

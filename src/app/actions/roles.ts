@@ -16,7 +16,14 @@ export async function getRoles(): Promise<Rol[]> {
   const roles = await leerRoles();
   const { puede, PERMISOS } = await import('@/lib/auth/perfiles');
   if (ses.user && (puede(ses.user, PERMISOS.SUELDOS))) return roles;
-  return roles.map(r => ({ ...r, sueldoPorEvento: 0 }));
+  return roles.map(r => ({
+    ...r,
+    sueldoPorEvento: 0,
+    costoAportesCalculado: 0,
+    porcentajeAportesPatronales: 0,
+    porcentajeSalarioVacacional: 0,
+    porcentajeAguinaldo: 0,
+  }));
 }
 
 /** Sin comprobar sesion: uso interno de este archivo. */
@@ -42,7 +49,14 @@ export async function getRolById(id: string): Promise<Rol | null> {
   const ses = await verifySession();
   const { puede } = await import('@/lib/auth/perfiles');
   if (!rol || (ses.user && (puede(ses.user, PERMISOS.SUELDOS)))) return rol;
-  return { ...rol, sueldoPorEvento: 0 };
+  return {
+    ...rol,
+    sueldoPorEvento: 0,
+    costoAportesCalculado: 0,
+    porcentajeAportesPatronales: 0,
+    porcentajeSalarioVacacional: 0,
+    porcentajeAguinaldo: 0,
+  };
 }
 
 export async function saveRol(

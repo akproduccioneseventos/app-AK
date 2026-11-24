@@ -2,7 +2,8 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { KioskSetup } from '@/components/kiosk/kiosk-setup';
-import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
+import { getFiestaActivaDeHoy, getFiestasParaKiosco } from '@/app/actions/fiesta-actual';
+import { getKioskStationGuestToken } from '@/app/actions/fiesta/entretenimiento.actions';
 
 const mockPush = jest.fn();
 const mockRouter = { push: mockPush };
@@ -10,7 +11,10 @@ const mockRouter = { push: mockPush };
 jest.mock('next/navigation', () => ({ useRouter: () => mockRouter }));
 jest.mock('@/app/actions/fiesta-actual', () => ({
   getFiestaActivaDeHoy: jest.fn(),
-  getFiestas: jest.fn(),
+  getFiestasParaKiosco: jest.fn(),
+}));
+jest.mock('@/app/actions/fiesta/entretenimiento.actions', () => ({
+  getKioskStationGuestToken: jest.fn(),
 }));
 jest.mock('@/components/kiosk/instalar-esta-estacion', () => ({
   InstalarEstaEstacion: () => null,
@@ -38,7 +42,15 @@ describe('Configuración accesible del kiosco', () => {
     localStorage.clear();
     mockPush.mockClear();
     (getFiestaActivaDeHoy as jest.Mock).mockResolvedValue({ success: false });
-    (getFiestas as jest.Mock).mockResolvedValue(fixture);
+    (getFiestasParaKiosco as jest.Mock).mockResolvedValue({
+      success: true,
+      fiestas: fixture,
+      requiereCodigo: false,
+    });
+    (getKioskStationGuestToken as jest.Mock).mockResolvedValue({
+      success: true,
+      guestToken: 'guest_tok_test',
+    });
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -82,7 +94,11 @@ describe('Configuración accesible del kiosco', () => {
   });
 
   test('no guarda ni navega si no hay fiesta seleccionable', async () => {
-    (getFiestas as jest.Mock).mockResolvedValue([]);
+    (getFiestasParaKiosco as jest.Mock).mockResolvedValue({
+      success: true,
+      fiestas: [],
+      requiereCodigo: false,
+    });
     await renderSetup();
 
     const lockButton = Array.from(container.querySelectorAll('button')).find((button) => button.textContent?.includes('Dejar el aparato listo'));
@@ -91,5 +107,28 @@ describe('Configuración accesible del kiosco', () => {
     expect(container.querySelector('[role="alert"]')?.textContent).toContain('Por favor selecciona un evento.');
     expect(mockPush).not.toHaveBeenCalled();
     expect(localStorage.getItem('kiosk_locked_fiesta_id')).toBeNull();
+  });
+
+  test('arma la URL de la estación con ?access= válido al bloquear el dispositivo', async () => {
+    await renderSetup();
+
+    const boothButton = Array.from(container.querySelectorAll('[role="group"] button')).find((button) =>
+      button.textContent?.includes('Fotocabina'),
+    );
+    await act(async () => {
+      boothButton?.click();
+    });
+
+    const lockButton = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Dejar el aparato listo'),
+    );
+    await act(async () => {
+      lockButton?.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(getKioskStationGuestToken).toHaveBeenCalledWith('fiesta-ficticia', 'fotocabina', undefined);
+    expect(mockPush).toHaveBeenCalledWith('/evento/fotocabina/fiesta-ficticia?access=guest_tok_test');
   });
 });

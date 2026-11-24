@@ -1,29 +1,17 @@
 # Estado actual — 23 de noviembre de 2026
 
 ## Publicado
-- **#1462** (23/11): órdenes 331 a 334.
-- **#1463** (23/11): mirar no escribe (`codigoDeFiesta`, reparación de fechas apagada en solo lectura) y orden 336 lista.
+- **#1462** (órdenes 331–334), **#1463** (mirar no escribe, orden 336), **#1464** (orden 335 + escaneos 211/212/214).
 
-## En revisión: orden 335 (rama `gemini/orden-335`, una sola propuesta)
-- Hecho: solapas (PDF del itinerario), cuatro impresos de mesa recuperados, ingreso de rentabilidad desde el presupuesto
-  (**plata: Claude revisa línea por línea**), "No disponible" ≠ "Al día", presencia sin datos, cuenta regresiva con hora,
-  motivo claro en muro y carga operativa.
+## En revisión: orden 336 (rama `gemini/orden-336`, una sola propuesta)
+- Hecho: los 5 bloques (Secciones A–H + escaneos 211/214 + AK Editor reempaquetado), sin pisar los cambios de PR #1465 (`listCollectionFromFirestore`/`readFromFirestore`/`leer-fiestas.ts`/`invitadosEstimados`).
+- **Para revisión línea por línea de Claude (plata, cobros y permisos):**
+  - **Datos/Transacciones:** `data-service.ts`, `marca-de-lectura.ts`, `firebase-sync.ts` (`syncToFirestore`), `invoices.ts` (`deleteInvoiceInner`), `fiesta.actions.ts`, `actualizar-fiesta.ts`, `portal.actions.ts` (`actualizarFiesta` en `changeEventDate`/`cambiarClavePortal`/`cancelServicesOrParty`, `initializePortalSession`, `entrarAlPortalPorTelefono`).
+  - **Permisos/Seguridad/Webhooks:** `entretenimiento.actions.ts`, `games.actions.ts`, `carga-operativa.actions.ts`, `social-live-stream.ts`, `video-vida.actions.ts`, `buzon.ts`, `social-media.ts`, `documentos.actions.ts`, `comentarios-redes.ts`, `simple-auth.ts`, `roles.ts`, `auth.ts`, `settings.ts`, `marketing-ads.ts`, `accesos-personal.ts`, `multiagent.ts`, `google-workspace-extended.ts`, `fiesta-actual.ts` (`getFiestasParaKiosco`), `/api/backup/upload`, los 4 `/api/*/download`, `/api/meta/webhook`, `/api/whatsapp/webhook`.
+  - **Plata y topes IA:** `total-tras-cancelar.ts`, `presupuestos.ts`, `cupones.ts`, `reportes.ts`, `price-adjustments.ts`, `crm.ts`, `simulador-de-presupuesto`, `consumo.ts`, `genkit.ts`, `touchpix-ai.ts`, `multiagent-flow.ts`, `assistant.ts`, `executors.ts`, `encargado.ts`, `salon-ia.actions.ts`, `asistente-virtual.ts`, `social-gallery.ts`.
 
-## Siguiente para Gemini (en propuesta nueva, después de la 335)
-- **Orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`):** lista de la 2da auditoría profunda; confirmar cada
-  hallazgo abriendo el archivo antes de tocar. Plata y permisos los revisa Claude.
-
-## Para Claude: barrido pregunta 207 (get/leer que escriben, sin arreglar)
-- No toca plata: `getFiestas`/`leerFiestaConEstado` (`codigoDeFiesta`), `getAlertasGlobalesConLeidas`,
-  `getMissionControl`, `getDigitalPresenceDashboard`.
-- Toca credenciales o plata (decidir vos): `getConnectedCompanyGoogleAccount`/`getCompanyGoogleAccountStatus` (guardan token
-  de Google), `getParteDeLaManana` (cachea resumen con cuotas).
-- Pantallas que guardan al abrir: `pagina-web.tsx` (arma con IA solo), campana de notificaciones (crea avisos).
-
-## Pregunta 208 (faltan pruebas de clic real)
-- Menú de las 6 casas, 26 solapas del planificador y ~44 tarjetas de `/fiestas/nueva`; `planner-dashboard-modules.test.ts`
-  usa una lista copiada vieja.
+## Siguiente para Gemini (rama nueva `gemini/orden-337`)
+- **Orden 337** (actualmente en borrador en **PR #1465** de Claude): arrancarla apenas Claude revise/fusione #1465 hacia `main`.
 
 ## Ojo
-- La puerta falla seguido por carga de la máquina: `npm run otravez` antes de creer una falla.
-- Se llena el disco: borrar `.next` y `test-results` de las copias aparte en el scratchpad.
+- `las-formas-que-mienten` y `ordenes-cumplidas` (336: HECHA) en verde; `tests/e2e/` no corrido localmente (queda para puerta de publicación).

@@ -22,6 +22,7 @@ let promesaBarrera: Promise<void> | null = null;
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 jest.mock('@/lib/auth/perfiles', () => ({

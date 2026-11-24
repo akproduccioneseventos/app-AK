@@ -73,7 +73,7 @@ export async function getEffectiveGeminiModelForAgent(
   const opts = (options && typeof options === 'object' && !(options instanceof Date)) ? options : undefined;
   const ahora = (options instanceof Date || typeof options === 'string') ? options : (opts?.ahora ?? ahoraDirect);
   const preferred = getGeminiModelForAgent(agentType, opts);
-  if (preferred === geminiProModel) {
+  if (preferred !== geminiFastModel) {
     try {
       const fecha = ahora ? (typeof ahora === 'string' ? new Date(ahora) : ahora) : undefined;
       const tienePresupuesto = await hayPresupuestoParaIA(fecha);

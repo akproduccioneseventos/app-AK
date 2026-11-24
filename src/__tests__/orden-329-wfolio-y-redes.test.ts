@@ -15,7 +15,9 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   let fotoPendientePath: string;
 
   beforeAll(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-orden-329-'));
+    const parentTemp = path.join(process.cwd(), '.tmp-orden-329-');
+    await fs.mkdir(parentTemp, { recursive: true });
+    tempDir = await fs.mkdtemp(path.join(parentTemp, 'run-'));
     fotoCabinaPath = path.join(tempDir, 'cabina_01.jpg');
     fotoTiraPath = path.join(tempDir, 'tira_02.jpg');
     video360Path = path.join(tempDir, 'clip_360.mp4');
@@ -39,6 +41,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
     if (tempDir) {
       await fs.rm(tempDir, { recursive: true, force: true });
     }
+    const parentTemp = path.join(process.cwd(), '.tmp-orden-329-');
+    await fs.rm(parentTemp, { recursive: true, force: true }).catch(() => {});
   });
 
   function cargarRuta(hasSession: boolean) {
@@ -46,6 +50,16 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
     jest.isolateModules(() => {
       jest.doMock('@/lib/auth/require-session', () => ({
         hasAppSession: jest.fn(async () => hasSession),
+        requireAppSession: jest.fn(async () => {
+          if (!hasSession) throw new Error('Unauthorized');
+          return { user: { role: 'admin' } };
+        }),
+      }));
+      jest.doMock('@/lib/auth/event-access', () => ({
+        requireEventPermission: jest.fn(async () => {
+          if (!hasSession) throw new Error('No autorizado');
+          return { id: 'fiesta-329' };
+        }),
       }));
       jest.doMock('@/app/actions/social-gallery', () => ({
         getPhotoFilePathsForZip: jest.fn(async () => ({
@@ -55,6 +69,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoCabinaPath,
               imageUrl: fotoCabinaPath,
               name: 'cabina_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'fotocabina',
@@ -64,6 +79,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoTiraPath,
               imageUrl: fotoTiraPath,
               name: 'tira_02.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               caption: 'Tira de recuerdos',
               source: 'entertainment',
@@ -73,6 +89,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: video360Path,
               imageUrl: video360Path,
               name: 'clip_360.mp4',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'plataforma-360',
@@ -83,6 +100,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoInvitadoPath,
               imageUrl: fotoInvitadoPath,
               name: 'invitado_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'guest',
             },
@@ -91,6 +109,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoVoguePath,
               imageUrl: fotoVoguePath,
               name: 'vogue_01.jpg',
+              approved: true,
               moderationStatus: 'approved' as const,
               source: 'entertainment',
               sourceModule: 'vogue',
@@ -100,6 +119,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoOcultaPath,
               imageUrl: fotoOcultaPath,
               name: 'oculta_01.jpg',
+              approved: false,
               moderationStatus: 'hidden' as const,
               source: 'guest',
             },
@@ -108,6 +128,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
               path: fotoPendientePath,
               imageUrl: fotoPendientePath,
               name: 'pendiente_01.jpg',
+              approved: false,
               moderationStatus: 'pending' as const,
               source: 'entertainment',
               sourceModule: 'fotocabina',

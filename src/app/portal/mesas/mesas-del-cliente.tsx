@@ -332,7 +332,7 @@ function AsignacionMesasContent() {
                             <span>Adultos</span>
                             <span className="font-black">{currentTotalAdults} / {totalContractedAdults}</span>
                         </CardTitle>
-                        <Progress value={(currentTotalAdults / totalContractedAdults) * 100} className="h-2 bg-blue-100" />
+                        <Progress value={totalContractedAdults > 0 ? Math.min(100, (currentTotalAdults / totalContractedAdults) * 100) : 0} className="h-2 bg-blue-100" />
                     </CardHeader>
                 </Card>
                 <Card className="shadow-md border-purple-200">
@@ -341,7 +341,7 @@ function AsignacionMesasContent() {
                             <span>Niños y Adolescentes</span>
                             <span className="font-black">{currentTotalKids} / {totalContractedKids}</span>
                         </CardTitle>
-                        <Progress value={(currentTotalKids / totalContractedKids) * 100} className="h-2 bg-purple-100" />
+                        <Progress value={totalContractedKids > 0 ? Math.min(100, (currentTotalKids / totalContractedKids) * 100) : 0} className="h-2 bg-purple-100" />
                     </CardHeader>
                 </Card>
             </div>

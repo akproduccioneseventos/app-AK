@@ -71,7 +71,7 @@ export async function actualizarFiesta(
         if (updated.estado === 'Seña' && base.estado !== 'Seña') {
           throw new Error('No se puede mover a Seña.');
         }
-        return await preserveFiestaSecrets(fiestaId, updated);
+        return await preserveFiestaSecrets(fiestaId, updated, base);
       }
     );
 

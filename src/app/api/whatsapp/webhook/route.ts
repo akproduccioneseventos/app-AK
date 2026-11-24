@@ -34,7 +34,7 @@ import { createNotification } from '@/lib/notifications/create-notification';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-async function conTimeout<T>(promesa: Promise<T>, ms = 1200): Promise<T> {
+async function conTimeout<T>(promesa: Promise<T>, ms = 8000): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
@@ -235,6 +235,7 @@ export async function POST(request: NextRequest) {
     // Un eco es un mensaje que mandó el dueño: no es una consulta de nadie y no se contesta.
     if (isEcho) return NextResponse.json({ status: 'ok', eco: true }, { status: 200 });
 
+    let evaluacionFallida: Error | null = null;
     const evaluacion: EvaluacionProspectoWhatsApp = config.llevarWhatsAppProspectosAlCrm === true
       ? await conTimeout(
           typeof evaluarProspectoDeWhatsApp === 'function'
@@ -248,10 +249,38 @@ export async function POST(request: NextRequest) {
                 motivo,
                 esDudoso: motivo === 'dudoso_ia',
               })),
-        ).catch(() => ({ esProspecto: false, motivo: null, rechazadoPor: 'interruptor_apagado' as const }))
+          8000,
+        ).catch((err: unknown) => {
+          evaluacionFallida = err instanceof Error ? err : new Error(String(err || 'Timeout evaluando prospecto'));
+          return { esProspecto: false, motivo: null };
+        })
       : { esProspecto: false, motivo: null, rechazadoPor: 'interruptor_apagado' };
 
-    const asistenteSettings = await conTimeout(getAsistenteSettings()).catch(() => null);
+    if (evaluacionFallida) {
+      const errEval: Error = evaluacionFallida;
+      console.warn('[WhatsApp Webhook] Evaluación de prospecto no respondió a tiempo:', errEval);
+      await agregarPropuestasDeduplicadas([{
+        clave: `whatsapp-evaluacion-pendiente:${messageId || phone}`,
+        titulo: 'Revisar WhatsApp: no se pudo evaluar el mensaje a tiempo',
+        area: 'ventas',
+        tipoPropuesta: 'whatsapp_revisar_contacto',
+        nivelRiesgo: 'aviso' as any,
+        quePasa: `Llegó un mensaje de ${clientName || phone} y la evaluación de prospecto falló o tardó demasiado (${errEval.message || 'sin respuesta'}). Por seguridad no se contestó automáticamente y quedó pendiente de revisión.`,
+        porQueImporta: 'Evita perder un prospecto real si la IA o la base demoran en contestar.',
+        quePropone: `Revisar manualmente el mensaje de ${clientName || phone}: "${messageText.slice(0, 80)}".`,
+      }]).catch((e) => console.warn('[WhatsApp webhook] No se pudo anotar para revisar:', e));
+
+      return NextResponse.json({
+        status: 'ok',
+        received: true,
+        savedToCrm: false,
+        respondido: false,
+        requiereRevision: true,
+        motivo: 'Evaluación de prospecto no contestó a tiempo: no se contesta y queda para revisión.',
+      }, { status: 200 });
+    }
+
+    const asistenteSettings = await conTimeout(getAsistenteSettings(), 4000).catch(() => null);
     const asistenteProspectosActivo = Boolean(asistenteSettings?.asistenteProspectosWhatsApp);
     let filtroContacto: { bloquear: boolean; motivo?: string; nota?: number; esPersonal?: boolean } = {
       bloquear: false,
@@ -270,6 +299,7 @@ export async function POST(request: NextRequest) {
                   : null),
             asistenteSettings,
           ),
+          4000,
         );
       } catch (filtroErr: any) {
         console.warn('[WhatsApp Webhook] Control de contacto personal no respondió a tiempo:', filtroErr);

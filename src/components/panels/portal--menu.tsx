@@ -3,7 +3,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaForPortalSession, initializePortalSession, saveMenuSeleccion } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, saveMenuSeleccion, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, MenuSeleccionPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, ArrowLeft, AlertTriangle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 export default function MenuPortalPage() {
   const params = useParams<{ id: string }>();
@@ -27,13 +25,16 @@ export default function MenuPortalPage() {
   const [form, setForm] = useState<MenuSeleccionPortal>({});
 
   useEffect(() => {
-    const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) { sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); router.replace(`/portal-cliente/${fiestaId}`); return; }
-    initializePortalSession(fiestaId, accessKey)
-      .then(async session => session.success ? getFiestaForPortalSession(fiestaId) : null)
+    verificarSesionPortalCliente(fiestaId)
+      .then(async hasSession => {
+        if (!hasSession) {
+          router.replace(`/portal-cliente/${fiestaId}`);
+          return null;
+        }
+        return getFiestaForPortalSession(fiestaId);
+      })
       .then(data => {
         if (!data) {
-          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
           setError('La sesión del portal venció o no corresponde a este evento.');
           return;
         }

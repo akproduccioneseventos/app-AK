@@ -30,6 +30,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
+import { normalizarUnidad, convertir } from '@/lib/compras/unidades';
 import { comprasDelMenuAsignado } from '@/lib/compras/compras-del-menu-asignado';
 import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
@@ -95,6 +96,7 @@ function ListaDeComprasContent() {
   // salteaban en silencio: la cocina compraba sin saber que le faltaba un plato
   // entero, y se enteraba el dia de la fiesta.
   const [platosSinIngredientes, setPlatosSinIngredientes] = useState<string[]>([]);
+  const [unidadesIncompatibles, setUnidadesIncompatibles] = useState<string[]>([]);
   const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
   const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
 
@@ -123,7 +125,7 @@ function ListaDeComprasContent() {
           presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
       }
 
-      const adultos = presupuestoData?.invitadosAdultos || Number(fiestaData.configuracion.invitadosEstimados) || 0;
+      const adultos = presupuestoData?.invitadosAdultos ?? (Number(fiestaData.configuracion.invitadosEstimados) || 0);
       const ninos = (presupuestoData?.invitadosNinos || 0) + (presupuestoData?.invitadosAdolescentes || 0);
       const totalInvitados = adultos + ninos;
 
@@ -162,26 +164,25 @@ function ListaDeComprasContent() {
               }
               if (!catalogDish.ingredients?.length) {
                   sinIngredientes.push(catalogDish.name);
+                  return;
               }
-              if (catalogDish) {
-                  const targetGuests = getTargetGuests(budgetItem);
-                  catalogDish.ingredients.forEach(ing => {
-                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
-                      if (qtyPerPerson > 0) {
-                          const totalNeeded = qtyPerPerson * targetGuests;
-                          const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
-                          rawList.push({
-                              nombre: ing.name,
-                              cantidadNecesaria: totalNeeded,
-                              unit: ing.unit,
-                              costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
-                              proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
-                              origen: `Catering: ${catalogDish.name}`,
-                              origenId: ing.origenId,
-                          });
-                      }
-                  });
-              }
+              const targetGuests = getTargetGuests(budgetItem);
+              (catalogDish.ingredients || []).forEach(ing => {
+                  const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
+                  if (qtyPerPerson > 0) {
+                      const totalNeeded = qtyPerPerson * targetGuests;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
+                      rawList.push({
+                          nombre: ing.name,
+                          cantidadNecesaria: totalNeeded,
+                          unit: ing.unit,
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
+                          proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
+                          origen: `Catering: ${catalogDish.name}`,
+                          origenId: ing.origenId,
+                      });
+                  }
+              });
           });
 
       }
@@ -284,15 +285,19 @@ function ListaDeComprasContent() {
       // (orden 139): 200 g + 2 kg son 2,20 kg, no "202". La cuenta vive en
       // `consolidarCompras`, la misma que usa el resumen de planificacion; la clave del
       // renglon (claveDeConsolidado(nombre, proveedor, unidad)) se arma adentro.
+      const incompatibles: string[] = [];
       const crudos: CompraCruda[] = rawList.map(raw => {
           const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
           const resolvedProvider = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
-          const unidadRecetaMin = String(raw.unit || '').toLowerCase().trim();
-          // Si el catalogo no dice en que unidad esta el precio y la receta va en gramos o
-          // mililitros, se sigue suponiendo kilo o litro, como antes.
-          const unidadCostoSupuesta = ['g', 'gramos'].includes(unidadRecetaMin)
+          const unidadRecetaBase = normalizarUnidad(raw.unit).unidad;
+          // Si el catálogo no dice en qué unidad está el precio y la receta va en peso o
+          // volumen, se supone kilo o litro respectivamente (cubre g, gr, grs, ml, cc, mililitros).
+          const unidadCostoSupuesta = unidadRecetaBase === 'kg'
               ? 'kg'
-              : ['ml', 'cc', 'cc.'].includes(unidadRecetaMin) ? 'l' : undefined;
+              : unidadRecetaBase === 'l' ? 'l' : undefined;
+          if (matchedInsumo?.unidad && raw.unit && convertir(1, raw.unit, matchedInsumo.unidad) === null) {
+              incompatibles.push(`${raw.nombre} (receta en "${raw.unit}", catálogo en "${matchedInsumo.unidad}")`);
+          }
           return {
               nombre: raw.nombre,
               cantidadNecesaria: raw.cantidadNecesaria,
@@ -308,6 +313,7 @@ function ListaDeComprasContent() {
               unidadStock: matchedInsumo?.unidad,
           };
       });
+      setUnidadesIncompatibles(Array.from(new Set(incompatibles)));
 
       // Lo que hay que comprar se redondea SIEMPRE para arriba. La receta da
       // numeros con coma (0,25 litros por persona por 83 personas son 20,75
@@ -504,6 +510,20 @@ function ListaDeComprasContent() {
         </div>
 
         {fiesta && <ObservacionesPosfiesta fiestaId={fiesta.id} />}
+
+        {unidadesIncompatibles.length > 0 && (
+          <div className="rounded-xl border border-rose-300 bg-rose-50 p-4">
+            <p className="font-bold text-rose-900">
+              Ojo: hay ingredientes con unidades distintas entre la receta y el catálogo (ej. peso contra volumen)
+            </p>
+            <p className="mt-1 text-sm text-rose-800">
+              No se pueden convertir automáticamente. Revisá el costo y la cantidad antes de comprar:
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-sm font-semibold text-rose-900">
+              {unidadesIncompatibles.map(desc => <li key={desc}>{desc}</li>)}
+            </ul>
+          </div>
+        )}
 
         {platosSinIngredientes.length > 0 && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">

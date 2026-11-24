@@ -3,8 +3,9 @@ import JSZip from 'jszip';
 import { detectarExtension } from '@/lib/album/armar-zip-del-album';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 // Ruta interna: download-recuerdos para empaquetado administrativo
 
@@ -62,16 +63,18 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   const estacionPedida = new URL(request.url).searchParams.get('estacion')?.trim() || null;
 
   try {
-    // 1. Verify administrative access
+    // 1. Verify administrative access and event ownership
     const isAuthorized = await hasAppSession();
     if (!isAuthorized) {
       return NextResponse.json({ error: 'No autorizado. Por favor inicie sesión como administrador.' }, { status: 401 });
     }
 
-    // 2. Load the event details to get name
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return NextResponse.json({ error: 'Evento no encontrado.' }, { status: 404 });
+    // 2. Verify permission and load event details
+    let fiesta;
+    try {
+      fiesta = await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+    } catch (permErr: any) {
+      return NextResponse.json({ error: permErr?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
     }
 
     const eventName = fiesta.configuracion?.nombreEvento || 'Fiesta';
@@ -191,7 +194,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       } else {
         try {
           const fs = await import('fs/promises');
-          fileContent = await fs.readFile(post.imageUrl);
+          const path = await import('path');
+          const base = path.resolve(process.cwd());
+          const ruta = path.resolve(base, post.imageUrl);
+          if (!ruta.startsWith(base + path.sep)) continue;
+          fileContent = await fs.readFile(ruta);
         } catch (err) {
           continue;
         }
@@ -246,7 +253,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
         } else {
           try {
             const fs = await import('fs/promises');
-            fileContent = await fs.readFile(ded.audioUrl);
+            const path = await import('path');
+            const base = path.resolve(process.cwd());
+            const ruta = path.resolve(base, ded.audioUrl);
+            if (!ruta.startsWith(base + path.sep)) continue;
+            fileContent = await fs.readFile(ruta);
           } catch (err) {
             continue;
           }

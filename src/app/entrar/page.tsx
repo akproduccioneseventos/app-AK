@@ -1,5 +1,5 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { verifySession } from '@/lib/auth/session-token';
 import { EntrarClient } from './EntrarClient';
 
 export const metadata = {
@@ -8,9 +8,8 @@ export const metadata = {
 };
 
 export default async function EntrarPage() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('ak_session');
-  if (sessionCookie && sessionCookie.value) {
+  const session = await verifySession().catch(() => ({ success: false as const, user: undefined }));
+  if (session.success && session.user) {
     redirect('/mi-dia');
   }
 

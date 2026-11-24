@@ -15,9 +15,18 @@ import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
-import { hasAppSession, requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requireAdminSession, requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
+
+const PERMISOS_EQUIPO_NOTIF = [
+  PERMISOS.ADMINISTRACION,
+  PERMISOS.CONTABILIDAD,
+  PERMISOS.CRM,
+  PERMISOS.ORGANIZACION,
+  PERMISOS.INSUMOS,
+  PERMISOS.NOCHE,
+] as const;
 import { esAvisoDePlata, textoParaElTelefono } from '@/lib/notifications/aviso-con-plata';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
@@ -77,7 +86,7 @@ async function getNotificationsInternal(): Promise<Notificacion[]> {
 }
 
 export async function getNotifications(): Promise<Notificacion[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
   const session = await verifySession();
   if (!session.success || !session.user) throw new Error('Sesion no autorizada.');
   const todas = await getNotificationsInternal();
@@ -179,7 +188,7 @@ export async function createNotification(
 export async function markNotificationAsRead(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
   try {
     const result = await updateDocument<Notificacion>(COLLECTIONS.NOTIFICACIONES, notificationId, { leida: true });
     if (result.success) return { success: true };
@@ -202,7 +211,7 @@ export async function markNotificationAsRead(
 }
 
 export async function markAllNotificationsAsRead(): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
   try {
     const unreadResult = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
       where: [{ field: 'leida', op: '==', value: false }],
@@ -238,7 +247,7 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean; 
 export async function deleteNotification(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
   try {
     const result = await deleteDocument(COLLECTIONS.NOTIFICACIONES, notificationId);
     if (result.success) return { success: true };
@@ -270,7 +279,7 @@ async function getNotificationsFromLocal(): Promise<Notificacion[]> {
 
 
 export async function checkAndCreateTaskReminders(): Promise<{ success: boolean; created: number }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
     try {
         const fiestasActivas = await getFiestas(false); // Fetch all active events
         if (!fiestasActivas || fiestasActivas.length === 0) {
@@ -320,7 +329,7 @@ export async function checkAndCreateReunionReminders(
   internalToken?: symbol
 ): Promise<{ success: boolean; created: number }> {
   if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   }
   try {
     // La guardia ya se pasó arriba (sesión o llave). `getFiestas` volvía a pedir sesión y desde la
@@ -391,7 +400,7 @@ export async function checkAndCreateReunionReminders(
 }
 
 export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; created: number }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
     try {
         const fiestasActivas = await getFiestas(false);
         if (!fiestasActivas || fiestasActivas.length === 0) {
@@ -456,10 +465,8 @@ export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; c
 }
 
 export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: boolean; created: number }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   // Los avisos de saldo hablan de plata: sólo se arman para quien tiene contabilidad (candado de plata).
-  const { requirePermiso } = await import('@/lib/auth/require-session');
-  const { PERMISOS } = await import('@/lib/auth/perfiles');
   if (!(await requirePermiso(PERMISOS.CONTABILIDAD)).ok) return { success: true, created: 0 };
     try {
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
@@ -519,7 +526,7 @@ export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: b
 }
 
 export async function generateAllSmartNotifications(): Promise<{ success: boolean; totalCreated: number }> {
-    await requireAppSession();
+    await requirePermisoAlguno(...PERMISOS_EQUIPO_NOTIF);
     try {
         const [tasks, meetings, events, balances] = await Promise.all([
             checkAndCreateTaskReminders(),

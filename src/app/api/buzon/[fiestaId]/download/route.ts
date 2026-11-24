@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { getBuzonMessagesConDetalle } from '@/app/actions/buzon';
 import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_DOMAINS = [
@@ -30,6 +32,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
   if (!fiestaId) {
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
+  }
+
+  try {
+    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
   }
 
   try {
@@ -108,7 +116,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
         fileContent = Buffer.from(await res.arrayBuffer());
       } else {
         const fs = await import('fs/promises');
-        fileContent = await fs.readFile(msg.mediaUrl);
+        const path = await import('path');
+        const base = path.resolve(process.cwd());
+        const ruta = path.resolve(base, msg.mediaUrl);
+        if (!ruta.startsWith(base + path.sep)) continue;
+        fileContent = await fs.readFile(ruta);
       }
       
       totalSize += fileContent.length;

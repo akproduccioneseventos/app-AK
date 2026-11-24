@@ -14,7 +14,18 @@ import {
 } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+
+function debeOmitirFiestaEnRecordatorios(fiesta: FiestaEnPlanificacion | null | undefined): boolean {
+  if (!fiesta) return true;
+  if ((fiesta as { esMuestra?: boolean }).esMuestra || esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) {
+    return true;
+  }
+  const estado = String(fiesta.estado || '').trim().toLocaleLowerCase('es-UY');
+  return ['suspendida', 'suspendido', 'archivada', 'archivado', 'cancelada', 'cancelado'].includes(estado);
+}
 
 const FIESTAS_FILE = 'fiestas.json';
 const AJUSTES_FILE = 'ajustes-recordatorio-invitacion.json';
@@ -179,6 +190,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
   const phoneNumberId = process.env.META_WHATSAPP_PHONE_ID || '';
 
   for (const fiesta of fiestas) {
+    if (debeOmitirFiestaEnRecordatorios(fiesta)) continue;
     const fechaEvento = fiesta.configuracion?.fechaEvento;
     if (!fechaEvento) continue;
 
@@ -228,7 +240,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
 
     const reserva = await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
       elegidos = [];
-      if (!tocaRecordarHoy(fiestaFresca.configuracion?.fechaEvento, ahora)) {
+      if (debeOmitirFiestaEnRecordatorios(fiestaFresca) || !tocaRecordarHoy(fiestaFresca.configuracion?.fechaEvento, ahora)) {
         return fiestaFresca;
       }
       const invitadosFrescos = fiestaFresca.invitados || [];

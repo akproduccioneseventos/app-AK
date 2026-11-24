@@ -1,7 +1,7 @@
 'use server';
 
 import path from 'path';
-import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
@@ -24,6 +24,9 @@ import {
 import * as logger from '@/lib/logger';
 import { segundosDelPermisoDelAfiche } from '@/lib/entertainment/vigencia-del-afiche';
 import { copiarConfiguracion } from '@/lib/entertainment/copiar-configuracion';
+import { hoyEnUruguay } from '@/lib/utils';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MAX_ENTERTAINMENT_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -60,9 +63,7 @@ function getStoredEntertainment(fiesta: any) {
 
 export async function getEntretenimientoFiesta(fiestaId: string) {
   try {
-    await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error('Fiesta no encontrada');
+    const fiesta = await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
 
     return {
       success: true,
@@ -83,7 +84,7 @@ export async function getPublicEntertainmentEvent(
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    const fiesta = await getFiestaByIdRaw(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
@@ -112,7 +113,7 @@ export async function getEntertainmentLaunchToken(
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    const fiesta = await getFiestaByIdRaw(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     return {
       success: true,
@@ -121,6 +122,61 @@ export async function getEntertainmentLaunchToken(
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'Sesion no autorizada.' };
+  }
+}
+
+/**
+ * Emite únicamente un pase de invitado (`guest`) para abrir una estación desde `/evento/inicio`.
+ * - Con sesión de equipo (`NOCHE` u `ORGANIZACION`), autoriza cualquier fiesta activa habilitada.
+ * - Sin sesión de equipo (tablet del salón), autoriza sólo la fiesta de hoy o la que coincida
+ *   con `codigoFiesta`, siempre que la estación esté habilitada. Nunca emite `operatorToken`.
+ */
+export async function getKioskStationGuestToken(
+  fiestaId: string,
+  moduleId: EntertainmentModuleId,
+  codigoFiesta?: string
+): Promise<{ success: boolean; guestToken?: string; error?: string }> {
+  try {
+    if (!isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+
+    const estado = (fiesta.estado || '').toLowerCase();
+    if (estado === 'suspendida' || estado === 'cancelada' || estado === 'archivada') {
+      return { success: false, error: 'Esta fiesta no está activa.' };
+    }
+
+    const station = getEntertainmentStationConfig(fiesta, moduleId);
+    if (!station.enabled) {
+      return { success: false, error: 'Esta estación no está habilitada para el evento.' };
+    }
+
+    let autorizado = false;
+    try {
+      await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+      autorizado = true;
+    } catch {
+      const esHoy = !esFiestaDemo(fiesta) && fiesta.configuracion?.fechaEvento === hoyEnUruguay();
+      const codigoNorm = normalizarCodigoFiesta(codigoFiesta);
+      const coincideCodigo = Boolean(codigoNorm) && codigoDeFiesta(fiesta) === codigoNorm;
+      autorizado = esHoy || coincideCodigo;
+    }
+
+    if (!autorizado) {
+      return {
+        success: false,
+        error: 'Ingresá el código de la fiesta o iniciá sesión con el equipo para abrir esta estación.',
+      };
+    }
+
+    return {
+      success: true,
+      guestToken: createEntertainmentAccessToken(fiestaId, moduleId, 'guest'),
+    };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'No se pudo habilitar la estación.' };
   }
 }
 
@@ -149,20 +205,16 @@ export async function getPermisoDelAfiche(fiestaId: string) {
 
 export async function saveEntretenimientoFiesta(fiestaId: string, entretenimiento: any) {
   try {
-    await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error('Fiesta no encontrada');
+    await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
 
     const nextEntertainment = normalizeEntertainmentData(entretenimiento);
-    const updatedFiesta = {
-      ...fiesta,
+    const result = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
       others: {
-        ...(fiesta.others || {}),
+        ...(actual.others || {}),
         entretenimiento: nextEntertainment,
       },
-    };
-
-    const result = await saveFiesta(updatedFiesta);
+    }));
     if (!result.success) throw new Error(result.error || 'No se pudo guardar entretenimiento.');
 
     return { success: true, data: nextEntertainment };
@@ -232,7 +284,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    const fiesta = await getFiestaByIdRaw(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'El modulo de entretenimiento no es valido.' };
@@ -399,8 +451,8 @@ export async function aplicarCopiaDeConfiguracion(fiestaOrigenId: string, fiesta
   try {
     await requireAppSession();
     const [fiestaOrigen, fiestaDestino] = await Promise.all([
-      getFiestaById(fiestaOrigenId, LECTURA_COMPLETA),
-      getFiestaById(fiestaDestinoId, LECTURA_COMPLETA),
+      getFiestaByIdRaw(fiestaOrigenId),
+      getFiestaByIdRaw(fiestaDestinoId),
     ]);
 
     if (!fiestaOrigen) return { success: false as const, error: 'No se encontró la fiesta de origen.' };

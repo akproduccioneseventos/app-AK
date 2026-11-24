@@ -361,6 +361,17 @@ describe('Orden 276: Ciclo de vida y límites del acceso de auditor', () => {
       cerradoEl: null,
     };
 
+    // Sin sesión no devuelve datos del auditor
+    expect((await chequearAvisoAuditor14Dias(new Date())).debeAvisar).toBe(false);
+
+    // Con sesión del dueño aparece el aviso
+    currentCookieToken = await createSignedSessionToken({
+      userId: 'usr-dueno',
+      email: 'dueno@akproducciones.com',
+      role: 'admin',
+      perfil: 'dueno',
+    });
+
     const aviso = await chequearAvisoAuditor14Dias(new Date());
     expect(aviso.debeAvisar).toBe(true);
     expect(aviso.mensaje).toMatch(/El acceso de auditor sigue abierto desde el .+: ¿lo cierro\?/);

@@ -219,7 +219,7 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
   await requirePermisoAlguno(PERMISOS.INSUMOS);
   const { getMenus, invalidateMenusCache } = await import('./menus-catering');
   const comprobarMenusEnUso = async () => {
-    invalidateMenusCache();
+    await invalidateMenusCache();
     const menus = await getMenus();
     return menus.filter(m =>
       m.items?.some(item =>

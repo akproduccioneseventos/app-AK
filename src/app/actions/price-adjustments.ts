@@ -150,18 +150,31 @@ async function applyPriceAdjustmentInterno(
       await writeData(ADJUSTMENTS_FILE, history);
     }
 
+    const adjustmentId = record.id;
+    // Cada guardado vuelve a leer la lista fresca para no chocar con la marca de lectura del paso anterior.
+    const guardarCambio = async (cambiar: (a: PriceAdjustmentRecord) => void) => {
+      const fresca = await getPriceAdjustmentHistory();
+      const actual = fresca.find((a) => a.id === adjustmentId);
+      if (!actual) throw new Error('Ajuste no encontrado.');
+      cambiar(actual);
+      await writeData(ADJUSTMENTS_FILE, fresca);
+      record = actual;
+    };
+
     for (const parte of partesDe(type)) {
       if (record.partesHechas?.includes(parte)) continue;
       const result = parte === 'precios' ? await adjustAllServicePrices(percentage) : await adjustAllServiceCosts(percentage);
       if (!result.success) {
         return { success: false, error: `${result.error || 'No se pudo aplicar el ajuste.'} Volvé a aplicar el mismo ajuste: sólo se termina lo que falta, no se vuelve a subir lo ya aplicado.` };
       }
-      record.partesHechas = [...(record.partesHechas || []), parte];
-      await writeData(ADJUSTMENTS_FILE, history);
+      await guardarCambio((actual) => {
+        actual.partesHechas = [...new Set([...(actual.partesHechas || []), parte])];
+      });
     }
 
-    record.estado = 'listo';
-    await writeData(ADJUSTMENTS_FILE, history);
+    await guardarCambio((actual) => {
+      actual.estado = 'listo';
+    });
 
     return { success: true, record };
   } catch (error: any) {

@@ -284,7 +284,11 @@ export default function MuroEnVivoPage() {
         setRankingTrivia(fiestaData.rankingJuegos?.trivia ?? []);
 
         if (isZonaDigitalFeatureEnabled(fiestaData.zonaDigitalAdolescentes, 'transmision_invitado')) {
-          getActiveLiveStreamForScreen(fiestaId)
+          const screenToken =
+            typeof window !== 'undefined'
+              ? new URLSearchParams(window.location.search).get('access') || undefined
+              : undefined;
+          getActiveLiveStreamForScreen(fiestaId, screenToken)
             .then((stream) => setActiveLiveStream(stream))
             .catch(() => undefined);
         } else {
@@ -875,7 +879,15 @@ export default function MuroEnVivoPage() {
         </div>
 
         {activeLiveStream && shouldDisplayLiveStreamOnScreen(activeLiveStream) && (
-          <LiveStreamScreenReceiver fiestaId={fiestaId} streamRequest={activeLiveStream} />
+          <LiveStreamScreenReceiver
+          fiestaId={fiestaId}
+          streamRequest={activeLiveStream}
+          screenToken={
+            typeof window !== 'undefined'
+              ? new URLSearchParams(window.location.search).get('access') || undefined
+              : undefined
+          }
+        />
         )}
 
         {/* ── Right side panel: poll or game overlay ── */}
@@ -1424,6 +1436,7 @@ function AudioRhythmSlide({
   const [audioLevel, setAudioLevel] = useState(0.45);
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
   const rafRef = useRef<number | null>(null);
   const visiblePosts = posts.slice(0, 9);
 
@@ -1448,6 +1461,10 @@ function AudioRhythmSlide({
       if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
     };
   }, [config.enabled]);
 
@@ -1469,8 +1486,12 @@ function AudioRhythmSlide({
         return;
       }
       mediaStreamRef.current = stream;
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContextCtor();
+      audioCtxRef.current = context;
       const source = context.createMediaStreamSource(stream);
       const analyzer = context.createAnalyser();
       analyzer.fftSize = 128;

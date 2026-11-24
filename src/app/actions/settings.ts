@@ -125,7 +125,7 @@ Firma cliente: __________________________`,
 export async function getCompanyInfo(): Promise<CompanyInfo> {
   // Guarda las cuentas bancarias de la empresa. La version que usan las pantallas
   // abiertas es `getCompanyInfoPublica`, que no las trae.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   return leerCompanyInfo();
 }
 
@@ -230,7 +230,7 @@ function mergeContractTemplates(saved: ContractTemplateItem[], fallbackServicios
 }
 
 export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const [savedTemplates, legacyServiciosTemplate] = await Promise.all([
       readData<ContractTemplateItem[]>(CONTRACT_TEMPLATES_FILE, []),
@@ -243,7 +243,7 @@ export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
 }
 
 export async function getContractTemplate(): Promise<string> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const templates = await getContractTemplates();
     const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
@@ -325,7 +325,7 @@ export async function deleteContractTemplate(id: string): Promise<{ success: boo
 }
 
 export async function getContractTemplateByType(type: ContractType): Promise<ContractTemplateItem> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   const templates = await getContractTemplates();
   const found = templates.find(t => t.type === type);
   if (found) return found;
@@ -425,7 +425,7 @@ export async function saveWhatsAppSettings(
 
 // --- Contract Settings ---
 export async function getContractSettings(): Promise<ContractSettings> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   try {
     const data = await readData<Partial<ContractSettings>>(CONTRACT_SETTINGS_FILE, {});
     let clauses = defaultContractSettings.clauses;
@@ -528,7 +528,7 @@ const defaultAiAssistantSettings: AiAssistantSettings = {
 };
 
 export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
   return {
     ...defaultAiAssistantSettings,
@@ -590,7 +590,7 @@ export async function saveAiAssistantSettings(
 }
 
 export async function getAiAssistantFallosHoy(): Promise<Record<string, { cantidad: number; ultimoMotivo: string; ultimaVez: string }>> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   const { getFallosIAHoy } = await import('@/lib/ai/consumo-servidor');
   return getFallosIAHoy();
 }
@@ -636,7 +636,7 @@ async function collectPageRoutes(dir: string, appDir: string, routes: string[]):
 }
 
 export async function scanAiAssistantAppContext(): Promise<{ success: boolean; context?: string; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS, PERMISOS.NOCHE);
   try {
     const appDir = path.join(process.cwd(), 'src', 'app');
     const routes: string[] = [];

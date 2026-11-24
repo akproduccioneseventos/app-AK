@@ -11,6 +11,7 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
   hasAppSession: jest.fn().mockResolvedValue(true),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/app/actions/scheduled-messages', () => ({

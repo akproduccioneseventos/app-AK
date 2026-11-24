@@ -473,6 +473,9 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
         if (usersSnap && !usersSnap.empty) {
           for (const userDoc of usersSnap.docs) {
             const userData = userDoc.data();
+            if (userData.activo === false || userData.perfil === 'auditor' || userData.role === 'auditor') {
+              continue;
+            }
             if (verifyHash(password, userData.passwordHash)) {
               await saveAuthConfig({
                 passwordHash: userData.passwordHash || hashValue(password),
@@ -528,6 +531,10 @@ export async function changeAppPassword(
   currentPassword: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
+  const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+  if (await esSesionDeAuditor()) {
+    return { success: false, error: 'El auditor no puede cambiar la clave maestra de la aplicación.' };
+  }
   const verify = await verifyPassword(currentPassword);
   if (!verify.success) {
     return { success: false, error: 'La contraseña actual es incorrecta.' };
@@ -563,6 +570,10 @@ export async function saveSecurityRecoverySettings(input: {
   recoveryEmail: string;
   questions: Record<SecurityQuestionKey, { question: string; answer: string }>;
 }): Promise<{ success: boolean; error?: string }> {
+  const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+  if (await esSesionDeAuditor()) {
+    return { success: false, error: 'El auditor no puede modificar la recuperación de seguridad.' };
+  }
   const verify = await verifyPassword(input.currentPassword);
   if (!verify.success) return { success: false, error: 'La contraseña actual es incorrecta.' };
 
@@ -591,6 +602,10 @@ export async function saveSecurityRecoverySettings(input: {
 }
 
 export async function generateBackupRecoveryCodes(currentPassword: string): Promise<{ success: boolean; codes?: string[]; error?: string }> {
+  const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+  if (await esSesionDeAuditor()) {
+    return { success: false, error: 'El auditor no puede generar códigos de recuperación.' };
+  }
   const verify = await verifyPassword(currentPassword);
   if (!verify.success) return { success: false, error: 'La contrasena actual es incorrecta.' };
 

@@ -1,26 +1,66 @@
 import type { Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
+import { convertir, normalizarUnidad } from '@/lib/compras/unidades';
 
 /**
- * Aviso de unidades que no se pueden convertir entre la receta y el catálogo.
+ * Aviso y cálculo de unidades entre la receta y el catálogo.
  *
  * Vive acá y no en `menus-catering.ts` porque ese archivo es `'use server'` y
  * sólo puede exportar funciones asíncronas: hay una prueba que lo controla.
  */
 
-/** Unidades chicas: el sistema las convierte a las grandes dividiendo por mil. */
-const UNIDADES_CHICAS = ['g', 'gramos', 'ml', 'cc', 'cc.'];
-const UNIDADES_GRANDES = ['kg', 'kilos', 'kilogramos', 'l', 'lt', 'litro', 'litros'];
+const PESO_CHICO = new Set(['g', 'gr', 'grs', 'gramo', 'gramos']);
+const VOLUMEN_CHICO = new Set(['ml', 'cc', 'mililitro', 'mililitros']);
+
+function esUnidadReconocida(unidad: string): boolean {
+  const { unidad: base } = normalizarUnidad(unidad);
+  return base === 'kg' || base === 'l';
+}
+
+/**
+ * Calcula el costo de un ingrediente en una receta convirtiendo entre la unidad
+ * de la receta (ej. gr, grs, g, kg, mililitros, ml, l) y la del catálogo.
+ */
+export function calcularCostoIngredienteEnReceta(
+  quantity: number,
+  unitCost: number,
+  recipeUnitRaw?: string | null,
+  catalogUnitRaw?: string | null,
+): number {
+  if (quantity === 0 || unitCost === 0) return 0;
+
+  const recipeUnit = (recipeUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
+  const catalogUnit = (catalogUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
+
+  if (!recipeUnit || recipeUnit === 'no definido') {
+    const catalogNorm = normalizarUnidad(catalogUnit);
+    const catalogIsSmall = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
+    if (!catalogIsSmall && (catalogNorm.unidad === 'kg' || catalogNorm.unidad === 'l' || !catalogUnit)) {
+      return (quantity / 1000) * unitCost;
+    }
+    return quantity * unitCost;
+  }
+
+  // Si el catálogo no especifica unidad pero la receta está en gramos/mililitros, se asume kg/l.
+  let targetUnit = catalogUnit;
+  if (!targetUnit) {
+    if (PESO_CHICO.has(recipeUnit)) targetUnit = 'kg';
+    else if (VOLUMEN_CHICO.has(recipeUnit)) targetUnit = 'l';
+  }
+
+  if (targetUnit) {
+    const converted = convertir(quantity, recipeUnit, targetUnit);
+    if (converted !== null) {
+      return converted * unitCost;
+    }
+  }
+
+  return quantity * unitCost;
+}
 
 /**
  * Avisa cuando la receta y el catálogo usan unidades que el sistema NO sabe
- * convertir entre sí. Por ejemplo: la receta pide "2 tazas" y el insumo está
- * cargado en gramos.
- *
- * En ese caso el cálculo multiplica como si fueran la misma unidad y el costo
- * del plato sale mal. Nadie puede saber cuántos gramos pesa una taza de ese
- * ingrediente sin que alguien lo diga: es preferible avisar y que lo revisen,
- * antes que inventar un número y meterlo en todos los presupuestos.
+ * convertir entre sí (por ejemplo: tazas contra gramos, o peso contra volumen).
  *
  * Devuelve el aviso ya escrito, o null si está todo bien.
  */
@@ -28,16 +68,26 @@ export function unidadesQueNoSePuedenConvertir(
   ing: Partial<Ingredient>,
   catalogItems: ServicioEmpresa[],
 ): string | null {
-  const unidadReceta = (ing.unit || '').toLowerCase().trim();
+  const unidadReceta = (ing.unit || '').toLowerCase().trim().replace(/\.$/, '');
   const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
-  const unidadCatalogo = (catalogItem?.unidad || '').toLowerCase().trim();
+  const unidadCatalogo = (catalogItem?.unidad || '').toLowerCase().trim().replace(/\.$/, '');
 
   if (!unidadReceta || !unidadCatalogo) return null;
   if (unidadReceta === unidadCatalogo) return null;
   if (unidadReceta === 'no definido') return null;
 
-  const conocidas = [...UNIDADES_CHICAS, ...UNIDADES_GRANDES];
-  if (conocidas.includes(unidadReceta) && conocidas.includes(unidadCatalogo)) return null;
+  if (convertir(1, unidadReceta, unidadCatalogo) !== null) return null;
+
+  const baseReceta = normalizarUnidad(unidadReceta).unidad;
+  const baseCatalogo = normalizarUnidad(unidadCatalogo).unidad;
+  if (
+    esUnidadReconocida(unidadReceta) &&
+    esUnidadReconocida(unidadCatalogo) &&
+    baseReceta !== baseCatalogo
+  ) {
+    return `"${ing.name || 'un ingrediente'}" está en ${ing.unit} (${baseReceta === 'kg' ? 'peso' : 'volumen'}) y en el catálogo figura en ${catalogItem?.unidad} (${baseCatalogo === 'kg' ? 'peso' : 'volumen'}). `
+      + 'No se puede mezclar peso contra volumen automáticamente, así que el costo de ese plato puede salir mal.';
+  }
 
   return `"${ing.name || 'un ingrediente'}" está en ${ing.unit} y en el catálogo figura en ${catalogItem?.unidad}. `
     + 'El sistema no puede convertir entre esas dos unidades, así que el costo de ese plato puede salir mal.';

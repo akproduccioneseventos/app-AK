@@ -140,3 +140,13 @@ Medios: el publicador agenda 24 h antes entre las 21 y las 23 hs de Uruguay (`pu
 guardar; `perseguidor_presupuestos` duplica mensajes cada día (`motor-agentes.ts` ~210-287); `sitemap.ts` publica borradores;
 `las-direcciones-viejas-siguen-andando.test.ts` da siempre verde; AK Editor: `fotos.py` ~1332 con `cv2.imread`, servidor de un
 solo hilo, ids repetidos en `exportador_filmora.py`, boda en pantalla partida nunca usada.
+
+---
+
+## Falsos positivos y ya resueltos verificados al ejecutar la Orden 336 (23/11/2026)
+- **Candado en memoria de `invoices.ts` (`invoicesMutex`):** no permite pisar pagos entre instancias porque `saveInvoiceInner`, `addPaymentToInvoice` y `markInvoiceEmailSent` escriben dentro de transacciones de Firestore y `decidirGuardado`.
+- **Seguridad de `saveSocialPost`:** ya exigía `requirePermiso(PERMISOS.CRM)`; el defecto real confirmado y corregido era el `id` sin sanear hacia `path.join`/`fs.writeFile`.
+- **`TabHostShell` / 5 tarjetas de impresos / recap WhatsApp con `withGuestAccess` / celíacos en `invitados.tsx` y `hoja-de-cocina.ts`:** ya resueltos previamente (Orden 335 / previas), no se re-tocaron.
+- **Buzón `AudioContext` y `revokeObjectURL` (`src/app/evento/buzon/[fiestaId]/page.tsx`):** ya cerraba `audioCtxRef` al desmontar y revocaba sus `blob:` URLs.
+- **`chatWithGuestBot`:** puerta pública intencional con rate limit (registrada en `auditoria-puertas-abiertas.test.ts`); se eliminó la lectura de la fiesta enviada desde el navegador.
+- **`syncToFirestore` (A.4):** sigue paginando si supera el límite de 450 operaciones de una transacción de Firestore, pero dejó de caer a lotes sueltos sin transacción ante errores reales (sin modificar `readFromFirestore` ni `listCollectionFromFirestore`, tratados aparte en PR #1465).

@@ -626,7 +626,7 @@ export default function InvitadosPage() {
         </Tabs>
       </div>
 
-      {fiestaName && <GuestBotWidget fiesta={{ clienteNombre: fiestaName } as any} />}
+      {fiestaName && <GuestBotWidget fiesta={{ id: fiestaId, clienteNombre: fiestaName } as any} />}
     </div>
   );
 }

@@ -25,8 +25,65 @@ import { createHash } from 'crypto';
  */
 
 export const CLAVE_DE_LA_MARCA = '_leido';
+export const MARCA_LECTURA_FALLIDA = Symbol.for('ak.lecturaFallida');
 
-export type MarcaDeLectura = { v: string; h: string; w: string; plata?: Record<string, string> };
+export type MarcaDeLectura = {
+  v: string;
+  h: string;
+  w: string;
+  plata?: Record<string, string>;
+  campos?: Record<string, string>;
+  fallida?: boolean;
+};
+
+export function esLecturaFallida(valor: unknown): boolean {
+  if (!valor || typeof valor !== 'object') return false;
+  if (Boolean((valor as Record<PropertyKey, unknown>)[MARCA_LECTURA_FALLIDA])) return true;
+  if (Array.isArray(valor)) {
+    return valor.some((item) => Boolean(marcaDe(item)?.fallida));
+  }
+  return Boolean(marcaDe(valor)?.fallida);
+}
+
+/**
+ * Marca un dato devuelto por `readData` cuando la base falló o venció el tiempo,
+ * para que `decidirGuardado` nunca borre el resto de la colección si el caller
+ * agrega un elemento y guarda encima.
+ */
+export function marcarLecturaFallida<T>(valor: T, motivo?: string): T {
+  if (!valor || typeof valor !== 'object') return valor;
+  if (Array.isArray(valor)) {
+    const copia = valor.map((item) => {
+      if (item && typeof item === 'object' && !Array.isArray(item) && !marcaDe(item)) {
+        const limpio = sacarMarcas(item);
+        return {
+          ...item,
+          [CLAVE_DE_LA_MARCA]: {
+            v: '',
+            h: huellaDe(limpio),
+            w: '',
+            fallida: true,
+          } satisfies MarcaDeLectura,
+        };
+      }
+      return item;
+    }) as unknown as T;
+    Object.defineProperty(copia, MARCA_LECTURA_FALLIDA, {
+      value: motivo || true,
+      enumerable: false,
+      configurable: true,
+    });
+    return copia;
+  }
+  const proto = Object.getPrototypeOf(valor);
+  const copia = (proto === Object.prototype || proto === null ? { ...(valor as object) } : valor) as T;
+  Object.defineProperty(copia, MARCA_LECTURA_FALLIDA, {
+    value: motivo || true,
+    enumerable: false,
+    configurable: true,
+  });
+  return copia;
+}
 
 export class ChoqueAlGuardar extends Error {
   readonly ids: string[];
@@ -94,10 +151,12 @@ export function marcarLectura(docs: Array<{ datos: Record<string, unknown>; vers
 export function marcaDe(item: unknown): MarcaDeLectura | null {
   const m = item && typeof item === 'object' ? (item as Record<string, unknown>)[CLAVE_DE_LA_MARCA] : null;
   if (!m || typeof m !== 'object') return null;
-  const { v, h, w, plata } = m as Record<string, unknown>;
+  const { v, h, w, plata, campos, fallida } = m as Record<string, unknown>;
   if (typeof v === 'string' && typeof h === 'string' && typeof w === 'string') {
     const res: MarcaDeLectura = { v, h, w };
     if (plata && typeof plata === 'object') res.plata = plata as Record<string, string>;
+    if (campos && typeof campos === 'object') res.campos = campos as Record<string, string>;
+    if (fallida === true) res.fallida = true;
     return res;
   }
   return null;
@@ -111,12 +170,14 @@ export function decidirGuardado<T>(
   lista: T[],
   idDe: (item: T) => string | null,
   enLaBase: Map<string, string>,
+  opciones?: { lecturaFallida?: boolean },
 ): { escribir: T[]; borrar: string[]; choques: string[]; sinMarcas: boolean } {
   const escribir: T[] = [];
   const choques: string[] = [];
   const idsDeLaLista = new Set<string>();
   let hastaDondeSeVio = '';
   let algunaMarca = false;
+  let lecturaFallida = Boolean(opciones?.lecturaFallida || esLecturaFallida(lista));
 
   for (const item of lista) {
     const id = idDe(item);
@@ -126,6 +187,7 @@ export function decidirGuardado<T>(
       escribir.push(item);
       continue;
     }
+    if (marca.fallida) lecturaFallida = true;
     algunaMarca = true;
     if (marca.w > hastaDondeSeVio) hastaDondeSeVio = marca.w;
     if (huellaDe(item) === marca.h) continue; // nadie lo tocó: no se reescribe
@@ -138,12 +200,15 @@ export function decidirGuardado<T>(
   }
 
   const borrar: string[] = [];
-  for (const [id, version] of enLaBase) {
-    if (idsDeLaLista.has(id)) continue;
-    // Con marcas: sólo lo que ya estaba cuando se leyó; lo creado o cambiado después es de
-    // otro. Sin ninguna marca (una lista armada de cero) se sigue haciendo lo de siempre, para
-    // no romper pantallas que reemplazan la lista entera a propósito.
-    if (!algunaMarca || version <= hastaDondeSeVio) borrar.push(id);
+  // Si la lectura vino de una base caída o vencida, nunca se borra por omisión el resto de la lista.
+  if (!lecturaFallida) {
+    for (const [id, version] of enLaBase) {
+      if (idsDeLaLista.has(id)) continue;
+      // Con marcas: sólo lo que ya estaba cuando se leyó; lo creado o cambiado después es de
+      // otro. Sin ninguna marca (una lista armada de cero) se sigue haciendo lo de siempre, para
+      // no romper pantallas que reemplazan la lista entera a propósito.
+      if (!algunaMarca || version <= hastaDondeSeVio) borrar.push(id);
+    }
   }
   return { escribir, borrar, choques, sinMarcas: !algunaMarca };
 }
@@ -154,12 +219,18 @@ export function marcarItemLectura<T extends Record<string, unknown>>(
   camposPlata?: readonly string[],
 ): T & { [CLAVE_DE_LA_MARCA]: MarcaDeLectura } {
   const v = version || String((item as any)._syncedAt ?? (item as any).version ?? '');
-  const h = huellaDe(sacarMarcas(item));
+  const limpio = sacarMarcas(item);
+  const h = huellaDe(limpio);
   const plata: Record<string, string> = {};
   if (camposPlata) {
     for (const campo of camposPlata) {
       plata[campo] = huellaDe((item as Record<string, unknown>)[campo]);
     }
+  }
+  const campos: Record<string, string> = {};
+  for (const clave of Object.keys(limpio)) {
+    if (clave === '_syncedAt' || clave === CLAVE_DE_LA_MARCA) continue;
+    campos[clave] = huellaDe((limpio as Record<string, unknown>)[clave]);
   }
   return {
     ...item,
@@ -168,6 +239,7 @@ export function marcarItemLectura<T extends Record<string, unknown>>(
       h,
       w: v || h,
       ...(camposPlata ? { plata } : {}),
+      campos,
     },
   };
 }

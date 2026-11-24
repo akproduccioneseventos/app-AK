@@ -76,14 +76,25 @@ export const despertadorTareasAutomaticas = functions
         headers['Authorization'] = `Bearer ${cronSecret}`;
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ origen: 'despertador' }),
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90_000);
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ origen: 'despertador' }),
+          signal: controller.signal,
+        });
 
-      const body = await response.text();
-      functions.logger.info(`[Despertador] Puesta al día ejecutada. Status: ${response.status}`, { body });
+        const body = await response.text();
+        if (!response.ok) {
+          functions.logger.error(`[Despertador] El despachador respondió con error HTTP ${response.status}`, { body });
+          return;
+        }
+        functions.logger.info(`[Despertador] Puesta al día ejecutada. Status: ${response.status}`, { body });
+      } finally {
+        clearTimeout(timeoutId);
+      }
     } catch (err: any) {
       functions.logger.error('[Despertador] Fallo en llamada al despachador:', err?.message || err);
     }

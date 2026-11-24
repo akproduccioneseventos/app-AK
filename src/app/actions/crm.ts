@@ -701,7 +701,7 @@ export async function registerContractDeposit(params: {
   return { updatedPresupuesto, pagoId, ...(avisoFactura ? { avisoFactura } : {}) };
 }
 
-export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string; aviso?: string }> {
+export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string; aviso?: string; avisoDeLaSena?: string }> {
   try {
     const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
@@ -916,7 +916,11 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       icono: 'PartyPopper'
     });
 
-    return { success: true, fiestaId: newFiesta.id };
+    return {
+      success: true,
+      fiestaId: newFiesta.id,
+      ...(avisoDeLaSena ? { aviso: avisoDeLaSena, avisoDeLaSena } : {}),
+    };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

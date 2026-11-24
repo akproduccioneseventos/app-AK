@@ -82,6 +82,7 @@ export function SyncStatusIndicator({
     window.addEventListener('ak-offline-media-updated', handleMediaUpdated);
 
     const interval = setInterval(async () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       const count = await getPendingOfflineMediaCount(fiestaId, moduleId);
       setPendingCount(count);
       if (count > 0 && navigator.onLine && !isSyncingRef.current) {
@@ -92,7 +93,7 @@ export function SyncStatusIndicator({
           }
         });
       }
-    }, 3000);
+    }, 15000);
 
     return () => {
       window.removeEventListener('online', handleOnline);

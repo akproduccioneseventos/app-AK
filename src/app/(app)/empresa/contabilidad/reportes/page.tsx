@@ -30,7 +30,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('es-ES');
+const formatDate = (dateString: string) => {
+  const soloDia = dateString?.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (soloDia) {
+    return new Date(Number(soloDia[1]), Number(soloDia[2]) - 1, Number(soloDia[3])).toLocaleDateString('es-ES');
+  }
+  return new Date(dateString).toLocaleDateString('es-ES');
+};
 
 const MESES_NOMBRES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -121,8 +127,9 @@ function ReportesContabilidadContent() {
   const handlePrint = () => window.print();
 
   const getNombreMes = (): string => {
-    if (startDate) {
-      return `${MESES_NOMBRES[startDate.getMonth()]} de ${startDate.getFullYear()}`;
+    const ref = rangoDelReporte?.from || startDate;
+    if (ref) {
+      return `${MESES_NOMBRES[ref.getMonth()]} de ${ref.getFullYear()}`;
     }
     return 'el período';
   };

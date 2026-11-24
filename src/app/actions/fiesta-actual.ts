@@ -5,6 +5,9 @@
  */
 import { hoyEnUruguay } from '@/lib/utils';
 import { readData } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
+import { esFiestaDemo, dedupeImportedEventCopies } from '@/lib/events/event-ordering';
+import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
 import * as ConfigModule from './fiesta/configuracion.actions';
@@ -222,5 +225,81 @@ export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiesta
     return { success: false, error: 'No hay fiesta programada para hoy.' };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al buscar fiesta de hoy.' };
+  }
+}
+
+export interface KioscoFiestaOption {
+  id: string;
+  configuracion: {
+    nombreEvento: string;
+    fechaEvento: string;
+    horaInicio?: string;
+  };
+}
+
+/**
+ * Lista mínima de eventos para la puerta única de estaciones (`/evento/inicio`),
+ * sin exigir sesión de equipo:
+ * - Si hay sesión de equipo con permisos, devuelve los eventos activos que puede operar.
+ * - Si no hay sesión (tablet del salón), devuelve la fiesta de hoy y opcionalmente la que
+ *   coincida con `codigoFiesta`, exponiendo únicamente id, nombre y fecha (cero datos privados).
+ */
+export async function getFiestasParaKiosco(codigoFiesta?: string): Promise<{
+  success: boolean;
+  fiestas: KioscoFiestaOption[];
+  requiereCodigo: boolean;
+  error?: string;
+}> {
+  try {
+    const { quienEsElEquipo, usuarioDelEquipo } = await import('@/lib/auth/equipo-de-la-fiesta');
+    const [usuario, esEquipo, crudas] = await Promise.all([
+      usuarioDelEquipo(),
+      quienEsElEquipo(),
+      leerFiestasCrudas(false),
+    ]);
+
+    const activas = dedupeImportedEventCopies(crudas).filter((f) => {
+      if (esFiestaDemo(f)) return false;
+      const estado = (f.estado || '').toLowerCase();
+      return estado !== 'suspendida' && estado !== 'cancelada' && estado !== 'archivada';
+    });
+
+    const todayStr = hoyEnUruguay();
+    const codigoNormalizado = normalizarCodigoFiesta(codigoFiesta);
+
+    const visibles = activas.filter((f) => {
+      if (usuario) return esEquipo(f);
+      if (f.configuracion?.fechaEvento === todayStr) return true;
+      if (codigoNormalizado && codigoDeFiesta(f) === codigoNormalizado) return true;
+      return false;
+    });
+
+    const sorted = visibles
+      .sort(
+        (a, b) =>
+          new Date(b.configuracion?.fechaEvento || 0).getTime() -
+          new Date(a.configuracion?.fechaEvento || 0).getTime(),
+      )
+      .map((f) => ({
+        id: f.id,
+        configuracion: {
+          nombreEvento: f.configuracion?.nombreEvento || 'Fiesta sin nombre',
+          fechaEvento: f.configuracion?.fechaEvento || '',
+          ...(f.configuracion?.horaInicio ? { horaInicio: f.configuracion.horaInicio } : {}),
+        },
+      }));
+
+    return {
+      success: true,
+      fiestas: sorted,
+      requiereCodigo: !usuario,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      fiestas: [],
+      requiereCodigo: true,
+      error: error?.message || 'No se pudieron cargar los eventos del servidor.',
+    };
   }
 }

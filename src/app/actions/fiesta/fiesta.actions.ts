@@ -60,7 +60,12 @@ import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { dedupeImportedEventCopies } from '@/lib/events/event-ordering';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+import {
+  CAMPOS_DEL_EQUIPO,
+  CAMPOS_PROTEGIDOS_DEL_PORTAL,
+  recortarFiestaParaAfuera,
+  recortarFiestaPorPerfil,
+} from '@/lib/fiesta/recortar-para-afuera';
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 import { marcarItemLectura, marcaDe, huellaDe, sacarMarcas, CLAVE_DE_LA_MARCA } from '@/lib/marca-de-lectura';
 import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
@@ -302,11 +307,13 @@ function validatePersonalAssignments(personalAsignado: FiestaEnPlanificacion['pe
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   await requireFiestaWriteAccess(fiestaData.id);
-  if (!(await esEquipoParaFiesta(fiestaData.id))) {
-    // Entró por el portal del cliente: lo interno del equipo (costos, personal, pagos a
-    // proveedores) no lo cambia él. Se saca lo que mandó y se repone lo guardado.
+  const esEquipo = await esEquipoParaFiesta(fiestaData.id);
+  const marcaAlEntrar = marcaDe(fiestaData);
+  if (!esEquipo) {
+    // Entró por el portal del cliente: lo interno del equipo y la configuración estructural
+    // (módulos contratados, ajustes del portal, fecha/invitados contratados) no lo cambia él.
     const copia: Record<string, unknown> = { ...fiestaData };
-    for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
+    for (const campo of [...CAMPOS_DEL_EQUIPO, ...CAMPOS_PROTEGIDOS_DEL_PORTAL]) delete copia[campo];
     fiestaData = copia as unknown as FiestaEnPlanificacion;
   }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
@@ -330,12 +337,54 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     const { recortarFiestaPorPerfil, reponerLoDelPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
 
     const r = await libActualizarFiesta(fiestaData.id, (actual) => {
-      let resultado = { ...fiestaData };
+      const marca = marcaAlEntrar ?? marcaDe(fiestaData);
+      const camposPlataSet = new Set<string>(CAMPOS_DE_PLATA_Y_CONTRATO);
+      const camposProtegidosPortal = new Set<string>([...CAMPOS_DEL_EQUIPO, ...CAMPOS_PROTEGIDOS_DEL_PORTAL]);
+      let resultado: FiestaEnPlanificacion;
+
+      if (marca?.campos) {
+        // Solo se aplican los campos que la pantalla cambió respecto a su propia lectura;
+        // los demás (por ejemplo RSVP o pedidos de barra concurrentes) quedan tal cual en `actual`.
+        const mezclado: Record<string, unknown> = { ...actual };
+        const entrada = fiestaData as unknown as Record<string, unknown>;
+        for (const clave of Object.keys(entrada)) {
+          if (clave === CLAVE_DE_LA_MARCA || clave === '_syncedAt' || clave === 'id') continue;
+          if (camposPlataSet.has(clave) || clave === 'estadosCompra') continue;
+          if (!esEquipo && camposProtegidosPortal.has(clave)) continue;
+          const cambioCampo = !(clave in marca.campos) || huellaDe(entrada[clave]) !== marca.campos[clave];
+          if (cambioCampo) {
+            mezclado[clave] = entrada[clave];
+          }
+        }
+        resultado = mezclado as unknown as FiestaEnPlanificacion;
+      } else {
+        resultado = { ...fiestaData };
+        if (!esEquipo) {
+          const resMap = resultado as unknown as Record<string, unknown>;
+          const actMap = actual as unknown as Record<string, unknown>;
+          for (const campo of CAMPOS_PROTEGIDOS_DEL_PORTAL) {
+            if (campo in actMap) resMap[campo] = actMap[campo];
+            else delete resMap[campo];
+          }
+        }
+      }
+
+      if (!esEquipo && actual.configuracion) {
+        resultado = {
+          ...resultado,
+          configuracion: {
+            ...(resultado.configuracion || actual.configuracion),
+            fechaEvento: actual.configuracion.fechaEvento,
+            invitadosEstimados: actual.configuracion.invitadosEstimados,
+            ...(actual.configuracion.presupuestoEstimado !== undefined ? { presupuestoEstimado: actual.configuracion.presupuestoEstimado } : {}),
+            ...(actual.configuracion.clienteId !== undefined ? { clienteId: actual.configuracion.clienteId } : {}),
+          },
+        };
+      }
 
       if (sinPlata) {
         resultado = reponerLaPlata(resultado, actual);
       } else {
-        const marca = marcaDe(fiestaData);
         for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) {
           const valorPantalla = (fiestaData as unknown as Record<string, unknown>)[campo];
           const valorActual = (actual as unknown as Record<string, unknown>)[campo];
@@ -359,11 +408,18 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
             throw new Error('Alguien cambió los pagos de esta fiesta mientras la tenías abierta. Recargá y volvé a intentar.');
           }
 
-          if (!pantallaCambio) {
-            if (valorActual !== undefined) {
-              (resultado as Record<string, unknown>)[campo] = valorActual;
+          const resMap = resultado as unknown as Record<string, unknown>;
+          if (pantallaCambio) {
+            if (valorPantalla !== undefined) {
+              resMap[campo] = valorPantalla;
             } else {
-              delete (resultado as Record<string, unknown>)[campo];
+              delete resMap[campo];
+            }
+          } else {
+            if (valorActual !== undefined) {
+              resMap[campo] = valorActual;
+            } else {
+              delete resMap[campo];
             }
           }
         }
@@ -380,6 +436,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
             const huellaLeida = marca.plata['estadosCompra'];
             pantallaCambioCompras = huellaComprasPantalla !== huellaLeida;
             baseCambioCompras = huellaComprasActual !== huellaLeida;
+          } else {
+            pantallaCambioCompras = !mismoValor(comprasPantalla, comprasActual);
           }
 
           if (pantallaCambioCompras && baseCambioCompras) {
@@ -393,7 +451,9 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
             }
           }
 
-          if (!pantallaCambioCompras) {
+          if (pantallaCambioCompras) {
+            resultado.estadosCompra = comprasPantalla;
+          } else {
             resultado.estadosCompra = actual.estadosCompra;
           }
         }
@@ -411,7 +471,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
         resultado.codigoFiesta = normalizarCodigoFiesta(resultado.codigoFiesta);
       }
       return conLaConstanciaGuardada(resultado, actual);
-    });
+    }, { publicRsvp: !esEquipo });
 
     if (!r.success) return { success: false, error: r.error || 'No se pudo guardar el evento.' };
     if (!quienGuarda.success) return { success: true };
@@ -423,7 +483,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     const fiestaConCodigo: FiestaEnPlanificacion = normalizarCodigoFiesta(fiestaData.codigoFiesta)
       ? { ...fiestaData, codigoFiesta: normalizarCodigoFiesta(fiestaData.codigoFiesta) }
       : { ...fiestaData, codigoFiesta: codigoGenerado || codigoDeFiesta({ id: fiestaData.id }) };
-    await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaConCodigo));
+    await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaConCodigo, guardada));
     const { verifySession } = await import('@/lib/auth/session-token');
     const sesion = await verifySession();
     if (!sesion.success) return { success: true };
@@ -471,12 +531,32 @@ export async function updateFiestaPartial(
       return { success: false, error: e.message };
     }
   }
+  let esEquipo = true;
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
-    if (!(await esEquipoParaFiesta(fiestaId))) {
-      // El cliente no toca lo interno del equipo (auditoría 69).
-      const tocaLoDelEquipo = CAMPOS_DEL_EQUIPO.some((campo) => campo in (partialData as Record<string, unknown>));
+    esEquipo = await esEquipoParaFiesta(fiestaId);
+    if (!esEquipo) {
+      // El cliente no toca lo interno del equipo ni módulos/configuración estructural (auditoría 69 / 336).
+      const tocaLoDelEquipo = [...CAMPOS_DEL_EQUIPO, ...CAMPOS_PROTEGIDOS_DEL_PORTAL].some(
+        (campo) => campo in (partialData as Record<string, unknown>),
+      );
       if (tocaLoDelEquipo) return { success: false, error: 'Esa parte de la fiesta la maneja el equipo de AK.' };
+      if (partialData.configuracion && typeof partialData.configuracion === 'object') {
+        const cfg = partialData.configuracion as unknown as Record<string, unknown>;
+        if ('fechaEvento' in cfg || 'invitadosEstimados' in cfg || 'presupuestoEstimado' in cfg || 'clienteId' in cfg) {
+          const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+          const actual = await getFiestaByIdRaw(fiestaId);
+          const cfgActual = (actual?.configuracion ?? {}) as Record<string, unknown>;
+          const cambiaBloqueado =
+            ('fechaEvento' in cfg && !mismoValor(cfg.fechaEvento, cfgActual.fechaEvento)) ||
+            ('invitadosEstimados' in cfg && !mismoValor(cfg.invitadosEstimados, cfgActual.invitadosEstimados)) ||
+            ('presupuestoEstimado' in cfg && !mismoValor(cfg.presupuestoEstimado, cfgActual.presupuestoEstimado)) ||
+            ('clienteId' in cfg && !mismoValor(cfg.clienteId, cfgActual.clienteId));
+          if (cambiaBloqueado) {
+            return { success: false, error: 'Esa parte de la fiesta la maneja el equipo de AK.' };
+          }
+        }
+      }
     }
   } else {
     await requireAppSession();
@@ -520,7 +600,18 @@ export async function updateFiestaPartial(
     const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
     const r = await actualizarFiesta(fiestaId, (actual) => {
       noPisaLoFirmado(actual);
-      return { ...actual, ...sinLaPlata(partialData, actual) };
+      const merged = { ...actual, ...sinLaPlata(partialData, actual) };
+      if (!esEquipo && partialData.configuracion && actual.configuracion) {
+        merged.configuracion = {
+          ...actual.configuracion,
+          ...partialData.configuracion,
+          fechaEvento: actual.configuracion.fechaEvento,
+          invitadosEstimados: actual.configuracion.invitadosEstimados,
+          ...(actual.configuracion.presupuestoEstimado !== undefined ? { presupuestoEstimado: actual.configuracion.presupuestoEstimado } : {}),
+          ...(actual.configuracion.clienteId !== undefined ? { clienteId: actual.configuracion.clienteId } : {}),
+        };
+      }
+      return merged;
     });
     return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
   }
@@ -1391,21 +1482,22 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
   // Borrar, archivar o cancelar una fiesta saca plata y trabajo de la cuenta: no alcanza con tener
   // sesión (el personal y el operador también la tienen). Pregunta 47, 10/10/2026.
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
-    if (isProduction) {
+    if (!shouldUseLocalJsonOnly()) {
       const { dbAdmin } = await import('@/lib/firebase/server');
       if (dbAdmin) {
         await dbAdmin.collection(FIESTAS_DIR).doc(fiestaId).delete();
-        return { success: true };
       }
     }
-    // Development: filesystem fallback
-    const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-    const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f === `${fiestaId}.json`);
-    if (fileToDelete) {
-      await fs.unlink(path.join(dataDir, fileToDelete));
+    // Limpiar también copias JSON locales en ambos directorios para evitar que la fiesta "resucite".
+    for (const root of [path.join(process.cwd(), 'data', FIESTAS_DIR), path.join(process.cwd(), 'src', 'data', FIESTAS_DIR)]) {
+      try {
+        await fs.unlink(path.join(root, `${fiestaId}.json`));
+      } catch (unlinkErr: any) {
+        if (unlinkErr?.code !== 'ENOENT') {
+          logger.warn(`[deleteFiesta] No se pudo limpiar copia local ${fiestaId}:`, logger.compactError(unlinkErr));
+        }
+      }
     }
     return { success: true };
   } catch (error: any) {
@@ -1433,9 +1525,9 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
-    if (isProduction) {
+    let foundInFirestore = false;
+    if (!shouldUseLocalJsonOnly()) {
       const { dbAdmin } = await import('@/lib/firebase/server');
       if (dbAdmin) {
         // In Firestore the archive doc ID is fiesta_archivada_{date}_{fiestaId}
@@ -1445,17 +1537,26 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
           const batch = dbAdmin.batch();
           snapshot.docs.forEach((doc: { ref: any }) => batch.delete(doc.ref));
           await batch.commit();
-          return { success: true };
+          foundInFirestore = true;
         }
-        return { success: false, error: "Archivo archivado no encontrado." };
       }
     }
-    // Development: filesystem fallback
-    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-    const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f.endsWith(`_${fiestaId}.json`));
-    if (fileToDelete) {
-      await fs.unlink(path.join(dataDir, fileToDelete));
+    let foundLocally = false;
+    for (const dataDir of [path.join(process.cwd(), 'data', ARCHIVE_DIR), path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR)]) {
+      try {
+        const files = await fs.readdir(dataDir);
+        const fileToDelete = files.find(f => f.endsWith(`_${fiestaId}.json`));
+        if (fileToDelete) {
+          await fs.unlink(path.join(dataDir, fileToDelete));
+          foundLocally = true;
+        }
+      } catch (dirErr: any) {
+        if (dirErr?.code !== 'ENOENT') {
+          logger.warn(`[deleteFiestaArchivada] Error limpiando ${dataDir}:`, logger.compactError(dirErr));
+        }
+      }
+    }
+    if (foundInFirestore || foundLocally) {
       return { success: true };
     }
     return { success: false, error: "Archivo archivado no encontrado." };

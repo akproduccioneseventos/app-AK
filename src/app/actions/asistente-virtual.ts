@@ -423,21 +423,41 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
  * Asistente para el Portal del Invitado.
  * CERO acceso a datos financieros, CERO acceso a otras mesas o personas.
  */
+const MAX_GUEST_ASSISTANT_MESSAGE_CHARS = 500;
+const MAX_GUEST_ASSISTANT_HISTORY = 10;
+
 export async function chatConAsistenteInvitado(
   fiestaId: string,
   history: MessageData[],
   newMessage: string,
   invitadoNombre?: string,
-  mesaAsignada?: string
+  mesaAsignada?: string,
+  credenciales?: { guestId?: string; guestAccessToken?: string },
 ): Promise<AssistantResponse> {
   try {
     if (!fiestaId) {
       return { success: false, error: 'Identificador de fiesta no especificado.' };
     }
+    const cleanMessage = String(newMessage || '').trim();
+    if (!cleanMessage) {
+      return { success: false, error: 'Escribí una pregunta para poder ayudarte.' };
+    }
+    if (cleanMessage.length > MAX_GUEST_ASSISTANT_MESSAGE_CHARS) {
+      return {
+        success: false,
+        error: `El mensaje es demasiado largo (máximo ${MAX_GUEST_ASSISTANT_MESSAGE_CHARS} caracteres).`,
+      };
+    }
+
+    const guestId = credenciales?.guestId?.trim() || '';
+    const guestAccessToken = credenciales?.guestAccessToken?.trim() || '';
+    if (!guestId || !guestAccessToken) {
+      return { success: false, error: 'Necesitás tu enlace personal de invitado para usar el asistente.' };
+    }
 
     await enforcePublicRateLimit({
       scope: `portal-invitado-${fiestaId}`,
-      identity: fiestaId,
+      identity: `${fiestaId}:${guestId}`,
       limit: 25,
       windowMs: 60 * 60 * 1000,
     });
@@ -449,11 +469,23 @@ export async function chatConAsistenteInvitado(
       };
     }
 
-    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-    const fiesta = await getFiestaById(fiestaId);
+    const [{ getFiestaById }, { LECTURA_COMPLETA }, { hasPublicGuestAccess }] = await Promise.all([
+      import('@/app/actions/fiesta/fiesta.actions'),
+      import('@/lib/fiesta/lectura-completa'),
+      import('@/lib/guest-portal-public-data'),
+    ]);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) {
       return { success: false, error: 'No se encontró la información del evento.' };
     }
+
+    const guest = (fiesta.invitados || []).find((inv: any) => hasPublicGuestAccess(inv, guestId, guestAccessToken));
+    if (!guest) {
+      return { success: false, error: 'Tu acceso de invitado no es válido para esta fiesta.' };
+    }
+
+    const nombreVerificado = guest.nombre || invitadoNombre;
+    const mesaVerificada = guest.tableNumber || mesaAsignada;
 
     const nombreEvento = fiesta.configuracion?.nombreEvento || fiesta.id || 'El Evento';
     const fechaEvento = fiesta.configuracion?.fechaEvento || 'Fecha por confirmar';
@@ -468,8 +500,8 @@ DATOS DISPONIBLES:
 - Fecha: ${fechaEvento}
 - Salón / Lugar: ${salon}
 - Dirección / Ubicación: ${direccion}
-${invitadoNombre ? `- Invitado: ${invitadoNombre}` : ''}
-${mesaAsignada ? `- Mesa Asignada: Mesa ${mesaAsignada}` : ''}
+${nombreVerificado ? `- Invitado: ${nombreVerificado}` : ''}
+${mesaVerificada ? `- Mesa Asignada: Mesa ${mesaVerificada}` : ''}
 
 REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
 1. CERO DATOS DE DINERO: NUNCA digas presupuestos, costos, precios de la fiesta, si se pagó o cuánto se debe. Si te preguntan de plata, decí: "Como asistente de invitados no manejo información financiera del evento."
@@ -481,13 +513,19 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
 
     const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
     const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
+    const safeHistory: MessageData[] = (Array.isArray(history) ? history : [])
+      .slice(-MAX_GUEST_ASSISTANT_HISTORY)
+      .map((m) => ({
+        role: m.role === 'model' ? 'model' : 'user',
+        content: [{ text: (Array.isArray(m.content) ? m.content.map((c: any) => String(c?.text || '')).join('') : '').slice(0, MAX_GUEST_ASSISTANT_MESSAGE_CHARS) }],
+      }));
 
     const response = await generateWithGeminiFallback({
       model: effectiveModel,
       system: systemPrompt,
       messages: [
-        ...history,
-        { role: 'user', content: [{ text: newMessage }] }
+        ...safeHistory,
+        { role: 'user', content: [{ text: cleanMessage }] }
       ]
     });
 

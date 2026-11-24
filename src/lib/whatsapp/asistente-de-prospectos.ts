@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { AsyncMutex } from '@/lib/mutex';
-import { readData, writeData } from '@/lib/data-service';
+import { mutateDataItem, readData, writeData } from '@/lib/data-service';
 import { buildWhatsAppLink, normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import type { AsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
@@ -60,6 +60,7 @@ export interface ResultadoAtencionProspecto {
 
 const ESTADO_FILE = 'asistente-prospectos-estados.json';
 const estadoMutex = new AsyncMutex();
+const crmSyncMutex = new AsyncMutex();
 
 function normalizarTexto(texto: string): string {
   return String(texto || '')
@@ -304,23 +305,40 @@ async function sincronizarEstadoEnCrmLead(
   patch: Partial<Pick<CrmLead, 'atiende' | 'referenciaCodigo'>>,
 ): Promise<string | undefined> {
   try {
-    const leads = await readData<CrmLead[]>('crm-leads.json', []);
-    if (!Array.isArray(leads) || leads.length === 0) return undefined;
+    const leadsIniciales = await readData<CrmLead[]>('crm-leads.json', []);
+    if (!Array.isArray(leadsIniciales) || leadsIniciales.length === 0) return undefined;
 
-    const idx = leads.findIndex((l) => {
+    const matchLead = (l: CrmLead) => {
       if (coincideLeadConCanal(l, canal, remitenteId)) return true;
       if (l.referenciaCodigo && patch.referenciaCodigo && l.referenciaCodigo === patch.referenciaCodigo) return true;
       return false;
-    });
-
-    if (idx === -1) return undefined;
-    leads[idx] = {
-      ...leads[idx],
-      ...patch,
-      updatedAt: new Date().toISOString(),
     };
-    await writeData('crm-leads.json', leads).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
-    return leads[idx].id;
+
+    const objetivo = leadsIniciales.find(matchLead);
+    if (!objetivo?.id) return undefined;
+
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true' && typeof mutateDataItem === 'function') {
+      const actualizado = await mutateDataItem<CrmLead>('crm-leads.json', 'crm_leads', objetivo.id, (actual) => ({
+        ...actual,
+        ...patch,
+        updatedAt: new Date().toISOString(),
+      }));
+      return actualizado?.id || objetivo.id;
+    }
+
+    return await crmSyncMutex.runExclusive(async () => {
+      const leads = await readData<CrmLead[]>('crm-leads.json', []);
+      if (!Array.isArray(leads) || leads.length === 0) return undefined;
+      const idx = leads.findIndex((l) => l.id === objetivo.id || matchLead(l));
+      if (idx === -1) return undefined;
+      leads[idx] = {
+        ...leads[idx],
+        ...patch,
+        updatedAt: new Date().toISOString(),
+      };
+      await writeData('crm-leads.json', leads).catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
+      return leads[idx].id;
+    });
   } catch {
     return undefined;
   }

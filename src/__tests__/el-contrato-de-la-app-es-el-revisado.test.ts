@@ -5,6 +5,7 @@ import { readData } from '@/lib/data-service';
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ user: { id: 'admin_1', role: 'admin' } }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/lib/data-service', () => ({

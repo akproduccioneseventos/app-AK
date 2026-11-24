@@ -49,7 +49,6 @@ import type {
   FaqItem,
 } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { notifyClientArrival } from '@/app/actions/fiesta/live.actions';
 import {
@@ -57,8 +56,12 @@ import {
   updateClientChecklistItem,
   updateClientNotes,
   getBudgetTokenForPortal,
+  getFiestaForPortalSession,
+  getPortalPublicPreview,
   initializePortalSession,
+  verificarSesionPortalCliente,
 } from '@/app/actions/fiesta/portal.actions';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyLogo } from '@/components/company-logo';
 import { Badge } from '@/components/ui/badge';
@@ -315,19 +318,12 @@ function ClientPortalContent() {
 
     async function loadFiesta() {
       try {
-        const data = await getFiestaById(fiestaId!);
-        if (!data || !data.clientPortalSettings?.enabled) {
-          setError('El portal para este evento no está habilitado o el evento no existe.');
-          return;
-        }
-
-        setFiesta(data);
-        setNotes(data.clientNotes ?? '');
-
-        const storedAuthKey = sessionStorage.getItem(sessionKey);
-        if (storedAuthKey) {
-          const authRes = await initializePortalSession(fiestaId!, storedAuthKey);
-          if (authRes.success) {
+        const hasServerSession = await verificarSesionPortalCliente(fiestaId!).catch(() => false);
+        if (hasServerSession) {
+          const data = await getFiestaForPortalSession(fiestaId!);
+          if (data) {
+            setFiesta(data);
+            setNotes(data.clientNotes ?? '');
             setIsAuthenticated(true);
             if (data.presupuestoId) {
               const fetchedToken = await getBudgetTokenForPortal(fiestaId!);
@@ -337,10 +333,44 @@ function ClientPortalContent() {
               setPresupuesto(null);
             }
             return;
+          }
+        }
+
+        const storedAuthKey = sessionStorage.getItem(sessionKey);
+        if (storedAuthKey) {
+          const authRes = await initializePortalSession(fiestaId!, storedAuthKey);
+          if (authRes.success) {
+            const data = await getFiestaForPortalSession(fiestaId!);
+            if (data) {
+              setFiesta(data);
+              setNotes(data.clientNotes ?? '');
+              setIsAuthenticated(true);
+              if (data.presupuestoId) {
+                const fetchedToken = await getBudgetTokenForPortal(fiestaId!);
+                const presupuestoData = await getPresupuestoById(data.presupuestoId, fetchedToken || undefined);
+                setPresupuesto(presupuestoData);
+              } else {
+                setPresupuesto(null);
+              }
+              return;
+            }
           } else {
             sessionStorage.removeItem(sessionKey);
           }
         }
+
+        const preview = await getPortalPublicPreview(fiestaId!);
+        if (!preview || !preview.enabled) {
+          setError('El portal para este evento no está habilitado o el evento no existe.');
+          return;
+        }
+
+        setFiesta({
+          id: preview.id,
+          configuracion: preview.configuracion,
+          clientPortalSettings: { enabled: true },
+        } as FiestaEnPlanificacion);
+        setNotes('');
         setPresupuesto(null);
       } catch {
         setError('No se pudo cargar la información del evento.');
@@ -359,12 +389,18 @@ function ClientPortalContent() {
     const res = await initializePortalSession(fiestaId, password);
     if (res.success) {
       sessionStorage.setItem(`${SESSION_KEY_PREFIX}${fiestaId}`, password);
+      const fullFiesta = await getFiestaForPortalSession(fiestaId);
+      if (fullFiesta) {
+        setFiesta(fullFiesta);
+        setNotes(fullFiesta.clientNotes ?? '');
+      }
       setIsAuthenticated(true);
       setError(null);
 
-      if (fiesta.presupuestoId) {
+      const presupuestoId = fullFiesta?.presupuestoId ?? fiesta.presupuestoId;
+      if (presupuestoId) {
         const fetchedToken = await getBudgetTokenForPortal(fiestaId);
-        const presupuestoData = await getPresupuestoById(fiesta.presupuestoId, fetchedToken || undefined);
+        const presupuestoData = await getPresupuestoById(presupuestoId, fetchedToken || undefined);
         setPresupuesto(presupuestoData);
       } else {
         setPresupuesto(null);
@@ -599,13 +635,13 @@ function ClientPortalContent() {
   });
 
   const checklistItems = fiesta.clientChecklist ?? [];
-  const itinerario = fiesta.timeline ?? fiesta.programa?.map((item) => ({
+  const itinerario = fiesta.timeline ?? ordenarPorHoraDelEvento(fiesta.programa ?? [], fiesta.configuracion?.horaInicio).map((item) => ({
     id: item.id,
     nombre: item.titulo,
     emoji: item.icono ?? '🕒',
     fechaProgramada: item.hora,
     completado: false,
-  })) ?? [];
+  }));
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
   const cuentasBancarias: CuentaBancaria[] = settings.cuentasBancarias ?? [];
   const dressCode = fiesta.invitacionDigital?.dressCode;

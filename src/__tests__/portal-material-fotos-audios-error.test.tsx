@@ -13,7 +13,7 @@ jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
 }));
 jest.mock('@/app/actions/fiesta/portal.actions', () => ({
-  initializePortalSession: (...args: any[]) => mockSession(...args),
+  verificarSesionPortalCliente: (...args: any[]) => mockSession(...args).then((r: any) => Boolean(r === true || r?.success)),
   getFiestaForPortalSession: jest.fn(async () =>
     jest.requireActual('@/lib/client-portal/public-fiesta').mapFiestaToClientPortal(mockFiesta)
   ),
@@ -155,7 +155,6 @@ describe('portal fotos y audios con manejo de error', () => {
     try {
       expect(host.textContent).toContain('La sesión del portal venció');
       expect(host.querySelector('a[href="https://example.invalid/qa130-album"]')).toBeNull();
-      expect(sessionStorage.getItem('portal_auth_qa130-fiesta-ficticia')).toBeNull();
     } finally {
       cerrar();
     }

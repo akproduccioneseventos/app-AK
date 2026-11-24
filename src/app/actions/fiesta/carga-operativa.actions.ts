@@ -3,6 +3,8 @@
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { necesidadPorEquipo } from '@/lib/logistica/necesidad-por-equipo';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
@@ -14,6 +16,7 @@ import {
 } from '@/app/actions/accesos-personal';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   applyCargaOperativaItemPatch,
@@ -208,7 +211,14 @@ export async function checkAssetConflicts(
   await requireAppSession();
     const allFiestas = await getFiestas(false); // Solo activas
     const assetsCatalog = await getActivosFijos();
-    const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && f.configuracion.fechaEvento === date);
+    const otherFiestasSameDay = allFiestas.filter(f => {
+      if (f.id === fiestaId || !f.configuracion?.fechaEvento || f.configuracion.fechaEvento !== date) {
+        return false;
+      }
+      if (esFiestaDemo(f) || esFiestaSuspendida(f)) return false;
+      const estado = String(f.estado || '').trim().toLowerCase();
+      return !['archivado', 'archivada', 'cancelado', 'cancelada', 'cerrado', 'cerrada'].includes(estado);
+    });
 
     // La base es la lista completa que manda la pantalla, o si no la manda, la guardada de
     // esta fiesta. Si hay duda, se cuenta de mas: un aviso de mas se ve, un faltante no.
@@ -293,11 +303,7 @@ export async function saveCargaOperativaMasterTemplate(
 
 export async function updateListaDeCargaOperativa(fiestaId: string, lista: ListaDeCargaOperativa): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
   try {
-    if (!(await verifySession()).success) {
-      return { success: false, error: 'Debes iniciar sesión para editar la estructura de carga.' };
-    }
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const fiesta = await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE]);
 
     // Módulo 1: Al guardar, refrescamos los estados de conflicto
     let listaWithConflicts = lista;
@@ -391,10 +397,12 @@ export async function generateCargaFromActivos(
         if (asset.calculationMethod === 'porPersona') {
           qty = totalInvitados;
         } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad && asset.invitadosPorUnidad > 0) {
-          qty = Math.ceil(totalInvitados / asset.invitadosPorUnidad);
+          const porUnidad = Number(asset.cantidad) > 0 ? Number(asset.cantidad) : 1;
+          qty = Math.ceil(totalInvitados / asset.invitadosPorUnidad) * porUnidad;
         } else {
+          const cantidadFija = Number(asset.cantidad);
           const precioVenta = Number(asset.precioVenta);
-          qty = precioVenta > 0 ? precioVenta : (asset.cantidadDisponible || 1);
+          qty = cantidadFija > 0 ? cantidadFija : (precioVenta > 0 ? precioVenta : (asset.cantidadDisponible || 1));
         }
 
         const existing = existingItemsByOrigenId[asset.id];

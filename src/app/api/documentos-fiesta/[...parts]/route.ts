@@ -8,6 +8,7 @@ import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { esDelEquipoDeLaFiesta } from '@/lib/auth/equipo-de-la-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+import { downloadFromStorage } from '@/lib/firebase/storage';
 
 const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
 
@@ -87,7 +88,13 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
               zip.file(doc.fileName, fileContent);
               addedCount++;
             } catch (error) {
-              console.warn(`File not found, skipping: ${filePath}`);
+              const fromStorage = await downloadFromStorage(`documentos-varios-fiesta/${fiestaId}/${path.basename(doc.fileName)}`);
+              if (fromStorage) {
+                zip.file(doc.fileName, fromStorage);
+                addedCount++;
+              } else {
+                console.warn(`File not found, skipping: ${filePath}`);
+              }
             }
           }
         }
@@ -147,8 +154,15 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
   }
 
   try {
-    await fs.access(filePath);
-    const fileBuffer = await fs.readFile(filePath);
+    let fileBuffer: Buffer;
+    try {
+      await fs.access(filePath);
+      fileBuffer = await fs.readFile(filePath);
+    } catch (fsErr) {
+      const fromStorage = await downloadFromStorage(`documentos-varios-fiesta/${safeFiestaId}/${safeFilename}`);
+      if (!fromStorage) throw fsErr;
+      fileBuffer = fromStorage;
+    }
 
     // Determine content type from file extension if possible
     let contentType = 'application/octet-stream'; // generic binary

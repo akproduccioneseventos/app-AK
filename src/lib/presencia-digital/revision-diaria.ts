@@ -3,7 +3,7 @@ import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
 import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { hoyEnUruguay } from '@/lib/utils';
+import { getUruguayParts, hoyEnUruguay } from '@/lib/utils';
 
 /**
  * Genera la revisión diaria de presencia digital con análisis inteligente y sugerencia de posteo.
@@ -104,8 +104,9 @@ export async function buildDigitalPresenceDailyReview(params: {
       // Sin llamada real a modelo de IA no se finge consumo (Orden 194 Bloque 3)
       aiUsed = false;
 
-      // Adaptar según el día de la semana
-      const diaSemana = now.getDay();
+      // Adaptar según el día de la semana en Uruguay
+      const uyParts = getUruguayParts(now);
+      const diaSemana = new Date(Date.UTC(uyParts.year, uyParts.month - 1, uyParts.day, 12, 0, 0)).getUTCDay();
       if (diaSemana === 5 || diaSemana === 6) { // Viernes / Sábado
         suggestion = {
           concept: 'Cuenta regresiva de fin de semana y ambientación de salón',

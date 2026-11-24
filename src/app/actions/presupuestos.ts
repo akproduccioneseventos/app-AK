@@ -616,6 +616,12 @@ async function guardarPresupuestoSinTurno(
 
     const oldBudget = presupuestos[index];
     if (hasBudgetStructureChanged(oldBudget, presupuestoData)) {
+      if (oldBudget.estado === 'Facturado') {
+        return {
+          success: false,
+          error: 'El presupuesto ya está facturado; no se pueden modificar sus ítems, invitados ni descuentos sin editar o anular su factura.',
+        };
+      }
       const contrato = await estadoDelContrato(presupuestoData.id);
       if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
       if (contrato === 'firmado') {
@@ -666,7 +672,7 @@ async function guardarPresupuestoSinTurno(
 
     await syncLinkedFiesta(updated);
 
-    return { success: true, id: updated.id, presupuesto: updated };
+    return { success: true, id: updated.id, presupuesto: updated, ...(avisoCrm ? { avisoCrm } : {}) };
   }
 }
 
@@ -1053,7 +1059,13 @@ export async function deletePagoFromPresupuesto(
   if (!auth.ok) return { success: false, error: auth.error };
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
     const pagos = presupuesto.pagosCliente || [];
-    if (!pagos.some(p => p.id === pagoId)) return { sinCambios: true };
+    const targetPago = pagos.find(p => p.id === pagoId);
+    if (!targetPago) return { sinCambios: true };
+    if (presupuesto.estado === 'Facturado' || presupuesto.invoiceId || esEspejoDeFactura(targetPago.referencia)) {
+      return {
+        error: 'Este presupuesto está facturado o tiene una factura vinculada: ajustá o eliminá el cobro desde su factura para no descuadrar la contabilidad.',
+      };
+    }
     return { pagos: pagos.filter(p => p.id !== pagoId) };
   });
   return cambio.success

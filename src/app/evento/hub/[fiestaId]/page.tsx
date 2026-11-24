@@ -39,6 +39,7 @@ import { formatEventDateHub } from '@/lib/fechas/formato-fecha-evento';
 import {
   buildPublicEventTools,
   normalizePublicEventAccent,
+  withGuestAccess,
   type PublicEventToolId,
 } from '@/lib/guest-portal/public-event-navigation';
 import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
@@ -341,7 +342,7 @@ export default function EventoHubPage() {
                   )}
                 </div>
                 <Link
-                  href={`/evento/mi-mesa/${encodeURIComponent(fiestaId)}`}
+                  href={withGuestAccess(`/evento/mi-mesa/${encodeURIComponent(fiestaId)}`, guestId, guestAccessToken)}
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100"
                 >
                   <MapPin className="h-4 w-4 text-[var(--event-accent)]" />

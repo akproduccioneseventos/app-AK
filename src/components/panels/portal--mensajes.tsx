@@ -12,11 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import {
   enviarMensajeCliente,
   getMensajesCliente,
-  initializePortalSession,
   type MensajePortalCliente,
 } from '@/app/actions/fiesta/portal.actions';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 export default function PortalClienteMensajesPage() {
   const params = useParams<{ id: string }>();
@@ -38,19 +35,6 @@ export default function PortalClienteMensajesPage() {
         setMensajes(res.mensajes);
         setUnauthorized(false);
       } else {
-        // Intentar rescatar con sessionStorage si la cookie no estaba cargada
-        const savedKey = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId) : null;
-        if (savedKey) {
-          const initRes = await initializePortalSession(fiestaId, savedKey);
-          if (initRes.success) {
-            const retryRes = await getMensajesCliente(fiestaId);
-            if (retryRes.success && retryRes.mensajes) {
-              setMensajes(retryRes.mensajes);
-              setUnauthorized(false);
-              return;
-            }
-          }
-        }
         setUnauthorized(true);
       }
     } catch {

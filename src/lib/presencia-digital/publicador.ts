@@ -165,7 +165,7 @@ async function publicarSinReclamo(
 
     const targetPost = posts[postIndex];
 
-    if (targetPost.sourceId?.endsWith('-video-guion')) {
+    if (targetPost.sourceId?.endsWith('-video-guion') && !targetPost.mediaUrl) {
       return { success: false, error: 'Este borrador es solo un guion: falta crear y adjuntar el archivo de video.' };
     }
     const promotionalPhotoIds = (targetPost as SocialPost & { promotionalPhotoIds?: string[] }).promotionalPhotoIds;
@@ -684,6 +684,26 @@ export function calcularFechaProximaPublicacionSinSaturar(
   return targetDate.toISOString();
 }
 
+const REDES_QUE_REQUIEREN_MEDIA = new Set<string>(['Instagram', 'TikTok', 'YouTube', 'Pinterest']);
+
+/**
+ * Un guion sin video o un borrador para red visual sin URL de imagen/video pública
+ * no puede pasar a "Programado" ni entrar en la cola automática (traba el tope por corrida).
+ */
+export function esBorradorSinMediaRequerida(post: SocialPost): boolean {
+  const tieneMediaPublica = Boolean(post.mediaUrl && String(post.mediaUrl).trim().startsWith('http'));
+  if ((post.sourceId?.endsWith('-video-guion') || post.id?.endsWith('-video-guion')) && !tieneMediaPublica) {
+    return true;
+  }
+  if (post.id === 'anuncio-app-play-store' && !tieneMediaPublica) {
+    return true;
+  }
+  if (REDES_QUE_REQUIEREN_MEDIA.has(String(post.platform || '')) && !tieneMediaPublica) {
+    return true;
+  }
+  return false;
+}
+
 export interface ProcesarBorradoresResult {
   activo: boolean;
   promocionados: string[];
@@ -736,7 +756,20 @@ export async function procesarBorradoresPublicarSolo(
       continue;
     }
 
+    if (statusNorm === 'programado' && esBorradorSinMediaRequerida(post)) {
+      post.status = 'Borrador';
+      post.updatedAt = ahora.toISOString();
+      resultado.descartados.push(post.id);
+      huboCambios = true;
+      continue;
+    }
+
     if (statusNorm !== 'borrador') {
+      continue;
+    }
+
+    if (esBorradorSinMediaRequerida(post)) {
+      resultado.descartados.push(post.id);
       continue;
     }
 
@@ -790,6 +823,7 @@ export async function procesarPosteosProgramados(
   // Filtrar posteos programados cuya fecha ya venció
   const programadosVencidos = posts.filter((p) => {
     if (p.status !== 'Programado') return false;
+    if (esBorradorSinMediaRequerida(p)) return false;
     // Con publishId ya está en TikTok procesándose: volver a mandarlo lo duplicaría.
     if (p.publishId) return false;
     if (!p.publishDate) return false;
@@ -911,7 +945,7 @@ export function calcularProximaFechaMejorHorario(
   }
 
   const { year, month, day, hour } = getUruguayParts(ahora);
-  const diaHoy = new Date(year, month - 1, day).getDay();
+  const diaHoy = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).getUTCDay();
   let diasDiferencia = (resultado.diaNumero - diaHoy + 7) % 7;
 
   if (diasDiferencia === 0 && hour >= resultado.hora) {
@@ -921,10 +955,9 @@ export function calcularProximaFechaMejorHorario(
     diasDiferencia = 0;
   }
 
-  const objetivo = new Date(ahora.getTime() + diasDiferencia * 24 * 60 * 60 * 1000);
-  const pObj = getUruguayParts(objetivo);
-  const utcHora = (resultado.hora + 3) % 24;
-  return new Date(Date.UTC(pObj.year, pObj.month - 1, pObj.day, utcHora, 0, 0)).toISOString();
+  // Uruguay es UTC-3 todo el año: sumar 3 sin `% 24` para que las 21-23 hs UY
+  // pasen al día UTC siguiente en lugar de agendarse 24 horas antes.
+  return new Date(Date.UTC(year, month - 1, day + diasDiferencia, resultado.hora + 3, 0, 0)).toISOString();
 }
 
 /**

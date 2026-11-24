@@ -126,7 +126,6 @@ export default function EspejoMagicoPage() {
   const accessToken = searchParams.get('access') || undefined;
   const guestId = searchParams.get('guestId') || undefined;
   const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
-  const showKioskUnlock = searchParams.get('kiosk') === '1';
 
   // Choose Firestore module Id based on mode
   const moduleId = mode === 'foto' ? 'espejoMagicoFoto' : mode === 'ia' ? 'espejoMagicoIA' : 'espejoMagicoFirma';
@@ -296,15 +295,34 @@ export default function EspejoMagicoPage() {
     }
   }, [animacionActiva, speak]);
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
+    };
+  }, []);
+
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextCtor) return;
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioContextCtor();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       const osc = ctx.createOscillator();
       osc.frequency.value = freq;
       osc.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + duration);
-    } catch(e) {}
+    } catch {}
   };
 
   const stopCamera = useCallback(() => {
@@ -1093,6 +1111,7 @@ export default function EspejoMagicoPage() {
     setAiProcessing(false);
     tomaIndexRef.current += 1;
     setIndiceAnimacion(tomaIndexRef.current);
+    setConsentAccepted(false);
     setLocalStatus('idle');
     sesionCaptureIdRef.current = undefined;
     const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -1912,7 +1931,7 @@ export default function EspejoMagicoPage() {
         </div>
       )}
 
-      {showKioskUnlock && <KioskUnlockButton />}
+      <KioskUnlockButton />
       <SyncStatusIndicator
         fiestaId={fiestaId}
         moduleId={moduleId}

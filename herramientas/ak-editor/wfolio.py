@@ -166,12 +166,17 @@ def inicializar_db_wfolio(ruta_db: str) -> None:
                 enlace_album TEXT DEFAULT '',
                 error TEXT DEFAULT '',
                 intentos INTEGER DEFAULT 0,
+                tamano_archivo INTEGER DEFAULT 0,
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(fiesta_nombre, carpeta, nombre_archivo)
             )
             """
         )
+        try:
+            cur.execute("ALTER TABLE wfolio_subidas ADD COLUMN tamano_archivo INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS fotos_mapeo (
@@ -659,17 +664,12 @@ def _verificar_presencia_remota(
     return False, f"No se pudo comprobar la presencia de {nombre_arch} en la carpeta remota"
 
 
-def _subir_con_playwright(
-    ruta_carpetas: str,
-    fiesta_nombre: str,
-    fotos_pendientes: List[Dict[str, str]],
+def abrir_navegador_para_login(
+    url: str = "https://wfolio.com/my/disk",
+    timeout_ms: int = 300000,
 ) -> Dict[str, Any]:
-    """Automatiza Wfolio Disk en el navegador mediante Playwright usando la sesión guardada.
-
-    Realiza la subida real y verifica que cada archivo esté en la carpeta remota con su nombre y tamaño.
-    """
+    """Abre un navegador persistente para que el usuario inicie sesión en Wfolio y guarda cookies/perfil."""
     directorio_sesion = obtener_directorio_sesion()
-
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -685,78 +685,297 @@ def _subir_con_playwright(
                 user_data_dir=directorio_sesion,
                 headless=False,
             )
-            page = browser_context.new_page()
-            page.goto("https://wfolio.com/my/disk", timeout=30000)
+            try:
+                page = browser_context.pages[0] if browser_context.pages else browser_context.new_page()
+                page.goto(url, timeout=30000)
 
-            # Si Wfolio pide login o cambió la estructura
-            if "login" in page.url or page.locator("input[type='password']").is_visible():
-                browser_context.close()
-                return {
-                    "exito": False,
-                    "error": "Sesión no iniciada en Wfolio.",
-                    "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
-                }
+                # Esperar a que el usuario complete el login (salga de la URL de login y oculte el password)
+                # o cierre la ventana del navegador.
+                import time
 
-            album_slug = slugificar(fiesta_nombre)
-            url_album = f"https://wfolio.com/my/disk/privado/{album_slug}"
-
-            # Subida de las fotos pendientes
-            for item in fotos_pendientes:
-                ruta_foto = item.get("ruta", "")
-                carp = item.get("carpeta", "")
-                if not os.path.exists(ruta_foto):
-                    continue
-
-                nombre_arch = os.path.basename(ruta_foto)
-                tamano_local = os.path.getsize(ruta_foto)
-
-                # Buscar input file para subir
-                input_file = page.locator("input[type='file']")
-                if input_file.count() > 0:
-                    input_file.first.set_input_files(ruta_foto)
-                    # Esperar procesamiento y que aparezca en la lista
+                limite = time.monotonic() + (max(1000, timeout_ms) / 1000.0)
+                while time.monotonic() < limite:
+                    if page.is_closed():
+                        break
                     try:
-                        page.wait_for_timeout(2000)
+                        en_login = "login" in page.url.lower() or page.locator("input[type='password']").is_visible()
+                        if not en_login and "/my/" in page.url.lower():
+                            # Dar un breve respiro para que terminen de persistirse las cookies
+                            page.wait_for_timeout(1000)
+                            break
+                        page.wait_for_timeout(500)
                     except Exception:
-                        pass
-
-                    # Comprobar presencia del archivo en la lista remota
-                    loc_archivo = page.locator(f"text='{nombre_arch}'")
-                    if loc_archivo.count() > 0 and loc_archivo.first.is_visible():
-                        browser_context.close()
-                        return {
-                            "exito": True,
-                            "comprobado": True,
-                            "nombre": nombre_arch,
-                            "tamano": tamano_local,
-                            "url": url_album,
-                        }
-                    else:
-                        browser_context.close()
-                        return {
-                            "exito": False,
-                            "comprobado": False,
-                            "estado": "pendiente",
-                            "motivo": f"El archivo {nombre_arch} no apareció en la lista remota de Wfolio tras la subida.",
-                            "url": url_album,
-                        }
-                else:
+                        break
+                return {"exito": True, "url": page.url if not page.is_closed() else url}
+            finally:
+                try:
                     browser_context.close()
-                    return {
-                        "exito": False,
-                        "comprobado": False,
-                        "estado": "pendiente",
-                        "motivo": "No se encontró el selector de subida de archivos en la página de Wfolio.",
-                        "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
-                        "url": url_album,
-                    }
+                except Exception:
+                    pass
+    except Exception as e:
+        return {
+            "exito": False,
+            "error": str(e),
+            "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+        }
 
-            browser_context.close()
+
+def _asegurar_album_y_carpeta_wfolio(
+    page: Any,
+    fiesta_nombre: str,
+    carpeta: str,
+    album_asegurado: bool = False,
+    carpeta_actual: str = "",
+) -> Tuple[bool, str, str]:
+    """Asegura que el álbum/proyecto de la fiesta y la subcarpeta estén creados y abiertos en Wfolio."""
+    album_slug = slugificar(fiesta_nombre)
+    url_album = f"https://wfolio.com/my/disk/privado/{album_slug}"
+
+    if not album_asegurado:
+        # Intentar abrir el proyecto existente por texto o ir a crear uno nuevo
+        proyecto_loc = page.get_by_text(fiesta_nombre, exact=False)
+        if proyecto_loc.count() > 0:
+            try:
+                proyecto_loc.first.click(timeout=5000)
+                album_asegurado = True
+            except Exception:
+                pass
+
+        if not album_asegurado:
+            boton_nuevo = page.locator(
+                "button:has-text('New project'), button:has-text('Nuevo proyecto'), "
+                "button:has-text('Create project'), button:has-text('Crear proyecto'), "
+                "a:has-text('New project'), a:has-text('Nuevo proyecto')"
+            )
+            if boton_nuevo.count() > 0:
+                try:
+                    boton_nuevo.first.click(timeout=5000)
+                    input_nombre = page.locator("input[type='text'], input[name*='name' i], input[name*='title' i]").first
+                    input_nombre.wait_for(state="visible", timeout=5000)
+                    input_nombre.fill(fiesta_nombre)
+                    boton_confirmar = page.locator(
+                        "button[type='submit'], button:has-text('Create'), button:has-text('Crear'), button:has-text('Save'), button:has-text('Guardar')"
+                    )
+                    if boton_confirmar.count() > 0:
+                        boton_confirmar.first.click(timeout=5000)
+                    album_asegurado = True
+                except Exception:
+                    pass
+
+        if album_asegurado and page.url:
+            url_album = page.url
+
+    if carpeta and carpeta != carpeta_actual:
+        loc_carpeta = page.get_by_text(carpeta, exact=False)
+        abierta = False
+        if loc_carpeta.count() > 0:
+            try:
+                loc_carpeta.first.click(timeout=5000)
+                abierta = True
+            except Exception:
+                pass
+
+        if not abierta:
+            boton_carpeta = page.locator(
+                "button:has-text('New folder'), button:has-text('Nueva carpeta'), "
+                "button:has-text('Add folder'), button:has-text('Crear carpeta'), "
+                "[data-testid*='new-folder' i], [data-testid*='add-folder' i]"
+            )
+            if boton_carpeta.count() > 0:
+                try:
+                    boton_carpeta.first.click(timeout=5000)
+                    input_carp = page.locator("input[type='text'], input[name*='folder' i], input[name*='name' i]").first
+                    input_carp.wait_for(state="visible", timeout=5000)
+                    input_carp.fill(carpeta)
+                    boton_ok = page.locator(
+                        "button[type='submit'], button:has-text('Create'), button:has-text('Crear'), button:has-text('Save'), button:has-text('Guardar')"
+                    )
+                    if boton_ok.count() > 0:
+                        boton_ok.first.click(timeout=5000)
+                    loc_nueva = page.get_by_text(carpeta, exact=False)
+                    if loc_nueva.count() > 0:
+                        loc_nueva.first.click(timeout=5000)
+                    abierta = True
+                except Exception:
+                    pass
+
+        if abierta:
+            carpeta_actual = carpeta
+
+    return album_asegurado, carpeta_actual, url_album
+
+
+class _SesionPlaywrightWfolio:
+    """Reutiliza un único navegador persistente de Playwright para todo el lote de subida."""
+
+    def __init__(self, fiesta_nombre: str):
+        self.fiesta_nombre = fiesta_nombre
+        self._cm = None
+        self._playwright = None
+        self.browser_context = None
+        self.page = None
+        self.album_asegurado = False
+        self.carpeta_actual = ""
+        self.url_album = f"https://wfolio.com/my/disk/privado/{slugificar(fiesta_nombre)}"
+
+    def abrir(self) -> Optional[Dict[str, Any]]:
+        directorio_sesion = obtener_directorio_sesion()
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError:
+            return {
+                "exito": False,
+                "error": "Playwright no está instalado en el entorno.",
+                "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+            }
+
+        self._cm = sync_playwright()
+        self._playwright = self._cm.__enter__()
+        self.browser_context = self._playwright.chromium.launch_persistent_context(
+            user_data_dir=directorio_sesion,
+            headless=False,
+        )
+        self.page = self.browser_context.pages[0] if self.browser_context.pages else self.browser_context.new_page()
+        self.page.goto("https://wfolio.com/my/disk", timeout=30000)
+
+        if "login" in self.page.url or self.page.locator("input[type='password']").is_visible():
+            self.cerrar()
+            return {
+                "exito": False,
+                "error": "Sesión no iniciada en Wfolio.",
+                "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+            }
+        return None
+
+    def subir_archivo(self, ruta_foto: str, carpeta: str) -> Dict[str, Any]:
+        if self.page is None:
+            return {
+                "exito": False,
+                "comprobado": False,
+                "error": "La sesión de navegador de Wfolio no está abierta.",
+                "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+            }
+        if not os.path.exists(ruta_foto):
+            return {
+                "exito": False,
+                "comprobado": False,
+                "estado": "pendiente",
+                "motivo": f"No existe el archivo local: {ruta_foto}",
+                "url": self.url_album,
+            }
+
+        self.album_asegurado, self.carpeta_actual, self.url_album = _asegurar_album_y_carpeta_wfolio(
+            self.page,
+            self.fiesta_nombre,
+            carpeta,
+            album_asegurado=self.album_asegurado,
+            carpeta_actual=self.carpeta_actual,
+        )
+
+        nombre_arch = os.path.basename(ruta_foto)
+        tamano_local = os.path.getsize(ruta_foto)
+        ext = os.path.splitext(ruta_foto)[1].lower()
+        timeout_subida_ms = 180000 if ext in EXTENSIONES_VIDEO else 60000
+
+        input_file = self.page.locator("input[type='file']")
+        if input_file.count() == 0:
+            return {
+                "exito": False,
+                "comprobado": False,
+                "estado": "pendiente",
+                "motivo": "No se encontró el selector de subida de archivos en la página de Wfolio.",
+                "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
+                "url": self.url_album,
+            }
+
+        input_file.first.set_input_files(ruta_foto)
+        loc_archivo = self.page.get_by_text(nombre_arch, exact=False).first
+        try:
+            loc_archivo.wait_for(state="visible", timeout=timeout_subida_ms)
             return {
                 "exito": True,
                 "comprobado": True,
-                "url": url_album,
+                "nombre": nombre_arch,
+                "tamano": tamano_local,
+                "url": self.url_album,
             }
+        except Exception:
+            return {
+                "exito": False,
+                "comprobado": False,
+                "estado": "pendiente",
+                "motivo": f"El archivo {nombre_arch} no apareció en la lista remota de Wfolio tras la subida.",
+                "url": self.url_album,
+            }
+
+    def cerrar(self) -> None:
+        if self.browser_context is not None:
+            try:
+                self.browser_context.close()
+            except Exception:
+                pass
+            self.browser_context = None
+            self.page = None
+        if self._cm is not None:
+            try:
+                self._cm.__exit__(None, None, None)
+            except Exception:
+                pass
+            self._cm = None
+            self._playwright = None
+
+
+def _subir_con_playwright(
+    ruta_carpetas: str,
+    fiesta_nombre: str,
+    fotos_pendientes: List[Dict[str, str]],
+    sesion: Optional[_SesionPlaywrightWfolio] = None,
+) -> Dict[str, Any]:
+    """Automatiza Wfolio Disk en el navegador mediante Playwright usando una única sesión compartida.
+
+    Realiza la subida real y verifica que cada archivo esté en la carpeta remota esperando el selector.
+    """
+    if sesion is not None:
+        if len(fotos_pendientes) == 1:
+            item = fotos_pendientes[0]
+            return sesion.subir_archivo(item.get("ruta", ""), item.get("carpeta", ""))
+        resultados = [
+            sesion.subir_archivo(item.get("ruta", ""), item.get("carpeta", ""))
+            for item in fotos_pendientes
+        ]
+        fallos = [r for r in resultados if not r.get("exito")]
+        return {
+            "exito": len(fallos) == 0,
+            "comprobado": len(fallos) == 0,
+            "url": sesion.url_album,
+            "resultados": resultados,
+        }
+
+    sesion_propia = _SesionPlaywrightWfolio(fiesta_nombre)
+    try:
+        err_apertura = sesion_propia.abrir()
+        if err_apertura is not None:
+            return err_apertura
+
+        if len(fotos_pendientes) == 1:
+            item = fotos_pendientes[0]
+            return sesion_propia.subir_archivo(item.get("ruta", ""), item.get("carpeta", ""))
+
+        resultados: List[Dict[str, Any]] = []
+        for item in fotos_pendientes:
+            ruta_foto = item.get("ruta", "")
+            carp = item.get("carpeta", "")
+            if not os.path.exists(ruta_foto):
+                continue
+            resultados.append(sesion_propia.subir_archivo(ruta_foto, carp))
+
+        fallos = [r for r in resultados if not r.get("exito")]
+        return {
+            "exito": len(fallos) == 0,
+            "comprobado": len(fallos) == 0,
+            "url": sesion_propia.url_album,
+            "resultados": resultados,
+        }
     except Exception as e:
         return {
             "exito": False,
@@ -764,6 +983,8 @@ def _subir_con_playwright(
             "error": str(e),
             "aviso_criollo": MENSAJE_CRIOLLO_CAMBIO_PAGINA,
         }
+    finally:
+        sesion_propia.cerrar()
 
 
 def normalizar_nombre_carpeta_estacion(nombre_crudo: str) -> str:
@@ -1328,6 +1549,49 @@ def generar_miniatura_wfolio(
     return ruta_destino
 
 
+EXTENSIONES_RAW_NO_WEB: Tuple[str, ...] = (
+    ".nef",
+    ".cr2",
+    ".cr3",
+    ".arw",
+    ".dng",
+    ".raf",
+    ".raw",
+    ".orf",
+    ".rw2",
+    ".tif",
+    ".tiff",
+)
+
+
+def _preparar_jpg_para_navegador(ruta_foto: Path, dir_temporal: Path) -> Path:
+    """Convierte archivos RAW/TIFF a un JPG temporal para que <img> del navegador pueda decodificarlos."""
+    if ruta_foto.suffix.lower() not in EXTENSIONES_RAW_NO_WEB:
+        return ruta_foto
+
+    # Intentar primero vía fotos.leer_foto (usa rawpy + cv2.imdecode)
+    try:
+        import cv2
+        import fotos as ak_fotos
+
+        img = ak_fotos.leer_foto(str(ruta_foto))
+        if img is not None:
+            destino_jpg = dir_temporal / f"{ruta_foto.stem}_preview.jpg"
+            ok, buf = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            if ok:
+                destino_jpg.write_bytes(buf.tobytes())
+                return destino_jpg
+    except Exception:
+        pass
+
+    return generar_miniatura_wfolio(
+        ruta_origen=ruta_foto,
+        carpeta_destino=dir_temporal,
+        max_lado=MAX_LADO_MINIATURA_WFOLIO,
+        nombre_salida=f"{ruta_foto.stem}_preview.jpg",
+    )
+
+
 def extraer_vectores_caras_face_api(
     ruta_foto: Union[str, Path],
     directorio_modelos: Optional[Union[str, Path]] = None,
@@ -1337,6 +1601,7 @@ def extraer_vectores_caras_face_api(
 
     Cuando extractor_fn es None, levanta un servidor HTTP local mínimo y abre Playwright
     en modo headless cargando @vladmandic/face-api y los modelos desde public/models/caras.
+    Nunca sirve un RAW crudo al <img>: convierte previamente a JPG temporal.
     """
     foto = Path(ruta_foto)
     if not foto.is_file():
@@ -1354,6 +1619,13 @@ def extraer_vectores_caras_face_api(
         raise RuntimeError(
             "Playwright no está instalado para ejecutar @vladmandic/face-api localmente."
         ) from exc
+
+    temp_preview_ctx = tempfile.TemporaryDirectory()
+    try:
+        foto_web = _preparar_jpg_para_navegador(foto, Path(temp_preview_ctx.name))
+    except Exception:
+        temp_preview_ctx.cleanup()
+        raise
 
     html_pagina = """<!DOCTYPE html>
 <html lang="es">
@@ -1426,8 +1698,8 @@ def extraer_vectores_caras_face_api(
                 self._enviar(200, ruta_face_api_js.read_bytes(), "application/javascript; charset=utf-8")
                 return
             if ruta_req == "/foto":
-                mime, _ = mimetypes.guess_type(str(foto))
-                self._enviar(200, foto.read_bytes(), mime or "image/jpeg")
+                mime, _ = mimetypes.guess_type(str(foto_web))
+                self._enviar(200, foto_web.read_bytes(), mime or "image/jpeg")
                 return
             if ruta_req.startswith("/models/"):
                 rel = os.path.basename(urllib.parse.unquote(ruta_req[len("/models/"):]))
@@ -1455,6 +1727,7 @@ def extraer_vectores_caras_face_api(
     finally:
         servidor.shutdown()
         servidor.server_close()
+        temp_preview_ctx.cleanup()
 
     return _normalizar_vectores_face_api(resultado)
 
@@ -1525,8 +1798,9 @@ def armar_paquete_caras_fotografo(
             momento_explicito=momento_explicit,
         )
 
+        ruta_para_caras = ruta_miniatura if (extractor_fn is None and ruta_path.suffix.lower() in EXTENSIONES_RAW_NO_WEB) else ruta_path
         vectores = extraer_vectores_caras_face_api(
-            ruta_foto=ruta_path,
+            ruta_foto=ruta_para_caras,
             directorio_modelos=directorio_modelos,
             extractor_fn=extractor_fn,
         )
@@ -1716,7 +1990,7 @@ def subir_a_wfolio(
         cur = con.cursor()
         cur.execute(
             """
-            SELECT carpeta, nombre_archivo, estado, intentos, error
+            SELECT carpeta, nombre_archivo, estado, intentos, error, tamano_archivo
             FROM wfolio_subidas
             WHERE fiesta_nombre = ?
             """,
@@ -1728,9 +2002,11 @@ def subir_a_wfolio(
                 "estado": fila["estado"],
                 "intentos": fila["intentos"],
                 "error": fila["error"],
+                "tamano_archivo": fila["tamano_archivo"] or 0,
             }
 
     subidas_en_esta_sesion: List[Dict[str, str]] = []
+    subidas_previas_reutilizadas: List[Dict[str, str]] = []
     pendientes_en_esta_sesion: List[Dict[str, Any]] = []
     fallidas_en_esta_sesion: List[Dict[str, Any]] = []
     videos_comprimidos: List[Dict[str, Any]] = []
@@ -1738,204 +2014,225 @@ def subir_a_wfolio(
     aviso_criollo = ""
     aviso_no_video_agregado = False
 
-    # Subida de fotos y videos (reutiliza conexión SQLite haciendo commit en cada foto)
+    # Subida de fotos y videos (reutiliza conexión SQLite y una única sesión Playwright por lote)
     detener_lote = False
+    sesion_playwright = _SesionPlaywrightWfolio(fiesta_nombre) if endpoint_simulado is None else None
 
-    with conexion_db(ruta_db) as con_lote:
-        cur_lote = con_lote.cursor()
-        for carp in carpetas_a_procesar:
-            if detener_lote:
-                break
+    try:
+        with conexion_db(ruta_db) as con_lote:
+            cur_lote = con_lote.cursor()
+            for carp in carpetas_a_procesar:
+                if detener_lote:
+                    break
 
-            for ruta_foto in fotos_por_carpeta[carp]:
-                nombre_arch = os.path.basename(ruta_foto)
-                clave = (carp, nombre_arch)
-                previo = estados_previos.get(clave)
+                for ruta_foto in fotos_por_carpeta[carp]:
+                    nombre_arch = os.path.basename(ruta_foto)
+                    clave = (carp, nombre_arch)
+                    previo = estados_previos.get(clave)
+                    tamano_actual = os.path.getsize(ruta_foto) if os.path.exists(ruta_foto) else 0
+                    tamano_previo = int((previo or {}).get("tamano_archivo") or 0)
 
-                # Si ya fue subida con éxito, no se re-sube
-                if previo and previo["estado"] == "subido":
-                    continue
-
-                ext_arch = os.path.splitext(ruta_foto)[1].lower()
-                es_video = ext_arch in EXTENSIONES_VIDEO
-                ruta_subida = ruta_foto
-
-                if es_video:
-                    if acepta_videos is False:
-                        videos_locales.append(ruta_foto)
-                        if not aviso_no_video_agregado:
-                            avisos.append(MENSAJE_WFOLIO_NO_ACEPTA_VIDEO)
-                            aviso_no_video_agregado = True
+                    # Si ya fue subida con éxito y no cambió su tamaño en disco, no se re-sube
+                    if previo and previo["estado"] == "subido" and (tamano_previo == 0 or tamano_previo == tamano_actual):
+                        subidas_previas_reutilizadas.append({
+                            "foto": ruta_foto,
+                            "nombre": nombre_arch,
+                            "carpeta": carp,
+                        })
                         continue
 
-                    if os.path.exists(ruta_foto) and os.path.getsize(ruta_foto) > LIMITE_VIDEO_WFOLIO_BYTES:
-                        cache_dir = os.path.join(os.path.dirname(ruta_db) or ".", "videos_wfolio", carp)
-                        ruta_comp = os.path.join(cache_dir, f"{Path(nombre_arch).stem}_wfolio.mp4")
-                        res_comp = comprimir_video_para_wfolio(
-                            ruta_video=ruta_foto,
-                            ruta_salida=ruta_comp,
-                            ejecutador_ffmpeg=ejecutador_ffmpeg,
-                        )
-                        if res_comp.get("exito") and res_comp.get("comprimido"):
-                            ruta_subida = res_comp["ruta"]
-                            videos_comprimidos.append({
-                                "original": ruta_foto,
-                                "comprimido": ruta_subida,
-                                "tamano_original_bytes": res_comp.get("tamano_original_bytes"),
-                                "tamano_bytes": res_comp.get("tamano_bytes"),
-                            })
-                        elif not res_comp.get("exito"):
-                            fallidas_en_esta_sesion.append({
-                                "foto": ruta_foto,
-                                "nombre": nombre_arch,
-                                "carpeta": carp,
-                                "error": res_comp.get("error", "Fallo al comprimir video > 500 MB"),
-                            })
-                            continue
+                    ext_arch = os.path.splitext(ruta_foto)[1].lower()
+                    es_video = ext_arch in EXTENSIONES_VIDEO
+                    ruta_subida = ruta_foto
 
-                # Intentar subida
-                try:
-                    comprobado = False
-                    motivo_pendiente = ""
-
-                    if endpoint_simulado is not None:
-                        res_endpoint = _subir_foto_endpoint_simulado(
-                            endpoint_simulado,
-                            ruta_subida,
-                            carp,
-                            fiesta_nombre,
-                        )
-                        if isinstance(res_endpoint, dict) and res_endpoint.get("acepta_video") is False:
+                    if es_video:
+                        if acepta_videos is False:
                             videos_locales.append(ruta_foto)
                             if not aviso_no_video_agregado:
                                 avisos.append(MENSAJE_WFOLIO_NO_ACEPTA_VIDEO)
                                 aviso_no_video_agregado = True
                             continue
 
-                        if isinstance(res_endpoint, dict) and res_endpoint.get("url"):
-                            enlace_privado = res_endpoint["url"]
+                        if os.path.exists(ruta_foto) and os.path.getsize(ruta_foto) > LIMITE_VIDEO_WFOLIO_BYTES:
+                            cache_dir = os.path.join(os.path.dirname(ruta_db) or ".", "videos_wfolio", carp)
+                            ruta_comp = os.path.join(cache_dir, f"{Path(nombre_arch).stem}_wfolio.mp4")
+                            res_comp = comprimir_video_para_wfolio(
+                                ruta_video=ruta_foto,
+                                ruta_salida=ruta_comp,
+                                ejecutador_ffmpeg=ejecutador_ffmpeg,
+                            )
+                            if res_comp.get("exito") and res_comp.get("comprimido"):
+                                ruta_subida = res_comp["ruta"]
+                                videos_comprimidos.append({
+                                    "original": ruta_foto,
+                                    "comprimido": ruta_subida,
+                                    "tamano_original_bytes": res_comp.get("tamano_original_bytes"),
+                                    "tamano_bytes": res_comp.get("tamano_bytes"),
+                                })
+                            elif not res_comp.get("exito"):
+                                fallidas_en_esta_sesion.append({
+                                    "foto": ruta_foto,
+                                    "nombre": nombre_arch,
+                                    "carpeta": carp,
+                                    "error": res_comp.get("error", "Fallo al comprimir video > 500 MB"),
+                                })
+                                continue
 
-                        comprobado, motivo_pendiente = _verificar_presencia_remota(
-                            res_endpoint if isinstance(res_endpoint, dict) else {"status": "ok"},
-                            endpoint_simulado,
-                            ruta_subida,
-                            carp,
-                            fiesta_nombre,
-                        )
-                    else:
-                        # Intento con Playwright en modo real
-                        res_play = _subir_con_playwright(
-                            ruta_carpetas_str,
-                            fiesta_nombre,
-                            [{"ruta": ruta_subida, "carpeta": carp}],
-                        )
-                        if not res_play.get("exito"):
-                            if res_play.get("estado") == "pendiente" or res_play.get("comprobado") is False:
-                                comprobado = False
-                                motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
-                            else:
-                                aviso_criollo = res_play.get("aviso_criollo") or MENSAJE_CRIOLLO_CAMBIO_PAGINA
-                                raise RuntimeError(res_play.get("error") or "Fallo en automatización web")
+                    # Intentar subida
+                    try:
+                        comprobado = False
+                        motivo_pendiente = ""
+
+                        if endpoint_simulado is not None:
+                            res_endpoint = _subir_foto_endpoint_simulado(
+                                endpoint_simulado,
+                                ruta_subida,
+                                carp,
+                                fiesta_nombre,
+                            )
+                            if isinstance(res_endpoint, dict) and res_endpoint.get("acepta_video") is False:
+                                videos_locales.append(ruta_foto)
+                                if not aviso_no_video_agregado:
+                                    avisos.append(MENSAJE_WFOLIO_NO_ACEPTA_VIDEO)
+                                    aviso_no_video_agregado = True
+                                continue
+
+                            if isinstance(res_endpoint, dict) and res_endpoint.get("url"):
+                                enlace_privado = res_endpoint["url"]
+
+                            comprobado, motivo_pendiente = _verificar_presencia_remota(
+                                res_endpoint if isinstance(res_endpoint, dict) else {"status": "ok"},
+                                endpoint_simulado,
+                                ruta_subida,
+                                carp,
+                                fiesta_nombre,
+                            )
                         else:
-                            comprobado = res_play.get("comprobado", True)
-                            if not comprobado:
-                                motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
+                            # Abrir sesión Playwright una sola vez para todo el lote
+                            if sesion_playwright is not None and sesion_playwright.page is None:
+                                err_apertura = sesion_playwright.abrir()
+                                if err_apertura is not None:
+                                    aviso_criollo = err_apertura.get("aviso_criollo") or MENSAJE_CRIOLLO_CAMBIO_PAGINA
+                                    raise RuntimeError(err_apertura.get("error") or "No se pudo abrir la sesión de Wfolio")
 
-                        if res_play.get("url"):
-                            enlace_privado = res_play["url"]
+                            res_play = _subir_con_playwright(
+                                ruta_carpetas_str,
+                                fiesta_nombre,
+                                [{"ruta": ruta_subida, "carpeta": carp}],
+                                sesion=sesion_playwright,
+                            )
+                            if not res_play.get("exito"):
+                                if res_play.get("estado") == "pendiente" or res_play.get("comprobado") is False:
+                                    comprobado = False
+                                    motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
+                                else:
+                                    aviso_criollo = res_play.get("aviso_criollo") or MENSAJE_CRIOLLO_CAMBIO_PAGINA
+                                    raise RuntimeError(res_play.get("error") or "Fallo en automatización web")
+                            else:
+                                comprobado = res_play.get("comprobado", True)
+                                if not comprobado:
+                                    motivo_pendiente = res_play.get("motivo") or "No se pudo comprobar en la carpeta remota"
 
-                    if comprobado:
-                        # Éxito verificado: registrar checkpoint en SQLite
+                            if res_play.get("url"):
+                                enlace_privado = res_play["url"]
+
+                        if comprobado:
+                            # Éxito verificado: registrar checkpoint en SQLite
+                            cur_lote.execute(
+                                """
+                                INSERT INTO wfolio_subidas (
+                                    fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
+                                    estado, album_id, enlace_album, error, intentos, tamano_archivo, actualizado_en
+                                )
+                                VALUES (?, ?, ?, ?, 'subido', ?, ?, '', 1, ?, CURRENT_TIMESTAMP)
+                                ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
+                                    estado = 'subido',
+                                    ruta_archivo = excluded.ruta_archivo,
+                                    enlace_album = excluded.enlace_album,
+                                    error = '',
+                                    tamano_archivo = excluded.tamano_archivo,
+                                    actualizado_en = CURRENT_TIMESTAMP
+                                """,
+                                (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado, tamano_actual),
+                            )
+                            con_lote.commit()
+
+                            subidas_en_esta_sesion.append({
+                                "foto": ruta_subida,
+                                "nombre": nombre_arch,
+                                "carpeta": carp,
+                            })
+                        else:
+                            # No comprobada: registrar 'pendiente' con el motivo
+                            cur_lote.execute(
+                                """
+                                INSERT INTO wfolio_subidas (
+                                    fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
+                                    estado, album_id, enlace_album, error, intentos, actualizado_en
+                                )
+                                VALUES (?, ?, ?, ?, 'pendiente', ?, ?, ?, 1, CURRENT_TIMESTAMP)
+                                ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
+                                    estado = 'pendiente',
+                                    error = excluded.error,
+                                    intentos = wfolio_subidas.intentos + 1,
+                                    actualizado_en = CURRENT_TIMESTAMP
+                                """,
+                                (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado, motivo_pendiente),
+                            )
+                            con_lote.commit()
+
+                            pendientes_en_esta_sesion.append({
+                                "foto": ruta_subida,
+                                "nombre": nombre_arch,
+                                "carpeta": carp,
+                                "motivo": motivo_pendiente,
+                            })
+
+                    except Exception as e:
+                        err_str = str(e)
+                        if es_video and "no acepta video" in err_str.lower():
+                            videos_locales.append(ruta_foto)
+                            if not aviso_no_video_agregado:
+                                avisos.append(MENSAJE_WFOLIO_NO_ACEPTA_VIDEO)
+                                aviso_no_video_agregado = True
+                            continue
+
+                        # Registrar fallo en SQLite
                         cur_lote.execute(
                             """
                             INSERT INTO wfolio_subidas (
                                 fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
                                 estado, album_id, enlace_album, error, intentos, actualizado_en
                             )
-                            VALUES (?, ?, ?, ?, 'subido', ?, ?, '', 1, CURRENT_TIMESTAMP)
+                            VALUES (?, ?, ?, ?, 'fallido', ?, ?, ?, 1, CURRENT_TIMESTAMP)
                             ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
-                                estado = 'subido',
-                                enlace_album = excluded.enlace_album,
-                                error = '',
-                                actualizado_en = CURRENT_TIMESTAMP
-                            """,
-                            (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado),
-                        )
-                        con_lote.commit()
-
-                        subidas_en_esta_sesion.append({
-                            "foto": ruta_subida,
-                            "nombre": nombre_arch,
-                            "carpeta": carp,
-                        })
-                    else:
-                        # No comprobada: registrar 'pendiente' con el motivo
-                        cur_lote.execute(
-                            """
-                            INSERT INTO wfolio_subidas (
-                                fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
-                                estado, album_id, enlace_album, error, intentos, actualizado_en
-                            )
-                            VALUES (?, ?, ?, ?, 'pendiente', ?, ?, ?, 1, CURRENT_TIMESTAMP)
-                            ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
-                                estado = 'pendiente',
+                                estado = 'fallido',
                                 error = excluded.error,
                                 intentos = wfolio_subidas.intentos + 1,
                                 actualizado_en = CURRENT_TIMESTAMP
                             """,
-                            (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado, motivo_pendiente),
+                            (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado, err_str),
                         )
                         con_lote.commit()
 
-                        pendientes_en_esta_sesion.append({
-                            "foto": ruta_subida,
+                        fallidas_en_esta_sesion.append({
+                            "foto": ruta_foto if ruta_subida == ruta_foto else ruta_subida,
                             "nombre": nombre_arch,
                             "carpeta": carp,
-                            "motivo": motivo_pendiente,
+                            "error": err_str,
                         })
 
-                except Exception as e:
-                    err_str = str(e)
-                    if es_video and "no acepta video" in err_str.lower():
-                        videos_locales.append(ruta_foto)
-                        if not aviso_no_video_agregado:
-                            avisos.append(MENSAJE_WFOLIO_NO_ACEPTA_VIDEO)
-                            aviso_no_video_agregado = True
-                        continue
+                        # Si el error es de conexión de red o caída del endpoint, cortar lote
+                        if isinstance(e, (ConnectionError, ConnectionResetError, BrokenPipeError, TimeoutError)):
+                            detener_lote = True
+                            break
 
-                    # Registrar fallo en SQLite
-                    cur_lote.execute(
-                        """
-                        INSERT INTO wfolio_subidas (
-                            fiesta_nombre, carpeta, nombre_archivo, ruta_archivo,
-                            estado, album_id, enlace_album, error, intentos, actualizado_en
-                        )
-                        VALUES (?, ?, ?, ?, 'fallido', ?, ?, ?, 1, CURRENT_TIMESTAMP)
-                        ON CONFLICT(fiesta_nombre, carpeta, nombre_archivo) DO UPDATE SET
-                            estado = 'fallido',
-                            error = excluded.error,
-                            intentos = wfolio_subidas.intentos + 1,
-                            actualizado_en = CURRENT_TIMESTAMP
-                        """,
-                        (fiesta_nombre, carp, nombre_arch, ruta_subida, album_slug, enlace_privado, err_str),
-                    )
-                    con_lote.commit()
-
-                    fallidas_en_esta_sesion.append({
-                        "foto": ruta_subida,
-                        "nombre": nombre_arch,
-                        "carpeta": carp,
-                        "error": err_str,
-                    })
-
-                    # Si el error es de conexión de red o caída del endpoint, cortar lote
-                    if isinstance(e, (ConnectionError, ConnectionResetError, BrokenPipeError, TimeoutError)):
-                        detener_lote = True
-                        break
-
-                    if not continuar_en_error:
-                        detener_lote = True
-                        break
+                        if not continuar_en_error:
+                            detener_lote = True
+                            break
+    finally:
+        if sesion_playwright is not None:
+            sesion_playwright.cerrar()
 
     # Recalcular métricas consolidadas desde SQLite
     por_carpeta: Dict[str, Dict[str, int]] = {}
@@ -2008,9 +2305,11 @@ def subir_a_wfolio(
             else os.path.join(ruta_carpetas_str, "caras_fotografo")
         )
         fotos_para_caras: List[Dict[str, Any]] = []
-        for item_sub in subidas_en_esta_sesion:
+        rutas_caras_vistas: set[str] = set()
+        for item_sub in [*subidas_previas_reutilizadas, *subidas_en_esta_sesion]:
             ruta_f = item_sub.get("foto", "")
-            if ruta_f and os.path.splitext(ruta_f)[1].lower() in EXTENSIONES_FOTO:
+            if ruta_f and ruta_f not in rutas_caras_vistas and os.path.splitext(ruta_f)[1].lower() in EXTENSIONES_FOTO:
+                rutas_caras_vistas.add(ruta_f)
                 fotos_para_caras.append({
                     "ruta": ruta_f,
                     "wfolioUrl": enlace_privado,

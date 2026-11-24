@@ -2,7 +2,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { MissionControlData, EtapaTimeline, EstadoEtapa, ChecklistItemEtapa } from '@/types/mission-control';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 function getPath(fiestaId: string) {
   return `mission-control/${fiestaId}.json`;
@@ -153,7 +154,7 @@ function createDefaultMissionControl(fiestaId: string, horaFin?: string): Missio
 }
 
 export async function getMissionControl(fiestaId: string): Promise<{ success: boolean; data?: MissionControlData; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const data = await readData<MissionControlData | null>(getPath(fiestaId), null);
     if (!data) {
@@ -174,7 +175,7 @@ export async function getMissionControl(fiestaId: string): Promise<{ success: bo
 }
 
 export async function updateMissionControl(fiestaId: string, data: MissionControlData): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     await writeData(getPath(fiestaId), { ...data, ultimaActualizacion: new Date().toISOString() });
     return { success: true };
@@ -184,7 +185,7 @@ export async function updateMissionControl(fiestaId: string, data: MissionContro
 }
 
 export async function updateEtapaEstado(fiestaId: string, etapaId: string, estado: EstadoEtapa): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const result = await getMissionControl(fiestaId);
     if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
@@ -206,7 +207,7 @@ export async function toggleChecklistItem(
   itemId: string,
   completadoPor?: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const result = await getMissionControl(fiestaId);
     if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
@@ -236,7 +237,7 @@ export async function toggleChecklistItem(
 }
 
 export async function addNotaEtapa(fiestaId: string, etapaId: string, nota: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const result = await getMissionControl(fiestaId);
     if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
@@ -253,7 +254,7 @@ export async function addNotaEtapa(fiestaId: string, etapaId: string, nota: stri
 }
 
 export async function addEtapa(fiestaId: string, etapa: Omit<EtapaTimeline, 'id' | 'orden'>): Promise<{ success: boolean; data?: EtapaTimeline; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const result = await getMissionControl(fiestaId);
     if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
@@ -279,7 +280,7 @@ export async function updateEtapa(
   etapaId: string,
   updates: Partial<EtapaTimeline>,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const result = await getMissionControl(fiestaId);
     if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };

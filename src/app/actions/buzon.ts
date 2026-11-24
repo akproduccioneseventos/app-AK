@@ -5,6 +5,8 @@ import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { addChatMessage } from '@/app/actions/social-gallery';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import * as logger from '@/lib/logger';
 import crypto from 'crypto';
 import path from 'path';
@@ -229,8 +231,9 @@ export async function uploadBuzonMessage(
       true // make public so the client/host can reproduce it directly
     );
 
-    const isTimeCapsule = formData.get('isTimeCapsule') === 'true';
-    const unlockYears = Number(formData.get('unlockYears')) || (isTimeCapsule ? 10 : undefined);
+    const legacyCapsuleYears = Number(formData.get('timeCapsuleYears')) || 0;
+    const isTimeCapsule = formData.get('isTimeCapsule') === 'true' || legacyCapsuleYears > 0;
+    const unlockYears = Number(formData.get('unlockYears')) || legacyCapsuleYears || (isTimeCapsule ? 10 : undefined);
     let unlockDate: string | undefined;
     if (isTimeCapsule && unlockYears && unlockYears > 0) {
       const future = new Date();
@@ -286,7 +289,6 @@ export async function deleteBuzonMessage(
 ): Promise<{ success: boolean; error?: string }> {
   if (!messageId) return { success: false, error: 'ID de mensaje es requerido.' };
   try {
-    await requireAppSession();
     const db = await getDb();
     const ref = db.collection(BUZON_COLLECTION).doc(messageId);
     const snap = await ref.get();
@@ -296,6 +298,7 @@ export async function deleteBuzonMessage(
     }
 
     const data = snap.data() as BuzonMessage;
+    await requireEventPermission(data.fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION]);
 
     // Delete from Firebase Storage
     if (data.storagePath) {
@@ -327,7 +330,7 @@ export async function uploadWelcomeAudio(
   }
 
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
     const fileExtension = path.extname(file.name) || '.webm';
     const storagePath = `fiestas/${fiestaId}/buzon/bienvenida${fileExtension}`;
 

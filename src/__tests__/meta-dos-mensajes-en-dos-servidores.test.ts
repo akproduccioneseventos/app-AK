@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 
 describe('Meta Webhook - Dos mensajes en dos servidores', () => {
+  jest.setTimeout(15000);
   const storeGlobal = new Map<string, any[]>();
   const secret = 'meta-test-secret-123';
 

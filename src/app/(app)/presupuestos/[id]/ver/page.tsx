@@ -45,6 +45,7 @@ import {
   buildAnnualAdjustmentProjection,
   calculatePricePerPerson,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+  getYearFromDate,
 } from '@/lib/budget/formal-budget';
 import { montoDeSenia } from '@/lib/budget/monto-de-senia';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
@@ -253,7 +254,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
     const brutoVenta = itemsRecalculados.filter(i => !i.esRegalo).reduce((sum, i) => sum + i.costoTotalItem, 0);
     const regalosVal = itemsRecalculados.filter(i => i.esRegalo).reduce((sum, i) => {
-        const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitario };
+        const precioVentaRegalo = (Number(i.precioUnitarioPresupuesto) > 0 ? i.precioUnitarioPresupuesto : undefined) ?? i.precioUnitario;
+        const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: precioVentaRegalo };
         return sum + recalcularCostoItem(itemNormal, adultos, adolescentes, ninos);
     }, 0);
 
@@ -262,7 +264,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     else if (presupuesto.descuentoTipo === 'fijo') bonificacion = presupuesto.descuentoValor || 0;
 
     const discountAmount = financials.discount || Math.round(bonificacion);
-    const totalVigente = Math.max(0, brutoVenta - discountAmount);
+    const totalVigente = financials.total;
 
     const agrupados = itemsRecalculados.reduce((acc, item) => {
       const cat = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros');
@@ -280,10 +282,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const sortedAgrupados: Record<string, any[]> = {};
     sortedCategories.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
+    const baseYear = getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? new Date().getFullYear();
     const projection = buildAnnualAdjustmentProjection({
       baseTotal: totalVigente,
       eventDate: presupuesto.eventoFecha,
-      currentYear: new Date(presupuesto.timestamp).getFullYear(),
+      currentYear: baseYear,
       adjustmentPct: adjustmentPct,
     });
 
@@ -739,11 +742,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     Boolean(presupuesto.fechaFirmaContrato);
   const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
   const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+  const contractBaseYear = isContracted
+    ? (getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? currentYear)
+    : currentYear;
   const annualProjection = buildAnnualAdjustmentProjection({
     baseTotal: calculatedValues.totalVigente,
     eventDate: presupuesto.eventoFecha,
     adjustmentPct,
-    currentYear,
+    currentYear: contractBaseYear,
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 

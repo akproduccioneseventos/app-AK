@@ -190,6 +190,23 @@ export default function Plataforma360Page() {
     };
   }, [customAudioUrl]);
 
+  useEffect(() => {
+    return () => {
+      if (finalVideoUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(finalVideoUrl);
+      }
+    };
+  }, [finalVideoUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
+    };
+  }, []);
+
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());

@@ -253,11 +253,18 @@ function protegerLaPlata(
   return entrante;
 }
 
+class ExceedsTransactionLimitError extends Error {
+  constructor(totalOps: number) {
+    super(`Supera el límite de una transacción (${totalOps} operaciones).`);
+    this.name = 'ExceedsTransactionLimitError';
+  }
+}
+
 export async function syncToFirestore(
   filePath: string,
   data: any,
   // Solo la restauracion de un respaldo manda sobre los cobros y borra por omision.
-  opciones: { esRestauracion?: boolean; esParcial?: boolean } = {},
+  opciones: { esRestauracion?: boolean; esParcial?: boolean; lecturaFallida?: boolean } = {},
 ): Promise<void> {
   if (logger.shouldSkipFirestoreDuringBuild()) return;
 
@@ -313,6 +320,9 @@ export async function syncToFirestore(
 
           if (data.length === 0 && existingIds.size > 0) {
             if (ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath)) {
+              if (querySnapshot.docs.length > batchSize) {
+                throw new ExceedsTransactionLimitError(querySnapshot.docs.length);
+              }
               querySnapshot.docs.forEach((doc) => {
                 transaction.delete(doc.ref);
               });
@@ -333,11 +343,14 @@ export async function syncToFirestore(
           let toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
           if (!opciones.esRestauracion) {
             const versiones = new Map(querySnapshot.docs.map((doc) => [doc.id, String((doc.data() as any)?._syncedAt ?? '')]));
-            const decision = decidirGuardado(data, getItemDocId, versiones);
+            const decision = decidirGuardado(data, getItemDocId, versiones, { lecturaFallida: opciones.lecturaFallida });
             if (decision.choques.length > 0) throw new ChoqueAlGuardar(collectionName, decision.choques);
             aEscribir = decision.escribir;
             const borrables = new Set(decision.borrar);
             toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => borrables.has(doc.id));
+          }
+          if (toDelete.length + aEscribir.length > batchSize) {
+            throw new ExceedsTransactionLimitError(toDelete.length + aEscribir.length);
           }
           toDelete.forEach((doc) => {
             transaction.delete(doc.ref);
@@ -355,11 +368,10 @@ export async function syncToFirestore(
         }), `transaction-sync: ${collectionName}`);
         return;
       } catch (err) {
-        if (err instanceof ChoqueAlGuardar) throw err;
-        if (err instanceof Error && err.message === 'No se guardó: la lista quedaría vacía y este archivo no permite vaciarse') {
+        if (!(err instanceof ExceedsTransactionLimitError)) {
           throw err;
         }
-        logger.warn(`🔄 [Firebase Sync] Fallback a lotes para "${collectionName}" debido a error en transacción: ${err}`);
+        logger.warn(`🔄 [Firebase Sync] "${collectionName}" supera ${batchSize} operaciones; aplicando lotes ordenados (${err.message}).`);
       }
 
       const existingSnapshot = await db.collection(collectionName).get();
@@ -388,25 +400,14 @@ export async function syncToFirestore(
         : [...existingIds].filter((id: string) => !newIds.has(id));
       if (!opciones.esRestauracion) {
         const versiones = new Map(existingSnapshot.docs.map((doc) => [doc.id, String((doc.data() as any)?._syncedAt ?? '')]));
-        const decision = decidirGuardado(data, getItemDocId, versiones);
+        const decision = decidirGuardado(data, getItemDocId, versiones, { lecturaFallida: opciones.lecturaFallida });
         if (decision.choques.length > 0) throw new ChoqueAlGuardar(collectionName, decision.choques);
         aEscribirEnLotes = decision.escribir;
         const borrables = new Set(decision.borrar);
         toDelete = toDelete.filter((id) => borrables.has(id));
       }
-      if (toDelete.length > 0) {
-        for (let i = 0; i < toDelete.length; i += batchSize) {
-          const deleteBatch = db.batch();
-          toDelete.slice(i, i + batchSize).forEach((id: string) => {
-            deleteBatch.delete(db.collection(collectionName).doc(id));
-          });
-          await withRetry(() => deleteBatch.commit(), `delete orphans: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
-        }
-        if (isDev) {
-          logger.info(`🗑️ [Firebase Sync] "${collectionName}" — ${toDelete.length} documento(s) huérfano(s) eliminado(s).`);
-        }
-      }
 
+      // Escribir primero y borrar huérfanos después: si un lote de escritura falla, no se perdió nada.
       for (let i = 0; i < aEscribirEnLotes.length; i += batchSize) {
         const batch = db.batch();
         const chunk = aEscribirEnLotes.slice(i, i + batchSize);
@@ -422,6 +423,19 @@ export async function syncToFirestore(
         }
 
         await withRetry(() => batch.commit(), `collection: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
+      }
+
+      if (toDelete.length > 0) {
+        for (let i = 0; i < toDelete.length; i += batchSize) {
+          const deleteBatch = db.batch();
+          toDelete.slice(i, i + batchSize).forEach((id: string) => {
+            deleteBatch.delete(db.collection(collectionName).doc(id));
+          });
+          await withRetry(() => deleteBatch.commit(), `delete orphans: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
+        }
+        if (isDev) {
+          logger.info(`🗑️ [Firebase Sync] "${collectionName}" — ${toDelete.length} documento(s) huérfano(s) eliminado(s).`);
+        }
       }
       return;
     }

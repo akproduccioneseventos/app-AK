@@ -185,12 +185,17 @@ export function LiveStreamGuestDialog({
 
       const pendingCandidates: string[] = [];
       let activeReqId = '';
+      let activeCallerToken: string | undefined;
 
       pc.onicecandidate = (event) => {
         if (!event.candidate) return;
         const json = JSON.stringify(event.candidate.toJSON());
         if (activeReqId) {
-          void pushLiveStreamIceCandidate(fiestaId, activeReqId, 'caller', json, { guestAccessToken });
+          void pushLiveStreamIceCandidate(fiestaId, activeReqId, 'caller', json, {
+            guestId,
+            guestAccessToken,
+            callerToken: activeCallerToken,
+          });
         } else {
           pendingCandidates.push(json);
         }
@@ -219,17 +224,26 @@ export function LiveStreamGuestDialog({
       }
 
       activeReqId = res.request.id;
+      activeCallerToken = res.callerToken;
       setRequest(res.request);
 
       for (const c of pendingCandidates) {
-        void pushLiveStreamIceCandidate(fiestaId, activeReqId, 'caller', c, { guestAccessToken });
+        void pushLiveStreamIceCandidate(fiestaId, activeReqId, 'caller', c, {
+          guestId,
+          guestAccessToken,
+          callerToken: activeCallerToken,
+        });
       }
 
       let acceptedStartedAt = 0;
       const seenCalleeIce = new Set<string>();
 
       pollRef.current = setInterval(async () => {
-        const statusRes = await getGuestLiveStreamStatus(fiestaId, activeReqId, { guestAccessToken });
+        const statusRes = await getGuestLiveStreamStatus(fiestaId, activeReqId, {
+          guestId,
+          guestAccessToken,
+          callerToken: activeCallerToken,
+        });
         const current = statusRes.request;
         if (!current) return;
         setRequest(current);

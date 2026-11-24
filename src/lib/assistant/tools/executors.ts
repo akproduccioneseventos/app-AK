@@ -14,6 +14,7 @@ import type { ToolResult } from '../tool-registry';
 import * as logger from '@/lib/logger';
 import { ASSISTANT_ROUTES } from '../app-routes';
 import { hoyEnUruguay } from '@/lib/utils';
+import { unoSoloPorNombre } from '../uno-solo-por-nombre';
 
 // ── Modo seguro operativo ─────────────────────────────────────────────────────
 
@@ -94,6 +95,7 @@ export interface RegistrarPagoInput {
   monto: number;
   metodoPago?: 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque' | 'Otro';
   referencia?: string;
+  confirmado?: boolean;
 }
 
 export interface CrearEventoInput {
@@ -449,45 +451,46 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
   if (!input.monto || input.monto <= 0) {
     return { success: false, error: 'El monto debe ser mayor a cero.', message: 'El monto del pago debe ser mayor a cero.' };
   }
+  if (input.confirmado === false) {
+    return {
+      success: false,
+      error: 'Se requiere confirmación explícita antes de registrar el pago.',
+      message: 'Confirmá antes de registrar este pago en el presupuesto.',
+    };
+  }
 
   const { addPagoToPresupuesto, getPresupuestos } = await import('@/app/actions/presupuestos');
 
   let presupuestoId = input.presupuestoId;
 
-  // Si no se proporcionó ID, buscar por nombre de cliente
+  // Si no se proporcionó ID, buscar por nombre de cliente sin ambigüedad
   if (!presupuestoId && input.clienteNombre) {
     const presupuestos = await getPresupuestos();
-    const clienteNorm = input.clienteNombre.toLowerCase();
+    const clienteNorm = input.clienteNombre.trim().toLowerCase();
 
     // Exclude budgets that are rejected or cancelled — they should not receive payments.
     const ESTADOS_INVALIDOS = ['Rechazado', 'Cancelado'];
-    // Preferred states — prioritize these over drafts or unconfirmed ones.
-    const ESTADOS_PRIORITARIOS = ['Aceptado', 'Facturado', 'Enviado'];
-
-    const candidates = presupuestos
-      .filter(p => p.clienteNombre.toLowerCase().includes(clienteNorm))
+    const validos = presupuestos
       .filter(p => !ESTADOS_INVALIDOS.includes(p.estado))
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    // If multiple candidates, require explicit presupuestoId to avoid registering the wrong payment.
-    if (candidates.length > 1) {
-      const MAX_CANDIDATES_TO_DISPLAY = 5;
-      const listado = candidates
-        .slice(0, MAX_CANDIDATES_TO_DISPLAY)
-        .map(p => `#${p.numero} (${p.estado}, $${p.totalConDescuento ?? p.costoTotalEstimado})`)
-        .join(', ');
-      return {
-        success: false,
-        error: `Se encontraron ${candidates.length} presupuestos para "${input.clienteNombre}": ${listado}. Indicá el ID o número de presupuesto para evitar un pago ambiguo.`,
-        message: `⚠️ Hay más de un presupuesto posible para "${input.clienteNombre}": ${listado}. Por favor indicá el número o ID exacto del presupuesto.`,
-      };
-    }
-
-    // Prefer a budget in a priority state
-    const prioritario = candidates.find(p => ESTADOS_PRIORITARIOS.includes(p.estado));
-    const chosen = prioritario ?? candidates[0];
-    if (chosen) {
-      presupuestoId = chosen.id;
+    const unico = unoSoloPorNombre(validos, (p) => [p.clienteNombre], input.clienteNombre);
+    if (unico) {
+      presupuestoId = unico.id;
+    } else if (clienteNorm.length >= 3) {
+      const candidates = validos.filter(p => (p.clienteNombre || '').toLowerCase().includes(clienteNorm));
+      if (candidates.length > 1) {
+        const MAX_CANDIDATES_TO_DISPLAY = 5;
+        const listado = candidates
+          .slice(0, MAX_CANDIDATES_TO_DISPLAY)
+          .map(p => `#${p.numero} (${p.estado}, $${p.totalConDescuento ?? p.costoTotalEstimado})`)
+          .join(', ');
+        return {
+          success: false,
+          error: `Se encontraron ${candidates.length} presupuestos para "${input.clienteNombre}": ${listado}. Indicá el ID o número de presupuesto para evitar un pago ambiguo.`,
+          message: `⚠️ Hay más de un presupuesto posible para "${input.clienteNombre}": ${listado}. Por favor indicá el número o ID exacto del presupuesto.`,
+        };
+      }
     }
   }
 
@@ -507,7 +510,7 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
     monto: input.monto,
     metodoPago: metodo,
     referencia: input.referencia,
-    estadoPago: 'confirmado',
+    estadoPago: input.confirmado === true ? 'confirmado' : 'pendiente_confirmacion',
   });
 
   if (!result.success) {
@@ -601,15 +604,11 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
 
   let fiestaId = input.fiestaId;
   if (!fiestaId && input.clienteNombre) {
-    const clienteNorm = input.clienteNombre.toLowerCase();
-    const found = allFiestas.find(f => {
-      const nombre = (
-        f.configuracion?.clienteNombre ||
-        f.configuracion?.nombreEvento ||
-        ''
-      ).toLowerCase();
-      return nombre.includes(clienteNorm);
-    });
+    const found = unoSoloPorNombre(
+      allFiestas,
+      (f) => [f.configuracion?.clienteNombre, f.configuracion?.nombreEvento],
+      input.clienteNombre,
+    );
     if (found) fiestaId = found.id;
   }
 

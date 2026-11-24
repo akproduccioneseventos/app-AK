@@ -253,8 +253,12 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<Lectura
 
 export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { requireAppSession } = await import('@/lib/auth/require-session');
-    await requireAppSession();
+    if (!fiestaId || !/^[a-zA-Z0-9_-]+$/.test(fiestaId)) {
+      return { success: false, error: 'ID de fiesta no válido.' };
+    }
+    const { requireEventPermission } = await import('@/lib/auth/event-access');
+    const { PERMISOS } = await import('@/lib/auth/perfiles');
+    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION]);
     if (!admin.apps.length) {
       return {
         success: false,

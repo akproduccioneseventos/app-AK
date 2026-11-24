@@ -296,7 +296,10 @@ function CrearPresupuestoContent() {
                         if (leadPhone) baseForm.clienteContacto = safeDecodeParam(leadPhone);
                         if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
                         if (fechaParam) {
-                            const parsedDate = new Date(fechaParam);
+                            const soloDia = fechaParam.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                            const parsedDate = soloDia
+                                ? new Date(Number(soloDia[1]), Number(soloDia[2]) - 1, Number(soloDia[3]), 12, 0, 0)
+                                : new Date(fechaParam);
                             if (!Number.isNaN(parsedDate.getTime())) baseForm.eventoFecha = parsedDate;
                         }
                         if (duracionParam !== undefined && duracionParam > 0) {
@@ -516,7 +519,7 @@ function CrearPresupuestoContent() {
             if (formData.cuponId && formData.cuponDescuento) {
               try {
                 const { registrarUsoCupon } = await import('@/app/actions/cupones');
-                const usoRes = await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
+                const usoRes = await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, totalCalculado);
                 if (!usoRes?.success) {
                   toast({
                     title: 'El cupón no quedó registrado',

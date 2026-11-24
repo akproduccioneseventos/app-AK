@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { getPhotoFilePathsForZip, type PhotoZipItem } from '@/app/actions/social-gallery';
 import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { soloAprobados } from '@/lib/social-fiesta/visibilidad';
 import { esTiraFotocabina } from '@/lib/video-resumen/elegir-fotos-video';
 
@@ -137,6 +139,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
   }
 
+  try {
+    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
+  }
+
   const searchParams =
     (request as { nextUrl?: { searchParams?: URLSearchParams } }).nextUrl?.searchParams ??
     new URL(request.url).searchParams;
@@ -188,7 +196,14 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
           fileContent = Buffer.from(await res.arrayBuffer());
         } else {
           const fs = await import('fs/promises');
-          fileContent = await fs.readFile(photo.path);
+          const path = await import('path');
+          const base = path.resolve(process.cwd());
+          const ruta = path.resolve(base, photo.path);
+          if (!ruta.startsWith(base + path.sep)) {
+            omittedFiles.push(`${photo.name} (Ruta local no permitida)`);
+            continue;
+          }
+          fileContent = await fs.readFile(ruta);
         }
 
         totalSize += fileContent.length;

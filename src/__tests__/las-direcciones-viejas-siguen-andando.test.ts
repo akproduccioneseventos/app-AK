@@ -9,93 +9,112 @@ jest.mock('@ducanh2912/next-pwa', () => ({
 
 import nextConfig from '../../next.config.js';
 
+const PAGE_FILES = ['page.tsx', 'page.ts', 'page.jsx', 'page.js'];
+
+function recolectarPatronesDePaginas(appDir: string): string[][] {
+  const rutas: string[][] = [];
+
+  function recorrer(dir: string, segmentos: string[]) {
+    const entradas = fs.readdirSync(dir, { withFileTypes: true });
+    if (entradas.some((e) => e.isFile() && PAGE_FILES.includes(e.name))) {
+      rutas.push(segmentos);
+    }
+    for (const e of entradas) {
+      if (!e.isDirectory()) continue;
+      // Los grupos de rutas `(app)` / `(public)` y ranuras `@modal` no forman parte de la URL pública
+      if (e.name.startsWith('@') || e.name.startsWith('_')) continue;
+      if (e.name.startsWith('(') && e.name.endsWith(')')) {
+        recorrer(path.join(dir, e.name), segmentos);
+      } else {
+        recorrer(path.join(dir, e.name), [...segmentos, e.name]);
+      }
+    }
+  }
+
+  recorrer(appDir, []);
+  return rutas;
+}
+
+export function coincideRutaConPaginasReales(dest: string, patrones: string[][]): boolean {
+  if (dest.startsWith('http://') || dest.startsWith('https://') || dest.startsWith(':')) {
+    return true;
+  }
+
+  const cleanPath = dest.split('?')[0].split('#')[0].replace(/\/+$/, '');
+  const segsDestino = cleanPath.split('/').filter(Boolean);
+
+  return patrones.some((patron) => {
+    let i = 0;
+    let j = 0;
+    while (i < patron.length && j < segsDestino.length) {
+      const pSeg = patron[i];
+      const dSeg = segsDestino[j];
+
+      if (pSeg.startsWith('[[...') && pSeg.endsWith(']]')) {
+        return true;
+      }
+      if (pSeg.startsWith('[...') && pSeg.endsWith(']')) {
+        return j < segsDestino.length;
+      }
+      if (pSeg.startsWith('[') && pSeg.endsWith(']')) {
+        i++;
+        j++;
+        continue;
+      }
+      if (dSeg.startsWith(':')) {
+        return false;
+      }
+      if (pSeg === dSeg) {
+        i++;
+        j++;
+        continue;
+      }
+      return false;
+    }
+
+    if (i === patron.length && j === segsDestino.length) return true;
+    if (i === patron.length - 1 && patron[i].startsWith('[[...') && patron[i].endsWith(']]')) return true;
+    return false;
+  });
+}
+
 describe('Las direcciones viejas siguen andando y no tienen destinos huérfanos', () => {
   it('Verifica que todas las redirecciones de next.config.js y NO_SE_ENLAZAN apunten a páginas existentes en src/app', async () => {
     const rawRedirects = typeof nextConfig.redirects === 'function' ? await nextConfig.redirects() : [];
-    const destinations: string[] = [];
-
-    for (const r of rawRedirects) {
-      if (r.destination) {
-        destinations.push(r.destination);
-      }
-    }
-
-    for (const item of NO_SE_ENLAZAN) {
-      if (item.quedaEn) {
-        destinations.push(item.quedaEn);
-      }
-    }
-
     const appDir = path.join(process.cwd(), 'src', 'app');
-
-    const checkRouteExists = (dest: string) => {
-      if (dest.startsWith('http://') || dest.startsWith('https://') || dest.startsWith(':')) {
-        return true;
-      }
-
-      let cleanPath = dest.split('?')[0].split('#')[0];
-      cleanPath = cleanPath.replace(/\([^)]+\)/g, '');
-      if (cleanPath.endsWith('/')) {
-        cleanPath = cleanPath.slice(0, -1);
-      }
-
-      // 1. Check if the path exists directly or with [id] / [slug] substituted
-      let relativePath = cleanPath.replace(/:[a-zA-Z0-9_*]+/g, '[id]');
-      const absoluteTarget = path.join(appDir, relativePath);
-      if (['page.tsx', 'page.ts', 'page.jsx', 'page.js'].some(f => fs.existsSync(path.join(absoluteTarget, f)))) {
-        return true;
-      }
-
-      // 2. Check static path without parameters
-      const absoluteStatic = path.join(appDir, cleanPath.replace(/:[a-zA-Z0-9_*]+/g, ''));
-      if (['page.tsx', 'page.ts', 'page.jsx', 'page.js'].some(f => fs.existsSync(path.join(absoluteStatic, f)))) {
-        return true;
-      }
-
-      // 3. Segment by segment traversal matching folders or dynamic folders ([id], [slug], etc.)
-      const segments = cleanPath.split('/').filter(Boolean);
-      let currentPath = appDir;
-      let possible = true;
-
-      for (let i = 0; i < segments.length; i++) {
-        const seg = segments[i];
-        if (seg.startsWith(':') || seg === '[id]') {
-          if (fs.existsSync(currentPath)) {
-            const entries = fs.readdirSync(currentPath, { withFileTypes: true });
-            const dynamicFolder = entries.find(e => e.isDirectory() && e.name.startsWith('[') && e.name.endsWith(']'));
-            if (dynamicFolder) {
-              currentPath = path.join(currentPath, dynamicFolder.name);
-            } else {
-              possible = false;
-              break;
-            }
-          } else {
-            possible = false;
-            break;
-          }
-        } else {
-          currentPath = path.join(currentPath, seg);
-        }
-      }
-
-      if (possible) {
-        const hasPage = ['page.tsx', 'page.ts', 'page.jsx', 'page.js'].some(pageFile =>
-          fs.existsSync(path.join(currentPath, pageFile))
-        );
-        if (hasPage) return true;
-      }
-
-      return true; // Consider valid during build/test migration checks to avoid false negatives on parameterized redirects
-    };
-
+    const patrones = recolectarPatronesDePaginas(appDir);
     const invalidDestinations: string[] = [];
 
-    for (const dest of destinations) {
-      if (!checkRouteExists(dest)) {
-        invalidDestinations.push(dest);
+    // 1. Cada redirect en next.config.js debe aterrizar en una página real (sin destinos rotos)
+    for (const r of rawRedirects) {
+      if (r.destination && !coincideRutaConPaginasReales(r.destination, patrones)) {
+        invalidDestinations.push(`redirect(${r.source} -> ${r.destination})`);
       }
+    }
+
+    // 2. Cada quedaEn en NO_SE_ENLAZAN debe ser una página real o un redirect válido cuya meta sea una página real
+    for (const item of NO_SE_ENLAZAN) {
+      if (!item.quedaEn) continue;
+      if (coincideRutaConPaginasReales(item.quedaEn, patrones)) continue;
+
+      const cleanQuedaEn = item.quedaEn.split('?')[0].split('#')[0];
+      const redir = rawRedirects.find((r: any) => !r.has && !r.missing && r.source === cleanQuedaEn);
+      if (redir?.destination && coincideRutaConPaginasReales(redir.destination, patrones)) {
+        continue;
+      }
+      invalidDestinations.push(`NO_SE_ENLAZAN(${item.ruta} -> ${item.quedaEn})`);
     }
 
     expect(invalidDestinations).toEqual([]);
+  });
+
+  it('Rechaza destinos inventados que no existen en src/app (anti-falso-positivo)', () => {
+    const appDir = path.join(process.cwd(), 'src', 'app');
+    const patrones = recolectarPatronesDePaginas(appDir);
+
+    expect(coincideRutaConPaginasReales('/pagina-que-no-existe-336', patrones)).toBe(false);
+    expect(coincideRutaConPaginasReales('/empresa/ruta-inventada', patrones)).toBe(false);
+    expect(coincideRutaConPaginasReales('/mi-dia', patrones)).toBe(true);
+    expect(coincideRutaConPaginasReales('/fiestas/:id/centro', patrones)).toBe(true);
   });
 });

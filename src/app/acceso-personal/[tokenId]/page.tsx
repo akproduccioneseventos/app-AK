@@ -10,6 +10,7 @@ import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSea
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getAccesoPersonalPortalView, responderAsistenciaPersonal, registrarLlegadaPersonal } from '@/app/actions/accesos-personal-view';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { andaPorEnlace } from '@/lib/auth/permisos-por-enlace';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
@@ -390,7 +391,7 @@ export default function PortalPersonalPage() {
                     <div className="mt-6 pt-4 border-t">
                       <h4 className="text-sm font-bold text-slate-800 mb-3">Momentos Clave de la Noche</h4>
                       <div className="space-y-3">
-                        {fiesta.programa.map(item => (
+                        {ordenarPorHoraDelEvento(fiesta.programa, fiesta.horaInicio).map(item => (
                           <div key={item.id} className="flex gap-3 text-sm">
                             <div className="w-12 flex-shrink-0 text-slate-500 font-medium">{item.hora}</div>
                             <div className="flex-grow">

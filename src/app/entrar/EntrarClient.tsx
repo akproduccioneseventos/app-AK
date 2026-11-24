@@ -585,8 +585,24 @@ export function EntrarClient() {
                         <button
                           key={f.id}
                           type="button"
-                          onClick={() => router.push(`/portal-cliente/${encodeURIComponent(f.id)}`)}
-                          className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm flex items-center justify-between transition"
+                          disabled={cargandoCliente}
+                          onClick={async () => {
+                            setCargandoCliente(true);
+                            setErrorCliente(null);
+                            try {
+                              const res = await entrarAlPortalPorTelefono(telefonoCliente, claveCliente, f.id);
+                              if (res.success && res.fiestaId) {
+                                router.push(`/portal-cliente/${encodeURIComponent(res.fiestaId)}`);
+                                return;
+                              }
+                              setErrorCliente(res.error || 'No pudimos abrir esa fiesta.');
+                            } catch {
+                              setErrorCliente('Ocurrió un error al abrir la fiesta. Probá de nuevo.');
+                            } finally {
+                              setCargandoCliente(false);
+                            }
+                          }}
+                          className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm flex items-center justify-between transition disabled:opacity-60"
                         >
                           <span className="truncate">{f.nombreEvento}</span>
                           <span className="text-xs text-red-400 font-bold shrink-0 ml-2">Abrir →</span>

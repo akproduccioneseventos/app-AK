@@ -569,6 +569,15 @@ export function buildEmployeeCalendarEvent(
   };
 }
 
+function escapeHtml(value?: string | number | null): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function buildStaffEmailHtml(
   fiesta: FiestaEnPlanificacion,
   employee: Empleado,
@@ -586,14 +595,14 @@ export function buildStaffEmailHtml(
   return `
     <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
       <h2 style="color:#b91c1c;margin-bottom:8px">Nueva asignacion AK</h2>
-      <p>Hola ${employee.nombre}, tenes una fiesta asignada.</p>
+      <p>Hola ${escapeHtml(employee.nombre)}, tenes una fiesta asignada.</p>
       <ul>
-        <li><strong>Fiesta:</strong> ${getFiestaTitle(fiesta)}</li>
-        <li><strong>Fecha:</strong> ${dateLabel}</li>
-        <li><strong>Rol:</strong> ${roleName}</li>
-        ${cfg.nombreLugar ? `<li><strong>Lugar:</strong> ${cfg.nombreLugar}</li>` : ''}
-        ${cfg.direccionLugar ? `<li><strong>Direccion:</strong> ${cfg.direccionLugar}</li>` : ''}
-        ${assignment.eventSalary ? `<li><strong>Pago del evento:</strong> ${assignment.eventSalary}</li>` : ''}
+        <li><strong>Fiesta:</strong> ${escapeHtml(getFiestaTitle(fiesta))}</li>
+        <li><strong>Fecha:</strong> ${escapeHtml(dateLabel)}</li>
+        <li><strong>Rol:</strong> ${escapeHtml(roleName)}</li>
+        ${cfg.nombreLugar ? `<li><strong>Lugar:</strong> ${escapeHtml(cfg.nombreLugar)}</li>` : ''}
+        ${cfg.direccionLugar ? `<li><strong>Direccion:</strong> ${escapeHtml(cfg.direccionLugar)}</li>` : ''}
+        ${assignment.eventSalary ? `<li><strong>Pago del evento:</strong> ${escapeHtml(assignment.eventSalary)}</li>` : ''}
       </ul>
       <p>Si hay un cambio de fecha o de rol, AK te vuelve a avisar.</p>
     </div>

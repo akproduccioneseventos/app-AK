@@ -130,24 +130,7 @@ export async function deleteFromStorage(urlOrPath: string): Promise<void> {
   const bucket = getBucket();
   if (!bucket) return; // If Storage is not available, skip silently
 
-  let storagePath = urlOrPath;
-
-  // Extract the path component from a full URL if needed
-  if (urlOrPath.startsWith('https://')) {
-    try {
-      const url = new URL(urlOrPath);
-      // Strip leading slash and bucket prefix to get the raw storage path
-      // Public:  https://storage.googleapis.com/<bucket>/<path>
-      // Signed:  https://storage.googleapis.com/<bucket>/<path>?X-Goog-...
-      const bucketPrefix = `/${STORAGE_BUCKET}/`;
-      const idx = url.pathname.indexOf(bucketPrefix);
-      storagePath = idx !== -1
-        ? url.pathname.slice(idx + bucketPrefix.length)
-        : url.pathname.replace(/^\//, '');
-    } catch {
-      // If URL parsing fails, use as-is
-    }
-  }
+  let storagePath = extractStoragePath(urlOrPath);
 
   try {
     await bucket.file(storagePath).delete();
@@ -191,12 +174,36 @@ export function extractStoragePath(urlOrPath: string): string {
   if (!urlOrPath.startsWith('https://')) return urlOrPath;
   try {
     const url = new URL(urlOrPath);
+    if (url.hostname === 'firebasestorage.googleapis.com') {
+      const match = url.pathname.match(/^\/v0\/b\/[^/]+\/o\/(.+)$/);
+      if (match?.[1]) {
+        return decodeURIComponent(match[1]);
+      }
+    }
     const bucketPrefix = `/${STORAGE_BUCKET}/`;
     const idx = url.pathname.indexOf(bucketPrefix);
     return idx !== -1
-      ? url.pathname.slice(idx + bucketPrefix.length)
-      : url.pathname.replace(/^\//, '');
+      ? decodeURIComponent(url.pathname.slice(idx + bucketPrefix.length))
+      : decodeURIComponent(url.pathname.replace(/^\//, ''));
   } catch {
     return urlOrPath;
+  }
+}
+
+/**
+ * Download a file buffer from Firebase Storage if it exists.
+ */
+export async function downloadFromStorage(storagePath: string): Promise<Buffer | null> {
+  if (sinDepositoDisponible()) return null;
+  const bucket = getBucket();
+  if (!bucket) return null;
+  try {
+    const file = bucket.file(storagePath);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [buffer] = await file.download();
+    return buffer;
+  } catch {
+    return null;
   }
 }

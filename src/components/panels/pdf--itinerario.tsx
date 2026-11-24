@@ -12,6 +12,7 @@ import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { useSearchParams } from 'next/navigation';
 import { defaultPrograma, getDefaultPrograma } from '@/lib/fiesta-defaults';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const formatDate = (dateString?: string) => formatearFechaEvento(dateString);
@@ -144,9 +145,12 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
   // Se respetan los momentos que el organizador marco como no visibles: este
   // PDF se comparte con proveedores y con el cliente desde el portal de accesos,
   // igual que hace la Vista Cliente de la pantalla de itinerario.
-  const displayPrograma = (fiesta.programa && fiesta.programa.length > 0)
-    ? fiesta.programa.filter(item => item.visibleParaCliente !== false)
-    : getDefaultPrograma(fiesta.configuracion?.horaFin);
+  const displayPrograma = ordenarPorHoraDelEvento(
+    (fiesta.programa && fiesta.programa.length > 0)
+      ? fiesta.programa.filter(item => item.visibleParaCliente !== false)
+      : getDefaultPrograma(fiesta.configuracion?.horaFin),
+    fiesta.configuracion?.horaInicio,
+  );
 
   return (
     <div className="bg-gradient-to-b from-slate-100 to-slate-200 print:bg-white py-6 print:py-0 font-sans">

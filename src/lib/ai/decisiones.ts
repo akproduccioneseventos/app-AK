@@ -44,6 +44,51 @@ type GeminiInputPart =
   | { inlineData: { mimeType: string; data: string } }
   | { fileData: { fileUri: string; mimeType?: string } };
 
+const MAX_DECISIONS_IMAGE_BYTES = 10 * 1024 * 1024;
+const GEMINI_FILES_PREFIX = 'https://generativelanguage.googleapis.com/';
+
+async function descargarUrlAInlineData(
+  url: string,
+  mimeTypeHint?: string,
+  timeoutMs = DECISIONS_TIMEOUT_MS,
+): Promise<GeminiInputPart | null> {
+  if (!url.startsWith('https://')) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+    if (!res.ok) return null;
+    const headerLength = Number(res.headers.get('content-length'));
+    if (Number.isFinite(headerLength) && headerLength > MAX_DECISIONS_IMAGE_BYTES) return null;
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (!buffer.length || buffer.length > MAX_DECISIONS_IMAGE_BYTES) return null;
+    const contentType = res.headers.get('content-type')?.split(';')[0].trim().toLowerCase()
+      || mimeTypeHint
+      || 'image/jpeg';
+    return { inlineData: { mimeType: contentType, data: buffer.toString('base64') } };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function normalizarParteAsync(entrada: EntradaDecision, timeoutMs: number): Promise<GeminiInputPart | null> {
+  if (typeof entrada === 'object' && entrada && 'url' in entrada) {
+    const url = String(entrada.url ?? '').trim();
+    if (!url) return null;
+    const dataMatch = url.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+    if (dataMatch) {
+      return { inlineData: { mimeType: dataMatch[1], data: dataMatch[2] } };
+    }
+    if (url.startsWith(GEMINI_FILES_PREFIX)) {
+      return { fileData: { fileUri: url, ...(entrada.mimeType ? { mimeType: entrada.mimeType } : {}) } };
+    }
+    return descargarUrlAInlineData(url, entrada.mimeType, timeoutMs);
+  }
+  return normalizarParte(entrada);
+}
+
 function normalizarParte(entrada: EntradaDecision): GeminiInputPart | null {
   if (typeof entrada === 'string') {
     const limpio = entrada.trim();
@@ -217,9 +262,9 @@ export async function decidir({
 
   if (!(await decisionesRapidasHabilitadas())) return null;
 
-  const parts = (entradas ?? [])
-    .map(normalizarParte)
-    .filter((p): p is GeminiInputPart => p !== null);
+  const parts = (
+    await Promise.all((entradas ?? []).map((entrada) => normalizarParteAsync(entrada, timeoutMs)))
+  ).filter((p): p is GeminiInputPart => p !== null);
   const clavesPreguntas = Object.keys(preguntas ?? {});
   if (parts.length === 0 || clavesPreguntas.length === 0) return null;
 
