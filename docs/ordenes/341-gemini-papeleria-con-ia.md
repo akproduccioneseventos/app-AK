@@ -74,9 +74,10 @@ El dueño mandó cuatro PDF de cómo imprime (23/11/2026). La app arma la hoja s
    número (flores, temática), diseñado **una sola vez** y repetido en todas las mesas (no una imagen por mesa: se paga cada
    una). El número, el nombre del agasajado y la fecha (`dd/mm/aa`) los sigue escribiendo la app encima, así nunca salen
    mal. La solapa y la cara en blanco quedan sin dibujo.
-2.b **Cronograma, afiche y marco:** mismo criterio que la carta: vertical 10 × 15 cm con borde, dos por hoja A4, e
-   "Imprimir" en milímetros exactos. **En la carta y el menú, cada trago y cada plato con su foto** (la carta ya guarda
-   `imageUrl` por trago: se pasa como referencia), como en los ejemplos del dueño.
+2.b **Sólo la carta y el menú van de 10 × 15, dos por hoja** (los "cuadritos"). **El cronograma se imprime en una hoja A4
+   entera** (vertical, 210 × 297 mm), también con "Imprimir" en milímetros exactos. El afiche del agasajado, igual que el
+   cronograma. El marco de fotocabina y espejo mágico no se imprime aparte: lo usa la estación. **En la carta y el menú,
+   cada trago y cada plato con su foto** (la carta ya guarda `imageUrl` por trago: se pasa como referencia).
 3. **No sólo quinces y bodas:** si la fiesta es de empresa (ejemplo del dueño: "Correo Uruguayo, Día del Funcionario
    Postal"), la temática sale del cliente y del motivo del evento (sus colores, sus símbolos), no de flores y coronas.
 4. El botón "Imprimir" baja **un PDF con todas las hojas** (todas las mesas, las dos copias de cada pieza).
