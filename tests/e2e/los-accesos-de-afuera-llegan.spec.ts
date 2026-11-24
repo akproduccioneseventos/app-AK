@@ -5,6 +5,7 @@ import {
   borrarFiesta,
   crearFiestaDeEstaNoche,
   guardarFiesta,
+  ponerSesionDelEquipo,
 } from './helpers/fiesta-de-prueba';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
@@ -189,10 +190,18 @@ test.describe('Orden 337 — Bloque 1: los accesos de afuera llegan sin rebotar 
     await expect(page.getByText('Acceso No Autorizado')).toHaveCount(0);
   });
 
-  test('/q/[fiestaId] apunta el botón Cliente al portal del cliente y nunca al planificador interno', async ({ page }, testInfo) => {
+  test('/q/[fiestaId] apunta el botón Cliente al portal del cliente y nunca al planificador interno', async ({ context, page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
+    const baseURL = (testInfo.project.use.baseURL as string) || 'http://127.0.0.1:3100';
 
-    // Con accessKey -> /portal/c/...
+    // Visitante sin sesión: no expone accessKey en el HTML público
+    await page.goto(`/q/${fiestaIdConClave}`, { waitUntil: 'domcontentloaded' });
+    const linkClientePublico = page.locator('a', { hasText: /^Cliente/ }).first();
+    await expect(linkClientePublico).toHaveAttribute('href', `/portal?fiestaId=${fiestaIdConClave}`);
+    await expect(page.locator('a[href*="/fiestas/nueva/portal-cliente"]')).toHaveCount(0);
+
+    // Equipo autenticado con accessKey -> /portal/c/...
+    await ponerSesionDelEquipo(context, baseURL);
     await page.goto(`/q/${fiestaIdConClave}`, { waitUntil: 'domcontentloaded' });
     const linkClienteConClave = page.locator('a', { hasText: /^Cliente/ }).first();
     await expect(linkClienteConClave).toHaveAttribute('href', '/portal/c/clave-portal-e2e-337');

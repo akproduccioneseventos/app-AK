@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { clearSessionCookie, getSessionStatus } from '@/app/actions/session';
 import { getSession, setSession, clearSession } from '@/lib/auth';
@@ -24,23 +24,22 @@ interface AuthGuardProps {
   children: ReactNode;
 }
 
-function isPublicRoute(pathname: string) {
+function isPublicRoute(pathname: string, searchString: string) {
   let isPublic = isPublicPathPrefix(pathname);
 
   if (PUBLIC_EXACT_PATHS.has(pathname)) isPublic = true;
 
-  if (!isPublic && BUDGET_VIEW_REGEX.test(pathname) && typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(searchString);
+
+  if (!isPublic && BUDGET_VIEW_REGEX.test(pathname)) {
     if (urlParams.has('token')) isPublic = true;
   }
 
-  const search = typeof window !== 'undefined' ? window.location.search : '';
-  const urlParams = new URLSearchParams(search);
-  if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || search.includes('tab=pdf') || urlParams.get('tab') === 'pdf' || search.includes('subtab=pdf') || urlParams.get('subtab') === 'pdf') && typeof window !== 'undefined') {
+  if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || searchString.includes('tab=pdf') || urlParams.get('tab') === 'pdf' || searchString.includes('subtab=pdf') || urlParams.get('subtab') === 'pdf')) {
     if (urlParams.has('token')) isPublic = true;
   }
 
-  if (!isPublic && typeof window !== 'undefined') {
+  if (!isPublic) {
     const tab = urlParams.get('tab');
     const isProviderView =
       pathname.endsWith('/fotografia') ||
@@ -54,11 +53,13 @@ function isPublicRoute(pathname: string) {
   return isPublic;
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+function AuthGuardInner({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchString = searchParams?.toString() ?? '';
   const [isVerified, setIsVerified] = useState(false);
-  const isPublic = isPublicRoute(pathname);
+  const isPublic = isPublicRoute(pathname, searchString);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -90,7 +91,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
           setIsVerified(true);
           return;
         }
-        const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+        const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
         router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
         return;
       }
@@ -101,7 +102,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
         if (!isValid) {
           clearSession();
           await clearSessionCookie().catch(() => undefined);
-          const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+          const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
           router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
           return;
         }
@@ -110,7 +111,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
         if (!active) return;
         console.error('[AuthGuard] Failed to verify session on server:', err);
         clearSession();
-        const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+        const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
         router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
       }
     }
@@ -120,7 +121,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     return () => {
       active = false;
     };
-  }, [isPublic, pathname, router]);
+  }, [isPublic, pathname, searchString, router]);
 
   if (!isPublic && !isVerified) {
     return (
@@ -131,4 +132,18 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }
 
   return <>{children}</>;
+}
+
+export function AuthGuard({ children }: AuthGuardProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <AuthGuardInner>{children}</AuthGuardInner>
+    </Suspense>
+  );
 }

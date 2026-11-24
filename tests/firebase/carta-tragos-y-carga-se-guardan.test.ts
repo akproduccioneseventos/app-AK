@@ -10,12 +10,13 @@ jest.mock('next/headers', () => ({
   headers: async () => new Headers(),
 }));
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno', userId: 'dueno-338' } }),
+  verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno' } }),
 }));
 jest.mock('@/lib/auth/event-access', () => ({
   requireEventPermission: async () => undefined,
 }));
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: async () => null }));
+jest.mock('@/lib/backup/schedule-after-write', () => ({ scheduleAutoBackupAfterWrite: async () => undefined }));
 jest.mock('@/lib/whatsapp-automation-engine', () => ({ triggerWhatsAppAutomation: async () => ({ scheduled: 0, errors: [] }) }));
 jest.mock('@/app/actions/google-workspace', () => ({
   syncFiestaToGoogleWorkspace: async () => ({ success: true }),

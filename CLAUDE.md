@@ -2152,6 +2152,7 @@ con otra cara.
 | Mirar la lista de fiestas guardaba códigos y abrir un presupuesto reescribía fechas, también con el auditor | `src/__tests__/mirar-no-escribe.test.ts` |
 | Un documento raro (fecha de la base, sin número, sin configuración) tiraba la lista de fiestas y nueve pantallas | `src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts` |
 | Pantallas con la fiesta de muestra, carteles de "sincronizado" fijos, desplegables con opción vacía, marcadores y fechas sin convertir, enlaces sin credencial | Escaneos 218 y 220 a 224 en `scripts/las-formas-que-mienten.mjs` |
+| Una fórmula nueva de unidades daba platos mil veces más caros en lo que no podía convertir | `src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts` (pregunta 227) |
 
 ### Cómo se elige el matafuego
 

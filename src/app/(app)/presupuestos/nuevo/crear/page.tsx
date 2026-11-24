@@ -63,9 +63,12 @@ function readStoredDraftFromSession(): PresupuestoFormData | null {
         const storedState = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (storedState) {
             const parsed = JSON.parse(storedState);
-            parsed.serviciosSeleccionados = new Map(parsed.serviciosSeleccionados);
-            parsed.eventoFecha = parsed.eventoFecha ? new Date(parsed.eventoFecha) : undefined;
-            return parsed as PresupuestoFormData;
+            return {
+                ...initialFormData,
+                ...parsed,
+                serviciosSeleccionados: new Map(Array.isArray(parsed.serviciosSeleccionados) ? parsed.serviciosSeleccionados : []),
+                eventoFecha: parsed.eventoFecha ? new Date(parsed.eventoFecha) : undefined,
+            } as PresupuestoFormData;
         }
     } catch (error) { console.error("Failed to parse form state", error); }
     return null;
@@ -110,6 +113,87 @@ function safePositiveNumberParam(value: string | null): number | undefined {
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
+function parseIncomingParamsFromSearch(searchParams: { get(k: string): string | null; getAll(k: string): string[] }) {
+    const leadName = searchParams.get('leadName') || searchParams.get('cliente');
+    const leadPhone = searchParams.get('leadPhone');
+    const serviciosParams = searchParams.getAll('servicios');
+    const serviciosParam = searchParams.get('servicios');
+    let entradasParams = searchParams.getAll('entradas');
+    if (entradasParams.length === 0 && typeof window !== 'undefined') {
+        try {
+            const raw = sessionStorage.getItem('presentacion_entradas_seleccionadas');
+            const parsed = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(parsed)) entradasParams = parsed.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+        } catch {
+            // ignore
+        }
+    }
+    const validEntradas = entradasParams.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+    const menuIdParam = searchParams.get('menuId');
+    const teenMenuIdParam = searchParams.get('teenMenuId');
+    const adultosParam = safePositiveNumberParam(searchParams.get('adultos'));
+    const ninosParam = safePositiveNumberParam(searchParams.get('ninos'));
+    const fechaParam = searchParams.get('fecha');
+    const tipoParam = searchParams.get('tipoFiesta');
+    const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
+    const salonParam = searchParams.get('salon');
+    const hasIncomingProposalParams = Boolean(
+        leadName
+        || leadPhone
+        || fechaParam
+        || tipoParam
+        || duracionParam !== undefined
+        || salonParam
+        || adultosParam !== undefined
+        || ninosParam !== undefined
+        || serviciosParams.length > 0
+        || serviciosParam
+        || menuIdParam
+        || teenMenuIdParam
+        || validEntradas.length > 0
+    );
+
+    const baseForm: PresupuestoFormData = {
+        ...initialFormData,
+        serviciosSeleccionados: new Map(),
+    };
+    if (leadName) baseForm.clienteNombre = safeDecodeParam(leadName);
+    if (leadPhone) baseForm.clienteContacto = safeDecodeParam(leadPhone);
+    if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
+    if (fechaParam && fechaParam.trim()) {
+        const trimmedFecha = fechaParam.trim();
+        const parsedDate = parseUruguayDate(trimmedFecha);
+        const isValidDateInput = /^\d{4}-\d{2}-\d{2}$/.test(trimmedFecha) || !Number.isNaN(Date.parse(trimmedFecha));
+        if (isValidDateInput && !Number.isNaN(parsedDate.getTime())) {
+            baseForm.eventoFecha = parsedDate;
+        }
+    }
+    if (duracionParam !== undefined && duracionParam > 0) {
+        baseForm.duracionHoras = duracionParam;
+    }
+    if (salonParam) baseForm.salonFiestas = safeDecodeParam(salonParam);
+    if (adultosParam !== undefined) baseForm.invitadosAdultos = adultosParam;
+    if (ninosParam !== undefined) {
+        baseForm.invitadosAdolescentes = ninosParam;
+        baseForm.invitadosNinos = 0;
+    }
+    baseForm.invitadosCantidad =
+        (baseForm.invitadosAdultos || 0) +
+        (baseForm.invitadosNinos || 0) +
+        (baseForm.invitadosAdolescentes || 0);
+    if (menuIdParam) baseForm.selectedMenuId = menuIdParam;
+
+    return {
+        hasIncomingProposalParams,
+        baseForm,
+        validEntradas,
+        serviciosParams,
+        serviciosParam,
+        menuIdParam,
+        teenMenuIdParam,
+    };
+}
+
 function CrearPresupuestoContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -123,8 +207,9 @@ function CrearPresupuestoContent() {
     const [entradasDePresentacion, setEntradasDePresentacion] = useState<string[]>([]);
     const [paso, setPaso] = useState(1);
     
-    const [initialStoredDraft] = useState<PresupuestoFormData | null>(() => readStoredDraftFromSession());
     const conflictResolvedRef = useRef(false);
+    const pendingConflictActiveRef = useRef(false);
+    const [hasHydratedDraft, setHasHydratedDraft] = useState(false);
     const [pendingIncomingProposal, setPendingIncomingProposal] = useState<{
         draftClientName: string;
         formData: PresupuestoFormData;
@@ -199,13 +284,45 @@ function CrearPresupuestoContent() {
     }, [toast]);
 
     useEffect(() => {
+        if (!hasHydratedDraft || pendingIncomingProposal || !hasDraftWithContent(formData)) return;
         try {
             sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
                 ...formData,
                 serviciosSeleccionados: Array.from(formData.serviciosSeleccionados.entries())
             }));
         } catch (error) { console.warn("Could not save form state", error); }
-    }, [formData]);
+    }, [formData, hasHydratedDraft, pendingIncomingProposal]);
+
+    useEffect(() => {
+        if (searchParams.get('editId')) {
+            pendingConflictActiveRef.current = false;
+            setHasHydratedDraft(true);
+            return;
+        }
+        const storedDraft = readStoredDraftFromSession();
+        const incoming = parseIncomingParamsFromSearch(searchParams);
+        if (incoming.hasIncomingProposalParams) {
+            if (!conflictResolvedRef.current && storedDraft && hasDraftWithContent(storedDraft)) {
+                pendingConflictActiveRef.current = true;
+                setFormData(storedDraft);
+                setPendingIncomingProposal({
+                    draftClientName: (storedDraft.clienteNombre || '').trim() || 'otro cliente',
+                    formData: incoming.baseForm,
+                    entradas: incoming.validEntradas,
+                });
+            } else {
+                pendingConflictActiveRef.current = false;
+                setEntradasDePresentacion(incoming.validEntradas);
+                setFormData(incoming.baseForm);
+            }
+        } else if (storedDraft && hasDraftWithContent(storedDraft)) {
+            pendingConflictActiveRef.current = false;
+            setFormData(storedDraft);
+        } else {
+            pendingConflictActiveRef.current = false;
+        }
+        setHasHydratedDraft(true);
+    }, [searchParams]);
 
     // SYNC LOGIC: Auto-update quantities of selected items when guest count changes
     useEffect(() => {
@@ -293,97 +410,35 @@ function CrearPresupuestoContent() {
                         } as PresupuestoFormData);
                     }
                 } else {
-                    const leadName = searchParams.get('leadName') || searchParams.get('cliente');
-                    const leadPhone = searchParams.get('leadPhone');
-                    const serviciosParams = searchParams.getAll('servicios');
-                    const serviciosParam = searchParams.get('servicios');
-                    let entradasParams = searchParams.getAll('entradas');
-                    if (entradasParams.length === 0 && typeof window !== 'undefined') {
-                        try {
-                            const raw = sessionStorage.getItem('presentacion_entradas_seleccionadas');
-                            const parsed = raw ? JSON.parse(raw) : [];
-                            if (Array.isArray(parsed)) entradasParams = parsed.filter(id => typeof id === 'string' && id.trim().length > 0);
-                        } catch {
-                            // ignore
-                        }
-                    }
-                    const menuIdParam = searchParams.get('menuId');
-                    const teenMenuIdParam = searchParams.get('teenMenuId');
-                    const adultosParam = safePositiveNumberParam(searchParams.get('adultos'));
-                    const ninosParam = safePositiveNumberParam(searchParams.get('ninos'));
-                    const fechaParam = searchParams.get('fecha');
-                    const tipoParam = searchParams.get('tipoFiesta');
-                    const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
-                    const salonParam = searchParams.get('salon');
-                    const hasIncomingProposalParams = Boolean(
-                        leadName
-                        || leadPhone
-                        || fechaParam
-                        || tipoParam
-                        || duracionParam !== undefined
-                        || salonParam
-                        || adultosParam !== undefined
-                        || ninosParam !== undefined
-                        || serviciosParams.length > 0
-                        || serviciosParam
-                        || menuIdParam
-                        || teenMenuIdParam
-                        || entradasParams.length > 0
-                    );
-                    let waitForDraftChoice = false;
+                    const incoming = parseIncomingParamsFromSearch(searchParams);
+                    const hasConflict = Boolean(incoming.hasIncomingProposalParams && !conflictResolvedRef.current && pendingConflictActiveRef.current);
+                    let waitForDraftChoice = hasConflict;
 
-                    if (hasIncomingProposalParams) {
-                        const baseForm: PresupuestoFormData = {
-                            ...initialFormData,
-                            serviciosSeleccionados: new Map(),
-                        };
-                        if (leadName) baseForm.clienteNombre = safeDecodeParam(leadName);
-                        if (leadPhone) baseForm.clienteContacto = safeDecodeParam(leadPhone);
-                        if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
-                        if (fechaParam && fechaParam.trim()) {
-                            const trimmedFecha = fechaParam.trim();
-                            const parsedDate = parseUruguayDate(trimmedFecha);
-                            const isValidDateInput = /^\d{4}-\d{2}-\d{2}$/.test(trimmedFecha) || !Number.isNaN(Date.parse(trimmedFecha));
-                            if (isValidDateInput && !Number.isNaN(parsedDate.getTime())) {
-                                baseForm.eventoFecha = parsedDate;
-                            }
-                        }
-                        if (duracionParam !== undefined && duracionParam > 0) {
-                            baseForm.duracionHoras = duracionParam;
-                        }
-                        if (salonParam) baseForm.salonFiestas = safeDecodeParam(salonParam);
-                        if (adultosParam !== undefined) baseForm.invitadosAdultos = adultosParam;
-                        if (ninosParam !== undefined) {
-                            baseForm.invitadosAdolescentes = ninosParam;
-                            baseForm.invitadosNinos = 0;
-                        }
-                        baseForm.invitadosCantidad =
-                            (baseForm.invitadosAdultos || 0) +
-                            (baseForm.invitadosNinos || 0) +
-                            (baseForm.invitadosAdolescentes || 0);
-
+                    if (incoming.hasIncomingProposalParams) {
+                        const baseForm = incoming.baseForm;
+                        const resolvedMap = new Map(baseForm.serviciosSeleccionados);
                         const adultos = baseForm.invitadosAdultos || 0;
                         const ninos = (baseForm.invitadosNinos || 0) + (baseForm.invitadosAdolescentes || 0);
                         const menuItems = menuData.flatMap(menu => menu.items || []);
                         const addSelection = (id: string) => {
                             const servicio = services.find(s => s.id === id);
                             if (servicio) {
-                                baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
+                                resolvedMap.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
                                 return;
                             }
                             const menuItem = menuItems.find(item => item.id === id);
                             if (menuItem) {
-                                baseForm.serviciosSeleccionados.set(id, mapMenuItemToSeleccion(menuItem, adultos, ninos));
+                                resolvedMap.set(id, mapMenuItemToSeleccion(menuItem, adultos, ninos));
                             }
                         };
 
-                        if (serviciosParams.length > 0) {
-                            serviciosParams
+                        if (incoming.serviciosParams.length > 0) {
+                            incoming.serviciosParams
                                 .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
                                 .forEach(addSelection);
-                        } else if (serviciosParam) {
+                        } else if (incoming.serviciosParam) {
                             try {
-                                const parsed = JSON.parse(serviciosParam);
+                                const parsed = JSON.parse(incoming.serviciosParam);
                                 const selectedIds = Array.isArray(parsed) ? parsed : [];
                                 selectedIds
                                     .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
@@ -393,29 +448,39 @@ function CrearPresupuestoContent() {
                             }
                         }
 
-                        const validEntradas = entradasParams.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
-                        if (validEntradas.length > 0) {
-                            validEntradas.forEach(addSelection);
+                        if (incoming.validEntradas.length > 0) {
+                            incoming.validEntradas.forEach(addSelection);
+                        }
+                        if (incoming.menuIdParam) {
+                            baseForm.selectedMenuId = incoming.menuIdParam;
+                            addSelection(incoming.menuIdParam);
+                        }
+                        if (incoming.teenMenuIdParam) {
+                            addSelection(incoming.teenMenuIdParam);
                         }
 
-                        if (menuIdParam) {
-                            baseForm.selectedMenuId = menuIdParam;
-                            addSelection(menuIdParam);
-                        }
-                        if (teenMenuIdParam) {
-                            addSelection(teenMenuIdParam);
-                        }
-
-                        if (!conflictResolvedRef.current && hasDraftWithContent(initialStoredDraft)) {
-                            waitForDraftChoice = true;
-                            setPendingIncomingProposal({
-                                draftClientName: initialStoredDraft?.clienteNombre?.trim() || 'otro cliente',
-                                formData: baseForm,
-                                entradas: validEntradas,
-                            });
+                        if (hasConflict) {
+                            baseForm.serviciosSeleccionados = resolvedMap;
+                            setPendingIncomingProposal(prev => (
+                                prev
+                                    ? {
+                                        ...prev,
+                                        formData: baseForm,
+                                        entradas: incoming.validEntradas,
+                                      }
+                                    : prev
+                            ));
                         } else {
-                            setEntradasDePresentacion(validEntradas);
-                            setFormData(baseForm);
+                            setEntradasDePresentacion(incoming.validEntradas);
+                            setFormData(prev => {
+                                const merged = new Map(prev.serviciosSeleccionados);
+                                resolvedMap.forEach((v, k) => merged.set(k, v));
+                                return {
+                                    ...prev,
+                                    selectedMenuId: incoming.menuIdParam || prev.selectedMenuId,
+                                    serviciosSeleccionados: merged,
+                                };
+                            });
                         }
                     }
 
@@ -455,7 +520,7 @@ function CrearPresupuestoContent() {
             }
         };
         fetchInitialData();
-    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion, mapMenuItemToSeleccion, initialStoredDraft]);
+    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion, mapMenuItemToSeleccion]);
 
     const handleNext = () => {
         if (paso === 1) {
@@ -628,6 +693,7 @@ function CrearPresupuestoContent() {
                 onOpenChange={(open) => {
                     if (!open) {
                         conflictResolvedRef.current = true;
+                        pendingConflictActiveRef.current = false;
                         setPendingIncomingProposal(null);
                     }
                 }}
@@ -646,6 +712,7 @@ function CrearPresupuestoContent() {
                             data-testid="btn-continuar-borrador"
                             onClick={() => {
                                 conflictResolvedRef.current = true;
+                                pendingConflictActiveRef.current = false;
                                 setPendingIncomingProposal(null);
                             }}
                         >
@@ -657,6 +724,7 @@ function CrearPresupuestoContent() {
                             onClick={() => {
                                 if (!pendingIncomingProposal) return;
                                 conflictResolvedRef.current = true;
+                                pendingConflictActiveRef.current = false;
                                 setEntradasDePresentacion(pendingIncomingProposal.entradas);
                                 setFormData(pendingIncomingProposal.formData);
                                 setPendingIncomingProposal(null);
@@ -668,7 +736,12 @@ function CrearPresupuestoContent() {
                 </DialogContent>
             </Dialog>
              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
+                    {(formData.clienteNombre || '').trim() && (
+                        <p className="text-sm text-muted-foreground">Cliente: {formData.clienteNombre}</p>
+                    )}
+                </div>
                 <Button asChild variant="outline" disabled={isSaving}><Link href="/presupuestos/nuevo"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
             </div>
             {fiestaDelPresupuesto && !editingPresupuestoId && (
@@ -694,7 +767,7 @@ function CrearPresupuestoContent() {
                     <Progress value={(paso / 3) * 100} className="w-full h-2 mt-2" />
                 </CardHeader>
                 <CardContent>
-                    {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
+                    {isLoadingInitialData && (Boolean(editingPresupuestoId) || (paso === 2 && !armadoConfig)) ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && occupiedDatesFailed && (
                                 <p role="alert" className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">

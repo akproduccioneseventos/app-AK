@@ -1,5 +1,36 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 24/11/2026 - Revisión de las entregas 336, 337 y 338 (Gemini)
+
+- **El costo de algunos platos salía mil veces más caro.** La fórmula nueva de unidades (336) multiplicaba directo lo que no
+  podía convertir: 4 de 377 recetas (gramos contra un insumo en litros o por unidad, mililitros contra kilos). Ahora lo que
+  no se convierte se calcula como siempre (gramos o mililitros contra una unidad grande, dividido por mil); lo que sí se
+  convierte (gr, grs, mililitros, kg contra g) queda con la fórmula nueva. Medido: con la fórmula de hoy ninguna receta
+  cambia respecto de la vieja salvo las que se quisieron corregir.
+- **El portal del cliente buscaba la clave también en la copia en disco** (337). Si la base conoce esa fiesta, ahora manda
+  la base: una copia vieja no abre un portal que se apagó.
+- Revisado y correcto: presupuesto facturado no se edita ni se le borra un cobro; el cupón anota el total del presupuesto
+  (antes anotaba el descuento en ese lugar); cambio de fecha a otro año activa el ajuste anual; el portal guarda cancelación,
+  cambio de fecha y clave con turno; el auditor no cambia la clave maestra; el ingreso con Google compara el usuario.
+- **Las entregas 339 a 342 (#1467 y #1468) se devolvieron:** borraron casi entera esta lista (de 17.000 líneas a 30),
+  chocan con la 336-338 en la IA (consumo, decisiones, audios de WhatsApp) y agregan `pdfjs-dist` sin anotarlo en
+  `package-lock.json`, con lo que la publicación no instala.
+
+```comprobar
+prueba: src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
+usa: comoAntes en src/lib/catering/unidades.ts
+```
+
+## 24/11/2026 - Correcciones E2E y cierre 336-338 (Gemini)
+
+- **`src/app/(app)/loading.tsx` y `/invitacion/[fiestaId]/recap/page.tsx`:** se movió `loading.tsx` adentro del grupo `(app)` y se quitó `generateMetadata` duplicado en `recap` para devolver 404 real cuando la credencial no existe en vez de ocultar el error bajo un wrapper de streaming; así `/recap` mantiene la respuesta real del servidor sin romper cargas internas.
+- **`src/app/auth-guard.tsx`:** se envolvió `AuthGuardInner` en `<Suspense>` leyendo `useSearchParams()` de Next.js en lugar de `window.location.search` para conservar `?tab=...&token=...` durante navegación suave desde `/acceso-personal/[token]` (sin perder el acceso público de proveedor).
+- **`src/components/fiestas/panels/video-vida.tsx`:** muestra visiblemente el nombre o ID de la fiesta de la URL junto al título para evitar confusión operativa y pasar el control E2E multi-fiesta.
+- **Presentación LED y carga rápida del presupuesto (`src/app/presentacion-led/page.tsx`, `src/app/(app)/presupuestos/nuevo/crear/page.tsx`, `src/components/presupuestos/paso-1-datos-evento.tsx`):** se pasó `onOpenGallery` en las slides de entrada/menú, se agregó `pendingConflictActiveRef` para que la hidratación inicial desde `sessionStorage` o URL no dispare un falso diálogo de conflicto tras el autoguardado (manteniendo la pregunta real si ya había borrador previo) y se muestra `"Cliente: ..."` visible en Paso 1.
+- **`tests/e2e/los-accesos-de-afuera-llegan.spec.ts`:** verifica los dos estados de `/q/[fiestaId]` por seguridad — sin sesión oculta la clave privada del portal (`/portal?fiestaId=...`) y con sesión del equipo apunta a `/portal/c/[accessKey]`.
+- **`tests/firebase/quitar-un-plato-queda.test.ts` y `tests/firebase/carta-tragos-y-carga-se-guardan.test.ts`:** se mockeó únicamente `scheduleAutoBackupAfterWrite` para evitar consultas asíncronas de respaldo tras el teardown del emulador, manteniendo intacta la persistencia real y el usuario simulado corregido por Claude.
+
 ## 24/11/2026 - Orden 338: auditoría funcional del 23/11/2026 (fiesta de la dirección, guardados reales, presentación LED, finanzas y accesos públicos)
 
 - **Bloque 1 + P218 (Fiesta de la dirección):** `video-vida.tsx`, `fiesta--entretenimiento-control.tsx`, `portal--videos-invitados.tsx` y pestañas de entretenimiento leen `fiestaId`/`id` de la URL sin caer a `getFiestaActual()` ni armar enlaces con `undefined`; muestran cartel `"Abrí esta pantalla desde una fiesta"` con enlace a `/eventos`.

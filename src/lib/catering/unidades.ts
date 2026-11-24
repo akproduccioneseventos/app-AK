@@ -32,14 +32,14 @@ export function calcularCostoIngredienteEnReceta(
   const recipeUnit = (recipeUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
   const catalogUnit = (catalogUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
 
-  if (!recipeUnit || recipeUnit === 'no definido') {
-    const catalogNorm = normalizarUnidad(catalogUnit);
-    const catalogIsSmall = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
-    if (!catalogIsSmall && (catalogNorm.unidad === 'kg' || catalogNorm.unidad === 'l' || !catalogUnit)) {
-      return (quantity / 1000) * unitCost;
-    }
-    return quantity * unitCost;
-  }
+  // Lo que no se puede convertir se calcula como siempre: gramos o mililitros contra
+  // cualquier unidad grande se dividen por mil. Multiplicar directo daba platos mil
+  // veces más caros (receta en gramos con el insumo en litros o por unidad).
+  const recetaChica = PESO_CHICO.has(recipeUnit) || VOLUMEN_CHICO.has(recipeUnit) || recipeUnit === 'no definido';
+  const catalogoChico = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
+  const comoAntes = () => (recetaChica && !catalogoChico ? quantity / 1000 : quantity) * unitCost;
+
+  if (!recipeUnit || recipeUnit === 'no definido') return comoAntes();
 
   // Si el catálogo no especifica unidad pero la receta está en gramos/mililitros, se asume kg/l.
   let targetUnit = catalogUnit;
@@ -55,7 +55,7 @@ export function calcularCostoIngredienteEnReceta(
     }
   }
 
-  return quantity * unitCost;
+  return comoAntes();
 }
 
 /**

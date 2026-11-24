@@ -25,6 +25,7 @@ function formatDate(value: string): string {
   }).format(date);
 }
 
+
 export default async function MorningRecapPage({ params, searchParams }: MorningRecapPageProps) {
   const { fiestaId: encodedFiestaId } = await params;
   const { guestId = '', token = '' } = await searchParams;

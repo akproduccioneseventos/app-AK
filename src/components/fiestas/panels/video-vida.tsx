@@ -350,7 +350,10 @@ function VideoVidaAdminContent() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Camera className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Recopilación de Fotos - Video de Vida</h1>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Recopilación de Fotos - Video de Vida</h1>
+            <p className="text-sm text-muted-foreground">{fiesta.configuracion?.nombreEvento || fiesta.id}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">

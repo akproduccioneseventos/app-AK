@@ -2101,3 +2101,11 @@ abría un borrador viejo en lugar de la propuesta recién armada.
 ### 226. Lo que se crea para probar (borrador, prueba, muestra), ¿se ve en lo que mira un desconocido?
 
 Auditoría funcional del 23/11/2026: un menú de prueba del auditor quedó visible en la presentación LED pública.
+
+### 227. Una fórmula de plata que se reemplaza, ¿da lo mismo que la vieja sobre los datos reales, salvo donde se quiso cambiar?
+
+Revisión de la entrega 336 (24/11/2026): la fórmula nueva de unidades de receta convertía bien gramos a kilos, pero lo que
+no podía convertir (gramos contra litros o contra "unidad") lo multiplicaba directo, y 4 de 377 recetas salían mil veces más
+caras. Se mide corriendo las dos fórmulas sobre todas las recetas o presupuestos guardados y mirando cada diferencia: cada
+una tiene que ser un arreglo buscado, no un efecto de costado. Lo cubre
+`src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts`.

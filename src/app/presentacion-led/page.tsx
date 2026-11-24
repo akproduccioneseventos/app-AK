@@ -964,6 +964,7 @@ export default function PresentacionLedPage() {
               mostrarPrecios={data.mostrarPrecios}
               onToggle={toggleEntrada}
               onNext={goNext}
+              onOpenGallery={handleOpenGallery}
             />
           )}
           {currentDynamicSlide?.type === 'menu-adolescente' && (
@@ -975,6 +976,7 @@ export default function PresentacionLedPage() {
               mostrarPrecios={data.mostrarPrecios}
               onSelect={setSelectedTeenMenuId}
               onNext={goNext}
+              onOpenGallery={handleOpenGallery}
             />
           )}
           {currentDynamicSlide?.type === 'menu-adulto' && (
@@ -985,6 +987,7 @@ export default function PresentacionLedPage() {
               mostrarPrecios={data.mostrarPrecios}
               onSelect={setSelectedMenuId}
               onNext={goNext}
+              onOpenGallery={handleOpenGallery}
             />
           )}
           {currentDynamicSlide?.type === 'categoria' && currentCategoria && (

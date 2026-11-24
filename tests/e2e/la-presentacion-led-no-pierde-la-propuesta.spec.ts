@@ -18,8 +18,14 @@ test.describe('Orden 338 - La presentación LED no pierde la propuesta', () => {
       await page.waitForTimeout(300);
     }
 
-    // Llenar datos del evento (slide 1 / datos-evento-slide)
     const inputNombre = page.locator('input[placeholder*="María"], input[placeholder*="Ej: María"]').first();
+    for (let i = 0; i < 3; i++) {
+      if (await inputNombre.isVisible({ timeout: 1000 }).catch(() => false)) break;
+      await page.keyboard.press('ArrowRight');
+      await page.waitForTimeout(250);
+    }
+
+    // Llenar datos del evento (slide 1 / datos-evento-slide)
     await inputNombre.fill('María Orden 338');
     await page.locator('select').first().selectOption('Casamiento');
     await page.locator('input[type="date"]').first().fill('2027-05-15');
