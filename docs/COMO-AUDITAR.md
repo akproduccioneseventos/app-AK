@@ -2042,3 +2042,62 @@ Auditoría de Gemini, 2da vuelta (23/11/2026): applyFaceSwap, multiagente y seis
 ### 214. Lo que el panel del portal mira para saber si hay sesión, ¿es lo mismo que mira el servidor?
 
 Auditoría de Gemini, 2da vuelta (23/11/2026): Cinco solapas del portal miran sessionStorage y rebotan a quien entró por /entrar (sección E.1). Barrido y arreglo: orden 336.
+
+### 215. Una lectura recortada, ¿después necesita lo que recortó?
+
+Auditoría general del 23/11/2026: el recap del invitado y el enlace externo de la carga operativa leían la fiesta recortada
+para afuera y después buscaban el pase del invitado o la lista de carga, que el recorte había sacado: 404 y lista vacía.
+
+### 216. Un archivo del servidor, ¿se lee con una ruta que viene de los datos?
+
+Auditoría general del 23/11/2026: cuatro descargas hacían `fs.readFile(msg.mediaUrl)` sin mirar que la ruta quedara
+adentro de la carpeta de esa fiesta. Lo busca el escaneo automático.
+
+### 217. Una firma que no coincide, ¿se rechaza o cae a un valor por defecto?
+
+Auditoría general del 23/11/2026: el ingreso con Google, con la firma del `state` mal, seguía como cuenta de la empresa.
+Lo busca el escaneo automático.
+
+### 218. Una pantalla de una fiesta, ¿usa la fiesta de la dirección, o elige una sola?
+
+Auditoría funcional del 23/11/2026: Video de Vida llamaba `getFiestaActual()` y trabajaba con la fiesta de muestra; el
+Control en vivo leía `useParams().id` en una ruta sin `[id]` y armaba enlaces con `undefined`. Sin id se avisa, nunca se elige.
+Lo busca el escaneo automático.
+
+### 219. Un botón "Agregar" que abre un diálogo, ¿agrega antes de confirmar?
+
+Auditoría funcional del 23/11/2026: "+ Trago Personalizado" metía un Destornillador en la lista y "Cancelar" lo dejaba.
+
+### 220. Un cartel de "guardado" o "sincronizado", ¿sale del resultado del guardado o es un texto fijo?
+
+Auditoría funcional del 23/11/2026: la lista de carga decía "Tildes sincronizadas online" con el guardado fallado. Lo busca
+el escaneo automático.
+
+### 221. Un desplegable armado con datos, ¿puede recibir una opción con valor vacío?
+
+Auditoría funcional del 23/11/2026: las alertas de "Plata y agenda" venían con `fiestaId: ''` y la pantalla de Alertas se
+caía entera. Lo busca el escaneo automático.
+
+### 222. Un texto con marcador (`{SENIA}`), ¿se reemplaza en TODAS las pantallas que lo muestran?
+
+Auditoría funcional del 23/11/2026: la página pública lo reemplazaba y la presentación LED mostraba el literal. Lo busca el
+escaneo automático.
+
+### 223. Una fecha que llega en la dirección (`?fecha=AAAA-MM-DD`), ¿se arma como día de Uruguay?
+
+Auditoría funcional del 23/11/2026: `new Date(fechaParam)` corría la fecha un día atrás al pasar del LED al manual. Lo busca
+el escaneo automático (la pregunta 70 buscaba sólo `new Date(fecha).toLocale…`).
+
+### 224. Un enlace de acceso, ¿se arma aunque falte la credencial?
+
+Auditoría funcional del 23/11/2026: Mi Mesa mandaba al hub con `token=` vacío y el invitado veía "Este acceso no es válido".
+Lo busca el escaneo automático.
+
+### 225. Lo que se guarda para volver (sessionStorage, borrador), ¿alguien lo lee al volver? ¿Y pisa algo más nuevo?
+
+Auditoría funcional del 23/11/2026: la presentación LED guardaba la propuesta y no la volvía a leer, y "Plan de Pagos"
+abría un borrador viejo en lugar de la propuesta recién armada.
+
+### 226. Lo que se crea para probar (borrador, prueba, muestra), ¿se ve en lo que mira un desconocido?
+
+Auditoría funcional del 23/11/2026: un menú de prueba del auditor quedó visible en la presentación LED pública.

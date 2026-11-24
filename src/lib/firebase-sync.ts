@@ -642,6 +642,21 @@ export async function forceDeleteCollectionFromFirestore(collectionName: string)
   }
 }
 
+/** Convierte lo que devuelve la base en un objeto plano: los Timestamp pasan a texto ISO. */
+export function aObjetoPlano(valor: unknown): unknown {
+  if (valor === null || typeof valor !== 'object') return valor;
+  const v = valor as { toDate?: () => Date };
+  if (typeof v.toDate === 'function') {
+    const fecha = v.toDate();
+    return fecha instanceof Date && !Number.isNaN(fecha.getTime()) ? fecha.toISOString() : null;
+  }
+  if (valor instanceof Date) return valor.toISOString();
+  if (Array.isArray(valor)) return valor.map(aObjetoPlano);
+  const salida: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(valor as Record<string, unknown>)) salida[k] = aObjetoPlano(x);
+  return salida;
+}
+
 /**
  * List all documents from a Firestore collection and return them as an array.
  * Omits the internal `_syncedAt` property from each document.
@@ -655,11 +670,15 @@ export async function listCollectionFromFirestore(
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return [];
-    const snapshot = await queryWithTimeout(dbAdmin.collection(collectionName).get());
+    // Una colección entera tarda más que un documento: 15 s en vez de 3,5 (auditoría 23/11/2026, la lista de fiestas
+    // caía en producción). Y cada documento sale como objeto plano: con su número aunque no lo tenga adentro, y las
+    // fechas de la base como texto, porque un Timestamp no puede viajar a la pantalla y tumbaba la página entera.
+    const snapshot = await queryWithTimeout(dbAdmin.collection(collectionName).get(), 15_000);
     if (snapshot.empty) return [];
     return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
-      const data = doc.data();
+      const data = aObjetoPlano(doc.data()) as Record<string, unknown>;
       delete data._syncedAt;
+      if (!data.id) data.id = doc.id;
       return data;
     });
   } catch (error) {

@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/11/2026 - La lista de fiestas no se cae por un documento raro (auditoría general)
+
+- En producción, `/eventos` y ocho pantallas más daban error. Se arreglaron los tres puntos donde un solo documento raro
+  tiraba la lectura entera: las fechas de la base (Timestamp) ahora salen como texto, el documento sin su número toma el
+  de la base, y ordenar el historial no se cae con una fiesta sin `configuracion`. La colección entera tiene 15 s en vez
+  de 3,5. **La causa exacta en producción no se pudo medir** (sin registros del servidor); si sigue, la orden 337 hace que
+  el error diga el motivo.
+- `/fiestas/nueva` se caía con una fiesta sin invitados estimados: ahora muestra 0.
+
+## 24/11/2026 - El recorrido no confunde "evento no encontrado" con pantalla rota
+- Cinco pantallas públicas (mi mesa, red social, encuesta, confirmar asistencia y video de vida) explican bien que el enlace
+  no sirve, pero el recorrido sólo aceptaba "no encontrado" y no "no encontramos" ni "no está disponible", y la encuesta y la
+  confirmación no lo mostraban como título o aviso. Se amplió la regla y esas dos marcan el cartel como aviso/título.
+
+## Auditoría funcional del 23/11/2026 → orden 338 (Gemini)
+- 15 hallazgos de la prueba en la app publicada, ubicados en el código y pasados a la orden 338; preguntas 218 a 226, seis con
+  escaneo automático. **H14 (el manual arranca con 10% de descuento) no es un error**: es la promoción del dueño; la orden sólo
+  pide que la línea se vea. Los datos "PRUEBA" que dejó el auditor no se borran en masa.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts
+usa: aObjetoPlano en src/lib/firebase-sync.ts
+```
+
 ## 23/11/2026 - Revisión de la entrega 1464 (orden 335)
 
 - La entrega leía la fiesta por otro camino cuando la estaban probando (`'mock' in readData`): lo que se probaba no era lo
