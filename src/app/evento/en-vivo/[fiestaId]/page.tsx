@@ -44,6 +44,7 @@ export default function EventoEnVivoPage() {
   const [chatDraft, setChatDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [chatSinLeer, setChatSinLeer] = useState(false);
   const [heartCount, setHeartCount] = useState(12);
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
@@ -53,8 +54,10 @@ export default function EventoEnVivoPage() {
       try {
         const fData = await getFiestaById(fiestaId);
         setFiesta(fData);
+        setLoadError(false);
       } catch (err) {
         console.error('Error cargando en vivo:', err);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -128,8 +131,26 @@ export default function EventoEnVivoPage() {
     );
   }
 
-  const eventName = fiesta?.configuracion.nombreEvento || 'Fiesta AK';
-  const liveUrl = (fiesta?.configuracion as any)?.liveStreamUrl;
+  if (!fiesta) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-6 text-center">
+        <div className="max-w-md space-y-3">
+          <Radio className="h-10 w-10 mx-auto text-slate-400" />
+          <h1 className="text-2xl font-black text-white">
+            {loadError ? 'No pudimos cargar la transmisión' : 'Evento no encontrado'}
+          </h1>
+          <p className="text-sm text-slate-400">
+            {loadError
+              ? 'Hubo un problema al consultar el evento. Probá recargar la página en unos segundos.'
+              : 'Esta transmisión no está disponible o el enlace de la fiesta no es válido.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const eventName = fiesta.configuracion.nombreEvento || 'Fiesta AK';
+  const liveUrl = (fiesta.configuracion as any)?.liveStreamUrl;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">

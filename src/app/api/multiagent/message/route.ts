@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { verifySession } from '@/lib/auth/session-token';
+import { esPerfilValido, PERMISOS, puede } from '@/lib/auth/perfiles';
+import { validarFiestaIdSeguro } from '@/lib/security/safe-fiesta-file';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
 
 export const runtime = 'nodejs';
+
+const PERMISOS_ASISTENTE = [
+  PERMISOS.ADMINISTRACION,
+  PERMISOS.CONTABILIDAD,
+  PERMISOS.CRM,
+  PERMISOS.ORGANIZACION,
+  PERMISOS.INSUMOS,
+  PERMISOS.NOCHE,
+] as const;
 
 const AGENT_TYPES: AkAgentType[] = [
   'secretaria',
@@ -19,8 +30,22 @@ const AGENT_TYPES: AkAgentType[] = [
 
 export async function POST(request: NextRequest) {
   const session = await verifySession();
-  if (!session.success) {
+  if (!session.success || !session.user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  const { user } = session;
+  if (
+    (user.perfil !== undefined &&
+      user.perfil !== null &&
+      String(user.perfil) !== '' &&
+      !esPerfilValido(user.perfil)) ||
+    !PERMISOS_ASISTENTE.some((p) => puede(user, p))
+  ) {
+    return NextResponse.json(
+      { error: 'Tu perfil no tiene permiso para usar el asistente.' },
+      { status: 403 },
+    );
   }
 
   const contentLength = Number(request.headers.get('content-length') || 0);
@@ -34,7 +59,7 @@ export async function POST(request: NextRequest) {
   try {
     await enforcePublicRateLimit({
       scope: 'multiagente',
-      identity: session.user?.userId,
+      identity: user.userId,
       limit: 60,
       windowMs: 3_600_000,
       ignoreClientAddress: true,
@@ -84,6 +109,37 @@ export async function POST(request: NextRequest) {
     ? body.agentType as AkAgentType
     : undefined;
 
+  if (agentType === 'contable' && !puede(user, PERMISOS.CONTABILIDAD)) {
+    return NextResponse.json({ error: 'Tu perfil no tiene acceso al módulo contable.' }, { status: 403 });
+  }
+  if (agentType === 'comercial' && !puede(user, PERMISOS.CRM)) {
+    return NextResponse.json({ error: 'Tu perfil no tiene acceso al módulo comercial.' }, { status: 403 });
+  }
+
+  let safeFiestaId: string | undefined;
+  if (typeof body?.fiestaId === 'string' && body.fiestaId.trim() !== '') {
+    const validated = validarFiestaIdSeguro(body.fiestaId.trim());
+    if (!validated) {
+      return NextResponse.json({ error: 'Identificador de fiesta invalido' }, { status: 400 });
+    }
+    try {
+      const { requireEventPermission } = await import('@/lib/auth/event-access');
+      await requireEventPermission(validated, [
+        PERMISOS.ORGANIZACION,
+        PERMISOS.NOCHE,
+        PERMISOS.ADMINISTRACION,
+        PERMISOS.CONTABILIDAD,
+        PERMISOS.CRM,
+      ]);
+    } catch (err: any) {
+      return NextResponse.json(
+        { error: err?.message || 'No autorizado para operar sobre esa fiesta.' },
+        { status: 403 },
+      );
+    }
+    safeFiestaId = validated;
+  }
+
   if (!(await hayPresupuestoParaIA())) {
     return NextResponse.json({
       success: false,
@@ -99,7 +155,7 @@ export async function POST(request: NextRequest) {
     requestId: requestId as string | undefined,
     history,
     pathname: typeof body?.pathname === 'string' ? body.pathname : undefined,
-    fiestaId: typeof body?.fiestaId === 'string' ? body.fiestaId : undefined,
+    fiestaId: safeFiestaId,
     agentType,
     imageDataUri,
     sessionId: typeof body?.sessionId === 'string' ? body.sessionId : undefined,

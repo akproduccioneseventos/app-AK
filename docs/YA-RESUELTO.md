@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 24/11/2026 - Orden 337: auditoría general maestra (accesos externos, seguridad de descargas/Google y Ajustes)
+
+- **Accesos externos que expulsaban a invitados, clientes y colaboradores (Bloque 1 + Pregunta 215):**
+  - `src/app/invitacion/[fiestaId]/recap/page.tsx` y `src/app/actions/fiesta/carga-operativa.actions.ts` leen la fiesta con `LECTURA_COMPLETA` en el servidor (tras validar el token) para que el recorte de perfil no borre `guestAccessToken` ni `listaDeCargaOperativa`, devolviendo sólo los datos públicos/autorizados. En `src/app/portal/[fiestaId]/[module]/page.tsx` se valida sesión del portal o pertenencia al equipo antes de leer `accessKey` con `LECTURA_COMPLETA`.
+  - `src/app/acceso-personal/[tokenId]/page.tsx` apunta Repostería a `/fiestas/nueva/comida?tab=catering` y Fotografía a `/fiestas/nueva/show?tab=fotografia` (respetando `&` en query params), y tanto `src/middleware.ts` como `src/app/auth-guard.tsx` dejan pasar esas dos vistas cuando traen `?token=`.
+  - `src/lib/experience-ak/ultimate-event-system.ts` manda el botón "Cliente" del QR `/q/[fiestaId]` a `/portal?fiestaId=...` cuando no hay `portalKey` (en lugar de `/fiestas/nueva/portal-cliente`).
+  - `src/lib/auth/public-paths.ts` suma `/buscar` a las rutas públicas tras confirmar que `src/app/buscar/page.tsx` no expone datos privados.
+- **Seguridad en descargas ZIP, Google OAuth y chat IA (Bloque 2 + Preguntas 216 y 217 — revisar Claude):**
+  - Nuevo helper `src/lib/security/safe-fiesta-file.ts` que valida `fiestaId`, resuelve rutas locales únicamente dentro de las carpetas de ESA fiesta (rechazando traversal, dotfiles y symlinks), limita `fetch` a dominios de Firebase Storage de la app y aplica timeout con `AbortController`.
+  - Las 4 descargas (`buzon/[fiestaId]/download`, `social-gallery/[fiestaId]/download`, `fiestas/[fiestaId]/download-recuerdos`, `documentos-fiesta/[...parts]`) usan `safe-fiesta-file.ts` y exigen permiso del módulo + pertenencia a la fiesta (`requireEventPermission` / `esDelEquipoDeLaFiesta` + `verifyPortalSession`).
+  - `src/lib/google-workspace.ts` (`decodeGoogleState`) devuelve `null` si la firma HMAC está alterada, falta o venció (`iat` > 30 min) sin caer nunca a `{ kind: 'company' }`. `/api/google/oauth/start` incluye `uid` y `/api/google/oauth/callback` valida sesión + `uid`, redirigiendo con `"El enlace venció, volvé a conectar"` (mostrado en `google-workspace.tsx`).
+  - `/api/multiagent/message` y `/api/asistente/voz-parte` exigen permisos reales de asistente/gestión y pertenencia a la fiesta cuando reciben `fiestaId`, rechazando con 403 a personal operativo raso.
+- **Ajustes y error explicativo en lista de fiestas (Bloques 3 y 5):**
+  - `src/app/(app)/settings/page.tsx` carga los paneles con `{ ssr: false }`, `key` por sección/subsección, ErrorBoundary ligero y soporte de `?tab=` además de `?sub=`; los 5 paneles (`budget-display`, `contratos`, `contratos--clausulas`, `whatsapp-business`, `feature-flags`) tienen estado de carga compacto con timeout de 15 s y reintento.
+  - Nuevo panel `src/components/settings/panels/datos-legales.tsx` para el botón **"Datos legales y cobro"** (`?seccion=empresa&sub=datos-legales`), mientras **"Administración de Datos"** (`sub=datos`) pasa a la sección Sistema conservando compatibilidad con `/settings/datos`.
+  - `src/components/settings/panels/backup.tsx` agrega timeout de 12 s y muestra el motivo real con botón de reintento si la consulta falla o tarda, evitando quedar trabado en `"AVERIGUANDO ESTADO..."`.
+  - `src/app/(app)/eventos/page.tsx` muestra el motivo seguro del error y un código de referencia (`REF-...`) logueado en consola si fallan `getFiestas` o `getHistorialFiestas`, sin tocar el arreglo previo de Claude en la lectura de listas.
+- **Pantallas a medias, despertador, manifiesto y detalles visuales (Bloque 4):**
+  - `video-vida.tsx`/`video-vida.actions.ts` y `buzon.tsx` leen `?fiestaId=`/`?id=`, inicializan `firebase/server`, evitan `signBlob denied` con tokens de descarga, separan fallos de lectura sin tapar la configuración y quitan asteriscos literales `**Portal Invitado**`.
+  - `/fiestas/nueva` acepta `?id=` además de `?fiestaId=`; `/post-fiesta` y `PostEventMemoryHub` ocultan botones muertos si falta `galeriaUrl`; `/portal/mesas` evita división por 0; `moodboard` y `decoracion.actions.ts` inicializan `decoracion` si falta; `fiesta.actions.ts` y `portal.actions.ts` suman fallback a `fiestas.json` local para Recepción y Portal; `social-gallery.ts` soporta chat en modo local sin Firebase; `/evento/accesos` acepta QRs relativos; `/evento/muro-en-vivo`, `/evento/en-vivo` y `/evento/staff/[fiestaId]/cronograma` muestran aviso claro si la fiesta no existe; `/evento/espejo-magico` corrige título duplicado y superposición del cartel sobre el botón de firma.
+  - Se unificó el manifiesto PWA en un solo archivo (`public/manifest.webmanifest` con `start_url: "/entrar?source=pwa"` y shortcut `"Hablar con AK"`, eliminando el duplicado `src/app/manifest.ts`).
+  - `functions/src/index.ts` (despertador) lanza error real si `!response.ok` o falla el `fetch`; `puerta-de-las-tareas.ts` acepta `TAREAS_SECRET` además de `CRON_SECRET`.
+  - Textos y contraste: `"Organización de la fiesta"` en `servicios-empresa.json`, contraste oscuro sólido en `/empresa/presentacion-led/configuracion`, y en `/simulador-de-presupuesto` se eliminaron `"Plan Paquete premium"`, doble `⚡`, checkboxes ovalados y título duplicado (sin tocar reloj, 10% promocional ni promesas).
+
+```comprobar
+prueba: src/__tests__/auditoria-337-descargas-y-google.test.ts
+prueba: tests/e2e/los-accesos-de-afuera-llegan.spec.ts
+prueba: tests/e2e/ajustes-abre-cada-panel.spec.ts
+```
+
 ## 23/11/2026 - Orden 336: auditoría profunda (2da vuelta, 5 bloques)
 
 - **Seguridad y pérdida de datos (Secciones A y B + Escaneo 211):**

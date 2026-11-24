@@ -5,6 +5,7 @@ import type { VideoVidaData } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import { hayEmuladorDeArchivos } from '@/lib/firebase/modo-local';
 import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import admin from 'firebase-admin';
 import { lecturaOk, lecturaConError, type LecturaDeFotos } from '@/lib/video-vida/lectura-fotos';
@@ -88,6 +89,9 @@ async function quitarFotosAnterioresDelRecuadro(
   rutaNueva: string
 ): Promise<{ ok: boolean }> {
   try {
+    if (!admin.apps.length) {
+      await import('@/lib/firebase/server').catch(() => undefined);
+    }
     if (!admin.apps.length) return { ok: true };
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const [files] = await bucket.getFiles({ prefix: `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/${numeroFormateado}.` });
@@ -207,6 +211,9 @@ export async function saveLifeStoryVideoPhoto(
  */
 export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<LecturaDeFotos> {
   try {
+    if (!admin.apps.length) {
+      await import('@/lib/firebase/server').catch(() => undefined);
+    }
     if (!admin.apps.length) return lecturaConError();
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
@@ -214,13 +221,23 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<Lectura
     if (!files.length) return lecturaOk([]);
 
     const expiry = new Date(Date.now() + SIGNED_URL_EXPIRY_MS);
+    const useEmulator = hayEmuladorDeArchivos();
+    const emulatorHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST;
     const resultados = await Promise.all(
       (files as StorageFile[]).map(async (file): Promise<string | null> => {
-        // If the file is public, return public URL; otherwise signed
+        if (useEmulator && emulatorHost) {
+          return `http://${emulatorHost}/v0/b/${STORAGE_BUCKET}/o/${encodeURIComponent(file.name)}?alt=media`;
+        }
+        // If the file is public or has a download token, return durable URL without needing IAM signBlob.
         try {
           const [metadata] = await file.getMetadata();
           if (Array.isArray(metadata?.acl) && metadata.acl.some((a: { entity?: string }) => a.entity === 'allUsers')) {
             return `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`;
+          }
+          const tokensRaw = (metadata as { metadata?: { firebaseStorageDownloadTokens?: string } })?.metadata?.firebaseStorageDownloadTokens;
+          const firstToken = typeof tokensRaw === 'string' ? tokensRaw.split(',')[0]?.trim() : '';
+          if (firstToken) {
+            return `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(STORAGE_BUCKET)}/o/${encodeURIComponent(file.name)}?alt=media&token=${encodeURIComponent(firstToken)}`;
           }
         } catch { /* ignore */ }
         try {

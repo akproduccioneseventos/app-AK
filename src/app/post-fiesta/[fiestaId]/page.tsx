@@ -60,7 +60,9 @@ export default async function PostFiestaPage(props: PageProps) {
 
   const report = buildUltimateEventSystem(fiesta);
   const eventName = fiesta.configuracion?.nombreEvento || 'Fiesta AK';
-  const customAlbumUrl = fiesta.galeriaUrl;
+  const rawAlbumUrl = typeof fiesta.galeriaUrl === 'string' ? fiesta.galeriaUrl.trim() : '';
+  const hasValidAlbumUrl = /^https?:\/\//i.test(rawAlbumUrl) || rawAlbumUrl.startsWith('/');
+  const customAlbumUrl = hasValidAlbumUrl ? rawAlbumUrl : '';
   const feedbackUrl = `/feedback/${encodeURIComponent(fiesta.id)}`;
   const downloads = getContractedDownloads(fiesta);
 
@@ -87,7 +89,7 @@ export default async function PostFiestaPage(props: PageProps) {
             Gracias por celebrar con nosotros. Esta página reúne todos los recuerdos interactivos, fotos, audios de dedicatorias y el cierre oficial de tu experiencia digital.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
-            {customAlbumUrl && (
+            {hasValidAlbumUrl && (
               <Button asChild className="rounded-xl bg-indigo-600 font-bold hover:bg-indigo-700 h-11 text-white shadow-lg shadow-indigo-500/10">
                 <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" /> {esEquipo ? 'Ir a Google Drive / Wfolio' : 'Ver álbum completo'}
@@ -152,6 +154,14 @@ export default async function PostFiestaPage(props: PageProps) {
                 </p>
               </div>
             ) : null}
+            {!hasValidAlbumUrl && (downloads.invitadoPhotos || (downloads.videos && totalVideos > 0) || downloads.plataforma360 || downloads.fotocabina) && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 flex items-start gap-3">
+                <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs font-medium text-amber-900">
+                  La galería de fotos aún no fue cargada por el equipo. Apenas esté disponible, vas a ver los enlaces de descarga acá.
+                </p>
+              </div>
+            )}
             <div className="grid gap-3 sm:grid-cols-2">
 
               {/* Fotos del Muro */}
@@ -164,11 +174,15 @@ export default async function PostFiestaPage(props: PageProps) {
                       <p className="text-xs text-slate-400">{totalPhotos} fotos en total</p>
                     </div>
                   </div>
-                  <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
-                      Descargar
-                    </Button>
-                  </a>
+                  {hasValidAlbumUrl ? (
+                    <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
+                        Descargar
+                      </Button>
+                    </a>
+                  ) : (
+                    <span className="text-xs font-semibold text-slate-400">En preparación</span>
+                  )}
                 </div>
               )}
 
@@ -182,11 +196,15 @@ export default async function PostFiestaPage(props: PageProps) {
                       <p className="text-xs text-slate-400">{totalVideos} clips de video</p>
                     </div>
                   </div>
-                  <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
-                      Descargar
-                    </Button>
-                  </a>
+                  {hasValidAlbumUrl ? (
+                    <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
+                        Descargar
+                      </Button>
+                    </a>
+                  ) : (
+                    <span className="text-xs font-semibold text-slate-400">En preparación</span>
+                  )}
                 </div>
               )}
 
@@ -200,11 +218,15 @@ export default async function PostFiestaPage(props: PageProps) {
                       <p className="text-xs text-slate-400">{total360} videos procesados</p>
                     </div>
                   </div>
-                  <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
-                      Descargar
-                    </Button>
-                  </a>
+                  {hasValidAlbumUrl ? (
+                    <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
+                        Descargar
+                      </Button>
+                    </a>
+                  ) : (
+                    <span className="text-xs font-semibold text-slate-400">En preparación</span>
+                  )}
                 </div>
               )}
 
@@ -218,11 +240,15 @@ export default async function PostFiestaPage(props: PageProps) {
                       <p className="text-xs text-slate-400">{totalFotocabina} retratos en total</p>
                     </div>
                   </div>
-                  <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
-                      Descargar
-                    </Button>
-                  </a>
+                  {hasValidAlbumUrl ? (
+                    <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-200 hover:border-indigo-200">
+                        Descargar
+                      </Button>
+                    </a>
+                  ) : (
+                    <span className="text-xs font-semibold text-slate-400">En preparación</span>
+                  )}
                 </div>
               )}
 

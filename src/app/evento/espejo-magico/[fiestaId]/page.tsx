@@ -1286,12 +1286,11 @@ export default function EspejoMagicoPage() {
       <canvas ref={canvasRef} className="hidden" />
 
       {/* HEADER */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-zinc-950/90 to-transparent pb-8 pt-safe">
+      <div className="relative z-20 shrink-0 p-4 flex justify-between items-center bg-zinc-950/90 border-b border-white/10 pt-safe">
         <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">{modeCopy.eyebrow}</p>
           <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">{modeCopy.title}</h1>
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
@@ -1326,16 +1325,16 @@ export default function EspejoMagicoPage() {
 
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
-      {/* Animación con Locución (Mirror Me) en pantalla */}
+      {/* Animación con Locución (Mirror Me) en pantalla durante captura/pose/despedida */}
       <AnimatePresence mode="wait">
-        {animacionActiva && (
+        {animacionActiva && !(localStatus === 'idle' && !capturedImage && !errorMsg) && (
           <motion.div
             key={animacionActiva.id}
             initial={animacionActiva.motionConfig?.initial ?? { opacity: 0, scale: 0.85, y: -20 }}
             animate={animacionActiva.motionConfig?.animate ?? { opacity: 1, scale: 1, y: 0 }}
             exit={animacionActiva.motionConfig?.exit ?? { opacity: 0, scale: 0.9, y: -10 }}
             transition={animacionActiva.motionConfig?.transition ?? { duration: 0.5, ease: 'easeOut' }}
-            className="absolute top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]"
+            className="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]"
           >
             <div className={`px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl ${animacionActiva.animacion}`}>
               <p className="text-xl md:text-2xl font-black text-amber-300 drop-shadow-md">
@@ -1421,8 +1420,20 @@ export default function EspejoMagicoPage() {
               className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
 
-            <div className="absolute inset-0 flex touch-pan-y flex-col items-center overflow-y-auto bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80 px-4 pb-8 pt-24 text-center">
+            <div className="absolute inset-0 flex touch-pan-y flex-col items-center overflow-y-auto bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80 px-4 py-6 text-center">
               <div className="relative z-10 my-auto w-full max-w-sm space-y-4 sm:space-y-6">
+                {animacionActiva && (
+                  <div className="px-5 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl">
+                    <p className="text-lg md:text-xl font-black text-amber-300 drop-shadow-md">
+                      {animacionActiva.emoji} {animacionActiva.titulo}
+                    </p>
+                    {animacionActiva.subtitulo && (
+                      <p className="text-xs font-semibold text-white/90 mt-0.5 tracking-wider uppercase">
+                        {animacionActiva.subtitulo}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {mode === 'ia' && (
                   <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
                     <div className="flex items-center justify-between">
@@ -1706,7 +1717,7 @@ export default function EspejoMagicoPage() {
 
         {/* State: Done (Photo Preview + QR Download) */}
         {localStatus === 'done' && capturedImage && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-6 md:flex-row md:justify-center md:gap-8 md:p-6">
             {/* Captured image with overlay merged */}
             <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}

@@ -6,6 +6,13 @@ import { getDedications } from '@/app/actions/social-interactive';
 import { hasAppSession } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import {
+  fetchStorageBufferWithTimeout,
+  getFiestaLocalAllowedDirs,
+  isStorageUrlAllowed,
+  leerArchivoSeguroDeFiesta,
+  validarFiestaIdSeguro,
+} from '@/lib/security/safe-fiesta-file';
 
 // Ruta interna: download-recuerdos para empaquetado administrativo
 
@@ -23,30 +30,7 @@ import { PERMISOS } from '@/lib/auth/perfiles';
  * incompleto sin que nadie se enterara.
  */
 const MAX_TOTAL_SIZE = 300 * 1024 * 1024;
-const ALLOWED_DOMAINS = [
-  'firebasestorage.googleapis.com',
-  'storage.googleapis.com',
-  'lh3.googleusercontent.com',
-  // La galeria se entrega bajo el dominio propio de AK, no bajo el del
-  // proveedor: es la direccion que recibe el cliente. Sin esto, el material
-  // alojado ahi quedaba afuera de la descarga.
-  'galeria.akproducciones.uy',
-  'wfolio.com',
-  'wfolio.pro'
-];
-
-function isUrlAllowed(urlStr: string): boolean {
-  try {
-    const url = new URL(urlStr);
-    const hostname = url.hostname;
-    if (process.env.NODE_ENV === 'development' && (hostname === 'localhost' || hostname === '127.0.0.1')) {
-      return true;
-    }
-    return ALLOWED_DOMAINS.includes(hostname) || hostname.endsWith('.googleusercontent.com') || hostname.endsWith('.googleapis.com');
-  } catch {
-    return false;
-  }
-}
+const FETCH_TIMEOUT_MS = 15_000;
 
 export async function GET(request: Request, props: { params: Promise<{ fiestaId: string }> }) {
   const params = await props.params;
@@ -54,6 +38,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
   if (!fiestaId) {
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
+  }
+
+  const safeFiestaId = validarFiestaIdSeguro(fiestaId);
+  if (!safeFiestaId) {
+    return NextResponse.json({ error: 'Fiesta ID inválido.' }, { status: 400 });
   }
 
   // Descarga de una sola estacion: ?estacion=fotocabina. Sirve para dos cosas a
@@ -72,10 +61,13 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     // 2. Verify permission and load event details
     let fiesta;
     try {
-      fiesta = await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+      fiesta = await requireEventPermission(safeFiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
     } catch (permErr: any) {
       return NextResponse.json({ error: permErr?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
     }
+
+    const recuerdosAllowedDirs = getFiestaLocalAllowedDirs('recuerdos', safeFiestaId);
+    const apiPrefix = `/api/social-gallery/${safeFiestaId}/`;
 
     const eventName = fiesta.configuracion?.nombreEvento || 'Fiesta';
     const cleanEventName = eventName.replace(/[^a-zA-Z0-9-_]/g, '_');
@@ -98,11 +90,11 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     let todasLasDedicatorias: Awaited<ReturnType<typeof getDedications>>;
     try {
       [todosLosPosts, todasLasDedicatorias] = await Promise.all([
-        getSocialPosts(fiestaId),
-        getDedications(fiestaId)
+        getSocialPosts(safeFiestaId),
+        getDedications(safeFiestaId)
       ]);
     } catch (lecturaError) {
-      console.error(`No se pudieron leer los recuerdos de la fiesta ${fiestaId}:`, lecturaError);
+      console.error(`No se pudieron leer los recuerdos de la fiesta ${safeFiestaId}:`, lecturaError);
       return NextResponse.json(
         { error: 'No pudimos leer las fotos, probá de nuevo.' },
         { status: 502 },
@@ -178,28 +170,21 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       if (!post.imageUrl) continue;
 
       let fileContent: Buffer;
-      if (post.imageUrl.startsWith('https://') || post.imageUrl.startsWith('http://')) {
-        if (!isUrlAllowed(post.imageUrl)) {
+      if (/^https?:\/\//i.test(post.imageUrl)) {
+        if (!isStorageUrlAllowed(post.imageUrl)) {
           console.warn(`[SSRF Guard] Blocked download of unsafe URL: ${post.imageUrl}`);
           continue;
         }
         try {
-          const res = await fetch(post.imageUrl);
-          if (!res.ok) continue;
-          fileContent = Buffer.from(await res.arrayBuffer());
+          fileContent = await fetchStorageBufferWithTimeout(post.imageUrl, MAX_TOTAL_SIZE, FETCH_TIMEOUT_MS);
         } catch (err) {
           console.error(`Failed to download post image: ${post.imageUrl}`, err);
           continue;
         }
       } else {
         try {
-          const fs = await import('fs/promises');
-          const path = await import('path');
-          const base = path.resolve(process.cwd());
-          const ruta = path.resolve(base, post.imageUrl);
-          if (!ruta.startsWith(base + path.sep)) continue;
-          fileContent = await fs.readFile(ruta);
-        } catch (err) {
+          fileContent = await leerArchivoSeguroDeFiesta(post.imageUrl, recuerdosAllowedDirs, { apiPrefix });
+        } catch {
           continue;
         }
       }
@@ -237,28 +222,21 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
         if (!ded.audioUrl) continue;
 
         let fileContent: Buffer;
-        if (ded.audioUrl.startsWith('https://') || ded.audioUrl.startsWith('http://')) {
-          if (!isUrlAllowed(ded.audioUrl)) {
+        if (/^https?:\/\//i.test(ded.audioUrl)) {
+          if (!isStorageUrlAllowed(ded.audioUrl)) {
             console.warn(`[SSRF Guard] Blocked download of unsafe URL: ${ded.audioUrl}`);
             continue;
           }
           try {
-            const res = await fetch(ded.audioUrl);
-            if (!res.ok) continue;
-            fileContent = Buffer.from(await res.arrayBuffer());
+            fileContent = await fetchStorageBufferWithTimeout(ded.audioUrl, MAX_TOTAL_SIZE, FETCH_TIMEOUT_MS);
           } catch (err) {
             console.error(`Failed to download dedication audio: ${ded.audioUrl}`, err);
             continue;
           }
         } else {
           try {
-            const fs = await import('fs/promises');
-            const path = await import('path');
-            const base = path.resolve(process.cwd());
-            const ruta = path.resolve(base, ded.audioUrl);
-            if (!ruta.startsWith(base + path.sep)) continue;
-            fileContent = await fs.readFile(ruta);
-          } catch (err) {
+            fileContent = await leerArchivoSeguroDeFiesta(ded.audioUrl, recuerdosAllowedDirs, { apiPrefix });
+          } catch {
             continue;
           }
         }
@@ -328,8 +306,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     return new NextResponse(zipBuffer as any, { status: 200, headers });
 
   } catch (error: any) {
-    console.error(`Error creating full recuerdos zip for fiesta ${fiestaId}:`, error);
+    console.error(`Error creating full recuerdos zip for fiesta ${safeFiestaId}:`, error);
     return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
   }
 }
-

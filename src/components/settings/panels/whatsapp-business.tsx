@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft, MessageCircle, Save, Loader2, Eye, EyeOff, AlertTriangle,
-  Bot, Hand, Zap, Clock, Link as LinkIcon, Users, BarChart3, QrCode
+  Bot, Hand, Zap, Clock, Link as LinkIcon, Users, BarChart3, QrCode, RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppConfig, saveWhatsAppConfig, getWhatsAppStats } from '@/app/actions/whatsapp';
@@ -33,22 +33,45 @@ const DAYS = [
   { id: 'sun', label: 'Dom' },
 ];
 
+const LOAD_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function WhatsAppBusinessPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<WhatsAppConfig | null>(null);
   const [stats, setStats] = useState<WhatsAppStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
 
   const load = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const [cfg, st] = await Promise.all([getWhatsAppConfig(), getWhatsAppStats()]);
+      const [cfg, st] = await withTimeout(
+        Promise.all([getWhatsAppConfig(), getWhatsAppStats()]),
+        LOAD_TIMEOUT_MS,
+        'La carga de WhatsApp Business tardó demasiado. Reintentá en unos segundos.',
+      );
+      if (!cfg) {
+        throw new Error('No se pudo obtener la configuración de WhatsApp Business.');
+      }
       setConfig(cfg);
       setStats(st);
-    } catch {
-      toast({ title: 'Error', description: 'No se pudo cargar la configuración.', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.message ? err.message : 'No se pudo cargar la configuración.';
+      setLoadError(msg);
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -96,18 +119,26 @@ export default function WhatsAppBusinessPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] p-8">
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm font-medium">Cargando configuración de WhatsApp Business…</p>
       </div>
     );
   }
 
-  if (!config) {
+  if (loadError || !config) {
     return (
-      <div className="p-8 text-center space-y-4 max-w-md mx-auto">
-        <p className="text-red-600 font-bold">No se pudo cargar la configuración de WhatsApp.</p>
-        <Button onClick={() => load()} className="bg-primary text-white font-bold rounded-xl">
-          Reintentar Carga
+      <div className="py-16 px-4 text-center space-y-4 max-w-md mx-auto flex flex-col items-center">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <div className="space-y-1">
+          <p className="text-lg font-bold text-slate-900">No se pudo cargar WhatsApp Business</p>
+          <p className="text-sm text-muted-foreground">
+            {loadError || 'No se pudo cargar la configuración de WhatsApp.'}
+          </p>
+        </div>
+        <Button onClick={() => load()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
         </Button>
       </div>
     );

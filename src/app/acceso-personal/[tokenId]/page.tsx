@@ -24,8 +24,8 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa/pdf', icon: PackageSearch },
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
-  'reposteria': { label: 'Detalles de Repostería', href: '/fiestas/nueva/catering', icon: Cake },
-  'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/fotografia', icon: Camera },
+  'reposteria': { label: 'Detalles de Repostería', href: '/fiestas/nueva/comida?tab=catering', icon: Cake },
+  'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/show?tab=fotografia', icon: Camera },
   'presupuestos': { label: 'Presupuestos', href: '/presupuestos', icon: FileText },
   'clientes': { label: 'Base de Clientes', href: '/customers', icon: Users },
   'facturas': { label: 'Facturación', href: '/invoices', icon: Receipt },
@@ -436,7 +436,8 @@ export default function PortalPersonalPage() {
 
                         // Todos los que quedan son del evento y llevan la llave:
                         // el servidor la comprueba contra esta fiesta.
-                        const linkHref = `${modulo.href}?fiestaId=${fiesta.id}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`;
+                        const separator = modulo.href.includes('?') ? '&' : '?';
+                        const linkHref = `${modulo.href}${separator}fiestaId=${fiesta.id}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`;
 
                         return (
                             <Button key={permisoId} asChild variant="outline" className="w-full h-auto justify-start p-4 text-left">

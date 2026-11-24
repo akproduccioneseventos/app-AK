@@ -1,10 +1,10 @@
 /** @jest-environment node */
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import JSZip from 'jszip';
 
 describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
+  const fiestaId = `fiesta-329-test-${Date.now()}`;
   let tempDir: string;
   let fotoCabinaPath: string;
   let fotoTiraPath: string;
@@ -15,9 +15,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   let fotoPendientePath: string;
 
   beforeAll(async () => {
-    const parentTemp = path.join(process.cwd(), '.tmp-orden-329-');
-    await fs.mkdir(parentTemp, { recursive: true });
-    tempDir = await fs.mkdtemp(path.join(parentTemp, 'run-'));
+    tempDir = path.join(process.cwd(), 'src', 'data', 'social-gallery', fiestaId);
+    await fs.mkdir(tempDir, { recursive: true });
     fotoCabinaPath = path.join(tempDir, 'cabina_01.jpg');
     fotoTiraPath = path.join(tempDir, 'tira_02.jpg');
     video360Path = path.join(tempDir, 'clip_360.mp4');
@@ -41,8 +40,6 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
     if (tempDir) {
       await fs.rm(tempDir, { recursive: true, force: true });
     }
-    const parentTemp = path.join(process.cwd(), '.tmp-orden-329-');
-    await fs.rm(parentTemp, { recursive: true, force: true }).catch(() => {});
   });
 
   function cargarRuta(hasSession: boolean) {
@@ -58,7 +55,7 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
       jest.doMock('@/lib/auth/event-access', () => ({
         requireEventPermission: jest.fn(async () => {
           if (!hasSession) throw new Error('No autorizado');
-          return { id: 'fiesta-329' };
+          return { id: fiestaId };
         }),
       }));
       jest.doMock('@/app/actions/social-gallery', () => ({
@@ -150,8 +147,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('sin sesión responde 401 igual que hoy', async () => {
     const ruta = cargarRuta(false);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download?carpetas=1'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download?carpetas=1`),
+      { params: Promise.resolve({ fiestaId }) },
     );
     expect(res.status).toBe(401);
   });
@@ -159,8 +156,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('con sesión y ?carpetas=1 entrega las carpetas esperadas sin las fotos ocultas ni pendientes', async () => {
     const ruta = cargarRuta(true);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download?carpetas=1'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download?carpetas=1`),
+      { params: Promise.resolve({ fiestaId }) },
     );
 
     expect(res.status).toBe(200);
@@ -183,8 +180,8 @@ describe('Orden 329 — Bloque 1: descarga por carpetas para Wfolio', () => {
   it('sin ?carpetas=1 conserva la descarga plana actual', async () => {
     const ruta = cargarRuta(true);
     const res = await ruta.GET(
-      new Request('http://localhost/api/social-gallery/fiesta-329/download'),
-      { params: Promise.resolve({ fiestaId: 'fiesta-329' }) },
+      new Request(`http://localhost/api/social-gallery/${fiestaId}/download`),
+      { params: Promise.resolve({ fiestaId }) },
     );
 
     expect(res.status).toBe(200);

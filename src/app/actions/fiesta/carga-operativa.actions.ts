@@ -6,6 +6,7 @@ import { necesidadPorEquipo } from '@/lib/logistica/necesidad-por-equipo';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
 import { verifySession } from '@/lib/auth/session-token';
@@ -103,7 +104,7 @@ export async function getCargaOperativaAccessView(
     }
 
     const [fiesta, settings] = await Promise.all([
-      getFiestaById(fiestaId),
+      getFiestaById(fiestaId, LECTURA_COMPLETA),
       getInvoiceTemplateSettings().catch(() => ({ logoUrl: null })),
     ]);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
@@ -177,7 +178,7 @@ export async function updateCargaOperativaItemState(input: {
       // Si falla en Firestore, se intenta con almacenamiento estándar (saveFiesta / local JSON)
     }
 
-    const fiesta = await getFiestaById(input.fiestaId);
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const updatedData = applyCargaOperativaItemPatch(
       fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
@@ -371,7 +372,7 @@ export async function generateCargaFromActivos(
   await requireAppSession();
   try {
     const [fiesta, activos] = await Promise.all([
-      getFiestaById(fiestaId),
+      getFiestaById(fiestaId, LECTURA_COMPLETA),
       getActivosFijos(),
     ]);
 

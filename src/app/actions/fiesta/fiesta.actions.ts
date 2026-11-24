@@ -686,6 +686,24 @@ async function leerFiestaConEstado(
     }
     if (!fiesta) {
         try {
+            const localListCandidates = [
+                path.join(process.cwd(), 'data', 'fiestas.json'),
+                path.join(process.cwd(), 'src', 'data', 'fiestas.json'),
+            ];
+            for (const lp of localListCandidates) {
+                try {
+                    const raw = await fs.readFile(lp, 'utf-8');
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        fiesta = parsed.find((f) => f && f.id === fiestaId) || null;
+                        if (fiesta) break;
+                    }
+                } catch {}
+            }
+        } catch {}
+    }
+    if (!fiesta) {
+        try {
             const archivadas = await getHistorialFiestas();
             fiesta = archivadas.find(f => f.id === fiestaId) || null;
         } catch (err) {

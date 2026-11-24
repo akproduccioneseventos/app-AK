@@ -47,7 +47,11 @@ export interface GoogleOAuthState {
   kind: GoogleWorkspaceAccountKind;
   employeeId?: string;
   returnTo?: string;
+  uid?: string;
+  iat?: number;
 }
+
+const GOOGLE_OAUTH_STATE_MAX_AGE_MS = 30 * 60 * 1000;
 
 function base64UrlEncode(value: string) {
   return Buffer.from(value, 'utf8')
@@ -78,30 +82,44 @@ function getGoogleStateSecret(): string {
 }
 
 export function encodeGoogleState(state: GoogleOAuthState) {
-  const payload = base64UrlEncode(JSON.stringify(state));
+  const payloadObj: GoogleOAuthState = {
+    ...state,
+    iat: typeof state.iat === 'number' ? state.iat : Date.now(),
+  };
+  const payload = base64UrlEncode(JSON.stringify(payloadObj));
   const sig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
   return `${payload}.${sig}`;
 }
 
-export function decodeGoogleState(rawState: string | null): GoogleOAuthState {
-  if (!rawState) return { kind: 'company' };
+export function decodeGoogleState(rawState: string | null): GoogleOAuthState | null {
+  if (!rawState || typeof rawState !== 'string') return null;
   try {
     const parts = rawState.split('.');
-    if (parts.length !== 2) return { kind: 'company' };
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
     const [payload, sig] = parts;
     const expectedSig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
     if (!clavesIguales(sig, expectedSig)) {
       console.warn('[google-workspace] HMAC signature mismatch en state');
-      return { kind: 'company' };
+      return null;
     }
     const parsed = JSON.parse(base64UrlDecode(payload));
+    if (!parsed || typeof parsed !== 'object') return null;
+    if (parsed.kind !== 'company' && parsed.kind !== 'employee') return null;
+    if (typeof parsed.iat === 'number') {
+      const ageMs = Date.now() - parsed.iat;
+      if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs > GOOGLE_OAUTH_STATE_MAX_AGE_MS) {
+        return null;
+      }
+    }
     return {
-      kind: parsed.kind === 'employee' ? 'employee' : 'company',
+      kind: parsed.kind,
       employeeId: typeof parsed.employeeId === 'string' ? parsed.employeeId : undefined,
       returnTo: typeof parsed.returnTo === 'string' ? parsed.returnTo : undefined,
+      uid: typeof parsed.uid === 'string' ? parsed.uid : undefined,
+      iat: typeof parsed.iat === 'number' ? parsed.iat : undefined,
     };
   } catch {
-    return { kind: 'company' };
+    return null;
   }
 }
 

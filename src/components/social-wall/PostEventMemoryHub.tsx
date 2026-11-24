@@ -78,8 +78,9 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
       : `${Math.round(totalRecuerdos * 3.8)} MB`
     : '0 MB';
 
-  const customAlbumUrl = fiesta.galeriaUrl?.trim() || '';
-  const hayAlbumProfesional = customAlbumUrl.length > 0;
+  const rawAlbumUrl = typeof fiesta.galeriaUrl === 'string' ? fiesta.galeriaUrl.trim() : '';
+  const hayAlbumProfesional = /^https?:\/\//i.test(rawAlbumUrl) || rawAlbumUrl.startsWith('/');
+  const customAlbumUrl = hayAlbumProfesional ? rawAlbumUrl : '';
   const eventName = fiesta.configuracion?.nombreEvento || 'Nuestra Fiesta';
 
   const handleCopyLink = async () => {

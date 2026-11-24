@@ -89,7 +89,7 @@ export const despertadorTareasAutomaticas = functions
         const body = await response.text();
         if (!response.ok) {
           functions.logger.error(`[Despertador] El despachador respondió con error HTTP ${response.status}`, { body });
-          return;
+          throw new Error(`El despachador respondió con error HTTP ${response.status}`);
         }
         functions.logger.info(`[Despertador] Puesta al día ejecutada. Status: ${response.status}`, { body });
       } finally {
@@ -97,6 +97,7 @@ export const despertadorTareasAutomaticas = functions
       }
     } catch (err: any) {
       functions.logger.error('[Despertador] Fallo en llamada al despachador:', err?.message || err);
+      throw err;
     }
   });
 

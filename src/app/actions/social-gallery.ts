@@ -1710,10 +1710,25 @@ export async function getPhotoFilePathsForZip(
 
 // ──────────────────── Live Chat ────────────────────
 
+const MAX_CHAT_MESSAGE_LENGTH = 500;
+
+function localChatFilePath(fiestaId: string): string {
+  const safeId = fiestaId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `social-gallery/chat-${safeId}.json`;
+}
+
 export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> {
   try {
-    // Sin base (modo local) no hay donde se hayan guardado: vacío es la verdad, no una falla.
-    if (sinBaseDisponible()) return [];
+    if (sinBaseDisponible()) {
+      try {
+        const local = await readData<ChatMessage[]>(localChatFilePath(fiestaId), []);
+        return local
+          .filter((m) => m && m.fiestaId === fiestaId)
+          .sort((a: ChatMessage, b: ChatMessage) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      } catch {
+        return [];
+      }
+    }
     const db = await getDb();
     const snapshot = await db
       .collection(CHAT_COLLECTION)
@@ -1739,6 +1754,9 @@ export async function addChatMessage(
   if (!fiestaId || !text.trim()) {
     return { success: false, error: 'Datos del mensaje incompletos.' };
   }
+  if (text.trim().length > MAX_CHAT_MESSAGE_LENGTH) {
+    return { success: false, error: `El mensaje puede tener hasta ${MAX_CHAT_MESSAGE_LENGTH} caracteres.` };
+  }
   try {
     const context = await resolveSocialInteractionContext(fiestaId, authorName, credentials);
     if (!context) return { success: false, error: 'Acceso no autorizado para participar del chat.' };
@@ -1754,7 +1772,6 @@ export async function addChatMessage(
       limit: 30,
       windowMs: 60_000,
     });
-    const db = await getDb();
     // Pregunta 58: si la respuesta se perdio y el invitado reintenta, el mensaje ya esta con ese id.
     const idDeLaPantalla = idDelIntento('chat', opciones?.idIntento);
     const msgId = idDeLaPantalla ?? `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -1765,6 +1782,17 @@ export async function addChatMessage(
       text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
     };
+    if (sinBaseDisponible()) {
+      const file = localChatFilePath(fiestaId);
+      const existing = await readData<ChatMessage[]>(file, []);
+      if (idDeLaPantalla) {
+        const previo = existing.find((m) => m && m.id === msgId);
+        if (previo) return { success: true, message: previo };
+      }
+      await writeData(file, [...existing.slice(-499), newMessage]);
+      return { success: true, message: newMessage };
+    }
+    const db = await getDb();
     // Single-document write — safe for many concurrent senders.
     try {
       await (idDeLaPantalla ? db.collection(CHAT_COLLECTION).doc(msgId).create(newMessage) : db.collection(CHAT_COLLECTION).doc(msgId).set(newMessage));

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, FileSignature, Info, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, FileSignature, Info, Trash2, Plus, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { marcadoresDesconocidos } from '@/lib/contratos/marcadores';
 import { getContractTemplates, saveContractTemplate, deleteContractTemplate } from '@/app/actions/settings';
@@ -43,12 +43,25 @@ const EXTRA_BY_TYPE: Record<string, string[]> = {
   salon: ['{{NOMBRE_SALON}}', '{{PENALIZACION_PORCENTAJE}}'],
 };
 
+const LOAD_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function ContratosSettingsPage() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<ContractTemplateItem[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
   const [editorText, setEditorText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -63,8 +76,16 @@ export default function ContratosSettingsPage() {
 
   const loadTemplates = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const list = await getContractTemplates();
+      const list = await withTimeout(
+        getContractTemplates(),
+        LOAD_TIMEOUT_MS,
+        'La carga de plantillas de contrato tardó demasiado. Reintentá en unos segundos.',
+      );
+      if (!Array.isArray(list)) {
+        throw new Error('No se recibió una lista válida de plantillas.');
+      }
       setTemplates(list);
       setSelectedId((prevSelectedId) => {
         const nextSelectedId = prevSelectedId && list.some((t) => t.id === prevSelectedId)
@@ -73,8 +94,10 @@ export default function ContratosSettingsPage() {
         setEditorText(list.find((t) => t.id === nextSelectedId)?.template || '');
         return nextSelectedId;
       });
-    } catch {
-      toast({ title: 'Error', description: 'No se pudieron cargar las plantillas.', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.message ? err.message : 'No se pudieron cargar las plantillas.';
+      setLoadError(msg);
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -173,7 +196,28 @@ export default function ContratosSettingsPage() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm font-medium">Cargando plantillas de contrato…</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold">No se pudieron cargar las plantillas de contrato</h2>
+          <p className="text-sm text-muted-foreground max-w-md">{loadError}</p>
+        </div>
+        <Button onClick={() => loadTemplates()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
+      </div>
+    );
   }
 
   return (

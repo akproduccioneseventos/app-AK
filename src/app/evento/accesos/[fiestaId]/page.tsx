@@ -83,7 +83,7 @@ function AccessControlContent() {
     setScanResult({ status: 'processing' });
 
     try {
-      const url = new URL(decodedText);
+      const url = new URL(decodedText, window.location.origin);
       const scannedFiestaId = url.searchParams.get('fiestaId');
       const guestId = url.searchParams.get('guestId');
       const token = url.searchParams.get('token'); // guestAccessToken support

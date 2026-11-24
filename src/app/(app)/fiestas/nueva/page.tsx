@@ -320,7 +320,7 @@ function PlannerDashboardContent() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = searchParams.get('fiestaId') ?? searchParams.get('id');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [consultasCliente, setConsultasCliente] = useState<any[]>([]);

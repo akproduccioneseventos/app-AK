@@ -40,9 +40,15 @@ function isPublicRoute(pathname: string) {
     if (urlParams.has('token')) isPublic = true;
   }
 
-  if (!isPublic && (pathname.endsWith('/fotografia') || pathname.endsWith('/catering')) && typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('token')) isPublic = true;
+  if (!isPublic && typeof window !== 'undefined') {
+    const tab = urlParams.get('tab');
+    const isProviderView =
+      pathname.endsWith('/fotografia') ||
+      pathname.endsWith('/catering') ||
+      pathname.endsWith('/reposteria') ||
+      (pathname.endsWith('/comida') && tab === 'catering') ||
+      (pathname.endsWith('/show') && tab === 'fotografia');
+    if (isProviderView && urlParams.has('token')) isPublic = true;
   }
 
   return isPublic;

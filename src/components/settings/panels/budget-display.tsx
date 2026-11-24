@@ -11,7 +11,7 @@ import {
     ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2,
     Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info,
     Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift, Building2,
-    ChevronsUp, ChevronsDown, Copy
+    ChevronsUp, ChevronsDown, Copy, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveArmadoRapidoConfig, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -89,6 +89,18 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
+const LOAD_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function BudgetDisplaySettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -104,6 +116,7 @@ export default function BudgetDisplaySettingsPage() {
   const [allDishes, setAllDishes] = useState<MenuItem[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // UI States
@@ -120,14 +133,19 @@ export default function BudgetDisplaySettingsPage() {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const [armadoData, settingsData, servicesData, menusData, copilotData] = await Promise.all([
-        getArmadoRapidoConfig(),
-        getBudgetDisplaySettings(),
-        getServiciosEmpresa(),
-        getMenus(),
-        getCopilotConfig()
-      ]);
+      const [armadoData, settingsData, servicesData, menusData, copilotData] = await withTimeout(
+        Promise.all([
+          getArmadoRapidoConfig(),
+          getBudgetDisplaySettings(),
+          getServiciosEmpresa(),
+          getMenus(),
+          getCopilotConfig(),
+        ]),
+        LOAD_TIMEOUT_MS,
+        'La carga de señas y configuración del simulador tardó demasiado. Reintentá en unos segundos.',
+      );
       const normalizedConfig: ArmadoRapidoConfig = {
         ...armadoData,
         clubUruguayConfig: {
@@ -146,8 +164,10 @@ export default function BudgetDisplaySettingsPage() {
       setInitialCopilotConfig(deepClone(copilotData || DEFAULT_COPILOT_CONFIG));
       setServicios(servicesData.filter(s => s.tipoItem === 'Servicio'));
       setAllDishes(menusData.flatMap(m => m.items));
-    } catch (e) {
-      toast({ title: "Error", description: "No se pudo cargar la configuración.", variant: "destructive" });
+    } catch (e: unknown) {
+      const msg = e instanceof Error && e.message ? e.message : 'No se pudo cargar la configuración.';
+      setLoadError(msg);
+      toast({ title: "Error", description: msg, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -383,7 +403,32 @@ export default function BudgetDisplaySettingsPage() {
     setShowUnsavedDialog(true);
   };
 
-  if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary w-12 h-12"/></div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm font-medium">Cargando señas y configuración del simulador…</p>
+      </div>
+    );
+  }
+
+  if (loadError || !config) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold">No se pudo cargar la configuración</h2>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {loadError || 'La configuración de señas y simulador no está disponible en este momento.'}
+          </p>
+        </div>
+        <Button onClick={() => fetchData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-8 pb-32">

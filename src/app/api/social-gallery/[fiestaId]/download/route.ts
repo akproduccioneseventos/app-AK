@@ -6,26 +6,16 @@ import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { soloAprobados } from '@/lib/social-fiesta/visibilidad';
 import { esTiraFotocabina } from '@/lib/video-resumen/elegir-fotos-video';
+import {
+  fetchStorageBufferWithTimeout,
+  getFiestaLocalAllowedDirs,
+  isStorageUrlAllowed,
+  leerArchivoSeguroDeFiesta,
+  validarFiestaIdSeguro,
+} from '@/lib/security/safe-fiesta-file';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
-const ALLOWED_DOMAINS = [
-  'firebasestorage.googleapis.com',
-  'storage.googleapis.com',
-  'lh3.googleusercontent.com'
-];
-
-function isUrlAllowed(urlStr: string): boolean {
-  try {
-    const url = new URL(urlStr);
-    const hostname = url.hostname;
-    if (process.env.NODE_ENV === 'development' && (hostname === 'localhost' || hostname === '127.0.0.1')) {
-      return true;
-    }
-    return ALLOWED_DOMAINS.includes(hostname) || hostname.endsWith('.googleusercontent.com');
-  } catch {
-    return false;
-  }
-}
+const FETCH_TIMEOUT_MS = 15_000;
 
 function formatearNombreModulo(sourceModule: string): string {
   const limpio = sourceModule
@@ -139,11 +129,19 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
   }
 
+  const safeFiestaId = validarFiestaIdSeguro(fiestaId);
+  if (!safeFiestaId) {
+    return NextResponse.json({ error: 'Fiesta ID inválido.' }, { status: 400 });
+  }
+
   try {
-    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+    await requireEventPermission(safeFiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
   }
+
+  const galleryAllowedDirs = getFiestaLocalAllowedDirs('social-gallery', safeFiestaId);
+  const apiPrefix = `/api/social-gallery/${safeFiestaId}/`;
 
   const searchParams =
     (request as { nextUrl?: { searchParams?: URLSearchParams } }).nextUrl?.searchParams ??
@@ -153,10 +151,10 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   try {
     let lectura: Awaited<ReturnType<typeof getPhotoFilePathsForZip>>;
     try {
-      lectura = await getPhotoFilePathsForZip(fiestaId);
+      lectura = await getPhotoFilePathsForZip(safeFiestaId);
     } catch (lecturaError) {
       // Un error de lectura no es "no hay fotos" (404): se avisa para probar de nuevo.
-      console.error(`No se pudieron leer las fotos de la fiesta ${fiestaId}:`, lecturaError);
+      console.error(`No se pudieron leer las fotos de la fiesta ${safeFiestaId}:`, lecturaError);
       return NextResponse.json({ error: 'No pudimos leer las fotos, probá de nuevo.' }, { status: 502 });
     }
     const { photos: photoPaths, stats } = lectura;
@@ -182,28 +180,15 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     for (const photo of photosParaZip) {
       let fileContent: Buffer;
       try {
-        if (photo.path.startsWith('https://') || photo.path.startsWith('http://')) {
-          if (!isUrlAllowed(photo.path)) {
+        if (/^https?:\/\//i.test(photo.path)) {
+          if (!isStorageUrlAllowed(photo.path)) {
             console.warn(`[SSRF Guard] Blocked download of unsafe URL: ${photo.path}`);
             omittedFiles.push(`${photo.name} (URL no permitida por seguridad)`);
             continue;
           }
-          const res = await fetch(photo.path);
-          if (!res.ok) {
-            omittedFiles.push(`${photo.name} (Error HTTP ${res.status})`);
-            continue;
-          }
-          fileContent = Buffer.from(await res.arrayBuffer());
+          fileContent = await fetchStorageBufferWithTimeout(photo.path, MAX_TOTAL_SIZE, FETCH_TIMEOUT_MS);
         } else {
-          const fs = await import('fs/promises');
-          const path = await import('path');
-          const base = path.resolve(process.cwd());
-          const ruta = path.resolve(base, photo.path);
-          if (!ruta.startsWith(base + path.sep)) {
-            omittedFiles.push(`${photo.name} (Ruta local no permitida)`);
-            continue;
-          }
-          fileContent = await fs.readFile(ruta);
+          fileContent = await leerArchivoSeguroDeFiesta(photo.path, galleryAllowedDirs, { apiPrefix });
         }
 
         totalSize += fileContent.length;
@@ -267,8 +252,8 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = usarCarpetas
-      ? `estaciones-${fiestaId}-${timestamp}.zip`
-      : `galeria-social-${fiestaId}-${timestamp}.zip`;
+      ? `estaciones-${safeFiestaId}-${timestamp}.zip`
+      : `galeria-social-${safeFiestaId}-${timestamp}.zip`;
 
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
@@ -281,7 +266,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     return new NextResponse(zipBuffer as any, { status: 200, headers });
 
   } catch (error: any) {
-    console.error(`Error creating social gallery zip for fiesta ${fiestaId}:`, error);
+    console.error(`Error creating social gallery zip for fiesta ${safeFiestaId}:`, error);
     return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
   }
 }

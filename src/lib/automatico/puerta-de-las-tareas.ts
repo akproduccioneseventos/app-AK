@@ -108,7 +108,7 @@ export async function abrirPuertaDeLaTarea(
   request: Request,
   tarea: NombreDeTareaProgramada,
 ): Promise<ResultadoDeLaPuerta> {
-  const claveEsperada = process.env.CRON_SECRET?.trim();
+  const claveEsperada = process.env.CRON_SECRET?.trim() || process.env.TAREAS_SECRET?.trim();
   const claveRecibida = claveDelPedido(request);
 
   if (claveEsperada) {

@@ -16,7 +16,17 @@ function isPublicPath(request: NextRequest): boolean {
   if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || ((searchParams.get('tab') === 'pdf' || searchParams.get('subtab') === 'pdf') && searchParams.has('token'))) return true;
 
   // Provider shared views validate their token inside the page.
-  if ((pathname.endsWith('/fotografia') || pathname.endsWith('/catering')) && searchParams.has('token')) return true;
+  const tab = searchParams.get('tab');
+  if (
+    (pathname.endsWith('/fotografia') ||
+      pathname.endsWith('/catering') ||
+      pathname.endsWith('/reposteria') ||
+      (pathname.endsWith('/comida') && tab === 'catering') ||
+      (pathname.endsWith('/show') && tab === 'fotografia')) &&
+    searchParams.has('token')
+  ) {
+    return true;
+  }
 
   return false;
 }

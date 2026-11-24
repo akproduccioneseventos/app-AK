@@ -17,6 +17,8 @@ import {
   notifyClientPaymentSubmitted,
 } from '../google-workspace-extended';
 import { createHash, timingSafeEqual } from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage, isStorageAvailable } from '@/lib/firebase/storage';
@@ -507,11 +509,37 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
 
   try {
     const fiestas = await leerFiestasCrudas(false);
-    const fiesta = fiestas.find(
+    let fiesta = fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
         f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
+
+    if (!fiesta) {
+      const localListCandidates = [
+        path.join(process.cwd(), 'data', 'fiestas.json'),
+        path.join(process.cwd(), 'src', 'data', 'fiestas.json'),
+      ];
+      for (const lp of localListCandidates) {
+        try {
+          const raw = await fs.readFile(lp, 'utf-8');
+          const fiestasJson = JSON.parse(raw);
+          if (Array.isArray(fiestasJson)) {
+            fiesta = fiestasJson.find(
+              f =>
+                f &&
+                f.estado !== 'Archivado' &&
+                f.estado !== 'suspendida' &&
+                f.estado !== 'Suspendida' &&
+                f.clientPortalSettings?.enabled === true &&
+                f.clientPortalSettings?.accessKey === safeAccessKey
+            ) ?? null;
+            if (fiesta) break;
+          }
+        } catch {}
+      }
+    }
+
     return mapFiestaToClientPortal(fiesta);
   } catch (error) {
     // "No existe" (null, arriba) es distinto de "no se pudo leer": una falla de lectura

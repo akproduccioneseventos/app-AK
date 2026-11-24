@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -18,14 +18,18 @@ import {
   X,
   ArrowLeft,
   ChevronRight,
+  AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 type PanelComponent = React.ComponentType<any>;
 
 function lazyPanel(loader: () => Promise<{ default: PanelComponent }>) {
   return dynamic(loader, {
+    ssr: false,
     loading: () => (
       <div className="flex items-center justify-center py-16 text-slate-500">
         <Loader2 className="h-6 w-6 animate-spin mr-2" />
@@ -35,8 +39,84 @@ function lazyPanel(loader: () => Promise<{ default: PanelComponent }>) {
   });
 }
 
+interface PanelErrorBoundaryProps {
+  resetKey: string;
+  children: React.ReactNode;
+}
+
+interface PanelErrorBoundaryState {
+  hasError: boolean;
+  errorMessage: string;
+  retryNonce: number;
+}
+
+class SettingsPanelErrorBoundary extends React.Component<
+  PanelErrorBoundaryProps,
+  PanelErrorBoundaryState
+> {
+  constructor(props: PanelErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, errorMessage: '', retryNonce: 0 };
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<PanelErrorBoundaryState> {
+    return {
+      hasError: true,
+      errorMessage: error?.message || 'Error inesperado al cargar la sección.',
+    };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[SettingsPanelErrorBoundary]', error, info);
+  }
+
+  componentDidUpdate(prevProps: PanelErrorBoundaryProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false, errorMessage: '' });
+    }
+  }
+
+  handleRetry = () => {
+    this.setState((prev) => ({
+      hasError: false,
+      errorMessage: '',
+      retryNonce: prev.retryNonce + 1,
+    }));
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4">
+          <AlertTriangle className="h-10 w-10 text-destructive" />
+          <div className="space-y-1">
+            <h2 className="text-lg font-bold text-slate-900">
+              No se pudo mostrar esta sección de Ajustes
+            </h2>
+            <p className="text-sm text-slate-600 max-w-md">
+              {this.state.errorMessage}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button type="button" variant="outline" onClick={this.handleRetry}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Reintentar
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/settings">Volver a Ajustes</Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return <React.Fragment key={this.state.retryNonce}>{this.props.children}</React.Fragment>;
+  }
+}
+
 const PANELS: Record<string, PanelComponent> = {
   company: lazyPanel(() => import('@/components/settings/panels/company')),
+  'datos-legales': lazyPanel(() => import('@/components/settings/panels/datos-legales')),
   datos: lazyPanel(() => import('@/components/settings/panels/datos')),
   account: lazyPanel(() => import('@/components/settings/panels/account')),
   'contenido-publico': lazyPanel(() => import('@/components/settings/panels/contenido-publico')),
@@ -96,7 +176,7 @@ const SECCIONES: SeccionDef[] = [
     icon: Building2,
     items: [
       { id: 'company', label: 'Datos de empresa' },
-      { id: 'datos', label: 'Datos legales y cobro' },
+      { id: 'datos-legales', label: 'Datos legales y cobro' },
       { id: 'account', label: 'Mi cuenta' },
       { id: 'contenido-publico', label: 'Contenido público' },
       { id: 'estilo-fotos', label: 'Estilo de fotos' },
@@ -175,6 +255,7 @@ const SECCIONES: SeccionDef[] = [
       { id: 'videos-de-ayuda', label: 'Videos de ayuda' },
       { id: 'feedback', label: 'Sugerencias' },
       { id: 'feature-flags', label: 'Opciones avanzadas' },
+      { id: 'datos', label: 'Administración de Datos' },
     ],
   },
 ];
@@ -201,6 +282,7 @@ const SEARCH_SECTIONS: SearchSectionDef[] = [
     bgColor: 'bg-amber-50 border-amber-200',
     items: [
       { title: 'Información de la Empresa', description: 'Datos fiscales, contacto, nombre comercial y logotipo.', href: '/settings?seccion=empresa&sub=company' },
+      { title: 'Datos legales y cobro', description: 'Razón social, RUT, dirección fiscal, mail del contador y cuentas bancarias.', href: '/settings?seccion=empresa&sub=datos-legales' },
       { title: 'Configuración de Presupuestos y Simulador', description: 'Textos, presentación, paquetes y reglas comerciales del presupuesto.', href: '/settings?seccion=ventas&sub=budget-display' },
       { title: 'Ajuste Anual de Precios', description: 'Ajuste masivo de precios y costos del catálogo general.', href: '/settings?seccion=ventas&sub=ajuste-precios' },
       { title: 'Catálogo de Servicios', description: 'Precios, costos y prestaciones base.', href: '/settings?seccion=ventas&sub=catalogo-servicios' },
@@ -293,7 +375,7 @@ const SEARCH_SECTIONS: SearchSectionDef[] = [
     bgColor: 'bg-slate-100 border-slate-300',
     items: [
       { title: 'Laboratorio Experimental', description: 'Activar o pausar funciones experimentales (feature flags).', href: '/settings?seccion=sistema&sub=feature-flags' },
-      { title: 'Administración de Datos', description: 'Gestión delicada de datos de CRM, presupuestos y planificador.', href: '/settings?seccion=empresa&sub=datos' },
+      { title: 'Administración de Datos', description: 'Gestión delicada de datos de CRM, presupuestos y planificador.', href: '/settings?seccion=sistema&sub=datos' },
       { title: 'Backup y Restauración', description: 'Descargar o restaurar respaldos de datos.', href: '/settings?seccion=sistema&sub=backup' },
       { title: 'Instalar App', description: 'Acceso rápido e instalación en celular y computadora.', href: '/settings?seccion=sistema&sub=instalar-app' },
     ],
@@ -315,18 +397,26 @@ function SettingsHubContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawSeccion = searchParams.get('seccion');
-  const rawSub = searchParams.get('sub');
-  const tieneSeleccionExplicita = Boolean(rawSeccion || rawSub);
+  const rawSub = searchParams.get('sub') || searchParams.get('tab');
+  const normalizedSeccion = rawSeccion ? (SECCION_ALIAS[rawSeccion] ?? rawSeccion) : null;
+  const seccionValida = Boolean(
+    normalizedSeccion && SECCIONES.some((s) => s.id === normalizedSeccion),
+  );
+  const subValida = Boolean(rawSub && PANELS[rawSub]);
+  const tieneSeleccionExplicita = seccionValida || subValida;
   const [query, setQuery] = useState('');
 
+  useEffect(() => {
+    setQuery('');
+  }, [rawSeccion, rawSub]);
+
   const seccionActiva = useMemo(() => {
-    const normalized = rawSeccion ? (SECCION_ALIAS[rawSeccion] ?? rawSeccion) : null;
     if (rawSub) {
       const bySub = SECCIONES.find((s) => s.items.some((i) => i.id === rawSub));
       if (bySub) return bySub;
     }
-    return SECCIONES.find((s) => s.id === normalized) ?? SECCIONES[0];
-  }, [rawSeccion, rawSub]);
+    return SECCIONES.find((s) => s.id === normalizedSeccion) ?? SECCIONES[0];
+  }, [normalizedSeccion, rawSub]);
 
   const subActiva = useMemo(() => {
     if (rawSub && PANELS[rawSub]) {
@@ -355,6 +445,7 @@ function SettingsHubContent() {
 
   const ActivePanel = PANELS[subActiva] ?? PANELS.company;
   const mostrarBuscador = !tieneSeleccionExplicita || query.trim().length > 0;
+  const panelKey = `${seccionActiva.id}:${subActiva}`;
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6">
@@ -435,7 +526,7 @@ function SettingsHubContent() {
         })}
       </div>
 
-      {mostrarBuscador ? (
+      {mostrarBuscador && (
         <div className="space-y-6">
           {seccionesFiltradas.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
@@ -474,7 +565,9 @@ function SettingsHubContent() {
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {tieneSeleccionExplicita && (
         <>
           {/* Pestañas dentro de la sección */}
           <div className="flex flex-wrap gap-1.5">
@@ -500,7 +593,9 @@ function SettingsHubContent() {
 
           {/* Contenido de la sub-sección */}
           <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-2 sm:p-4">
-            <ActivePanel />
+            <SettingsPanelErrorBoundary resetKey={panelKey}>
+              <ActivePanel key={panelKey} />
+            </SettingsPanelErrorBoundary>
           </div>
         </>
       )}
