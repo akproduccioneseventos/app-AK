@@ -10,6 +10,8 @@
  * tono haciéndose pasar por voz (orden 110).
  */
 
+import { MODELOS_GEMINI, esErrorModeloRetirado } from '@/ai/modelos';
+
 export interface OpcionesVozGemini {
   voz?: string;
   apiKey?: string;
@@ -27,11 +29,15 @@ export const VOCES_IA_DISPONIBLES = [
 ];
 export const VOZ_POR_OMISION = 'Kore';
 
-/** El modelo se puede cambiar sin tocar código si Google lo renombra. */
-export const MODELOS_DE_VOZ = (process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-tts,gemini-2.5-flash-preview-tts')
+const modelosVozEnv = (process.env.GEMINI_TTS_MODEL || '')
   .split(',')
   .map((m) => m.trim())
   .filter(Boolean);
+
+/** El modelo se puede cambiar sin tocar código si Google lo renombra. */
+export const MODELOS_DE_VOZ: string[] = modelosVozEnv.length
+  ? modelosVozEnv
+  : [...MODELOS_GEMINI.voz];
 
 /** Gemini devuelve audio crudo (PCM de 16 bits, 24 kHz, un canal): se le pone el encabezado WAV. */
 export function pcmAWav(pcm: Buffer, frecuencia = 24000): Buffer {
@@ -95,13 +101,14 @@ export async function sintetizarVozGemini(texto: string, opciones?: OpcionesVozG
         }),
       },
     );
-    if (response.status === 404) {
-      ultimoError = `El modelo de voz ${modelo} no existe.`;
-      continue;
-    }
     if (!response.ok) {
-      const datos = await response.json().catch(() => ({} as any));
-      throw new Error(`Gemini no dio la voz (${response.status}): ${datos?.error?.message || response.statusText}`);
+      const datos = typeof response.json === 'function' ? await response.json().catch(() => ({} as any)) : {};
+      const mensajeError = datos?.error?.message || response.statusText;
+      if (esErrorModeloRetirado({ status: response.status, message: mensajeError })) {
+        ultimoError = `El modelo de voz ${modelo} no existe.`;
+        continue;
+      }
+      throw new Error(`Gemini no dio la voz (${response.status}): ${mensajeError}`);
     }
     const datos = await response.json();
     const audio = datos?.candidates?.[0]?.content?.parts?.find((p: any) => p?.inlineData?.data)?.inlineData?.data;

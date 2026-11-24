@@ -1,3 +1,8 @@
+jest.mock("@/lib/ai/consumo-servidor", () => ({
+  ...jest.requireActual("@/lib/ai/consumo-servidor"),
+  anotarFalloIA: jest.fn(async () => {}),
+}));
+
 import {
   DEFAULT_GEMINI_LATEST_MODEL,
   DEFAULT_GEMINI_MODEL,
