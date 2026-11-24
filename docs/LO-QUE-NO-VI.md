@@ -1554,3 +1554,7 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 338 → pregunta 225
 - Orden 338 → pregunta 226
 - Orden 338 → pregunta 210
+- Orden 339 → pregunta 218
+- Orden 340 → no es un defecto
+- Orden 341 → no es un defecto
+- Orden 342 → no es un defecto

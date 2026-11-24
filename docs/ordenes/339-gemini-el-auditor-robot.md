@@ -81,6 +81,11 @@ marque rojo: el `getFiestaActual()` de `video-vida.tsx`, el "Destornillador" que
 cartel fijo "Tildes sincronizadas online" y el `fiestaId: ''` de las alertas. Si con el error puesto el robot da verde, el
 robot está mal.
 
+## Barrido en toda la app
+El robot **es** el barrido: sus reglas recorren todas las pantallas de `getAllRoutes()`. Las formas del informe funcional
+(preguntas 218 a 226) quedan cubiertas por las reglas 1 a 8 del bloque 2; la primera corrida completa entrega la lista de
+rojos de toda la app.
+
 ```comprobar
 usa: auditor-robot en playwright.config.ts
 archivo: tests/robot/sembrar.ts

@@ -1338,6 +1338,10 @@
     "orden-338": {
       "fecha": "2026-11-23",
       "resultado": "Auditoría funcional del 23/11: 15 hallazgos ubicados por Claude en el código (H14 es la promoción del dueño y queda). Preguntas 218 a 226 (218 y 220 a 224 con escaneo)."
+    },
+    "orden-339": {
+      "fecha": "2026-11-24",
+      "resultado": "El auditor robot recorre todas las pantallas con las reglas de las preguntas 218 a 226; su primera corrida da la lista completa de rojos."
     }
   }
 }
