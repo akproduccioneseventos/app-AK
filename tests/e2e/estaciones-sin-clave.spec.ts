@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 /**
  * La puerta de los entretenimientos, sin clave y con archivo para el empleado.
@@ -16,6 +16,9 @@ import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche } from './hel
  */
 
 const fiesta = crearFiestaDeEstaNoche({ id: `e2e_inicio_${Date.now()}` });
+// La fábrica la marca 'Demo AK', y desde la orden 338 las fiestas de muestra no se ofrecen en las estaciones.
+fiesta.estado = 'Confirmada';
+guardarFiesta(fiesta);
 const ID = fiesta.id;
 
 test.afterAll(() => {
