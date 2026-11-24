@@ -9,6 +9,11 @@
   el error diga el motivo.
 - `/fiestas/nueva` se caía con una fiesta sin invitados estimados: ahora muestra 0.
 
+## 24/11/2026 - El recorrido no confunde "evento no encontrado" con pantalla rota
+- Cinco pantallas públicas (mi mesa, red social, encuesta, confirmar asistencia y video de vida) explican bien que el enlace
+  no sirve, pero el recorrido sólo aceptaba "no encontrado" y no "no encontramos" ni "no está disponible", y la encuesta y la
+  confirmación no lo mostraban como título o aviso. Se amplió la regla y esas dos marcan el cartel como aviso/título.
+
 ## Auditoría funcional del 23/11/2026 → orden 338 (Gemini)
 - 15 hallazgos de la prueba en la app publicada, ubicados en el código y pasados a la orden 338; preguntas 218 a 226, seis con
   escaneo automático. **H14 (el manual arranca con 10% de descuento) no es un error**: es la promoción del dueño; la orden sólo
