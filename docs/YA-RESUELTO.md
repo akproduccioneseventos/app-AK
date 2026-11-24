@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 24/11/2026 - Revisión de las entregas 336, 337 y 338 (Gemini)
+
+- **El costo de algunos platos salía mil veces más caro.** La fórmula nueva de unidades (336) multiplicaba directo lo que no
+  podía convertir: 4 de 377 recetas (gramos contra un insumo en litros o por unidad, mililitros contra kilos). Ahora lo que
+  no se convierte se calcula como siempre (gramos o mililitros contra una unidad grande, dividido por mil); lo que sí se
+  convierte (gr, grs, mililitros, kg contra g) queda con la fórmula nueva. Medido: con la fórmula de hoy ninguna receta
+  cambia respecto de la vieja salvo las que se quisieron corregir.
+- **El portal del cliente buscaba la clave también en la copia en disco** (337). Si la base conoce esa fiesta, ahora manda
+  la base: una copia vieja no abre un portal que se apagó.
+- Revisado y correcto: presupuesto facturado no se edita ni se le borra un cobro; el cupón anota el total del presupuesto
+  (antes anotaba el descuento en ese lugar); cambio de fecha a otro año activa el ajuste anual; el portal guarda cancelación,
+  cambio de fecha y clave con turno; el auditor no cambia la clave maestra; el ingreso con Google compara el usuario.
+- **Las entregas 339 a 342 (#1467 y #1468) se devolvieron:** borraron casi entera esta lista (de 17.000 líneas a 30),
+  chocan con la 336-338 en la IA (consumo, decisiones, audios de WhatsApp) y agregan `pdfjs-dist` sin anotarlo en
+  `package-lock.json`, con lo que la publicación no instala.
+
+```comprobar
+prueba: src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
+usa: comoAntes en src/lib/catering/unidades.ts
+```
+
 ## 24/11/2026 - Orden 338: auditoría funcional del 23/11/2026 (fiesta de la dirección, guardados reales, presentación LED, finanzas y accesos públicos)
 
 - **Bloque 1 + P218 (Fiesta de la dirección):** `video-vida.tsx`, `fiesta--entretenimiento-control.tsx`, `portal--videos-invitados.tsx` y pestañas de entretenimiento leen `fiestaId`/`id` de la URL sin caer a `getFiestaActual()` ni armar enlaces con `undefined`; muestran cartel `"Abrí esta pantalla desde una fiesta"` con enlace a `/eventos`.

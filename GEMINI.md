@@ -2,30 +2,27 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 23/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 24/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Ya publicadas:** 331 a 335 (#1462 y #1464). No las rehagas.
-- **LO MÁS IMPORTANTE: orden 339 (`docs/ordenes/339-gemini-el-auditor-robot.md`).** El auditor robot: reglas que se
-  aplican solas a todas las pantallas con dos fiestas de verdad en el emulador. Si no arrancaste la 336, empezá por la 339;
-  si ya la arrancaste, la 339 va inmediatamente después, antes que la 337 y la 338.
-- **En la misma propuesta que la 339, al final: orden 340 (`docs/ordenes/340-gemini-alinear-la-ia-de-google.md`).** Una sola
-  lista de modelos con respaldo, Gemini 4 Hydrogen gratis primero, y el texto de la tarea diaria de Jules.
-- **Después de la 339/340, propuesta aparte: primero la orden 342 (`docs/ordenes/342-gemini-un-solo-cerebro-una-sola-puerta.md`)
-  y en la misma propuesta la 341.** Lo más importante para el dueño: toda la IA pasa por un solo cerebro (tope, modelos,
-  reglas, registro) y se encuentra en un solo lugar, Asistente AK.
-- **Después de la 339/340, propuesta aparte: orden 341 (`docs/ordenes/341-gemini-papeleria-con-ia.md`).** La carta de
-  tragos, el menú, el cronograma, el afiche y el marco de fotocabina diseñados por la IA con los datos de la fiesta, y la
-  IA revisa que no escribió mal ningún nombre ni hora.
-- **AHORA: orden 336 (`docs/ordenes/336-gemini-auditoria-2da-vuelta.md`).** Una sola propuesta, rama nueva
-  `gemini/orden-336` desde la principal recién actualizada. Confirmá cada hallazgo abriendo el archivo antes de arreglar;
-  seguridad y plata primero. Plata y permisos los revisa Claude línea por línea.
-- **DESPUÉS de la 336, en otra propuesta: orden 337 (`docs/ordenes/337-gemini-auditoria-general-maestra.md`).** Accesos que
-  expulsan a invitados y colaboradores, descargas que leen rutas sin mirar, el ingreso con Google, Ajustes. La lista de
-  fiestas ya la arregló Claude: no la toques.
-- **DESPUÉS de la 337, en otra propuesta: orden 338 (`docs/ordenes/338-gemini-auditoria-funcional-23-noviembre.md`).** Cada
-  pantalla con la fiesta de la dirección (nunca la de muestra), guardados que digan la verdad (carta de tragos, lista de
-  carga), la presentación LED que no pierde la propuesta, el PDF del presupuesto y finanzas que no muestran ceros falsos.
-  **El 10% de descuento promocional del manual queda**: es decisión del dueño.
+- **Ya publicadas:** 331 a 338 (las 336, 337 y 338 con dos arreglos de Claude: el costo por unidad en
+  `src/lib/catering/unidades.ts` y la clave del portal en disco; no los deshagas).
+- **AHORA: arreglar tu rama `gemini/orden-341` (que trae la 339, 340, 342 y 341) y volver a entregar UNA sola propuesta.**
+  Las #1467 y #1468 no se pueden publicar así. Actualizá `gemini/orden-341` desde la principal recién actualizada
+  (`git fetch origin main ; git merge origin/main`) y resolvé:
+  1. **`docs/YA-RESUELTO.md`: lo vaciaste** (de 17.000 líneas quedaron 30). Tomá la versión de la principal entera y sumá
+     arriba sólo tus secciones nuevas (339/340 y 341/342). Lo mismo con `ESTADO-ACTUAL.md`.
+  2. **`src/lib/ai/consumo.ts`:** quedan los nombres de las dos ramas (`perfil-dj`, `itinerario-ia`, `asistente-clasico`,
+     `agente-marketing`, `extraccion-contrato`, `analisis-codigo` **y** `papeleria`, `sofia`, `cerebro`), en el tipo y en
+     la tabla de costos.
+  3. **`src/lib/ai/decisiones.ts` y `src/lib/asistente/whatsapp-media.ts`:** pasan por el cerebro, pero el cerebro se lleva
+     las protecciones que la 336 les puso: liberar la reserva del tope cuando Google rechaza en firme (400, 401, 403, 404,
+     413, 429) y conservarla si no hubo respuesta; bajar una imagen por enlace a `inlineData` con tope de 10 MB y tiempo
+     límite; y los tipos `EntradaDecision`/`PreguntaDecision`/`RespuestaDecision`. Que las pruebas de la 336 sobre esos dos
+     archivos sigan pasando sin tocarlas.
+  4. **`pdfjs-dist` está en `package.json` y no en `package-lock.json`:** la publicación hace `npm ci` y falla. Corré
+     `npm install` para que quede anotado en el lock.
+  - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run check:acentos` y `node scripts/ordenes-cumplidas.mjs` en
+    verde, y leé `docs/ANTES-DE-ENTREGAR.md`. No toques plata, cobros ni permisos fuera de lo que piden estas órdenes.
 - **Lo de abajo es historia** (ya publicado): sirve sólo si una orden lo nombra.
 - **PRIMERO: orden 322 (`docs/ordenes/322-gemini-terminar-la-1443.md`).** Tu 1443 **todavía no se publicó**: 39 pruebas de
   pantallas fallan. Seguí en la rama `claude/juntar-1443` (tiene tu entrega y los arreglos de Claude) y hacé que pasen

@@ -534,6 +534,9 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
                 f.clientPortalSettings?.enabled === true &&
                 f.clientPortalSettings?.accessKey === safeAccessKey
             ) ?? null;
+            // Si la base conoce esa fiesta, manda la base: una copia vieja en disco no
+            // puede abrir un portal que se apagó o una fiesta que se borró.
+            if (fiesta && fiestas.some((enBase) => String(enBase.id) === String(fiesta?.id))) fiesta = null;
             if (fiesta) break;
           }
         } catch {}
