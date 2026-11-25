@@ -91,13 +91,50 @@ export interface LeadFromQuickBudget {
   includeClubUruguay?: boolean;
 }
 
-function normalizeEventType(value: string): string {
-  return value
+const EVENT_TYPE_ALIASES: Record<string, string> = {
+  '15 anos': '15 anos',
+  xv: '15 anos',
+  'xv anos': '15 anos',
+  quince: '15 anos',
+  'quince anos': '15 anos',
+  'evento empresarial': 'evento empresarial',
+  'evento corporativo': 'evento empresarial',
+  corporativo: 'evento empresarial',
+  empresarial: 'evento empresarial',
+  boda: 'boda',
+  bodas: 'boda',
+  casamiento: 'boda',
+  matrimonio: 'boda',
+  'cumpleanos infantil': 'cumpleanos infantil',
+  infantil: 'cumpleanos infantil',
+  'cumple infantil': 'cumpleanos infantil',
+  cumpleanos: 'cumpleanos',
+  otro: 'otro',
+};
+
+export function normalizeEventType(value: string | null | undefined): string {
+  return (value || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
+}
+
+function canonicalizeEventType(value: string | null | undefined): string {
+  const normalized = normalizeEventType(value);
+  if (!normalized) return '';
+  return EVENT_TYPE_ALIASES[normalized] || normalized;
+}
+
+export function mismoTipoDeEvento(
+  a: string | null | undefined,
+  b: string | null | undefined
+): boolean {
+  const canonicalA = canonicalizeEventType(a);
+  const canonicalB = canonicalizeEventType(b);
+  if (!canonicalA || !canonicalB) return false;
+  return canonicalA === canonicalB;
 }
 
 export function isPackageApplicableToEventType(
@@ -106,11 +143,8 @@ export function isPackageApplicableToEventType(
 ): boolean {
   const tipos = (paquete.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
   if (tipos.length === 0) return true;
-  const selected = normalizeEventType(tipoEvento || '');
+  const selected = normalizeEventType(tipoEvento);
   if (!selected) return true;
 
-  return tipos.some((tipo) => {
-    const normalized = normalizeEventType(tipo);
-    return normalized === selected || normalized.includes(selected) || selected.includes(normalized);
-  });
+  return tipos.some((tipo) => mismoTipoDeEvento(tipo, selected));
 }

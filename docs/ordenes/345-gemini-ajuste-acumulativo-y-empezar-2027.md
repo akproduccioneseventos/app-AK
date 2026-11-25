@@ -115,14 +115,16 @@ en todo lo que ve un cliente o prospecto (simulador, presupuesto público, porta
 cada lugar y qué se hizo.
 
 ```comprobar
+# Bloque 1
 usa: tipoAjusteAnual en src/types/presupuesto.ts
+usa: tipoAjusteAnual en src/app/actions/presupuestos.ts
 usa: tipoAjusteAnual en src/lib/budget/formal-budget.ts
 usa: tipoAjusteAnual en src/lib/budget/financial-guardrails.ts
 usa: tipoAjusteAnual en src/lib/budget/saldo-con-ajuste.ts
 usa: tipoAjusteAnual en src/lib/simulator/pricing.ts
 usa: acumulativo en src/app/simulador-de-presupuesto/page.tsx
 no-usa: con ajuste ${eventYear} en src/app/simulador-de-presupuesto/page.tsx
-usa: Cargar contrato en src/app/(app)/presupuestos/page.tsx
+usa: Cargar contrato en src/app/(app)/presupuestos/nuevo/page.tsx
 archivo: src/lib/automatico/empezar-2027.ts
 usa: empezar-2027 en src/lib/automatico/al-entrar-a-la-app.ts
 prueba: src/__tests__/el-ajuste-simple-y-el-acumulativo.test.ts

@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Building2, CheckCircle2, MapPin, Users } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
-import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import type { CatalogoFoto } from '@/types/catalogo';
 import type { CompanyInfo } from '@/types/settings';
@@ -19,11 +18,17 @@ interface SalonSlideProps {
   fotosPersonalizadas?: string[];
 }
 
+const FOTOS_SALON_DEFAULT = [
+  { id: 'salon-default-1', safeUrl: '/media/catalogo-servicios/blog_salon.png', titulo: 'Salón Club Uruguay' },
+  { id: 'salon-default-2', safeUrl: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg', titulo: 'Salón Club Uruguay ambientado' },
+];
+
 function toSafeImageUrl(url: string): string | null {
+  if (!url || /[<>"'`]/.test(url)) return null;
+  if (url.startsWith('/')) return url;
   try {
     const parsed = new URL(url);
     if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
-    if (/[<>"'`]/.test(url)) return null;
     return parsed.toString();
   } catch {
     return null;
@@ -67,10 +72,14 @@ export function SalonSlide({
     [catalogoFotos, fotosPersonalizadas],
   );
 
-  const visibleFotos = useMemo(
-    () => fotosSalon.filter(foto => !failedIds.has(foto.id)),
-    [fotosSalon, failedIds],
-  );
+  const visibleFotos = useMemo(() => {
+    const filtered = fotosSalon.filter(foto => !failedIds.has(foto.id));
+    if (filtered.length > 0) return filtered;
+    const defaults = FOTOS_SALON_DEFAULT.filter(foto => !failedIds.has(foto.id));
+    return defaults.length > 0
+      ? defaults
+      : [{ id: 'salon-fallback', safeUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg', titulo: 'Salón Club Uruguay' }];
+  }, [fotosSalon, failedIds]);
 
   return (
     <SlideLayout overflowScroll>
@@ -79,7 +88,7 @@ export function SalonSlide({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6"
+          className="mb-5"
         >
           <div className="flex items-center gap-3 mb-2">
             <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-emerald-500/30 border border-white/20 flex items-center justify-center">
@@ -100,38 +109,30 @@ export function SalonSlide({
             transition={{ delay: 0.2 }}
             className="flex flex-col gap-3"
           >
-            {visibleFotos.length > 0 ? (
-              <div className={cn(
-                'grid gap-2 rounded-2xl overflow-hidden',
-                visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
-              )}>
-                {visibleFotos.map((foto) => (
-                  <div
-                    key={foto.id}
-                    className={cn(
-                      'relative w-full overflow-hidden rounded-xl',
-                      visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
-                    )}
-                  >
-                    <Image
-                      src={foto.safeUrl}
-                      alt={foto.titulo ?? 'Salón AK'}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      unoptimized
-                      className="object-cover"
-                      onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <ImagePlaceholder
-                id="salon-general"
-                label="Foto del salón"
-                aspectRatio="4/3"
-              />
-            )}
+            <div className={cn(
+              'grid gap-2 rounded-2xl overflow-hidden',
+              visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+            )}>
+              {visibleFotos.map((foto) => (
+                <div
+                  key={foto.id}
+                  className={cn(
+                    'relative w-full overflow-hidden rounded-xl border border-white/10 bg-slate-900',
+                    visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-[4/3]',
+                  )}
+                >
+                  <Image
+                    src={foto.safeUrl}
+                    alt={foto.titulo ?? 'Salón AK'}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized
+                    className="object-cover"
+                    onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
+                  />
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           <motion.div

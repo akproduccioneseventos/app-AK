@@ -13,6 +13,8 @@ import type {
 } from '@/types/fiesta';
 import { generarPaletaPorTipo } from '@/lib/invitacion-paletas';
 
+import { mismoTipoDeEvento } from '@/types/armado-rapido';
+
 export const ArmarWebOutputSchema = z.object({
   plantilla: z.enum([
     'Grazia',
@@ -71,14 +73,14 @@ export const FOTOS_TEMA: Record<string, string> = {
 };
 
 export function getFotoTema(tipoEvento: string): string {
-  const t = (tipoEvento || '').toLowerCase();
-  if (t.includes('15') || t.includes('xv') || t.includes('quince')) {
+  const t = tipoEvento || '';
+  if (mismoTipoDeEvento(t, '15')) {
     return FOTOS_TEMA.xv;
   }
-  if (t.includes('boda') || t.includes('casamiento') || t.includes('matrimonio')) {
+  if (mismoTipoDeEvento(t, 'boda')) {
     return FOTOS_TEMA.boda;
   }
-  if (t.includes('corp') || t.includes('empresa') || t.includes('empresarial')) {
+  if (mismoTipoDeEvento(t, 'empresarial')) {
     return FOTOS_TEMA.corporativo;
   }
   return FOTOS_TEMA.fiesta;
@@ -95,8 +97,8 @@ function limpiarNombreAgasajado(raw: string): string {
 }
 
 function elegirPlantillaPorDefecto(tipoEvento: string): ArmarWebOutput['plantilla'] {
-  const t = tipoEvento.toLowerCase();
-  if (t.includes('15') || t.includes('xv') || t.includes('quince')) {
+  const t = tipoEvento;
+  if (mismoTipoDeEvento(t, '15')) {
     return 'XvModerna';
   }
   if (t.includes('boda') || t.includes('casamiento')) {

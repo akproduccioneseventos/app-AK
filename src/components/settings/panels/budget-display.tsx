@@ -24,6 +24,7 @@ import { getMenus } from '@/app/actions/menus-catering';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
+import { generarPaquetesSugeridosPorTipo } from '@/lib/simulator/paquetes-sugeridos';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -59,6 +60,7 @@ const PACKAGE_EVENT_SECTIONS = [
   { value: 'cumple-infantil', label: 'Cumpleaños infantil', eventType: 'Cumpleaños infantil' },
   { value: 'cumple', label: 'Cumpleaños', eventType: 'Cumpleaños' },
   { value: 'empresarial', label: 'Empresarial', eventType: 'Evento empresarial' },
+  { value: 'otro', label: 'Otro', eventType: 'Otro' },
 ] as const;
 
 type SaveResult = {
@@ -130,6 +132,11 @@ export default function BudgetDisplaySettingsPage() {
   const [newDepTrigger, setNewDepTrigger] = useState('');
   const [newDepRequired, setNewDepRequired] = useState('');
   const [packageCopyTargets, setPackageCopyTargets] = useState<Record<string, (typeof PACKAGE_EVENT_SECTIONS)[number]['value']>>({});
+  const [suggestedPackagesNotice, setSuggestedPackagesNotice] = useState<{
+    avisoGeneralesOtro: string;
+    agregados: number;
+    serviciosSaltados: string[];
+  } | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -212,6 +219,28 @@ export default function BudgetDisplaySettingsPage() {
   };
 
   // --- ACTIONS FOR PACKAGES ---
+  const handleLoadSuggestedPackages = () => {
+    if (!config) return;
+    const result = generarPaquetesSugeridosPorTipo({
+      configActual: config,
+      serviciosCatalogo: servicios,
+    });
+    setConfig(result.config);
+    setSuggestedPackagesNotice({
+      avisoGeneralesOtro: result.avisoGeneralesOtro,
+      agregados: result.agregados,
+      serviciosSaltados: result.serviciosSaltados,
+    });
+    toast({
+      title: result.agregados > 0
+        ? `Se cargaron ${result.agregados} paquetes sugeridos`
+        : 'Paquetes sugeridos ya cargados',
+      description: result.serviciosSaltados.length > 0
+        ? `${result.avisoGeneralesOtro}. Servicios saltados: ${result.serviciosSaltados.join(', ')}.`
+        : `${result.avisoGeneralesOtro}. Revisalos y tocá Guardar para aplicar los cambios.`,
+    });
+  };
+
   const addPackage = (sectionValue: (typeof PACKAGE_EVENT_SECTIONS)[number]['value']) => {
     const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
     const newPkg: PaqueteArmadoRapido = {
@@ -692,9 +721,29 @@ export default function BudgetDisplaySettingsPage() {
 
         {/* 2. GESTIÓN DE PAQUETES */}
         <TabsContent value="paquetes" className="space-y-6 pt-4 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+            <Card className="border-none shadow-lg rounded-[2rem] bg-white">
+                <CardContent className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="mostrar-precios-simulador" className="text-sm font-black uppercase tracking-wide text-slate-800 cursor-pointer">
+                            Mostrar el precio de cada servicio en el simulador
+                        </Label>
+                        <p className="text-xs text-slate-500">
+                            Si lo apagás, el simulador y el presupuesto que descarga el prospecto esconden los precios sueltos hasta que pase a contrato.
+                        </p>
+                    </div>
+                    <Switch
+                        id="mostrar-precios-simulador"
+                        checked={config.mostrarPrecios !== false}
+                        onCheckedChange={(checked) =>
+                            setConfig((prev) => (prev ? { ...prev, mostrarPrecios: checked } : null))
+                        }
+                    />
+                </CardContent>
+            </Card>
+
+            <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
                 <Tabs value={activePackageSection} onValueChange={(v) => setActivePackageSection(v as (typeof PACKAGE_EVENT_SECTIONS)[number]['value'])} className="w-full">
-                    <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full h-auto bg-slate-100 rounded-2xl p-1">
+                    <TabsList className="grid grid-cols-2 md:grid-cols-7 w-full h-auto bg-slate-100 rounded-2xl p-1">
                         {PACKAGE_EVENT_SECTIONS.map((section) => (
                             <TabsTrigger key={section.value} value={section.value} className="rounded-xl text-[10px] py-2 font-black uppercase tracking-widest">
                                 {section.label}
@@ -702,10 +751,61 @@ export default function BudgetDisplaySettingsPage() {
                         ))}
                     </TabsList>
                 </Tabs>
-                <Button onClick={() => addPackage(activePackageSection)} className="rounded-xl font-bold w-full md:w-auto">
-                  <PlusCircle className="w-4 h-4 mr-2"/> Crear Paquete
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                    <Button type="button" variant="outline" onClick={handleLoadSuggestedPackages} className="rounded-xl font-bold">
+                        <Wand2 className="w-4 h-4 mr-2"/> Cargar paquetes sugeridos por tipo de fiesta
+                    </Button>
+                    <Button onClick={() => addPackage(activePackageSection)} className="rounded-xl font-bold">
+                        <PlusCircle className="w-4 h-4 mr-2"/> Crear Paquete
+                    </Button>
+                </div>
             </div>
+
+            {suggestedPackagesNotice && (
+                <Card className="border border-amber-200 bg-amber-50/80 rounded-2xl shadow-sm">
+                    <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="space-y-1 text-xs text-amber-950">
+                            <p className="font-bold flex items-center gap-2">
+                                <Info className="w-4 h-4 text-amber-700 shrink-0" />
+                                {suggestedPackagesNotice.avisoGeneralesOtro}.{' '}
+                                {suggestedPackagesNotice.agregados > 0
+                                    ? `Se prepararon ${suggestedPackagesNotice.agregados} paquetes sugeridos nuevos.`
+                                    : 'No faltaba ningún paquete sugerido nuevo.'}
+                            </p>
+                            {suggestedPackagesNotice.serviciosSaltados.length > 0 && (
+                                <p className="text-amber-900">
+                                    Servicios saltados por no estar en el catálogo: <strong>{suggestedPackagesNotice.serviciosSaltados.join(', ')}</strong>.
+                                </p>
+                            )}
+                            <p className="text-amber-800">
+                                Revisalos y guardá la configuración para aplicar los cambios en el simulador.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                                type="button"
+                                size="sm"
+                                onClick={async () => { await handleSaveAll(); }}
+                                disabled={isSaving || !hasUnsavedChanges}
+                                className="rounded-xl font-bold"
+                            >
+                                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                                Guardar ahora
+                            </Button>
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => setSuggestedPackagesNotice(null)}
+                                className="h-8 w-8 text-amber-800 hover:bg-amber-100"
+                                title="Cerrar aviso"
+                            >
+                                <X className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {visiblePackages.map(pkg => (

@@ -17,6 +17,39 @@
 - Con la entrega 336, `/portal?fiestaId=` armaba la vista previa sin decir si la fiesta tenía clave, y mostraba "el
   organizador aún no configuró una contraseña": el cliente no podía entrar nunca. Ahora la vista previa dice sólo si hay
   clave (`tieneClave`, nunca la clave) y la pantalla pide la contraseña. Lo frenó el recorrido de pantallas.
+## 24/11/2026 - Auditoría profunda 0 errores (Rama gemini/auditoria-profunda-24-11)
+
+- **Pilares 3 y 4 cerrados con 0 hallazgos P0/P1**, cubriendo seguridad del portal, migración 2027, contratos, cobros y consistencia del ajuste anual:
+  1. **Seguridad del portal (`src/app/actions/fiesta/portal.actions.ts`)**: `getFiestaByAccessKey` aplica `enforcePublicRateLimit` (`portal-access-key-lookup`) antes de consultar Firestore o JSON; `cambiarClavePortal` aplica `enforcePublicRateLimit`, exige `verifyPortalSession(fiestaId)`, verifica `clientPortalSettings?.enabled === true` y compara la clave actual con `coincideClaveEnTiempoConstante` para impedir cambios sin sesión o sobre portales apagados.
+  2. **Migración Empezar 2027 (`src/lib/automatico/empezar-2027.ts`)**: `correrMigracionEmpezar2027` deja intactos los presupuestos 2027+ con `archived: true`, `Rechazado`, `Vencido` o `Cancelado` sin activarlos ni generar contratos; conserva `estado: 'Facturado'`; mantiene `tipoAjusteAnual` cuando ya existe contrato firmado; y normaliza cada presupuesto activo 2027+ con `normalizePresupuestoFinancials` (activando `ajusteAnualActivo: true` cuando corresponde y preservando el total si está facturado o tiene `preserveTotal`).
+  3. **Cancelación desde el portal (`cancelServicesOrParty` en `src/app/actions/fiesta/portal.actions.ts`)**: usa `fiesta.contratoDatos?.fechaFirmaContrato ?? presupuesto.fechaFirmaContrato` antes de caer al año actual, y en `cancelAll: true` apaga `ajusteAnualActivo = false` y `ajusteAnualPorcentaje = 0` para que `presupuesto.saldo` quede igual a `penaltyTotal - pagado` sin re-aplicar el 15% anual sobre una multa que ya lo incluía.
+  4. **Cambio de fecha desde el portal (`changeEventDate` en `src/app/actions/fiesta/portal.actions.ts`)**: guarda `presupuesto.totalConDescuento = Math.max(0, nuevoTotal)` (`totalOriginal + penaltyAmount`) directamente sin recalcular descuentos porcentuales ni pisar totales con `preserveTotal: true`.
+  5. **Detección de contrato firmado (`estadoDelContrato` en `src/app/actions/presupuestos.ts`)**: además de `contratoFirmaInfo?.isSigned` en la fiesta vinculada, verifica `fechaFirmaContrato` y `contractSignatureInfo?.isSigned` en el propio presupuesto y `firmaDigitalConstancia` / `contratoDatos?.fechaFirmaContrato` en la fiesta, bloqueando cambios de estructura o `tipoAjusteAnual` incluso cuando todavía no hay fiesta vinculada.
+  6. **Edición no estructural en `updatePresupuesto` (`src/app/actions/presupuestos.ts`)**: cuando el presupuesto está `Facturado` o tiene `preserveTotal: true` y no cambia su estructura, conserva intactos `totalConDescuento` (y los ítems/subtotal en `Facturado`).
+  7. **Vista de presupuesto (`src/app/(app)/presupuestos/[id]/ver/page.tsx`)**: pasa `defaultAnnualAdjustmentPercentage: displaySettings?.annualAdjustmentPercentage` a `getBudgetPaymentSummary` para reflejar el porcentaje configurado en Ajustes.
+  8. **Vista pública del portal (`src/app/portal/c/[accessKey]/PublicPortalView.tsx`)**: recibe `ajusteAnualPorcentaje` y lo pasa como `defaultAnnualAdjustmentPercentage` a `getBudgetPaymentSummary` para alinear el total y saldo mostrados al cliente con Ajustes.
+
+```comprobar
+prueba: src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts
+```
+
+## 24/11/2026 - Órdenes 343, 344 y 345 (Rama `gemini/orden-343`)
+
+- **Orden 343 — El simulador que vende solo**:
+  * Bienvenida única mobile-first (fusionada con el paso 1 anterior) con botón rojo de marca ("Armar mi presupuesto gratis"), 4 pasos, `DEFAULT_STATS`, 6 respuestas a miedos, testimonios aprobados y fotos destacadas reales en el bootstrap, conteo dinámico de `esRegalo` sin inventar cifras, color rojo/cálido sin `bg-indigo-*`, movimiento sutil `framer-motion` respetando `prefers-reduced-motion` y dejando título/precio/CTA visibles de entrada (`opacity: 1`). Se eligió mover las cifras desde `StatsSection` y reseñas/fotos desde `getPublicSimulatorBootstrap` para no duplicar datos ni inventar testimonios.
+  * Interruptor `mostrarPrecios` en Ajustes (`budget-display.tsx`): oculta precios sueltos por ítem en simulador, vista pública (`/presupuestos/[id]/ver`), PDF y WhatsApp hasta que el presupuesto pasa a `Aceptado`/`Facturado` o contrato firmado (`isOperatorBudgetAccess` siempre ve todo). Se eligió revelarlos solo al pasar a contrato para cuidar la negociación inicial sin afectar cobros ni facturas.
+  * Comparación exacta `mismoTipoDeEvento` en `src/types/armado-rapido.ts` + generador idempotente `generarPaquetesSugeridosPorTipo` (5 tipos × 3 niveles, generales en `'Otro'`, fallback a generales si un tipo no tiene paquetes). Barrido de `.includes(` por tipo de evento en `aviso-margen-historico.ts`, `armar-web-del-evento-flow.ts`, `social-media.ts`, `portal-cliente/[id]/page.tsx`, `disenar-con-ia.ts`, `foto-de-portada.ts` y `ver/page.tsx`.
+- **Orden 344 — Presentación LED**:
+  * Layout flex `h-[100dvh]` en `presentacion-led/page.tsx` + `slide-layout.tsx` separando escenario y barra inferior fija (`1600×900` y `1280×720`) sin solapes ni botones tapados.
+  * Fotos únicas reales de `public/media/catalogo-servicios/` en `categoria-servicios-slide.tsx`, `regalos-slide.tsx` y reemplazo de placeholders vacíos (`beneficios`, `salon`, `equipo`, `plan-pagos`, `cierre`).
+  * Textos reales sin promesas (`+200 fiestas`, sin "500 familias", "Absoluta", "inmediata" ni garantías; conteo unificado de personal).
+  * Plan de pagos (`plan-pagos-slide.tsx`) usando `bookingDepositAmount` de Ajustes en lugar del 30% fijo (el 30% sigue siendo penalidad por cancelación). Cierre unificado en `cierre-slide.tsx` y eliminación de `formas-de-pago-slide.tsx` (código muerto).
+- **Orden 345 — Ajuste anual 15%, Cargar contrato IA y Empezar 2027**:
+  * Campo `tipoAjusteAnual?: 'acumulativo' | 'simple'` (`acumulativo` por defecto) en `buildAnnualAdjustmentProjection` y todos sus llamadores (`financial-guardrails`, `saldo-con-ajuste`, `pricing`, `portal.actions`, `paso-3/4-resumen`, `ver`, `simulador-ak`, `simulador-de-presupuesto`, `BudgetDocument`, `simulator-budget-pdf`). Cambiarlo exige permiso `contabilidad` y contrato no firmado (`estadoDelContrato`).
+  * Eliminadas tablas/líneas con montos de años futuros en vistas de cliente/prospecto; queda la nota única `"Los precios tienen un ajuste anual del 15% acumulativo desde la firma del contrato."` (o `simple`), manteniendo intacto lo interno en `estado-de-cuenta`, cobros y contabilidad.
+  * Botón "Cargar contrato" en `/presupuestos/nuevo` pasando por `src/ai/cerebro.ts` (`extract-contract-data.ts`) con borrador asistido en `/presupuestos/nuevo/crear` que nunca guarda sin confirmación manual (`src/lib/presupuestos/cargar-contrato-borrador.ts`).
+  * Textos de contratos extraídos a `src/lib/contratos/generar-textos-contrato.ts` y migración idempotente de única ejecución `empezar-2027` (`al-entrar-a-la-app.ts`), solo perfil dueño, con reserva transaccional (`migraciones/empezar-2027`), respaldo completo obligatorio antes de borrar `< 2027`, protección estricta de históricas/muestra/cobros/facturas/firmas, y generación de contratos sin firmar ni inventar seña para `2027+`.
+
 
 ## 24/11/2026 - Publicadas las entregas 336 a 342 de Gemini, juntas
 

@@ -190,6 +190,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       baseTotal: totalConCupon,
       eventDate: formData.eventoFecha,
       adjustmentPct: annualAdjustmentPercentage,
+      tipoAjusteAnual: (formData as { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual,
+    } as Parameters<typeof buildAnnualAdjustmentProjection>[0] & {
+      tipoAjusteAnual?: 'acumulativo' | 'simple';
     });
 
     // Marketing markup (fictitious — only for display, never affects real price)

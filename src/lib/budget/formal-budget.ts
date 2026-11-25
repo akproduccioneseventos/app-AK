@@ -10,6 +10,7 @@ export function buildFormalBudgetBookingNote(input: {
   bookingDepositAmount?: number | null;
   currentYear?: number;
   validityDays?: number;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
 }): string {
   const adjustmentPct = Math.max(
     0,
@@ -27,7 +28,7 @@ export function buildFormalBudgetBookingNote(input: {
   const baseNote = `El presupuesto es válido por ${validityDays} días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ ${formattedDeposit}.`;
 
   if (input.hasAnnualAdjustment) {
-    return `${baseNote} Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del ${adjustmentPct}% de acuerdo a lo establecido en el contrato.`;
+    return `${baseNote} Los precios tienen un ajuste anual del ${adjustmentPct}% ${input.tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo'} desde la firma del contrato.`;
   }
 
   return `${baseNote} El total mostrado corresponde al precio vigente del año ${currentYear}.`;
@@ -44,6 +45,7 @@ export type AnnualAdjustmentProjection = {
   currentYear: number;
   eventYear: number;
   adjustmentPct: number;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
   baseTotal: number;
   adjustedTotal: number;
   adjustmentAmount: number;
@@ -76,6 +78,7 @@ export function buildAnnualAdjustmentProjection(input: {
   eventDate?: string | Date | null;
   currentYear?: number;
   adjustmentPct?: number | null;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
 }): AnnualAdjustmentProjection {
   const baseTotal = Math.max(0, Math.round(Number(input.baseTotal) || 0));
   const currentYear = input.currentYear ?? new Date().getFullYear();
@@ -84,6 +87,8 @@ export function buildAnnualAdjustmentProjection(input: {
     0,
     Number(input.adjustmentPct ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) || 0,
   );
+  const tipoAjusteAnual: 'acumulativo' | 'simple' =
+    input.tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo';
 
   const rows: AnnualAdjustmentProjectionRow[] = [];
   let projectedTotal = baseTotal;
@@ -91,7 +96,12 @@ export function buildAnnualAdjustmentProjection(input: {
   if (adjustmentPct > 0 && eventYear > currentYear) {
     for (let year = currentYear + 1; year <= eventYear; year += 1) {
       const previousTotal = projectedTotal;
-      projectedTotal = Math.round(projectedTotal * (1 + adjustmentPct / 100));
+      if (tipoAjusteAnual === 'simple') {
+        const yearsElapsed = year - currentYear;
+        projectedTotal = Math.round(baseTotal * (1 + (adjustmentPct / 100) * yearsElapsed));
+      } else {
+        projectedTotal = Math.round(projectedTotal * (1 + adjustmentPct / 100));
+      }
       rows.push({
         year,
         total: projectedTotal,
@@ -105,6 +115,7 @@ export function buildAnnualAdjustmentProjection(input: {
     currentYear,
     eventYear,
     adjustmentPct,
+    tipoAjusteAnual,
     baseTotal,
     adjustedTotal: projectedTotal,
     adjustmentAmount: Math.max(0, projectedTotal - baseTotal),

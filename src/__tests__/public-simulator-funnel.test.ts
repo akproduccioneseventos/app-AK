@@ -19,10 +19,11 @@ describe('public simulator sales funnel', () => {
     'utf8',
   );
 
-  it('uses a five-step public funnel with a separate commercial entry', () => {
-    expect(source).toContain("const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición']");
+  it('uses a four-step public funnel with a separate welcome entry', () => {
+    expect(source).toContain("const STEP_LABELS = ['Datos', 'Menú', 'Paquete', 'Edición']");
     expect(source).toContain('const [hasStarted, setHasStarted] = useState(false)');
-    expect(source).toContain('Paso {step} de 5');
+    expect(source).toContain('if (!hasStarted)');
+    expect(source).toContain('Paso {step} de 4');
   });
 
   it('captures the lead before the final budget is generated', () => {

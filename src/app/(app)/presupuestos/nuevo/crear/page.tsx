@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
-import type { PaqueteArmadoRapido, MenuArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
+import type { PaqueteArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 import { savePresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { getFiestaById, updateFiestaPresupuestoId } from '@/app/actions/fiesta-actual';
 import { precargaDesdeFiesta, nombreDeLaFiesta } from '@/lib/presupuestos/precarga-desde-fiesta';
@@ -22,40 +22,23 @@ import { Progress } from '@/components/ui/progress';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getOcupiedDates } from '@/app/actions/agenda';
-import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
+import { recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { obtenerIntentoPresupuestoManual, terminarIntentoPresupuestoManual } from '@/lib/budget/intento-configurador';
 import { parseUruguayDate } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  CONTRATO_IA_STORAGE_KEY,
+  INITIAL_PRESUPUESTO_FORM_DATA as initialFormData,
+  armarBorradorDesdeContrato,
+  buildSeleccionFromMenuItem,
+  buildSeleccionFromServicio,
+  readContratoIaBorradorFromSession,
+} from '@/lib/presupuestos/cargar-contrato-borrador';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
-
-const initialFormData: PresupuestoFormData = {
-  clienteNombre: '',
-  clienteContacto: '',
-  eventoTipo: '',
-  eventoFecha: undefined,
-  eventoHoraInicio: '',
-  duracionHoras: undefined,
-  invitadosCantidad: 50,
-  invitadosAdultos: 50,
-  invitadosNinos: 0,
-  invitadosAdolescentes: 0,
-  salonFiestas: '',
-  protagonista1Nombre: '',
-  protagonista2Nombre: '',
-  nombreEmpresa: '',
-  serviciosSeleccionados: new Map(),
-  selectedMenuId: '',
-  notas: '',
-  estado: 'Borrador',
-  nombrePromocion: 'Descuento Promocional',
-  descuentoTipo: 'porcentaje',
-  descuentoValor: '10', 
-  vigenciaPromocion: 'Válido por 30 días',
-};
 
 function readStoredDraftFromSession(): PresupuestoFormData | null {
     if (typeof window === 'undefined') return null;
@@ -206,7 +189,12 @@ function CrearPresupuestoContent() {
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [entradasDePresentacion, setEntradasDePresentacion] = useState<string[]>([]);
     const [paso, setPaso] = useState(1);
-    
+    const [desdeContratoActivo, setDesdeContratoActivo] = useState(false);
+    const [tipoAjusteAnual, setTipoAjusteAnual] = useState<'acumulativo' | 'simple'>('acumulativo');
+    const [fechaFirmaContrato, setFechaFirmaContrato] = useState<string | undefined>(undefined);
+    const [contratoAdjuntoNombre, setContratoAdjuntoNombre] = useState<string | undefined>(undefined);
+    const [serviciosNoCoincidentesContrato, setServiciosNoCoincidentesContrato] = useState<string[]>([]);
+
     const conflictResolvedRef = useRef(false);
     const pendingConflictActiveRef = useRef(false);
     const [hasHydratedDraft, setHasHydratedDraft] = useState(false);
@@ -223,56 +211,18 @@ function CrearPresupuestoContent() {
     const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(
         defaultBudgetDisplaySettings.annualAdjustmentPercentage ?? 15,
     );
-    
+
     const leadIdFromParams = searchParams.get('leadId');
     // La fiesta para la que se arma el presupuesto (viene de la ficha de la fiesta).
     const [fiestaDelPresupuesto, setFiestaDelPresupuesto] = useState<{ id: string; nombre: string; presupuestoId?: string } | null>(null);
 
-    const mapServicioToSeleccion = useCallback((servicio: ServicioEmpresa, adultos: number, ninos: number) => ({
-        cantidad: calculateSuggestedQuantity({
-            calculationMethod: servicio.calculationMethod,
-            invitadosPorUnidad: servicio.invitadosPorUnidad,
-            nombreServicio: servicio.nombre,
-            categoriaServicio: servicio.categoria,
-            subcategoria: servicio.subcategoria,
-        }, adultos, ninos),
-        precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-        precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-        nombreServicio: servicio.nombre,
-        unidad: servicio.unidad,
-        categoriaServicio: servicio.categoria,
-        subcategoria: servicio.subcategoria,
-        esRegalo: false,
-        calculationMethod: servicio.calculationMethod,
-        precioBase: servicio.precioBase,
-        precioPorPersona: servicio.precioPorPersona,
-        invitadosPorUnidad: servicio.invitadosPorUnidad,
-        tramosDePrecio: servicio.tramosDePrecio,
-    }), []);
+    const mapServicioToSeleccion = useCallback((servicio: ServicioEmpresa, adultos: number, ninos: number) => (
+        buildSeleccionFromServicio(servicio, adultos, ninos)
+    ), []);
 
-    const mapMenuItemToSeleccion = useCallback((item: MenuItem, adultos: number, ninos: number) => {
-        const precio = Number(item.suggestedSellingPrice) || Number(item.totalDishCost) || 0;
-        const subcategoria = item.type || 'Catering';
-        const nombreServicio = item.name;
-        const cantidad = calculateSuggestedQuantity({
-            calculationMethod: 'porPersona',
-            nombreServicio,
-            categoriaServicio: 'Servicio de catering',
-            subcategoria,
-        }, adultos, ninos);
-        return {
-            cantidad,
-            precioUnitarioOriginal: precio,
-            precioUnitarioPresupuesto: precio,
-            nombreServicio,
-            unidad: 'personas',
-            categoriaServicio: 'Servicio de catering',
-            subcategoria,
-            esRegalo: false,
-            calculationMethod: 'porPersona' as const,
-            precioPorPersona: precio,
-        };
-    }, []);
+    const mapMenuItemToSeleccion = useCallback((item: MenuItem, adultos: number, ninos: number) => (
+        buildSeleccionFromMenuItem(item, adultos, ninos)
+    ), []);
 
     const fetchServicios = useCallback(async () => {
         try {
@@ -296,9 +246,26 @@ function CrearPresupuestoContent() {
     useEffect(() => {
         if (searchParams.get('editId')) {
             pendingConflictActiveRef.current = false;
+            setDesdeContratoActivo(false);
             setHasHydratedDraft(true);
             return;
         }
+        if (searchParams.get('desdeContrato') === '1') {
+            const borradorContrato = readContratoIaBorradorFromSession();
+            if (borradorContrato) {
+                pendingConflictActiveRef.current = false;
+                const armado = armarBorradorDesdeContrato(borradorContrato, [], []);
+                setDesdeContratoActivo(true);
+                setTipoAjusteAnual(armado.tipoAjusteAnual);
+                setFechaFirmaContrato(armado.fechaFirmaContrato);
+                setContratoAdjuntoNombre(armado.contratoAdjuntoNombre);
+                setServiciosNoCoincidentesContrato(armado.serviciosNoCoincidentes);
+                setFormData(armado.formData);
+                setHasHydratedDraft(true);
+                return;
+            }
+        }
+        setDesdeContratoActivo(false);
         const storedDraft = readStoredDraftFromSession();
         const incoming = parseIncomingParamsFromSearch(searchParams);
         if (incoming.hasIncomingProposalParams) {
@@ -358,8 +325,8 @@ function CrearPresupuestoContent() {
                 setEditingPresupuestoId(editId);
 
                 const [config, menuData, services, occupiedDatesStrings, budgetSettings] = await Promise.all([
-                    getArmadoRapidoConfig(), 
-                    getMenus(), 
+                    getArmadoRapidoConfig(),
+                    getMenus(),
                     getServiciosEmpresa(),
                     // Si falla la lectura NO se toma como "ninguna fecha ocupada": se avisa en pantalla.
                     getOcupiedDates().catch((occupiedError) => {
@@ -410,6 +377,23 @@ function CrearPresupuestoContent() {
                         } as PresupuestoFormData);
                     }
                 } else {
+                    if (searchParams.get('desdeContrato') === '1') {
+                        const borradorContrato = readContratoIaBorradorFromSession();
+                        if (borradorContrato) {
+                            const armado = armarBorradorDesdeContrato(borradorContrato, services, menuData || []);
+                            setDesdeContratoActivo(true);
+                            setServiciosNoCoincidentesContrato(armado.serviciosNoCoincidentes);
+                            setFormData(prev => {
+                                const merged = new Map(prev.serviciosSeleccionados);
+                                armado.formData.serviciosSeleccionados.forEach((v, k) => merged.set(k, v));
+                                return {
+                                    ...prev,
+                                    selectedMenuId: prev.selectedMenuId || armado.formData.selectedMenuId,
+                                    serviciosSeleccionados: merged,
+                                };
+                            });
+                        }
+                    }
                     const incoming = parseIncomingParamsFromSearch(searchParams);
                     const hasConflict = Boolean(incoming.hasIncomingProposalParams && !conflictResolvedRef.current && pendingConflictActiveRef.current);
                     let waitForDraftChoice = hasConflict;
@@ -538,9 +522,9 @@ function CrearPresupuestoContent() {
         }
         if (paso < 3) setPaso(p => p + 1);
     };
-    
+
     const handlePrev = () => { if (paso > 1) setPaso(p => p - 1); };
-    
+
     const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
     const totalCalculado = useMemo(() => {
@@ -586,7 +570,7 @@ function CrearPresupuestoContent() {
                 unidad: serv.unidad,
                 precioUnitario: serv.precioUnitarioOriginal,
                 precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
-                costoTotalItem: 0, 
+                costoTotalItem: 0,
                 esRegalo: serv.esRegalo,
                 categoriaServicio: serv.categoriaServicio,
                 subcategoria: serv.subcategoria,
@@ -598,7 +582,7 @@ function CrearPresupuestoContent() {
               };
             }),
             selectedMenuId: formData.selectedMenuId || undefined,
-            costoTotalEstimado: 0, 
+            costoTotalEstimado: 0,
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
             descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
@@ -611,9 +595,12 @@ function CrearPresupuestoContent() {
             marketingMarkupPercent: formData.marketingMarkupPercent,
             ajusteAnualActivo: shouldApplyAnnualAdjustment,
             ajusteAnualPorcentaje: shouldApplyAnnualAdjustment ? annualAdjustmentPercentage : undefined,
+            ...(desdeContratoActivo || tipoAjusteAnual !== 'acumulativo' ? { tipoAjusteAnual } : {}),
+            ...(fechaFirmaContrato ? { fechaFirmaContrato } : {}),
+            ...(contratoAdjuntoNombre ? { contratoAdjuntoNombre } : {}),
             timestamp: formData.timestamp || new Date().toISOString(),
-        };
-        
+        } as Omit<Presupuesto, 'id'>;
+
         savingRef.current = true;
         setIsSaving(true);
         try {
@@ -669,6 +656,7 @@ function CrearPresupuestoContent() {
               toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
             }
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            sessionStorage.removeItem(CONTRATO_IA_STORAGE_KEY);
             if (!editingPresupuestoId) terminarIntentoPresupuestoManual();
             router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }
@@ -679,7 +667,7 @@ function CrearPresupuestoContent() {
           setIsSaving(false);
         }
     };
-    
+
     const isPromo10Activa =
         formData.descuentoTipo === 'porcentaje'
         && Number(formData.descuentoValor) === 10
@@ -761,6 +749,59 @@ function CrearPresupuestoContent() {
                     </div>
                 </div>
             )}
+            {desdeContratoActivo && !editingPresupuestoId && (
+                <div className="space-y-3">
+                    <div
+                        data-testid="aviso-contrato-ia"
+                        className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+                    >
+                        <p className="font-semibold">
+                            Lo armó la IA leyendo el contrato. Revisá cada dato antes de guardar.
+                        </p>
+                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-amber-900">
+                            {contratoAdjuntoNombre && <span>Contrato adjunto: {contratoAdjuntoNombre}</span>}
+                            {fechaFirmaContrato && <span>Fecha de firma: {fechaFirmaContrato}</span>}
+                            <span>Estado inicial: {formData.estado}</span>
+                        </div>
+                    </div>
+
+                    <div
+                        data-testid="bloque-ajuste-anual-contrato"
+                        className="rounded-md border bg-card px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                    >
+                        <label
+                            htmlFor="tipoAjusteAnualSelect"
+                            className="text-sm font-semibold"
+                        >
+                            Ajuste anual: Acumulativo / Simple (contratos viejos)
+                        </label>
+                        <select
+                            id="tipoAjusteAnualSelect"
+                            data-testid="selector-tipo-ajuste-anual"
+                            value={tipoAjusteAnual}
+                            onChange={(e) => setTipoAjusteAnual(e.target.value === 'simple' ? 'simple' : 'acumulativo')}
+                            className="flex h-10 w-full sm:w-72 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                            <option value="acumulativo">Acumulativo (15% acumulativo)</option>
+                            <option value="simple">Simple (contratos viejos: 15% simple)</option>
+                        </select>
+                    </div>
+
+                    {serviciosNoCoincidentesContrato.length > 0 && (
+                        <div
+                            data-testid="servicios-revisar-a-mano"
+                            className="rounded-md border border-orange-300 bg-orange-50 px-4 py-3 text-sm text-orange-950"
+                        >
+                            <p className="font-semibold">Servicios para revisar a mano</p>
+                            <ul className="mt-1 list-disc pl-5 text-xs space-y-0.5">
+                                {serviciosNoCoincidentesContrato.map((nombre, idx) => (
+                                    <li key={`${nombre}-${idx}`}>{nombre}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            )}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen y Descuentos'][paso-1]}</CardTitle>
@@ -820,5 +861,5 @@ export default function CrearPresupuestoPage() {
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <CrearPresupuestoContent />
         </Suspense>
-    )
+    );
 }
