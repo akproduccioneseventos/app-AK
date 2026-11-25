@@ -77,10 +77,10 @@ la DEMO** e incluye 30 días para atrás, y el cartel dice "Eventos próximos".
    `src/components/simulator/SimulatorMeetingScheduler.tsx` ~80 (`'Presencial en Oficina'` → `'Presencial a coordinar'`) y
    ~131 (el texto visible "Oficina AK Producciones · Salto, Uruguay" → "Lugar a coordinar · Salto, Uruguay"), y el valor por
    defecto "Oficina AK Salto" de `src/app/(app)/calendario/page.tsx` ~374, ~408, ~859 → "A coordinar".
-   También `src/app/actions/simulator-agenda.ts` ~173 (el tipo de reunión `'Presencial en Oficina'` que vuelve a mirar) y
-   `src/lib/agenda-utils.ts` ~23 y ~35 (`'Presencial en Oficina'` y "Te esperamos en nuestra oficina"): el tipo pasa a
-   `'Presencial a coordinar'` y el texto a "Coordinamos el lugar por WhatsApp". El código que compara el tipo acepta los dos
-   valores, el viejo y el nuevo, para las citas ya guardadas.
+   También el lugar por defecto `'Oficina AK Producciones Salto'` de `src/lib/agenda-utils.ts` ~23 (evento de Google
+   Calendar) y ~35 (mail de confirmación), y `'Oficina AK Producciones, Salto, Uruguay'` del enlace de calendario en
+   `src/app/actions/simulator-agenda.ts` ~173: pasan a "Lugar a coordinar por WhatsApp". El código que compara el tipo
+   `'Presencial en Oficina'` acepta los dos valores, el viejo y el nuevo, para las citas ya guardadas.
    Las citas viejas guardadas no se reescriben: al mostrarlas, "Oficina AK Producciones" se lee "A coordinar".
 
 ## Bloque 9 — Lo que la pantalla afirma sin mirarlo
@@ -138,7 +138,8 @@ usa: esFiestaProxima en src/app/(app)/eventos/page.tsx
 usa: Pasada en src/app/(app)/calendario/page.tsx
 usa: Reunión presencial a coordinar en src/app/actions/simulator-agenda.ts
 usa: a coordinar en src/components/simulator/SimulatorMeetingScheduler.tsx
-no-usa: nuestra oficina en src/lib/agenda-utils.ts
+no-usa: Oficina AK Producciones en src/lib/agenda-utils.ts
+no-usa: Oficina AK Producciones en src/app/actions/simulator-agenda.ts
 no-usa: contraseña compartida en src/app/(app)/perfil/page.tsx
 usa: aria-label en src/app/presentacion-led/page.tsx
 usa: canonical en src/app/bodas/page.tsx
