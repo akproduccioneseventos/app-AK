@@ -796,7 +796,7 @@ function SalonesPageInner() {
         <TabsContent value="todos">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-headline text-lg">Salones Guardados ({salones.length})</CardTitle>
+              <CardTitle className="font-headline text-lg">Salones Guardados{isLoading ? '' : ` (${salones.length})`}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
