@@ -108,7 +108,7 @@ function ExperienciaContent() {
         if (activo && data) setCifras(data);
       })
       .catch(() => {
-        // Mantenemos cifras base locales si falla la consulta
+        // no pasa nada si falla: se muestran las cifras base, que son las mismas que cuenta el servidor
       });
     return () => {
       activo = false;

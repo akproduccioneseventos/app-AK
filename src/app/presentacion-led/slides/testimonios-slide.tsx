@@ -52,7 +52,7 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
         if (vigente && data) setCifras(data);
       })
       .catch(() => {
-        // Mantenemos cifras base si falla la consulta pública
+        // no pasa nada si falla: quedan las cifras base, sólo es una lectura para mostrar
       });
     return () => {
       vigente = false;

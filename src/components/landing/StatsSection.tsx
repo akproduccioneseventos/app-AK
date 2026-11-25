@@ -79,7 +79,7 @@ export function StatsSection({ stats, cifras: cifrasIniciales }: StatsSectionPro
         if (activo && res) setCifras(res);
       })
       .catch(() => {
-        // Si falla la lectura pública, mantenemos el cálculo local seguro
+        // no pasa nada si falla: queda el cálculo local, sólo es una lectura para mostrar
       });
     return () => {
       activo = false;
