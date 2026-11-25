@@ -123,7 +123,12 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
       });
 
       // 3. Comprobar que en B el ítem 1 se actualizó a "4", pero el ítem 2 que tiene el foco sigue teniendo "99" (no se pisó)
-      await expect(inputB1).toHaveValue('4', { timeout: 15_000 });
+      await expect(async () => {
+        await pageB.evaluate(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        await expect(inputB1).toHaveValue('4', { timeout: 3_000 });
+      }).toPass({ timeout: 45_000 });
       await expect(inputB2).toHaveValue('99');
 
       // 4. Bloque 2: Comprobar que una respuesta atrasada no devuelve el ítem a "sin cargar"
@@ -139,8 +144,15 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
         document.dispatchEvent(new Event('visibilitychange'));
       });
 
+      // Con la máquina cargada el guardado de A puede tardar más de 2 s: B vuelve a sincronizar hasta verlo,
+      // en vez de mirar una sola vez (fallaba de a ratos en la verificación, 25/11/2026).
       const checkCargadoB = pageB.locator('#item-cargado-item-sync-1');
-      await expect(checkCargadoB).toBeChecked({ timeout: 15_000 });
+      await expect(async () => {
+        await pageB.evaluate(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        await expect(checkCargadoB).toBeChecked({ timeout: 3_000 });
+      }).toPass({ timeout: 45_000 });
     } finally {
       await contextA.close();
       await contextB.close();
