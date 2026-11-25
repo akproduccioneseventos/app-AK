@@ -56,33 +56,36 @@ const DEFAULT_FAQS: LandingFaqItem[] = [
 
 interface FAQSectionProps {
   faqs?: LandingFaqItem[];
+  includeJsonLd?: boolean;
 }
 
-export function FAQSection({ faqs }: FAQSectionProps) {
+export function FAQSection({ faqs, includeJsonLd = true }: FAQSectionProps) {
   const [open, setOpen] = useState<string | null>(null);
   const items = faqs && faqs.length > 0 ? faqs : DEFAULT_FAQS;
 
   return (
     <section className="border-t border-slate-200 bg-slate-50 py-24" id="faq">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": items.map((faq) => ({
-              "@type": "Question",
-              "name": faq.question,
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": faq.answer,
-              },
-            })),
-          }),
-        }}
-      />
+      {includeJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": items.map((faq) => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": faq.answer,
+                },
+              })),
+            }),
+          }}
+        />
+      )}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -136,7 +139,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
                   : <ChevronDown className="w-5 h-5 text-slate-500 shrink-0" />
                 }
               </button>
-              
+
               <AnimatePresence initial={false}>
                 {open === faq.id && (
                   <motion.div

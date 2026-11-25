@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles, Info, Images } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
+import { GaleriaLightboxModal } from '../components/galeria-lightbox-modal';
 import { cn } from '@/lib/utils';
 import { slugify } from '../lib/string-utils';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { GLITTER_BAR_FOTO_DE_EJEMPLO } from '@/lib/catering/menu-images';
 import type { CatalogoFoto } from '@/types/catalogo';
+import type { GaleriaFoto } from '@/types/galeria';
+import { getFotosDelServicio } from '@/app/actions/galeria';
+import { filtrarFotosDelServicio } from '@/lib/galeria/fotos-por-servicio';
 import { SERVICES } from '@/data/presentacion';
 
 function isSafeHttpsUrl(url: string | null | undefined): boolean {
@@ -120,11 +124,14 @@ interface CategoriaServiciosSlideProps {
   categoriaIndex: number;
   totalCategorias: number;
   catalogoFotos?: CatalogoFoto[];
+  galeriaFotos?: GaleriaFoto[];
   tipoFiesta?: string;
   /** Map of service ID -> uploaded LED photo URL */
   ledFotoMap?: Record<string, string>;
   /** Called when user clicks 'Ver experiencia visual' to open inline gallery */
   onOpenGallery?: (categoria: string, subcategoria?: string) => void;
+  /** Called when user clicks 'Ver fotos (N)' on a specific service card */
+  onOpenServiceFotos?: (servicioNombre: string, fotos: GaleriaFoto[]) => void;
 }
 
 function getServiceIcon(categoria?: string) {
@@ -204,14 +211,18 @@ function ServicioCard({
   onToggle,
   mostrarPrecios,
   fotoUrl,
+  fotosServicio = [],
   onOpenGallery,
+  onOpenServiceFotos,
 }: {
   servicio: ServicioEmpresa;
   isSelected: boolean;
   onToggle: () => void;
   mostrarPrecios: boolean;
   fotoUrl?: string | null;
+  fotosServicio?: GaleriaFoto[];
   onOpenGallery?: (categoria: string, subcategoria?: string) => void;
+  onOpenServiceFotos?: () => void;
 }) {
   const [showSpecs, setShowSpecs] = useState(false);
   const [showDesc, setShowDesc] = useState(false);
@@ -290,6 +301,17 @@ function ServicioCard({
               {showDesc ? 'Ocultar' : 'Detalle'}
             </button>
           )}
+          {fotosServicio.length > 0 && onOpenServiceFotos && (
+            <button
+              type="button"
+              data-testid={`ver-fotos-servicio-${servicio.id}`}
+              onClick={onOpenServiceFotos}
+              className="flex items-center gap-1 rounded-lg border border-indigo-400/30 bg-indigo-500/15 px-2.5 py-1 text-xs font-bold text-indigo-200 transition-colors hover:bg-indigo-500/25 hover:text-white"
+            >
+              <Images className="h-3.5 w-3.5" />
+              Ver fotos ({fotosServicio.length})
+            </button>
+          )}
           <button
             onClick={handleGallery}
             className="flex items-center gap-1 text-xs font-bold text-emerald-200 transition-colors hover:text-emerald-100"
@@ -360,13 +382,63 @@ export function CategoriaServiciosSlide({
   categoriaIndex,
   totalCategorias,
   catalogoFotos = [],
+  galeriaFotos,
   tipoFiesta = '',
   ledFotoMap = {},
   onOpenGallery,
+  onOpenServiceFotos,
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+  const [fotosPorServicio, setFotosPorServicio] = useState<Record<string, GaleriaFoto[]>>({});
+  const [localServiceModal, setLocalServiceModal] = useState<{ open: boolean; titulo: string; fotos: GaleriaFoto[] }>({
+    open: false,
+    titulo: '',
+    fotos: [],
+  });
+
+  const fotosSincronas = useMemo(() => {
+    if (galeriaFotos === undefined) return null;
+    const mapa: Record<string, GaleriaFoto[]> = {};
+    for (const srv of servicios) {
+      mapa[srv.id] = filtrarFotosDelServicio(galeriaFotos, srv.id, srv.nombre);
+    }
+    return mapa;
+  }, [galeriaFotos, servicios]);
+
+  useEffect(() => {
+    if (galeriaFotos !== undefined) return;
+    let activo = true;
+    const faltantes = servicios.filter((s) => !(s.id in fotosPorServicio));
+    if (faltantes.length === 0) return;
+
+    Promise.all(
+      faltantes.map(async (srv) => {
+        try {
+          const fotos = await getFotosDelServicio(srv.id, srv.nombre);
+          return [srv.id, fotos] as const;
+        } catch {
+          return [srv.id, [] as GaleriaFoto[]] as const;
+        }
+      }),
+    ).then((pares) => {
+      if (!activo) return;
+      setFotosPorServicio((prev) => {
+        const siguiente = { ...prev };
+        for (const [id, fotos] of pares) {
+          siguiente[id] = fotos;
+        }
+        return siguiente;
+      });
+    });
+
+    return () => {
+      activo = false;
+    };
+  }, [galeriaFotos, servicios, fotosPorServicio]);
+
+  const fotosEfectivas = fotosSincronas ?? fotosPorServicio;
 
   const categorySlug = slugify(categoria);
 
@@ -537,7 +609,16 @@ export function CategoriaServiciosSlide({
                     onToggle={() => onToggleSelect(servicio.id)}
                     mostrarPrecios={mostrarPrecios}
                     fotoUrl={ledFotoMap[servicio.id] || findPhotoForService(servicio, catalogoFotos, tipoFiesta) || getFallbackServicePhoto(servicio)}
+                    fotosServicio={fotosEfectivas[servicio.id] || []}
                     onOpenGallery={onOpenGallery}
+                    onOpenServiceFotos={() => {
+                      const fotos = fotosEfectivas[servicio.id] || [];
+                      if (onOpenServiceFotos) {
+                        onOpenServiceFotos(servicio.nombre, fotos);
+                      } else {
+                        setLocalServiceModal({ open: true, titulo: servicio.nombre, fotos });
+                      }
+                    }}
                   />
                 </motion.div>
               ))
@@ -545,6 +626,12 @@ export function CategoriaServiciosSlide({
           </motion.div>
         </div>
       </div>
+      <GaleriaLightboxModal
+        isOpen={localServiceModal.open}
+        onClose={() => setLocalServiceModal((prev) => ({ ...prev, open: false }))}
+        fotos={localServiceModal.fotos}
+        categoriaLabel={localServiceModal.titulo || 'Galería'}
+      />
     </SlideLayout>
   );
 }

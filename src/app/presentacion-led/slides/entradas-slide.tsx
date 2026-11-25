@@ -7,7 +7,7 @@ import { Check, ChevronRight, Utensils, Info, ImageIcon, Star, ExternalLink } fr
 import { SlideLayout } from '../components/slide-layout';
 import { cn } from '@/lib/utils';
 import type { MenuItem } from '@/types/catering';
-import { getCateringDishImage } from '@/lib/catering/menu-images';
+import { cateringDishIdsWithoutConfirmedImage, getCateringDishImage } from '@/lib/catering/menu-images';
 
 interface EntradaSlideProps {
   entradas: MenuItem[];
@@ -221,7 +221,17 @@ export function EntradaSlide({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {entradas.map((entrada, i) => (
+            {entradas.map((entrada, i) => {
+              const photoUrl = ledFotoMap[entrada.id] || getCateringDishImage(entrada) || null;
+              const tieneFotoReal = Boolean(
+                photoUrl &&
+                isSafeUrl(photoUrl) &&
+                (!cateringDishIdsWithoutConfirmedImage.has(entrada.id) ||
+                  Boolean(ledFotoMap[entrada.id]) ||
+                  Boolean(entrada.imageUrl && !entrada.imageUrl.endsWith(`/${entrada.id}.jpeg`))),
+              );
+              const tienePrecio = typeof entrada.suggestedSellingPrice === 'number' && entrada.suggestedSellingPrice > 0;
+              return (
               <motion.div
                 key={entrada.id}
                 initial={{ opacity: 0, y: 12 }}
@@ -233,12 +243,13 @@ export function EntradaSlide({
                   isSelected={selectedIds.includes(entrada.id)}
                   onToggle={() => onToggle(entrada.id)}
                   mostrarPrecios={mostrarPrecios}
-                  photoUrl={ledFotoMap[entrada.id] || getCateringDishImage(entrada) || null}
-                  isRecomendada={i < requiredCount}
+                  photoUrl={photoUrl}
+                  isRecomendada={i < requiredCount && tieneFotoReal && tienePrecio}
                   onOpenGallery={handleCardGallery}
                 />
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         )}
 

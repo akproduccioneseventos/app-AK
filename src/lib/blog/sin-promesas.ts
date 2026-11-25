@@ -1,4 +1,5 @@
 import { applyAutomaticStaffByGuests } from '@/lib/commercial/live-budget-editor';
+import { aniosDeAK, FIESTAS_BASE } from '@/lib/marketing/cifras-de-ak';
 import type { BlogPost } from '@/types/blog';
 
 const REGEX_PROMESAS = /garant|congel|cuotas fijas|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b/i;
@@ -36,7 +37,7 @@ export function getGuestsPerStaff(): number {
  */
 export function getDatosDeAkParaElBlog(): string {
   const guests = getGuestsPerStaff();
-  return `El personal se calcula por invitados: un mozo de cocina y un mozo de atención cada ${guests} invitados. Las islas y la comida de pie pueden usar menos vajilla que el servicio a la mesa. AK trabaja en Salto, Uruguay, hace 7 años y lleva más de 200 fiestas. El precio lleva el ajuste anual.`;
+  return `El personal se calcula por invitados: un mozo de cocina y un mozo de atención cada ${guests} invitados. Las islas y la comida de pie pueden usar menos vajilla que el servicio a la mesa. AK trabaja en Salto, Uruguay, hace ${aniosDeAK()} años y lleva más de ${FIESTAS_BASE} fiestas. El precio lleva el ajuste anual.`;
 }
 
 export let DATOS_DE_AK_PARA_EL_BLOG: string = getDatosDeAkParaElBlog();

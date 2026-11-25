@@ -3,7 +3,15 @@
 const SITE_URL = 'https://akproducciones.uy';
 
 export interface EventLandingSeoInput {
-  slug: 'bodas' | 'xv-anos' | 'eventos' | 'quinceaneras' | 'cumpleanos';
+  slug:
+    | 'bodas'
+    | 'xv-anos'
+    | 'eventos'
+    | 'quinceaneras'
+    | 'cumpleanos'
+    | 'fiestas-empresariales'
+    | 'fiestas-infantiles'
+    | 'fiestas';
   title: string;
   description: string;
   image: string;
@@ -16,6 +24,9 @@ const CANONICAL_BY_SLUG: Record<string, string> = {
   quinceaneras: '/quinceaneras',
   eventos: '/cumpleanos',
   cumpleanos: '/cumpleanos',
+  'fiestas-empresariales': '/fiestas-empresariales',
+  'fiestas-infantiles': '/fiestas-infantiles',
+  fiestas: '/fiestas',
 };
 
 export function createEventLandingMetadata({

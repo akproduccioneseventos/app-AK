@@ -1,3 +1,5 @@
+import { aniosDeAK, FIESTAS_BASE } from '@/lib/marketing/cifras-de-ak';
+
 /**
  * Types for the Landing Page Visual Editor.
  * The admin can edit these settings from the panel at /empresa/landing-editor.
@@ -152,8 +154,8 @@ export const defaultLandingSettings: LandingSettings = {
     { id: 'svc_6', icon: '📱', title: 'Tecnología Interactiva', description: 'Portal del cliente, invitación QR y muro social en pantalla gigante en vivo.' },
   ],
   stats: [
-    { value: '+200', label: 'Eventos Realizados', icon: '🎉' },
-    { value: '+7', label: 'Años de Experiencia', icon: '⭐' },
+    { value: `+${FIESTAS_BASE}`, label: 'Eventos Realizados', icon: '🎉' },
+    { value: `+${aniosDeAK()}`, label: 'Años de Experiencia', icon: '⭐' },
     { value: 'Clientes', label: 'Satisfechos', icon: '❤️' },
   ],
   cta: {

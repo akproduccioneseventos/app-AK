@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import {
+  getPublicGuestEvent,
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
@@ -231,6 +232,7 @@ function GuestPortalContent() {
   const [videoPersonal, setVideoPersonal] = useState<{ url: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [fallbackEventName, setFallbackEventName] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
 
@@ -240,6 +242,10 @@ function GuestPortalContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId || !guestAccessToken) {
+      if (fiestaId) {
+        const publicEvent = await getPublicGuestEvent(fiestaId).catch(() => null);
+        setFallbackEventName(publicEvent?.configuracion?.nombreEvento || null);
+      }
       setLoadError('Enlace invalido.');
       setIsLoading(false);
       return;
@@ -252,12 +258,17 @@ function GuestPortalContent() {
         getSocialConnectionsPublicas().catch(() => [] as SocialConnection[]),
       ]);
       if (!data) throw new Error('Evento o invitado no encontrado.');
+      setFallbackEventName(null);
       setFiesta(data.fiesta);
       setGuest(data.guest);
       setVideoPersonal(data.videoPersonal || null);
       setEntertainmentLinks(data.entertainmentLinks);
       setSocialConnections(connections);
     } catch {
+      if (fiestaId) {
+        const publicEvent = await getPublicGuestEvent(fiestaId).catch(() => null);
+        setFallbackEventName(publicEvent?.configuracion?.nombreEvento || null);
+      }
       setLoadError('No pudimos cargar tu invitación.');
     } finally {
       setIsLoading(false);
@@ -289,6 +300,11 @@ function GuestPortalContent() {
           <h1 className="mt-5 text-2xl font-black text-white" style={{ color: '#ffffff' }}>
             No pudimos abrir tu invitación
           </h1>
+          {fallbackEventName && (
+            <p className="text-sm font-semibold text-amber-300">
+              {`Evento: ${fallbackEventName}`}
+            </p>
+          )}
           <p className="mt-3 text-sm text-slate-300">
             {loadError || 'Verificá el enlace o contactá al organizador del evento.'}
           </p>

@@ -47,11 +47,11 @@ export default function NotFound() {
     <main className="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center px-6 py-16">
       <p className="font-headline text-6xl font-black tracking-tighter text-slate-200">404</p>
       <h1 className="mt-2 font-headline text-3xl font-black tracking-tight text-slate-900">
-        Esta pagina no existe
+        Esta página no existe
       </h1>
       <p className="mt-3 text-slate-600">
         Puede que el enlace sea viejo o que la hayamos movido. No te vayas con las manos
-        vacias: por aca se llega a lo que buscabas.
+        vacías: por acá se llega a lo que buscabas.
       </p>
 
       <div className="mt-8 space-y-3">

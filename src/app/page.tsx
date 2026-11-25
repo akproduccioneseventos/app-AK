@@ -55,6 +55,8 @@ import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
 import { getDynamicSalonPhotos, getClubUruguayHeroPhoto, type SalonPhoto } from "@/lib/salon-helper";
 import { getBlogPosts } from "@/app/actions/blog";
+import { getCifrasPublicasAK } from "@/app/actions/cifras-ak";
+import { aniosDeAK, FIESTAS_BASE } from "@/lib/marketing/cifras-de-ak";
 import { ponerAlDiaAlEntrar } from "@/lib/automatico/al-entrar-a-la-app";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
@@ -687,10 +689,14 @@ export default async function HomePage() {
     }, 2000);
   }
 
-  // SOLO esperamos promo y landingSettings (los 2 que deciden la cabecera y el hero inicial)
-  const [promo, landingSettings] = await Promise.all([
+  // SOLO esperamos promo, landingSettings y cifras públicas (no bloquea el primer byte)
+  const [promo, landingSettings, cifrasAK] = await Promise.all([
     withPublicFallback(getPromoActiva(), null),
     withPublicFallback(getCachedLandingSettings(), defaultLandingSettings),
+    withPublicFallback(getCifrasPublicasAK(), {
+      anios: aniosDeAK(),
+      fiestasRealizadas: FIESTAS_BASE,
+    }),
   ]);
 
   const whatsapp = AK_WHATSAPP_NUMBER;
@@ -809,7 +815,7 @@ export default async function HomePage() {
             />
           </div>
         }
-        stats={<StatsSection stats={landingSettings.stats} />}
+        stats={<StatsSection stats={landingSettings.stats} cifras={cifrasAK} />}
         difference={<AkDifferenceSection />}
         services={
           <ServicesSection

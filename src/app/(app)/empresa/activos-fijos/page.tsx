@@ -232,9 +232,9 @@ function InventarioActivosPageInner() {
                               <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>
                             </div>
                             <div className="flex gap-1 print:hidden">
-                                <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/empresa/activos-fijos/${item.id}/editar`}><Edit className="w-3.5 h-3.5" /></Link></Button>
+                                <Button asChild variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar activo ${item.nombre}`} title="Editar"><Link href={`/empresa/activos-fijos/${item.id}/editar`}><Edit className="w-3.5 h-3.5" /></Link></Button>
                                 <AlertDialog>
-                                  <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                  <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id} aria-label={`Borrar activo ${item.nombre}`} title="Borrar"><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                   <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                 </AlertDialog>
                             </div>

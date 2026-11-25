@@ -51,6 +51,7 @@ const CADA_CUANTO = {
   recordatorio_invitados: 24 * 60 * 60 * 1000,
   asistente_proactivo: 60 * 60 * 1000,
   muestra_auditor: 60 * 60 * 1000,
+  clasificar_galeria_ia: 6 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -68,6 +69,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   recordatorio_invitados: 'recordatorio-a-los-invitados',
   asistente_proactivo: 'asistente-proactivo',
   muestra_auditor: 'fiesta-muestra-auditor',
+  clasificar_galeria_ia: 'clasificar-galeria-ia',
 };
 
 interface EstadoDeTareas {
@@ -350,6 +352,17 @@ export async function ponerAlDiaAlEntrar(
             return { creada: idMuestra };
           }
           return { yaExiste: true };
+        },
+      },
+      {
+        nombre: 'clasificar_galeria_ia',
+        correr: async () => {
+          const { esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
+          if (await esSesionDeSoloLectura()) {
+            return { omitido: 'auditor_no_escribe' };
+          }
+          const { clasificarPendientesGaleriaIA } = await import('@/lib/automatico/clasificar-galeria-ia');
+          return clasificarPendientesGaleriaIA({ ahora });
         },
       },
     ];

@@ -42,11 +42,18 @@ function momento(fecha: string, hora: string, sumarUnDia = false) {
 
 function enPalabras(milisegundos: number) {
   const minutos = Math.floor(Math.abs(milisegundos) / 60000);
-  const horas = Math.floor(minutos / 60);
+  const horasTotales = Math.floor(minutos / 60);
   const resto = minutos % 60;
-  if (horas === 0) return `${resto} min`;
-  if (resto === 0) return `${horas} h`;
-  return `${horas} h ${resto} min`;
+  if (horasTotales >= 24) {
+    const dias = Math.floor(horasTotales / 24);
+    const horasRestantes = horasTotales % 24;
+    const labelDias = dias === 1 ? 'día' : 'días';
+    if (horasRestantes === 0) return `${dias} ${labelDias}`;
+    return `${dias} ${labelDias} y ${horasRestantes} h`;
+  }
+  if (horasTotales === 0) return `${resto} min`;
+  if (resto === 0) return `${horasTotales} h`;
+  return `${horasTotales} h ${resto} min`;
 }
 
 export function AhoraEnVivo({ fechaEvento, horaInicio, horaFin, programa }: Props) {
@@ -68,35 +75,54 @@ export function AhoraEnVivo({ fechaEvento, horaInicio, horaFin, programa }: Prop
     );
   }
 
-  const inicioMin = aMinutos(horaInicio) ?? 21 * 60;
-  const inicio = momento(fechaEvento, horaInicio || '21:00');
+  // Una fiesta recien creada todavia no tiene hora cargada. Sin este cuidado la
+  // pantalla decia "Arranca a las undefined".
+  const hayHoraInicioConfig = aMinutos(horaInicio) !== null;
+  const itemComienzo = programa.find(
+    (p) => p.id === 'prog_1' || /^comienzo$/i.test(p.titulo.trim()),
+  );
+  const horaInicioReal = hayHoraInicioConfig
+    ? horaInicio!.trim()
+    : itemComienzo && aMinutos(itemComienzo.hora) !== null
+      ? itemComienzo.hora.trim()
+      : undefined;
+  const hayHoraInicio = Boolean(horaInicioReal);
+
+  const inicioMin = aMinutos(horaInicioReal) ?? 21 * 60;
+  const inicio = momento(fechaEvento, horaInicioReal || '21:00');
   const fin = horaFin ? momento(fechaEvento, horaFin, (aMinutos(horaFin) ?? 0) < inicioMin) : null;
 
   let titular = 'Sin hora de inicio cargada';
   let detalle = 'Cargá la hora en la configuración de la fiesta.';
+  const hayHoraFin = aMinutos(horaFin) !== null;
 
-  // Una fiesta recien creada todavia no tiene hora cargada. Sin este cuidado la
-  // pantalla decia "Arranca a las undefined".
-  const hayHoraInicio = Boolean(aMinutos(horaInicio));
-  const hayHoraFin = Boolean(aMinutos(horaFin));
-
-  if (inicio && hayHoraInicio) {
+  if (inicio && hayHoraInicio && horaInicioReal) {
     const faltan = inicio.getTime() - ahora.getTime();
     if (faltan > 0) {
       titular = `Faltan ${enPalabras(faltan)}`;
-      detalle = `Arranca a las ${horaInicio}`;
+      detalle = `Arranca a las ${horaInicioReal}`;
     } else if (fin && hayHoraFin && ahora.getTime() > fin.getTime()) {
       titular = 'La fiesta terminó';
       detalle = `Cerró a las ${horaFin}`;
     } else {
       titular = `Arrancó hace ${enPalabras(faltan)}`;
-      detalle = fin && hayHoraFin ? `Termina a las ${horaFin}` : `Empezó a las ${horaInicio}`;
+      detalle = fin && hayHoraFin ? `Termina a las ${horaFin}` : `Empezó a las ${horaInicioReal}`;
     }
   }
 
   // Cada punto del cronograma se ubica en la línea de tiempo real de la noche.
+  // Si existe un ítem de "Comienzo", unificamos su hora con la hora real de inicio
+  // de la fiesta para evitar contradicciones entre "Arranca a las..." y "Comienzo".
   const puntos = programa
-    .map((p) => ({ ...p, cuando: momento(fechaEvento, p.hora, (aMinutos(p.hora) ?? 0) < inicioMin) }))
+    .map((p) => {
+      const esComienzo = p.id === 'prog_1' || /^comienzo$/i.test(p.titulo.trim());
+      const horaUnificada = esComienzo && horaInicioReal ? horaInicioReal : p.hora;
+      return {
+        ...p,
+        hora: horaUnificada,
+        cuando: momento(fechaEvento, horaUnificada, (aMinutos(horaUnificada) ?? 0) < inicioMin),
+      };
+    })
     .filter((p): p is typeof p & { cuando: Date } => p.cuando !== null)
     .sort((a, b) => a.cuando.getTime() - b.cuando.getTime());
 

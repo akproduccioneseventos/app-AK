@@ -311,13 +311,13 @@ function CatalogoServiciosPageInner() {
                                 <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-tight break-words [overflow-wrap:anywhere]" title={item.nombre} data-testid="titulo-servicio">{item.nombre}</CardTitle>
                               </div>
                               <div className="flex gap-1 shrink-0">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} aria-label={`Duplicar servicio ${item.nombre}`} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
                                   </Button>
-                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary" title="Editar servicio"><Link href={`/empresa/servicios/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
+                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary" aria-label={`Editar servicio ${item.nombre}`} title="Editar servicio"><Link href={`/empresa/servicios/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-red-50 text-destructive" disabled={!!deletingId || !!duplicatingId}><Trash2 className="w-3.5 h-3.5" /></Button>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-red-50 text-destructive" disabled={!!deletingId || !!duplicatingId} aria-label={`Borrar servicio ${item.nombre}`} title="Borrar servicio"><Trash2 className="w-3.5 h-3.5" /></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="rounded-3xl border-none shadow-2xl"><AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl uppercase tracking-tighter">¿Eliminar servicio?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Se eliminará "{item.nombre}" del catálogo.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90 rounded-xl">Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                   </AlertDialog>

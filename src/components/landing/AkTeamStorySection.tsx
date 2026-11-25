@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Camera, HeartHandshake, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { aniosDeAK } from '@/lib/marketing/cifras-de-ak';
 
 const storyCards = [
   {
@@ -32,7 +33,7 @@ export function AkTeamStorySection() {
         <div className="max-w-3xl mx-auto mb-16 space-y-4">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-red-950/40 border border-red-500/25 text-xs font-black uppercase tracking-widest text-red-400">
             <HeartHandshake className="w-3.5 h-3.5" />
-            Más de 7 años acompañando celebraciones en Salto.
+            Más de {aniosDeAK()} años acompañando celebraciones en Salto.
           </span>
           <h2 className="text-4xl sm:text-5xl font-black font-headline tracking-tight text-white">
             El valor de contar con un equipo completo

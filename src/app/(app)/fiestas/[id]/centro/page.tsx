@@ -1,4 +1,5 @@
-﻿import Link from 'next/link';
+﻿import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
   ArrowLeft,
   Camera,
@@ -57,6 +58,10 @@ import { topTrivia } from '@/lib/games/juegos-en-vivo';
  * Pensado para el celular, de pie y con poca luz: fondo oscuro, números
  * grandes, textos cortos y botones que se tocan con el pulgar.
  */
+
+export const metadata: Metadata = {
+  title: 'Centro de Fiesta',
+};
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -231,7 +236,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
           <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">Centro de fiesta</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">{nombre}</h1>
           <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold text-slate-300">
-            {fecha && <span className="capitalize">{fecha}</span>}
+            {fecha && <span>{fecha.charAt(0).toUpperCase() + fecha.slice(1)}</span>}
             {config?.nombreLugar && <span>{config.nombreLugar}</span>}
           </p>
         </header>

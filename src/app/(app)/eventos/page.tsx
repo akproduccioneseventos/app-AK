@@ -591,7 +591,7 @@ export default function GestorFiestasPage() {
               Ver Calendario General
             </Link></Button>
 
-          <Button asChild variant="outline"><Link href="/">
+          <Button asChild variant="outline"><Link href="/mi-dia">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al Menú Principal
             </Link></Button>

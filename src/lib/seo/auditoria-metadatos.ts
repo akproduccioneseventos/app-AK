@@ -4,6 +4,9 @@ import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
 import { metadata as bodasMetadata } from '@/app/bodas/page';
 import { metadata as quinceMetadata } from '@/app/quinceaneras/page';
 import { metadata as cumpleMetadata } from '@/app/cumpleanos/page';
+import { metadata as fiestasMetadata } from '@/app/fiestas/page';
+import { metadata as empresarialesMetadata } from '@/app/fiestas-empresariales/page';
+import { metadata as infantilesMetadata } from '@/app/fiestas-infantiles/page';
 import { metadata as clubMetadata } from '@/app/club-uruguay/page';
 import { metadata as catalogoMetadata } from '@/app/catalogo/layout';
 import { metadata as expMetadata } from '@/app/experiencia-ak/page';
@@ -60,6 +63,27 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     return {
       title: String(cumpleMetadata.title || ''),
       description: String(cumpleMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas') {
+    return {
+      title: String(fiestasMetadata.title || ''),
+      description: String(fiestasMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas-empresariales') {
+    return {
+      title: String(empresarialesMetadata.title || ''),
+      description: String(empresarialesMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas-infantiles') {
+    return {
+      title: String(infantilesMetadata.title || ''),
+      description: String(infantilesMetadata.description || ''),
     };
   }
 
