@@ -33,6 +33,12 @@ export interface ServiceDependency {
   requiredServiceId: string;
 }
 
+/** Ultima decision del dueno sobre el precio del Club Uruguay (25/11/2026). */
+export const PRECIO_CLUB_URUGUAY_REVISION = '2026-11-25';
+
+/** El servicio del catalogo que es el salon del Club Uruguay: su precio de venta sale de esta configuracion. */
+export const SERVICIO_SALON_CLUB_URUGUAY_ID = 'serv_salon_club_uruguay';
+
 export interface ClubUruguayConfig {
   activo: boolean;
   precio: number;
@@ -42,8 +48,8 @@ export interface ClubUruguayConfig {
 
 export const defaultClubUruguayConfig: ClubUruguayConfig = {
   activo: true,
-  precio: 16900,
-  precioRevision: '2026-10-31',
+  precio: 19990,
+  precioRevision: '2026-11-25',
   prestaciones: [
     'Capacidad 50-200 personas',
     'Ubicación céntrica en Salto',
@@ -53,8 +59,12 @@ export const defaultClubUruguayConfig: ClubUruguayConfig = {
 
 export function normalizeClubUruguayConfig(config?: Partial<ClubUruguayConfig>): ClubUruguayConfig {
   const merged = { ...defaultClubUruguayConfig, ...config };
-  // Decision expresa del dueno del31/10. Las ediciones futuras guardan revision y se respetan.
-  if (!config?.precioRevision && Number(config?.precio) === 20000) merged.precio = 16900;
+  // Decision expresa del dueno del 25/11/2026: desde 2027 el Club Uruguay vale $19.990 (antes $16.900, decision del 31/10).
+  // Un precio guardado con una revision anterior se lleva al nuevo; las ediciones posteriores guardan su revision y se respetan.
+  if (!config?.precioRevision || config.precioRevision < PRECIO_CLUB_URUGUAY_REVISION) {
+    merged.precio = defaultClubUruguayConfig.precio;
+    merged.precioRevision = PRECIO_CLUB_URUGUAY_REVISION;
+  }
   return { ...merged, precioRevision: merged.precioRevision || defaultClubUruguayConfig.precioRevision };
 }
 

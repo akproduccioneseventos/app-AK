@@ -2,6 +2,16 @@
 
 
 
+## 25/11/2026 - Revisión de Claude de la entrega 343-345 y la auditoría profunda de Gemini (#1472, #1473)
+
+- **Club Uruguay a $19.990** (decisión del dueño): `defaultClubUruguayConfig` con revisión `2026-11-25`; un precio guardado
+  con revisión anterior pasa al nuevo. El servicio del catálogo `serv_salon_club_uruguay` toma su precio de venta de esa
+  configuración (`leerServiciosEmpresa`), así el simulador y la LED muestran lo mismo (auditoría externa 25/11, hallazgo 3).
+- **Empezar 2027:** un presupuesto de 2027 que armó un prospecto en el simulador y nadie aceptó **no** se da por aceptado
+  ni crea fiesta. Lo anterior a 2027 se borra, también noviembre y diciembre de 2026 (decisión del dueño).
+- **Presupuesto facturado:** editar una nota no deja cambiar el total con lo que mande la pantalla; queda el de la factura.
+- Las tres con su prueba en `auditoria-profunda-24-11-plata-y-portal.test.ts` (rojas sin el arreglo).
+
 ## 25/11/2026 - El robot veía 81 pantallas rotas que no estaban rotas
 
 - El robot de la orden 339 entraba con la cookie del dueño (`userId: admin`), y en su base de prueba no existía ese

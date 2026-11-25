@@ -525,15 +525,23 @@ export async function correrMigracionEmpezar2027(
         );
 
       if (es2027) {
+        // Un presupuesto que un prospecto armo solo en el simulador y nadie acepto NO se da por aceptado:
+        // crearia una fiesta que nadie contrato. Queda como esta (revision de Claude, 25/11/2026).
+        const esDelSimuladorSinAceptar =
+          (p.source === 'simulator' || p.source === 'simulator_common') &&
+          p.estado !== 'Aceptado' &&
+          p.estado !== 'Facturado' &&
+          !tieneContratoFirmado;
         const esInactivo =
           Boolean(p.archived) ||
           p.estado === 'Rechazado' ||
-          ['Vencido', 'Cancelado'].includes(String(p.estado));
+          ['Vencido', 'Cancelado'].includes(String(p.estado)) ||
+          esDelSimuladorSinAceptar;
         if (esInactivo) {
           protegidosCount += 1;
           presupuestosRestantes.push(p);
           advertencias.push(
-            `Conservado ${p.id} (2027+) en estado ${p.archived ? 'archivado' : p.estado} sin activar ni generar contratos.`,
+            `Conservado ${p.id} (2027+) en estado ${p.archived ? 'archivado' : p.estado}${esDelSimuladorSinAceptar ? ' (prospecto del simulador)' : ''} sin activar ni generar contratos.`,
           );
           continue;
         }

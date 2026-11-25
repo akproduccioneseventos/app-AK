@@ -38,7 +38,7 @@ jest.mock("@/lib/notifications/create-notification", () => ({
 
 describe("simulador-origen-precios", () => {
   it('respeta el precio final del dueno y no pisa una edicion futura explicita', () => {
-    expect(normalizeClubUruguayConfig({ precio: 20000 }).precio).toBe(16900);
+    expect(normalizeClubUruguayConfig({ precio: 20000 }).precio).toBe(19990);
     expect(normalizeClubUruguayConfig({ precio: 20000, precioRevision: 'futura' }).precio).toBe(20000);
   });
   beforeEach(async () => {
@@ -58,7 +58,7 @@ describe("simulador-origen-precios", () => {
     const result = await getPublicSimulatorBootstrap();
 
     expect(result.origenDePrecios).toBe("respaldo");
-    expect(result.config.clubUruguayConfig?.precio).toBe(16900);
+    expect(result.config.clubUruguayConfig?.precio).toBe(19990);
     expect(result.services.length).toBeGreaterThan(0);
     for (const service of result.services) {
       const original = servicesSource.find(item => item.id === service.id)!;

@@ -672,8 +672,9 @@ async function guardarPresupuestoSinTurno(
         ...presupuestoData,
         itemsPresupuestados: preserveStoredTotal && oldBudget.estado === 'Facturado' ? oldBudget.itemsPresupuestados : cuenta.items,
         costoTotalEstimado: preserveStoredTotal && oldBudget.estado === 'Facturado' ? oldBudget.costoTotalEstimado : cuenta.subtotal,
+        // Facturado: el total es el de la factura; lo que mande la pantalla no lo cambia (revision de Claude, 25/11/2026).
         totalConDescuento: preserveStoredTotal
-          ? roundMoney(presupuestoData.totalConDescuento ?? oldBudget.totalConDescuento)
+          ? roundMoney(oldBudget.estado === 'Facturado' ? oldBudget.totalConDescuento : (presupuestoData.totalConDescuento ?? oldBudget.totalConDescuento))
           : cuenta.totalConDescuento
     }, { preserveStoredTotal });
 

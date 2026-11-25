@@ -313,6 +313,16 @@ describe('Auditoría profunda 24/11 — Garantías de plata, contratos, portal y
       expect(resFact.presupuesto?.totalConDescuento).toBe(87500);
       expect(resFact.presupuesto?.estado).toBe('Facturado');
 
+      // Un total distinto mandado por la pantalla no cambia el de un facturado (revisión de Claude 25/11).
+      storedBudgets = [{ ...facturado }, preservado];
+      const resFactOtroTotal = await updatePresupuesto({
+        ...facturado,
+        notas: 'Otra nota',
+        totalConDescuento: 1,
+      });
+      expect(resFactOtroTotal.success).toBe(true);
+      expect(resFactOtroTotal.presupuesto?.totalConDescuento).toBe(87500);
+
       const resPres = await updatePresupuesto({
         ...preservado,
         clienteContacto: '099333444',
@@ -526,6 +536,41 @@ describe('Auditoría profunda 24/11 — Garantías de plata, contratos, portal y
       expect(activo?.estado).toBe('Aceptado');
       expect(activo?.ajusteAnualActivo).toBe(true);
       expect(activo?.tipoAjusteAnual).toBeUndefined();
+    });
+
+    it('un presupuesto 2027 que un prospecto armó en el simulador y nadie aceptó no se da por aceptado ni crea fiesta (revisión de Claude 25/11)', async () => {
+      const presupuestosInput: Presupuesto[] = [
+        buildBasePresupuesto({ id: 'p-2027-simulador', clienteNombre: 'Prospecto', eventoFecha: '2027-03-10', estado: 'Enviado', source: 'simulator' } as Partial<Presupuesto>),
+        buildBasePresupuesto({ id: 'p-2027-simulador-aceptado', clienteNombre: 'Cliente', eventoFecha: '2027-04-10', estado: 'Aceptado', source: 'simulator' } as Partial<Presupuesto>),
+        buildBasePresupuesto({ id: 'p-2026-nov', clienteNombre: 'Noviembre', eventoFecha: '2026-11-28', estado: 'Aceptado' }),
+      ];
+      let persistedPresupuestos: Presupuesto[] = [];
+      let persistedFiestas: FiestaEnPlanificacion[] = [];
+      const res = await correrMigracionEmpezar2027({
+        currentUid: 'u-dueno',
+        currentPerfil: 'dueno',
+        currentRole: 'admin',
+        ahora: new Date('2026-11-25T15:00:00.000Z'),
+        getDbFn: async () => createMockDb(),
+        crearRespaldoFn: async () => ({ success: true, point: { id: 'bkp-2' } }),
+        crearNotificacionFn: async () => undefined,
+        readDataFn: async <T>(file: string, def: T): Promise<T> => {
+          if (file === 'presupuestos.json') return JSON.parse(JSON.stringify(presupuestosInput)) as T;
+          return def;
+        },
+        writeDataFn: async (file: string, data: any) => {
+          if (file === 'presupuestos.json') persistedPresupuestos = data;
+          if (file === 'fiestas.json') persistedFiestas = data;
+        },
+      });
+      expect(res.success).toBe(true);
+      const prospecto = persistedPresupuestos.find((p) => p.id === 'p-2027-simulador');
+      expect(prospecto?.estado).toBe('Enviado');
+      expect(persistedFiestas.some((f) => f.presupuestoId === 'p-2027-simulador')).toBe(false);
+      expect(persistedPresupuestos.find((p) => p.id === 'p-2027-simulador-aceptado')?.estado).toBe('Aceptado');
+      expect(persistedFiestas.some((f) => f.presupuestoId === 'p-2027-simulador-aceptado')).toBe(true);
+      // Lo anterior a 2027 se borra, también noviembre de 2026 (decisión del dueño, 25/11).
+      expect(persistedPresupuestos.some((p) => p.id === 'p-2026-nov')).toBe(false);
     });
   });
 });

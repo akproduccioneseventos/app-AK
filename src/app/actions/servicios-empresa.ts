@@ -7,6 +7,7 @@ import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } f
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { cachedFetch, cacheInvalidate } from '@/lib/server-cache';
+import { SERVICIO_SALON_CLUB_URUGUAY_ID } from '@/types/armado-rapido';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
 const SERVICIOS_COLLECTION = 'servicios';
@@ -30,6 +31,17 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
 
 /** Sin comprobar sesion: uso interno de este archivo con cache en memoria. */
 async function leerServiciosEmpresa(): Promise<ServicioEmpresa[]> {
+    const servicios = await leerServiciosEmpresaGuardados();
+    // El salon del Club Uruguay tiene UN precio: el de Ajustes -> Club Uruguay (decision del dueno, 25/11/2026).
+    // Antes el simulador mostraba $16.900 y la LED $20.000 del catalogo (auditoria externa del 25/11, hallazgo 3).
+    if (!servicios.some((s) => s.id === SERVICIO_SALON_CLUB_URUGUAY_ID)) return servicios;
+    const { getArmadoRapidoConfig } = await import('@/app/actions/armado-rapido');
+    const precioClub = (await getArmadoRapidoConfig().catch(() => null))?.clubUruguayConfig?.precio;
+    if (!precioClub || !(Number(precioClub) > 0)) return servicios;
+    return servicios.map((s) => (s.id === SERVICIO_SALON_CLUB_URUGUAY_ID ? { ...s, precioVenta: Number(precioClub) } : s));
+}
+
+async function leerServiciosEmpresaGuardados(): Promise<ServicioEmpresa[]> {
     return cachedFetch('servicios-empresa-raw', async () => {
       const items = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
       return (Array.isArray(items) ? items : []).map(item => ({

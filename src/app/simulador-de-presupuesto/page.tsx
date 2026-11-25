@@ -52,6 +52,7 @@ import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-boot
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType, mismoTipoDeEvento } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { Testimonial } from '@/types/feedback';
@@ -726,7 +727,7 @@ function SimuladorContent() {
 
     const clubUruguayDetails = useMemo(() => {
         if (salonChoice !== 'club') return null;
-        const precioBasePromo = config?.clubUruguayConfig?.precio || 16900;
+        const precioBasePromo = config?.clubUruguayConfig?.precio || defaultClubUruguayConfig.precio;
         const precioReal = precioBasePromo * 2;
 
         const adjustmentPct = budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE ?? 15;
@@ -2853,7 +2854,7 @@ function SimuladorContent() {
                                         <div>
                                             <p className="text-sm font-black text-slate-900">Quiero Club Uruguay</p>
                                             <p className="mt-1 text-[10px] text-slate-400 font-semibold leading-normal">
-                                                <span className="line-through mr-1">{formatCurrency((config?.clubUruguayConfig?.precio || 16900) * 2)}</span>
+                                                <span className="line-through mr-1">{formatCurrency((config?.clubUruguayConfig?.precio || defaultClubUruguayConfig.precio) * 2)}</span>
                                                 <span className="font-bold text-amber-600">{formatCurrency(config?.clubUruguayConfig?.precio || 0)}</span>
                                                 <span className="ml-1">agregados.</span>
                                             </p>
