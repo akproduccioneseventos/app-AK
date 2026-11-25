@@ -944,6 +944,8 @@ avisos cortos mientras se trabaja. Antes de mandar, se relee el idioma.
 **Y otra vez el 29 de octubre de 2026**, al publicar la foto del salón: los avisos y el informe final salieron en
 inglés. **Antes de mandar CUALQUIER mensaje al dueño, aunque sea de una línea, se mira que esté en castellano.**
 
+**Y otra vez el 25 de noviembre de 2026**, en un aviso corto sobre los datos de la corrida. **Ningún mensaje en inglés, nunca.**
+
 **Y otra vez el 11 de noviembre de 2026**, en los avisos cortos mientras corría la puerta ("Waiting for…", "The commit isn't pushed"). El dueño: *"no me escribas más en inglés"*. **Los avisos de espera también son mensajes al dueño.**
 
 ### 28. Programar entretenimiento porque "es para hoy"
@@ -1340,6 +1342,14 @@ El dueño: *"hace 4 horas que estoy esperando lo mismo"*.
 **Qué se hace distinto, y ya está enganchado:** si desde la corrida que falló sólo cambiaron pruebas (`huellaDeLaAppSinPruebas` en
 `scripts/se-puede-publicar.mjs`), se repite sólo lo que falló; y el corredor va de a 40 archivos y anota las fallas después de cada
 tanda. Y la costumbre: antes de relanzar la puerta, correr sueltas las pruebas que fallaron (`node scripts/run-playwright-production.mjs <archivos>`).
+
+### 61. Correr una prueba suelta y que la puerta siguiente corra todo de nuevo
+
+**Pasó el 25 de noviembre de 2026.** Para arreglar la prueba que falló la corrí sola; eso pisó la lista de fallas y la puerta
+siguiente volvió a correr las 203 pruebas (85 minutos). El dueño: *"acordate de optimizar este proceso"*.
+
+**Qué se hace distinto, y ya está enganchado:** la puerta guarda su propia lista en el avance (`archivosQueFallaron` en
+`scripts/se-puede-publicar.mjs`) y repite sólo esos archivos (`la-puerta-guarda-su-lista-de-fallas.test.ts`).
 
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 

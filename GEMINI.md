@@ -27,6 +27,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   5. **Orden 350 (`docs/ordenes/350-gemini-tutoriales-en-video.md`):** botón "¿Cómo funciona?" con un video de YouTube
      (que carga el dueño en Ajustes) en TODA pantalla que ve gente de afuera: prospecto, cliente, invitado, proveedor, personal
      y las estaciones del salón (unas 48).
+  6. **Orden 355 (`docs/ordenes/355-gemini-auditoria-4-del-25-11.md`):** la cuarta auditoría externa del 25/11: títulos con
+     el nombre dos veces, páginas por tipo de fiesta repetidas para Google, ceros mientras carga, citas pasadas que no se
+     cierran, "oficina" que no existe y textos fijos del perfil.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
