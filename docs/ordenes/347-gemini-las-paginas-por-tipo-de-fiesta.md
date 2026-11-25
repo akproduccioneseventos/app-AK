@@ -16,6 +16,10 @@ empresariales y fiestas infantiles"*. **Cinco páginas: bodas, 15, cumpleaños, 
 Las de bodas, 15 y cumpleaños ya existen pero **no las enlaza nadie**: ni el menú ni el pie de la portada. Por eso el
 dueño no las ve, y Google tampoco las encuentra bien. El bloque 5 lo arregla.
 
+**Y lo que pidió después, el mismo día:** *"tienen que ser muy estéticas, muy lindas, porque son páginas llamativas;
+botón del simulador para que tengan precio, botón de WhatsApp, todo lo que tiene la página principal; esos links los voy
+a usar para publicidad; optimizadas para Google, y que las inteligencias artificiales nos encuentren"*. Bloques 6 a 8.
+
 ## Lo que YA existe (no lo rehagas, mejoralo)
 - `/bodas` → `src/app/bodas/page.tsx`. `/quinceaneras` → `src/app/quinceaneras/page.tsx`. `/cumpleanos` →
   `src/app/cumpleanos/page.tsx`. Las tres usan **la misma plantilla** `src/components/landing/EventLandingPage.tsx`
@@ -103,6 +107,42 @@ parámetros que ya existen.
    Cumpleaños, Fiestas empresariales, Fiestas infantiles.
 3. No saques ni reordenes los enlaces que ya están.
 
+## Bloque 6 — Tan lindas y completas como la portada
+Hoy `EventLandingPage` es mucho más pobre que la portada (`src/app/page.tsx`). Cada página por tipo **usa las mismas
+secciones de la portada**, con el contenido del tipo de fiesta, sin copiarlas (se importan de `src/components/landing/`):
+`StatsSection` ("+7 años", "+200 fiestas"), `AkDifferenceSection`, `TechnologyExperienceSection` (fotocabina, Vogue,
+plataforma 360), `SalonDestacadoSection` (Club Uruguay), `GaleriaUnificadaSection` o `GallerySection` con las fotos del
+tipo, `VideoSection` si hay video de ese tipo, `FAQSection` con las preguntas del bloque 3, y `PublicFooter`. Si una
+sección no acepta el contenido por tipo, sumale props opcionales sin cambiar cómo se ve en la portada.
+- **Arriba de todo, dos botones grandes y siempre visibles:** "Armar mi presupuesto" (simulador con el tipo ya elegido,
+  `simulatorHref`) y "Hablar por WhatsApp" (mensaje con el tipo). En el celular quedan fijos abajo, los dos.
+- Portada con la foto grande a pantalla completa, movimiento suave al bajar (habilidad `animaciones-pro`) y un color de
+  acento por tipo (bodas dorado suave, 15 el rojo de la marca, infantiles colores alegres, empresas sobrio). Que se
+  note que es AK: mismo logo, misma letra, mismo menú que la portada.
+- Las secciones de la portada **no cambian** cómo se ven en `/`: la prueba de maquetación de la portada sigue igual.
+
+## Bloque 7 — Los enlaces para publicidad
+Cada página tiene una dirección fija y corta (`/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas-empresariales`,
+`/fiestas-infantiles`, `/fiestas`). El dueño las va a poner en anuncios agregando `?o=meta`, `?o=google`, `?o=ig`,
+etc. (bloque 4).
+- Sumá en Empresa → Presencia digital (`src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, en la solapa "Tu página web") una
+  tarjeta **"Enlaces para tus anuncios"**: una línea por página y por canal (Instagram/Facebook, Google, WhatsApp) con el
+  enlace ya armado y un botón "Copiar". Sólo lectura, sin guardar nada.
+- La vista previa al compartir (Open Graph) de cada página tiene su propia foto y texto.
+
+## Bloque 8 — Que Google y las inteligencias artificiales las encuentren
+- Cada página: un solo `h1` con el tipo de fiesta y "Salto"; título y descripción propios; canónica; `FAQPage`,
+  `LocalBusiness`/`EventPlanner` y `Service` en JSON-LD; texto alternativo en todas las imágenes; imágenes livianas con
+  carga diferida (habilidad `que-cargue-rapido`). Que la página tenga texto real (no sólo títulos): 300 palabras o más.
+- **`public/llms.txt`** (lo que leen ChatGPT, Gemini, Perplexity y las demás): sumá las cinco páginas y `/fiestas`, y
+  corregí lo que no es cierto según el dueño. AK se fundó el **9 de marzo de 2019**, equipo de **30 personas**, trabaja en
+  Salto y alrededores, la mayoría de las fiestas en el Club Uruguay. Servicios reales: salón, organización, comida (con
+  vajilla y mobiliario), decoración, discoteca con iluminación robótica, fotografía, filmación, barra de tragos,
+  fotocabina, Vogue y plataforma 360. **Sacá lo que no está en esa lista** ("conferencias", "espejo mágico con IA",
+  "barra sin alcohol", "sonido acústico") salvo que lo encuentres en el catálogo real de servicios. Sin precios.
+- `robots.ts` ya deja entrar a todos los buscadores a las páginas públicas: no lo cambies; sólo que las páginas nuevas
+  estén en `PAGINAS_PARA_GOOGLE`.
+
 ## Lo que NO hay que hacer
 - No toques el simulador, el asistente, el CRM ni la portada.
 - No cambies las direcciones que ya existen (`/bodas`, `/quinceaneras`, `/cumpleanos`): están en Google y en anuncios.
@@ -114,7 +154,8 @@ parámetros que ya existen.
   `/fiestas-empresariales`, `/fiestas-infantiles`, `/cumpleanos` y `/fiestas` hay **un solo `h1`**, se ve el botón de WhatsApp con el tipo de
   fiesta en el mensaje, y la página no se desborda a lo ancho. En `/bodas` **no** aparece "Boda producida por AK" ni una
   reseña de 15 años, y sí "Imagen ilustrativa". Desde la portada `/`, el menú lleva a `/fiestas` y el pie tiene
-  los cinco enlaces, y cada uno abre su página. `/15-anos` termina en `/quinceaneras`. Llenar el formulario de
+  los cinco enlaces, y cada uno abre su página. En cada página por tipo se ven los dos botones (simulador con el
+  tipo en la dirección y WhatsApp) sin bajar, también a 360 px. `/15-anos` termina en `/quinceaneras`. Llenar el formulario de
   `/fiestas-empresariales?o=google` manda al servidor la fuente `landing-empresas` y el origen `google` (cortando el
   pedido, sin guardar de verdad).
 - `src/__tests__/las-paginas-por-tipo-de-fiesta.test.ts`: las seis páginas tienen su `FAQPage` en JSON-LD con al menos 4
@@ -122,6 +163,13 @@ parámetros que ya existen.
   con `$`.
 
 ```comprobar
+usa: StatsSection en src/components/landing/EventLandingPage.tsx
+usa: TechnologyExperienceSection en src/components/landing/EventLandingPage.tsx
+usa: fiestas-infantiles en public/llms.txt
+usa: fiestas-empresariales en public/llms.txt
+usa: 2019 en public/llms.txt
+no-usa: espejo mágico con IA en public/llms.txt
+usa: Enlaces para tus anuncios en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
 archivo: src/app/fiestas-empresariales/page.tsx
 archivo: src/app/fiestas/page.tsx
 archivo: src/app/fiestas-infantiles/page.tsx
