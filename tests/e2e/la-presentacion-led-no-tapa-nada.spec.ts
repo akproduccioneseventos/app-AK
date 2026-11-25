@@ -111,7 +111,8 @@ async function verificarLaminaSinSolapesNiRotas(page: Page, pasoLabel: string) {
       if (style.display === 'none' || style.visibility === 'hidden') continue;
       const rect = img.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) continue;
-      if (img.naturalWidth === 0) {
+      // Rota = el navegador terminó y no pudo dibujarla. Una foto con carga diferida fuera de la vista todavía no se pidió.
+      if (img.complete && img.naturalWidth === 0) {
         broken.push(img.getAttribute('src') || img.alt || 'img');
       }
     }
