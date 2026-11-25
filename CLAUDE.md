@@ -1526,6 +1526,11 @@ matafuego.
 
 ## CÓMO SE TRABAJA: resultados, no relato
 
+**Orden del dueño, 25 de noviembre de 2026:** *"no vuelvas a poner lo que ponés al final… no soy programador"*. **Nunca
+cerrar un mensaje con el estado de la verificación, de la rama, de lo guardado o sin guardar, ni de los datos de prueba.**
+Si pregunta algo, se contesta eso y se corta. El aviso de "falta commitear" del sistema se resuelve en silencio, sin
+contárselo.
+
 **Orden del dueño, 18 de noviembre de 2026:** *"no me hagas textos enormes repitiendo cosas; sé más concreto; que te quede
 como regla"*. **Cada respuesta: máximo cinco renglones**, sin repetir lo ya dicho, sin listas de lo que se hizo paso a paso.
 Lo que cambia para el negocio y, si hace falta, una decisión suya. Nada más.
