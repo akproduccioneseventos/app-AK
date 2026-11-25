@@ -8,7 +8,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { conSinonimos } from '@/lib/contratos/marcadores';
-import { calcularHitosDeContrato, completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
+import { completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
+import {
+  generarTextoContratoServicios,
+  hoyContratoTexto,
+} from '@/lib/contratos/generar-textos-contrato';
 import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -30,21 +34,19 @@ import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { generarPlanPagos, PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO } from '@/lib/planPagos';
 
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return '____________';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
-};
+const today = hoyContratoTexto();
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "____________";
+async function resolverSeniaDeFiesta(fiestaData: FiestaEnPlanificacion): Promise<number | undefined> {
+  if (!fiestaData.invoiceIds?.length) return undefined;
   try {
-    const date = new Date(dateString);
-    const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-    return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch (e) { return "Fecha inválida"; }
-};
-
-const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const invoice = await getInvoiceById(fiestaData.invoiceIds[0]);
+    const firstPayment = invoice?.payments?.[0];
+    if (firstPayment?.amount) return firstPayment.amount;
+  } catch (err) {
+    console.error('Could not resolve seña from invoice payments:', err);
+  }
+  return undefined;
+}
 
 function ContratoServicioContent() {
   const { toast } = useToast();
@@ -164,55 +166,15 @@ function ContratoServicioContent() {
               setTextoGuardado(guardado);
           } else {
               const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
-              let text = selectedTemplate?.template || '';
-
-              // Resolve seña: use first recorded payment on the linked invoice if available
-              let seniaValue = '__________________________';
-              if (fiestaData.invoiceIds?.length) {
-                try {
-                  const invoice = await getInvoiceById(fiestaData.invoiceIds[0]);
-                  const firstPayment = invoice?.payments?.[0];
-                  if (firstPayment?.amount) {
-                    seniaValue = formatCurrency(firstPayment.amount);
-                  }
-                } catch (err) {
-                  console.error('Could not resolve seña from invoice payments:', err);
-                  /* seña stays blank */
-                }
-              }
-
-              const hitos = calcularHitosDeContrato(
-                fiestaData.configuracion.fechaEvento,
-                fiestaData.contratoDatos?.fechaFirmaContrato || presupuestoData?.timestamp
-              );
-
-              const replacements: Record<string, string> = {
-                  '{{FECHA_HOY}}': today,
-                  '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
-                  '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
-                  '{{EMPRESA_NOMBRE}}': companyData.companyName,
-                  '{{EMPRESA_RUT}}': companyData.companyTaxId,
-                  '{{EMPRESA_DIRECCION}}': companyData.companyAddress,
-                  '{{EMPRESA_EMAIL}}': companyData.companyContact,
-                  '{{CLIENTE_NOMBRE}}': clienteData?.name || clienteData?.companyName || '________________________',
-                  '{{CLIENTE_DIRECCION}}': clienteData?.address || (clienteData as any)?.domicilio || (presupuestoData as any)?.clienteDomicilio || '________________________',
-                  '{{CLIENTE_CI}}': clienteData?.ci || clienteData?.taxId || (presupuestoData as any)?.clienteCi || (presupuestoData as any)?.ci || '_______________________',
-                  '{{CLIENTE_TELEFONO}}': clienteData?.phone || (clienteData as any)?.telefono || presupuestoData?.clienteContacto || '_______________________',
-                  '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
-                  '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
-                  '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
-                  '{{SENIA}}': seniaValue,
-                  '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
-                  '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
-                  '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
-                  '{{MOTIVO_CANCELACION}}': '________________________',
-                  '{{NUEVA_FECHA}}': '________________________',
-                  '{{PENALIZACION_PORCENTAJE}}': '30%',
-                  '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
-              };
-
-              Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
-                  text = text.replaceAll(key, val);
+              const seniaMonto = await resolverSeniaDeFiesta(fiestaData);
+              const text = generarTextoContratoServicios({
+                fiesta: fiestaData,
+                cliente: clienteData,
+                presupuesto: presupuestoData,
+                companyInfo: companyData,
+                templateText: selectedTemplate?.template || '',
+                seniaMonto,
+                todayText: today,
               });
               setContractText(text);
               setTextoGuardado(text);
@@ -233,46 +195,15 @@ function ContratoServicioContent() {
     if (!fiesta || !companyInfo) return;
     const selectedTemplate = templates.find(t => t.type === type) || templates.find(t => t.type === 'servicios');
     if (!selectedTemplate) return;
-    let seniaValue = '__________________________';
-    if (fiesta.invoiceIds?.length) {
-      try {
-        const invoice = await getInvoiceById(fiesta.invoiceIds[0]);
-        const firstPayment = invoice?.payments?.[0];
-        if (firstPayment?.amount) seniaValue = formatCurrency(firstPayment.amount);
-      } catch {}
-    }
-    let text = selectedTemplate.template;
-    const hitos = calcularHitosDeContrato(
-      fiesta.configuracion.fechaEvento,
-      fiesta.contratoDatos?.fechaFirmaContrato || presupuesto?.timestamp
-    );
-
-    const replacements: Record<string, string> = {
-      '{{FECHA_HOY}}': today,
-      '{{FECHA_FIRMA_TEXTO}}': `a los ${today}`,
-      '{{CIUDAD_FECHA}}': `Salto, a los ${today}`,
-      '{{EMPRESA_NOMBRE}}': companyInfo.companyName,
-      '{{EMPRESA_RUT}}': companyInfo.companyTaxId,
-      '{{EMPRESA_DIRECCION}}': companyInfo.companyAddress,
-      '{{EMPRESA_EMAIL}}': companyInfo.companyContact,
-      '{{CLIENTE_NOMBRE}}': cliente?.name || cliente?.companyName || '________________________',
-      '{{CLIENTE_DIRECCION}}': cliente?.address || (cliente as any)?.domicilio || (presupuesto as any)?.clienteDomicilio || '________________________',
-      '{{CLIENTE_CI}}': cliente?.ci || cliente?.taxId || (presupuesto as any)?.clienteCi || (presupuesto as any)?.ci || '_______________________',
-      '{{CLIENTE_TELEFONO}}': cliente?.phone || (cliente as any)?.telefono || presupuesto?.clienteContacto || '_______________________',
-      '{{EVENTO_FECHA}}': formatDate(fiesta.configuracion.fechaEvento),
-      '{{EVENTO_SALON}}': fiesta.configuracion.nombreLugar || '____________',
-      '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado),
-      '{{SENIA}}': seniaValue,
-      '{{HITO_30}}': hitos.hito30 || 'al primer tercio del plazo',
-      '{{HITO_50}}': hitos.hito50 || 'a la mitad del plazo',
-      '{{FECHA_SALDO_TOTAL}}': hitos.fechaSaldoTotal || '30 días antes del evento',
-      '{{MOTIVO_CANCELACION}}': '________________________',
-      '{{NUEVA_FECHA}}': '________________________',
-      '{{PENALIZACION_PORCENTAJE}}': '30%',
-      '{{NOMBRE_SALON}}': fiesta.configuracion.nombreLugar || '____________',
-    };
-    Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
-      text = text.replaceAll(key, val);
+    const seniaMonto = await resolverSeniaDeFiesta(fiesta);
+    const text = generarTextoContratoServicios({
+      fiesta,
+      cliente,
+      presupuesto,
+      companyInfo,
+      templateText: selectedTemplate.template,
+      seniaMonto,
+      todayText: today,
     });
     setContractText(text);
     setTextoGuardado(text);

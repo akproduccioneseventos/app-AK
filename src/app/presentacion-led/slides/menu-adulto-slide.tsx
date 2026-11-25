@@ -71,7 +71,7 @@ function MenuCard({
     >
       {/* Photo */}
       {safePhoto ? (
-        <div className="relative w-full h-44 overflow-hidden">
+        <div className="relative w-full h-28 sm:h-32 overflow-hidden">
           <Image
             src={safePhoto}
             alt={menu.name}
@@ -83,15 +83,15 @@ function MenuCard({
           />
         </div>
       ) : (
-        <div className="w-full h-36 bg-gradient-to-br from-orange-900/30 to-amber-800/20 flex items-center justify-center border-b border-white/10">
+        <div className="w-full h-28 sm:h-32 bg-gradient-to-br from-orange-900/30 to-amber-800/20 flex items-center justify-center border-b border-white/10">
           <div className="flex flex-col items-center gap-1 opacity-40">
-            <ImageIcon className="h-8 w-8 text-orange-300" />
+            <ImageIcon className="h-7 w-7 text-orange-300" />
             <span className="text-orange-200/60 text-xs">Menú</span>
           </div>
         </div>
       )}
 
-      <div className="p-4">
+      <div className="p-3">
         <div className="flex items-start gap-3 mb-2">
           {/* Select toggle */}
           <button
@@ -178,17 +178,17 @@ export function MenuAdultoSlide({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 mb-6"
+          className="flex items-center gap-4 mb-4"
         >
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400/30 to-red-500/30 border border-white/20 flex items-center justify-center shrink-0">
-            <Utensils className="h-7 w-7 text-orange-300" />
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-400/30 to-red-500/30 border border-white/20 flex items-center justify-center shrink-0">
+            <Utensils className="h-6 w-6 text-orange-300" />
           </div>
           <div>
-            <p className="text-orange-400 font-bold uppercase tracking-widest text-xs mb-1">Menú adultos</p>
-            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg">
+            <p className="text-orange-400 font-bold uppercase tracking-widest text-xs mb-0.5">Menú adultos</p>
+            <h1 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">
               Elegí el Menú Principal
             </h1>
-            <p className="text-white/60 text-sm mt-1">Seleccioná el plato principal del evento ({menus.length} opciones principales)</p>
+            <p className="text-white/60 text-xs sm:text-sm mt-0.5">Seleccioná el plato principal del evento ({menus.length} opciones principales)</p>
           </div>
         </motion.div>
 
@@ -199,13 +199,13 @@ export function MenuAdultoSlide({
             <p className="text-white/30 text-sm mt-1">Podés continuar y elegir el menú al presupuestar.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {menus.map((menu, i) => (
               <motion.div
                 key={menu.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + i * 0.07 }}
+                transition={{ delay: 0.15 + i * 0.05 }}
               >
                 <MenuCard
                   menu={menu}
@@ -223,13 +223,13 @@ export function MenuAdultoSlide({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6"
+          transition={{ delay: 0.4 }}
+          className="mt-4"
         >
           <button
             onClick={onNext}
             disabled={menus.length > 0 && !canContinue}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold text-base transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continuar
             <ChevronRight className="h-5 w-5" />

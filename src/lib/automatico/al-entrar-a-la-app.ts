@@ -51,6 +51,7 @@ const CADA_CUANTO = {
   recordatorio_invitados: 24 * 60 * 60 * 1000,
   asistente_proactivo: 60 * 60 * 1000,
   muestra_auditor: 60 * 60 * 1000,
+  empezar_2027: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -68,6 +69,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   recordatorio_invitados: 'recordatorio-a-los-invitados',
   asistente_proactivo: 'asistente-proactivo',
   muestra_auditor: 'fiesta-muestra-auditor',
+  empezar_2027: 'empezar-2027',
 };
 
 interface EstadoDeTareas {
@@ -352,6 +354,13 @@ export async function ponerAlDiaAlEntrar(
           return { yaExiste: true };
         },
       },
+      {
+        nombre: 'empezar_2027',
+        correr: async () => {
+          const { correrMigracionEmpezar2027 } = await import('@/lib/automatico/empezar-2027');
+          return correrMigracionEmpezar2027({ ahora });
+        },
+      },
     ];
 
     for (const tarea of tareas) {
@@ -361,6 +370,25 @@ export async function ponerAlDiaAlEntrar(
       ) {
         resultado.omitidas.push(tarea.nombre);
         continue;
+      }
+      if (tarea.nombre === 'empezar_2027') {
+        const { verifySession } = await import('@/lib/auth/session-token');
+        const { esSesionDeAuditor, esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
+        const { perfilDe } = await import('@/lib/auth/perfiles');
+        const sesion = await verifySession().catch(() => ({ success: false as const }));
+        const user = (sesion as any)?.user;
+        const esDueno =
+          sesion.success &&
+          Boolean(user) &&
+          perfilDe(user) === 'dueno' &&
+          user.perfil !== 'auditor' &&
+          user.role !== 'auditor' &&
+          !(await esSesionDeAuditor()) &&
+          !(await esSesionDeSoloLectura());
+        if (!esDueno) {
+          resultado.omitidas.push(tarea.nombre);
+          continue;
+        }
       }
       const fallo = ultimoFallo[tarea.nombre];
       const falloReciente = fallo && ahoraMs - new Date(fallo.fecha).getTime() < ESPERA_TRAS_FALLO_MS;

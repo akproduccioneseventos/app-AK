@@ -849,7 +849,7 @@ function SimuladorAkContent({ onClose }: { onClose?: () => void }) {
     const pkgName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || 'A medida';
     const totalEst = priceStats ? formatCurrency(priceStats.totalFinal) : '$0';
     const salonLine = clubUruguayDetails
-      ? `\n*Club Uruguay (alquiler independiente):* ${formatCurrency(clubUruguayDetails.precioActual)}${clubUruguayDetails.projection.applies ? ` · referencia ${clubUruguayDetails.projection.eventYear}: ${formatCurrency(clubUruguayDetails.projection.adjustedTotal)}` : ''}`
+      ? `\n*Club Uruguay (alquiler independiente):* ${formatCurrency(clubUruguayDetails.precioActual)}${clubUruguayDetails.projection.applies ? ` · ajuste anual del ${clubUruguayDetails.projection.adjustmentPct}% acumulativo desde la firma del contrato.` : ''}`
       : '';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const text = `¡Hola AK Producciones! Estuve chateando con Sofía y armé un presupuesto para mi fiesta.
@@ -1040,6 +1040,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
               subtotalBrutoOverride={priceStats.subtotalBruto}
               descuentoPromoOverride={priceStats.descPromo}
               totalFinalOverride={priceStats.totalFinal}
+              mostrarPrecios={config?.mostrarPrecios !== false}
             />
           </div>
         </div>
@@ -1461,7 +1462,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
                           </div>
                           {clubUruguayDetails.projection.applies && (
                             <p className="mt-2 text-[10px] font-semibold text-amber-900">
-                              Referencia {clubUruguayDetails.projection.eventYear}: {formatCurrency(clubUruguayDetails.projection.adjustedTotal)} ({clubUruguayDetails.projection.adjustmentPct}% anual).
+                              Los precios tienen un ajuste anual del {clubUruguayDetails.projection.adjustmentPct}% acumulativo desde la firma del contrato.
                             </p>
                           )}
                           <p className="mt-2 text-[10px] leading-relaxed text-amber-900">
@@ -1472,19 +1473,9 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
 
                       {priceStats.annualProjection.applies && (
                         <section className="rounded-xl border border-border bg-muted/20 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-foreground">Proyección para la fecha elegida</h4>
-                            <span className="text-[10px] font-bold text-muted-foreground">Ajuste anual {priceStats.annualProjection.adjustmentPct}%</span>
-                          </div>
-                          <div className="mt-3 divide-y divide-border">
-                            {priceStats.annualProjection.rows.map((row) => (
-                              <div key={row.year} className="flex items-center justify-between py-2 text-xs">
-                                <span className="font-semibold text-muted-foreground">Total estimado {row.year}</span>
-                                <span className="font-black text-foreground">{formatCurrency(row.total)}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">El total principal conserva el precio vigente. La proyección futura es informativa y se aplica según contrato.</p>
+                          <p className="text-xs font-semibold text-foreground">
+                            Los precios tienen un ajuste anual del {priceStats.annualProjection.adjustmentPct}% acumulativo desde la firma del contrato.
+                          </p>
                         </section>
                       )}
 

@@ -67,7 +67,7 @@ function TeenCard({
     >
       {/* Photo */}
       {safePhoto ? (
-        <div className="relative w-full h-40 overflow-hidden">
+        <div className="relative w-full h-28 sm:h-32 overflow-hidden">
           <Image
             src={safePhoto}
             alt={option.name}
@@ -79,15 +79,15 @@ function TeenCard({
           />
         </div>
       ) : (
-        <div className="w-full h-36 bg-gradient-to-br from-violet-900/30 to-indigo-800/20 flex items-center justify-center border-b border-white/10">
+        <div className="w-full h-28 sm:h-32 bg-gradient-to-br from-violet-900/30 to-indigo-800/20 flex items-center justify-center border-b border-white/10">
           <div className="flex flex-col items-center gap-1 opacity-40">
-            <ImageIcon className="h-8 w-8 text-violet-300" />
+            <ImageIcon className="h-7 w-7 text-violet-300" />
             <span className="text-violet-200/60 text-xs">Menú Adolescente</span>
           </div>
         </div>
       )}
 
-      <div className="p-4">
+      <div className="p-3">
         <div className="flex items-start gap-3 mb-2">
           {/* Select toggle */}
           <button
@@ -173,17 +173,17 @@ export function MenuAdolescenteSlide({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 mb-6"
+          className="flex items-center gap-4 mb-4"
         >
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-400/30 to-indigo-500/30 border border-white/20 flex items-center justify-center shrink-0">
-            <Sparkles className="h-7 w-7 text-violet-300" />
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-400/30 to-indigo-500/30 border border-white/20 flex items-center justify-center shrink-0">
+            <Sparkles className="h-6 w-6 text-violet-300" />
           </div>
           <div>
-            <p className="text-violet-400 font-bold uppercase tracking-widest text-xs mb-1">Paso condicional</p>
-            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg">
+            <p className="text-violet-400 font-bold uppercase tracking-widest text-xs mb-0.5">Paso condicional</p>
+            <h1 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">
               Menú Adolescente
             </h1>
-            <p className="text-white/60 text-sm mt-1">
+            <p className="text-white/60 text-xs sm:text-sm mt-0.5">
               {adolescentesCount > 0
                 ? `Evento con ${adolescentesCount} adolescente${adolescentesCount === 1 ? '' : 's'}. Seleccioná su menú.`
                 : 'No hay adolescentes en el evento. Podés seguir con el menú adulto.'}
@@ -192,13 +192,13 @@ export function MenuAdolescenteSlide({
         </motion.div>
 
         {requiresSelection ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {options.map((opt, idx) => (
               <motion.div
                 key={opt.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + idx * 0.07 }}
+                transition={{ delay: 0.15 + idx * 0.05 }}
               >
                 <TeenCard
                   option={opt}
@@ -222,13 +222,13 @@ export function MenuAdolescenteSlide({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6"
+          transition={{ delay: 0.4 }}
+          className="mt-4"
         >
           <button
             onClick={onNext}
             disabled={!canContinue}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 text-white font-bold text-base transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continuar
             <ChevronRight className="h-5 w-5" />

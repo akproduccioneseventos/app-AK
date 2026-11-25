@@ -139,7 +139,7 @@ test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
-    const btnCotizar = page.getByRole('button', { name: /Comenzar mi presupuesto|Cotizar/i }).first();
+    const btnCotizar = page.getByRole('button', { name: /Armar mi presupuesto|Comenzar mi presupuesto|Cotizar/i }).first();
     await expect(btnCotizar).toBeVisible({ timeout: 20_000 });
 
     const boxAntes = await btnCotizar.boundingBox();

@@ -60,9 +60,6 @@ test('simulator hub connects both options with the visual first step', async ({ 
   await expect(sofiaLink).toBeVisible();
   await expect(sofiaLink).toHaveAttribute('href', /\/simulador-ak/);
 
-  const firstStepCta = page.getByTestId('simulator-first-step-cta');
-  await expect(firstStepCta).toBeVisible();
-  await firstStepCta.click();
   await expect(page.getByRole('heading', { name: 'Ingresá tus datos y los del evento' })).toBeVisible();
 });
 
@@ -138,9 +135,6 @@ test('simulator input keeps typed text visible and the flow fits the viewport', 
   await expect(startButton).toBeVisible();
   await startButton.click();
 
-  const continueButton = page.getByTestId('simulator-first-step-cta');
-  await expect(continueButton).toBeEnabled();
-  await continueButton.click();
 
   const nameInput = page.locator('#simulator-name');
   await expect(nameInput).toBeVisible();

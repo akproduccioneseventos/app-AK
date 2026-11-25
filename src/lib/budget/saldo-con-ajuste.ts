@@ -63,6 +63,7 @@ export function calcularEstadoDeCuenta(
     eventDate: presupuesto.eventoFecha,
     currentYear: anioDelContrato ?? undefined,
     adjustmentPct: porcentaje,
+    tipoAjusteAnual: presupuesto.tipoAjusteAnual,
   });
 
   const esContrato = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';

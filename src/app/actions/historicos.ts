@@ -264,7 +264,12 @@ export async function extractContractDataAction(input: { fileDataUri: string }) 
     if (!(await hayPresupuestoParaIA())) {
         throw new Error('Presupuesto de IA alcanzado para este período.');
     }
+    if (!input?.fileDataUri || typeof input.fileDataUri !== 'string' || !input.fileDataUri.startsWith('data:')) {
+        throw new Error('El archivo del contrato no es válido.');
+    }
     const { extractContractData } = await import('@/ai/flows/extract-contract-data');
+    // extractContractData llama a pedirTexto con consumoYaGestionado: true porque esta acción
+    // controla el tope antes y registra el consumo una sola vez al completar.
     const resultado = await extractContractData(input);
     await registrarConsumoIA('extraccion-contrato').catch(() => undefined);
     return resultado;

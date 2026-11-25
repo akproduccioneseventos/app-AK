@@ -12,17 +12,18 @@ interface SlideLayoutProps {
 export function SlideLayout({ children, className, centered = true, overflowScroll = false }: SlideLayoutProps) {
   return (
     <div
+      data-testid="presentacion-slide-scroll"
       className={cn(
-        'absolute inset-0 min-h-[100svh] px-5 pb-36 pt-24 sm:px-8 md:px-12 lg:px-16 2xl:px-24 sm:pb-40',
+        'h-full w-full overflow-y-auto overscroll-contain px-5 py-4 sm:px-8 md:px-12 lg:px-16 2xl:px-24',
         'selection:bg-red-500/30 selection:text-white',
         centered && 'flex flex-col items-center',
         centered && !overflowScroll && 'justify-center',
-        centered && overflowScroll && 'justify-start pt-28',
-        overflowScroll ? 'overflow-y-auto overscroll-contain' : 'overflow-hidden',
+        centered && overflowScroll && 'justify-start pt-3 sm:pt-4',
         className,
       )}
     >
       {children}
+      <div className="h-6 w-full shrink-0" aria-hidden="true" />
     </div>
   );
 }

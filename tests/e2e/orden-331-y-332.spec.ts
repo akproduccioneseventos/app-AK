@@ -48,7 +48,8 @@ test.describe('Orden 331 — Un solo simulador, planificador agrupado y puerta d
 
     await btnComenzar.click();
     await expect(page.getByText(/Armá tu presupuesto/i).first()).toBeVisible();
-    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible();
+    await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible();
+    await expect(page.locator('#simulator-name')).toBeVisible();
 
     const enlaceSofia = page.locator('a[href^="/simulador-ak"]').first();
     await expect(enlaceSofia).toBeVisible();

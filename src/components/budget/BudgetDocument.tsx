@@ -18,7 +18,6 @@ import {
 import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
-import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getCateringSortScore, getCateringDisplayName } from '@/lib/simulator/pricing';
 
 // ── Company constants ─────────────────────────────────────────────────────────
@@ -136,6 +135,7 @@ export interface BudgetDocumentProps {
   descuentoPromoOverride?: number;
   totalFinalOverride?: number;
   forPdf?: boolean;
+  mostrarPrecios?: boolean;
 }
 
 export default function BudgetDocument({
@@ -156,6 +156,7 @@ export default function BudgetDocument({
   descuentoPromoOverride,
   totalFinalOverride,
   forPdf = false,
+  mostrarPrecios = true,
 }: BudgetDocumentProps) {
   const budgetNumber =
     presupuesto.numero ||
@@ -164,6 +165,12 @@ export default function BudgetDocument({
   const clientName = clienteNombre || presupuesto.clienteNombre;
   const budgetStatus = (presupuesto as any).status || presupuesto.estado;
   const isContracted = budgetStatus === 'Aceptado' || budgetStatus === 'Facturado';
+  const hasContractSignature = Boolean(
+    presupuesto.fechaFirmaContrato ||
+    presupuesto.contractSignatureInfo?.isSigned ||
+    (presupuesto as Presupuesto & { contratoFirmaInfo?: { isSigned?: boolean } }).contratoFirmaInfo?.isSigned,
+  );
+  const hideItemPrices = mostrarPrecios === false && !isContracted && !hasContractSignature;
 
   const timestampDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
   const validUntil = isNaN(timestampDate.getTime()) ? new Date() : new Date(timestampDate);
@@ -219,15 +226,31 @@ export default function BudgetDocument({
   );
   const descuentoPromo = descuentoPromoOverride ?? Math.max(0, subtotalBruto - totalFinal);
 
-  const projectionRows = annualProjection?.rows?.length
-    ? annualProjection.rows
-    : annualAdjustmentAmount > 0
-      ? [{
-          year: anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? new Date(presupuesto.timestamp).getFullYear(),
-          total: totalFinal + annualAdjustmentAmount,
-          adjustmentAmount: annualAdjustmentAmount,
-        }]
-      : [];
+  const hasAnnualAdjustment =
+    isContracted &&
+    Boolean(
+      presupuesto.ajusteAnualActivo ||
+      annualProjection?.applies ||
+      annualAdjustmentAmount > 0,
+    );
+  const tipoAjusteAnual = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual;
+  const tipoAjusteLabel = tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo';
+  const rawBookingNote = buildFormalBudgetBookingNote({
+    hasAnnualAdjustment,
+    adjustmentPct,
+    bookingDepositAmount,
+    currentYear: new Date(presupuesto.timestamp).getFullYear(),
+    tipoAjusteAnual,
+  } as Parameters<typeof buildFormalBudgetBookingNote>[0] & {
+    tipoAjusteAnual?: 'acumulativo' | 'simple';
+  });
+  const bookingNote =
+    hasAnnualAdjustment && !rawBookingNote.includes('desde la firma del contrato')
+      ? rawBookingNote.replace(
+          /Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del \d+(?:[.,]\d+)?% de acuerdo a lo establecido en el contrato\./,
+          `Los precios tienen un ajuste anual del ${adjustmentPct}% ${tipoAjusteLabel} desde la firma del contrato.`,
+        )
+      : rawBookingNote;
 
   const totalGuests =
     (presupuesto.invitadosAdultos || 0) +
@@ -458,25 +481,33 @@ export default function BudgetDocument({
                 <tr className="bg-slate-900 text-white">
                   <th
                     className="border border-slate-800 px-3 py-2 text-left font-semibold"
-                    style={{ width: '38%' }}
+                    style={{ width: hideItemPrices ? '54%' : '38%' }}
                   >
                     Artículo
                   </th>
-                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '10%' }}>
+                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: hideItemPrices ? '12%' : '10%' }}>
                     Cantidad
                   </th>
-                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '11%' }}>
+                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: hideItemPrices ? '14%' : '11%' }}>
                     Unidad
                   </th>
-                  <th className="border border-slate-800 px-2 py-2 text-right font-semibold" style={{ width: '14%' }}>
-                    Precio
-                  </th>
-                  <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '9%' }}>
-                    Desc.%
-                  </th>
-                  <th className="border border-slate-800 px-3 py-2 text-right font-semibold" style={{ width: '18%' }}>
-                    Importe total
-                  </th>
+                  {hideItemPrices ? (
+                    <th className="border border-slate-800 px-3 py-2 text-right font-semibold" style={{ width: '20%' }}>
+                      Detalle
+                    </th>
+                  ) : (
+                    <>
+                      <th className="border border-slate-800 px-2 py-2 text-right font-semibold" style={{ width: '14%' }}>
+                        Precio
+                      </th>
+                      <th className="border border-slate-800 px-2 py-2 text-center font-semibold" style={{ width: '9%' }}>
+                        Desc.%
+                      </th>
+                      <th className="border border-slate-800 px-3 py-2 text-right font-semibold" style={{ width: '18%' }}>
+                        Importe total
+                      </th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -492,7 +523,7 @@ export default function BudgetDocument({
                     <React.Fragment key={categoria}>
                       <tr className="bg-slate-100/80 budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                         <td
-                          colSpan={6}
+                          colSpan={hideItemPrices ? 4 : 6}
                           className="border border-slate-300 px-3 py-1 font-bold text-slate-700 uppercase tracking-wide text-[10px] print:text-[7.5pt]"
                           style={{ overflowWrap: 'anywhere' }}
                         >
@@ -530,15 +561,29 @@ export default function BudgetDocument({
                             <td className="border border-slate-200 px-2 py-2 text-center align-top break-words" style={{ color: item.esRegalo ? '#dc2626' : undefined, overflowWrap: 'anywhere' }}>
                               {getItemUnitLabel(item)}
                             </td>
-                            <td className="border border-slate-200 px-2 py-2 text-right align-top font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
-                              {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
-                            </td>
-                            <td className="border border-slate-200 px-2 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
-                              {item.esRegalo ? '100%' : '—'}
-                            </td>
-                            <td className="border border-slate-200 px-3 py-2 text-right align-top font-semibold font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
-                              {item.esRegalo ? '$ 0,00' : formatCurrency(item.costoTotalItem)}
-                            </td>
+                            {hideItemPrices ? (
+                              <td className="border border-slate-200 px-3 py-2 text-right align-top font-semibold" style={{ color: item.esRegalo ? '#dc2626' : '#475569' }}>
+                                {item.esRegalo ? (
+                                  <span className="inline-block rounded bg-rose-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-700">
+                                    REGALO
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-medium text-slate-600">Incluido</span>
+                                )}
+                              </td>
+                            ) : (
+                              <>
+                                <td className="border border-slate-200 px-2 py-2 text-right align-top font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                                  {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
+                                </td>
+                                <td className="border border-slate-200 px-2 py-2 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                                  {item.esRegalo ? '100%' : '—'}
+                                </td>
+                                <td className="border border-slate-200 px-3 py-2 text-right align-top font-semibold font-mono" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                                  {item.esRegalo ? '$ 0,00' : formatCurrency(item.costoTotalItem)}
+                                </td>
+                              </>
+                            )}
                           </tr>
                         );
                       })}
@@ -550,7 +595,7 @@ export default function BudgetDocument({
                 {descuentoPromo > 0 && (
                   <tr className="bg-slate-50 budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                     <td
-                      colSpan={5}
+                      colSpan={hideItemPrices ? 3 : 5}
                       className="border border-slate-200 px-3 py-2 text-right font-semibold text-slate-700"
                       style={{ overflowWrap: 'anywhere' }}
                     >
@@ -567,7 +612,7 @@ export default function BudgetDocument({
                 {/* Total row */}
                 <tr className="bg-slate-900 text-white font-bold budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                   <td
-                    colSpan={5}
+                    colSpan={hideItemPrices ? 3 : 5}
                     className="border border-slate-900 px-3 py-2.5 text-right text-sm print:text-[10pt]"
                   >
                     Importe total
@@ -579,7 +624,7 @@ export default function BudgetDocument({
                 {pricePerPerson > 0 && (
                   <tr className="bg-white budget-print-avoid-break" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                     <td
-                      colSpan={5}
+                      colSpan={hideItemPrices ? 3 : 5}
                       className="border border-slate-200 px-3 py-1.5 text-right font-semibold text-slate-500"
                     >
                       Valor aproximado por persona
@@ -600,10 +645,7 @@ export default function BudgetDocument({
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Salón seleccionado: Club Uruguay
             </p>
             <p className="text-xs text-emerald-700 mt-1">
-              Alquiler independiente vigente: {formatCurrency(clubUruguayCostoCalculated)}.
-              {isContracted && clubUruguayAnnualProjection?.applies && (
-                <> Referencia {clubUruguayAnnualProjection.eventYear}: {formatCurrency(clubUruguayAnnualProjection.adjustedTotal)}.</>
-              )} Este monto no integra el total de servicios AK y se abona mediante contrato y recibo separado del salón.
+              Alquiler independiente vigente: {formatCurrency(clubUruguayCostoCalculated)}. Este monto no integra el total de servicios AK y se abona mediante contrato y recibo separado del salón.
             </p>
           </section>
         )}
@@ -655,44 +697,6 @@ export default function BudgetDocument({
           </div>
         </section>
 
-        {isContracted && projectionRows.length > 0 && (
-          <section className="mb-4 budget-print-avoid-break">
-            <h3
-              className="text-xs font-bold text-slate-800 mb-2 print:text-[9pt] text-center uppercase"
-              style={{ backgroundColor: '#f8fafc', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
-            >
-              Proyección de Precios por Año (ajuste del {adjustmentPct}% anual al 1° de enero)
-            </h3>
-            <table className="w-full text-xs print:text-[8pt] border-collapse">
-              <thead>
-                <tr className="bg-slate-800 text-white">
-                  <th className="border border-slate-700 px-3 py-1.5 text-left font-semibold">Año</th>
-                  <th className="border border-slate-700 px-3 py-1.5 text-right font-semibold">Precio Base</th>
-                  <th className="border border-slate-700 px-3 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
-                  <th className="border border-slate-700 px-3 py-1.5 text-right font-semibold">Total Ajustado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectionRows.map((row) => (
-                  <tr key={row.year} className="bg-white border-b border-slate-200">
-                    <td className="border border-slate-200 px-3 py-1.5 font-semibold text-slate-700">
-                      {row.year} {new Date(presupuesto.timestamp).getFullYear() === row.year ? '(actual)' : `(1° de enero)`}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-1.5 text-right font-mono text-slate-600">{formatCurrency(row.total - (row.adjustmentAmount || 0))}</td>
-                    <td className="border border-slate-200 px-3 py-1.5 text-right font-mono text-slate-600">
-                      {row.adjustmentAmount === 0 ? '—' : `+${formatCurrency(row.adjustmentAmount)}`}
-                    </td>
-                    <td className="border border-slate-200 px-3 py-1.5 text-right font-bold font-mono text-slate-900">{formatCurrency(row.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="mt-2 text-[10px] text-slate-500 print:text-[7pt] leading-relaxed">
-              El importe total del presupuesto corresponde al precio vigente. Esta proyección muestra cómo quedaría el total si el evento pertenece a un año posterior.
-            </p>
-          </section>
-        )}
-
         {presupuesto.notas && presupuesto.notas.trim().length > 0 && (
           <section
             className="mb-4 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 budget-print-avoid-break"
@@ -716,12 +720,7 @@ export default function BudgetDocument({
           style={{ breakInside: 'avoid', pageBreakInside: 'avoid', overflowWrap: 'anywhere' }}
         >
           <p className="font-semibold text-slate-700 print:text-black">
-            {buildFormalBudgetBookingNote({
-              hasAnnualAdjustment: isContracted && Boolean(presupuesto.ajusteAnualActivo || projectionRows.length > 0),
-              adjustmentPct,
-              bookingDepositAmount,
-              currentYear: new Date(presupuesto.timestamp).getFullYear(),
-            })}
+            {bookingNote}
           </p>
 
           {showSignatures ? (

@@ -65,7 +65,7 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
             Lo que dicen 💬
           </h1>
           <p className="text-white/60 text-lg mt-2 max-w-2xl mx-auto">
-            Más de 500 familias eligieron AK Producciones para sus momentos más especiales.
+            Más de 200 fiestas nos eligieron para sus momentos más especiales.
           </p>
         </motion.div>
 

@@ -305,6 +305,16 @@ function huellaDeLaApp() {
   return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS, ...NO_AFECTA_AL_NAVEGADOR]);
 }
 
+/**
+ * La app SIN las pruebas de navegador (25/11/2026). Si lo unico que cambio desde una corrida que
+ * fallo son las propias pruebas, la app es la misma: se repite solo lo que fallo (las pruebas
+ * tocadas ya corrieron en "Las pruebas nuevas, primero"). Antes, adaptar diez pruebas obligaba a
+ * correr las 203 de nuevo: cuatro horas.
+ */
+function huellaDeLaAppSinPruebas() {
+  return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS, ...NO_AFECTA_AL_NAVEGADOR, ':(exclude)tests/e2e']);
+}
+
 /** Que huella le corresponde a cada paso. */
 function huellaDelPaso(nombre, huellas) {
   if (PASOS_QUE_MIRAN_TODO.has(nombre)) return huellas.todo;
@@ -469,7 +479,7 @@ const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();
 
-const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo(), app: huellaDeLaApp() };
+const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo(), app: huellaDeLaApp(), appSinPruebas: huellaDeLaAppSinPruebas() };
 const yaEstabanBien = leerAvance();
 
 /**
@@ -535,7 +545,8 @@ for (const paso of PASOS) {
    * pueden romper juntos, y eso no se negocia.
    */
   const soloLoQueFallo = paso.nombre === 'La app usada de verdad'
-    && anterior?.fallo && anterior.huella === huellaAhora && hayFallasAnotadas();
+    && anterior?.fallo && hayFallasAnotadas()
+    && (anterior.huella === huellaAhora || (anterior.appSinPruebas && anterior.appSinPruebas === huellas.appSinPruebas));
   process.stdout.write(`  ${paso.nombre}${soloLoQueFallo ? ' (solo lo que fallo la vez anterior, la app no cambio)' : ''}... `);
   const arranque = Date.now();
   const { ok, salida } = correr(soloLoQueFallo ? 'npm run otravez' : paso.comando);
@@ -547,7 +558,7 @@ for (const paso of PASOS) {
   }
   if (!ok) {
     if (paso.nombre === 'La app usada de verdad') {
-      yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora, fallo: true };
+      yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora, appSinPruebas: huellas.appSinPruebas, fallo: true };
       anotarAvance(yaEstabanBien);
     }
     fallas.push({ paso, salida });

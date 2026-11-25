@@ -36,33 +36,22 @@ test.afterAll(() => {
 });
 
 test.describe('Orden 243: Los textos nuevos del simulador', () => {
-  test('Paso 1 tiene los textos nuevos, cuatro tarjetas y el boton es visible en 390x844', async ({ page }) => {
+  test('Paso 1 (datos del evento) y el boton para continuar son visibles en 390x844', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
     // Iniciar el simulador
     await page.getByTestId('simulator-cover-start').click({ timeout: 25_000 });
-    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible({ timeout: 15_000 });
 
-    // Verificar h1 nuevo
-    const h1 = page.locator('h1', { hasText: 'Tu fiesta, como la imaginás. Nosotros te ayudamos a hacerla realidad.' });
-    await expect(h1).toBeVisible({ timeout: 15_000 });
+    // El paso 1 ya no es una introduccion: es el formulario de datos del evento
+    await expect(page.getByRole('heading', { name: 'Ingresá tus datos y los del evento' })).toBeVisible({ timeout: 15_000 });
 
-    // Verificar las cuatro tarjetas
-    await expect(page.getByText('Una organización más sencilla', { exact: false })).toBeVisible();
-    await expect(page.getByText('Una fiesta a tu manera', { exact: false })).toBeVisible();
-    await expect(page.getByText('Disfrutá junto a tus invitados', { exact: false })).toBeVisible();
-    await expect(page.getByText('Presupuesto claro', { exact: false })).toBeVisible();
-
-    // En 390x844 el botón "Armar mi presupuesto" está dentro de la pantalla sin hacer scroll
-    const ctaButton = page.getByTestId('simulator-first-step-cta');
+    // El boton para seguir existe en el paso 1 (es un formulario: queda al final, se llega bajando)
+    const ctaButton = page.getByRole('button', { name: /^Continuar$/ }).first();
+    await ctaButton.scrollIntoViewIfNeeded();
     await expect(ctaButton).toBeVisible();
-    const box = await ctaButton.boundingBox();
-    expect(box).not.toBeNull();
-    if (box) {
-      expect(box.y).toBeGreaterThanOrEqual(0);
-      expect(box.y + box.height).toBeLessThanOrEqual(844);
-    }
+    await expect(ctaButton).toBeInViewport();
   });
 
   test('Paso 6 con Club Uruguay muestra desglose de 3 renglones, suma correcta, botones nuevos y sin congel', async ({ page }) => {
@@ -71,12 +60,9 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
 
     // Entrar al simulador
     await page.getByTestId('simulator-cover-start').click({ timeout: 25_000 });
-    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible({ timeout: 15_000 });
-    const ctaPaso1 = page.getByTestId('simulator-first-step-cta');
-    await expect(ctaPaso1).toBeVisible({ timeout: 15_000 });
-    await ctaPaso1.click();
+    await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible({ timeout: 15_000 });
 
-    // Paso 2: Datos
+    // Paso 1 de 4: Datos
     await page.locator('#simulator-name').fill('Cliente Textos Nuevos');
     const phoneInput = page.locator('#simulator-whatsapp').or(page.locator('#simulator-phone')).first();
     await phoneInput.fill('099888777');
@@ -97,7 +83,8 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     const btnSiguientePaso2 = page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first();
     await btnSiguientePaso2.click();
 
-    // Paso 3: Encabezado nuevo y continuar
+    // Paso 2 de 4: Encabezado nuevo y continuar
+    await expect(page.getByText(/Paso 2 de 4/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('Cada celebración es diferente. Seleccioná las opciones que más te gusten y mirá cómo se actualiza tu presupuesto.').first()).toBeVisible();
 
@@ -107,15 +94,16 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     }
     await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
-    // Paso 4: Paquetes - Encabezado nuevo y continuar
+    // Paso 3 de 4: Paquete - Encabezado nuevo y continuar
+    await expect(page.getByText(/Paso 3 de 4/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
     if (await mantenerSeleccion.isVisible().catch(() => false)) {
       await mantenerSeleccion.click();
     }
     await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
-    // Paso 5: Resumen y desglose
-    await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible({ timeout: 20_000 });
+    // Paso 4 de 4: Edición y desglose
+    await expect(page.getByText(/Paso 4 de 4/i)).toBeVisible({ timeout: 20_000 });
     const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
     await keepSelection.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => undefined);
     if (await keepSelection.isVisible().catch(() => false)) {
@@ -126,7 +114,7 @@ test.describe('Orden 243: Los textos nuevos del simulador', () => {
     await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
     await verPropuesta.click();
 
-    // Paso 6: Verificación de textos y totales
+    // Resultado: Verificación de textos y totales
     await expect(page.locator('h2', { hasText: 'Esta es tu fiesta, y este es tu presupuesto estimado.' })).toBeVisible({ timeout: 45_000 });
     await expect(page.getByText('Ya tenés una primera propuesta. Ahora podemos ayudarte a ajustar el menú, los servicios y los detalles para que todo se adapte a lo que estás buscando.')).toBeVisible();
 

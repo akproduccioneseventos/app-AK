@@ -1,5 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
+import { mismoTipoDeEvento } from '@/types/armado-rapido';
 
 export interface ParametrosComparativa {
   tipoEvento?: string;
@@ -49,7 +50,7 @@ export function calcularAvisoMargenHistorico(
       // El unico campo que existe de verdad es tipoCelebracion. Los otros tres
       // que se probaban aca no estan en el tipo y no compilaban.
       const tipoFiesta = normalizarTexto(fiesta.configuracion?.tipoCelebracion);
-      if (tipoFiesta && !tipoFiesta.includes(tipoBuscado) && !tipoBuscado.includes(tipoFiesta)) {
+      if (tipoFiesta && !mismoTipoDeEvento(tipoFiesta, tipoBuscado)) {
         return false;
       }
     }

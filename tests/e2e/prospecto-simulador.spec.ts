@@ -35,16 +35,14 @@ test.describe('recorrido del prospecto', () => {
 
     // Paso 1: la portada. Se busca por el texto que ve una persona, no por una
     // marca interna: si el botón cambia de nombre, la prueba tiene que avisar.
-    const empezar = page.getByRole('button', { name: /Comenzar mi presupuesto|Cotizar/i }).first();
+    const empezar = page.getByRole('button', { name: /Armar mi presupuesto|Comenzar mi presupuesto|Cotizar/i }).first();
     await expect(empezar, 'No aparece el botón para empezar a cotizar').toBeVisible({ timeout: 45_000 });
     await empezar.click();
 
-    // La portada del simulador tiene su propio botón para arrancar el paso a paso.
-    const arrancar = page.getByRole('button', { name: /Armar mi presupuesto|Armá tu presupuesto|Cotizar mi fiesta/i }).first();
-    await expect(arrancar, 'No aparece el botón que arranca el paso a paso').toBeVisible({ timeout: 45_000 });
-    await arrancar.click();
+    // La portada abre directo el paso 1 de 4 (ya no hay una pantalla intermedia).
+    await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible({ timeout: 45_000 });
 
-    // Paso 2: sus datos.
+    // Paso 1 de 4: sus datos y los del evento.
     await expect(page.locator('#simulator-name')).toBeVisible({ timeout: 45_000 });
     await page.locator('#simulator-name').fill(NOMBRE);
     await page.locator('#simulator-phone').fill(TELEFONO);
@@ -69,12 +67,12 @@ test.describe('recorrido del prospecto', () => {
       if (await dia.isVisible().catch(() => false)) await dia.click();
     }
 
-    // Avanzar hasta el final del recorrido. Cada "Continuar" tiene que llevar a
+    // Avanzar hasta el final del recorrido (pasos 1 a 3; el 4 cierra con "Ver Resumen y Propuesta"). Cada "Continuar" tiene que llevar a
     // algún lado: si uno se traba, la venta se corta ahí.
-    for (let paso = 0; paso < 4; paso += 1) {
+    for (let paso = 0; paso < 3; paso += 1) {
       const continuar = page.getByRole('button', { name: 'Continuar' }).first();
       if (!(await continuar.isVisible().catch(() => false))) break;
-      await expect(continuar, `El botón "Continuar" quedó bloqueado en el paso ${paso + 2}`).toBeEnabled({ timeout: 20_000 });
+      await expect(continuar, `El botón "Continuar" quedó bloqueado en el paso ${paso + 1}`).toBeEnabled({ timeout: 20_000 });
       await continuar.click();
       await page.waitForTimeout(2500);
     }
