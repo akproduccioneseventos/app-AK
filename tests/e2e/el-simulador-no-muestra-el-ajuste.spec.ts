@@ -53,14 +53,8 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
       await btnPortada.click();
     }
 
-    // Paso 1: Introducción
-    await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible({ timeout: 20_000 });
-    const ctaPaso1 = page.getByTestId('simulator-first-step-cta');
-    await expect(ctaPaso1).toBeVisible({ timeout: 15_000 });
-    await ctaPaso1.click();
-
-    // Paso 2: Datos del evento (mismo recorrido que el-simulador-tiene-los-textos-nuevos, que anda)
-    await expect(page.getByText(/Paso 2 de 5/i)).toBeVisible({ timeout: 20_000 });
+    // Paso 1 de 4: Datos del evento (mismo recorrido que el-simulador-tiene-los-textos-nuevos, que anda)
+    await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible({ timeout: 20_000 });
     await page.locator('#simulator-name').fill('Prospecto Ajuste');
     const phoneInput = page.locator('#simulator-whatsapp').or(page.locator('#simulator-phone')).first();
     await phoneInput.fill('099123456');
@@ -73,7 +67,8 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
     await page.waitForFunction(() => !document.body.innerText.includes('Verificando disponibilidad')).catch(() => undefined);
     await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
-    // Paso 3: Catering / Comida
+    // Paso 2 de 4: Menú
+    await expect(page.getByText(/Paso 2 de 4/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
     const mantenerPaso3 = page.getByRole('button', { name: /Mantener mi selección actual/i });
     if (await mantenerPaso3.isVisible().catch(() => false)) {
@@ -81,7 +76,8 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
     }
     await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
-    // Paso 4: Paquetes
+    // Paso 3 de 4: Paquete
+    await expect(page.getByText(/Paso 3 de 4/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('h2', { hasText: 'Elegí lo que querés para tu fiesta' }).first()).toBeVisible({ timeout: 20_000 });
     const mantenerPaso4 = page.getByRole('button', { name: /Mantener mi selección actual/i });
     if (await mantenerPaso4.isVisible().catch(() => false)) {
@@ -89,8 +85,8 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
     }
     await page.getByRole('button', { name: /^Siguiente$|Continuar/i }).first().click();
 
-    // Paso 5: Personalización y generación de propuesta
-    await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible({ timeout: 20_000 });
+    // Paso 4 de 4: Edición y generación de propuesta
+    await expect(page.getByText(/Paso 4 de 4/i)).toBeVisible({ timeout: 20_000 });
     const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
     // La oferta de pasar a premium aparece unos segundos después y tapa el botón: se espera y se cierra
     await keepSelection.waitFor({ state: 'visible', timeout: 12_000 }).catch(() => undefined);
@@ -102,7 +98,7 @@ test.describe('Orden 267: El simulador público no muestra el ajuste anual al pr
     await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
     await verPropuesta.click();
 
-    // Paso 6: Propuesta final en pantalla
+    // Resultado: Propuesta final en pantalla
     await expect(page.locator('h2', { hasText: 'Esta es tu fiesta, y este es tu presupuesto estimado.' })).toBeVisible({ timeout: 45_000 });
 
     const cuerpoTexto = (await page.locator('body').innerText()).toLowerCase();
