@@ -6,7 +6,7 @@
 
 - **Ya publicadas:** 336 a 342 (Claude las juntó, arregló cinco pruebas que chocaban entre sí y las publicó). No las
   rehagas.
-- **AHORA, UNA sola propuesta con tres órdenes, rama nueva `gemini/orden-343` desde la principal recién actualizada:**
+- **AHORA, UNA sola propuesta con cuatro órdenes, rama nueva `gemini/orden-343` desde la principal recién actualizada:**
   1. **Orden 343 (`docs/ordenes/343-gemini-el-simulador-que-vende-solo.md`):** el simulador es el primer canal de venta
      del dueño. Una sola bienvenida que vende antes del precio, color y movimiento en un punto medio, el interruptor de
      precios en Ajustes y los paquetes armados por tipo de fiesta.
@@ -15,6 +15,9 @@
   3. **Orden 345 (`docs/ordenes/345-gemini-ajuste-acumulativo-y-empezar-2027.md`):** el 15% "acumulativo" sin montos
      futuros, el 15% simple para contratos viejos, "Cargar contrato" con IA y la tarea de una sola vez que deja sólo
      2027 en adelante. **Toca plata: Claude la revisa línea por línea.**
+  4. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`), al final:** las doce pantallas que el robot marca en
+     rojo (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
+     arreglás, sacás su línea de `docs/robot-excepciones.json`.
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
   - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
     `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.

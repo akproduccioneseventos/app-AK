@@ -696,6 +696,13 @@ export async function sembrarRobot(): Promise<{
     escribirColeccion('menus_catering', datos.menus),
     escribirColeccion('servicios', datos.servicios),
     escribirColeccion('empleados', datos.empleados),
+    // El servidor busca en `users` al dueño de la cookie del robot (`ponerSesionDelEquipo`,
+    // userId "admin"); sin él, cada acción contestaba "Tu sesión se cerró" y el robot veía
+    // 500 en todas las pantallas del equipo (25/11/2026).
+    escribirColeccion('users', [
+      { id: 'admin', email: 'admin@akproducciones.com', role: 'admin', perfil: 'dueno', versionDeSesion: 1 },
+      { id: 'auditor-e2e', email: 'auditor@externo.test', role: 'admin', perfil: 'auditor', versionDeSesion: 1 },
+    ]),
   ]);
 
   return {

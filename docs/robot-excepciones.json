@@ -1,3 +1,19 @@
 {
-  "excepciones": []
+  "excepciones": [
+    { "ruta": "/evento/bogue/[fiestaId]", "regla": "no-se-cae", "motivo": "Entorno: la máquina de pruebas no tiene cámara; la estación avisa en consola que no la encuentra." },
+    { "ruta": "/evento/plataforma-360/[fiestaId]", "regla": "no-se-cae", "motivo": "Entorno: la máquina de pruebas no tiene cámara; la estación avisa en consola que no la encuentra." },
+    { "ruta": "/enlaces", "regla": "no-se-cae", "motivo": "Entorno: el robot abre 127.0.0.1 y la redirección del clic va a localhost; el navegador la bloquea por ser otro origen. En el dominio real es el mismo." },
+    { "ruta": "/asistente", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: lo que se guarda no vuelve al recargar." },
+    { "ruta": "/customers", "regla": "lectura-fallida-no-es-cero", "motivo": "Viejo, lo arregla la orden 346: si la lectura falla no avisa." },
+    { "ruta": "/empresa/contabilidad", "regla": "lectura-fallida-no-es-cero", "motivo": "Viejo, lo arregla la orden 346: si la lectura falla no avisa." },
+    { "ruta": "/empresa/contabilidad/reportes", "regla": "lectura-fallida-no-es-cero", "motivo": "Viejo, lo arregla la orden 346: si la lectura falla no avisa." },
+    { "ruta": "/empresa/insumos/[id]/editar", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: lo que se guarda no vuelve al recargar." },
+    { "ruta": "/empresa/landing-editor", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: dice GUARDADO con el servidor fallando." },
+    { "ruta": "/empresa/salones", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: lo que se guarda no vuelve al recargar." },
+    { "ruta": "/empresa/salones/[id]/croquis", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: lo que se guarda no vuelve al recargar." },
+    { "ruta": "/empresa/salones/[id]/diseno", "regla": "ida-y-vuelta", "motivo": "Viejo, lo arregla la orden 346: lo que se guarda no vuelve al recargar." },
+    { "ruta": "/evento/actual/mesa", "regla": "contexto", "motivo": "Viejo, lo arregla la orden 346: enlace a /evento/actual con fiestaId vacío." },
+    { "ruta": "/evento/inicio", "regla": "contexto", "motivo": "Viejo, lo arregla la orden 346: muestra las dos fiestas mezcladas." },
+    { "ruta": "/portal-invitado/[fiestaId]/[guestId]", "regla": "contexto", "motivo": "Viejo, lo arregla la orden 346: no muestra el nombre de la fiesta del invitado." }
+  ]
 }

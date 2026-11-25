@@ -2,6 +2,17 @@
 
 
 
+## 25/11/2026 - El robot veía 81 pantallas rotas que no estaban rotas
+
+- El robot de la orden 339 entraba con la cookie del dueño (`userId: admin`), y en su base de prueba no existía ese
+  usuario. El servidor contestaba "Tu sesión se cerró" en cada acción y el robot lo contaba como pantalla caída. Ahora
+  `tests/robot/sembrar.ts` siembra `users/admin` y `users/auditor-e2e`: de 81 rojos quedaron 15.
+- Un recurso de afuera que no carga porque la máquina de pruebas no tiene internet (`net::ERR_TUNNEL_CONNECTION_FAILED`)
+  ya no cuenta como falla de la pantalla (`tests/robot/reglas.ts`).
+- De los 15, tres son del entorno (sin cámara; 127.0.0.1 contra localhost en `/enlaces`) y quedan como excepción con
+  "Entorno:". Los otros doce son de la app: los arregla Gemini en la orden 346, y cada uno sale de
+  `docs/robot-excepciones.json` cuando está arreglado.
+
 ## 25/11/2026 - El portal del cliente decía que no había contraseña
 - Con la entrega 336, `/portal?fiestaId=` armaba la vista previa sin decir si la fiesta tenía clave, y mostraba "el
   organizador aún no configuró una contraseña": el cliente no podía entrar nunca. Ahora la vista previa dice sólo si hay
