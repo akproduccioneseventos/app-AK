@@ -548,7 +548,7 @@ export default function GestorFiestasPage() {
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingAllFiestas || fiestasActivas.length === 0}>
                     {isDeletingAllFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                    🗑️ Eliminar todo permanentemente
+                    Eliminar todo permanentemente
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -591,7 +591,7 @@ export default function GestorFiestasPage() {
               Ver Calendario General
             </Link></Button>
 
-          <Button asChild variant="outline"><Link href="/">
+          <Button asChild variant="outline"><Link href="/mi-dia">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al Menú Principal
             </Link></Button>
@@ -945,20 +945,33 @@ export default function GestorFiestasPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFiestasArchivadas.map(fiesta => (
               <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
-                <CardHeader className="p-4 flex-row justify-between items-start">
-                  <div>
+                <CardHeader className="p-4 flex-row justify-between items-start gap-2">
+                  <div className="min-w-0">
                     <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">
-                      {fiesta.configuracion.nombreEvento}
+                      <Link href={`/fiestas/${fiesta.id}/centro`} className="hover:text-foreground hover:underline">
+                        {fiesta.configuracion.nombreEvento}
+                      </Link>
                     </CardTitle>
                     <CardDescription className="text-xs print:text-[10px]">
                       {formatDate(fiesta.configuracion.fechaEvento)}
                     </CardDescription>
                   </div>
 
+                  <div className="flex items-center gap-1.5 shrink-0 print:hidden">
+                    <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs">
+                      <Link href={`/fiestas/${fiesta.id}/centro`}>Ver centro</Link>
+                    </Button>
                   {puedeBorrar && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="h-7 w-7"
+                          aria-label={`Eliminar evento archivado ${fiesta.configuracion.nombreEvento || ''}`}
+                          title="Eliminar evento archivado"
+                          disabled={isProcessing === fiesta.id}
+                        >
                           {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                         </Button>
                       </AlertDialogTrigger>
@@ -978,6 +991,7 @@ export default function GestorFiestasPage() {
                       </AlertDialogContent>
                     </AlertDialog>
                   )}
+                  </div>
                 </CardHeader>
               </Card>
             ))}

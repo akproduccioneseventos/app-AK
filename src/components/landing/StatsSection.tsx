@@ -1,13 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarCheck2, Clock3, HeartHandshake, Headphones, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { LandingStatItem } from '@/types/landing-editor';
+import {
+  aniosDeAK,
+  FIESTAS_BASE,
+  resolverEstadisticasPortada,
+  type CifrasDeAK,
+} from '@/lib/marketing/cifras-de-ak';
+import { getCifrasPublicasAK } from '@/app/actions/cifras-ak';
 
 export const DEFAULT_STATS: LandingStatItem[] = [
-  { value: '+200', label: 'Eventos realizados', icon: 'events' },
-  { value: '+7', label: 'Años de experiencia', icon: 'years' },
+  { value: `+${FIESTAS_BASE}`, label: 'Eventos realizados', icon: 'events' },
+  { value: `+${aniosDeAK()}`, label: 'Años de experiencia', icon: 'years' },
   { value: 'Clientes', label: 'Satisfechos', icon: 'clients' },
 ];
 
@@ -52,10 +59,37 @@ function StatCard({
 
 interface StatsSectionProps {
   stats?: LandingStatItem[];
+  cifras?: CifrasDeAK;
 }
 
-export function StatsSection({ stats }: StatsSectionProps) {
-  const displayStats = stats && stats.length > 0 ? stats : DEFAULT_STATS;
+export function StatsSection({ stats, cifras: cifrasIniciales }: StatsSectionProps) {
+  const [cifras, setCifras] = useState<CifrasDeAK>(() => cifrasIniciales ?? {
+    anios: aniosDeAK(),
+    fiestasRealizadas: FIESTAS_BASE,
+  });
+
+  useEffect(() => {
+    if (cifrasIniciales) {
+      setCifras(cifrasIniciales);
+      return;
+    }
+    let activo = true;
+    getCifrasPublicasAK()
+      .then((res) => {
+        if (activo && res) setCifras(res);
+      })
+      .catch(() => {
+        // Si falla la lectura pública, mantenemos el cálculo local seguro
+      });
+    return () => {
+      activo = false;
+    };
+  }, [cifrasIniciales]);
+
+  const displayStats = resolverEstadisticasPortada(
+    stats && stats.length > 0 ? stats : DEFAULT_STATS,
+    cifras,
+  );
 
   return (
     <section className="border-y border-white/10 bg-slate-950 py-20 text-white" id="stats">

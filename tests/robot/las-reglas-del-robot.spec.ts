@@ -22,6 +22,8 @@ import {
   ejecutarReglaDescargasPdf,
   ejecutarReglaIdaYVuelta,
   ejecutarReglaLecturaFallidaNoEsCero,
+  ejecutarReglaMismoNumeroEnDosLugares,
+  ejecutarReglaNadaDePruebaEnLoPublico,
   ejecutarReglaPublicoSinBorradores,
   ejecutarReglaVolverNoPierde,
   evaluarContexto,
@@ -173,6 +175,8 @@ test.describe('Auditor Robot — 8 reglas de comportamiento', () => {
         'descargas-pdf': { estado: 'sin-mirar' },
         'publico-sin-borradores': { estado: 'sin-mirar' },
         'lectura-fallida-no-es-cero': { estado: 'sin-mirar' },
+        'nada-de-prueba-en-lo-publico': { estado: 'sin-mirar' },
+        'mismo-numero-en-dos-lugares': { estado: 'sin-mirar' },
       };
       const fallas: RegistroRutaRobot['fallas'] = [];
 
@@ -261,6 +265,13 @@ test.describe('Auditor Robot — 8 reglas de comportamiento', () => {
               await ejecutarReglaLecturaFallidaNoEsCero(page, fullUrl, ruta.pathname),
               esc.esperada,
             );
+
+            // Regla 10: El mismo número en dos lugares
+            registrar(
+              'mismo-numero-en-dos-lugares',
+              await ejecutarReglaMismoNumeroEnDosLugares(page, origin, ruta.pathname),
+              esc.esperada,
+            );
           }
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -283,6 +294,12 @@ test.describe('Auditor Robot — 8 reglas de comportamiento', () => {
           borradoresProhibidos: [ROBOT_MENU_BORRADOR_NOMBRE, ROBOT_SERVICIO_BORRADOR_NOMBRE],
           muestrasProhibidas: ['DEMO AK', 'fiesta_muestra_auditor', 'XV Martina'],
         }),
+      );
+
+      // Regla 9: Nada de PRUEBA o TEST en lo público
+      registrar(
+        'nada-de-prueba-en-lo-publico',
+        await ejecutarReglaNadaDePruebaEnLoPublico(browser, origin, ruta.testUrl, ruta.pathname),
       );
 
       for (const regla of REGLAS_ROBOT) {

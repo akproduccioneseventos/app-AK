@@ -278,7 +278,9 @@ function EventDetailSheet({
             <CalendarDays className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-medium">Fecha</p>
-              <p className="text-muted-foreground capitalize">{formattedDate}</p>
+              <p className="text-muted-foreground">
+                {formattedDate ? formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1) : ''}
+              </p>
             </div>
           </div>
 

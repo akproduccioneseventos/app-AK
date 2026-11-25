@@ -35,14 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) {
     post = defaultBlogPosts.find((p) => p.slug === slug) || null;
   }
-  if (!post) return { title: 'Blog AK Producciones Eventos' };
+  if (!post) return { title: { absolute: 'Blog AK Producciones Eventos' } };
 
   const image = getBlogPostImage(post);
   const url = `https://akproducciones.uy/public/blog/${slug}`;
 
   return {
     metadataBase: new URL('https://akproducciones.uy'),
-    title: `${post.title} | Blog AK Producciones Eventos`,
+    title: { absolute: `${post.title} | Blog AK Producciones Eventos` },
     description: post.excerpt,
     alternates: {
       canonical: `/public/blog/${slug}`,

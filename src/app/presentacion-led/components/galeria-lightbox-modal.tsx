@@ -7,10 +7,12 @@ import { cn } from '@/lib/utils';
 import type { CatalogoFoto } from '@/types/catalogo';
 import Image from 'next/image';
 
+export type LightboxFoto = Pick<CatalogoFoto, 'id' | 'url' | 'titulo'>;
+
 interface GaleriaLightboxModalProps {
   isOpen: boolean;
   onClose: () => void;
-  fotos: CatalogoFoto[];
+  fotos: LightboxFoto[];
   categoriaLabel?: string;
   initialIndex?: number;
 }

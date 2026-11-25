@@ -1,16 +1,9 @@
-# Estado actual — 24 de noviembre de 2026
+# Estado actual — 25 de noviembre de 2026
 
 ## Publicado
-- #1462 a #1465, #1471, y las entregas 336 a 342 de Gemini juntas con los arreglos de Claude.
+- #1474 (336–342 + robot sembrado) y #1476 (343–345, auditoría profunda 24/11, Club Uruguay $19.990 y Orden 350 en `main`).
 
-## En revisión (sin fusionar)
-- **PR #1472 (`gemini/orden-343`)**: abierta y pendiente de revisión/fusión (Órdenes 343, 344 y 345).
-
-## Rama actual (`gemini/auditoria-profunda-24-11`) — Auditoría profunda 0 errores
-- Suma 8 arreglos sobre finanzas, contratos, migración 2027 y seguridad del portal (Pilares 3 y 4 con 0 hallazgos P0/P1):
-  - `getFiestaByAccessKey` y `cambiarClavePortal` con rate limit, sesión de portal, chequeo `enabled` y comparación en tiempo constante.
-  - `empezar-2027` respeta archivados/rechazados/`Facturado`/firmados y pasa por `normalizePresupuestoFinancials`.
-  - `cancelServicesOrParty` (`cancelAll`) apaga `ajusteAnualActivo`/`ajusteAnualPorcentaje` y usa `presupuesto.fechaFirmaContrato`.
-  - `changeEventDate` guarda `totalConDescuento = nuevoTotal` exacto; `estadoDelContrato` y `updatePresupuesto` protegen firmas, `Facturado` y `preserveTotal`.
-  - `ver/page.tsx` y `PublicPortalView.tsx` pasan el porcentaje de ajuste anual desde Ajustes.
-- Pruebas de regresión agregadas en `src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts`.
+## Rama actual (`gemini/orden-346` sincronizada con `main`) — PR #1475 abierta (sin fusionar)
+- **346–349**: los 12 rojos del robot, páginas por tipo de fiesta (`/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas-empresariales`, `/fiestas-infantiles`, `/fiestas`), álbum por servicio + clasificación IA + "Pedile a la IA", cifras contadas solas (`cifras-de-ak.ts`) y auditoría 25/11.
+- **Auditoría en vivo `akproducciones.uy` (25/11)**: arreglados `/api/enlaces/clic` (`0.0.0.0:8080` en producción) + `/enlaces` sin prefetch RSC, `Invalid Date` en alertas, títulos `<title>` sin doble marca, tildes en botón contable, acceso al centro en eventos archivados + sin doble papelera, `BarraDeLaCasa` sin recorte en escritorio y margen inferior en `SlideLayout`.
+- **Pendiente siguiente**: Orden 350 (botón "¿Cómo funciona?" con videos de YouTube en pantallas externas).

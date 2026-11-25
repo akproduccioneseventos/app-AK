@@ -153,10 +153,24 @@ async function saveInsumoInterno(
         (actual) => ({ ...actual, ...cambios } as ServicioEmpresa)
       );
       if (!guardado) {
-        limpiarCacheInsumos();
-        return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+        const { dbAdmin } = await import('@/lib/firebase/server');
+        const firestoreVacio = dbAdmin
+          ? (await dbAdmin.collection(INSUMOS_COLLECTION).limit(1).get()).empty
+          : false;
+        if (firestoreVacio) {
+          await writeData(
+            INSUMOS_FILE,
+            inventario,
+            (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''),
+          );
+          finalItemData = inventario[index];
+        } else {
+          limpiarCacheInsumos();
+          return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+        }
+      } else {
+        finalItemData = guardado;
       }
-      finalItemData = guardado;
     }
   } else {
     if (itemIdBuscado && index === -1) {

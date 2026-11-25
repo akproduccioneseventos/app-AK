@@ -36,6 +36,7 @@ import {
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
+import { getNotifications } from "@/app/actions/notifications";
 import { getMisPermisos } from "@/app/actions/sesion";
 import { puede, perfilDe, esPerfilValido, type Permiso } from "@/lib/auth/perfiles";
 import { CASAS } from "@/lib/navegacion/mapa";
@@ -155,15 +156,32 @@ export function MainNav() {
   }, []);
 
   const refreshAlertCount = React.useCallback(() => {
-    getAlertasGlobalesConLeidas()
-      .then((alertas) => {
-        const unread = alertas.filter((a) => !a.leida);
-        setTotalUnreadCount(unread.length);
-        setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
+    Promise.all([
+      getAlertasGlobalesConLeidas().catch(() => []),
+      getNotifications().catch(() => []),
+    ])
+      .then(([alertas, notifs]) => {
+        const safeAlertas = Array.isArray(alertas) ? alertas : [];
+        const safeNotifs = Array.isArray(notifs) ? notifs : [];
+        const idsAlertas = new Set(safeAlertas.map((a) => a.id));
+        const notifsExtra = safeNotifs.filter((n) => !idsAlertas.has(n.id));
+        const unreadAlertas = safeAlertas.filter((a) => !a.leida);
+        const unreadNotifs = notifsExtra.filter((n) => !n.leida);
+        setTotalUnreadCount(unreadAlertas.length + unreadNotifs.length);
+        setUrgentAlertCount(
+          unreadAlertas.filter((a) => a.tipo === "urgente").length +
+            unreadNotifs.filter((n) => n.tipo === "urgente").length,
+        );
       })
       // no pasa nada si falla: el contador de avisos urgentes queda en cero y el menú anda igual.
       .catch((e) => console.warn('[main-nav] Paso secundario sin completar:', e));
   }, []);
+
+  useEffect(() => {
+    const onUpdated = () => refreshAlertCount();
+    window.addEventListener('ak-notifications-updated', onUpdated);
+    return () => window.removeEventListener('ak-notifications-updated', onUpdated);
+  }, [refreshAlertCount]);
 
   useEffect(() => {
     const wasOnAlertas = prevPathname.current === "/alertas";

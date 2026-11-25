@@ -314,7 +314,7 @@ function GestionMenusPageInner() {
                         <CardTitle className="font-headline text-2xl flex items-center gap-3 text-orange-600">
                             <CakeSlice className="w-6 h-6" /> MESA DULCE Y FUENTE
                         </CardTitle>
-                        <Button variant="ghost" size="icon" onClick={handleSaveReposteria} disabled={isSaving} className="text-orange-600 hover:bg-orange-100 rounded-xl"><Save className="w-5 h-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={handleSaveReposteria} disabled={isSaving} className="text-orange-600 hover:bg-orange-100 rounded-xl" aria-label="Guardar mesa dulce y fuente" title="Guardar"><Save className="w-5 h-5"/></Button>
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
@@ -332,7 +332,7 @@ function GestionMenusPageInner() {
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
                                     {puedeBorrar && (
-                                        <Button variant="ghost" size="icon" onClick={() => removeItem('mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                        <Button variant="ghost" size="icon" onClick={() => removeItem('mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Borrar ${item.nombre || 'postre'}`} title="Borrar"><Trash2 className="w-4 h-4"/></Button>
                                     )}
                                 </div>
                             </div>
@@ -348,7 +348,7 @@ function GestionMenusPageInner() {
                         <CardTitle className="font-headline text-2xl flex items-center gap-3 text-pink-600">
                             <Candy className="w-6 h-6" /> CANDY BAR TEMÁTICO
                         </CardTitle>
-                        <Button variant="ghost" size="icon" onClick={handleSaveReposteria} disabled={isSaving} className="text-pink-600 hover:bg-pink-100 rounded-xl"><Save className="w-5 h-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={handleSaveReposteria} disabled={isSaving} className="text-pink-600 hover:bg-pink-100 rounded-xl" aria-label="Guardar candy bar temático" title="Guardar"><Save className="w-5 h-5"/></Button>
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
@@ -366,7 +366,7 @@ function GestionMenusPageInner() {
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
                                     {puedeBorrar && (
-                                        <Button variant="ghost" size="icon" onClick={() => removeItem('candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                        <Button variant="ghost" size="icon" onClick={() => removeItem('candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Borrar ${item.nombre || 'elemento'}`} title="Borrar"><Trash2 className="w-4 h-4"/></Button>
                                     )}
                                 </div>
                             </div>
@@ -445,14 +445,14 @@ function GestionMenusPageInner() {
                       {menu.estadoPublicacion === 'borrador' ? 'Publicar' : 'Pasar a borrador'}
                     </Button>
                     <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-400 hover:bg-white" onClick={() => handleDuplicateMenu(menu.id, menu.name)} disabled={!!processingId}>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-400 hover:bg-white" onClick={() => handleDuplicateMenu(menu.id, menu.name)} disabled={!!processingId} aria-label={`Duplicar menú ${menu.name}`} title="Duplicar">
                         {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                     </Button>
-                    <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-primary hover:bg-white"><Link href={`/empresa/menus/${menu.id}/editar`}><Edit className="w-4 h-4"/></Link></Button>
+                    <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-primary hover:bg-white" aria-label={`Editar menú ${menu.name}`} title="Editar"><Link href={`/empresa/menus/${menu.id}/editar`}><Edit className="w-4 h-4"/></Link></Button>
                     {puedeBorrar && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-destructive hover:bg-red-50" disabled={!!processingId}>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-destructive hover:bg-red-50" disabled={!!processingId} aria-label={`Borrar menú ${menu.name}`} title="Borrar">
                             {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
                             </Button>
                         </AlertDialogTrigger>

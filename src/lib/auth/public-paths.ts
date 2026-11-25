@@ -54,6 +54,9 @@ export const PUBLIC_PATH_PREFIXES = [
   '/bodas',
   '/quinceaneras',
   '/cumpleanos',
+  '/fiestas-empresariales',
+  '/fiestas-infantiles',
+  '/15-anos',
   '/experiencia-ak',
   '/experiencia',
   '/tecnologia',
@@ -102,6 +105,7 @@ export const PUBLIC_EXACT_PATHS = new Set([
   '/api/despertar',
   '/api/meta/webhook',
   '/',
+  '/fiestas',
   '/api/health',
   // El "instalador" de una estacion suelta. No entrega datos de la fiesta: solo
   // el nombre, para que el icono se entienda. La maquina del empleado no tiene

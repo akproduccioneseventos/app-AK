@@ -588,10 +588,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       <p className={cn('font-black', colors.text)}>{formatCurrency(item.suggestedSellingPrice || 0)}</p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); duplicateItem(item.id); }}>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); duplicateItem(item.id); }} aria-label={`Duplicar plato ${item.name || ''}`.trim()} title="Duplicar plato">
                         <Copy className="w-3.5 h-3.5" />
                       </Button>
-                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }} aria-label={`Borrar plato ${item.name || ''}`.trim()} title="Borrar plato">
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                       <ChevronDown className={cn('w-5 h-5 text-slate-400 transition-transform duration-300', isOpen && 'rotate-180')} />
@@ -727,7 +727,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                               <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId} /></div>
                               <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo Unit.</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm" /><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                               <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo p/p</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
-                              <div className="flex items-center justify-end col-span-2 lg:col-span-1"><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5" /></Button></div>
+                              <div className="flex items-center justify-end col-span-2 lg:col-span-1"><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)} aria-label={`Borrar ingrediente ${ing.name || ''}`.trim()} title="Borrar ingrediente"><Trash2 className="w-3.5 h-3.5" /></Button></div>
                             </div>
                           );
                         })}

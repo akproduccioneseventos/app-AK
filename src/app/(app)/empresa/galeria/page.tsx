@@ -36,9 +36,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, Camera, ExternalLink, Loader2, Pencil, Plus, RefreshCw, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
+import { ArrowLeft, Camera, ExternalLink, Loader2, Pencil, Plus, RefreshCw, Sparkles, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
+import type { ServicioEmpresa } from '@/types/empresa';
 import {
   GALERIA_CATEGORIAS,
   SERVICIOS_GALERIA,
@@ -143,19 +144,21 @@ export default function GaleriaAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<'fotos' | 'videos'>('fotos');
   const [servicioNames, setServicioNames] = useState<string[]>([]);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
 
   // Foto form
   const [fotoUrl, setFotoUrl] = useState('');
   const [fotoTitulo, setFotoTitulo] = useState('');
   const [fotoDescripcion, setFotoDescripcion] = useState('');
   const [fotoCategoria, setFotoCategoria] = useState('');
+  const [fotoServicioId, setFotoServicioId] = useState('');
   const [fotoTipoFiesta, setFotoTipoFiesta] = useState('');
   const [fotoSubCategoria, setFotoSubCategoria] = useState('');
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
   const [isSyncingCatalog, setIsSyncingCatalog] = useState(false);
-  const [vistaMode, setVistaMode] = useState<'tipoFiesta' | 'servicio' | 'todas'>('tipoFiesta');
+  const [vistaMode, setVistaMode] = useState<'tipoFiesta' | 'servicio' | 'todas' | 'sinClasificar'>('tipoFiesta');
   const [editFotoDialog, setEditFotoDialog] = useState<EditFotoDialogState>({ open: false, foto: null });
 
   // Video form
@@ -208,6 +211,11 @@ export default function GaleriaAdminPage() {
           .map((v) => ({ ...v, categoria: normalizarCategoriaGaleria(v.categoria) || 'General' }))
           .sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden),
       );
+      setServiciosCatalogo(
+        [...servicios]
+          .filter((s) => s.tipoItem === 'Servicio' || !s.tipoItem)
+          .sort((a, b) => a.nombre.localeCompare(b.nombre)),
+      );
       // Extract unique service names and categories from catalog
       const names = Array.from(new Set([
         ...servicios.map(s => s.nombre),
@@ -258,6 +266,7 @@ export default function GaleriaAdminPage() {
     setIsSavingFoto(true);
     try {
       const fotoId = `foto_${Date.now()}`;
+      const servicioElegido = serviciosCatalogo.find((s) => s.id === fotoServicioId);
       const foto: GaleriaFoto = {
         id: fotoId,
         tipo: 'foto',
@@ -265,8 +274,11 @@ export default function GaleriaAdminPage() {
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
         categoria: fotoCategoria,
+        servicioId: servicioElegido?.id || undefined,
+        servicio: servicioElegido?.nombre || undefined,
         tipoFiesta: fotoTipoFiesta || undefined,
         subCategoria: fotoSubCategoria || undefined,
+        ...(servicioElegido || fotoTipoFiesta ? { clasificadaPor: 'persona' as const } : {}),
         destacada: fotoDestacada,
         orden: fotos.length,
         createdAt: new Date().toISOString(),
@@ -288,6 +300,7 @@ export default function GaleriaAdminPage() {
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoServicioId('');
       setFotoTipoFiesta('');
       setFotoSubCategoria('');
       setFotoDestacada(false);
@@ -322,6 +335,7 @@ export default function GaleriaAdminPage() {
         throw new Error(result.error || 'Error al subir');
       }
       const fotoId = `foto_${Date.now()}`;
+      const servicioElegido = serviciosCatalogo.find((s) => s.id === fotoServicioId);
       const foto: GaleriaFoto = {
         id: fotoId,
         tipo: 'foto',
@@ -329,8 +343,11 @@ export default function GaleriaAdminPage() {
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
         categoria: fotoCategoria,
+        servicioId: servicioElegido?.id || undefined,
+        servicio: servicioElegido?.nombre || undefined,
         tipoFiesta: fotoTipoFiesta || undefined,
         subCategoria: fotoSubCategoria || undefined,
+        ...(servicioElegido || fotoTipoFiesta ? { clasificadaPor: 'persona' as const } : {}),
         destacada: fotoDestacada,
         orden: fotos.length,
         createdAt: new Date().toISOString(),
@@ -353,6 +370,7 @@ export default function GaleriaAdminPage() {
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoServicioId('');
       setFotoTipoFiesta('');
       setFotoSubCategoria('');
       setFotoDestacada(false);
@@ -572,13 +590,17 @@ export default function GaleriaAdminPage() {
 
   const handleSaveEditFoto = async () => {
     if (!editFotoDialog.foto) return;
+    const servicioElegido = serviciosCatalogo.find((s) => s.id === editFotoDialog.foto?.servicioId);
     const payload: Partial<GaleriaFoto> = {
       titulo: editFotoDialog.foto.titulo?.trim() || undefined,
       descripcion: editFotoDialog.foto.descripcion?.trim() || undefined,
       categoria: editFotoDialog.foto.categoria,
+      servicioId: servicioElegido?.id || undefined,
+      servicio: servicioElegido?.nombre || editFotoDialog.foto.servicio || undefined,
       tipoFiesta: editFotoDialog.foto.tipoFiesta || undefined,
       subCategoria: editFotoDialog.foto.subCategoria || undefined,
       destacada: editFotoDialog.foto.destacada,
+      clasificadaPor: 'persona',
     };
 
     const result = await updateGaleriaFoto(editFotoDialog.foto.id, payload);
@@ -590,8 +612,38 @@ export default function GaleriaAdminPage() {
     await fetchData();
   };
 
-  const renderFotoCard = (foto: GaleriaFoto) => (
-    <div key={foto.id} className="relative group rounded-xl overflow-hidden border bg-card">
+  const handleQuickClasificarFoto = async (
+    foto: GaleriaFoto,
+    campo: 'servicioId' | 'tipoFiesta',
+    valor: string,
+  ) => {
+    const limpio = valor === '__none__' ? undefined : valor;
+    const updates: Partial<GaleriaFoto> = { clasificadaPor: 'persona' };
+    if (campo === 'servicioId') {
+      const srv = serviciosCatalogo.find((s) => s.id === limpio);
+      updates.servicioId = srv?.id;
+      updates.servicio = srv?.nombre;
+    } else {
+      updates.tipoFiesta = limpio;
+    }
+    const result = await updateGaleriaFoto(foto.id, updates);
+    if (!result.success) {
+      toast({ title: 'Error', description: result.error || 'No se pudo actualizar la foto.', variant: 'destructive' });
+      return;
+    }
+    setFotos((prev) =>
+      prev.map((item) => (item.id === foto.id ? { ...item, ...updates } : item)),
+    );
+  };
+
+  const renderFotoCard = (foto: GaleriaFoto) => {
+    const servicioCatalogo = serviciosCatalogo.find((s) => s.id === foto.servicioId);
+    const nombreServicio = servicioCatalogo?.nombre || foto.servicio;
+    const etiquetaIA = [nombreServicio, foto.tipoFiesta].filter(Boolean).join(' · ');
+
+    return (
+    <div key={foto.id} className="relative group rounded-xl overflow-hidden border bg-card flex flex-col">
+      <div className="relative">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={sanitizeHttpUrl(foto.url) ?? ''}
@@ -639,19 +691,75 @@ export default function GaleriaAdminPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      <div className="p-2">
-        <div className="flex items-center gap-1 flex-wrap">
-          <Badge variant="secondary" className="text-xs">{foto.categoria}</Badge>
-          {foto.subCategoria && <Badge variant="outline" className="text-xs">{foto.subCategoria}</Badge>}
-          {foto.tipoFiesta && <Badge variant="outline" className="text-xs">{foto.tipoFiesta}</Badge>}
-          {foto.destacada && <Badge className="text-xs"><Star className="w-3 h-3 mr-1 fill-white" />Destacada</Badge>}
+      </div>
+      <div className="p-2 space-y-2 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-1 flex-wrap">
+            <Badge variant="secondary" className="text-xs">{foto.categoria}</Badge>
+            {foto.subCategoria && <Badge variant="outline" className="text-xs">{foto.subCategoria}</Badge>}
+            {foto.tipoFiesta && <Badge variant="outline" className="text-xs">{foto.tipoFiesta}</Badge>}
+            {foto.destacada && <Badge className="text-xs"><Star className="w-3 h-3 mr-1 fill-white" />Destacada</Badge>}
+            {foto.clasificadaPor === 'persona' && (
+              <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700">Manual</Badge>
+            )}
+          </div>
+          {foto.titulo && <p className="text-xs mt-1 font-medium truncate">{foto.titulo}</p>}
+          {foto.clasificadaPor === 'ia' && etiquetaIA && (
+            <div className="mt-1.5 flex items-center justify-between gap-1 rounded-md bg-indigo-50 px-2 py-1 text-[11px] text-indigo-800">
+              <span className="truncate flex items-center gap-1">
+                <Sparkles className="w-3 h-3 shrink-0" />
+                La IA la puso en: {etiquetaIA}
+              </span>
+              <button
+                type="button"
+                onClick={() => openEditFotoDialog(foto)}
+                className="font-bold underline shrink-0 hover:text-indigo-950"
+              >
+                Corregir
+              </button>
+            </div>
+          )}
         </div>
-        {foto.titulo && <p className="text-xs mt-1 font-medium truncate">{foto.titulo}</p>}
+        <div className="space-y-1.5 pt-1 border-t">
+          <Select
+            value={foto.servicioId || '__none__'}
+            onValueChange={(v) => handleQuickClasificarFoto(foto, 'servicioId', v)}
+          >
+            <SelectTrigger className="h-7 text-[11px]" aria-label="Servicio de la foto">
+              <SelectValue placeholder="Servicio" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">Sin servicio</SelectItem>
+              {serviciosCatalogo.map((srv) => (
+                <SelectItem key={srv.id} value={srv.id}>{srv.nombre}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={foto.tipoFiesta || '__none__'}
+            onValueChange={(v) => handleQuickClasificarFoto(foto, 'tipoFiesta', v)}
+          >
+            <SelectTrigger className="h-7 text-[11px]" aria-label="Tipo de fiesta de la foto">
+              <SelectValue placeholder="Tipo de fiesta" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">Sin tipo de fiesta</SelectItem>
+              {TIPOS_FIESTA_GALERIA.map((tipo) => (
+                <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
-  );
+    );
+  };
 
   const fotosSinTipoFiesta = useMemo(() => fotos.filter((f) => !f.tipoFiesta), [fotos]);
+  const fotosSinClasificar = useMemo(
+    () => fotos.filter((f) => !f.servicioId && !f.tipoFiesta),
+    [fotos],
+  );
 
   return (
     <div className="space-y-8">
@@ -745,6 +853,20 @@ export default function GaleriaAdminPage() {
                     <SelectContent>
                       {allCategories.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Servicio del catálogo (opcional)</Label>
+                  <Select value={fotoServicioId || '__none__'} onValueChange={(v) => setFotoServicioId(v === '__none__' ? '' : v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar servicio específico" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Sin servicio específico</SelectItem>
+                      {serviciosCatalogo.map((srv) => (
+                        <SelectItem key={srv.id} value={srv.id}>{srv.nombre}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -869,6 +991,12 @@ export default function GaleriaAdminPage() {
                     >
                       Todas
                     </button>
+                    <button
+                      onClick={() => setVistaMode('sinClasificar')}
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-widest ${vistaMode === 'sinClasificar' ? 'bg-primary text-white' : 'hover:bg-slate-50'}`}
+                    >
+                      Sin clasificar ({fotosSinClasificar.length})
+                    </button>
                   </div>
                 </div>
 
@@ -876,6 +1004,20 @@ export default function GaleriaAdminPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {fotos.map(renderFotoCard)}
                   </div>
+                )}
+
+                {vistaMode === 'sinClasificar' && (
+                  fotosSinClasificar.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {fotosSinClasificar.map(renderFotoCard)}
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-12 text-center text-muted-foreground text-sm">
+                        Todas las fotos tienen al menos un servicio o tipo de fiesta asignado.
+                      </CardContent>
+                    </Card>
+                  )
                 )}
 
                 {vistaMode === 'tipoFiesta' && (
@@ -1199,6 +1341,28 @@ export default function GaleriaAdminPage() {
                     <SelectItem value="__none__">Sin tipo de fiesta</SelectItem>
                     {TIPOS_FIESTA_GALERIA.map((tipo) => (
                       <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Servicio del catálogo (opcional)</Label>
+                <Select
+                  value={editFotoDialog.foto.servicioId || '__none__'}
+                  onValueChange={(v) => {
+                    const nextId = v === '__none__' ? undefined : v;
+                    const srv = serviciosCatalogo.find((s) => s.id === nextId);
+                    handleEditFotoField('servicioId', nextId);
+                    handleEditFotoField('servicio', srv?.nombre);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sin servicio específico" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sin servicio específico</SelectItem>
+                    {serviciosCatalogo.map((srv) => (
+                      <SelectItem key={srv.id} value={srv.id}>{srv.nombre}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

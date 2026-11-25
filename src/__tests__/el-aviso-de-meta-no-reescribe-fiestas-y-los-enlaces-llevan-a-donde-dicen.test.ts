@@ -42,4 +42,18 @@ describe('el aviso de Meta y la página de enlaces', () => {
     const res = await GET(new Request('http://localhost:3000/api/enlaces/clic?d=redes'));
     expect(res.headers.get('location')).toContain('instagram.com/akproduccionesfiestasyeventos');
   });
+
+  it('detrás de App Hosting (0.0.0.0:8080) nunca redirige a 0.0.0.0 y usa el dominio público', async () => {
+    const resSinHeader = await GET(new Request('https://0.0.0.0:8080/api/enlaces/clic?d=presupuesto'));
+    expect(resSinHeader.headers.get('location')).toBe(
+      'https://akproducciones.uy/simulador-de-presupuesto?utm_source=instagram&utm_medium=bio',
+    );
+
+    const resConForwarded = await GET(
+      new Request('http://0.0.0.0:8080/api/enlaces/clic?d=fiestas', {
+        headers: { 'x-forwarded-host': 'akproducciones.uy', 'x-forwarded-proto': 'https' },
+      }),
+    );
+    expect(resConForwarded.headers.get('location')).toBe('https://akproducciones.uy/#landing-gallery');
+  });
 });

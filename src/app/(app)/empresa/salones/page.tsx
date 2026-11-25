@@ -17,6 +17,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -756,19 +762,24 @@ function SalonesPageInner() {
       </CardDescription>
 
       {/* Form */}
-      {showForm && (
-        <SalonForm
-          editing={editing}
-          form={form}
-          isSaving={isSaving}
-          isUploadingFoto={isUploadingFoto}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          onUploadFoto={handleUploadFoto}
-          onDeleteFoto={handleDeleteFoto}
-        />
-      )}
+      <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleCancel(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Editar Salón' : 'Agregar Nuevo Salón'}</DialogTitle>
+          </DialogHeader>
+          <SalonForm
+            editing={editing}
+            form={form}
+            isSaving={isSaving}
+            isUploadingFoto={isUploadingFoto}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            onUploadFoto={handleUploadFoto}
+            onDeleteFoto={handleDeleteFoto}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Tabs: All salones / Club Uruguay */}
       <Tabs defaultValue="todos">

@@ -231,20 +231,29 @@ function AsistenteBandejaInner() {
 
   const handleGuardarMeta = async () => {
     setGuardandoMeta(true);
-    const res = await guardarMetaMesAction(metaInput);
-    if (res.success) {
-      toast({
-        title: 'Meta guardada',
-        description: 'Meta del mes guardada con éxito.',
-      });
-    } else {
+    try {
+      const res = await guardarMetaMesAction(metaInput);
+      if (res.success) {
+        toast({
+          title: 'Meta guardada',
+          description: 'Meta del mes guardada con éxito.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Error al guardar meta.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al guardar meta.',
         variant: 'destructive',
       });
+    } finally {
+      setGuardandoMeta(false);
     }
-    setGuardandoMeta(false);
   };
 
   const badgeColorArea = (area: AsistenteArea) => {
@@ -372,7 +381,7 @@ function AsistenteBandejaInner() {
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
             >
-              Guardar meta
+              Guardar
             </Button>
           </div>
         </CardContent>
@@ -388,7 +397,7 @@ function AsistenteBandejaInner() {
             </Badge>
           </h3>
           <Button variant="ghost" size="sm" onClick={cargarDatos} className="text-xs text-slate-500">
-            Actualizar
+            Refrescar
           </Button>
         </div>
 

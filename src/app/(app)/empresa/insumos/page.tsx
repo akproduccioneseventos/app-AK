@@ -36,15 +36,32 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-function InventarioInsumosContent() {
+function buildInitialCategoryFilter(items: ServicioEmpresa[], categoriaParam: string | null): Record<string, boolean> {
+  const initialFilters: Record<string, boolean> = {};
+  const allCats = Array.from(new Set(items.map(i => i.categoria as string)));
+
+  if (categoriaParam) {
+    allCats.forEach(cat => {
+      initialFilters[cat] = cat === categoriaParam;
+    });
+  } else {
+    allCats.forEach(cat => {
+      initialFilters[cat] = true;
+    });
+  }
+  return initialFilters;
+}
+
+function InventarioInsumosContent({ initialItems }: { initialItems?: ServicioEmpresa[] | null }) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const categoriaParam = searchParams.get('categoria');
   const subcategoriaParam = searchParams.get('subcategoria');
 
-  const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
-  const [filteredItems, setFilteredItems] = useState<ServicioEmpresa[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const hasInitialItems = Array.isArray(initialItems);
+  const [allItems, setAllItems] = useState<ServicioEmpresa[]>(hasInitialItems ? initialItems : []);
+  const [filteredItems, setFilteredItems] = useState<ServicioEmpresa[]>(hasInitialItems ? initialItems : []);
+  const [isLoading, setIsLoading] = useState(!hasInitialItems);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -54,13 +71,16 @@ function InventarioInsumosContent() {
   const ajusteEnCursoRef = useRef(false);
   const ajusteInciertoRef = useRef<{ operationId: string; percentage: number } | null>(null);
   const ajusteRestauradoRef = useRef(false);
+  const skipInitialFetchRef = useRef(hasInitialItems);
 
   const ALL_CATEGORIES = useMemo(() => {
     const categories = new Set(allItems.map(item => item.categoria as CategoriaInsumo));
     return Array.from(categories).sort();
   }, [allItems]);
 
-  const [categoryFilter, setCategoryFilter] = useState<Record<string, boolean>>({});
+  const [categoryFilter, setCategoryFilter] = useState<Record<string, boolean>>(() =>
+    hasInitialItems ? buildInitialCategoryFilter(initialItems, categoriaParam) : {}
+  );
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -68,21 +88,7 @@ function InventarioInsumosContent() {
     try {
       const data = await getInsumos();
       setAllItems(data);
-
-      const initialFilters: Record<string, boolean> = {};
-      const allCats = Array.from(new Set(data.map(i => i.categoria as string)));
-
-      if (categoriaParam) {
-          allCats.forEach(cat => {
-              initialFilters[cat] = cat === categoriaParam;
-          });
-      } else {
-           allCats.forEach(cat => {
-              initialFilters[cat] = true;
-          });
-      }
-      setCategoryFilter(initialFilters);
-
+      setCategoryFilter(buildInitialCategoryFilter(data, categoriaParam));
     } catch (err: any) {
       setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -92,6 +98,10 @@ function InventarioInsumosContent() {
   }, [toast, categoriaParam]);
 
   useEffect(() => {
+    if (skipInitialFetchRef.current) {
+      skipInitialFetchRef.current = false;
+      return;
+    }
     fetchItems();
   }, [fetchItems]);
 
@@ -378,9 +388,9 @@ function InventarioInsumosContent() {
                               <div className="flex justify-between items-start">
                                 <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                                 <div className="flex gap-1">
-                                     <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/empresa/insumos/${item.id}/editar`}><Edit className="w-3.5 h-3.5"/></Link></Button>
+                                     <Button asChild variant="ghost" size="icon" className="h-7 w-7" aria-label={`Editar insumo ${item.nombre}`} title="Editar"><Link href={`/empresa/insumos/${item.id}/editar`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                       <AlertDialog>
-                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id} aria-label={`Borrar insumo ${item.nombre}`} title="Borrar"><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                       </AlertDialog>
                                 </div>
@@ -410,10 +420,10 @@ function InventarioInsumosContent() {
   );
 }
 
-function InventarioInsumosPageInner() {
+function InventarioInsumosPageInner({ initialItems }: { initialItems?: ServicioEmpresa[] | null }) {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <InventarioInsumosContent/>
+            <InventarioInsumosContent initialItems={initialItems} />
         </Suspense>
     )
 }

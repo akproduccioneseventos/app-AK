@@ -192,6 +192,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/15-anos',
+        destination: '/quinceaneras',
+        permanent: true,
+      },
+      {
         source: '/presentacion',
         destination: '/presentacion-led',
         permanent: true,

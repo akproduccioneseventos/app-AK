@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Draggable, { type DraggableData } from 'react-draggable';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -166,11 +166,11 @@ const SimpleDraggableElement: React.FC<{
 
 function CroquisContent() {
   const params = useParams();
-  const router = useRouter();
   const { toast } = useToast();
   const salonId = params?.id as string;
 
   const [salon, setSalon] = useState<Salon | null>(null);
+  const [notFoundError, setNotFoundError] = useState<string | null>(null);
   const [layout, setLayout] = useState<DecoracionData>(defaultLayout);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -192,10 +192,15 @@ function CroquisContent() {
   const loadData = useCallback(async () => {
     if (!salonId) return;
     setIsLoading(true);
+    setNotFoundError(null);
     try {
       const salones = await getSalones();
       const s = salones.find((x) => x.id === salonId);
-      if (!s) throw new Error('Salón no encontrado.');
+      if (!s) {
+        setSalon(null);
+        setNotFoundError('Salón no encontrado');
+        return;
+      }
       setSalon(s);
       if (s.salonLayout) {
         const l = s.salonLayout as DecoracionData;
@@ -213,11 +218,10 @@ function CroquisContent() {
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
-      router.replace('/empresa/salones');
     } finally {
       setIsLoading(false);
     }
-  }, [salonId, toast, router]);
+  }, [salonId, toast]);
 
   useEffect(() => {
     loadData();
@@ -333,6 +337,29 @@ function CroquisContent() {
     return (
       <div className="flex items-center justify-center py-32">
         <Loader2 className="w-10 h-10 animate-spin text-primary/40" />
+      </div>
+    );
+  }
+
+  if (notFoundError) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Card className="max-w-md w-full border-red-200 bg-red-50/40">
+          <CardHeader>
+            <CardTitle className="text-lg text-red-700">{notFoundError}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-slate-600">
+              No pudimos encontrar el salón solicitado o fue eliminado.
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/empresa/salones">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver a Salones
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

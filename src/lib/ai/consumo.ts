@@ -51,7 +51,9 @@ export type FuncionConCosto =
   | 'analisis-codigo'
   | 'papeleria'
   | 'sofia'
-  | 'cerebro';
+  | 'cerebro'
+  | 'galeria'
+  | 'presentacion';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -105,6 +107,8 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   papeleria: 6,
   sofia: 1,
   cerebro: 1,
+  galeria: 1,
+  presentacion: 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

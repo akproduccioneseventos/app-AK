@@ -20,7 +20,11 @@ export default function robots(): MetadataRoute.Robots {
         // El blog entero, no nota por nota: las que escribe la inteligencia
         // artificial se guardan en la base y no estan en la lista fija, asi que
         // sin esto quedaban prohibidas justo las nuevas.
-        allow: [...PAGINAS_PARA_GOOGLE, ...ARCHIVOS_QUE_GOOGLE_LEE, '/public/blog/'],
+        allow: [
+          ...PAGINAS_PARA_GOOGLE.map((ruta) => (ruta === '/fiestas' ? '/fiestas$' : ruta)),
+          ...ARCHIVOS_QUE_GOOGLE_LEE,
+          '/public/blog/',
+        ],
         disallow: '/',
       },
     ],
