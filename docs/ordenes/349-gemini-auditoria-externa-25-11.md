@@ -14,7 +14,7 @@ simulador de tres pasos (hallazgo 9) y "Ver galería" que volvía a la portada (
    primero y "Recomendada"). En `src/app/presentacion-led/page.tsx`, al armar las entradas y los menús, dejá afuera los
    platos sin precio por persona y los que no están publicados. "Recomendada" sólo para un plato con foto y precio.
 2. **"Más de 500 familias eligieron AK"** (`src/app/presentacion-led/slides/testimonios-slide.tsx` ~68) es una cifra
-   inventada: va **"+200 fiestas"**, como en el resto de la app.
+   inventada: va la cifra contada del bloque 6.
 
 ## Bloque 2 — Textos y avisos que no cierran
 1. `src/app/simulador-de-presupuesto/page.tsx` ~185: "Mas de 4 horas" → "Más de 4 horas". ~3206: "Elegí tus servicios para
@@ -45,11 +45,27 @@ Sumá a `tests/robot/reglas.ts` dos reglas, con su prueba que las rompe a propó
 2. **"El mismo número en dos lugares":** si la barra superior muestra un contador de alertas, el Centro de Alertas tiene que
    mostrar la misma cantidad.
 
+## Bloque 6 — "+200 fiestas" y "8 años" que se cuentan solos (decisión del dueño, 25/11/2026)
+Palabras suyas: *"tengo 200 fiestas realizadas y vamos a cumplir 8 años… que se vaya haciendo un conteo: cada vez que
+ingrese una fiesta es 201, y pasa el tiempo y va a ser 9 años; ponemos como fecha de inicio 8 de agosto"*.
+1. Archivo nuevo `src/lib/marketing/cifras-de-ak.ts` con `FECHA_DE_INICIO = '2018-08-08'`, `FIESTAS_BASE = 200` y:
+   - `aniosDeAK(hoy)`: años cumplidos desde el 8/8/2018 en hora de Uruguay (hoy da 8; el 8/8/2027 da 9).
+   - `fiestasRealizadas(fiestas, hoy)`: 200 + las fiestas con fecha **desde el 1/1/2027** que ya pasaron, sin contar la de
+     muestra del auditor ni las canceladas o archivadas.
+   - Una acción pública de lectura que devuelve las dos cifras (sin nombres ni datos de fiestas).
+2. **Todos** los lugares que hoy escriben "+7 años", "7 años", "+200" o "200 fiestas" a mano pasan a usar esas cifras:
+   `src/components/landing/StatsSection.tsx`, `src/components/public/HeroSection.tsx`, `src/app/experiencia/page.tsx`,
+   `src/data/presentacion.ts`, `src/data/event-catalogs/shared.ts`, `src/lib/marketing/plantillas-base.ts`,
+   `src/types/landing-editor.ts` (valor por omisión), la LED (`testimonios-slide.tsx`), las páginas por tipo de la 347 y
+   `public/llms.txt` (ahí, texto fijo "+200 fiestas y 8 años", que se actualiza a mano una vez por año). El DJ sigue
+   diciendo "DJ profesional con +200 fiestas realizadas" usando la misma cifra.
+3. Si el dueño escribió otra cifra a mano en el editor de la portada, se respeta la suya.
+
 ## Barrido en toda la app
 - Platos o servicios sin precio en pantallas públicas: `grep -rn "precioPorPersona\|precio" src/app/presentacion-led
   src/app/simulador-de-presupuesto` y mirar cada lista que se muestra al cliente. Lo encontrado se arregla en esta orden.
 - Cifras de clientes o fiestas escritas a mano: `grep -rnE "[0-9]{3,} (familias|fiestas|eventos|clientes)" src --include=*.tsx`.
-  Sólo valen "+200" y "+7 años".
+  Sólo valen las cifras de `cifras-de-ak.ts`.
 - Fechas con cada palabra en mayúscula: `grep -rn "toUpperCase() + .*slice(1)" src --include=*.ts*` en formateos de fecha.
 
 ## Lo que NO hay que hacer
@@ -60,9 +76,17 @@ Sumá a `tests/robot/reglas.ts` dos reglas, con su prueba que las rompe a propó
 - `tests/e2e/la-auditoria-del-25-11.spec.ts`: en la LED pública no aparece un plato sin precio ni la palabra "PRUEBA";
   "Ver galería" en Entradas abre la galería y al cerrarla siguen el nombre, la fecha y los invitados cargados; la LED dice
   "+200" y no "500"; `/eventos` → "Volver" lleva a `/mi-dia`; la página 404 dice "página" con tilde.
+- `src/__tests__/las-cifras-de-ak-se-cuentan-solas.test.ts`: el 25/11/2026 da 8 años y el 8/8/2027 da 9; con 3 fiestas
+  de 2027 ya pasadas da 203; la de muestra y una cancelada no cuentan; ninguna pantalla pública escribe "+7 años" a mano.
 - `src/__tests__/el-robot-ve-pruebas-en-lo-publico.test.ts`: con un plato "PRUEBA x" en la LED la regla nueva da rojo.
 
 ```comprobar
+archivo: src/lib/marketing/cifras-de-ak.ts
+usa: 2018-08-08 en src/lib/marketing/cifras-de-ak.ts
+usa: cifras-de-ak en src/components/landing/StatsSection.tsx
+usa: cifras-de-ak en src/app/presentacion-led/slides/testimonios-slide.tsx
+no-usa: +7 años en src/components/landing/StatsSection.tsx
+prueba: src/__tests__/las-cifras-de-ak-se-cuentan-solas.test.ts
 no-usa: Más de 500 familias en src/app/presentacion-led/slides/testimonios-slide.tsx
 no-usa: Mas de 4 horas en src/app/simulador-de-presupuesto/page.tsx
 no-usa: Esta pagina no existe en src/app/not-found.tsx

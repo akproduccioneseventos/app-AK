@@ -1566,6 +1566,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Cifras, 2027 y Club Uruguay (25 de noviembre de 2026).** "+200 fiestas" y "8 años" se cuentan solos: inicio el
+  **8/8/2018**, y cada fiesta realizada desde 2027 suma una (orden 349, bloque 6). **Se borra todo lo anterior a 2027,
+  incluidas las fiestas de noviembre y diciembre de 2026**; quedan sólo las de 2027 en adelante, cargadas solas por la app.
+  **Club Uruguay: $19.990 desde 2027** (hoy $16.900); el tachado sigue siendo el doble.
 - **El simulador, el 15% y empezar 2027 de cero (24 de noviembre de 2026).** "En 2 minutos" y "válido 30 días" son
   ciertos y van; el reloj queda. Un interruptor en Ajustes esconde el precio de cada servicio en todo lo que ve el
   prospecto (encendido = como hoy) y el detalle aparece recién con el contrato. Paquetes pre-armados por tipo de fiesta
