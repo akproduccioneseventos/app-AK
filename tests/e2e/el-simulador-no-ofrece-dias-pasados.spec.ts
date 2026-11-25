@@ -19,9 +19,6 @@ function ayerEnUruguayIso(): string {
 test('Orden 295: el simulador deshabilita el día de ayer en el calendario y no permite elegirlo', async ({ page }) => {
   await page.goto('/simulador-de-presupuesto?tipo=boda&guests=50', { waitUntil: 'domcontentloaded' });
 
-  const firstStepCta = page.getByTestId('simulator-first-step-cta');
-  await expect(firstStepCta).toBeVisible({ timeout: 15_000 });
-  await firstStepCta.click();
 
   const dateButton = page.getByRole('button', { name: /Selecciona una fecha/i });
   await expect(dateButton).toBeVisible({ timeout: 15_000 });

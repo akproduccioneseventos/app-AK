@@ -630,7 +630,9 @@ async function main() {
   for (let i = 0; i < compartenLaFiesta.length; i += BATCH_SIZE) {
     tandas.push(compartenLaFiesta.slice(i, i + BATCH_SIZE));
   }
-  if (elResto.length > 0) tandas.push(elResto);
+  // De a 40 y no todo junto (25/11/2026): con una sola tanda de 200 archivos, cortar la corrida a
+  // la hora y media perdia TODO lo hecho, porque las fallas se anotan al terminar cada tanda.
+  for (let i = 0; i < elResto.length; i += 40) tandas.push(elResto.slice(i, i + 40));
 
   console.log(`\n======================================================`);
   console.log(`  EJECUTANDO PRUEBAS E2E EN ${tandas.length} TANDAS (TOTAL ${allSpecFiles.length} ARCHIVOS)`);
@@ -762,6 +764,8 @@ async function main() {
     const segundos = Math.round((Date.now() - arrancoLaTanda) / 1000);
     relojPorTanda.push({ segundos, archivos: batch.map((b) => path.basename(b)) });
     console.log(`  ✓ Tanda ${idx + 1} finalizada en ${segundos}s.\n`);
+    // Se anota lo que fallo hasta aca: si la corrida se corta, `otravez` igual sabe que repetir.
+    anotarFallas([...fallasReales, ...archivosDeTandasCaidas.map((file) => ({ file }))]);
   }
 
   if (process.env.AK_REGISTRO_POR_PRUEBA) {

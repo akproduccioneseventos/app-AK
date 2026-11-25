@@ -165,8 +165,10 @@ describe('Los comentarios de redes usan la función con modelos de respaldo', ()
 });
 
 describe('Los flujos con esquema (contrato, reunión) pasan por los modelos de respaldo', () => {
-  it('usan ejecutarPromptConFallback en vez de llamar al prompt de un solo modelo', () => {
-    expect(leer('src/ai/flows/extract-contract-data.ts')).toMatch(/ejecutarPromptConFallback\(prompt, input\)/);
+  it('extract-contract-data usa pedirTexto de cerebro.ts y meeting-intelligence usa ejecutarPromptConFallback', () => {
+    const extractSource = leer('src/ai/flows/extract-contract-data.ts');
+    expect(extractSource).toMatch(/from ['"]@\/ai\/cerebro['"]/);
+    expect(extractSource).toMatch(/await pedirTexto\(/);
     expect(leer('src/ai/flows/meeting-intelligence-flow.ts')).toMatch(/ejecutarPromptConFallback\(meetingIntelligencePrompt, input\)/);
   });
 });

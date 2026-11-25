@@ -61,7 +61,42 @@ ingrese una fiesta es 201, y pasa el tiempo y va a ser 9 años; ponemos como fec
    diciendo "DJ profesional con +200 fiestas realizadas" usando la misma cifra.
 3. Si el dueño escribió otra cifra a mano en el editor de la portada, se respeta la suya.
 
+## Bloque 7 — Segunda auditoría externa del 25/11 (sin plata)
+1. **Hora del respaldo** (Ajustes → Sistema → Backup): el título sale en hora de Greenwich ("10:06" cuando eran las 7:06).
+   Una sola hora, la de Uruguay.
+2. **Pantallas en blanco mientras cargan** (Pagos rápidos, estado de cuenta, editar servicio, Personal → Reporte, Fiestas,
+   Backup, Reportes → Comparativa): un "Cargando…" visible hasta que llegan los datos.
+3. **"Para hacer hoy" sugiere escribir a un número inventado** (59899000000, "Prueba Test"): las sugerencias dejan afuera
+   los registros que empiezan con "PRUEBA" o "Prueba Test" y los números que no son celulares reales.
+4. **Tareas automáticas dice "0 tareas, el despertador todavía no corrió"** mientras Hoy muestra avisos del Vigilante, el
+   Cobrador y el Perseguidor: las dos pantallas leen el mismo registro de corridas.
+5. **El pie muestra "Martin, Contabilidad" o "Bruno, Responsable de fiesta" según la pantalla**, con la misma sesión: si
+   es un rótulo del módulo, que no parezca una persona; si no, que muestre el usuario de la sesión.
+
+## Bloque 8 — Tercera auditoría externa del 25/11 (celular y asistente)
+1. **Tablas cortadas en el celular** (`/empleados`, `/empleados?tab=reporte`, `/admin/usuarios`): en menos de 640 px cada
+   persona va como tarjeta (nombre, cédula, teléfono, roles), no como tabla.
+2. **Botones chicos**: Ajustes → Contratos → Cláusulas, Plantillas → Carga operativa, Poner al día y Contenido público: todo
+   botón o enlace tocable mide 40 px o más de alto en celular.
+3. **`/simulador-ak` en celular**: el botón de enviar se sale por la derecha y el campo de texto no se ve. La fila
+   micrófono + campo + enviar entra en 360 px, con el campo ocupando el resto.
+4. **El botón flotante del asistente tapa contenido**: que no tape la última fila (espacio abajo de las listas o más arriba
+   de la barra inferior) y que se pueda achicar.
+5. **Pestañas con deslizamiento** (Plata, CRM): sombra o flecha en el borde cuando hay más pestañas a la derecha.
+6. **El asistente general dice "AGENTE DE ESTA FIESTA"** sin fiesta abierta: en la charla general va "Encargado general".
+7. **Panel del asistente cortado en escritorio** (título "Encargado Gen…", botones desde "pp completa"): con margen y
+   entero dentro de la pantalla. En celular el encabezado no queda detrás de la franja del auditor.
+8. **El asistente general no encuentra a una clienta que está en Presupuestos** (Blanca Albernaz): cuando la pregunta
+   nombra a alguien, busca por nombre en presupuestos y clientes (sin mayúsculas ni tildes) antes de decir que no está.
+   Los importes los toma de la misma función que el panel contable (Claude te dice cuál); no los calcula él.
+9. **"Cuotas vencidas: ninguna"** con fiestas pasadas sin cobrar: el asistente dice aparte "fiestas ya hechas con saldo
+   pendiente" con su cantidad.
+
+Prueba: `tests/e2e/la-tercera-auditoria-del-25-11.spec.ts` a 390 px: en `/simulador-ak` el botón enviar queda dentro de la
+pantalla y el campo se ve; en `/empleados` se ve el teléfono de una persona sin deslizar.
+
 ## Barrido en toda la app
+- Tablas anchas en celular: `grep -rln "<table\\|<Table" src/app` y mirar cuáles no tienen versión tarjeta.
 - Platos o servicios sin precio en pantallas públicas: `grep -rn "precioPorPersona\|precio" src/app/presentacion-led
   src/app/simulador-de-presupuesto` y mirar cada lista que se muestra al cliente. Lo encontrado se arregla en esta orden.
 - Cifras de clientes o fiestas escritas a mano: `grep -rnE "[0-9]{3,} (familias|fiestas|eventos|clientes)" src --include=*.tsx`.
@@ -94,4 +129,6 @@ usa: /mi-dia en src/app/(app)/eventos/page.tsx
 usa: PRUEBA en tests/robot/reglas.ts
 prueba: tests/e2e/la-auditoria-del-25-11.spec.ts
 prueba: src/__tests__/el-robot-ve-pruebas-en-lo-publico.test.ts
+prueba: tests/e2e/la-tercera-auditoria-del-25-11.spec.ts
+usa: Encargado general en src/components/multiagent/multiagent-widget.tsx
 ```

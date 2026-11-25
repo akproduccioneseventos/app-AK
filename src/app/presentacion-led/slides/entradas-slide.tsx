@@ -69,7 +69,7 @@ function EntradaCard({
     >
       {/* Photo */}
       {safePhoto ? (
-        <div className="relative w-full h-40 overflow-hidden">
+        <div className="relative w-full h-28 sm:h-32 overflow-hidden">
           <Image
             src={safePhoto}
             alt={entrada.name}
@@ -81,15 +81,15 @@ function EntradaCard({
           />
         </div>
       ) : (
-        <div className="w-full h-36 bg-gradient-to-br from-amber-900/30 to-orange-800/20 flex items-center justify-center border-b border-white/10">
+        <div className="w-full h-28 sm:h-32 bg-gradient-to-br from-amber-900/30 to-orange-800/20 flex items-center justify-center border-b border-white/10">
           <div className="flex flex-col items-center gap-1 opacity-40">
-            <ImageIcon className="h-8 w-8 text-amber-300" />
+            <ImageIcon className="h-7 w-7 text-amber-300" />
             <span className="text-amber-200/60 text-xs">Entrada</span>
           </div>
         </div>
       )}
 
-      <div className="p-4">
+      <div className="p-3">
         <div className="flex items-start gap-3 mb-2">
           {/* Select toggle */}
           <button
@@ -192,17 +192,17 @@ export function EntradaSlide({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 mb-6"
+          className="flex items-center gap-4 mb-4"
         >
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-400/30 to-orange-500/30 border border-white/20 flex items-center justify-center shrink-0">
-            <Utensils className="h-7 w-7 text-amber-300" />
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400/30 to-orange-500/30 border border-white/20 flex items-center justify-center shrink-0">
+            <Utensils className="h-6 w-6 text-amber-300" />
           </div>
           <div>
-            <p className="text-amber-400 font-bold uppercase tracking-widest text-xs mb-1">Primer paso</p>
-            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg">
+            <p className="text-amber-400 font-bold uppercase tracking-widest text-xs mb-0.5">Primer paso</p>
+            <h1 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">
               Elegí las Entradas
             </h1>
-            <p className="text-white/60 text-sm mt-1">
+            <p className="text-white/60 text-xs sm:text-sm mt-0.5">
               Seleccioná {requiredCount === 1 ? '1 entrada' : '2 entradas'} para el evento ({entradas.length} entradas disponibles)
               {selectedIds.length > 0 && (
                 <span className="text-amber-300 font-semibold ml-2">
@@ -220,7 +220,7 @@ export function EntradaSlide({
             <p className="text-white/30 text-sm mt-1">Podés continuar y definir las entradas en el presupuesto.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {entradas.map((entrada, i) => {
               const photoUrl = ledFotoMap[entrada.id] || getCateringDishImage(entrada) || null;
               const tieneFotoReal = Boolean(
@@ -236,7 +236,7 @@ export function EntradaSlide({
                 key={entrada.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + i * 0.07 }}
+                transition={{ delay: 0.15 + i * 0.05 }}
               >
                 <EntradaCard
                   entrada={entrada}
@@ -256,13 +256,13 @@ export function EntradaSlide({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6"
+          transition={{ delay: 0.4 }}
+          className="mt-4"
         >
           <button
             onClick={onNext}
             disabled={entradas.length > 0 && !canContinue}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-base transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continuar
             <ChevronRight className="h-5 w-5" />

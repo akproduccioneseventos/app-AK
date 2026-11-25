@@ -1331,6 +1331,16 @@ lista de cierre nunca corrió (456 de 456 sin mirar).
 **Qué se hace distinto:** el auditor robot (orden 339): reglas generales de comportamiento sobre todas las pantallas, con dos
 fiestas en el emulador. Un hallazgo nuevo del auditor se suma como **regla del robot**, no sólo como pregunta.
 
+### 60. Cuatro horas de verificación por adaptar diez pruebas
+
+**Pasó el 25 de noviembre de 2026.** El simulador cambió a 4 pasos, fallaron diez pruebas viejas, las adapté y la puerta volvió a
+correr las 203 pruebas de navegador de a una. Encima la corté dos veces y se perdió todo, porque las fallas se anotaban al final.
+El dueño: *"hace 4 horas que estoy esperando lo mismo"*.
+
+**Qué se hace distinto, y ya está enganchado:** si desde la corrida que falló sólo cambiaron pruebas (`huellaDeLaAppSinPruebas` en
+`scripts/se-puede-publicar.mjs`), se repite sólo lo que falló; y el corredor va de a 40 archivos y anota las fallas después de cada
+tanda. Y la costumbre: antes de relanzar la puerta, correr sueltas las pruebas que fallaron (`node scripts/run-playwright-production.mjs <archivos>`).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

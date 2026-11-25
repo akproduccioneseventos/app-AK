@@ -1565,3 +1565,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 347 → no es un defecto
 - Orden 348 → no es un defecto
 - Orden 349 → pregunta 226
+- Orden 350 → no es un defecto

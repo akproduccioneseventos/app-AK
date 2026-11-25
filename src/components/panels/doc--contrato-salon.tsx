@@ -20,67 +20,14 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
+import {
+  buildSalonContractDraft,
+  esSalonClubUruguay,
+  formatFechaContrato,
+  hoyContratoTexto,
+} from '@/lib/contratos/generar-textos-contrato';
 
-const CLUB_URUGUAY_KEYWORDS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
-
-function isClubUruguay(salon?: string): boolean {
-  if (!salon) return false;
-  const normalized = salon.toLowerCase().trim().replace(/\s+/g, ' ');
-  return CLUB_URUGUAY_KEYWORDS.some(kw => normalized.includes(kw));
-}
-
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '____________';
-  try {
-    const date = new Date(dateString);
-    const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-    return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch { return 'Fecha inválida'; }
-};
-
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return '____________';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
-};
-
-const today = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-function buildSalonContractDraft(data: {
-  clienteNombre: string;
-  clienteCi: string;
-  clienteDomicilio: string;
-  clienteTelefono: string;
-  fechaEvento: string;
-  salon: string;
-  tipoEvento: string;
-  invitados: number;
-  ciudadFecha: string;
-}): string {
-  return `CONTRATO DE ARRENDAMIENTO DE SALÓN
-
-En la ciudad de ${data.ciudadFecha}, entre Club Uruguay (en adelante "EL SALÓN") y ${data.clienteNombre || '________________________'}, con domicilio en ${data.clienteDomicilio || '________________________'}, cédula de identidad N° ${data.clienteCi || '_______________________'}, número de contacto ${data.clienteTelefono || '_______________________'} (en adelante "EL CLIENTE"), se celebra el presente contrato de arrendamiento de salón para eventos, sujeto a los términos y condiciones siguientes:
-
-PRIMERA: OBJETO
-EL SALÓN arrienda a EL CLIENTE el uso del salón ubicado en las instalaciones del Club Uruguay, para la realización de ${data.tipoEvento || '________________________'}, en la fecha ${data.fechaEvento || '____________'}, con una capacidad estimada de ${data.invitados || '____'} invitados.
-
-SEGUNDA: PRECIO Y FORMA DE PAGO
-El precio del arrendamiento del salón será el acordado entre las partes y especificado en el presupuesto adjunto. EL CLIENTE abonará una seña al momento de la firma del presente contrato, y el saldo restante deberá abonarse en su totalidad como mínimo treinta (30) días antes de la fecha del evento.
-
-TERCERA: CONDICIONES DE USO
-EL CLIENTE se compromete a utilizar el salón exclusivamente para el fin estipulado en la cláusula primera, respetando las normas internas del Club Uruguay, la capacidad máxima habilitada del local y la reglamentación vigente. Queda expresamente prohibido el uso del salón para fines distintos a los acordados sin previa autorización por escrito de EL SALÓN.
-
-CUARTA: HORARIO
-El evento comenzará y finalizará en los horarios acordados. Cualquier extensión deberá ser previamente autorizada por EL SALÓN y podrá implicar un costo adicional.
-
-QUINTA: CANCELACIÓN Y CAMBIO DE FECHA
-En caso de cancelación por parte de EL CLIENTE, la seña no será reintegrada. Ante solicitud de cambio de fecha, EL CLIENTE deberá notificarlo con al menos 30 días de anticipación, quedando sujeto a disponibilidad del salón y al pago de una multa equivalente al 10% del valor total del arrendamiento.
-
-SEXTA: RESPONSABILIDAD POR DAÑOS
-EL CLIENTE será responsable de todo daño o deterioro que se produzca en las instalaciones, mobiliario o equipamiento del salón durante la realización del evento, debiendo reparar o reponer los mismos a su costo.
-
-SÉPTIMA: DISPOSICIONES FINALES
-Ambas partes declaran haber leído y aceptado las cláusulas del presente contrato, firmando en señal de conformidad dos (2) ejemplares de idéntico tenor.`;
-}
+const today = hoyContratoTexto();
 
 function ContratoSalonContent() {
   const { toast } = useToast();
@@ -122,7 +69,7 @@ function ContratoSalonContent() {
       setLogoUrl(settingsData.logoUrl || null);
 
       const salon = fiestaData.configuracion.nombreLugar || '';
-      setIsClubU(isClubUruguay(salon));
+      setIsClubU(esSalonClubUruguay(salon));
 
       if (fiestaData.configuracion.clienteId) {
         const [clienteData, presupuestoData] = await Promise.all([
@@ -138,7 +85,7 @@ function ContratoSalonContent() {
           clienteCi: clienteData?.taxId || '',
           clienteDomicilio: clienteData?.address || '',
           clienteTelefono: clienteData?.phone || '',
-          fechaEvento: formatDate(fiestaData.configuracion.fechaEvento),
+          fechaEvento: formatFechaContrato(fiestaData.configuracion.fechaEvento),
           salon,
           tipoEvento: fiestaData.configuracion.nombreEvento || presupuestoData?.eventoTipo || '',
           invitados: fiestaData.configuracion.invitadosEstimados || presupuestoData?.invitadosCantidad || 0,

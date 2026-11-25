@@ -9,10 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles, RefreshCw, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles, RefreshCw, MessageSquare, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById, updatePresupuesto, recalculatePresupuestoFromCatalog } from '@/app/actions/presupuestos';
+import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getMisPermisos } from '@/app/actions/sesion';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { generateSalesPitchAction } from '@/app/actions/sales-pitch-ia.actions';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -48,6 +52,10 @@ export default function EditarPresupuestoPage() {
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [notas, setNotas] = useState('');
   const [estado, setEstado] = useState<Presupuesto['estado']>('Borrador');
+  const [tipoAjusteAnual, setTipoAjusteAnual] = useState<'acumulativo' | 'simple'>('acumulativo');
+  const [tienePermisoContabilidad, setTienePermisoContabilidad] = useState(false);
+  const [contratoFirmado, setContratoFirmado] = useState(false);
+  const [estadoContratoDesconocido, setEstadoContratoDesconocido] = useState(false);
 
   // Discount fields
   const [nombrePromocion, setNombrePromocion] = useState('');
@@ -67,7 +75,12 @@ export default function EditarPresupuestoPage() {
     if (!presupuestoId) { setNotFound(true); setIsLoading(false); return; }
     setIsLoading(true); setNotFound(false);
     try {
-      const loadedPresupuesto = await getPresupuestoById(presupuestoId);
+      const [loadedPresupuesto, permisosRes, fiestasRes] = await Promise.all([
+        getPresupuestoById(presupuestoId),
+        getMisPermisos().catch(() => ({ permisos: [] as string[] })),
+        getAllFiestas().catch(() => null),
+      ]);
+      setTienePermisoContabilidad(permisosRes.permisos.includes(PERMISOS.CONTABILIDAD));
       if (loadedPresupuesto) {
         setPresupuesto(loadedPresupuesto);
         setClienteNombre(loadedPresupuesto.clienteNombre);
@@ -83,6 +96,20 @@ export default function EditarPresupuestoPage() {
         setNombreEmpresa(loadedPresupuesto.nombreEmpresa || '');
         setNotas(loadedPresupuesto.notas || '');
         setEstado(loadedPresupuesto.estado);
+        setTipoAjusteAnual(
+          (loadedPresupuesto as Presupuesto & { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual === 'simple'
+            ? 'simple'
+            : 'acumulativo',
+        );
+        const signedOnBudget = Boolean(loadedPresupuesto.fechaFirmaContrato || loadedPresupuesto.contractSignatureInfo?.isSigned);
+        if (Array.isArray(fiestasRes)) {
+          const linkedFiesta = fiestasRes.find((f) => f.presupuestoId === presupuestoId);
+          setContratoFirmado(Boolean(linkedFiesta?.contratoFirmaInfo?.isSigned || signedOnBudget));
+          setEstadoContratoDesconocido(false);
+        } else {
+          setContratoFirmado(signedOnBudget);
+          setEstadoContratoDesconocido(!signedOnBudget);
+        }
         setNombrePromocion(loadedPresupuesto.nombrePromocion || '');
         setDescuentoTipo(loadedPresupuesto.descuentoTipo);
         setDescuentoValor(loadedPresupuesto.descuentoValor?.toString() || '');
@@ -128,6 +155,9 @@ export default function EditarPresupuestoPage() {
     setIsSaving(true);
     const descuentoValorNum = parseFloat(descuentoValor) || 0;
 
+    const canEditTipoAjusteAnual = tienePermisoContabilidad && !contratoFirmado && !estadoContratoDesconocido;
+    const prevTipoAjusteAnual = (presupuesto as Presupuesto & { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual;
+
     const updatedData: Presupuesto = {
       ...presupuesto,
       clienteNombre: clienteNombre.trim(),
@@ -143,11 +173,12 @@ export default function EditarPresupuestoPage() {
       nombreEmpresa: finalEventType === 'Evento corporativo' ? (nombreEmpresa.trim() || undefined) : undefined,
       notas: notas.trim(),
       estado,
+      ...(canEditTipoAjusteAnual ? { tipoAjusteAnual } : prevTipoAjusteAnual ? { tipoAjusteAnual: prevTipoAjusteAnual } : {}),
       nombrePromocion: nombrePromocion.trim() || undefined,
       descuentoTipo: descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
       vigenciaPromocion: vigenciaPromocion.trim() || undefined,
-    };
+    } as Presupuesto;
 
     try {
       const result = await updatePresupuesto(updatedData);
@@ -265,6 +296,42 @@ export default function EditarPresupuestoPage() {
             </div>
 
             <div className="space-y-2"><Label htmlFor="estado-presupuesto">Estado</Label><Select value={estado} onValueChange={(value) => setEstado(value as Presupuesto['estado'])} disabled={isSaving}><SelectTrigger id="estado-presupuesto"><SelectValue /></SelectTrigger><SelectContent>{(['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'] as Presupuesto['estado'][]).map(s => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent></Select></div>
+
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Label htmlFor="tipo-ajuste-anual">Tipo de ajuste anual</Label>
+                {contratoFirmado ? (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Bloqueado por contrato firmado
+                  </Badge>
+                ) : !tienePermisoContabilidad ? (
+                  <Badge variant="outline" className="text-xs flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Solo contabilidad
+                  </Badge>
+                ) : null}
+              </div>
+              <Select
+                value={tipoAjusteAnual}
+                onValueChange={(value) => setTipoAjusteAnual(value as 'acumulativo' | 'simple')}
+                disabled={isSaving || !tienePermisoContabilidad || contratoFirmado || estadoContratoDesconocido}
+              >
+                <SelectTrigger id="tipo-ajuste-anual"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="acumulativo">Acumulativo (por defecto)</SelectItem>
+                  <SelectItem value="simple">Simple (sólo contratos viejos)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {contratoFirmado
+                  ? 'No se puede cambiar el tipo de ajuste porque la fiesta vinculada ya tiene el contrato firmado.'
+                  : !tienePermisoContabilidad
+                    ? 'Solo un perfil con permiso de contabilidad puede cambiar el tipo de ajuste anual.'
+                    : estadoContratoDesconocido
+                      ? 'No se pudo comprobar si el contrato está firmado; el cambio está deshabilitado por seguridad.'
+                      : 'Los presupuestos nuevos usan ajuste acumulativo. El ajuste simple se usa únicamente para contratos anteriores.'}
+              </p>
+            </div>
+
             <div className="space-y-2"><Label htmlFor="notas">Notas Adicionales</Label><Textarea id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={4} disabled={isSaving}/></div>
 
             <div className="pt-6 border-t space-y-4">

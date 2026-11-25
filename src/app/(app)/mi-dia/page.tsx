@@ -30,7 +30,7 @@ import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { PushNotificationPrompt } from '@/components/push-notification-prompt';
 
 export const metadata: Metadata = {
-  title: 'Mi Día - AK Producciones',
+  title: 'Mi Día',
   description: 'Panel de acciones y tareas diarias del equipo.',
 };
 

@@ -54,8 +54,7 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   expect(response?.status()).toBeLessThan(400);
   await page.getByTestId('simulator-cover-start').click();
 
-  await expect(page.getByText(/Paso 1 de 5/i)).toBeVisible();
-  await page.getByRole('button', { name: /Continuar/i }).click();
+  await expect(page.getByText(/Paso 1 de 4/i)).toBeVisible();
 
   await page.locator('#simulator-name').fill('Prospecto E2E AK');
   await page.locator('#simulator-phone').fill('099 765 432');
@@ -71,10 +70,10 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await page.waitForFunction(() => !document.body.innerText.includes('Verificando disponibilidad'));
 
   await page.getByRole('button', { name: /Continuar/i }).click();
-  await expect(page.getByText(/Paso 3 de 5/i)).toBeVisible();
+  await expect(page.getByText(/Paso 2 de 4/i)).toBeVisible();
   await page.getByRole('button', { name: /Continuar/i }).click();
 
-  await expect(page.getByText(/Paso 4 de 5/i)).toBeVisible();
+  await expect(page.getByText(/Paso 3 de 4/i)).toBeVisible();
   const expandPackage = page.getByRole('button', { name: /Ver todo/i }).first();
   if (await expandPackage.isVisible()) {
     await expandPackage.click();
@@ -84,7 +83,7 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await page.getByRole('button', { name: /Continuar/i }).click();
 
   // La sugerencia de paquete superior se abre medio segundo despues de entrar al
-  // paso 5. Se espera de forma explicita para que el recorrido no dependa del
+  // paso 4. Se espera de forma explicita para que el recorrido no dependa del
   // instante exacto en que aparece.
   const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
   await keepSelection.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => undefined);
@@ -93,12 +92,12 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
     await keepSelection.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => undefined);
   }
 
-  await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible();
+  await expect(page.getByText(/Paso 4 de 4/i)).toBeVisible();
   // Decisión del dueño (03/11/2026): el ajuste anual NO se le muestra al prospecto, ni en pantalla ni en el PDF.
   await expect(page.getByText(/ajuste anual proyectado/i)).toHaveCount(0);
   await expect(page.getByText(/p\/p|por persona/i).first()).toBeVisible();
 
-  // El paso 5 cierra con "Ver Resumen y Propuesta" en pantalla grande y con
+  // El paso 4 cierra con "Ver Resumen y Propuesta" en pantalla grande y con
   // "Generar" en la barra fija del celular. Ese es el boton que arma el
   // presupuesto: ya no existe uno que diga "Generar presupuesto".
   const openSummary = page.getByRole('button', { name: /Ver Resumen y Propuesta|^Generar$/i }).first();

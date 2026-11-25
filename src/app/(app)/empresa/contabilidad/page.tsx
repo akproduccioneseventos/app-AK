@@ -138,7 +138,7 @@ export default function ContabilidadHubPage() {
               no la encuentra nadie, que es lo que ya paso con otras dos. */}
           <Button asChild className="rounded-xl font-bold">
             <Link href="/comparativa-ganancias">
-              <TrendingUp className="w-4 h-4 mr-2" />Que fiesta deja mas plata
+              <TrendingUp className="w-4 h-4 mr-2" />Qué fiesta deja más plata
             </Link>
           </Button>
           <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>

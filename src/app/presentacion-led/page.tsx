@@ -51,12 +51,12 @@ import { TestimoniosSlide } from './slides/testimonios-slide';
 import { EmpresasSlide } from './slides/empresas-slide';
 import { CierreSlide } from './slides/cierre-slide';
 import { PlanPagosSlide } from './slides/plan-pagos-slide';
-import { ContratarnosSlide } from './slides/contratarnos-slide';
 import { GaleriaLightboxModal } from './components/galeria-lightbox-modal';
 
 // Types
 import type { PageData, ClientData, CategoriaServicio, ResourceSummary } from './lib/tipos';
 import { calcularTotalServicioLed } from './lib/calculos';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 
 const DEFAULT_PAGE_DATA: PageData = {
   companyInfo: {
@@ -163,7 +163,6 @@ function isMenuCategory(categoria: CategoriaServicio): boolean {
 
 // ---- Slide index constants ----
 const FIXED_SLIDES_START = 5; // portada(0), beneficios(1), datos evento(2), salon(3), equipo(4)
-const FIXED_SLIDES_END = 4;   // regalos, presupuesto, plan de pagos, contratarnos
 
 // ---- Main Component ----
 
@@ -172,6 +171,7 @@ export default function PresentacionLedPage() {
   const [data, setData] = useState<PageData>(DEFAULT_PAGE_DATA);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
   const [galeriaFotos, setGaleriaFotos] = useState<GaleriaFoto[]>([]);
+  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -297,6 +297,10 @@ export default function PresentacionLedPage() {
       setCatalogoFotos(catalogoData);
       setGaleriaFotos(Array.isArray(galeriaData?.fotos) ? galeriaData.fotos : []);
       setPresentacionSettings(ledSettings);
+      const deposit = Number(budgetSettings?.bookingDepositAmount);
+      setBookingDepositAmount(
+        Number.isFinite(deposit) && deposit >= 0 ? deposit : DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+      );
       setLoadError(null);
     } catch (e) {
       // Este catalogo se usa en el salon, con el cliente al lado y con la senal
@@ -516,9 +520,8 @@ export default function PresentacionLedPage() {
   const empresasSlideIndex = testimoniosSlideIndex + 1;
   const cierreSlideIndex = empresasSlideIndex + 1;
   const planPagosSlideIndex = cierreSlideIndex + 1;
-  const contratarnosSlideIndex = planPagosSlideIndex + 1;
 
-  const totalSlides = data ? contratarnosSlideIndex + 1 : 0;
+  const totalSlides = data ? planPagosSlideIndex + 1 : 0;
 
   // Set total slides & apply pending slide restoration once data is loaded and totalSlides is known
   useEffect(() => {
@@ -574,7 +577,6 @@ export default function PresentacionLedPage() {
   const isEmpresasSlide = currentSlide === empresasSlideIndex;
   const isCierreSlide = currentSlide === cierreSlideIndex;
   const isPlanPagosSlide = currentSlide === planPagosSlideIndex;
-  const isContratarnosSlide = currentSlide === contratarnosSlideIndex;
   const canAdvanceFromDatos = Boolean(
     clientData.nombre.trim()
     && clientData.tipoFiesta
@@ -625,7 +627,6 @@ export default function PresentacionLedPage() {
     if (isEmpresasSlide) return 'Empresas Colaboradoras';
     if (isCierreSlide) return 'Presupuesto';
     if (isPlanPagosSlide) return 'Plan de Pagos';
-    if (isContratarnosSlide) return 'Contratarnos';
     return '';
   };
 
@@ -937,20 +938,6 @@ export default function PresentacionLedPage() {
     window.open(waUrl, '_blank');
   }, [clientData, data?.servicios, selectedServices, totalEstimadoConMenu]);
 
-  const handleCierreCta = useCallback(() => {
-    const action = presentacionSettings?.cierre?.ctaAccion || 'generar-presupuesto';
-    if (action === 'whatsapp') {
-      const text = encodeURIComponent('Hola, quiero avanzar con la contratación de mi evento.');
-      window.open(`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${text}`, '_blank');
-      return;
-    }
-    if (action === 'contacto') {
-      window.location.href = 'mailto:info@akproducciones.uy';
-      return;
-    }
-    handleGenerateBudget();
-  }, [presentacionSettings?.cierre?.ctaAccion, handleGenerateBudget]);
-
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       // no pasa nada si falla: el navegador puede negar la pantalla completa (por
@@ -1026,7 +1013,7 @@ export default function PresentacionLedPage() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 overflow-hidden select-none"
+      className="relative flex h-[100dvh] flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 overflow-hidden select-none"
     >
       {/* Decorative background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1036,10 +1023,10 @@ export default function PresentacionLedPage() {
       </div>
 
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4">
+      <header className="relative z-20 shrink-0 flex items-center justify-between px-4 sm:px-6 py-3">
         <div className="flex items-center gap-2">
           {isSafeImageUrl(data.logoUrl) ? (
-            <Image src={data.logoUrl} alt="Logo" width={160} height={40} className="h-10 w-auto object-contain" unoptimized />
+            <Image src={data.logoUrl} alt="Logo" width={160} height={40} className="h-9 sm:h-10 w-auto object-contain" unoptimized />
           ) : (
             <span className="text-white font-bold text-lg">{data.companyInfo.companyName || 'AK Producciones'}</span>
           )}
@@ -1047,20 +1034,20 @@ export default function PresentacionLedPage() {
 
         {/* Progress bar */}
         {totalSlides > 1 && (
-          <div className="flex-1 mx-8 max-w-md">
+          <div className="flex-1 mx-4 sm:mx-8 max-w-md">
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${(currentSlide / (totalSlides - 1)) * 100}%` }}
               />
             </div>
-            <p className="text-white/40 text-xs mt-1 text-center">
+            <p className="text-white/40 text-xs mt-1 text-center truncate">
               {getSlideLabel()}
             </p>
           </div>
         )}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button
             variant="ghost"
             onClick={() => goToSlide(SALON_SLIDE_INDEX)}
@@ -1083,7 +1070,7 @@ export default function PresentacionLedPage() {
           <Button
             variant="ghost"
             asChild
-            className="text-white/60 hover:text-white hover:bg-white/10 border border-white/10 h-9 px-3 text-xs rounded-lg font-semibold"
+            className="text-white/60 hover:text-white hover:bg-white/10 border border-white/10 h-9 px-3 text-xs rounded-lg font-semibold hidden sm:inline-flex"
           >
             <a href="/marketing/demo-tecnologia">
               Demo Comercial
@@ -1097,20 +1084,21 @@ export default function PresentacionLedPage() {
             {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Slides */}
-      <AnimatePresence custom={direction}>
-        <motion.div
-          key={currentSlide}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={transition}
-          className="absolute inset-0"
-        >
+      <main data-testid="presentacion-slide-stage" className="relative flex-1 min-h-0 overflow-hidden">
+        <AnimatePresence custom={direction}>
+          <motion.div
+            key={currentSlide}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={transition}
+            className="absolute inset-0"
+          >
           {isPortadaSlide && (
             <PortadaSlide
               companyInfo={data.companyInfo}
@@ -1231,6 +1219,7 @@ export default function PresentacionLedPage() {
               clientData={clientData}
               selectedTeenMenuName={adolescentMenuOptions.find((o) => o.id === selectedTeenMenuId)?.name || null}
               totalEstimado={totalEstimadoConMenu}
+              bookingDepositAmount={bookingDepositAmount}
               resourceSummary={resourceSummary}
               onGenerateBudget={handleGenerateBudget}
               onPrint={handlePrint}
@@ -1247,159 +1236,159 @@ export default function PresentacionLedPage() {
               clienteNombre={clientData.nombre}
               fechaEvento={clientData.fechaEvento}
               totalEstimado={totalEstimadoConMenu}
+              bookingDepositAmount={bookingDepositAmount}
               mostrarPrecios={data.mostrarPrecios}
               imagenFondoUrl={presentacionSettings?.planPagosImagenUrl}
               onContrato={handleContrato}
             />
           )}
-          {isContratarnosSlide && (
-            <ContratarnosSlide
-              titulo={presentacionSettings?.cierre.titulo || 'Contratarnos'}
-              mensaje={presentacionSettings?.cierre.mensaje || 'Estamos listos para ayudarte con tu evento.'}
-              ctaTexto={presentacionSettings?.cierre.ctaTexto || 'Generar Presupuesto Manual'}
-              onCtaAction={handleCierreCta}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
-      {/* Navigation buttons */}
-      <div className="absolute bottom-5 sm:bottom-6 left-0 right-0 z-20 flex items-center justify-center gap-3 sm:gap-4 px-4">
-        <Button
-          onClick={goPrev}
-          disabled={currentSlide === 0}
-          variant="ghost"
-          size="lg"
-          className="h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-base sm:text-lg font-semibold"
-        >
-          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 mr-1.5 sm:mr-2" />
-          Anterior
-        </Button>
-
-        {/* Dot indicators */}
-        <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
-          {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
-            const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
-            return (
+      {/* Bottom dock: floating budget bar + navigation bar */}
+      <footer
+        data-testid="presentacion-nav-bar"
+        className="relative z-20 shrink-0 flex flex-col items-center gap-2 px-4 pt-2 pb-2.5 bg-slate-950/60 backdrop-blur-md border-t border-white/10"
+      >
+        {/* ── Floating real-time budget bar ── */}
+        {selectedServices.length > 0 && data.mostrarPrecios && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            className="relative z-30"
+          >
+            <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/20 bg-slate-900/95 px-4 py-2 shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center gap-1.5 text-emerald-300">
+                <DollarSign className="h-4 w-4" />
+                <span className="text-xs font-black uppercase tracking-widest">Cotización</span>
+              </div>
+              <div className="h-4 w-px bg-white/20" />
+              <span className="text-base sm:text-lg font-black text-white">
+                ${totalEstimadoConMenu.toLocaleString('es-UY')}
+              </span>
+              <div className="h-4 w-px bg-white/20" />
               <button
-                key={i}
-                onClick={() => goToSlide(slideIdx)}
-                className={cn(
-                  'h-2 rounded-full transition-all duration-300',
-                  currentSlide === slideIdx
-                    ? 'w-6 sm:w-8 bg-white'
-                    : 'w-2 bg-white/30 hover:bg-white/60',
-                )}
-              />
-            );
-          })}
-        </div>
-
-        <Button
-          data-testid="btn-siguiente-slide"
-          onClick={goNext}
-          disabled={nextDisabled || currentSlide >= totalSlides - 1}
-          size="lg"
-          className={cn(
-            'h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-base sm:text-lg font-bold border-0',
-            'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
-          )}
-        >
-          Siguiente
-          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-1.5 sm:ml-2" />
-        </Button>
-      </div>
-
-      {/* Keyboard hint */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/20 text-xs pointer-events-none">
-        ← → Navegar · F Pantalla completa
-      </div>
-
-      {/* ── Floating real-time budget bar ── */}
-      {selectedServices.length > 0 && data.mostrarPrecios && (
-        <motion.div
-          initial={{ y: 80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 80, opacity: 0 }}
-          className="absolute bottom-24 left-1/2 z-30 -translate-x-1/2"
-        >
-          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-slate-900/90 px-5 py-3 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center gap-1.5 text-emerald-300">
-              <DollarSign className="h-4 w-4" />
-              <span className="text-xs font-black uppercase tracking-widest">Cotización</span>
+                onClick={() => setShowBudgetPanel((v) => !v)}
+                className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-bold text-white/70 transition-all hover:bg-white/20 hover:text-white"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Ajustar
+              </button>
+              <span className="text-xs text-white/40">{selectedServices.length} servicio{selectedServices.length !== 1 ? 's' : ''}</span>
             </div>
-            <div className="h-4 w-px bg-white/20" />
-            <span className="text-lg font-black text-white">
-              ${totalEstimadoConMenu.toLocaleString('es-UY')}
-            </span>
-            <div className="h-4 w-px bg-white/20" />
-            <button
-              onClick={() => setShowBudgetPanel((v) => !v)}
-              className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-bold text-white/70 transition-all hover:bg-white/20 hover:text-white"
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Ajustar
-            </button>
-            <span className="text-xs text-white/40">{selectedServices.length} servicio{selectedServices.length !== 1 ? 's' : ''}</span>
+
+            {/* Quick adjust panel */}
+            <AnimatePresence>
+              {showBudgetPanel && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute bottom-full left-1/2 mb-3 w-72 -translate-x-1/2 rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-xl"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-sm font-black text-white">Ajuste rápido</span>
+                    <button onClick={() => setShowBudgetPanel(false)} className="text-white/40 hover:text-white">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-white/50">Adultos</label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Math.max(0, Number(d.invitadosAdultos || 0) - 10)) }))}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                        >-</button>
+                        <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdultos || 0}</span>
+                        <button
+                          onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Number(d.invitadosAdultos || 0) + 10) }))}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                        >+</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-white/50">Adolescentes</label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Math.max(0, Number(d.invitadosAdolescentes || 0) - 5)) }))}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                        >-</button>
+                        <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdolescentes || 0}</span>
+                        <button
+                          onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Number(d.invitadosAdolescentes || 0) + 5) }))}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                        >+</button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-2">
+                      <Users className="h-4 w-4 text-emerald-400" />
+                      <span className="text-xs font-black text-emerald-300">
+                        {Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados totales
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* Navigation buttons */}
+        <div className="flex items-center justify-center gap-3 sm:gap-4 w-full">
+          <Button
+            onClick={goPrev}
+            disabled={currentSlide === 0}
+            variant="ghost"
+            size="lg"
+            className="h-11 sm:h-12 px-5 sm:px-7 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-sm sm:text-base font-semibold"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1.5" />
+            Anterior
+          </Button>
+
+          {/* Dot indicators */}
+          <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
+            {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
+              const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
+              return (
+                <button
+                  key={i}
+                  onClick={() => goToSlide(slideIdx)}
+                  className={cn(
+                    'h-2 rounded-full transition-all duration-300',
+                    currentSlide === slideIdx
+                      ? 'w-6 sm:w-8 bg-white'
+                      : 'w-2 bg-white/30 hover:bg-white/60',
+                  )}
+                />
+              );
+            })}
           </div>
 
-          {/* Quick adjust panel */}
-          <AnimatePresence>
-            {showBudgetPanel && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.97 }}
-                transition={{ duration: 0.2 }}
-                className="absolute bottom-full left-1/2 mb-3 w-72 -translate-x-1/2 rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-xl"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-black text-white">Ajuste rápido</span>
-                  <button onClick={() => setShowBudgetPanel(false)} className="text-white/40 hover:text-white">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-bold text-white/50">Adultos</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Math.max(0, Number(d.invitadosAdultos || 0) - 10)) }))}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
-                      >-</button>
-                      <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdultos || 0}</span>
-                      <button
-                        onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Number(d.invitadosAdultos || 0) + 10) }))}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
-                      >+</button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-bold text-white/50">Adolescentes</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Math.max(0, Number(d.invitadosAdolescentes || 0) - 5)) }))}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
-                      >-</button>
-                      <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdolescentes || 0}</span>
-                      <button
-                        onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Number(d.invitadosAdolescentes || 0) + 5) }))}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
-                      >+</button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-2">
-                    <Users className="h-4 w-4 text-emerald-400" />
-                    <span className="text-xs font-black text-emerald-300">
-                      {Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados totales
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
+          <Button
+            data-testid="btn-siguiente-slide"
+            onClick={goNext}
+            disabled={nextDisabled || currentSlide >= totalSlides - 1}
+            size="lg"
+            className={cn(
+              'h-11 sm:h-12 px-5 sm:px-7 rounded-2xl text-sm sm:text-base font-bold border-0',
+              'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
             )}
-          </AnimatePresence>
-        </motion.div>
-      )}
+          >
+            Siguiente
+            <ChevronRight className="h-5 w-5 ml-1.5" />
+          </Button>
+        </div>
+
+        {/* Keyboard hint */}
+        <div className="text-white/25 text-[11px] pointer-events-none">
+          ← → Navegar · F Pantalla completa
+        </div>
+      </footer>
 
       {/* ── Pedile a la IA (panel en la reunión) ── */}
       {isOnline && iaOpen && (

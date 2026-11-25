@@ -18,6 +18,7 @@ describe('Orden 267: El prospecto no ve el ajuste anual', () => {
     currentYear: 2026,
     eventYear: 2030,
     adjustmentPct: 15,
+    tipoAjusteAnual: 'acumulativo',
     baseTotal: 100000,
     adjustedTotal: 160000,
     adjustmentAmount: 60000,
@@ -111,7 +112,7 @@ describe('Orden 267: El prospecto no ve el ajuste anual', () => {
     host.remove();
   });
 
-  it('BudgetDocument con presupuesto contratado (Aceptado) para 2030 sí muestra la proyección y el 15%', () => {
+  it('BudgetDocument con presupuesto contratado (Aceptado) para 2030 muestra 15% acumulativo desde la firma sin montos futuros', () => {
     const host = document.body.appendChild(document.createElement('div'));
     const root = createRoot(host);
 
@@ -128,14 +129,17 @@ describe('Orden 267: El prospecto no ve el ajuste anual', () => {
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Proyección de Precios por Año');
-    expect(text).toContain('15%');
+    expect(text).toContain('15% acumulativo');
+    expect(text).toContain('desde la firma del contrato');
+    expect(text).not.toContain('Proyección de Precios por Año');
+    expect(text).not.toContain('Proyeccion de Precios por Año');
+    expect(text).not.toContain('160.000');
 
     act(() => root.unmount());
     host.remove();
   });
 
-  it('BudgetDocument con presupuesto contratado (Facturado) para 2030 sí muestra la proyección y el 15%', () => {
+  it('BudgetDocument con presupuesto contratado (Facturado) para 2030 muestra 15% acumulativo desde la firma sin montos futuros', () => {
     const host = document.body.appendChild(document.createElement('div'));
     const root = createRoot(host);
 
@@ -152,8 +156,11 @@ describe('Orden 267: El prospecto no ve el ajuste anual', () => {
     });
 
     const text = host.textContent || '';
-    expect(text).toContain('Proyección de Precios por Año');
-    expect(text).toContain('15%');
+    expect(text).toContain('15% acumulativo');
+    expect(text).toContain('desde la firma del contrato');
+    expect(text).not.toContain('Proyección de Precios por Año');
+    expect(text).not.toContain('Proyeccion de Precios por Año');
+    expect(text).not.toContain('160.000');
 
     act(() => root.unmount());
     host.remove();

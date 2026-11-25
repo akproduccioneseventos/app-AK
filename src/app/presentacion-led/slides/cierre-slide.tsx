@@ -3,9 +3,9 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText, Share2 } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
-import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { sharedFAQs } from '@/data/event-catalogs/shared';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -47,6 +47,7 @@ interface CierreSlideProps {
    * presupuesto que se genera despues.
    */
   totalEstimado?: number;
+  bookingDepositAmount?: number;
   resourceSummary?: ResourceSummary;
   onGenerateBudget: () => void;
   onPrint?: () => void;
@@ -60,6 +61,8 @@ interface CierreSlideProps {
   onCtaAction?: () => void;
 }
 
+const FOTO_CIERRE_FALLBACK = '/media/catalogo-servicios/familia_feliz_evento.png';
+
 export function CierreSlide({
   companyInfo,
   selectedServices,
@@ -70,6 +73,7 @@ export function CierreSlide({
   clientData,
   selectedTeenMenuName,
   totalEstimado: totalEstimadoRecibido,
+  bookingDepositAmount: initialDepositAmount,
   resourceSummary,
   onGenerateBudget,
   onPrint = () => {},
@@ -82,9 +86,21 @@ export function CierreSlide({
   ctaTexto,
   onCtaAction,
 }: CierreSlideProps) {
-  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
+  const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(
+    typeof initialDepositAmount === 'number' && Number.isFinite(initialDepositAmount)
+      ? initialDepositAmount
+      : DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+  );
+  const defaultPhotoByTipo = tipoFiesta.toLowerCase().includes('15')
+    ? '/media/catalogo-servicios/quinceanera_persuasiva.png'
+    : '/media/catalogo-servicios/boda_persuasiva.png';
+  const [cierreImgSrc, setCierreImgSrc] = useState<string>(defaultPhotoByTipo);
 
   useEffect(() => {
+    if (typeof initialDepositAmount === 'number' && Number.isFinite(initialDepositAmount)) {
+      setBookingDepositAmount(initialDepositAmount);
+      return;
+    }
     let active = true;
     getBudgetDisplaySettings()
       .then((settings) => {
@@ -101,7 +117,7 @@ export function CierreSlide({
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialDepositAmount]);
 
   const depositLabel = new Intl.NumberFormat('es-UY', {
     style: 'currency',
@@ -142,36 +158,36 @@ export function CierreSlide({
 
   return (
     <SlideLayout overflowScroll>
-      <div className="w-full max-w-5xl mx-auto presentacion-cierre-print-root">
+      <div className="w-full max-w-6xl mx-auto presentacion-cierre-print-root">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-center mb-6"
+          className="text-center mb-4"
         >
-          <p className={`text-transparent bg-clip-text bg-gradient-to-r ${contenido.colorAcento} font-bold uppercase tracking-widest text-sm mb-2`}>
+          <p className={`text-transparent bg-clip-text bg-gradient-to-r ${contenido.colorAcento} font-bold uppercase tracking-widest text-xs mb-1`}>
             ¡Estamos listos!
           </p>
-          <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-lg mb-3">
+          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-1.5">
             {titulo || 'Siguiente paso 🚀'}
           </h1>
-          <p className="text-white/60 text-lg max-w-2xl mx-auto">
+          <p className="text-white/60 text-sm md:text-base max-w-2xl mx-auto">
             {mensaje || contenido.mensajeCierre}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Left: Summary */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-3"
           >
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Datos del evento</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">Datos del evento</p>
+              <div className="grid grid-cols-2 gap-1.5 text-xs sm:text-sm">
                 <p className="text-white/80"><span className="text-white/50">Nombre:</span> {clientData.nombre || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Tipo:</span> {clientData.tipoFiesta || tipoFiesta || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Fecha:</span> {clientData.fechaEvento || '—'}</p>
@@ -184,43 +200,43 @@ export function CierreSlide({
             </div>
 
             {selectedServiciosData.length > 0 ? (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Servicios seleccionados</p>
-                <ul className="space-y-2">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">Servicios seleccionados</p>
+                <ul className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                   {selectedServiciosData.map(s => (
-                    <li key={s.id} className="flex items-center justify-between gap-2 text-sm">
+                    <li key={s.id} className="flex items-center justify-between gap-2 text-xs sm:text-sm">
                       <span className="text-emerald-200 flex items-center gap-2">
-                        <Check className="h-3.5 w-3.5" />
+                        <Check className="h-3.5 w-3.5 shrink-0" />
                         {s.nombre}
                       </span>
                       {mostrarPrecios && (
-                        <span className="text-white/70 font-semibold">
+                        <span className="text-white/70 font-semibold shrink-0">
                           {s.precioVenta ? `$${s.precioVenta.toLocaleString('es-UY')}` : 'A coordinar'}
                         </span>
                       )}
                     </li>
                   ))}
                 </ul>
-                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                  <p className="text-white/70 font-semibold">Total estimado</p>
+                <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
+                  <p className="text-white/70 font-semibold text-sm">Total estimado</p>
                   <p className="text-emerald-300 text-lg font-black">${totalEstimado.toLocaleString('es-UY')}</p>
                 </div>
                 {mostrarPrecios && totalPorPrecioDeLista > totalEstimado && selectedServiciosData.length >= 3 && (
-                  <div className="mt-3 bg-gradient-to-r from-emerald-500/15 to-indigo-500/15 border border-emerald-400/25 rounded-xl p-3">
+                  <div className="mt-2.5 bg-gradient-to-r from-emerald-500/15 to-indigo-500/15 border border-emerald-400/25 rounded-xl p-2.5">
                     <p className="text-emerald-300 text-xs font-black uppercase tracking-wider mb-1">🎁 Paquete integral</p>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
                       <span className="text-white/50 line-through">${totalPorPrecioDeLista.toLocaleString('es-UY')}</span>
                       <span className="text-emerald-300 font-black">${totalEstimado.toLocaleString('es-UY')}</span>
                     </div>
-                    <p className="text-emerald-200 text-xs font-bold mt-1">
+                    <p className="text-emerald-200 text-xs font-bold mt-0.5">
                       Ahorrás ${(totalPorPrecioDeLista - totalEstimado).toLocaleString('es-UY')} contratando todo junto
                     </p>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-white/50 text-sm text-center">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
+                <p className="text-white/50 text-xs sm:text-sm text-center">
                   Podés generar el presupuesto y completar los detalles después.
                 </p>
               </div>
@@ -228,22 +244,31 @@ export function CierreSlide({
 
             {/* Selected menu */}
             {selectedMenu && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Menú seleccionado</p>
-                <p className="text-white font-bold">{selectedMenu.name}</p>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-0.5">Menú seleccionado</p>
+                <p className="text-white font-bold text-sm">{selectedMenu.name}</p>
                 {selectedTeenMenuName && (
-                  <p className="text-white/70 text-sm mt-1">Menú adolescente: {selectedTeenMenuName}</p>
+                  <p className="text-white/70 text-xs mt-0.5">Menú adolescente: {selectedTeenMenuName}</p>
                 )}
               </div>
             )}
 
-            {/* Image placeholder */}
-            <ImagePlaceholder
-              id="cierre-foto"
-              label="Foto emocional de un evento exitoso"
-              aspectRatio="16/9"
-              className="presentacion-cierre-print-hide"
-            />
+            {/* Real event photo */}
+            <div className="relative w-full aspect-[16/9] max-h-44 overflow-hidden rounded-2xl border border-white/15 bg-slate-900 presentacion-cierre-print-hide">
+              <Image
+                src={cierreImgSrc}
+                alt="Celebración AK Producciones"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
+                className="object-cover"
+                onError={() => {
+                  if (cierreImgSrc !== FOTO_CIERRE_FALLBACK) {
+                    setCierreImgSrc(FOTO_CIERRE_FALLBACK);
+                  }
+                }}
+              />
+            </div>
           </motion.div>
 
           {/* Right: CTAs */}
@@ -251,32 +276,29 @@ export function CierreSlide({
             initial={{ opacity: 1, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.12 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-3"
           >
-            {/* Main CTA */}
+            {/* Single Primary Brand CTA */}
             <motion.button
               data-testid="btn-generar-presupuesto-manual"
               onClick={onCtaAction || onGenerateBudget}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={cn(
-                'w-full py-5 rounded-2xl text-xl font-black text-white shadow-2xl transition-all flex items-center justify-center gap-3',
-                `bg-gradient-to-r ${contenido.colorAcento}`,
-              )}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="w-full py-4 rounded-2xl text-lg sm:text-xl font-black text-white shadow-2xl transition-all flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700"
             >
-              <ShoppingCart className="h-6 w-6" />
-              {ctaTexto || 'Generar Presupuesto Manual'}
+              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
+              {ctaTexto || 'Generar presupuesto'}
             </motion.button>
 
-            <p className="text-white/40 text-xs text-center">
+            <p className="text-white/40 text-xs text-center -mt-1">
               Se va a pre-llenar con los servicios que seleccionaste.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 presentacion-cierre-print-actions">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 presentacion-cierre-print-actions">
               <button
                 type="button"
                 onClick={onPrint}
-                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2 text-white/90 text-xs font-semibold transition-colors"
               >
                 <Printer className="h-4 w-4 shrink-0" />
                 <span>🖨️ Imprimir</span>
@@ -284,7 +306,7 @@ export function CierreSlide({
               <button
                 type="button"
                 onClick={onPlanPagos}
-                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2 text-white/90 text-xs font-semibold transition-colors"
               >
                 <CalendarDays className="h-4 w-4 shrink-0" />
                 <span>📅 Plan Pagos</span>
@@ -292,7 +314,7 @@ export function CierreSlide({
               <button
                 type="button"
                 onClick={onContrato}
-                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2 text-white/90 text-xs font-semibold transition-colors"
               >
                 <FileText className="h-4 w-4 shrink-0" />
                 <span>📄 Contrato</span>
@@ -301,7 +323,7 @@ export function CierreSlide({
                 <button
                   type="button"
                   onClick={onCompartirPropuesta}
-                  className="flex items-center justify-center gap-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 rounded-xl px-2.5 py-2.5 text-emerald-200 text-xs font-bold transition-colors"
+                  className="flex items-center justify-center gap-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 rounded-xl px-2.5 py-2 text-emerald-200 text-xs font-bold transition-colors"
                 >
                   <Share2 className="h-4 w-4 shrink-0" />
                   <span>📲 Compartir</span>
@@ -315,9 +337,9 @@ export function CierreSlide({
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-400/30 rounded-2xl px-4 py-4 transition-colors"
+                className="flex flex-col items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-400/30 rounded-2xl px-4 py-3 transition-colors"
               >
-                <MessageCircle className="h-7 w-7 text-emerald-300" />
+                <MessageCircle className="h-6 w-6 text-emerald-300" />
                 <span className="text-white font-semibold text-sm">WhatsApp</span>
                 <span className="text-white/50 text-xs">Consultar ahora</span>
               </a>
@@ -325,15 +347,15 @@ export function CierreSlide({
               {safeEmail ? (
                 <a
                   href={`mailto:${safeEmail}`}
-                  className="flex flex-col items-center gap-2 bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-400/30 rounded-2xl px-4 py-4 transition-colors"
+                  className="flex flex-col items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-400/30 rounded-2xl px-4 py-3 transition-colors"
                 >
-                  <Mail className="h-7 w-7 text-indigo-300" />
+                  <Mail className="h-6 w-6 text-indigo-300" />
                   <span className="text-white font-semibold text-sm">Email</span>
                   <span className="text-white/50 text-xs truncate w-full text-center">{safeEmail}</span>
                 </a>
               ) : (
-                <div className="flex flex-col items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-4">
-                  <Phone className="h-7 w-7 text-white/40" />
+                <div className="flex flex-col items-center gap-1.5 bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                  <Phone className="h-6 w-6 text-white/40" />
                   <span className="text-white/60 font-semibold text-sm">Teléfono</span>
                   <span className="text-white/30 text-xs">{companyInfo.companyContact || 'Consultanos'}</span>
                 </div>
@@ -341,10 +363,10 @@ export function CierreSlide({
             </div>
 
             {/* Company info */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-              <p className="text-white font-bold text-base">{companyInfo.companyName || 'AK Producciones'}</p>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+              <p className="text-white font-bold text-sm sm:text-base">{companyInfo.companyName || 'AK Producciones'}</p>
               {companyInfo.companyAddress && (
-                <p className="text-white/50 text-sm mt-1">{companyInfo.companyAddress}</p>
+                <p className="text-white/50 text-xs sm:text-sm mt-0.5">{companyInfo.companyAddress}</p>
               )}
             </div>
           </motion.div>
@@ -355,21 +377,21 @@ export function CierreSlide({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-6"
+            transition={{ delay: 0.35 }}
+            className="mt-4"
           >
-            <p className="flex items-center gap-2 text-white/60 text-xs font-bold uppercase tracking-widest mb-3">
+            <p className="flex items-center gap-2 text-white/60 text-xs font-bold uppercase tracking-widest mb-2">
               <HelpCircle className="h-4 w-4" />
               Preguntas frecuentes
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {faqsConSenia.map((faq) => (
                 <div
                   key={faq.id}
-                  className="p-4 bg-white/5 border border-white/10 rounded-2xl"
+                  className="p-3 bg-white/5 border border-white/10 rounded-2xl"
                 >
-                  <p className="text-white/90 text-xs font-bold mb-1">{faq.question}</p>
-                  <p className="text-white/50 text-xs leading-relaxed">{faq.answerResolved}</p>
+                  <p className="text-white/90 text-xs font-bold mb-0.5">{faq.question}</p>
+                  <p className="text-white/55 text-xs leading-relaxed">{faq.answerResolved}</p>
                 </div>
               ))}
             </div>

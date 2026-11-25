@@ -13,7 +13,7 @@ import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos',
+  title: { absolute: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos' },
   description: 'Guías prácticas para organizar fiestas de 15, bodas, comida gourmet, discoteca y presupuestos en Salto, Uruguay.',
   alternates: {
     canonical: '/public/blog',

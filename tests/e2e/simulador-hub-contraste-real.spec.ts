@@ -66,6 +66,16 @@ async function obtenerContrasteElemento(locator: Locator) {
             sibRect.top <= elRect.top + 1 &&
             sibRect.bottom >= elRect.bottom - 1;
           if (!covers) continue;
+          // Un velo con degradé (bg-gradient-to-t from-slate-950 ...) no tiene color de fondo sino imagen:
+          // se toma su parada MÁS transparente, que es el peor caso para el contraste.
+          const sibImg = sibStyle.backgroundImage;
+          if (sibImg && sibImg.includes('gradient')) {
+            const paradas = (sibImg.match(/rgba?\([^)]*\)/g) || []).map(parseCssColor);
+            if (paradas.length) {
+              const peor = paradas.reduce((a, b) => (b.a < a.a ? b : a));
+              if (peor.a > 0) layers.push(peor);
+            }
+          }
           const sibBg = sibStyle.backgroundColor;
           if (sibBg && sibBg !== 'transparent' && sibBg !== 'rgba(0, 0, 0, 0)') {
             const parsedSib = parseCssColor(sibBg);
@@ -117,7 +127,7 @@ test.describe('Orden 334 Bloque 3: Contraste real en Simulador de Presupuesto (/
       await expect(page).toHaveURL(/\/simulador-de-presupuesto/);
 
       // 1. Título principal h1
-      const heading = page.getByRole('heading', { name: /Presupuesto para tu evento/i });
+      const heading = page.getByRole('heading', { name: /Tu presupuesto en 2 minutos/i });
       await expect(heading).toBeVisible({ timeout: 15000 });
       const boxHeading = await heading.boundingBox();
       expect(boxHeading).not.toBeNull();
@@ -127,11 +137,11 @@ test.describe('Orden 334 Bloque 3: Contraste real en Simulador de Presupuesto (/
       const contrasteHeading = await obtenerContrasteElemento(heading);
       expect(
         contrasteHeading.ratio,
-        `Contraste de título h1 en ${vp.nombre} (${contrasteHeading.ratio.toFixed(2)}:1)`
+        `Contraste de título h1 en ${vp.nombre} (${contrasteHeading.ratio.toFixed(2)}:1) fg=${contrasteHeading.foreground} bg=${contrasteHeading.background}`
       ).toBeGreaterThanOrEqual(4.5);
 
       // 2. Subtítulo explicativo
-      const subtitulo = page.getByText(/Armá una propuesta con gastronomía, salón, tecnología y servicios reales/i);
+      const subtitulo = page.getByText(/Sin compromiso · Te llega en PDF/i).first();
       await expect(subtitulo).toBeVisible({ timeout: 15000 });
       const boxSubtitulo = await subtitulo.boundingBox();
       expect(boxSubtitulo).not.toBeNull();

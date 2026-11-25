@@ -744,7 +744,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     const currentYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, currentYear - signingYear);
     const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto?.ajusteAnualPorcentaje ?? 15;
-    const factorAjuste = Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+    const esAjusteSimple = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual === 'simple';
+    const factorAjuste = esAjusteSimple
+      ? 1 + (porcentajeAjuste / 100) * yearsDiff
+      : Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
 
     const originalTotal = paymentSummary.total;
     const paid = paymentSummary.paid;
@@ -2043,7 +2046,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     )}
                     {impact.yearsDiff > 0 && (
                       <div className="flex justify-between text-slate-500 text-[10px] italic">
-                        <span>Ajuste acumulado ({impact.yearsDiff} años):</span>
+                        <span>Ajuste {(presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo'} ({impact.yearsDiff} años):</span>
                         <span>x{impact.factorAjuste.toFixed(3)}</span>
                       </div>
                     )}

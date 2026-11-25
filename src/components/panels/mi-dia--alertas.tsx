@@ -59,8 +59,11 @@ function tipoBadge(tipo: AlertaAutomatica['tipo']) {
   }
 }
 
-function formatFecha(iso: string) {
-  return new Date(iso).toLocaleString('es-UY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+function formatFecha(iso?: string) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString('es-UY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

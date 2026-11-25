@@ -41,7 +41,7 @@ export function createEventLandingMetadata({
 
   return {
     metadataBase: new URL(SITE_URL),
-    title,
+    title: title.includes('AK Producciones') ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
     openGraph: {

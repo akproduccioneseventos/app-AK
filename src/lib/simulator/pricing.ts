@@ -186,7 +186,7 @@ export type SimulatorPriceStats = {
   discountPercentage: number;
 };
 
-type CalculateSimulatorPricingInput = {
+export type SimulatorPricingInput = {
   config: ArmadoRapidoConfig;
   services: ServicioEmpresa[];
   adultos: number;
@@ -198,7 +198,10 @@ type CalculateSimulatorPricingInput = {
   eventoFecha?: string | Date | null;
   annualAdjustmentPercentage: number;
   currentYear?: number;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
 };
+
+type CalculateSimulatorPricingInput = SimulatorPricingInput;
 
 export function getSimulatorServiceCalculatedData(
   servicio: ServicioEmpresa,
@@ -324,6 +327,7 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
     eventDate: input.eventoFecha,
     adjustmentPct: input.annualAdjustmentPercentage,
     currentYear: input.currentYear,
+    tipoAjusteAnual: input.tipoAjusteAnual ?? 'acumulativo',
   });
 
   detallados.sort((a, b) => {

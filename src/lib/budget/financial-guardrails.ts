@@ -232,6 +232,7 @@ export function getBudgetCollectibleTotal(
       presupuesto.ajusteAnualPorcentaje
       ?? defaultAnnualAdjustmentPercentage
       ?? undefined,
+    tipoAjusteAnual: presupuesto.tipoAjusteAnual,
   }).adjustedTotal;
 }
 

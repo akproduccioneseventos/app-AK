@@ -1,13 +1,9 @@
 # Estado actual — 25 de noviembre de 2026
 
 ## Publicado
-- #1471, robot sembrado con `users/admin`, y entregas 336–342 con los arreglos de Claude en `main`.
+- #1474 (336–342 + robot sembrado) y #1476 (343–345, auditoría profunda 24/11, Club Uruguay $19.990 y Orden 350 en `main`).
 
-## En revisión (PRs previas abiertas sin fusionar)
-- **PR #1472** (`gemini/orden-343`) con Órdenes 343–345 y **PR #1473** (`gemini/auditoria-profunda-24-11`) con auditoría profunda 0 errores.
-
-## Rama actual (`gemini/orden-346` desde `main` actualizado) — Órdenes 346, 347, 348 y 349
-- **346**: resueltos los 12 rojos del robot auditor (`AuthGuard`, asistente, insumos, salones/croquis/diseño, landing-editor, customers, contabilidad/reportes sin tocar cuentas, mesa, portal-invitado y falso rojo `/evento/inicio`).
-- **347**: páginas por tipo de fiesta (`/bodas`, `/quinceaneras` + `/15-anos`, `/cumpleanos`, `/fiestas-empresariales`, `/fiestas-infantiles`, `/fiestas`), SEO/JSON-LD, menú/pie, enlaces de anuncios, origen `?o=` y `llms.txt`.
-- **348**: álbum de fotos por servicio en LED/Simulador, clasificación IA (`cerebro.ts`) al subir/Instagram/lotes de 20, y `"Pedile a la IA"` en LED sin guardar ni cerrar.
-- **349**: cifras contadas solas (`cifras-de-ak.ts`), filtros LED sin pruebas/sin precio, textos, campana = Centro de Alertas, `aria-label` + títulos, manual y reglas nuevas del robot.
+## Rama actual (`gemini/orden-346` sincronizada con `main`) — PR #1475 abierta (sin fusionar)
+- **346–349**: los 12 rojos del robot, páginas por tipo de fiesta (`/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas-empresariales`, `/fiestas-infantiles`, `/fiestas`), álbum por servicio + clasificación IA + "Pedile a la IA", cifras contadas solas (`cifras-de-ak.ts`) y auditoría 25/11.
+- **Auditoría en vivo `akproducciones.uy` (25/11)**: arreglados `/api/enlaces/clic` (`0.0.0.0:8080` en producción) + `/enlaces` sin prefetch RSC, `Invalid Date` en alertas, títulos `<title>` sin doble marca, tildes en botón contable, acceso al centro en eventos archivados + sin doble papelera, `BarraDeLaCasa` sin recorte en escritorio y margen inferior en `SlideLayout`.
+- **Pendiente siguiente**: Orden 350 (botón "¿Cómo funciona?" con videos de YouTube en pantallas externas).

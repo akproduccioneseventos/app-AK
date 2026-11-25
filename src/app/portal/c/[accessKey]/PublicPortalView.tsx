@@ -85,6 +85,7 @@ interface PublicPortalViewProps {
   companyContact: string;
   companyName: string;
   presupuesto?: Presupuesto | null;
+  ajusteAnualPorcentaje?: number;
 }
 
 function useCountdown(targetDate: string | undefined, horaInicio?: string) {
@@ -249,6 +250,7 @@ export default function PublicPortalView({
   companyContact,
   companyName,
   presupuesto,
+  ajusteAnualPorcentaje,
 }: PublicPortalViewProps) {
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const portalExperience = fiesta.clientePortalExperience ?? {};
@@ -478,6 +480,7 @@ export default function PublicPortalView({
   // Payments data
   const paymentSummary = getBudgetPaymentSummary(presupuesto, {
     includeAnnualAdjustment: true,
+    defaultAnnualAdjustmentPercentage: ajusteAnualPorcentaje,
   });
   const totalCosto = paymentSummary.total;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
@@ -1131,15 +1134,18 @@ export default function PublicPortalView({
                     </div>
 
                     {/* Nota ajuste anual */}
-                    {fiesta.contratoDatos?.ajusteAnualPorcentaje ? (
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
-                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del {fiesta.contratoDatos.ajusteAnualPorcentaje}% pactado en la Cláusula 2 del contrato.
-                      </div>
-                    ) : (
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
-                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la Cláusula 2 del contrato.
-                      </div>
-                    )}
+                    {(() => {
+                      const pctAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto?.ajusteAnualPorcentaje ?? 15;
+                      const tipoAjusteLabel =
+                        (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual === 'simple'
+                          ? 'simple'
+                          : 'acumulativo';
+                      return (
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
+                          ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. Los precios tienen un ajuste anual del {pctAjuste}% {tipoAjusteLabel} desde la firma del contrato (Cláusula 2).
+                        </div>
+                      );
+                    })()}
 
                     {/* Próxima cuota */}
                     {proximaCuota && (

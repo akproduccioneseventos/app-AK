@@ -33,6 +33,8 @@ export type SimulatorBudgetPdfInput = {
   bookingTerms?: string;
   bookingDepositAmount?: number;
   status?: string;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
+  mostrarPrecios?: boolean;
 };
 
 export type SimulatorBudgetPdfModel = {
@@ -124,6 +126,8 @@ export async function createSimulatorBudgetPdf(
   const marginX = 15;
   const contentWidth = 180;
   const bottomLimit = 273;
+  const isContracted = input.status === 'Aceptado' || input.status === 'Facturado';
+  const hideItemPrices = input.mostrarPrecios === false && !isContracted;
   let y = 0;
   let rowIndex = 0;
 
@@ -188,9 +192,14 @@ export async function createSimulatorBudgetPdf(
     pdf.setFontSize(7.5);
     pdf.setTextColor(51, 65, 85);
     pdf.text("SERVICIO / CATEGORÍA", marginX + 3, y + 5.2);
-    writeRightAligned(pdf, "CANT.", 143, y + 5.2);
-    writeRightAligned(pdf, "UNITARIO", 170, y + 5.2);
-    writeRightAligned(pdf, "TOTAL", 192, y + 5.2);
+    if (hideItemPrices) {
+      writeRightAligned(pdf, "CANT.", 160, y + 5.2);
+      writeRightAligned(pdf, "DETALLE", 192, y + 5.2);
+    } else {
+      writeRightAligned(pdf, "CANT.", 143, y + 5.2);
+      writeRightAligned(pdf, "UNITARIO", 170, y + 5.2);
+      writeRightAligned(pdf, "TOTAL", 192, y + 5.2);
+    }
     y += 8;
   };
 
@@ -326,35 +335,57 @@ export async function createSimulatorBudgetPdf(
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(7.5);
       pdf.setTextColor(71, 85, 105);
-      writeRightAligned(pdf, String(item.cantidad || 1), 143, y + 5);
-      writeRightAligned(
-        pdf,
-        item.esRegalo ? "-" : formatCurrency(item.precioUnitario),
-        170,
-        y + 5,
-      );
-      pdf.setFont("helvetica", "bold");
-      writeRightAligned(
-        pdf,
-        item.esRegalo ? "INCLUIDO" : formatCurrency(item.costoTotal),
-        192,
-        y + 5,
-      );
+      if (hideItemPrices) {
+        writeRightAligned(pdf, String(item.cantidad || 1), 160, y + 5);
+        pdf.setFont("helvetica", "bold");
+        writeRightAligned(
+          pdf,
+          item.esRegalo ? "REGALO" : "INCLUIDO",
+          192,
+          y + 5,
+        );
+      } else {
+        writeRightAligned(pdf, String(item.cantidad || 1), 143, y + 5);
+        writeRightAligned(
+          pdf,
+          item.esRegalo ? "-" : formatCurrency(item.precioUnitario),
+          170,
+          y + 5,
+        );
+        pdf.setFont("helvetica", "bold");
+        writeRightAligned(
+          pdf,
+          item.esRegalo ? "INCLUIDO" : formatCurrency(item.costoTotal),
+          192,
+          y + 5,
+        );
+      }
       y += rowHeight;
       rowIndex += 1;
     });
   });
 
-  ensureSpace(43);
+  const showSubtotalRow = !hideItemPrices;
+  let summaryRows = 0;
+  if (showSubtotalRow) summaryRows += 1;
+  if (input.stats.ahorroRegalos > 0) summaryRows += 1;
+  if (input.stats.descPromo > 0) summaryRows += 1;
+  const boxTopHeight = Math.max(8, summaryRows * 6 + 4);
+  const totalBoxHeight = boxTopHeight + 12;
+
+  ensureSpace(totalBoxHeight + 7);
   y += 5;
   pdf.setFillColor(248, 250, 252);
-  pdf.roundedRect(105, y, 90, 36, 1.5, 1.5, "F");
+  pdf.roundedRect(105, y, 90, totalBoxHeight, 1.5, 1.5, "F");
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
   pdf.setTextColor(71, 85, 105);
-  pdf.text("Subtotal", 110, y + 7);
-  writeRightAligned(pdf, formatCurrency(input.stats.subtotalBruto), 190, y + 7);
-  let summaryY = y + 13;
+  let summaryY = y + 7;
+  if (showSubtotalRow) {
+    pdf.text("Subtotal", 110, summaryY);
+    writeRightAligned(pdf, formatCurrency(input.stats.subtotalBruto), 190, summaryY);
+    summaryY += 6;
+  }
   if (input.stats.ahorroRegalos > 0) {
     pdf.text("Servicios incluidos sin cargo", 110, summaryY);
     writeRightAligned(pdf, `-${formatCurrency(input.stats.ahorroRegalos)}`, 190, summaryY);
@@ -364,14 +395,15 @@ export async function createSimulatorBudgetPdf(
     pdf.text(`Bonificación (${input.stats.discountPercentage}%)`, 110, summaryY);
     writeRightAligned(pdf, `-${formatCurrency(input.stats.descPromo)}`, 190, summaryY);
   }
+  const lineY = y + boxTopHeight + 1;
   pdf.setDrawColor(203, 213, 225);
-  pdf.line(110, y + 25, 190, y + 25);
+  pdf.line(110, lineY, 190, lineY);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
   pdf.setTextColor(15, 23, 42);
-  pdf.text("PRECIO VIGENTE", 110, y + 32);
-  writeRightAligned(pdf, formatCurrency(input.stats.totalFinal), 190, y + 32);
-  y += 42;
+  pdf.text("PRECIO VIGENTE", 110, lineY + 7);
+  writeRightAligned(pdf, formatCurrency(input.stats.totalFinal), 190, lineY + 7);
+  y += totalBoxHeight + 6;
 
   if (input.stats.precioPorPersona > 0) {
     ensureSpace(11);
@@ -382,37 +414,6 @@ export async function createSimulatorBudgetPdf(
     pdf.text("Valor aproximado por persona", marginX + 4, y + 6.5);
     writeRightAligned(pdf, formatCurrency(input.stats.precioPorPersona), 191, y + 6.5);
     y += 15;
-  }
-
-  const isContracted = input.status === 'Aceptado' || input.status === 'Facturado';
-  if (isContracted && input.stats.annualProjection.applies) {
-    const requiredHeight = 17 + input.stats.annualProjection.rows.length * 6;
-    ensureSpace(requiredHeight);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(8);
-    pdf.setTextColor(71, 85, 105);
-    pdf.text(
-      `REFERENCIA DE AJUSTE ANUAL (${input.stats.annualProjection.adjustmentPct}%)`,
-      marginX,
-      y + 4,
-    );
-    y += 8;
-    input.stats.annualProjection.rows.forEach((row) => {
-      pdf.setFont("helvetica", "normal");
-      pdf.text(`Total estimado ${row.year}`, marginX + 3, y + 4);
-      pdf.setFont("helvetica", "bold");
-      writeRightAligned(pdf, formatCurrency(row.total), 192, y + 4);
-      y += 6;
-    });
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(
-      `El precio principal es el vigente ${input.stats.annualProjection.currentYear}; la proyección futura es informativa.`,
-      marginX + 3,
-      y + 4,
-    );
-    y += 10;
   }
 
   if (input.salonDetails) {
@@ -448,7 +449,7 @@ export async function createSimulatorBudgetPdf(
       ? ""
       : "El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.",
     (isContracted && input.stats.annualProjection.applies)
-      ? `El precio principal corresponde a ${input.stats.annualProjection.currentYear}. Para fechas desde ${input.stats.annualProjection.currentYear + 1} se aplica un ajuste acumulativo del ${input.stats.annualProjection.adjustmentPct}% por cada año adicional.`
+      ? `Los precios tienen un ajuste anual del ${input.stats.annualProjection.adjustmentPct}% ${input.tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo'} desde la firma del contrato.`
       : `Los valores corresponden a eventos realizados en ${input.stats.annualProjection.currentYear}.`,
     "La fecha se reserva cuando AK Producciones confirma la disponibilidad, recibe la seña y se firma el contrato.",
   ].filter(Boolean).join("\n");

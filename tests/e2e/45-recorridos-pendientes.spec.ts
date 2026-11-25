@@ -35,7 +35,7 @@ test.describe('Orden 45 - Recorridos humanos pendientes', () => {
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
     // Titular y botón de acción principal para cotizar
-    const btnIniciar = page.getByRole('button', { name: /Comenzar mi presupuesto|Cotizar/i }).first();
+    const btnIniciar = page.getByRole('button', { name: /Armar mi presupuesto|Comenzar mi presupuesto|Cotizar/i }).first();
     await expect(btnIniciar).toBeVisible({ timeout: 20_000 });
 
     await btnIniciar.click();

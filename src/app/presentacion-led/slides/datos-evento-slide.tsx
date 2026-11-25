@@ -73,80 +73,87 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="w-full max-w-lg mx-auto"
+        className="w-full max-w-4xl mx-auto"
       >
-        <div className="text-center mb-8">
-          <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-400/30 to-purple-500/30 border border-white/20 flex items-center justify-center mb-4">
-            <User className="h-8 w-8 text-indigo-300" />
+        <div className="flex items-center justify-center gap-4 text-left mb-4">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-400/30 to-purple-500/30 border border-white/20 flex items-center justify-center shrink-0">
+            <User className="h-6 w-6 text-indigo-300" />
           </div>
-          <p className="text-indigo-400 font-bold uppercase tracking-widest text-sm mb-2">Datos del evento</p>
-          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-2">
-            ¿Para quién es la celebración?
-          </h1>
-          <p className="text-white/60 text-base">Completá los datos y armamos tu presupuesto a medida.</p>
+          <div>
+            <p className="text-indigo-400 font-bold uppercase tracking-widest text-xs mb-0.5">Datos del evento</p>
+            <h1 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">
+              ¿Para quién es la celebración?
+            </h1>
+            <p className="text-white/60 text-sm">Completá los datos y armamos tu presupuesto a medida.</p>
+          </div>
         </div>
 
-        <div className="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6">
-          {/* Nombre */}
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <User className="w-4 h-4" /> Nombre del festejado/a o pareja
-            </Label>
-            <input
-              type="text"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-              placeholder="Ej: María y José"
-              value={clientData.nombre}
-              aria-invalid={showValidation && !clientData.nombre.trim()}
-              aria-describedby={showValidation && !clientData.nombre.trim() ? validationMessageId : undefined}
-              onChange={e => onClientDataChange({ ...clientData, nombre: e.target.value })}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5">
+          {/* Columna izquierda: identidad, tipo, fecha, invitados */}
+          <div className="space-y-3.5">
+            {/* Nombre */}
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                <User className="w-3.5 h-3.5" /> Nombre del festejado/a o pareja
+              </Label>
+              <input
+                type="text"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                placeholder="Ej: María y José"
+                value={clientData.nombre}
+                aria-invalid={showValidation && !clientData.nombre.trim()}
+                aria-describedby={showValidation && !clientData.nombre.trim() ? validationMessageId : undefined}
+                onChange={e => onClientDataChange({ ...clientData, nombre: e.target.value })}
+              />
+            </div>
 
-          {/* Tipo de fiesta */}
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <PartyPopper className="w-4 h-4" /> Tipo de fiesta
-            </Label>
-            <select
-              className="w-full bg-slate-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-              value={clientData.tipoFiesta}
-              aria-invalid={showValidation && !clientData.tipoFiesta}
-              aria-describedby={showValidation && !clientData.tipoFiesta ? validationMessageId : undefined}
-              onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
-            >
-              <option value="" className="bg-slate-800 text-white/60">Seleccioná el tipo de evento...</option>
-              {TIPOS_FIESTA.map(t => <option key={t} value={t} className="bg-slate-800 text-white">{t}</option>)}
-            </select>
-          </div>
+            {/* Tipo de fiesta + Fecha */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                  <PartyPopper className="w-3.5 h-3.5" /> Tipo de fiesta
+                </Label>
+                <select
+                  className="w-full bg-slate-800 border border-white/20 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  value={clientData.tipoFiesta}
+                  aria-invalid={showValidation && !clientData.tipoFiesta}
+                  aria-describedby={showValidation && !clientData.tipoFiesta ? validationMessageId : undefined}
+                  onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
+                >
+                  <option value="" className="bg-slate-800 text-white/60">Seleccioná...</option>
+                  {TIPOS_FIESTA.map(t => <option key={t} value={t} className="bg-slate-800 text-white">{t}</option>)}
+                </select>
+              </div>
 
-          {/* Fecha */}
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" /> Fecha del evento
-            </Label>
-            <input
-              type="date"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
-              value={clientData.fechaEvento}
-              aria-invalid={showValidation && !clientData.fechaEvento}
-              aria-describedby={showValidation && !clientData.fechaEvento ? validationMessageId : undefined}
-              onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
-            />
+              <div className="space-y-1.5">
+                <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                  <CalendarDays className="w-3.5 h-3.5" /> Fecha del evento
+                </Label>
+                <input
+                  type="date"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm [color-scheme:dark]"
+                  value={clientData.fechaEvento}
+                  aria-invalid={showValidation && !clientData.fechaEvento}
+                  aria-describedby={showValidation && !clientData.fechaEvento ? validationMessageId : undefined}
+                  onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
+                />
+              </div>
+            </div>
+
             {clientData.fechaEvento && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5">
                 {fechaOcupada ? (
-                  <div className="space-y-2">
-                    <p className="text-amber-300 text-sm font-semibold">
+                  <div className="space-y-1.5">
+                    <p className="text-amber-300 text-xs font-semibold">
                       ⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {sugerencias.map(fecha => (
                         <button
                           key={fecha}
                           type="button"
                           onClick={() => onClientDataChange({ ...clientData, fechaEvento: fecha })}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 text-sm hover:bg-indigo-500/30 transition-colors"
+                          className="px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 text-xs hover:bg-indigo-500/30 transition-colors"
                         >
                           {formatDate(fecha)}
                         </button>
@@ -159,153 +166,156 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
                     )}
                   </div>
                 ) : (
-                  <p className="text-emerald-300 text-sm font-medium">✅ Fecha disponible para cotizar.</p>
+                  <p className="text-emerald-300 text-xs font-medium">✅ Fecha disponible para cotizar.</p>
                 )}
+              </div>
+            )}
+
+            {/* Adultos / Niños y adolescentes */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5" /> Invitados adultos *
+                </Label>
+                <input
+                  type="number"
+                  min="0"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  placeholder="Ej: 100"
+                  value={clientData.invitadosAdultos}
+                  aria-invalid={showValidation && !(Number(clientData.invitadosAdultos) > 0)}
+                  aria-describedby={showValidation && !(Number(clientData.invitadosAdultos) > 0) ? validationMessageId : undefined}
+                  onChange={e => {
+                    const adultos = e.target.value;
+                    const ninos = clientData.invitadosAdolescentes;
+                    const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
+                    onClientDataChange({ ...clientData, invitadosAdultos: adultos, cantidadInvitados: total });
+                  }}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5" /> Niños y adolescentes
+                </Label>
+                <input
+                  type="number"
+                  min="0"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  placeholder="Ej: 15"
+                  value={clientData.invitadosAdolescentes}
+                  onChange={e => {
+                    const ninos = e.target.value;
+                    const adultos = clientData.invitadosAdultos;
+                    const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
+                    onClientDataChange({ ...clientData, invitadosAdolescentes: ninos, cantidadInvitados: total });
+                  }}
+                />
+              </div>
+            </div>
+            {(Number(clientData.invitadosAdultos) > 0 || Number(clientData.invitadosAdolescentes) > 0) && (
+              <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-white/70">
+                Total: <span className="text-white font-semibold">{Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados</span>
               </div>
             )}
           </div>
 
-          {/* Adultos / Niños y adolescentes */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" /> Invitados adultos *
+          {/* Columna derecha: duración y lugar */}
+          <div className="space-y-3.5">
+            {/* Duración */}
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                <Clock3 className="w-3.5 h-3.5" /> Duración de la fiesta *
               </Label>
-              <input
-                type="number"
-                min="0"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-                placeholder="Ej: 100"
-                value={clientData.invitadosAdultos}
-                aria-invalid={showValidation && !(Number(clientData.invitadosAdultos) > 0)}
-                aria-describedby={showValidation && !(Number(clientData.invitadosAdultos) > 0) ? validationMessageId : undefined}
-                onChange={e => {
-                  const adultos = e.target.value;
-                  const ninos = clientData.invitadosAdolescentes;
-                  const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
-                  onClientDataChange({ ...clientData, invitadosAdultos: adultos, cantidadInvitados: total });
-                }}
-              />
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { value: '3', label: 'Menos de 4 horas' },
+                  { value: '5', label: 'Más de 4 horas' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onClientDataChange({ ...clientData, duracionHoras: opt.value })}
+                    className={`rounded-xl border-2 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all ${
+                      clientData.duracionHoras === opt.value
+                        ? 'border-indigo-400 bg-indigo-500/20 text-white'
+                        : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" /> Niños y adolescentes
-              </Label>
-              <input
-                type="number"
-                min="0"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-                placeholder="Ej: 15"
-                value={clientData.invitadosAdolescentes}
-                onChange={e => {
-                  const ninos = e.target.value;
-                  const adultos = clientData.invitadosAdultos;
-                  const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
-                  onClientDataChange({ ...clientData, invitadosAdolescentes: ninos, cantidadInvitados: total });
-                }}
-              />
-            </div>
-          </div>
-          {(Number(clientData.invitadosAdultos) > 0 || Number(clientData.invitadosAdolescentes) > 0) && (
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
-              Total: <span className="text-white font-semibold">{Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados</span>
-            </div>
-          )}
 
-          {/* Duración */}
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <Clock3 className="w-4 h-4" /> Duración de la fiesta *
-            </Label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { value: '3', label: 'Menos de 4 horas' },
-                { value: '5', label: 'Más de 4 horas' },
-              ].map(opt => (
+            {/* Lugar de la fiesta */}
+            <div className="space-y-2.5">
+              <Label className="text-white/80 text-xs font-medium flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5" /> Lugar de la fiesta
+              </Label>
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
-                  key={opt.value}
                   type="button"
-                  onClick={() => onClientDataChange({ ...clientData, duracionHoras: opt.value })}
-                  className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
-                    clientData.duracionHoras === opt.value
-                      ? 'border-indigo-400 bg-indigo-500/20 text-white'
+                  onClick={() => onClientDataChange({ ...clientData, tieneSalon: true })}
+                  className={`rounded-xl border-2 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all ${
+                    tieneSalon === true
+                      ? 'border-emerald-400 bg-emerald-500/20 text-white'
                       : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
                   }`}
                 >
-                  {opt.label}
+                  🏛️ Tengo salón
                 </button>
-              ))}
-            </div>
-          </div>
+                <button
+                  type="button"
+                  onClick={() => onClientDataChange({ ...clientData, tieneSalon: false, salon: '' })}
+                  className={`rounded-xl border-2 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all ${
+                    tieneSalon === false
+                      ? 'border-amber-400 bg-amber-500/20 text-white'
+                      : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+                  }`}
+                >
+                  🔍 No tengo salón
+                </button>
+              </div>
 
-          {/* Lugar de la fiesta */}
-          <div className="space-y-3">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <Building2 className="w-4 h-4" /> Lugar de la fiesta
-            </Label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => onClientDataChange({ ...clientData, tieneSalon: true })}
-                className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
-                  tieneSalon === true
-                    ? 'border-emerald-400 bg-emerald-500/20 text-white'
-                    : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
-                }`}
-              >
-                🏛️ Tengo salón
-              </button>
-              <button
-                type="button"
-                onClick={() => onClientDataChange({ ...clientData, tieneSalon: false, salon: '' })}
-                className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
-                  tieneSalon === false
-                    ? 'border-amber-400 bg-amber-500/20 text-white'
-                    : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
-                }`}
-              >
-                🔍 No tengo salón
-              </button>
-            </div>
+              {tieneSalon === true && (
+                <input
+                  type="text"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  placeholder="Nombre del salón"
+                  value={clientData.salon}
+                  onChange={e => onClientDataChange({ ...clientData, salon: e.target.value })}
+                />
+              )}
 
-            {tieneSalon === true && (
-              <input
-                type="text"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base"
-                placeholder="Nombre del salón"
-                value={clientData.salon}
-                onChange={e => onClientDataChange({ ...clientData, salon: e.target.value })}
-              />
-            )}
-
-            {/* Club Uruguay siempre disponible como opción preferencial */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => onClientDataChange({
-                  ...clientData,
-                  salon: clientData.salon === 'Club Uruguay' ? '' : 'Club Uruguay',
-                })}
-                className={`w-full rounded-xl border-2 p-3.5 text-left transition-all ${
-                  clientData.salon === 'Club Uruguay'
-                    ? 'border-emerald-400 bg-emerald-500/20 shadow-lg'
-                    : 'border-white/15 bg-white/5 hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-white font-bold text-sm flex items-center gap-1.5">
-                    🏆 Opción destacada: Club Uruguay
+              {/* Club Uruguay siempre disponible como opción preferencial */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => onClientDataChange({
+                    ...clientData,
+                    salon: clientData.salon === 'Club Uruguay' ? '' : 'Club Uruguay',
+                  })}
+                  className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
+                    clientData.salon === 'Club Uruguay'
+                      ? 'border-emerald-400 bg-emerald-500/20 shadow-lg'
+                      : 'border-white/15 bg-white/5 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-white font-bold text-sm flex items-center gap-1.5">
+                      🏆 Opción destacada: Club Uruguay
+                    </p>
+                    {clientData.salon === 'Club Uruguay' && (
+                      <span className="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                        Seleccionado
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-white/70 text-xs mt-1 leading-relaxed">
+                    Salón elegante en el centro de Salto. Es 100% opcional (el alquiler se abona directamente en el Club).
                   </p>
-                  {clientData.salon === 'Club Uruguay' && (
-                    <span className="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-                      Seleccionado
-                    </span>
-                  )}
-                </div>
-                <p className="text-white/70 text-xs mt-1 leading-relaxed">
-                  Salón elegante en el centro de Salto. Es 100% opcional (el alquiler se abona directamente en el Club).
-                </p>
-              </button>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -313,8 +323,8 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6"
+          transition={{ delay: 0.35 }}
+          className="mt-4"
         >
           <button
             onClick={() => {
@@ -322,7 +332,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               if (!hasRequiredFields) return;
               onNext();
             }}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-base transition-all flex items-center justify-center gap-2"
           >
             Continuar a configuración de menú
             <ChevronRight className="h-5 w-5" />

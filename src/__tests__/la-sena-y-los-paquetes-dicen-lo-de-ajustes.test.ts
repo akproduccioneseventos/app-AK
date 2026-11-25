@@ -124,7 +124,7 @@ describe('La seña y los paquetes dicen lo de ajustes (Orden 277)', () => {
   });
 
   it('la presentación comercial (destino de /catalogo) no dice "Se requiere el 30 % del total"', () => {
-    const slidePath = path.join(process.cwd(), 'src/app/presentacion-led/slides/formas-de-pago-slide.tsx');
+    const slidePath = path.join(process.cwd(), 'src/app/presentacion-led/slides/plan-pagos-slide.tsx');
     const codigoSlide = fs.readFileSync(slidePath, 'utf8');
 
     expect(codigoSlide).not.toContain('Se requiere el 30 % del total');
