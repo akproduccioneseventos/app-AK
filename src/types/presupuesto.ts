@@ -118,9 +118,12 @@ export interface Presupuesto {
   senia?: number; // Monto de la seña acordada
   saldo?: number; // Saldo restante a pagar
   ajusteAnualPorcentaje?: number; // Porcentaje de ajuste anual pactado
+  tipoAjusteAnual?: 'acumulativo' | 'simple'; // Tipo de ajuste anual: acumulativo (default) o simple para contratos viejos
   /** Marcas de ajustes ya aplicados desde el portal (cancelacion, cambio de fecha): un doble toque no los repite. */
   ajustesAplicados?: string[];
   fechaFirmaContrato?: string; // ISO date de firma del contrato
+  contratoAdjuntoNombre?: string;
+  contratoAdjuntoUrl?: string;
   contractSignatureInfo?: { isSigned?: boolean; signedAt?: string; [key: string]: unknown };
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
@@ -181,5 +184,9 @@ export interface PresupuestoFormData {
   pagosCliente?: PagoCliente[];
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real
   timestamp?: string;
+  tipoAjusteAnual?: 'acumulativo' | 'simple';
+  fechaFirmaContrato?: string;
+  contratoAdjuntoNombre?: string;
+  contratoAdjuntoUrl?: string;
 }
 

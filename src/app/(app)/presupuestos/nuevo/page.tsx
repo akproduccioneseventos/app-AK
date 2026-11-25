@@ -11,10 +11,11 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2, CalendarDays, Users } from 'lucide-react';
+import { PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2, CalendarDays, Users, FileUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos, getPresupuestosConTotal, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
+import { extractContractDataAction } from '@/app/actions/historicos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,6 +70,9 @@ function PresupuestoDashboardContent() {
     const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
     const [sortMode, setSortMode] = useState<DashboardSortMode>('smart');
     const [puedeBorrar, setPuedeBorrar] = useState(false);
+    const [puedeCargarContrato, setPuedeCargarContrato] = useState(false);
+    const [isLoadingContrato, setIsLoadingContrato] = useState(false);
+    const contratoInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         let montado = true;
@@ -76,13 +80,81 @@ function PresupuestoDashboardContent() {
             .then(([perms, soloLectura]) => {
                 if (!montado) return;
                 const tieneAdmin = perms.permisos.includes(PERMISOS.ADMINISTRACION);
+                const tieneContabilidad = perms.permisos.includes(PERMISOS.CONTABILIDAD);
                 setPuedeBorrar(tieneAdmin && !soloLectura);
+                setPuedeCargarContrato((tieneAdmin || tieneContabilidad) && !soloLectura);
             })
             .catch(() => {
-                if (montado) setPuedeBorrar(false);
+                if (montado) {
+                    setPuedeBorrar(false);
+                    setPuedeCargarContrato(false);
+                }
             });
         return () => { montado = false; };
     }, []);
+
+    const handleCargarContratoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const isValidType =
+            file.type === 'application/pdf' ||
+            file.type.startsWith('image/') ||
+            /\.(pdf|jpe?g|png|webp|gif)$/i.test(file.name);
+        if (!isValidType) {
+            toast({
+                title: 'Archivo no compatible',
+                description: 'Elegí un contrato en PDF o en formato imagen.',
+                variant: 'destructive',
+            });
+            e.target.value = '';
+            return;
+        }
+
+        if (file.size > 8 * 1024 * 1024) {
+            toast({
+                title: 'El archivo es muy pesado',
+                description: 'El contrato no puede superar los 8 MB. Probá con un PDF o imagen más liviano.',
+                variant: 'destructive',
+            });
+            e.target.value = '';
+            return;
+        }
+
+        setIsLoadingContrato(true);
+        try {
+            const fileDataUri = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.onerror = () => reject(new Error('No se pudo leer el archivo elegido.'));
+                reader.readAsDataURL(file);
+            });
+
+            if (!fileDataUri) {
+                throw new Error('El archivo elegido está vacío.');
+            }
+
+            const resultado = await extractContractDataAction({ fileDataUri });
+            sessionStorage.setItem(
+                'ak_contrato_ia_borrador',
+                JSON.stringify({
+                    data: resultado,
+                    archivoNombre: file.name,
+                    leidoEn: new Date().toISOString(),
+                }),
+            );
+            router.push('/presupuestos/nuevo/crear?desdeContrato=1');
+        } catch (error) {
+            toast({
+                title: 'No se pudo leer el contrato',
+                description: error instanceof Error ? error.message : 'Ocurrió un error al analizar el contrato con IA.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoadingContrato(false);
+            e.target.value = '';
+        }
+    };
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
@@ -205,6 +277,32 @@ function PresupuestoDashboardContent() {
                   <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reunión</Link></Button>
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
+                  {puedeCargarContrato && (
+                    <>
+                      <input
+                        ref={contratoInputRef}
+                        type="file"
+                        accept=".pdf,image/*"
+                        onChange={handleCargarContratoFile}
+                        className="hidden"
+                        data-testid="input-cargar-contrato"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        data-testid="btn-cargar-contrato"
+                        disabled={isLoadingContrato}
+                        onClick={() => contratoInputRef.current?.click()}
+                      >
+                        {isLoadingContrato ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <FileUp className="w-4 h-4 mr-2" />
+                        )}
+                        {isLoadingContrato ? 'Leyendo contrato...' : 'Cargar contrato'}
+                      </Button>
+                    </>
+                  )}
                   <Button asChild><Link href={crearHref} data-testid="btn-nuevo-presupuesto"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
                     {puedeBorrar && (
                       <AlertDialog>

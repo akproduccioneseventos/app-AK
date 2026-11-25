@@ -13,7 +13,12 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings, WhatsAppTemplates } from '@/types/settings';
 import Image from 'next/image';
 import { calculateBudgetFinancials } from '@/lib/budget/financial-guardrails';
-import { DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE, DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import {
+  buildAnnualAdjustmentProjection,
+  DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+  DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+  getYearFromDate,
+} from '@/lib/budget/formal-budget';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // Company Info Constants
@@ -57,27 +62,6 @@ const formatDate = (dateString?: string, shortMonth = false) => {
     return 'Fecha inválida';
   }
 };
-
-/** Generate annual price projection rows */
-function generateProjectionRows(totalBase: number, adjustmentPct: number, currentYear: number, eventYear: number): { year: number; base: number; adjustment: number; total: number }[] {
-  const rows: { year: number; base: number; adjustment: number; total: number }[] = [];
-  const maxYears = 4;
-  const yearsToShow = Math.min(Math.max(0, eventYear - currentYear), maxYears);
-
-  if (yearsToShow <= 0) return rows;
-
-  rows.push({ year: currentYear, base: totalBase, adjustment: 0, total: totalBase });
-
-  let prevTotal = totalBase;
-  for (let i = 1; i <= yearsToShow; i++) {
-    const adj = Math.round(prevTotal * (adjustmentPct / 100));
-    const newTotal = prevTotal + adj;
-    rows.push({ year: currentYear + i, base: Math.round(prevTotal), adjustment: adj, total: newTotal });
-    prevTotal = newTotal;
-  }
-
-  return rows;
-}
 
 export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const { toast } = useToast();
@@ -148,6 +132,10 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
  const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+    const tipoAjusteLabel = tipoAjusteAnual === 'simple' ? 'simple' : 'acumulativo';
+    const ajusteNota = showAnnualAdjustmentLegend
+      ? `Los precios tienen un ajuste anual del ${adjustmentPct}% ${tipoAjusteLabel} desde la firma del contrato.`
+      : '';
 
     // Use the configurable budgetShareTemplate when available; fall back to hardcoded text
     const template = waTemplates?.budgetShareTemplate;
@@ -159,9 +147,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
         .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre || '')
         .replace(/\{\{FECHA_EVENTO\}\}/g, fechaEvento)
         .replace(/\{\{LINK\}\}/g, pageUrl);
-      return annualAdjustmentAmount > 0
-        ? `${baseText}\nProyección informativa ${eventYear}: ${formatCurrency(adjustedTotal, true)}`
-        : baseText;
+      return ajusteNota ? `${baseText}\n${ajusteNota}` : baseText;
     }
 
     // Fallback
@@ -170,8 +156,8 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
     texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
     texto += pageUrl;
-    if (annualAdjustmentAmount > 0) {
-      texto += `\n\nProyección informativa ${eventYear}: ${formatCurrency(adjustedTotal, true)}`;
+    if (ajusteNota) {
+      texto += `\n\n${ajusteNota}`;
     }
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
@@ -211,8 +197,8 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
 
-  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
-  const currentYear = new Date().getFullYear();
+  const eventYear = getYearFromDate(presupuesto.eventoFecha) ?? 0;
+  const currentYear = getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? new Date().getFullYear();
   const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE;
   const bookingDepositAmount = displaySettings?.bookingDepositAmount ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT;
   const isContracted = presupuesto?.estado === 'Aceptado' || presupuesto?.estado === 'Facturado';
@@ -222,13 +208,19 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     eventYear > currentYear &&
     presupuesto?.ajusteAnualActivo === true;
 
-  const projectionRows = showAnnualAdjustmentLegend
-    ? generateProjectionRows(totalFinal, adjustmentPct, currentYear, eventYear)
-    : [];
-  const adjustedTotal = projectionRows.length > 0 ? projectionRows[projectionRows.length - 1].total : totalFinal;
-  const annualAdjustmentAmount = Math.max(0, adjustedTotal - totalFinal);
-  const nextYear = currentYear + 1;
-  const nextYearProjectedTotal = Math.round(totalFinal * (1 + adjustmentPct / 100));
+  const tipoAjusteAnual = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual;
+  const annualProjection = showAnnualAdjustmentLegend
+    ? buildAnnualAdjustmentProjection({
+        baseTotal: totalFinal,
+        eventDate: presupuesto.eventoFecha,
+        currentYear,
+        adjustmentPct,
+        tipoAjusteAnual,
+      } as Parameters<typeof buildAnnualAdjustmentProjection>[0] & {
+        tipoAjusteAnual?: 'acumulativo' | 'simple';
+      })
+    : null;
+  const annualAdjustmentAmount = annualProjection?.applies ? annualProjection.adjustmentAmount : 0;
 
   const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
   const shouldShowBudgetSignatures =

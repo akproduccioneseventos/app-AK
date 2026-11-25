@@ -1666,13 +1666,25 @@ export async function cancelServicesOrParty(
     const totalPagado = paymentSummary.paid;
 
     // Calculate inflation adjustment factor based on cancellation year
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
-      : new Date().getFullYear();
+    const signingYear = getYearFromDate(fiesta.contratoDatos?.fechaFirmaContrato) ?? new Date().getFullYear();
     const cancellationYear = new Date().getFullYear();
-    const yearsDiff = Math.max(0, cancellationYear - signingYear);
     const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto.ajusteAnualPorcentaje ?? 15;
-    const factorAjuste = Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+    const proyeccionCancelacion = buildAnnualAdjustmentProjection({
+      baseTotal: totalOriginal,
+      eventDate: `${cancellationYear}-01-01`,
+      currentYear: signingYear,
+      adjustmentPct: porcentajeAjuste,
+      tipoAjusteAnual: presupuesto.tipoAjusteAnual,
+    });
+    const factorAjuste = totalOriginal > 0
+      ? proyeccionCancelacion.adjustedTotal / totalOriginal
+      : buildAnnualAdjustmentProjection({
+        baseTotal: 1000,
+        eventDate: `${cancellationYear}-01-01`,
+        currentYear: signingYear,
+        adjustmentPct: porcentajeAjuste,
+        tipoAjusteAnual: presupuesto.tipoAjusteAnual,
+      }).adjustedTotal / 1000;
 
     let docContent = '';
     let updatedItems = [...(presupuesto.itemsPresupuestados || [])];
@@ -1684,7 +1696,7 @@ export async function cancelServicesOrParty(
 
     if (payload.cancelAll) {
       // Cancellation of the entire party
-      const adjustedTotal = totalOriginal * factorAjuste;
+      const adjustedTotal = proyeccionCancelacion.adjustedTotal;
       penaltyTotal = Math.round(adjustedTotal * 0.3);
       nuevoTotal = penaltyTotal;
 
@@ -1752,7 +1764,13 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       for (const item of updatedItems) {
         if (servicesToCancelSet.has(item.idServicioCatalogo)) {
           const originalCost = item.costoTotalItem || 0;
-          const adjustedCost = originalCost * factorAjuste;
+          const adjustedCost = buildAnnualAdjustmentProjection({
+            baseTotal: originalCost,
+            eventDate: `${cancellationYear}-01-01`,
+            currentYear: signingYear,
+            adjustmentPct: porcentajeAjuste,
+            tipoAjusteAnual: presupuesto.tipoAjusteAnual,
+          }).adjustedTotal;
           const servicePenalty = Math.round(adjustedCost * 0.3);
           penaltyTotal += servicePenalty;
           cancelledValueOriginal += originalCost;
@@ -2051,6 +2069,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       baseTotal: 100,
       eventDate: payload.newDate,
       currentYear: contractYear,
+      tipoAjusteAnual: presupuesto.tipoAjusteAnual,
     });
     if (annualProj.applies) {
       presupuesto.ajusteAnualActivo = true;

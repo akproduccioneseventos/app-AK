@@ -52,8 +52,10 @@ import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-boot
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
-import { isPackageApplicableToEventType } from '@/types/armado-rapido';
+import { isPackageApplicableToEventType, mismoTipoDeEvento } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { Testimonial } from '@/types/feedback';
+import type { CatalogoFoto } from '@/types/catalogo';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -67,8 +69,10 @@ import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
+import { DEFAULT_STATS } from '@/components/landing/StatsSection';
+import { SUAVE } from '@/lib/motion';
 
 const SimulatorMeetingScheduler = dynamic(
   () => import('@/components/simulator/SimulatorMeetingScheduler').then((m) => m.SimulatorMeetingScheduler),
@@ -185,7 +189,7 @@ const DURATION_OPTIONS = [
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
 
-const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición'] as const;
+const STEP_LABELS = ['Datos', 'Menú', 'Paquete', 'Edición'] as const;
 
 const formatCategoriaText = (cat?: string): string => {
     if (!cat) return '';
@@ -194,7 +198,7 @@ const formatCategoriaText = (cat?: string): string => {
 
 const CATEGORY_STYLES: Record<string, { icon: React.ComponentType<any>; color: string; border: string; bg: string; text: string }> = {
   'Servicio de catering': { icon: Utensils, color: 'from-amber-500 to-orange-600', border: 'border-orange-100', bg: 'bg-orange-50/50', text: 'text-orange-900' },
-  'Servicios adicionales': { icon: Plus, color: 'from-blue-500 to-indigo-600', border: 'border-blue-100', bg: 'bg-blue-50/50', text: 'text-blue-900' },
+  'Servicios adicionales': { icon: Plus, color: 'from-red-500 to-rose-600', border: 'border-rose-100', bg: 'bg-rose-50/50', text: 'text-rose-900' },
   'Otros servicios': { icon: Settings2, color: 'from-emerald-500 to-teal-600', border: 'border-emerald-100', bg: 'bg-emerald-50/50', text: 'text-emerald-900' },
   'Ambientación': { icon: Star, color: 'from-purple-500 to-fuchsia-600', border: 'border-fuchsia-100', bg: 'bg-fuchsia-50/50', text: 'text-fuchsia-900' },
   'Regalos Incluidos': { icon: Gift, color: 'from-pink-500 to-rose-600', border: 'border-rose-100', bg: 'bg-rose-50/50', text: 'text-rose-900' },
@@ -275,6 +279,7 @@ function normalizePrefillEventType(type?: string | null): string {
     if (normalizedType.includes('boda') || normalizedType.includes('casamiento')) return 'Boda';
     if (normalizedType.includes('infantil')) return 'Cumpleaños infantil';
     if (normalizedType.includes('empresa') || normalizedType.includes('corporativo')) return 'Evento empresarial';
+    if (normalizedType.includes('otro')) return 'Otro';
     return 'Cumpleaños';
 }
 
@@ -316,10 +321,20 @@ function SimuladorContent() {
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
         simulatorMode: 'visual' as const,
     }), [searchParams]);
+    const shouldReduceMotion = useReducedMotion();
     const [hasStarted, setHasStarted] = useState(false);
-    // Si la URL trae el tipo de fiesta pre-seleccionado o parámetros clave, saltamos la pantalla de bienvenida
-    // para que el formulario quede visible de entrada y las pruebas e2e puedan encontrarlo.
+    // Si la URL trae ?paso=1 o ?paso= inválido al entrar sin datos, aterriza en la bienvenida (!hasStarted).
+    // Si trae parámetros de flujo (tipo, eventType, mes, extra, paquete) sin ?paso= inválido, abre directo el paso 1 (Datos).
     useEffect(() => {
+      const pasoParam = searchParams.get('paso');
+      if (pasoParam !== null) {
+        const parsedPaso = Number(pasoParam);
+        if (!Number.isInteger(parsedPaso) || parsedPaso <= 1 || parsedPaso > 4) {
+          setHasStarted(false);
+          setStep(1);
+          return;
+        }
+      }
       if (searchParams.get('tipo') || searchParams.get('eventType') || searchParams.get('mes') || searchParams.get('extra') || searchParams.get('paquete')) {
         setHasStarted(true);
       }
@@ -335,7 +350,10 @@ function SimuladorContent() {
                 if (parsed.submissionId) {
                     submissionIdRef.current = parsed.submissionId;
                 }
-                if (parsed.step) setStep(parsed.step);
+                if (parsed.step) {
+                    setHasStarted(true);
+                    setStep(Math.min(4, Math.max(1, Number(parsed.step) || 1)));
+                }
                 if (parsed.clienteNombre) setClienteNombre(parsed.clienteNombre);
                 if (parsed.clienteContacto) setClienteContacto(parsed.clienteContacto);
                 if (parsed.eventoTipo) setEventoTipo(parsed.eventoTipo);
@@ -396,8 +414,13 @@ function SimuladorContent() {
     const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings>(defaultBudgetDisplaySettings);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
+    const [testimonios, setTestimonios] = useState<Testimonial[]>([]);
+    const [fotosDestacadas, setFotosDestacadas] = useState<CatalogoFoto[]>([]);
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
+    const [showStickyWelcomeCta, setShowStickyWelcomeCta] = useState(false);
+    const heroCtaRef = useRef<HTMLDivElement | null>(null);
+    const [priceDeltaFeedback, setPriceDeltaFeedback] = useState<string | null>(null);
 
     const [clienteNombre, setClienteNombre] = useState(prefillName);
     const [clienteContacto, setClienteContacto] = useState('');
@@ -463,10 +486,10 @@ function SimuladorContent() {
     }, []);
 
     // La sugerencia de paquete superior solo aparece mientras el visitante sigue
-    // revisando el paso 5. Si ya avanzo a generar su presupuesto, el temporizador
+    // revisando el paso 4 (personalización). Si ya avanzo a generar su presupuesto, el temporizador
     // se cancela para que el modal nunca tape el resultado final.
     useEffect(() => {
-        if (step !== 5) {
+        if (step !== 4) {
             setIsUpgradePromptOpen(false);
             return;
         }
@@ -477,6 +500,23 @@ function SimuladorContent() {
         }, 500);
         return () => clearTimeout(timer);
     }, [step, hasSeenUpgradePrompt]);
+
+    useEffect(() => {
+        if (hasStarted) {
+            setShowStickyWelcomeCta(false);
+            return;
+        }
+        const node = heroCtaRef.current;
+        if (!node || typeof IntersectionObserver === 'undefined') return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setShowStickyWelcomeCta(!entry.isIntersecting);
+            },
+            { threshold: 0.1 },
+        );
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [hasStarted, isLoading]);
 
     useEffect(() => {
         const stored = Number(window.localStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
@@ -577,6 +617,8 @@ function SimuladorContent() {
                 setBudgetSettings(bootstrap.budgetSettings);
                 setServiciosCatalogo(bootstrap.services);
                 setAllMenus(bootstrap.menus);
+                setTestimonios(bootstrap.testimonios || []);
+                setFotosDestacadas(bootstrap.fotosDestacadas || []);
                 if (bootstrap.whatsappNumber) {
                     setWhatsappNumber(bootstrap.whatsappNumber);
                 }
@@ -705,7 +747,7 @@ function SimuladorContent() {
             costo: costoFinal,
             eventYear,
             diffYears,
-            aclaracion: `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioBasePromo)}${diffYears > 0 ? `, con ajuste ${eventYear}: ${formatCurrency(costoFinal)}` : ''}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
+            aclaracion: `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioBasePromo)}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.${diffYears > 0 ? ' Los precios tienen un ajuste anual del 15% acumulativo desde la firma del contrato.' : ''}`,
         };
     }, [config?.clubUruguayConfig, salonChoice, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
 
@@ -844,7 +886,11 @@ function SimuladorContent() {
         }
     }, [config, searchParams]);
 
+    const mostrarPrecios = config?.mostrarPrecios !== false;
+    const showServicePrices = mostrarPrecios && (budgetSettings.showIndividualPrices ?? true);
+
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
+        showDeltaNextChangeRef.current = true;
         const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
@@ -998,11 +1044,6 @@ function SimuladorContent() {
 
     const handleNext = async () => {
         if (step === 1) {
-            setStep(2);
-            return;
-        }
-
-        if (step === 2) {
             const errors: { nombre?: boolean; contacto?: boolean; adultos?: boolean; fecha?: boolean; salon?: boolean } = {};
             if (clienteNombre.trim().length < 2) errors.nombre = true;
             // El cartel promete "un WhatsApp uruguayo valido", pero se aceptaba
@@ -1056,11 +1097,11 @@ function SimuladorContent() {
             } catch (error: any) {
                 console.warn("Save progress non-blocking fallback:", error);
             }
-            setStep(3);
+            setStep(2);
             return;
         }
 
-        if (step === 3) {
+        if (step === 2) {
             if (!selectedPrincipal && principalesDisponibles.length > 0) {
                 const defaultPrincipalId = principalesDisponibles[0].id;
                 setSelectedPrincipal(defaultPrincipalId);
@@ -1076,20 +1117,20 @@ function SimuladorContent() {
                 setSelectedInfantil(defaultInfantilId);
                 handleGastronomicSelectionChange('infantil', defaultInfantilId);
             }
+            setStep(3);
+            return;
+        }
+
+        if (step === 3) {
+            if (!selectedPaqueteId && sortedPaquetes.length > 0) {
+                const recommended = sortedPaquetes.find(p => p.recommended) || sortedPaquetes[0];
+                if (recommended) selectPackage(recommended.id);
+            }
             setStep(4);
             return;
         }
 
         if (step === 4) {
-            if (!selectedPaqueteId && sortedPaquetes.length > 0) {
-                const recommended = sortedPaquetes.find(p => p.recommended) || sortedPaquetes[0];
-                if (recommended) selectPackage(recommended.id);
-            }
-            setStep(5);
-            return;
-        }
-
-        if (step === 5) {
             setIsGenerating(true);
             const selectedPackageName = config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
@@ -1123,7 +1164,7 @@ function SimuladorContent() {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     if (result.token) setGeneratedToken(result.token);
                     startCommercialTimer();
-                    setStep(6);
+                    setStep(5);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
                 if (e.message === 'SERVER_ACTION_RELOAD') return;
@@ -1171,6 +1212,7 @@ function SimuladorContent() {
 
     const handleConfirmDeleteService = async () => {
         if (!serviceToDelete || !config) return;
+        showDeltaNextChangeRef.current = true;
         const serviceId = serviceToDelete.id;
         setIsGenerating(true);
 
@@ -1277,14 +1319,32 @@ function SimuladorContent() {
         const eventDateLabel = eventoFecha
             ? new Intl.DateTimeFormat('es-UY').format(eventoFecha)
             : 'a confirmar';
-        const texto = [
-            `¡Hola AK Producciones! Soy ${clienteNombre}.`,
-            `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
-            `Total vigente: ${formatCurrency(stats.totalFinal)}`,
-            stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
-            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña de ${bookingDepositLabel}.`,
-            `Ver presupuesto: ${url}`,
-        ].filter(Boolean).join('\n');
+        const giftNames = stats.detallados.filter(item => item.esRegalo).map(item => toSentenceCase(item.nombre));
+        const serviceNames = stats.detallados.filter(item => !item.esRegalo).map(item => toSentenceCase(item.nombre));
+        const texto = mostrarPrecios
+            ? [
+                `¡Hola AK Producciones! Soy ${clienteNombre}.`,
+                `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
+                `Total vigente: ${formatCurrency(stats.totalFinal)}`,
+                stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
+                `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña de ${bookingDepositLabel}.`,
+                `Ver presupuesto: ${url}`,
+            ].filter(Boolean).join('\n')
+            : [
+                `¡Hola AK Producciones! Soy ${clienteNombre}.`,
+                `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
+                serviceNames.length > 0 ? `Servicios y menú incluidos: ${serviceNames.join(', ')}.` : '',
+                giftNames.length > 0 ? `Regalos incluidos: ${giftNames.join(', ')}.` : '',
+                `Total vigente: ${formatCurrency(stats.totalFinal)}`,
+                stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
+                paymentPlan.installments > 0
+                    ? `Plan de pagos estimado: seña de ${bookingDepositLabel} + ${paymentPlan.installments} cuotas de ${formatCurrency(paymentPlan.installmentAmount)}.`
+                    : `Seña de reserva: ${bookingDepositLabel}.`,
+                salonChoice === 'club' && clubUruguayDetails
+                    ? `Salón Club Uruguay (50% OFF, contrato independiente): ${formatCurrency(clubUruguayDetails.precioPromo)}.`
+                    : '',
+                `Ver presupuesto: ${url}`,
+            ].filter(Boolean).join('\n');
         const destination = toWhatsAppNumber(whatsappNumber);
         window.open(`https://wa.me/${destination}?text=${encodeURIComponent(texto)}`, '_blank');
     };
@@ -1312,6 +1372,7 @@ function SimuladorContent() {
                 stats,
                 bookingTerms: budgetSettings.bookingTerms,
                 bookingDepositAmount: configuredBookingDeposit,
+                mostrarPrecios,
             });
         } catch (error: any) {
             toast({
@@ -1494,8 +1555,66 @@ function SimuladorContent() {
     };
 
     const sortedPaquetes = useMemo(() => {
-        return (config?.paquetes || []).filter((p) => isPackageApplicableToEventType(p, eventoTipo));
+        const allPackages = config?.paquetes || [];
+        const matching = allPackages.filter((p) => isPackageApplicableToEventType(p, eventoTipo));
+        if (matching.length > 0) return matching;
+        const generales = allPackages.filter((p) => {
+            const tipos = (p.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
+            return tipos.length === 0 || tipos.some((t) => mismoTipoDeEvento(t, 'Otro'));
+        });
+        return generales.length > 0 ? generales : allPackages;
     }, [config?.paquetes, eventoTipo]);
+
+    const urlEventTypeParam = searchParams.get('eventType') ?? searchParams.get('tipo');
+    const welcomePackages = useMemo(() => {
+        const allPackages = config?.paquetes || [];
+        if (urlEventTypeParam) {
+            const byUrlType = allPackages.filter((p) => isPackageApplicableToEventType(p, prefillEventType));
+            if (byUrlType.length > 0) return byUrlType;
+        }
+        const generales = allPackages.filter((p) => {
+            const tipos = (p.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
+            return tipos.length === 0 || tipos.some((t) => mismoTipoDeEvento(t, 'Otro'));
+        });
+        return generales.length > 0 ? generales : allPackages;
+    }, [config?.paquetes, urlEventTypeParam, prefillEventType]);
+
+    const prevTotalRef = useRef<number>(stats.totalFinal);
+    const showDeltaNextChangeRef = useRef(false);
+    useEffect(() => {
+        const prev = prevTotalRef.current;
+        prevTotalRef.current = stats.totalFinal;
+        if (!showDeltaNextChangeRef.current) return;
+        showDeltaNextChangeRef.current = false;
+        if (mostrarPrecios || step !== 4) return;
+        const diff = Math.round(stats.totalFinal - prev);
+        if (diff === 0) return;
+        const sign = diff > 0 ? '+' : '−';
+        setPriceDeltaFeedback(`${sign}${formatCurrency(Math.abs(diff))} en el total`);
+    }, [stats.totalFinal, mostrarPrecios, step]);
+
+    const isCurrentStepValid = useMemo(() => {
+        if (step === 1) {
+            return (
+                clienteNombre.trim().length >= 2 &&
+                isValidUruguayMobile(clienteContacto) &&
+                adultos > 0 &&
+                Boolean(eventoFecha) &&
+                Boolean(salonChoice) &&
+                dateAvailabilityStatus !== 'occupied'
+            );
+        }
+        if (step === 2) {
+            return Boolean(selectedPrincipal || selectedEntradas.length > 0 || principalesDisponibles.length > 0);
+        }
+        if (step === 3) {
+            return Boolean(selectedPaqueteId || sortedPaquetes.length > 0);
+        }
+        if (step === 4) {
+            return stats.detallados.length > 0 && stats.totalFinal > 0;
+        }
+        return false;
+    }, [step, clienteNombre, clienteContacto, adultos, eventoFecha, salonChoice, dateAvailabilityStatus, selectedPrincipal, selectedEntradas.length, principalesDisponibles.length, selectedPaqueteId, sortedPaquetes.length, stats.detallados.length, stats.totalFinal]);
 
     const selectedPackage = useMemo(
         () => sortedPaquetes.find(packageItem => packageItem.id === selectedPaqueteId),
@@ -1677,70 +1796,408 @@ function SimuladorContent() {
     }
 
     if (!hasStarted) {
+        const fiestasStat = DEFAULT_STATS[0]?.value ?? '+200';
+        const aniosStat = DEFAULT_STATS[1]?.value ?? '+7';
+        const fearCards = [
+            {
+                icon: HeartHandshake,
+                question: '¿Voy a tener que coordinar todo yo?',
+                answer: 'Un solo responsable, una reunión y una seña. El día de la fiesta coordinamos nosotros.',
+            },
+            {
+                icon: ShieldCheck,
+                question: '¿Y si un proveedor falla?',
+                answer: 'Un solo equipo AK coordina todos los servicios.',
+            },
+            {
+                icon: Building2,
+                question: '¿Cómo llegan y vuelven los invitados? ¿Es seguro?',
+                answer: 'Salón Club Uruguay en pleno centro, con 50% OFF al contratar la producción integral.',
+            },
+            {
+                icon: FileDown,
+                question: '¿Voy a pagar de más?',
+                answer: 'Presupuesto claro, sin compromiso, en PDF válido 30 días.',
+            },
+            {
+                icon: Users,
+                question: '¿Quién me asesora?',
+                answer: 'Un coordinador te acompaña en cada decisión.',
+            },
+            {
+                icon: Gift,
+                question: '¿Qué más recibo?',
+                answer: 'Regalos incluidos en cada paquete.',
+            },
+        ];
+
+        const sofiaQuery = new URLSearchParams();
+        ['source', 'campaign', 'refFiesta', 'ref', 'tipo', 'eventType'].forEach(key => {
+            const val = searchParams.get(key);
+            if (val) sofiaQuery.set(key, val);
+        });
+        searchParams.forEach((val, key) => {
+            if (key.startsWith('utm_')) {
+                sofiaQuery.set(key, val);
+            }
+        });
+        const sofiaHref = `/simulador-ak${sofiaQuery.toString() ? `?${sofiaQuery.toString()}` : ''}`;
+
+        const handleStartSimulator = () => {
+            setHasStarted(true);
+            setStep(1);
+            if (typeof window !== 'undefined') window.scrollTo(0, 0);
+        };
+
+        const sectionMotionProps = shouldReduceMotion
+            ? {}
+            : {
+                initial: { opacity: 0, y: 18 },
+                whileInView: { opacity: 1, y: 0 },
+                viewport: { once: true, margin: '-80px' },
+                transition: { duration: 0.4, ease: SUAVE },
+            };
+
         return (
-            <main className="min-h-screen bg-slate-950 text-white">
+            <main className="min-h-screen bg-slate-950 text-slate-900">
                 <section
-                    className="relative min-h-[78vh] overflow-hidden bg-cover bg-center"
+                    data-testid="simulator-welcome-hero"
+                    className="relative overflow-hidden bg-slate-950 bg-cover bg-center text-white"
                     style={{ backgroundImage: "url('/media/catalogo-servicios/discoteca-salon-ak-02.jpeg')" }}
                 >
-                    <div className="absolute inset-0 bg-black/65" />
-                    <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-end px-5 pb-12 pt-24 sm:px-8 lg:px-12">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/60" />
+                    <div className="relative mx-auto flex max-w-5xl flex-col justify-center px-5 pb-10 pt-8 sm:min-h-[76vh] sm:px-8 sm:pb-14 sm:pt-16 lg:px-12">
                         <div className="max-w-3xl">
-                            <CompanyLogo size="md" src={logoUrl || undefined} blanco className="mb-8" />
-                            <h1 className="text-4xl font-black leading-tight sm:text-6xl">
-                                Presupuesto para tu evento
-                            </h1>
-                            <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-xl">
-                                Armá una propuesta con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyección para la fecha elegida.
+                            <CompanyLogo size="sm" src={logoUrl || undefined} blanco className="mb-5 sm:mb-7" />
+                            <p className="text-base font-extrabold tracking-tight text-amber-300 sm:text-xl">
+                                Tu fiesta, sin dolores de cabeza.
                             </p>
-                            <div className="mt-8 flex flex-wrap items-center gap-4">
-                              <Button
-                                  onClick={() => {
-                                      setHasStarted(true);
-                                      if (typeof window !== 'undefined') window.scrollTo(0, 0);
-                                  }}
-                                  data-testid="simulator-cover-start"
-                                  className="h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
-                                  disabled={isLoading}
-                              >
-                                  {isLoading ? (
-                                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando catálogo...</>
-                                  ) : (
-                                      <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
-                                  )}
-                              </Button>
+                            <h1 className="mt-1.5 text-3xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                                Tu presupuesto en 2 minutos.
+                            </h1>
 
-                              <VideoDeAyuda lugar="simulador" />
+                            <div ref={heroCtaRef} className="mt-6 sm:mt-8">
+                                <motion.div
+                                    className="inline-block w-full sm:w-auto"
+                                    animate={shouldReduceMotion ? undefined : { scale: [1, 1.02, 1] }}
+                                    transition={shouldReduceMotion ? undefined : { duration: 0.7, repeat: Infinity, repeatDelay: 2.8, ease: SUAVE }}
+                                >
+                                    <Button
+                                        type="button"
+                                        onClick={handleStartSimulator}
+                                        data-testid="simulator-cover-start"
+                                        className="h-14 w-full rounded-xl bg-red-600 px-8 text-base font-black text-white shadow-xl shadow-red-950/40 hover:bg-red-700 sm:w-auto"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Armar mi presupuesto gratis</>
+                                        ) : (
+                                            <>Armar mi presupuesto gratis <ArrowRight className="ml-2 h-5 w-5" /></>
+                                        )}
+                                    </Button>
+                                </motion.div>
+                                <p className="mt-2.5 text-xs font-semibold text-white/80">
+                                    Sin compromiso · Te llega en PDF · Válido 30 días
+                                </p>
+                            </div>
+
+                            <div
+                                data-testid="simulator-trust-strip"
+                                className="mt-5 inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold text-white backdrop-blur-sm sm:text-sm"
+                            >
+                                <span>{fiestasStat} fiestas</span>
+                                <span aria-hidden="true" className="text-amber-400">·</span>
+                                <span>{aniosStat} años</span>
+                                <span aria-hidden="true" className="text-amber-400">·</span>
+                                <span>Salto</span>
                             </div>
                         </div>
                     </div>
                 </section>
-                <section className="border-t border-white/10 bg-white text-slate-900">
-                    <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-slate-200 sm:grid-cols-4">
-                        {[
-                            [PackageCheck, 'Organización integral', 'Un solo equipo para coordinar todo.'],
-                            [Utensils, 'Gastronomía real', 'Menús configurados desde el catálogo AK.'],
-                            [Zap, 'Tecnología y diversión', 'Experiencias para invitados y clientes.'],
-                            [ShieldCheck, 'Trayectoria y respaldo', 'Presupuesto registrado y revisable.'],
-                        ].map(([Icon, title, description]) => {
-                            const BenefitIcon = Icon as typeof PackageCheck;
-                            return (
-                                <div key={String(title)} className="min-h-40 bg-white p-5 sm:p-6">
-                                    <BenefitIcon className="h-6 w-6 text-red-600" />
-                                    <p className="mt-4 text-sm font-black">{String(title)}</p>
-                                    <p className="mt-1 text-xs leading-5 text-slate-500">{String(description)}</p>
-                                </div>
-                            );
-                        })}
+
+                {/* 5. Tu miedo, nuestra respuesta */}
+                <section className="bg-slate-50 py-12 sm:py-16">
+                    <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                        <motion.div {...sectionMotionProps} className="mb-8 text-left">
+                            <span className="text-[11px] font-black uppercase tracking-widest text-red-600">
+                                Sin sorpresas
+                            </span>
+                            <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                                Tu miedo, nuestra respuesta
+                            </h2>
+                        </motion.div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {fearCards.map((card) => {
+                                const CardIcon = card.icon;
+                                return (
+                                    <motion.article
+                                        key={card.question}
+                                        data-testid="simulator-fear-card"
+                                        {...sectionMotionProps}
+                                        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                                    >
+                                        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                                            <CardIcon className="h-5 w-5" />
+                                        </div>
+                                        <h3 className="text-sm font-black text-slate-900">{card.question}</h3>
+                                        <p className="mt-1.5 text-xs font-medium leading-relaxed text-slate-600">
+                                            {card.answer}
+                                        </p>
+                                    </motion.article>
+                                );
+                            })}
+                        </div>
                     </div>
                 </section>
+
+                {/* 6. Lo que dicen de nosotros */}
+                {testimonios.length > 0 && (
+                    <section className="bg-rose-50/40 py-12 sm:py-16">
+                        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                            <motion.div {...sectionMotionProps} className="mb-8 text-left">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-amber-600">
+                                    Experiencias reales
+                                </span>
+                                <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                                    Lo que dicen de nosotros
+                                </h2>
+                            </motion.div>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                {testimonios.slice(0, 3).map((item) => {
+                                    const ratingValue = Math.max(1, Math.min(5, Number((item as { rating?: number }).rating) || 5));
+                                    return (
+                                        <motion.article
+                                            key={item.id}
+                                            {...sectionMotionProps}
+                                            className="flex flex-col justify-between rounded-2xl border border-rose-100 bg-white p-5 shadow-sm"
+                                        >
+                                            <div>
+                                                <div className="mb-3 flex items-center gap-1 text-amber-500" aria-label={`Calificación ${ratingValue} de 5`}>
+                                                    {Array.from({ length: ratingValue }).map((_, idx) => (
+                                                        <Star key={idx} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                                                    ))}
+                                                </div>
+                                                <p className="text-xs font-medium leading-relaxed text-slate-700">
+                                                    &ldquo;{item.testimonialText}&rdquo;
+                                                </p>
+                                            </div>
+                                            <div className="mt-4 border-t border-slate-100 pt-3">
+                                                <p className="text-xs font-black text-slate-900">{item.clientName}</p>
+                                                {item.fiestaNombre && (
+                                                    <p className="text-[11px] font-semibold text-slate-500">{item.fiestaNombre}</p>
+                                                )}
+                                            </div>
+                                        </motion.article>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 7. Fiestas reales */}
+                {fotosDestacadas.length > 0 && (
+                    <section className="bg-white py-12 sm:py-16">
+                        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                            <motion.div {...sectionMotionProps} className="mb-6 text-left">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-red-600">
+                                    Galería AK
+                                </span>
+                                <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                                    Fiestas reales
+                                </h2>
+                            </motion.div>
+                            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+                                {fotosDestacadas.slice(0, 6).map((foto) => {
+                                    const imgUrl = safeImageUrl(foto.url);
+                                    if (!imgUrl) return null;
+                                    return (
+                                        <div
+                                            key={foto.id}
+                                            className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm sm:w-72"
+                                        >
+                                            <div className="aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={imgUrl}
+                                                    alt={foto.titulo || foto.servicioNombre || 'Fiesta real AK Producciones'}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </div>
+                                            {(foto.titulo || foto.tipoFiesta) && (
+                                                <div className="p-3">
+                                                    {foto.titulo && (
+                                                        <p className="truncate text-xs font-black text-slate-900">{foto.titulo}</p>
+                                                    )}
+                                                    {foto.tipoFiesta && (
+                                                        <p className="text-[11px] font-semibold text-slate-500">{foto.tipoFiesta}</p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 8. Qué incluye cada paquete */}
+                {welcomePackages.length > 0 && (
+                    <section className="bg-slate-50 py-12 sm:py-16">
+                        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                            <motion.div {...sectionMotionProps} className="mb-8 text-left">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-red-600">
+                                    Propuestas armadas
+                                </span>
+                                <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                                    Qué incluye cada paquete
+                                </h2>
+                            </motion.div>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                {welcomePackages.map((pkg) => {
+                                    const includedList = pkg.serviciosIncluidos || [];
+                                    const giftCount = includedList.filter(s => s.esRegalo).length;
+                                    return (
+                                        <motion.article
+                                            key={pkg.id}
+                                            {...sectionMotionProps}
+                                            className={cn(
+                                                'flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-sm',
+                                                pkg.recommended ? 'border-amber-400 ring-1 ring-amber-300/60' : 'border-slate-200',
+                                            )}
+                                        >
+                                            <div>
+                                                {pkg.recommended && (
+                                                    <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800">
+                                                        <Sparkles className="h-3 w-3" /> Más elegido
+                                                    </span>
+                                                )}
+                                                <h3 className="text-base font-black text-slate-900">
+                                                    {toSentenceCase(pkg.nombre)}
+                                                </h3>
+                                                <p className="mt-2 text-xs font-bold text-slate-600">
+                                                    {includedList.length} servicios incluidos
+                                                </p>
+                                                <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-black text-red-600">
+                                                    <Gift className="h-3.5 w-3.5" />
+                                                    {giftCount} {giftCount === 1 ? 'regalo incluido' : 'regalos incluidos'}
+                                                </p>
+                                            </div>
+                                        </motion.article>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* 9. Aviso Salón Club Uruguay 50% OFF */}
+                <section className="bg-rose-50/40 py-10">
+                    <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                        <motion.div
+                            {...sectionMotionProps}
+                            className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-amber-300 bg-white p-5 shadow-sm sm:flex-row sm:items-center"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-400 font-black text-slate-950 shadow-sm">
+                                    <Building2 className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-black text-slate-900">
+                                        Locación Emblemática: Salón Club Uruguay 50% OFF
+                                    </h3>
+                                    <p className="text-xs font-semibold text-slate-600">
+                                        Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* 10. Cómo sigue */}
+                <section className="bg-white py-12 sm:py-16">
+                    <div className="mx-auto max-w-5xl px-5 sm:px-8">
+                        <motion.div {...sectionMotionProps} className="mb-8 text-left">
+                            <span className="text-[11px] font-black uppercase tracking-widest text-amber-600">
+                                Simple y claro
+                            </span>
+                            <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                                Cómo sigue
+                            </h2>
+                        </motion.div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            {[
+                                { num: '1', text: 'Armás tu fiesta' },
+                                { num: '2', text: 'Ves tu precio' },
+                                { num: '3', text: 'Si querés, coordinamos una reunión gratis.' },
+                            ].map((paso) => (
+                                <motion.div
+                                    key={paso.num}
+                                    {...sectionMotionProps}
+                                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                                >
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-black text-white">
+                                        {paso.num}
+                                    </span>
+                                    <p className="text-sm font-black text-slate-900">{paso.text}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* 11. Repetir botón rojo al final + Sofía + VideoDeAyuda */}
+                <section className="bg-slate-950 py-12 text-center text-white">
+                    <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-5 sm:px-8">
+                        <Button
+                            type="button"
+                            onClick={handleStartSimulator}
+                            data-testid="simulator-welcome-bottom-cta"
+                            className="h-14 w-full rounded-xl bg-red-600 px-8 text-base font-black text-white shadow-xl hover:bg-red-700 sm:w-auto"
+                            disabled={isLoading}
+                        >
+                            Armar mi presupuesto gratis <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                        <p className="text-xs font-semibold text-white/75">
+                            Sin compromiso · Te llega en PDF · Válido 30 días
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center justify-center gap-4">
+                            <VideoDeAyuda lugar="simulador" />
+                            <Link href={sofiaHref} className="text-xs font-medium text-slate-300 underline hover:text-white">
+                                ¿Preferís armarlo conversando? Probá con Sofía, nuestra asistente
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 12. Barra fija inferior en celular cuando el botón de arriba sale de pantalla */}
+                {showStickyWelcomeCta && (
+                    <div
+                        data-testid="simulator-welcome-sticky-bar"
+                        className="fixed bottom-0 left-0 right-0 z-50 border-t border-red-500/30 bg-slate-950/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden"
+                    >
+                        <div className="mx-auto max-w-md">
+                            <Button
+                                type="button"
+                                onClick={handleStartSimulator}
+                                data-testid="simulator-welcome-sticky-cta"
+                                className="h-12 w-full rounded-xl bg-red-600 px-6 text-sm font-black text-white shadow-lg hover:bg-red-700"
+                                disabled={isLoading}
+                            >
+                                Armar mi presupuesto gratis <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </main>
         );
     }
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 
-    if (step === 6 && generatedPresupuestoId) {
+    if (step === 5 && generatedPresupuestoId) {
         return (
             <div className="ak-public-page flex min-h-screen flex-col items-center px-2 py-10 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
@@ -1852,7 +2309,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(5); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Sacá servicios que no querés
@@ -1860,7 +2317,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(5); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Agregá servicios
@@ -1868,7 +2325,7 @@ function SimuladorContent() {
                                      <Button
                                          type="button"
                                          variant="outline"
-                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(4); }}
+                                         onClick={() => { setGeneratedPresupuestoId(null); setStep(3); }}
                                          className="h-10 rounded-xl border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs"
                                      >
                                          Cambiá de paquete
@@ -1899,7 +2356,7 @@ function SimuladorContent() {
                                          onClick={() => {
                                              document.getElementById('meeting-scheduler-container')?.scrollIntoView({ behavior: 'smooth' });
                                          }}
-                                         className="w-full sm:w-auto h-12 px-6 rounded-xl border-indigo-600 text-indigo-700 hover:bg-indigo-50 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2"
+                                         className="w-full sm:w-auto h-12 px-6 rounded-xl border-red-600 text-red-700 hover:bg-red-50 font-bold text-sm shadow-sm transition flex items-center justify-center gap-2"
                                      >
                                          <Calendar className="w-4 h-4" />
                                          Elegir día y horario
@@ -1940,11 +2397,11 @@ function SimuladorContent() {
 
                             <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                                 <Button
-                                    onClick={() => setStep(5)}
+                                    onClick={() => setStep(4)}
                                     variant="outline"
-                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-indigo-200 bg-indigo-50/70 text-xs font-bold text-indigo-900 hover:bg-indigo-100 shadow-sm"
+                                    className="flex min-h-[2.75rem] h-auto py-2.5 px-3 w-full items-center justify-center gap-1.5 rounded-xl border-red-200 bg-red-50/70 text-xs font-bold text-red-900 hover:bg-red-100 shadow-sm"
                                 >
-                                    <ListPlus className="w-4 h-4 shrink-0 text-indigo-700"/> <span className="text-center leading-tight">Modificar mi presupuesto</span>
+                                    <ListPlus className="w-4 h-4 shrink-0 text-red-700"/> <span className="text-center leading-tight">Modificar mi presupuesto</span>
                                 </Button>
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
@@ -2019,7 +2476,7 @@ function SimuladorContent() {
                                     <TableHeader className="bg-slate-50">
                                         <TableRow className="border-slate-200">
                                             <TableHead className="font-black text-[10px] uppercase px-2 sm:px-4 py-2 sm:py-3 min-w-[140px] sm:min-w-[200px] text-slate-600">Servicio / Categoría</TableHead>
-                                            {(budgetSettings.showIndividualPrices ?? true) && (
+                                            {showServicePrices && (
                                               <>
                                                 <TableHead className="text-center font-black text-[10px] uppercase px-2 sm:px-4 py-2 sm:py-3 text-slate-600">Cant.</TableHead>
                                                 <TableHead className="text-right px-2 sm:px-4 py-2 sm:py-3 font-black text-[10px] uppercase min-w-[90px] sm:min-w-[120px] text-slate-600">Subtotal</TableHead>
@@ -2031,7 +2488,7 @@ function SimuladorContent() {
                                         {Object.entries(stats.agrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
                                                 <TableRow className="bg-slate-50 border-y border-slate-200" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                                                  <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 px-2 sm:px-4 tracking-widest py-2">{categoria}</TableCell>
+                                                  <TableCell colSpan={showServicePrices ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 px-2 sm:px-4 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
                                                     <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -2039,7 +2496,7 @@ function SimuladorContent() {
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
                                                                     <p className="font-bold text-slate-800 text-xs sm:text-sm">{toSentenceCase(item.nombre)}</p>
-                                                                    {(budgetSettings.showIndividualPrices ?? true) && (
+                                                                    {showServicePrices && (
                                                                         <p className="text-[10px] text-muted-foreground uppercase font-medium">
                                                                             {formatCurrency(item.precioUnitario)}{esCategoriaGastronomica(item.categoria, item.calculationMethod) ? ' / PP' : ' c/u'}
                                                                         </p>
@@ -2058,7 +2515,7 @@ function SimuladorContent() {
                                                                 )}
                                                             </div>
                                                         </TableCell>
-                                                        {(budgetSettings.showIndividualPrices ?? true) && (
+                                                        {showServicePrices && (
                                                           <>
                                                             <TableCell className="text-center text-xs sm:text-sm font-black text-slate-400 px-2 sm:px-4 py-2 sm:py-3">{item.cantidad}</TableCell>
                                                             <TableCell className="text-right px-2 sm:px-4 py-2 sm:py-3">
@@ -2071,7 +2528,7 @@ function SimuladorContent() {
                                                             </TableCell>
                                                           </>
                                                         )}
-                                                        {!(budgetSettings.showIndividualPrices ?? true) && item.esRegalo && (
+                                                        {!showServicePrices && item.esRegalo && (
                                                           <TableCell className="text-right pr-8">
                                                             <span className="text-[10px] font-black text-green-600 tracking-tighter uppercase">Sin Costo</span>
                                                           </TableCell>
@@ -2083,7 +2540,7 @@ function SimuladorContent() {
                                         {removedServiceDetails.length > 0 && (
                                             <>
                                                 <TableRow data-pdf-exclude="true" className="border-y border-red-200 bg-red-50 print:hidden">
-                                                    <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="py-2 px-2 sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-700">
+                                                    <TableCell colSpan={showServicePrices ? 3 : 1} className="py-2 px-2 sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-700">
                                                         Servicios retirados
                                                     </TableCell>
                                                 </TableRow>
@@ -2107,7 +2564,7 @@ function SimuladorContent() {
                                                                 </Button>
                                                             </div>
                                                         </TableCell>
-                                                        {(budgetSettings.showIndividualPrices ?? true) && (
+                                                        {showServicePrices && (
                                                             <>
                                                                 <TableCell className="text-center text-sm text-slate-400">—</TableCell>
                                                                 <TableCell className="pr-8 text-right text-sm font-black text-red-600">-{formatCurrency(item.deduction)}</TableCell>
@@ -2122,7 +2579,7 @@ function SimuladorContent() {
                             </div>
 
                             <div className="ml-auto w-full max-w-sm space-y-3 rounded-md border border-slate-200 bg-slate-50 px-8 py-6 text-slate-900" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-                                {(budgetSettings.showIndividualPrices ?? true) && (
+                                {showServicePrices && (
                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
                                        <span>Subtotal Servicios:</span>
                                        <span>{formatCurrency(stats.subtotalBruto)}</span>
@@ -2251,150 +2708,17 @@ function SimuladorContent() {
                     </div>
                     <CardTitle className="text-xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-1 text-xs sm:text-sm font-bold text-slate-500">
-                        Paso {step} de 5 · {STEP_LABELS[step - 1]}
+                        Paso {step} de 4 · {STEP_LABELS[step - 1]}
                     </CardDescription>
                     <div className="mt-2 sm:mt-6">
-                        <Progress value={(step / 5) * 100} className="h-2 bg-slate-200" />
+                        <div className="relative">
+                            <Progress value={(step / 4) * 100} className="h-2 bg-slate-200 [&>div]:bg-red-600 [&>div]:transition-all [&>div]:duration-500" />
+                        </div>
                     </div>
                 </CardHeader>
 
                 <CardContent className="p-3 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-1 sm:py-2 text-left">
-                            {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
-                            <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
-                                <div className="relative min-h-[220px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-3.5 sm:p-8">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src="/media/catalogo-servicios/simulador_hero_pro.jpg"
-                                        alt="AK Producciones - Tu evento soñado en Salto"
-                                        className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
-
-                                    <div className="relative z-10 space-y-2.5 sm:space-y-4">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3 py-1 text-[10px] sm:text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
-                                            <Sparkles className="h-4 w-4 text-amber-400" />
-                                            Presupuesto Transparente · AK Producciones Salto
-                                        </div>
-
-                                        <h1 className="font-headline text-lg sm:text-4xl font-black leading-tight text-white tracking-tight">
-                                            Tu fiesta, como la imaginás. Nosotros te ayudamos a hacerla realidad.
-                                        </h1>
-
-                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-snug sm:leading-relaxed max-w-2xl">
-                                            En AK Producciones Eventos reunimos todo lo que necesitás para celebrar: salón, comida, decoración, discoteca, fotografía, filmación, barra de tragos y mucho más.
-                                        </p>
-                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-snug sm:leading-relaxed max-w-2xl">
-                                            Elegí los servicios que te interesan, conocé un presupuesto estimado y descubrí las opciones para organizar tu fiesta.
-                                        </p>
-
-                                        <div className="pt-1 sm:pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                                            <Button
-                                                type="button"
-                                                onClick={() => setStep(2)}
-                                                data-testid="simulator-first-step-cta"
-                                                className="h-11 sm:h-14 px-6 sm:px-8 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
-                                            >
-                                                <span>Armá tu presupuesto</span>
-                                                <ArrowRight className="w-5 h-5" />
-                                            </Button>
-                                            <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 justify-center">
-                                                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                                                Sin compromiso. Podés adaptar los servicios a tus necesidades.
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Neuro-Differentiators Grid */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                                    <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> ¿Por qué elegir AK Producciones?
-                                    </h3>
-                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Producción In-House AK</span>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-100 text-indigo-700 font-black">
-                                                <PartyPopper className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Una organización más sencilla</h4>
-                                                <p className="hidden" />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            En lugar de coordinar distintos servicios por separado, contás con un equipo que planifica y organiza los detalles de tu celebración.
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-amber-300 hover:shadow-md transition space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">
-                                                <UtensilsCrossed className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Una fiesta a tu manera</h4>
-                                                <p className="hidden" />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Elegí la comida, la ambientación, la música y los servicios que mejor se adapten a tu estilo, tus invitados y tu presupuesto.
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-purple-300 hover:shadow-md transition space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-100 text-purple-700 font-black">
-                                                <Sparkles className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Disfrutá junto a tus invitados</h4>
-                                                <p className="hidden" />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Nos ocupamos de coordinar los servicios contratados para que puedas dedicarte a disfrutar de una noche especial.
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300 hover:shadow-md transition space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-800 font-black">
-                                                <ShieldCheck className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Presupuesto claro</h4>
-                                                <p className="hidden" />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Conocé cuánto cuesta cada servicio y cómo se compone tu propuesta. Después podemos revisarla juntos y ajustar los detalles.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Exclusive Club Uruguay Banner */}
-                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-md">
-                                            <Building2 className="w-6 h-6" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-black text-slate-900 text-sm">Locación Emblemática: Salón Club Uruguay 50% OFF</h4>
-                                            <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {step === 2 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-left">
                             <div>
                                 <h2 className="text-xl font-black text-slate-900">Ingresá tus datos y los del evento</h2>
@@ -2471,6 +2795,7 @@ function SimuladorContent() {
                                             <SelectItem value="15 años">15 años</SelectItem>
                                             <SelectItem value="Boda">Boda</SelectItem>
                                             <SelectItem value="Evento empresarial">Empresarial</SelectItem>
+                                            <SelectItem value="Otro">Otro</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -2557,7 +2882,7 @@ function SimuladorContent() {
                             </div>
                         </div>
                     )}
-                    {step === 3 && (
+                    {step === 2 && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
                             <div className="space-y-2 text-left">
                                 <h2 className="text-xl sm:text-2xl font-black text-slate-900">Elegí lo que querés para tu fiesta</h2>
@@ -2583,7 +2908,7 @@ function SimuladorContent() {
                                                  isRecommended && !selectedEntradas.includes(s.id) && "border-amber-400 bg-amber-50/40 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200">
                                                          <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> RECOMENDADO PRO
                                                      </div>
                                                 )}
@@ -2596,7 +2921,9 @@ function SimuladorContent() {
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
-                                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                    {mostrarPrecios && (
+                                                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                    )}
                                                 </div>
                                             </label>
                                         );
@@ -2619,7 +2946,7 @@ function SimuladorContent() {
                                                  isRecommended && selectedPrincipal !== s.id && "border-amber-400 bg-amber-50/40 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200">
                                                          <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> RECOMENDADO PRO
                                                      </div>
                                                 )}
@@ -2632,7 +2959,9 @@ function SimuladorContent() {
                                                 <RadioGroupItem value={s.id} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
-                                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                    {mostrarPrecios && (
+                                                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                    )}
                                                 </div>
                                             </label>
                                         );
@@ -2656,7 +2985,7 @@ function SimuladorContent() {
                                                      isRecommended && selectedInfantil !== s.id && "border-amber-400 bg-amber-50/40 shadow-md"
                                                 )}>
                                                     {isRecommended && (
-                                                         <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                         <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200">
                                                              <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> RECOMENDADO PRO
                                                          </div>
                                                     )}
@@ -2669,7 +2998,9 @@ function SimuladorContent() {
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 shrink-0 aspect-square !min-h-0 !min-w-0 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
                                                         <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-900 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
-                                                        <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                        {mostrarPrecios && (
+                                                            <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                        )}
                                                     </div>
                                                 </label>
                                             );
@@ -2679,7 +3010,7 @@ function SimuladorContent() {
                             )}
                         </div>
                     )}
-                    {step === 4 && (
+                    {step === 3 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
                             <div className="space-y-2 text-left">
                                 <h2 className="text-xl sm:text-2xl font-black text-slate-900">Elegí lo que querés para tu fiesta</h2>
@@ -2713,15 +3044,21 @@ function SimuladorContent() {
                                     const giftCount = includedServices.filter(item => item.serviceItem.esRegalo).length;
                                     const isExpanded = expandedPackageId === p.id;
                                     const visibleIncluded = isExpanded ? includedServices : includedServices.slice(0, 3);
+                                    const isPkgSelected = selectedPaqueteId === p.id;
 
                                     return (
-                                        <label key={p.id} className={cn(
-                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-8",
-                                            selectedPaqueteId === p.id ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
-                                        )}>
+                                        <motion.label
+                                            key={p.id}
+                                            animate={isPkgSelected && !shouldReduceMotion ? { scale: [1, 1.015, 1] } : undefined}
+                                            transition={{ duration: 0.3, ease: SUAVE }}
+                                            className={cn(
+                                                "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-8",
+                                                isPkgSelected ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
+                                                p.recommended && !isPkgSelected && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
+                                            )}
+                                        >
                                             {p.recommended && (
-                                                <div className="absolute -top-3.5 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/40 border border-amber-200 animate-pulse">
+                                                <div className="absolute -top-3.5 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/40 border border-amber-200">
                                                     <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO · MÁS ELEGIDO
                                                 </div>
                                             )}
@@ -2777,7 +3114,7 @@ function SimuladorContent() {
                                                         ))}
                                                 </ul>
                                             </div>
-                                        </label>
+                                        </motion.label>
                                     );
                                 })}
                             </RadioGroup>
@@ -2790,7 +3127,7 @@ function SimuladorContent() {
                             </div>
                         </div>
                     )}
-                    {step === 5 && (
+                    {step === 4 && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left pb-28 lg:pb-12">
                             <div className="border-b border-slate-100 pb-5">
                                 <h2 className="text-3xl font-bold text-slate-900">Personalización de tu presupuesto</h2>
@@ -2798,6 +3135,13 @@ function SimuladorContent() {
                                     ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
                                 </p>
                             </div>
+
+                            {!mostrarPrecios && priceDeltaFeedback && (
+                                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-black text-amber-900 flex items-center justify-between gap-2">
+                                    <span>Diferencia aplicada: {priceDeltaFeedback}</span>
+                                    <span className="font-bold text-slate-700">Total: {formatCurrency(stats.totalFinal)}</span>
+                                </div>
+                            )}
 
                             <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -2862,11 +3206,6 @@ function SimuladorContent() {
                                                     Promo: {formatCurrency(clubUruguayDetails.precioPromo)}
                                                 </Badge>
                                             </div>
-                                            {clubUruguayDetails.diffYears > 0 && (
-                                                <p className="text-[10px] font-black text-amber-900 mt-1 uppercase">
-                                                    Con ajuste {clubUruguayDetails.eventYear} (+{clubUruguayDetails.diffYears * 15}%): {formatCurrency(clubUruguayDetails.costo)}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
                                     <p className="mt-4 text-xs font-semibold leading-relaxed text-amber-950 border-t border-amber-200/80 pt-3">
@@ -2914,14 +3253,24 @@ function SimuladorContent() {
                                                                     <span className={item.esRegalo ? "text-emerald-600 font-black" : ""}>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
                                                                     {!item.esRegalo && (
                                                                         <>
-                                                                            <span>•</span>
                                                                             {item.id === 'serv_salon_club_uruguay' ? (
-                                                                                <span className="text-slate-500 font-bold">
-                                                                                    <span className="line-through text-slate-400 mr-1">{formatCurrency(item.costoTotal * 2)}</span>
-                                                                                    <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
-                                                                                </span>
+                                                                                <>
+                                                                                    <span>•</span>
+                                                                                    <span className="text-slate-500 font-bold">
+                                                                                        <span className="line-through text-slate-400 mr-1">{formatCurrency(item.costoTotal * 2)}</span>
+                                                                                        <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
+                                                                                    </span>
+                                                                                </>
+                                                                            ) : mostrarPrecios ? (
+                                                                                <>
+                                                                                    <span>•</span>
+                                                                                    <span className="font-bold text-slate-700">{formatCurrency(item.costoTotal)}</span>
+                                                                                </>
                                                                             ) : (
-                                                                                <span className="font-bold text-slate-700">{formatCurrency(item.costoTotal)}</span>
+                                                                                <>
+                                                                                    <span>•</span>
+                                                                                    <span className="font-bold text-emerald-700">Incluido</span>
+                                                                                </>
                                                                             )}
                                                                         </>
                                                                     )}
@@ -2972,8 +3321,12 @@ function SimuladorContent() {
                                                         </span>
                                                         <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
-                                                            <span>•</span>
-                                                            <span className="text-slate-500 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                            {mostrarPrecios && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="text-slate-500 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
                                                     <Button
@@ -3004,7 +3357,7 @@ function SimuladorContent() {
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-lg">
-                                                        <Zap className="w-6 h-6 text-slate-950 fill-slate-950 animate-bounce" />
+                                                        <Zap className="w-6 h-6 text-slate-950 fill-slate-950" />
                                                     </div>
                                                     <div>
                                                         <h4 className="text-base font-black uppercase tracking-wide text-amber-300 flex items-center gap-2">
@@ -3040,7 +3393,9 @@ function SimuladorContent() {
                                                         >
                                                             <div className="min-w-0 flex-1">
                                                                 <span className="block font-black text-xs text-white truncate">{getNombreVisibleDeServicio(service)}</span>
-                                                                <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                {mostrarPrecios && (
+                                                                    <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                )}
                                                             </div>
                                                             <Button
                                                                 type="button"
@@ -3117,7 +3472,9 @@ function SimuladorContent() {
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-right shrink-0">
-                                                                    <span className="block font-black text-sm text-primary">{formatCurrency(calculated.total)}</span>
+                                                                    {mostrarPrecios && (
+                                                                        <span className="block font-black text-sm text-primary">{formatCurrency(calculated.total)}</span>
+                                                                    )}
                                                                     <span className="block text-[9px] text-primary font-bold uppercase tracking-wider mt-0.5">Agregar +</span>
                                                                 </div>
                                                             </button>
@@ -3135,7 +3492,7 @@ function SimuladorContent() {
                             <div className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
                                 <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider text-left">¿Querés comparar con otros paquetes?</h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {config?.paquetes?.filter(p => p.id !== selectedPaqueteId).map(p => {
+                                    {sortedPaquetes.filter(p => p.id !== selectedPaqueteId).map(p => {
                                         const totalInvitados = adultos + ninosYAdolescentes;
                                         const precioActual = stats.totalFinal;
                                         const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
@@ -3176,9 +3533,9 @@ function SimuladorContent() {
                                     type="button"
                                     variant="outline"
                                     onClick={() => setIsFaqOpen(true)}
-                                    className="rounded-2xl border-2 border-indigo-500/30 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-950 font-black text-xs uppercase tracking-widest px-6 py-3 shadow-md transition-all hover:scale-105"
+                                    className="rounded-2xl border-2 border-red-500/30 bg-gradient-to-r from-red-50 to-amber-50 hover:from-red-100 hover:to-amber-100 text-slate-900 font-black text-xs uppercase tracking-widest px-6 py-3 shadow-md transition-all hover:scale-105"
                                 >
-                                    <HelpCircle className="w-4 h-4 mr-2 text-indigo-600 animate-pulse" />
+                                    <HelpCircle className="w-4 h-4 mr-2 text-red-600" />
                                     Ver Preguntas Frecuentes (FAQ)
                                 </Button>
                             </div>
@@ -3196,11 +3553,17 @@ function SimuladorContent() {
                         )}
                     </div>
                     <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
-                        <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md min-h-[3rem] h-auto py-3 px-6 sm:px-10 font-black text-sm sm:text-base tracking-normal text-center">
-                            {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}
-                            {step === 5 ? "Ver Resumen y Propuesta" : "Continuar"}
-                            {step < 5 && <ArrowRight className="ml-3 w-5 h-5"/>}
-                        </Button>
+                        <motion.div
+                            className="w-full sm:w-auto"
+                            animate={isCurrentStepValid && !shouldReduceMotion ? { scale: [1, 1.02, 1] } : undefined}
+                            transition={isCurrentStepValid && !shouldReduceMotion ? { duration: 0.7, repeat: Infinity, repeatDelay: 2.8, ease: SUAVE } : undefined}
+                        >
+                            <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md bg-red-600 hover:bg-red-700 text-white min-h-[3rem] h-auto py-3 px-6 sm:px-10 font-black text-sm sm:text-base tracking-normal text-center">
+                                {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}
+                                {step === 4 ? "Ver Resumen y Propuesta" : "Continuar"}
+                                {step < 4 && <ArrowRight className="ml-3 w-5 h-5"/>}
+                            </Button>
+                        </motion.div>
                         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
                             {stats.totalFinal <= 0 ? (
                                 <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
@@ -3294,7 +3657,7 @@ function SimuladorContent() {
                 <DialogContent className="max-w-md rounded-3xl bg-slate-950 text-white p-6 border-2 border-amber-400 shadow-2xl">
                     <DialogHeader className="text-left space-y-2">
                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
-                            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
+                            <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
                             UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
                         </div>
                         <DialogTitle className="text-xl font-black text-white leading-tight">
@@ -3317,7 +3680,9 @@ function SimuladorContent() {
                                     <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
                                         <div className="min-w-0 flex-1 pr-2">
                                             <span className="font-black text-white block text-xs break-words">{service.nombre}</span>
-                                            <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
+                                            {mostrarPrecios && (
+                                                <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
+                                            )}
                                         </div>
                                         <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
                                     </div>
@@ -3363,8 +3728,8 @@ function SimuladorContent() {
                 </DialogContent>
             </Dialog>
 
-            {/* Sticky Mobile Conversion Bar — Step 6 (budget generated) */}
-            {step === 6 && generatedPresupuestoId && (
+            {/* Sticky Mobile Conversion Bar — Step 5 (budget generated) */}
+            {step === 5 && generatedPresupuestoId && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t-2 border-amber-400/40 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
                     <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
                         <div className="min-w-0 flex-1 text-left">
@@ -3395,8 +3760,8 @@ function SimuladorContent() {
                 </div>
             )}
 
-            {/* Sticky Mobile Total Bar — Step 5 (reviewing budget) */}
-            {step === 5 && (
+            {/* Sticky Mobile Total Bar — Step 4 (reviewing budget) */}
+            {step === 4 && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t border-slate-800 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
                     <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
                         <div className="min-w-0 flex-1 text-left">

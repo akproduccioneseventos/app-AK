@@ -2,6 +2,24 @@
 
 
 
+## 24/11/2026 - Órdenes 343, 344 y 345 (Rama `gemini/orden-343`)
+
+- **Orden 343 — El simulador que vende solo**:
+  * Bienvenida única mobile-first (fusionada con el paso 1 anterior) con botón rojo de marca ("Armar mi presupuesto gratis"), 4 pasos, `DEFAULT_STATS`, 6 respuestas a miedos, testimonios aprobados y fotos destacadas reales en el bootstrap, conteo dinámico de `esRegalo` sin inventar cifras, color rojo/cálido sin `bg-indigo-*`, movimiento sutil `framer-motion` respetando `prefers-reduced-motion` y dejando título/precio/CTA visibles de entrada (`opacity: 1`). Se eligió mover las cifras desde `StatsSection` y reseñas/fotos desde `getPublicSimulatorBootstrap` para no duplicar datos ni inventar testimonios.
+  * Interruptor `mostrarPrecios` en Ajustes (`budget-display.tsx`): oculta precios sueltos por ítem en simulador, vista pública (`/presupuestos/[id]/ver`), PDF y WhatsApp hasta que el presupuesto pasa a `Aceptado`/`Facturado` o contrato firmado (`isOperatorBudgetAccess` siempre ve todo). Se eligió revelarlos solo al pasar a contrato para cuidar la negociación inicial sin afectar cobros ni facturas.
+  * Comparación exacta `mismoTipoDeEvento` en `src/types/armado-rapido.ts` + generador idempotente `generarPaquetesSugeridosPorTipo` (5 tipos × 3 niveles, generales en `'Otro'`, fallback a generales si un tipo no tiene paquetes). Barrido de `.includes(` por tipo de evento en `aviso-margen-historico.ts`, `armar-web-del-evento-flow.ts`, `social-media.ts`, `portal-cliente/[id]/page.tsx`, `disenar-con-ia.ts`, `foto-de-portada.ts` y `ver/page.tsx`.
+- **Orden 344 — Presentación LED**:
+  * Layout flex `h-[100dvh]` en `presentacion-led/page.tsx` + `slide-layout.tsx` separando escenario y barra inferior fija (`1600×900` y `1280×720`) sin solapes ni botones tapados.
+  * Fotos únicas reales de `public/media/catalogo-servicios/` en `categoria-servicios-slide.tsx`, `regalos-slide.tsx` y reemplazo de placeholders vacíos (`beneficios`, `salon`, `equipo`, `plan-pagos`, `cierre`).
+  * Textos reales sin promesas (`+200 fiestas`, sin "500 familias", "Absoluta", "inmediata" ni garantías; conteo unificado de personal).
+  * Plan de pagos (`plan-pagos-slide.tsx`) usando `bookingDepositAmount` de Ajustes en lugar del 30% fijo (el 30% sigue siendo penalidad por cancelación). Cierre unificado en `cierre-slide.tsx` y eliminación de `formas-de-pago-slide.tsx` (código muerto).
+- **Orden 345 — Ajuste anual 15%, Cargar contrato IA y Empezar 2027**:
+  * Campo `tipoAjusteAnual?: 'acumulativo' | 'simple'` (`acumulativo` por defecto) en `buildAnnualAdjustmentProjection` y todos sus llamadores (`financial-guardrails`, `saldo-con-ajuste`, `pricing`, `portal.actions`, `paso-3/4-resumen`, `ver`, `simulador-ak`, `simulador-de-presupuesto`, `BudgetDocument`, `simulator-budget-pdf`). Cambiarlo exige permiso `contabilidad` y contrato no firmado (`estadoDelContrato`).
+  * Eliminadas tablas/líneas con montos de años futuros en vistas de cliente/prospecto; queda la nota única `"Los precios tienen un ajuste anual del 15% acumulativo desde la firma del contrato."` (o `simple`), manteniendo intacto lo interno en `estado-de-cuenta`, cobros y contabilidad.
+  * Botón "Cargar contrato" en `/presupuestos/nuevo` pasando por `src/ai/cerebro.ts` (`extract-contract-data.ts`) con borrador asistido en `/presupuestos/nuevo/crear` que nunca guarda sin confirmación manual (`src/lib/presupuestos/cargar-contrato-borrador.ts`).
+  * Textos de contratos extraídos a `src/lib/contratos/generar-textos-contrato.ts` y migración idempotente de única ejecución `empezar-2027` (`al-entrar-a-la-app.ts`), solo perfil dueño, con reserva transaccional (`migraciones/empezar-2027`), respaldo completo obligatorio antes de borrar `< 2027`, protección estricta de históricas/muestra/cobros/facturas/firmas, y generación de contratos sin firmar ni inventar seña para `2027+`.
+
+
 ## 24/11/2026 - Publicadas las entregas 336 a 342 de Gemini, juntas
 
 - Las dos ramas corregidas (`gemini/orden-338` con 336-338 y `gemini/orden-341` con 339-342) se juntaron en una propuesta.

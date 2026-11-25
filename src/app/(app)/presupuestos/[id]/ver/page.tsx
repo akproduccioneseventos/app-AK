@@ -26,6 +26,8 @@ import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
 import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfoPublica } from '@/app/actions/settings';
+import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { mismoTipoDeEvento } from '@/types/armado-rapido';
 import { useToast } from '@/hooks/use-toast';
 import { enlacePublicoDelPresupuesto } from '@/lib/presupuestos/enlace-publico';
 import { horaEventoOConfirmar } from '@/lib/fechas/hora-evento';
@@ -106,6 +108,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const budgetDocumentRef = useRef<HTMLDivElement>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [mostrarPreciosSimulador, setMostrarPreciosSimulador] = useState<boolean>(true);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>('');
@@ -171,14 +174,16 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       // auditoria 78). Todo lo que se pide acá tiene que poder leerse con el enlace: la ficha
       // de la empresa va en su version publica (sin cuentas bancarias; acá sólo se usan las
       // notas del documento), y un dato accesorio que falle no tapa el presupuesto.
-      const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
+      const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo, fetchedArmadoConfig] = await Promise.all([
         getPresupuestoById(presupuestoId, publicToken),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings().catch(() => null),
         getSocialConnectionsPublicas().catch(() => []),
         getCompanyInfoPublica().catch(() => null),
+        getArmadoRapidoConfig().catch(() => null),
       ]);
       setDisplaySettings(fetchedSettings);
+      setMostrarPreciosSimulador(fetchedArmadoConfig?.mostrarPrecios !== false);
       setCompanyInfo(fetchedCompanyInfo);
       setLogoUrl(templateSettings?.logoUrl || null);
 
@@ -288,6 +293,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       eventDate: presupuesto.eventoFecha,
       currentYear: baseYear,
       adjustmentPct: adjustmentPct,
+      tipoAjusteAnual: (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual,
+    } as Parameters<typeof buildAnnualAdjustmentProjection>[0] & {
+      tipoAjusteAnual?: 'acumulativo' | 'simple';
     });
 
     const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
@@ -791,6 +799,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     Boolean(presupuesto.fechaFirmaContrato);
   const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
   const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+  const hasSignedContract = Boolean(
+    presupuesto.fechaFirmaContrato ||
+    presupuesto.contractSignatureInfo?.isSigned ||
+    (presupuesto as Presupuesto & { contratoFirmaInfo?: { isSigned?: boolean } }).contratoFirmaInfo?.isSigned,
+  );
+  const mostrarPreciosEnVista = isOperatorBudgetAccess || isContracted || hasSignedContract || mostrarPreciosSimulador;
   const contractBaseYear = isContracted
     ? (getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp) ?? currentYear)
     : currentYear;
@@ -799,6 +813,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     eventDate: presupuesto.eventoFecha,
     adjustmentPct,
     currentYear: contractBaseYear,
+    tipoAjusteAnual: (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' }).tipoAjusteAnual,
+  } as Parameters<typeof buildAnnualAdjustmentProjection>[0] & {
+    tipoAjusteAnual?: 'acumulativo' | 'simple';
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 
@@ -832,6 +849,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           subtotalBrutoOverride={calculatedValues.subtotalBruto}
           descuentoPromoOverride={calculatedValues.bonificacionPromo}
           totalFinalOverride={calculatedValues.totalFinal}
+          mostrarPrecios={mostrarPreciosEnVista}
         />
       </div>
     );
@@ -1187,10 +1205,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             </div>
                             {/* Canva catalog contextual link */}
                             {presupuesto && (() => {
-                              const tipo = (presupuesto.eventoTipo || '').toLowerCase();
-                              const isBoda = tipo.includes('boda') || tipo.includes('casamiento');
-                              const isXV = tipo.includes('xv') || tipo.includes('quince');
-                              const isCatering = tipo.includes('catering');
+                              const tipoRaw = presupuesto.eventoTipo || '';
+                              const isBoda = mismoTipoDeEvento(tipoRaw, 'Boda');
+                              const isXV = mismoTipoDeEvento(tipoRaw, '15 años');
+                              const isCatering = mismoTipoDeEvento(tipoRaw, 'Catering') || mismoTipoDeEvento(tipoRaw, 'Servicio de catering');
                               const canvaUrl = isBoda
                                 ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas'
                                 : isXV
@@ -1404,6 +1422,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 subtotalBrutoOverride={calculatedValues.subtotalBruto}
                 descuentoPromoOverride={calculatedValues.bonificacionPromo}
                 totalFinalOverride={calculatedValues.totalFinal}
+                mostrarPrecios={mostrarPreciosEnVista}
               />
             </div>
 

@@ -1,6 +1,8 @@
 "use server";
 
 import { getArmadoRapidoConfig } from "@/app/actions/armado-rapido";
+import { getCatalogoFotos } from "@/app/actions/catalogo-fotos";
+import { getTestimonials } from "@/app/actions/feedback";
 import { getMenusPublicos } from "@/app/actions/menus-catering";
 import { getServiciosEmpresaPublicos } from "@/app/actions/servicios-empresa";
 import {
@@ -13,13 +15,16 @@ import { createNotification } from "@/lib/notifications/create-notification";
 import type { ArmadoRapidoConfig } from "@/types/armado-rapido";
 import { normalizeClubUruguayConfig } from "@/types/armado-rapido";
 import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
+import type { CatalogoFoto } from "@/types/catalogo";
 import type { FullMenu } from "@/types/catering";
 import type { ServicioEmpresa } from "@/types/empresa";
+import type { Testimonial } from "@/types/feedback";
 import type { BudgetDisplaySettings } from "@/types/settings";
 import { defaultBudgetDisplaySettings } from "@/types/settings";
 import fallbackConfigJson from "@/data/armado-rapido-config.json";
 import fallbackMenusJson from "@/data/menus-catering.json";
 import fallbackServicesJson from "@/data/servicios-empresa.json";
+import fallbackTestimonialsJson from "@/data/testimonials.json";
 
 export interface PublicSimulatorBootstrap {
   config: ArmadoRapidoConfig;
@@ -29,6 +34,8 @@ export interface PublicSimulatorBootstrap {
   whatsappNumber: string;
   logoUrl: string | null;
   origenDePrecios: 'vivo' | 'respaldo';
+  testimonios: Testimonial[];
+  fotosDestacadas: CatalogoFoto[];
 }
 
 const FALLBACK_CONFIG_DATA = fallbackConfigJson as unknown as ArmadoRapidoConfig;
@@ -47,6 +54,8 @@ const FALLBACK_MENUS = (fallbackMenusJson as unknown as FullMenu[]).map(menu => 
 const FALLBACK_SERVICES = (fallbackServicesJson as unknown as ServicioEmpresa[])
   .filter(service => service.tipoItem === 'Servicio')
   .map(service => ({ ...service, valorUnitarioEstimado: 0, proveedor: undefined, notas: undefined }));
+const FALLBACK_TESTIMONIALS = (fallbackTestimonialsJson as unknown as Testimonial[])
+  .filter(testimonial => testimonial.isApproved);
 
 let lastSimulatorFallbackNotificationDate: string | null = null;
 
@@ -75,6 +84,18 @@ async function withBootstrapFallback<T>(
   }
 }
 
+async function safeReadOptionalPublicData<T>(
+  reader: () => Promise<T>,
+  fallback: T,
+  timeoutMs = 1_500,
+): Promise<T> {
+  try {
+    return await withBootstrapFallback(reader(), fallback, timeoutMs);
+  } catch {
+    return fallback;
+  }
+}
+
 export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBootstrap> {
   const [
     config,
@@ -83,6 +104,8 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     socialConnections,
     templateSettings,
     menus,
+    testimonialsRaw,
+    catalogoFotosRaw,
   ] = await Promise.all([
     withBootstrapFallback(getArmadoRapidoConfig(), FALLBACK_CONFIG),
     withBootstrapFallback(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
@@ -90,6 +113,8 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     withBootstrapFallback(getSocialConnectionsPublicas(), []),
     withBootstrapFallback(getInvoiceTemplateSettings(), null),
     withBootstrapFallback(getMenusPublicos(), FALLBACK_MENUS),
+    safeReadOptionalPublicData(getTestimonials, []),
+    safeReadOptionalPublicData(getCatalogoFotos, []),
   ]);
 
   const sourceConfig = config || FALLBACK_CONFIG;
@@ -133,6 +158,14 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
       connection.platform === "WhatsApp" && connection.isConnected,
   );
 
+  const approvedTestimonials = (testimonialsRaw || []).filter((t) => Boolean(t?.isApproved));
+  const testimonios =
+    approvedTestimonials.length > 0 ? approvedTestimonials : FALLBACK_TESTIMONIALS;
+
+  const fotosDestacadas = (catalogoFotosRaw || [])
+    .filter((foto) => Boolean(foto?.destacada && foto?.url))
+    .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+
   return {
     config: resolvedConfig,
     budgetSettings: budgetSettings || defaultBudgetDisplaySettings,
@@ -145,5 +178,7 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     whatsappNumber: whatsappConnection?.phoneNumber || AK_WHATSAPP_NUMBER,
     logoUrl: templateSettings?.logoUrl || null,
     origenDePrecios,
+    testimonios,
+    fotosDestacadas,
   };
 }

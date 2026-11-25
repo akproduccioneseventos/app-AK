@@ -1,15 +1,12 @@
 # Estado actual — 24 de noviembre de 2026
 
 ## Publicado
-- #1462 a #1465, #1471, y las entregas 336 a 342 de Gemini juntas (robot auditor, cerebro único de IA, papelería con IA,
-  auditorías 336-338), con los arreglos de Claude.
+- #1462 a #1465, #1471, y las entregas 336 a 342 de Gemini juntas con los arreglos de Claude.
 
-## Para Gemini (en `GEMINI.md`, "TU TRABAJO DE HOY") — una sola propuesta, rama `gemini/orden-343`
-- **343** simulador que vende solo (bienvenida única, color y movimiento, interruptor de precios, paquetes por tipo).
-- **344** presentación LED (nada tapado, foto propia por servicio, sin promesas, seña real en el plan de pagos).
-- **345** 15% acumulativo sin montos futuros, 15% simple para contratos viejos, "Cargar contrato" con IA y la tarea de una
-  sola vez que deja sólo 2027 en adelante. **Plata: revisar línea por línea.**
+## Rama actual (`gemini/orden-343`) — Verificada y lista en PR (sin fusionar)
+- **Orden 343 — El simulador que vende solo**: bienvenida mobile-first con botón rojo de marca, 4 pasos, `DEFAULT_STATS`, 6 respuestas a miedos, testimonios y fotos reales en el bootstrap, conteo dinámico de `esRegalo`, rojo/cálido sin `bg-indigo-*`, `framer-motion` respetando `prefers-reduced-motion`. Interruptor `mostrarPrecios` en Ajustes (`budget-display.tsx`) que oculta precios sueltos hasta que el presupuesto pasa a `Aceptado`/`Facturado` o contrato firmado (incluye vista normal de `/presupuestos/[id]/ver` y PDF de `/simulador-ak`). Comparación exacta `mismoTipoDeEvento` y paquetes sugeridos en `src/types/armado-rapido.ts` y `generarPaquetesSugeridosPorTipo` (5 tipos × 3 niveles).
+- **Orden 344 — Presentación LED**: layout flex `h-[100dvh]` separando escenario y barra inferior fija sin solapes, fotos únicas reales en `public/media/catalogo-servicios/`, textos reales sin promesas, plan de pagos usando `bookingDepositAmount` de Ajustes, cierre unificado.
+- **Orden 345 — Ajuste anual 15%, Cargar contrato IA y Empezar 2027**: campo `tipoAjusteAnual?: 'acumulativo' | 'simple'` (`acumulativo` por defecto), nota unificada sin montos de años futuros, botón "Cargar contrato" en `/presupuestos/nuevo` con borrador asistido en `/presupuestos/nuevo/crear` sin guardar sin confirmación manual, textos de contratos en `src/lib/contratos/generar-textos-contrato.ts`, y migración idempotente `empezar-2027` (solo perfil dueño, con respaldo completo obligatorio antes de borrar `< 2027`).
 
-## Ojo
-- La puerta falla seguido por carga de la máquina: `npm run otravez`; `AK_TRABAJADORES=2`; lanzar con el tiempo máximo.
-- Si la misma prueba falla dos veces, no es la máquina: buscar qué cambió (así salieron las tres de "Demo AK").
+## Recordatorio
+- Revisar línea por línea sin auto-merge ni publicar automáticamente. Seguimos con auditoría profunda 0 errores en rama separada.

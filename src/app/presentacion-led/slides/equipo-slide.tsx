@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Users, ShieldCheck, HeartHandshake, Sparkles } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
-import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import type { PresentacionLedEquipoSettings } from '@/types/contenido-publico';
 import { getFotosDePresentacion } from '@/app/actions/fotos-presentacion';
@@ -17,6 +16,11 @@ interface EquipoSlideProps {
   invitadosEstimados?: number;
 }
 
+const FOTOS_EQUIPO_DEFAULT = [
+  '/media/catalogo-servicios/organizador_equipo.png',
+  '/media/catalogo-servicios/montaje_equipo.png',
+];
+
 export function EquipoSlide({ tipoFiesta, equipoSettings, invitadosEstimados }: EquipoSlideProps) {
   const [failedFotos, setFailedFotos] = useState<Set<string>>(new Set());
 
@@ -25,11 +29,12 @@ export function EquipoSlide({ tipoFiesta, equipoSettings, invitadosEstimados }: 
     equipoSettings?.cantidadPersonas && equipoSettings.cantidadPersonas !== 11
       ? equipoSettings.cantidadPersonas
       : calculado;
-  const titulo = equipoSettings?.titulo || 'Hay Equipo 🤝';
+  const tituloBase = equipoSettings?.titulo || 'Hay Equipo 🤝';
+  const titulo = tituloBase.replace(/\b\d+\s+(personas|profesionales)\b/gi, `${cantidadPersonas} $1`);
   const fraseBase =
     equipoSettings?.frase ||
     `El día de ${tipoFiesta ? `tu ${tipoFiesta.toLowerCase()}` : 'tu fiesta'} somos ${cantidadPersonas} personas trabajando para vos.`;
-  const frase = fraseBase.replace(/\b11 personas\b/g, `${cantidadPersonas} personas`);
+  const frase = fraseBase.replace(/\b\d+\s+(personas|profesionales)\b/gi, `${cantidadPersonas} $1`);
   // Las fotos que cargo el dueno mandan. Si no cargo ninguna para este tipo de
   // fiesta, se usan las de la galeria que corresponden: asi los tipos que no
   // tienen catalogo impreso —los infantiles y los empresariales— igual tienen
@@ -119,7 +124,20 @@ export function EquipoSlide({ tipoFiesta, equipoSettings, invitadosEstimados }: 
                 ))}
               </div>
             ) : (
-              <ImagePlaceholder id="equipo-ak" label="Fotos del equipo AK trabajando en tu fiesta" aspectRatio="16/9" />
+              <div className="grid w-full h-full gap-2 p-2 bg-slate-950 grid-cols-2">
+                {FOTOS_EQUIPO_DEFAULT.map((url, idx) => (
+                  <div key={url} className="relative w-full h-full rounded-2xl overflow-hidden">
+                    <Image
+                      src={url}
+                      alt={`Equipo AK trabajando ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
           </motion.div>
 
@@ -160,9 +178,9 @@ export function EquipoSlide({ tipoFiesta, equipoSettings, invitadosEstimados }: 
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm">Tranquilidad Absoluta</h3>
+                  <h3 className="font-bold text-white text-sm">Tranquilidad</h3>
                   <p className="text-white/60 text-xs mt-0.5">
-                    Lo que otros tercerizan, nosotros lo resolvemos en equipo desde el primer minuto.
+                    Resolvemos cada detalle en equipo desde el primer minuto.
                   </p>
                 </div>
               </div>

@@ -123,6 +123,7 @@ function debeLiberarReserva(error: unknown): boolean {
 
 export interface PedirTextoOpciones {
   prompt: string;
+  adjunto?: { url: string; contentType?: string };
   system?: string;
   quien?: FuncionConCosto;
   consumoYaGestionado?: boolean;
@@ -297,6 +298,7 @@ async function ejecutarTextoConRespaldo({
 
 export async function pedirTexto({
   prompt,
+  adjunto,
   system,
   quien = 'cerebro',
   consumoYaGestionado = false,
@@ -326,10 +328,23 @@ export async function pedirTexto({
         })
       : prompt;
 
+  const urlAdjunto = adjunto?.url?.trim();
+  const promptParaEjecutar: GeminiGenerateRequest['prompt'] = urlAdjunto
+    ? [
+        { text: promptFinal },
+        {
+          media: {
+            url: urlAdjunto,
+            ...(adjunto?.contentType ? { contentType: adjunto.contentType } : {}),
+          },
+        },
+      ]
+    : promptFinal;
+
   const candidatos = modelos?.length ? [...modelos] : [...MODELOS_GEMINI.texto];
 
   return ejecutarTextoConRespaldo({
-    prompt: promptFinal,
+    prompt: promptParaEjecutar,
     system: systemFinal,
     quien,
     consumoYaGestionado,

@@ -384,6 +384,12 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
+  if (presupuestoData.tipoAjusteAnual === 'simple') {
+    const authContabilidad = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
+    if (!authContabilidad.success) {
+      return { success: false, error: 'Solo contabilidad puede cargar presupuestos con ajuste anual simple.' };
+    }
+  }
   const cantidadesInvitados = [presupuestoData.invitadosAdultos, presupuestoData.invitadosAdolescentes, presupuestoData.invitadosNinos];
   if (cantidadesInvitados.some((v) => v !== undefined && v !== null && (!Number.isInteger(Number(v)) || Number(v) < 0))) {
     return { success: false, error: 'La cantidad de invitados debe ser un número entero mayor o igual a 0.' };
@@ -615,6 +621,17 @@ async function guardarPresupuestoSinTurno(
     if (index === -1) return { success: false, error: "No encontrado" };
 
     const oldBudget = presupuestos[index];
+    if ((oldBudget.tipoAjusteAnual ?? 'acumulativo') !== (presupuestoData.tipoAjusteAnual ?? 'acumulativo')) {
+      const authContabilidad = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
+      if (!authContabilidad.success) {
+        return { success: false, error: 'Solo contabilidad puede cambiar el tipo de ajuste anual.' };
+      }
+      const contrato = await estadoDelContrato(presupuestoData.id);
+      if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+      if (contrato === 'firmado') {
+        return { success: false, error: 'No se puede cambiar el tipo de ajuste con el contrato firmado.' };
+      }
+    }
     if (hasBudgetStructureChanged(oldBudget, presupuestoData)) {
       if (oldBudget.estado === 'Facturado') {
         return {
