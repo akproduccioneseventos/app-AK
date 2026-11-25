@@ -5,7 +5,7 @@
 **Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
-- **AHORA, UNA sola propuesta con dos órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
+- **AHORA, UNA sola propuesta con tres órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
   1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
      (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
      arreglás, sacás su línea de `docs/robot-excepciones.json`.
@@ -13,7 +13,10 @@
      (bodas primero): "un solo contacto, toda tu fiesta", preguntas frecuentes para Google, reseñas del mismo tipo,
      nada inventado en bodas, las páginas nuevas de empresas e infantiles, la portada `/fiestas` y los enlaces desde
      la portada (hoy nadie las enlaza).
-  - Si una se traba, entregá la otra en la misma propuesta y avisá cuál faltó y por qué.
+  3. **Orden 348 (`docs/ordenes/348-gemini-cada-servicio-con-sus-fotos-y-la-ia-en-la-reunion.md`):** cada servicio con
+     su álbum de fotos (presentación LED y simulador), la IA que clasifica sola las fotos que entran, y "Pedile a la IA"
+     en la reunión para agregar o sacar servicios con la voz (nunca guarda ni cierra el presupuesto).
+  - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
   - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
     `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.
 
