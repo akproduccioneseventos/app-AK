@@ -1561,3 +1561,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 343 → no es un defecto
 - Orden 344 → propia de Claude
 - Orden 345 → no es un defecto
+- Orden 346 → pregunta 218
