@@ -25,7 +25,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   4. **Orden 349 (`docs/ordenes/349-gemini-auditoria-externa-25-11.md`):** lo que encontró la auditoría externa del 25/11
      (sin lo de plata, que es de Claude): pruebas y cifras inventadas en la LED, textos, alertas y botones sin nombre.
   5. **Orden 350 (`docs/ordenes/350-gemini-tutoriales-en-video.md`):** botón "¿Cómo funciona?" con un video de YouTube
-     (que carga el dueño en Ajustes) en el simulador, el Video de Vida, el portal del cliente y el del invitado.
+     (que carga el dueño en Ajustes) en TODA pantalla que ve gente de afuera: prospecto, cliente, invitado, proveedor, personal
+     y las estaciones del salón (unas 48).
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
