@@ -11,6 +11,11 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
 **Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
+- **Revisada y publicada (25/11):** tu propuesta 1475 con las órdenes 346, 347 y 348 completas y casi toda la 349. Claude le
+  sacó dos cosas: el atajo que reescribía insumos y menús enteros con la base vacía (si el robot lo necesita, sembrá el
+  emulador; no cambies el código de la app) y la IA de la reunión sin sesión. **Seguí en la misma rama `gemini/orden-346`**
+  traída de la principal, con lo que falta: de la 349 la prueba `tests/e2e/la-tercera-auditoria-del-25-11.spec.ts` y
+  "Encargado general" en `src/components/multiagent/multiagent-widget.tsx`; y las órdenes 350 y 355 enteras.
 - **AHORA, UNA sola propuesta con todas estas órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
   1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
      (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que

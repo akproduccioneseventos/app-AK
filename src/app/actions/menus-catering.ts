@@ -453,21 +453,7 @@ export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa, operationId?
         continue;
       }
       const guardado = await mutateDataItem<FullMenu>(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menu.id, (actual) => sinBuffetVirtual(cambiar(actual)) as FullMenu);
-      if (!guardado) {
-        const { dbAdmin } = await import('@/lib/firebase/server');
-        const firestoreVacio = dbAdmin
-          ? (await dbAdmin.collection(MENUS_CATERING_COLLECTION).limit(1).get()).empty
-          : false;
-        if (firestoreVacio) {
-          const frescos = await readMenusFile();
-          const i = frescos.findIndex((m) => m.id === menu.id);
-          if (i === -1) continue;
-          frescos[i] = cambiar(frescos[i]);
-          await writeMenusFile(frescos);
-          continue;
-        }
-        return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
-      }
+      if (!guardado) return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
     }
     limpiarCacheMenusInterno();
     return { success: true };

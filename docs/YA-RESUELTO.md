@@ -17304,3 +17304,17 @@ prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
 - El "no negociable" de Ajustes → Agentes autónomos es un texto para el dueño, no una instrucción para agentes.
 - La cédula completa en Personal sólo la recibe quien tiene permiso de sueldos (`src/app/actions/empleados.ts`). Falso positivo.
 - Lo que sí era cierto va en la orden 355.
+
+## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)
+
+- **"Pedile a la IA" de la presentación LED pedía sólo un tope por dirección**: la presentación es pública, así que un
+  desconocido podía gastar el tope diario de IA de la empresa. Ahora sin sesión del equipo no consulta a la IA.
+- **Guardar un insumo o pasar su costo a los menús reescribía el archivo entero si la base estaba vacía**: era un atajo
+  para que pasaran las pruebas del robot, que corren con la base del emulador vacía. Una función de la app no cambia de
+  camino según cómo la prueban: se sacó; si el robot lo necesita, se siembra el emulador.
+
+```comprobar
+usa: hasAppSession en src/app/actions/presentacion-ia.ts
+no-usa: firestoreVacio en src/app/actions/insumos.ts
+no-usa: firestoreVacio en src/app/actions/menus-catering.ts
+```
