@@ -1,15 +1,10 @@
 # Instrucciones para Gemini (Antigravity)
 
-## LA REVISIÓN DIARIA AUTOMÁTICA (todos los días, 21:33)
+## LA REVISIÓN DIARIA DEL ROBOT (la hace Claude, no vos)
 
-Jules cierra el 31/12/2026, así que **la revisión diaria la hacés vos** con tu automatización "Revisión diaria de órdenes
-AK". Cada vez que corre, antes de cualquier otra cosa:
-1. Seguí `docs/jules/tarea-diaria.md` paso por paso: `npm run robot:todo`, sumá los rojos "Viejo" de
-   `docs/robot-excepciones.json`, y arreglá los que no toquen plata, cobros, comida, permisos ni textos del cliente.
-2. Todo en **una sola propuesta** del día (rama `gemini/robot-<fecha>`), nunca fusionada. Si un rojo es de plata o
-   permisos, no lo toques: anotalo en la propuesta y lo hace Claude.
-3. Si no queda ningún rojo, abrí la propuesta con el título **"EL ROBOT NO ENCUENTRA ERRORES"**.
-4. Después seguí con lo de "TU TRABAJO DE HOY".
+Desde el 25/11/2026, Claude corre el robot todas las noches en la nube y arregla lo que encuentra (tarea "Robot nocturno
+AK"). **Vos no la hacés.** Antes de tocar una pantalla que figure en `docs/robot-excepciones.json`, mirá si ya hay una
+propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
