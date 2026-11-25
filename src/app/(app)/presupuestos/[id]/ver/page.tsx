@@ -507,9 +507,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
     const summary = getBudgetPaymentSummary(presupuesto, {
       includeAnnualAdjustment: true,
+      defaultAnnualAdjustmentPercentage: displaySettings?.annualAdjustmentPercentage,
     });
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
-  }, [presupuesto]);
+  }, [presupuesto, displaySettings?.annualAdjustmentPercentage]);
   const hasDepositPayment = useMemo(
     () => (presupuesto?.pagosCliente || []).some((p) => isConfirmedClientPayment(p) && p.monto > 0),
     [presupuesto]

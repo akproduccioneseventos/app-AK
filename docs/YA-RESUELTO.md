@@ -2,6 +2,22 @@
 
 
 
+## 24/11/2026 - Auditoría profunda 0 errores (Rama gemini/auditoria-profunda-24-11)
+
+- **Pilares 3 y 4 cerrados con 0 hallazgos P0/P1**, cubriendo seguridad del portal, migración 2027, contratos, cobros y consistencia del ajuste anual:
+  1. **Seguridad del portal (`src/app/actions/fiesta/portal.actions.ts`)**: `getFiestaByAccessKey` aplica `enforcePublicRateLimit` (`portal-access-key-lookup`) antes de consultar Firestore o JSON; `cambiarClavePortal` aplica `enforcePublicRateLimit`, exige `verifyPortalSession(fiestaId)`, verifica `clientPortalSettings?.enabled === true` y compara la clave actual con `coincideClaveEnTiempoConstante` para impedir cambios sin sesión o sobre portales apagados.
+  2. **Migración Empezar 2027 (`src/lib/automatico/empezar-2027.ts`)**: `correrMigracionEmpezar2027` deja intactos los presupuestos 2027+ con `archived: true`, `Rechazado`, `Vencido` o `Cancelado` sin activarlos ni generar contratos; conserva `estado: 'Facturado'`; mantiene `tipoAjusteAnual` cuando ya existe contrato firmado; y normaliza cada presupuesto activo 2027+ con `normalizePresupuestoFinancials` (activando `ajusteAnualActivo: true` cuando corresponde y preservando el total si está facturado o tiene `preserveTotal`).
+  3. **Cancelación desde el portal (`cancelServicesOrParty` en `src/app/actions/fiesta/portal.actions.ts`)**: usa `fiesta.contratoDatos?.fechaFirmaContrato ?? presupuesto.fechaFirmaContrato` antes de caer al año actual, y en `cancelAll: true` apaga `ajusteAnualActivo = false` y `ajusteAnualPorcentaje = 0` para que `presupuesto.saldo` quede igual a `penaltyTotal - pagado` sin re-aplicar el 15% anual sobre una multa que ya lo incluía.
+  4. **Cambio de fecha desde el portal (`changeEventDate` en `src/app/actions/fiesta/portal.actions.ts`)**: guarda `presupuesto.totalConDescuento = Math.max(0, nuevoTotal)` (`totalOriginal + penaltyAmount`) directamente sin recalcular descuentos porcentuales ni pisar totales con `preserveTotal: true`.
+  5. **Detección de contrato firmado (`estadoDelContrato` en `src/app/actions/presupuestos.ts`)**: además de `contratoFirmaInfo?.isSigned` en la fiesta vinculada, verifica `fechaFirmaContrato` y `contractSignatureInfo?.isSigned` en el propio presupuesto y `firmaDigitalConstancia` / `contratoDatos?.fechaFirmaContrato` en la fiesta, bloqueando cambios de estructura o `tipoAjusteAnual` incluso cuando todavía no hay fiesta vinculada.
+  6. **Edición no estructural en `updatePresupuesto` (`src/app/actions/presupuestos.ts`)**: cuando el presupuesto está `Facturado` o tiene `preserveTotal: true` y no cambia su estructura, conserva intactos `totalConDescuento` (y los ítems/subtotal en `Facturado`).
+  7. **Vista de presupuesto (`src/app/(app)/presupuestos/[id]/ver/page.tsx`)**: pasa `defaultAnnualAdjustmentPercentage: displaySettings?.annualAdjustmentPercentage` a `getBudgetPaymentSummary` para reflejar el porcentaje configurado en Ajustes.
+  8. **Vista pública del portal (`src/app/portal/c/[accessKey]/PublicPortalView.tsx`)**: recibe `ajusteAnualPorcentaje` y lo pasa como `defaultAnnualAdjustmentPercentage` a `getBudgetPaymentSummary` para alinear el total y saldo mostrados al cliente con Ajustes.
+
+```comprobar
+prueba: src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts
+```
+
 ## 24/11/2026 - Órdenes 343, 344 y 345 (Rama `gemini/orden-343`)
 
 - **Orden 343 — El simulador que vende solo**:

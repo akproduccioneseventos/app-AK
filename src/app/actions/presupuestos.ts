@@ -547,11 +547,25 @@ export async function savePresupuesto(
  * firmado". Antes un error de lectura devolvía "no firmado" y dejaba cambiar un contrato firmado
  * (Codex 204, orden 211, B5). Ahora el que llama frena con un error que dice lo que pasó.
  */
-async function estadoDelContrato(presupuestoId: string): Promise<'firmado' | 'libre' | 'no-se-sabe'> {
+async function estadoDelContrato(
+  presupuestoId: string,
+  presupuestoAlmacenado?: Presupuesto,
+): Promise<'firmado' | 'libre' | 'no-se-sabe'> {
+  if (
+    presupuestoAlmacenado?.fechaFirmaContrato ||
+    presupuestoAlmacenado?.contractSignatureInfo?.isSigned
+  ) {
+    return 'firmado';
+  }
   try {
     const fiestas = await getAllFiestas();
     const linked = fiestas.find(f => f.presupuestoId === presupuestoId);
-    return linked?.contratoFirmaInfo?.isSigned ? 'firmado' : 'libre';
+    const fiestaFirmada = Boolean(
+      linked?.contratoFirmaInfo?.isSigned ||
+      linked?.firmaDigitalConstancia ||
+      linked?.contratoDatos?.fechaFirmaContrato
+    );
+    return fiestaFirmada ? 'firmado' : 'libre';
   } catch (error) {
     console.warn('[presupuestos] No se pudo comprobar si el contrato está firmado:', error);
     return 'no-se-sabe';
@@ -626,36 +640,42 @@ async function guardarPresupuestoSinTurno(
       if (!authContabilidad.success) {
         return { success: false, error: 'Solo contabilidad puede cambiar el tipo de ajuste anual.' };
       }
-      const contrato = await estadoDelContrato(presupuestoData.id);
+      const contrato = await estadoDelContrato(presupuestoData.id, oldBudget);
       if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
       if (contrato === 'firmado') {
         return { success: false, error: 'No se puede cambiar el tipo de ajuste con el contrato firmado.' };
       }
     }
-    if (hasBudgetStructureChanged(oldBudget, presupuestoData)) {
+    const estructuraCambio = hasBudgetStructureChanged(oldBudget, presupuestoData);
+    if (estructuraCambio) {
       if (oldBudget.estado === 'Facturado') {
         return {
           success: false,
           error: 'El presupuesto ya está facturado; no se pueden modificar sus ítems, invitados ni descuentos sin editar o anular su factura.',
         };
       }
-      const contrato = await estadoDelContrato(presupuestoData.id);
+      const contrato = await estadoDelContrato(presupuestoData.id, oldBudget);
       if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
       if (contrato === 'firmado') {
         return { success: false, error: 'El presupuesto no se puede modificar porque tiene un contrato firmado.' };
       }
     }
 
+    const preserveStoredTotal = Boolean(
+      options.preserveStoredTotal ||
+      (!estructuraCambio && ((oldBudget as Presupuesto & { preserveTotal?: boolean }).preserveTotal || oldBudget.estado === 'Facturado'))
+    );
+
     // La misma cuenta que usan las aprobaciones del portal (`cuentaDelPresupuesto`).
     const cuenta = cuentaDelPresupuesto(presupuestoData);
     const updated: Presupuesto = normalizePresupuestoFinancials({
         ...presupuestoData,
-        itemsPresupuestados: cuenta.items,
-        costoTotalEstimado: cuenta.subtotal,
-        totalConDescuento: options.preserveStoredTotal
-          ? roundMoney(presupuestoData.totalConDescuento)
+        itemsPresupuestados: preserveStoredTotal && oldBudget.estado === 'Facturado' ? oldBudget.itemsPresupuestados : cuenta.items,
+        costoTotalEstimado: preserveStoredTotal && oldBudget.estado === 'Facturado' ? oldBudget.costoTotalEstimado : cuenta.subtotal,
+        totalConDescuento: preserveStoredTotal
+          ? roundMoney(presupuestoData.totalConDescuento ?? oldBudget.totalConDescuento)
           : cuenta.totalConDescuento
-    }, { preserveStoredTotal: options.preserveStoredTotal });
+    }, { preserveStoredTotal });
 
     let avisoCrm: string | undefined;
     try {

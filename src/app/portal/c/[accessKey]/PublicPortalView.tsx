@@ -85,6 +85,7 @@ interface PublicPortalViewProps {
   companyContact: string;
   companyName: string;
   presupuesto?: Presupuesto | null;
+  ajusteAnualPorcentaje?: number;
 }
 
 function useCountdown(targetDate: string | undefined, horaInicio?: string) {
@@ -249,6 +250,7 @@ export default function PublicPortalView({
   companyContact,
   companyName,
   presupuesto,
+  ajusteAnualPorcentaje,
 }: PublicPortalViewProps) {
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const portalExperience = fiesta.clientePortalExperience ?? {};
@@ -478,6 +480,7 @@ export default function PublicPortalView({
   // Payments data
   const paymentSummary = getBudgetPaymentSummary(presupuesto, {
     includeAnnualAdjustment: true,
+    defaultAnnualAdjustmentPercentage: ajusteAnualPorcentaje,
   });
   const totalCosto = paymentSummary.total;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];

@@ -484,6 +484,11 @@ export async function updateSocialGallerySettings(
 
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
   if (!accessKey || accessKey.trim() === '') return null;
+  await enforcePublicRateLimit({
+    scope: 'portal-access-key-lookup',
+    limit: 25,
+    windowMs: 15 * 60 * 1000,
+  });
   const safeAccessKey = accessKey.trim();
   if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
     try {
@@ -1666,7 +1671,7 @@ export async function cancelServicesOrParty(
     const totalPagado = paymentSummary.paid;
 
     // Calculate inflation adjustment factor based on cancellation year
-    const signingYear = getYearFromDate(fiesta.contratoDatos?.fechaFirmaContrato) ?? new Date().getFullYear();
+    const signingYear = getYearFromDate(fiesta.contratoDatos?.fechaFirmaContrato ?? presupuesto.fechaFirmaContrato) ?? new Date().getFullYear();
     const cancellationYear = new Date().getFullYear();
     const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto.ajusteAnualPorcentaje ?? 15;
     const proyeccionCancelacion = buildAnnualAdjustmentProjection({
@@ -1852,9 +1857,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
 
     // La misma cuenta que el documento y la respuesta (orden 210, A5 y A6): la multa no lleva
-    // descuento, que ya estaba en el total del que sale.
+    // descuento, que ya estaba en el total del que sale. En cancelación total, penaltyTotal
+    // ya incluye el ajuste inflacionario al año de cancelación: no se re-aplica sobre la multa.
     presupuesto.totalConDescuento = totalTrasCancelar(updatedItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
     nuevoTotal = presupuesto.totalConDescuento;
+    if (payload.cancelAll) {
+      presupuesto.ajusteAnualActivo = false;
+      presupuesto.ajusteAnualPorcentaje = 0;
+    }
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
     presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
@@ -2079,13 +2089,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
 
-    let discount = 0;
-    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
-      discount = presupuesto.descuentoTipo === 'porcentaje'
-        ? Math.round((presupuesto.costoTotalEstimado - penaltyAmount) * presupuesto.descuentoValor / 100)
-        : presupuesto.descuentoValor;
-    }
-    presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
+    presupuesto.totalConDescuento = Math.max(0, nuevoTotal);
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
     presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
@@ -2200,9 +2204,18 @@ export async function cambiarClavePortal(
   claveNueva: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'portal-cambiar-clave',
+      identity: fiestaId,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+    if (!(await verifyPortalSession(fiestaId))) {
+      return { success: false, error: 'Sesión del portal no autorizada.' };
+    }
     const fiesta = await getFiestaByIdRaw(fiestaId);
     const guardada = String(fiesta?.clientPortalSettings?.accessKey ?? '');
-    if (!fiesta || !guardada || guardada !== claveActual) {
+    if (!fiesta || !fiesta.clientPortalSettings?.enabled || !guardada || !coincideClaveEnTiempoConstante(guardada, claveActual)) {
       return { success: false, error: 'La clave actual no coincide.' };
     }
 

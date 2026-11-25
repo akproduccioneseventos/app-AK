@@ -13,6 +13,7 @@ import { codigoDeFiesta } from '@/lib/fiesta/codigo-fiesta';
 import { perfilDe } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 import { esSesionDeAuditor, esSesionDeSoloLectura } from '@/lib/auth/solo-lectura';
+import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 import {
   buildSalonContractDraft,
   esSalonClubUruguay,
@@ -524,12 +525,29 @@ export async function correrMigracionEmpezar2027(
         );
 
       if (es2027) {
+        const esInactivo =
+          Boolean(p.archived) ||
+          p.estado === 'Rechazado' ||
+          ['Vencido', 'Cancelado'].includes(String(p.estado));
+        if (esInactivo) {
+          protegidosCount += 1;
+          presupuestosRestantes.push(p);
+          advertencias.push(
+            `Conservado ${p.id} (2027+) en estado ${p.archived ? 'archivado' : p.estado} sin activar ni generar contratos.`,
+          );
+          continue;
+        }
+
         presupuestos2027Count += 1;
-        const actualizado: Presupuesto & { tipoAjusteAnual?: 'acumulativo' | 'simple' } = {
-          ...p,
-          estado: 'Aceptado',
-          tipoAjusteAnual: undefined,
-        };
+        const actualizado: Presupuesto & { tipoAjusteAnual?: 'acumulativo' | 'simple' } =
+          normalizePresupuestoFinancials(
+            {
+              ...p,
+              estado: p.estado === 'Facturado' ? 'Facturado' : 'Aceptado',
+              tipoAjusteAnual: tieneContratoFirmado ? (p as any).tipoAjusteAnual : undefined,
+            },
+            { preserveStoredTotal: Boolean((p as any).preserveTotal || p.estado === 'Facturado') },
+          );
         presupuestosRestantes.push(actualizado);
 
         const fiestasObjetivo =
