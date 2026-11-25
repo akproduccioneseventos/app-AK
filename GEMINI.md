@@ -11,7 +11,7 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
 **Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
-- **AHORA, UNA sola propuesta con cuatro órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
+- **AHORA, UNA sola propuesta con todas estas órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
   1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
      (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
      arreglás, sacás su línea de `docs/robot-excepciones.json`.
@@ -24,6 +24,10 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
      en la reunión para agregar o sacar servicios con la voz (nunca guarda ni cierra el presupuesto).
   4. **Orden 349 (`docs/ordenes/349-gemini-auditoria-externa-25-11.md`):** lo que encontró la auditoría externa del 25/11
      (sin lo de plata, que es de Claude): pruebas y cifras inventadas en la LED, textos, alertas y botones sin nombre.
+  5. **Orden 350 (`docs/ordenes/350-gemini-tutoriales-en-video.md`):** botón "¿Cómo funciona?" con un video de YouTube
+     (que carga el dueño en Ajustes) en el simulador, el Video de Vida, el portal del cliente y el del invitado.
+  - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
+    misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
   - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
     `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.
