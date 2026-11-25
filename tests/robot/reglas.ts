@@ -146,7 +146,9 @@ export function evaluarNoSeCae(params: {
   const consoleErrors = (params.consoleErrors || []).filter(
     (e) =>
       !/favicon\.ico/i.test(e) &&
-      !/Failed to load resource: the server responded with a status of 404/i.test(e),
+      !/Failed to load resource: the server responded with a status of 404/i.test(e) &&
+      // Sin salida a internet en la máquina de pruebas: es el entorno, no la pantalla.
+      !/net::ERR_(TUNNEL_CONNECTION_FAILED|NAME_NOT_RESOLVED|INTERNET_DISCONNECTED|PROXY_CONNECTION_FAILED)/i.test(e),
   );
   if (consoleErrors.length > 0) {
     return {
