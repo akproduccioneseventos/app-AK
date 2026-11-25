@@ -11,6 +11,11 @@ AK hoy es de 15 años; **bodas es la prioridad**. El mensaje de todas las págin
 lugar** (un solo contacto, una sola reunión, una sola seña, una persona responsable). Contratar por separado son varias
 reuniones, una seña por servicio y la familia coordinando todo la noche de la fiesta.
 
+**Decisión del dueño (25/11/2026), no se discute:** *"lo que veo es una web sola… sería cumpleaños, bodas, 15, fiestas
+empresariales y fiestas infantiles"*. **Cinco páginas: bodas, 15, cumpleaños, empresas e infantiles. Egresados NO va.**
+Las de bodas, 15 y cumpleaños ya existen pero **no las enlaza nadie**: ni el menú ni el pie de la portada. Por eso el
+dueño no las ve, y Google tampoco las encuentra bien. El bloque 5 lo arregla.
+
 ## Lo que YA existe (no lo rehagas, mejoralo)
 - `/bodas` → `src/app/bodas/page.tsx`. `/quinceaneras` → `src/app/quinceaneras/page.tsx`. `/cumpleanos` →
   `src/app/cumpleanos/page.tsx`. Las tres usan **la misma plantilla** `src/components/landing/EventLandingPage.tsx`
@@ -76,7 +81,12 @@ fotocabina, **Vogue** (servicio aparte de la fotocabina) y plataforma 360. Plan 
   a la marca de la empresa?, ¿cuánto antes hay que avisar?, ¿presupuestan para un grupo grande? Fuente del formulario
   nueva `landing-empresas` en el tipo de `crm.ts` ~1196 y en su lista de ~1240.
 - **`/cumpleanos`:** ya existe; sumale los bloques de la plantilla. Titular "Vos invitás, nosotros hacemos el resto."
-- **`/fiestas` (página nueva):** una tarjeta por tipo (bodas, 15, empresas, cumpleaños) con foto y el mismo botón de
+- **`/fiestas-infantiles` (página nueva, misma plantilla).** Título "Fiestas infantiles en Salto | AK Producciones".
+  Titular "Su cumple soñado, y vos también lo disfrutás." Le habla a la mamá y al papá. Servicios: salón, organización,
+  comida, decoración, discoteca, fotocabina, fotografía. **Nada de guardería móvil.** Si hay fotos reales de cumpleaños
+  infantiles en `public/media/`, usalas; si no, imágenes marcadas "Imagen ilustrativa". Preguntas: ¿qué edades?, ¿se puede
+  hacer en mi casa o en otro salón?, ¿qué comida hay para los chicos?, ¿cómo se reserva? Fuente `landing-infantiles`.
+- **`/fiestas` (página nueva):** una tarjeta por tipo (bodas, 15, cumpleaños, empresas, infantiles) con foto y el mismo botón de
   WhatsApp. Es la que va en la ficha de Google.
 - Cada página nueva entra en `PAGINAS_PARA_GOOGLE`, en las rutas públicas y en `slug` de `event-landing.ts`, con su
   título, descripción e imagen para compartir propios. `npm run mapa:generar` al final.
@@ -86,6 +96,13 @@ fotocabina, **Vogue** (servicio aparte de la fotocabina) y plataforma 360. Plan 
 `o=google`, `o=pinterest`, `o=ig`) como origen, y ese origen llega al contacto del CRM. No cambies cómo se leen los
 parámetros que ya existen.
 
+## Bloque 5 — Que se vean desde la portada
+1. En el menú de la portada (`src/components/landing/LandingNav.tsx`, lista de enlaces ~61-69) sumá **"Tipos de fiesta"**
+   → `/fiestas`. En el celular también.
+2. En el pie (`src/components/public-footer.tsx`, columna de servicios ~174-195) sumá los cinco enlaces: Bodas, 15 años,
+   Cumpleaños, Fiestas empresariales, Fiestas infantiles.
+3. No saques ni reordenes los enlaces que ya están.
+
 ## Lo que NO hay que hacer
 - No toques el simulador, el asistente, el CRM ni la portada.
 - No cambies las direcciones que ya existen (`/bodas`, `/quinceaneras`, `/cumpleanos`): están en Google y en anuncios.
@@ -94,18 +111,23 @@ parámetros que ya existen.
 
 ## Qué tiene que comprobar la prueba
 - `tests/e2e/las-paginas-por-tipo-de-fiesta.spec.ts` (escritorio y celular a 360 px): en `/bodas`, `/quinceaneras`,
-  `/fiestas-empresariales`, `/cumpleanos` y `/fiestas` hay **un solo `h1`**, se ve el botón de WhatsApp con el tipo de
+  `/fiestas-empresariales`, `/fiestas-infantiles`, `/cumpleanos` y `/fiestas` hay **un solo `h1`**, se ve el botón de WhatsApp con el tipo de
   fiesta en el mensaje, y la página no se desborda a lo ancho. En `/bodas` **no** aparece "Boda producida por AK" ni una
-  reseña de 15 años, y sí "Imagen ilustrativa". `/15-anos` termina en `/quinceaneras`. Llenar el formulario de
+  reseña de 15 años, y sí "Imagen ilustrativa". Desde la portada `/`, el menú lleva a `/fiestas` y el pie tiene
+  los cinco enlaces, y cada uno abre su página. `/15-anos` termina en `/quinceaneras`. Llenar el formulario de
   `/fiestas-empresariales?o=google` manda al servidor la fuente `landing-empresas` y el origen `google` (cortando el
   pedido, sin guardar de verdad).
-- `src/__tests__/las-paginas-por-tipo-de-fiesta.test.ts`: las cinco páginas tienen su `FAQPage` en JSON-LD con al menos 4
+- `src/__tests__/las-paginas-por-tipo-de-fiesta.test.ts`: las seis páginas tienen su `FAQPage` en JSON-LD con al menos 4
   preguntas (cumpleaños, 2) y están en `PAGINAS_PARA_GOOGLE`; ninguna dice "garantía", "24/7", "guardería" ni un precio
   con `$`.
 
 ```comprobar
 archivo: src/app/fiestas-empresariales/page.tsx
 archivo: src/app/fiestas/page.tsx
+archivo: src/app/fiestas-infantiles/page.tsx
+usa: /fiestas en src/components/landing/LandingNav.tsx
+usa: /fiestas-infantiles en src/components/public-footer.tsx
+usa: /fiestas-empresariales en src/components/public-footer.tsx
 usa: FAQPage en src/components/landing/EventLandingPage.tsx
 usa: landing-empresas en src/app/actions/crm.ts
 usa: /fiestas-empresariales en src/lib/seo/paginas-publicas.ts

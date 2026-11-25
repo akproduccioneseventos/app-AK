@@ -11,7 +11,8 @@
      arreglás, sacás su línea de `docs/robot-excepciones.json`.
   2. **Orden 347 (`docs/ordenes/347-gemini-las-paginas-por-tipo-de-fiesta.md`):** las páginas por tipo de fiesta
      (bodas primero): "un solo contacto, toda tu fiesta", preguntas frecuentes para Google, reseñas del mismo tipo,
-     nada inventado en bodas, la página nueva de empresas y la portada `/fiestas`.
+     nada inventado en bodas, las páginas nuevas de empresas e infantiles, la portada `/fiestas` y los enlaces desde
+     la portada (hoy nadie las enlaza).
   - Si una se traba, entregá la otra en la misma propuesta y avisá cuál faltó y por qué.
   - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
     `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.
