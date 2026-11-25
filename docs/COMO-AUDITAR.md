@@ -2109,3 +2109,23 @@ no podía convertir (gramos contra litros o contra "unidad") lo multiplicaba dir
 caras. Se mide corriendo las dos fórmulas sobre todas las recetas o presupuestos guardados y mirando cada diferencia: cada
 una tiene que ser un arreglo buscado, no un efecto de costado. Lo cubre
 `src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts`.
+
+### 228. Un contador que se pinta antes de que lleguen los datos, ¿muestra un 0 como si fuera real?
+
+Cuarta auditoría externa del 25/11/2026: "Listado de Empleados (0)" al lado de "Cargando empleados…", y "Eventos Pasados 0"
+que pasaba a 1. Mientras carga va un esqueleto o "…", nunca un número.
+
+### 229. El título de una página, ¿repite el nombre de la empresa que ya agrega la plantilla?
+
+Cuarta auditoría externa del 25/11/2026: once páginas públicas salían "… | AK Producciones | AK Producciones" en Google,
+porque el layout raíz ya agrega el sufijo y la página lo escribía otra vez.
+
+### 230. Un estado con fecha (agendada, pendiente, programada), ¿qué lo cierra cuando la fecha pasa?
+
+Cuarta auditoría externa del 25/11/2026: nada escribía "Realizada" y las citas del simulador quedaban "Agendada" para
+siempre, contadas como pendientes del mes. Si nada lo cierra, la pantalla la muestra como pasada y pide cerrarla de un toque.
+
+### 231. Un texto fijo que afirma algo de la sesión o del negocio (cómo entraste, dónde es la reunión), ¿sale de un dato?
+
+Cuarta auditoría externa del 25/11/2026: el perfil decía "contraseña compartida" a quien entró con Google, y las citas
+decían "Oficina AK Producciones" cuando no hay oficina (decisión del dueño, 17/11).

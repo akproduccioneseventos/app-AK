@@ -17296,3 +17296,11 @@ usa: detalleCobros en src/app/actions/poner-al-dia.ts
 prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
 ```
 
+
+## 25/11/2026 - Cuarta auditoría externa: lo que no es un error
+
+- `robots.txt` termina con `Disallow: /` después de la lista de `Allow`: es a propósito (cerrado por defecto y abierto página
+  por página, `src/app/robots.ts`). Google y Bing aplican la regla más larga. Falso positivo.
+- El "no negociable" de Ajustes → Agentes autónomos es un texto para el dueño, no una instrucción para agentes.
+- La cédula completa en Personal sólo la recibe quien tiene permiso de sueldos (`src/app/actions/empleados.ts`). Falso positivo.
+- Lo que sí era cierto va en la orden 355.

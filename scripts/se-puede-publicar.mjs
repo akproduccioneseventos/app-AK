@@ -334,13 +334,25 @@ function leerAvance() {
 }
 
 /** Si la corrida anterior dejo anotado que archivos fallaron. Sin lista, se corre todo. */
-function hayFallasAnotadas() {
+function leerFallasAnotadas() {
   try {
     const lista = JSON.parse(readFileSync('test-results/.ak-ultimas-fallas.json', 'utf8'));
-    return Array.isArray(lista) && lista.length > 0;
+    return Array.isArray(lista) ? lista : [];
   } catch {
-    return false;
+    return [];
   }
+}
+
+/**
+ * La lista de lo que fallo la guarda la PUERTA en su propio avance (25/11/2026): antes se leia
+ * solo el archivo del corredor, y correr una prueba suelta para arreglarla lo pisaba con la
+ * lista vacia. Resultado: la puerta siguiente volvia a correr todo (85 minutos). Ahora se usa
+ * la lista guardada por la puerta; el archivo del corredor queda de respaldo.
+ */
+function fallasDeLaPuerta(anterior) {
+  const propias = Array.isArray(anterior?.archivosQueFallaron) ? anterior.archivosQueFallaron : [];
+  const lista = propias.length ? propias : leerFallasAnotadas();
+  return lista.filter((f) => typeof f === 'string' && existsSync(f));
 }
 
 function anotarAvance(pasos) {
@@ -545,11 +557,13 @@ for (const paso of PASOS) {
    * pueden romper juntos, y eso no se negocia.
    */
   const soloLoQueFallo = paso.nombre === 'La app usada de verdad'
-    && anterior?.fallo && hayFallasAnotadas()
+    && anterior?.fallo && fallasDeLaPuerta(anterior).length > 0
     && (anterior.huella === huellaAhora || (anterior.appSinPruebas && anterior.appSinPruebas === huellas.appSinPruebas));
   process.stdout.write(`  ${paso.nombre}${soloLoQueFallo ? ' (solo lo que fallo la vez anterior, la app no cambio)' : ''}... `);
   const arranque = Date.now();
-  const { ok, salida } = correr(soloLoQueFallo ? 'npm run otravez' : paso.comando);
+  const { ok, salida } = correr(soloLoQueFallo
+    ? `node scripts/run-playwright-production.mjs ${fallasDeLaPuerta(anterior).map((f) => JSON.stringify(f)).join(' ')}`
+    : paso.comando);
   const segundos = ((Date.now() - arranque) / 1000).toFixed(0);
   console.log(ok ? `bien (${segundos}s)` : `FALLA (${segundos}s)`);
   if (ok) {
@@ -558,7 +572,7 @@ for (const paso of PASOS) {
   }
   if (!ok) {
     if (paso.nombre === 'La app usada de verdad') {
-      yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora, appSinPruebas: huellas.appSinPruebas, fallo: true };
+      yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora, appSinPruebas: huellas.appSinPruebas, fallo: true, archivosQueFallaron: leerFallasAnotadas() };
       anotarAvance(yaEstabanBien);
     }
     fallas.push({ paso, salida });
