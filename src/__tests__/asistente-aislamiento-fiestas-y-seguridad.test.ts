@@ -94,6 +94,9 @@ describe('Asistente AK — Aislamiento Estricto de Datos y Seguridad en Portales
         fechaEvento: '2026-12-05',
         salon: 'Salto Hotel & Casino',
       },
+      invitados: [
+        { id: 'guest-pedro', nombre: 'Invitado Pedro', tableNumber: '4', guestAccessToken: 'tok-pedro' },
+      ],
     };
 
     mockGenerate.mockResolvedValue({
@@ -105,7 +108,8 @@ describe('Asistente AK — Aislamiento Estricto de Datos y Seguridad en Portales
       [],
       '¿Cuánto costó la fiesta y cuánto falta pagar?',
       'Invitado Pedro',
-      '4'
+      '4',
+      { guestId: 'guest-pedro', guestAccessToken: 'tok-pedro' },
     );
 
     expect(res.success).toBe(true);

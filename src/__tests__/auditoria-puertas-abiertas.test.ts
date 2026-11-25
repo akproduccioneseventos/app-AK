@@ -48,6 +48,7 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'promos.ts': 'promociones activas visibles en la portada y simulador',
   'public-simulator-bootstrap.ts': 'datos iniciales del simulador público de presupuestos',
   'videos-de-ayuda.ts': 'la ven invitados sin sesión; sólo devuelve id de YouTube y título',
+  'fiesta-actual.ts': 'puerta de la tablet del salón (sólo devuelve configuracion basica de hoy o por código, sin datos privados ni permisos)',
 };
 
 /**

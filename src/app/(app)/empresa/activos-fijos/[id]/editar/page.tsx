@@ -12,7 +12,7 @@ import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Upl
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo, registrarMantenimientoDeEquipo } from '@/app/actions/activos-fijos';
 import { saveGastoGeneral } from '@/app/actions/gastos';
-import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
+import type { ServicioEmpresa, AnyCategoria, UnidadServicio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import {
   Dialog,
@@ -73,7 +73,7 @@ export default function EditarActivoFijoPage() {
         setItem(loadedItem);
         setFormData({
           ...loadedItem,
-          calculationMethod: loadedItem.calculationMethod || 'fijo',
+          calculationMethod: loadedItem.calculationMethod === 'tramos' ? 'fijo' : (loadedItem.calculationMethod || 'fijo'),
           valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0,
         });
       } else {
@@ -122,7 +122,7 @@ export default function EditarActivoFijoPage() {
   }, [item?.id]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
-    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'invitadosPorUnidad'].includes(field as string);
+    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'invitadosPorUnidad', 'cantidad'].includes(field as string);
 
     if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
@@ -130,22 +130,6 @@ export default function EditarActivoFijoPage() {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
-  };
-
-  const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
-    setFormData(prev => {
-        const nuevosTramos = [...(prev.tramosDePrecio || [])];
-        nuevosTramos[index] = {...nuevosTramos[index], [field]: Number(value) || 0 };
-        return {...prev, tramosDePrecio: nuevosTramos};
-    });
-  };
-
-  const addTramo = () => {
-    setFormData(prev => ({...prev, tramosDePrecio: [...(prev.tramosDePrecio || []), {id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0}]}));
-  };
-
-  const removeTramo = (index: number) => {
-    setFormData(prev => ({...prev, tramosDePrecio: (prev.tramosDePrecio || []).filter((_, i) => i !== index)}));
   };
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,41 +380,26 @@ export default function EditarActivoFijoPage() {
 
              <div className="space-y-3">
                  <Label className="text-base font-medium">Método de Cálculo de Cantidad (para Lista de Carga)</Label>
-                 <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
+                 <Select value={formData.calculationMethod === 'tramos' ? 'fijo' : formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="fijo">Cantidad Fija</SelectItem>
                         <SelectItem value="porPersona">Por Persona</SelectItem>
                         <SelectItem value="ratio">Por Ratio de Invitados</SelectItem>
-                        <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
                     </SelectContent>
                  </Select>
              </div>
 
             {formData.calculationMethod === 'fijo' && (
-                <div className="space-y-2"><Label htmlFor="cantidad-fija">Cantidad a Cargar</Label><Input id="cantidad-fija" type="number" value={formData.precioVenta ?? 1} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="1"/><p className="text-xs text-muted-foreground">Cantidad fija a cargar siempre.</p></div>
+                <div className="space-y-2"><Label htmlFor="cantidad-fija">Cantidad a Cargar</Label><Input id="cantidad-fija" type="number" value={formData.cantidad ?? 1} onChange={(e) => handleFormChange('cantidad', e.target.value)} disabled={isSaving} min="1"/><p className="text-xs text-muted-foreground">Cantidad fija a cargar siempre.</p></div>
             )}
             {formData.calculationMethod === 'porPersona' && (
                  <p className="text-sm text-muted-foreground italic bg-blue-50 p-3 rounded-md">La cantidad se calculará como 1 por cada invitado.</p>
             )}
             {formData.calculationMethod === 'ratio' && (
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="ratio-base">Cantidad por Ratio</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? 1} onChange={(e) => handleFormChange('precioBase', e.target.value)} disabled={isSaving} min="1"/></div>
+                    <div className="space-y-2"><Label htmlFor="ratio-base">Cantidad por Ratio</Label><Input id="ratio-base" type="number" value={formData.cantidad ?? 1} onChange={(e) => handleFormChange('cantidad', e.target.value)} disabled={isSaving} min="1"/></div>
                     <div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value)} disabled={isSaving} min="1"/></div>
-                </div>
-            )}
-            {formData.calculationMethod === 'tramos' && (
-                <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground">Define la cantidad a cargar para cada rango de invitados.</p>
-                    {formData.tramosDePrecio?.map((tramo, index) => (
-                        <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded-md">
-                            <div className="space-y-1"><Label htmlFor={`tramo-desde-${index}`}>Desde</Label><Input id={`tramo-desde-${index}`} type="number" value={tramo.desde} onChange={e => handleTramoChange(index, 'desde', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1"><Label htmlFor={`tramo-hasta-${index}`}>Hasta</Label><Input id={`tramo-hasta-${index}`} type="number" value={tramo.hasta} onChange={e => handleTramoChange(index, 'hasta', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-cantidad-${index}`}>Cantidad</Label><Input id={`tramo-cantidad-${index}`} type="number" value={tramo.precio} onChange={e => handleTramoChange(index, 'precio', e.target.value)}/></div>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>
                 </div>
             )}
 

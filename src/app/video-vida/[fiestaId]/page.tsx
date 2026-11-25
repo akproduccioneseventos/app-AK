@@ -172,8 +172,11 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
-            // Re-create a new URL object to ensure React re-renders the image
-            return { ...s, imageUrl: `${url}?t=${new Date().getTime()}` };
+            // Re-create a new URL object to ensure React re-renders the image (never mutate blob:/data:)
+            const nextUrl = url.startsWith('blob:') || url.startsWith('data:')
+              ? url
+              : `${url}?t=${new Date().getTime()}`;
+            return { ...s, imageUrl: nextUrl };
         }
         return s;
     }));

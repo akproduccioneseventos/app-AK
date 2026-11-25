@@ -144,7 +144,7 @@ describe('release security boundaries', () => {
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
-      expect(functionSource).toMatch(/await require(?:AppSession|AdminSession|Permiso\w*)\(/);
+      expect(functionSource).toMatch(/await require(?:AppSession|AdminSession|Permiso\w*|EventPermission|EventPermissionAny)\(/);
     }
   });
 
@@ -286,7 +286,7 @@ describe('release security boundaries', () => {
 
   it('requires an app session before mutating agenda appointments', () => {
     const agenda = readSource('src/app/actions/agenda.ts');
-    expect(agenda).toContain("import { requireAppSession } from '@/lib/auth/require-session'");
+    expect(agenda).toMatch(/requirePermisoAlguno/);
 
     // Antes esto contaba las llamadas a mano y esperaba un numero fijo: al
     // agregar una accion nueva la prueba fallaba aunque el control estuviera
@@ -296,7 +296,7 @@ describe('release security boundaries', () => {
     const bloques = agenda.split(/^export async function /m).slice(1);
     const sinControl = bloques
       .filter(bloque => bloque.includes('writeData('))
-      .filter(bloque => !bloque.includes('await requireAppSession()'))
+      .filter(bloque => !bloque.match(/await require(?:AppSession|PermisoAlguno|Permiso|EventPermission)\(/))
       .map(bloque => bloque.slice(0, bloque.indexOf('(')));
 
     expect(sinControl).toEqual([]);

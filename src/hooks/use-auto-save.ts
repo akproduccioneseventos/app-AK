@@ -47,6 +47,7 @@ export function useAutoSave<T>({
   const lastObservedSignatureRef = useRef<string | null>(null);
   const saveInFlightRef = useRef<Promise<void> | null>(null);
   const saveQueuedRef = useRef(false);
+  const pendingSaveRef = useRef(false);
   const mountedRef = useRef(true);
 
   dataRef.current = data;
@@ -70,6 +71,7 @@ export function useAutoSave<T>({
       try {
         while (enabledRef.current) {
           saveQueuedRef.current = false;
+          pendingSaveRef.current = false;
           const valueToSave = dataRef.current;
           const signatureToSave = signatureRef.current;
           const result = await onSaveRef.current(valueToSave);
@@ -107,6 +109,7 @@ export function useAutoSave<T>({
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    pendingSaveRef.current = false;
     baselineReadyRef.current = true;
     lastObservedSignatureRef.current = signatureRef.current;
     await executeSave();
@@ -116,6 +119,7 @@ export function useAutoSave<T>({
     if (!enabled) {
       baselineReadyRef.current = false;
       lastObservedSignatureRef.current = null;
+      pendingSaveRef.current = false;
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
@@ -131,6 +135,7 @@ export function useAutoSave<T>({
 
     if (lastObservedSignatureRef.current === dataSignature) return;
     lastObservedSignatureRef.current = dataSignature;
+    pendingSaveRef.current = true;
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
@@ -150,9 +155,16 @@ export function useAutoSave<T>({
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      if (pendingSaveRef.current && enabledRef.current) {
+        pendingSaveRef.current = false;
+        void executeSave();
+      }
     };
-  }, []);
+  }, [executeSave]);
 
   return { isSaving, lastSaved, saveError, saveNow };
 }

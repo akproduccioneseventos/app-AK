@@ -30,6 +30,29 @@ const testEnvironment = {
   NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:test',
 };
 
+const esCorridaRobot =
+  process.env.PLAYWRIGHT_ROBOT_EMULATOR === 'true' ||
+  process.argv.some((arg) => arg.includes('auditor-robot'));
+
+const robotEnvironment = {
+  NODE_OPTIONS: '--max-old-space-size=4096',
+  GOOGLE_API_KEY: 'dummy',
+  GEMINI_API_KEY: 'dummy',
+  GOOGLE_APPLICATION_CREDENTIALS: '',
+  FIREBASE_CLIENT_EMAIL: '',
+  FIREBASE_PRIVATE_KEY: '',
+  AK_SESSION_SECRET: 'playwright-session-secret-with-enough-entropy',
+  FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080',
+  FIREBASE_STORAGE_EMULATOR_HOST: process.env.FIREBASE_STORAGE_EMULATOR_HOST || '127.0.0.1:9199',
+  FIREBASE_PROJECT_ID: 'demo-ak-producciones',
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'demo-ak-producciones',
+  NEXT_PUBLIC_FIREBASE_API_KEY: 'dummy',
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: 'demo-ak-producciones.firebaseapp.com',
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: 'demo-ak-producciones.appspot.com',
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '000000000000',
+  NEXT_PUBLIC_FIREBASE_APP_ID: '1:000000000000:web:test',
+};
+
 export default defineConfig({
   testDir: './tests/e2e',
   // El recorrido de las 353 pantallas se corre aparte, con `npm run recorrido`:
@@ -64,6 +87,13 @@ export default defineConfig({
       name: 'chromium-mobile',
       use: { ...devices['Pixel 7'], ...chromiumLaunchOverride },
     },
+    {
+      name: 'auditor-robot',
+      testDir: './tests/robot',
+      testIgnore: [],
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunchOverride },
+    },
   ],
   webServer: externalBaseUrl
     ? undefined
@@ -74,7 +104,7 @@ export default defineConfig({
         timeout: 180_000,
         env: {
           ...process.env,
-          ...testEnvironment,
+          ...(esCorridaRobot ? robotEnvironment : testEnvironment),
         },
       },
 });

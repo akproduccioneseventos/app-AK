@@ -1,8 +1,17 @@
 'use server';
 
-import { requirePermiso } from '@/lib/auth/require-session';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { perfilDe, esPerfilValido, PERMISOS } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
+
+const PERMISOS_EQUIPO = [
+  PERMISOS.ADMINISTRACION,
+  PERMISOS.CONTABILIDAD,
+  PERMISOS.CRM,
+  PERMISOS.ORGANIZACION,
+  PERMISOS.INSUMOS,
+  PERMISOS.NOCHE,
+] as const;
 import {
   getPropuestasParaUsuario,
   aceptarPropuesta,
@@ -33,6 +42,7 @@ export async function getBandejaAsistenteAction(area?: AsistenteArea) {
       return { success: false, error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.' };
     }
   }
+  await requirePermisoAlguno(...PERMISOS_EQUIPO);
 
   const usuarioNombre = session.user?.email || 'Equipo AK';
   // Sólo el dueño ve todas las propuestas (plata, lo que pregunta cada cliente). Antes decía
@@ -67,6 +77,11 @@ export async function aceptarPropuestaAction(propuestaId: string) {
       return { success: false, mensaje: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.' };
     }
   }
+  try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
+  } catch (err: any) {
+    return { success: false, mensaje: err?.message || 'No autorizado' };
+  }
   const usuarioNombre = session.user?.email || 'Equipo AK';
 
   try {
@@ -78,11 +93,8 @@ export async function aceptarPropuestaAction(propuestaId: string) {
 }
 
 export async function posponerPropuestaAction(propuestaId: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
-  }
   try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
     await posponerPropuesta(propuestaId);
     return { success: true };
   } catch (err: any) {
@@ -91,11 +103,8 @@ export async function posponerPropuestaAction(propuestaId: string) {
 }
 
 export async function descartarPropuestaAction(propuestaId: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
-  }
   try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
     await descartarNoAvisarMas(propuestaId);
     return { success: true };
   } catch (err: any) {
@@ -104,12 +113,10 @@ export async function descartarPropuestaAction(propuestaId: string) {
 }
 
 export async function tomarPropuestaAction(propuestaId: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
-  }
-  const usuarioNombre = session.user?.email || 'Equipo AK';
   try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
+    const session = await verifySession();
+    const usuarioNombre = (session.success && session.user?.email) || 'Equipo AK';
     await tomarPropuesta(propuestaId, usuarioNombre);
     return { success: true };
   } catch (err: any) {
@@ -118,11 +125,8 @@ export async function tomarPropuestaAction(propuestaId: string) {
 }
 
 export async function marcarResumenVistoAction(id: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
-  }
   try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
     await marcarResumenMientrasNoEstabasVisto(id);
     return { success: true };
   } catch (err: any) {
@@ -131,9 +135,9 @@ export async function marcarResumenVistoAction(id: string) {
 }
 
 export async function guardarMetaMesAction(metasMes: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) {
+    return { success: false, error: permiso.error };
   }
   try {
     await saveAsistenteSettings({ metasMes });
@@ -144,11 +148,8 @@ export async function guardarMetaMesAction(metasMes: string) {
 }
 
 export async function getSettingsAsistenteAction() {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
-  }
   try {
+    await requirePermisoAlguno(...PERMISOS_EQUIPO);
     const settings = await getAsistenteSettings();
     const reglas = await getReglasAprendidas();
     return { success: true, settings, reglas };
@@ -173,9 +174,9 @@ export async function saveSettingsAsistenteAction(settings: Partial<AsistenteSet
 }
 
 export async function eliminarReglaAprendidaAction(reglaId: string) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) {
+    return { success: false, error: permiso.error };
   }
   try {
     await desestimarReglaAprendida(reglaId);

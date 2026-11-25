@@ -883,26 +883,72 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
   const handleDownloadBudgetPdf = async () => {
     if (!generatedId || !budgetDocumentRef.current || isDownloadingPdf) return;
     setIsDownloadingPdf(true);
+    let tempWrapper: HTMLDivElement | null = null;
     try {
       const { jsPDF } = await import('jspdf');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      await pdf.html(budgetDocumentRef.current, {
+      const sourceEl = budgetDocumentRef.current;
+
+      tempWrapper = document.createElement('div');
+      tempWrapper.style.position = 'fixed';
+      tempWrapper.style.left = '-12000px';
+      tempWrapper.style.top = '0';
+      tempWrapper.style.width = '794px';
+      tempWrapper.style.maxWidth = '794px';
+      tempWrapper.style.boxSizing = 'border-box';
+      tempWrapper.style.backgroundColor = '#ffffff';
+      tempWrapper.style.pointerEvents = 'none';
+
+      const clone = sourceEl.cloneNode(true) as HTMLElement;
+      clone.style.width = '794px';
+      clone.style.maxWidth = '794px';
+      clone.style.boxSizing = 'border-box';
+      clone.style.margin = '0';
+
+      const printArea = clone.id === 'budget-print-area'
+        ? clone
+        : (clone.querySelector('#budget-print-area') as HTMLElement | null);
+      if (printArea) {
+        printArea.style.width = '794px';
+        printArea.style.maxWidth = '794px';
+        printArea.style.boxSizing = 'border-box';
+        printArea.style.border = 'none';
+        printArea.style.borderRadius = '0';
+        printArea.style.boxShadow = 'none';
+        printArea.style.padding = '24px';
+        printArea.style.overflowWrap = 'anywhere';
+      }
+      clone.querySelectorAll('.budget-print-page-number').forEach((el) => el.remove());
+
+      tempWrapper.appendChild(clone);
+      document.body.appendChild(tempWrapper);
+
+      await pdf.html(clone, {
         autoPaging: 'text',
-        margin: [12, 12, 16, 12],
-        width: 186,
-        windowWidth: 1024,
+        margin: [10, 10, 10, 10],
+        width: 190,
+        windowWidth: 794,
         html2canvas: {
           backgroundColor: '#ffffff',
-          scale: 0.8,
+          scale: 1,
           useCORS: true,
         },
       });
+
+      while (pdf.getNumberOfPages() > 1) {
+        const lastPage = pdf.getNumberOfPages();
+        const pageStream = (pdf as any).internal?.pages?.[lastPage];
+        const content = Array.isArray(pageStream) ? pageStream.join('\n') : '';
+        if (/\b(Tj|TJ|Do)\b/.test(content)) break;
+        pdf.deletePage(lastPage);
+      }
+
       const totalPages = pdf.getNumberOfPages();
       for (let page = 1; page <= totalPages; page += 1) {
         pdf.setPage(page);
         pdf.setFontSize(8);
         pdf.setTextColor(100);
-        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+        pdf.text(`Página ${page} de ${totalPages}`, 200, 291, { align: 'right' });
       }
       const filename = `presupuesto-ak-${generatedId}.pdf`;
       if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -927,6 +973,9 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
         variant: 'destructive',
       });
     } finally {
+      if (tempWrapper && tempWrapper.parentNode) {
+        tempWrapper.parentNode.removeChild(tempWrapper);
+      }
       setIsDownloadingPdf(false);
     }
   };
@@ -978,11 +1027,12 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
         <div
           aria-hidden="true"
           className="pointer-events-none fixed top-0 bg-white"
-          style={{ left: '-12000px', width: '1024px' }}
+          style={{ left: '-12000px', width: '794px', maxWidth: '794px', boxSizing: 'border-box' }}
         >
-          <div ref={budgetDocumentRef}>
+          <div ref={budgetDocumentRef} style={{ width: '794px', maxWidth: '794px', boxSizing: 'border-box' }}>
             <BudgetDocument
               presupuesto={budgetForPdf}
+              forPdf
               adjustmentPct={priceStats.annualProjection.adjustmentPct}
               pricePerPerson={priceStats.precioPorPersona}
               showSignatures={false}

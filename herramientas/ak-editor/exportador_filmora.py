@@ -40,9 +40,11 @@ def crear_nodo_clip(
     fps: int = 30,
     es_audio: bool = False,
     volumen: float = 1.0,
+    clip_id: Optional[str] = None,
+    file_id: Optional[str] = None,
 ) -> ET.Element:
     """Crea un elemento <clipitem> compatible con XMEML."""
-    clip = ET.Element("clipitem")
+    clip = ET.Element("clipitem", **({"id": clip_id} if clip_id else {}))
     ET.SubElement(clip, "name").text = nombre_clip
     ET.SubElement(clip, "in").text = str(frame_in)
     ET.SubElement(clip, "out").text = str(frame_out)
@@ -53,7 +55,8 @@ def crear_nodo_clip(
     ET.SubElement(rate, "timebase").text = str(fps)
     ET.SubElement(rate, "ntsc").text = "FALSE"
 
-    file_elem = ET.SubElement(clip, "file", id=f"file-{os.path.basename(ruta_archivo)}")
+    file_id_final = file_id or f"file-{os.path.basename(ruta_archivo)}"
+    file_elem = ET.SubElement(clip, "file", id=file_id_final)
     ET.SubElement(file_elem, "name").text = os.path.basename(ruta_archivo)
     ET.SubElement(file_elem, "pathurl").text = ruta_a_url_file(ruta_archivo)
 
@@ -187,6 +190,17 @@ def exportar_timeline_filmora(
     frame_acumulado_a2 = 0
 
     duracion_transicion_frames = int(1.0 * fps)
+    conteo_file_ids: Dict[str, int] = {}
+    clip_seq = 0
+
+    def siguiente_ids(ruta_arch: str) -> tuple[str, str]:
+        nonlocal clip_seq
+        clip_seq += 1
+        base = f"file-{os.path.basename(ruta_arch)}"
+        n = conteo_file_ids.get(base, 0) + 1
+        conteo_file_ids[base] = n
+        fid = base if n == 1 else f"{base}-{n}"
+        return f"clipitem-{clip_seq}", fid
 
     for i, c in enumerate(cortes_procesados):
         ruta = c.get("archivo_ruta") or c.get("ruta", "clip.mp4")
@@ -203,8 +217,10 @@ def exportar_timeline_filmora(
 
         # Video
         if pista_vid == 1:
+            cid, fid = siguiente_ids(ruta)
             clip_v = crear_nodo_clip(
-                nom, ruta, frame_in, frame_out, frame_acumulado_v1, frame_acumulado_v1 + frames_dur, fps
+                nom, ruta, frame_in, frame_out, frame_acumulado_v1, frame_acumulado_v1 + frames_dur, fps,
+                clip_id=cid, file_id=fid,
             )
             pista_v1.append(clip_v)
 
@@ -217,22 +233,28 @@ def exportar_timeline_filmora(
 
             frame_acumulado_v1 += frames_dur
         elif pista_vid == 2:
+            cid, fid = siguiente_ids(ruta)
             clip_v = crear_nodo_clip(
-                f"[Osmo] {nom}", ruta, frame_in, frame_out, frame_acumulado_v2, frame_acumulado_v2 + frames_dur, fps
+                f"[Osmo] {nom}", ruta, frame_in, frame_out, frame_acumulado_v2, frame_acumulado_v2 + frames_dur, fps,
+                clip_id=cid, file_id=fid,
             )
             pista_v2.append(clip_v)
             frame_acumulado_v2 += frames_dur
 
         # Audio
         if pista_aud == 1 and pista_vid != 0:
+            cid, fid = siguiente_ids(ruta)
             clip_a = crear_nodo_clip(
-                f"[Audio Cam] {nom}", ruta, frame_in, frame_out, frame_acumulado_a1, frame_acumulado_a1 + frames_dur, fps, es_audio=True, volumen=volumen
+                f"[Audio Cam] {nom}", ruta, frame_in, frame_out, frame_acumulado_a1, frame_acumulado_a1 + frames_dur, fps, es_audio=True, volumen=volumen,
+                clip_id=cid, file_id=fid,
             )
             pista_a1.append(clip_a)
             frame_acumulado_a1 += frames_dur
         elif pista_aud == 2:
+            cid, fid = siguiente_ids(ruta)
             clip_a = crear_nodo_clip(
-                f"[Música] {nom}", ruta, frame_in, frame_out, frame_acumulado_a2, frame_acumulado_a2 + frames_dur, fps, es_audio=True, volumen=volumen
+                f"[Música] {nom}", ruta, frame_in, frame_out, frame_acumulado_a2, frame_acumulado_a2 + frames_dur, fps, es_audio=True, volumen=volumen,
+                clip_id=cid, file_id=fid,
             )
             pista_a2.append(clip_a)
             frame_acumulado_a2 += frames_dur
@@ -244,8 +266,10 @@ def exportar_timeline_filmora(
     if ruta_logo_ak and os.path.exists(ruta_logo_ak):
         frame_inicio_logo = int(duracion_intro_ak_seg * fps)
         dur_logo_frames = max(30, duracion_total_frames - frame_inicio_logo)
+        cid, fid = siguiente_ids(ruta_logo_ak)
         clip_logo = crear_nodo_clip(
-            "Logo AK", ruta_logo_ak, 0, dur_logo_frames, frame_inicio_logo, duracion_total_frames, fps
+            "Logo AK", ruta_logo_ak, 0, dur_logo_frames, frame_inicio_logo, duracion_total_frames, fps,
+            clip_id=cid, file_id=fid,
         )
         pista_v3.append(clip_logo)
 

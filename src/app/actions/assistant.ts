@@ -1,6 +1,6 @@
 'use server';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -454,10 +454,11 @@ export async function sendAssistantMessage(
   action?: { type: string; data?: any; result?: any };
   error?: string;
 }> {
-  if (process.env.NODE_ENV !== 'test') {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  const auth = await verifySession().catch(() => ({ success: false as const, error: 'No autorizado.', user: undefined }));
+  if (process.env.NODE_ENV !== 'test' && !auth.success) {
+    return { success: false, error: auth.error || 'No autorizado' };
   }
+  const puedeVerPlata = Boolean(auth.success && auth.user && puede(auth.user, PERMISOS.CONTABILIDAD));
 
   try {
     logger.info('[Asistente AK] Inicio sendAssistantMessage:', { msgLength: message?.length ?? 0, hasImage: !!imageDataUri });
@@ -594,13 +595,13 @@ KPIs:
 ${kpi?.alerts?.map((a: GlobalAlert) => `  · [${a.severity}] ${a.title}: ${a.description}`).join('\n') || ''}
 
 PRESUPUESTOS RECIENTES (últimos 10):
-${presupuestos.slice(-10).map(p => `- ID:${p.id} #${p.numero} ${p.clienteNombre} | ${p.eventoTipo} | $${p.totalConDescuento ?? p.costoTotalEstimado} | ${p.estado} | Fecha: ${p.eventoFecha || 'Sin fecha'}`).join('\n') || 'Sin presupuestos'}
+${presupuestos.slice(-10).map(p => `- ID:${p.id} #${p.numero} ${p.clienteNombre} | ${p.eventoTipo}${puedeVerPlata ? ` | $${p.totalConDescuento ?? p.costoTotalEstimado}` : ''} | ${p.estado} | Fecha: ${p.eventoFecha || 'Sin fecha'}`).join('\n') || 'Sin presupuestos'}
 
 CLIENTES (últimos 10):
 ${customers.slice(-10).map(c => `- ID:${c.id} ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c.partyDate ?? 'Sin fecha'} | Tel: ${c.phone || 'Sin tel'}`).join('\n') || 'Sin clientes'}
 
 SERVICIOS DE EMPRESA (primeros 15):
-${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}
+${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria}${puedeVerPlata ? ` | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}` : (s.precioVenta ? ` | Precio venta: $${s.precioVenta}` : '')}`).join('\n') || 'Sin servicios configurados'}
 ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\n${aiSettings.customInstructions}` : ''}
 ${aiSettings.operationalInstructions ? `\nPROMPT BASE — ASISTENTE OPERATIVO:\n${aiSettings.operationalInstructions}` : ''}
 ${aiSettings.salesMarketingInstructions ? `\nPROMPT BASE — ASISTENTE VENTAS/MARKETING:\n${aiSettings.salesMarketingInstructions}` : ''}
@@ -621,13 +622,22 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
   : ''}
 `;
 
-    // 2. Llamar al flow
+    // 2. Verificar tope de IA y llamar al flow
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+    if (!(await hayPresupuestoParaIA().catch(() => false))) {
+      return {
+        success: false,
+        response: 'Se alcanzó el tope mensual de IA. Podés usar los módulos directos de la app.',
+        error: 'Tope mensual de IA alcanzado.',
+      };
+    }
     const result = await chatWithAssistant({
       message,
       history,
       context,
       imageDataUri,
     });
+    await registrarConsumoIA('asistente-clasico').catch(() => undefined);
     if (result.action) {
       result.action.data = normalizeActionData(result.action.data);
     }
@@ -844,16 +854,35 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
           finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Asegurate de incluir: nombre del cliente, tipo de evento y al menos un servicio con precio. O crealo desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
         } else if (confidence === 'high' || confidence === 'medium') {
-          // Enough data to create a draft budget
-          const items = lServicios.map((s, i) => ({
-            idServicioCatalogo: `parser_${i}_${Date.now()}`,
-            nombreServicio: s.nombre,
-            cantidad: s.cantidad,
-            precioUnitario: s.precioUnitario,
-            precioUnitarioPresupuesto: s.precioUnitario,
-            costoTotalItem: s.cantidad * s.precioUnitario,
-            categoriaServicio: 'Servicios',
-          }));
+          // Respaldo de texto pegado: validar siempre contra el catálogo y rechazar precios negativos o fuera de catálogo.
+          const catalogoFallback = servicios.length > 0 ? servicios : await getServiciosEmpresa().catch(() => []);
+          const items = lServicios
+            .map((s, i) => {
+              const buscado = String(s.nombre || '').trim().toLowerCase();
+              const enCatalogo = (catalogoFallback || []).find((serv: any) => {
+                const nom = String(serv?.nombre || '').trim().toLowerCase();
+                return nom && buscado && (nom === buscado || nom.includes(buscado) || buscado.includes(nom));
+              });
+              const precioCatalogo = enCatalogo
+                ? (Number((enCatalogo as any).precioVenta) || Number((enCatalogo as any).precioBase) || Number((enCatalogo as any).precioPorPersona) || 0)
+                : 0;
+              const qty = Number(s.cantidad) || 1;
+              if (!enCatalogo || precioCatalogo <= 0 || qty <= 0) return null;
+              return {
+                idServicioCatalogo: enCatalogo.id || `parser_${i}_${Date.now()}`,
+                nombreServicio: s.nombre,
+                cantidad: qty,
+                precioUnitario: precioCatalogo,
+                precioUnitarioPresupuesto: precioCatalogo,
+                costoTotalItem: qty * precioCatalogo,
+                categoriaServicio: 'Servicios',
+              };
+            })
+            .filter((item): item is NonNullable<typeof item> => item !== null);
+          if (items.length === 0) {
+            actionResult = { success: false, error: 'Sin servicios del catálogo válidos.' };
+            finalResponse = 'Encontré datos del presupuesto, pero ninguno de los servicios coincide con un precio válido del catálogo de la empresa. Cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).';
+          } else {
           const budgetResult = await savePresupuesto({
             clienteNombre: lCliente || 'Cliente (revisar)',
             eventoTipo: lTipo || '',
@@ -874,6 +903,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           } else {
             actionResult = { success: false, error: budgetResult.error };
             finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+          }
           }
         } else {
           // Low confidence but some fields detected — show what was found and what's missing
@@ -908,7 +938,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         const validServices = importedServices.filter(s => {
           const name = s.nombre || s.name;
           const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-          return name && name !== DEFAULT_SERVICE_NAME && price > 0;
+          const qty = s.cantidad == null ? 1 : Number(s.cantidad);
+          return name && name !== DEFAULT_SERVICE_NAME && Number.isFinite(price) && price > 0 && Number.isFinite(qty) && qty > 0;
         });
 
         if (validServices.length === 0) {
@@ -1069,13 +1100,26 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           venueName: '',
         };
         const rawItems: Array<{ description?: string; quantity?: number; unitPrice?: number }> = Array.isArray(d.items) ? d.items : [];
-        const invoiceItems: InvoiceItem[] = rawItems.map((item, i) => ({
-          id: `item_${i}_${Date.now()}`,
-          description: item.description || DEFAULT_SERVICE_NAME,
-          quantity: Number(item.quantity) || 1,
-          unitPrice: Number(item.unitPrice) || 0,
-          total: (Number(item.quantity) || 1) * (Number(item.unitPrice) || 0),
-        }));
+        const invoiceItems: InvoiceItem[] = rawItems
+          .map((item, i) => {
+            const quantity = Number(item.quantity ?? 1);
+            const unitPrice = Number(item.unitPrice ?? 0);
+            if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0) {
+              return null;
+            }
+            return {
+              id: `item_${i}_${Date.now()}`,
+              description: item.description || DEFAULT_SERVICE_NAME,
+              quantity,
+              unitPrice,
+              total: quantity * unitPrice,
+            };
+          })
+          .filter((item): item is InvoiceItem => item !== null);
+        if (rawItems.length > 0 && invoiceItems.length === 0) {
+          actionResult = { success: false, error: 'Los ítems de la factura tienen precios o cantidades inválidas.' };
+          finalResponse = '❌ No se pudo crear la factura: revisá que las cantidades sean mayores a 0 y los precios no sean negativos.';
+        } else {
         const subtotal = invoiceItems.reduce((sum, i) => sum + i.total, 0);
         const invoiceData: Omit<Invoice, 'id' | 'invoiceNumber'> = {
           customer,
@@ -1099,6 +1143,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           finalResponse = `✅ Factura creada para **${d.clienteNombre || 'el cliente'}**${id ? ` (ID: ${id})` : ''}. Podés verla en [/invoices${id ? `/${id}` : ''}](/invoices${id ? `/${id}` : ''}).`;
         } else {
           finalResponse = `❌ No se pudo crear la factura: ${(invoiceResult as any).error || 'Error desconocido'}. Intentá de nuevo o creala manualmente desde /invoices/new.`;
+        }
         }
       } catch (e: unknown) {
         logger.error('[Asistente AK] Error en create_invoice:', (e as Error).message);
@@ -1126,12 +1171,18 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           actionResult = { success: false, error: `No se encontró el servicio "${d.servicioNombre}".` };
           finalResponse = `❌ No se pudo actualizar el precio: No se encontró el servicio "${d.servicioNombre}". Verificá el nombre en /empresa/servicios.`;
         } else {
-          const updated = await saveServicioEmpresa({ ...servicio, precioVenta: Number(d.nuevoPrecio) });
+          const nuevoPrecio = Number(d.nuevoPrecio);
+          if (!Number.isFinite(nuevoPrecio) || nuevoPrecio <= 0) {
+            actionResult = { success: false, error: 'El nuevo precio debe ser mayor a cero.' };
+            finalResponse = '❌ No se pudo actualizar el precio: el importe debe ser un número mayor a cero.';
+          } else {
+          const updated = await saveServicioEmpresa({ ...servicio, precioVenta: nuevoPrecio });
           actionResult = { success: updated.success, id: updated.id, error: updated.error };
           if (updated.success) {
-            finalResponse = `✅ Precio del servicio **"${servicio.nombre}"** actualizado a **$${Number(d.nuevoPrecio).toLocaleString('es-UY')}**. Podés verlo en [/empresa/servicios](/empresa/servicios).`;
+            finalResponse = `✅ Precio del servicio **"${servicio.nombre}"** actualizado a **$${nuevoPrecio.toLocaleString('es-UY')}**. Podés verlo en [/empresa/servicios](/empresa/servicios).`;
           } else {
             finalResponse = `❌ No se pudo actualizar el precio: ${updated.error || 'Error desconocido'}. Intentá de nuevo.`;
+          }
           }
         }
       } catch (e: unknown) {
@@ -1421,13 +1472,13 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       const d = result.action.data;
       try {
         const allFiestas = await getAllFiestas();
-        let fiesta = d.fiestaId
+        const fiesta = d.fiestaId
           ? allFiestas.find(f => f.id === d.fiestaId)
-          : d.clienteNombre
-          ? allFiestas.find(f =>
-              (f.configuracion?.clienteNombre || '').toLowerCase().includes(d.clienteNombre.toLowerCase())
-            )
-          : undefined;
+          : unoSoloPorNombre(
+              allFiestas,
+              (f) => [f.configuracion?.clienteNombre, f.configuracion?.nombreEvento],
+              d.clienteNombre,
+            );
 
         // Save contract data to fiesta when found
         if (fiesta) {
@@ -1447,9 +1498,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}` };
             finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}).`;
           }
-        } else if (d.fiestaId) {
-          actionResult = { success: false, error: 'No se encontró el evento.' };
-          finalResponse = `❌ No se pudo generar el contrato: No se encontró el evento. Verificalo en /fiestas/nueva.`;
+        } else if (d.fiestaId || d.clienteNombre) {
+          actionResult = { success: false, error: 'No se encontró un evento único para ese cliente.' };
+          finalResponse = `❌ No se pudo generar el contrato: no se encontró un evento único${d.clienteNombre ? ` para "${d.clienteNombre}"` : ''}. Verificalo en /fiestas/nueva.`;
         } else {
           actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-servicio' };
           finalResponse = `✅ Podés generar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio). Seleccioná el evento desde ahí.`;

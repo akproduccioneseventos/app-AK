@@ -27,6 +27,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { calculateSalaryBreakdown } from '@/lib/personal/desglose-recibo';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
+import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const RECIBOS_CONFIG_KEY = 'ak-recibos-config';
@@ -158,8 +160,18 @@ function RecibosDePagoContent() {
         throw new Error("No se encontró la fiesta seleccionada.");
       }
 
+      const fiestasOperativas = fiestasData.filter(f => {
+        const estado = String(f.estado || '').trim().toLowerCase();
+        return !esFiestaDemo(f)
+          && !esFiestaSuspendida(f)
+          && estado !== 'archivado'
+          && estado !== 'archivada'
+          && estado !== 'cancelada'
+          && estado !== 'cancelado';
+      });
+
       setFiesta(currentFiesta);
-      setAllFiestas(fiestasData);
+      setAllFiestas(fiestasOperativas);
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
       setLogoUrl(settings.logoUrl ?? null);
@@ -167,7 +179,7 @@ function RecibosDePagoContent() {
 
       const empleadosUnicos = Array.from(
         new Set(
-          fiestasData.flatMap(f => (f.personalAsignado || []).map(p => p.empleadoId))
+          fiestasOperativas.flatMap(f => (f.personalAsignado || []).map(p => p.empleadoId))
         )
       );
       setSelectedEmpleadoId(empleadosUnicos.length === 1 ? empleadosUnicos[0] : 'all');
@@ -358,10 +370,10 @@ function RecibosDePagoContent() {
     }
   };
 
-  const handleSalaryChange = (empleadoId: string, newSalary: string) => {
+  const handleSalaryChange = (empleadoId: string, rolId: string, newSalary: string) => {
     const salaryNum = parseFloat(newSalary) || 0;
     const updated = assignedStaffDetails.map(detail => {
-      if (detail.empleado.id === empleadoId) {
+      if (detail.empleado.id === empleadoId && detail.rolId === rolId) {
         const newContribution = (salaryNum * (detail.rol?.porcentajeAportesPatronales ?? 0)) / 100;
         return { ...detail, eventSalary: salaryNum, employerContribution: newContribution };
       }
@@ -525,7 +537,7 @@ function RecibosDePagoContent() {
             {assignedStaffDetails.map(detail => {
               const breakdown = calculateSalaryBreakdown(detail.eventSalary, detail.rol);
               return (
-              <div key={detail.empleado.id} className="p-4 border rounded-lg bg-white print:border-gray-400 print:shadow-none print:break-inside-avoid print:mb-2">
+              <div key={`${detail.empleado.id}-${detail.rolId}`} className="p-4 border rounded-lg bg-white print:border-gray-400 print:shadow-none print:break-inside-avoid print:mb-2">
                 <div className="flex justify-between items-start">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-800 print:text-base">Recibo de Pago</h2>
@@ -575,7 +587,7 @@ function RecibosDePagoContent() {
                                         <Input
                                             type="number"
                                             value={detail.eventSalary ?? ''}
-                                            onChange={(e) => handleSalaryChange(detail.empleado.id, e.target.value)}
+                                            onChange={(e) => handleSalaryChange(detail.empleado.id, detail.rolId, e.target.value)}
                                             className="text-right h-8 w-28 font-bold print:hidden"
                                         />
                                         <span className="hidden print:inline">{formatCurrency(detail.eventSalary)}</span>

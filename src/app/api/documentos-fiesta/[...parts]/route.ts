@@ -1,37 +1,46 @@
 import { isFileNotFoundError } from '@/lib/error-utils';
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
-import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { esDelEquipoDeLaFiesta } from '@/lib/auth/equipo-de-la-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+import { downloadFromStorage } from '@/lib/firebase/storage';
+import {
+  fetchStorageBufferWithTimeout,
+  getFiestaLocalAllowedDirs,
+  isStorageUrlAllowed,
+  leerArchivoSeguroDeFiesta,
+  resolverRutaSeguraDeFiesta,
+  validarFiestaIdSeguro,
+} from '@/lib/security/safe-fiesta-file';
 
 const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
-
-// Helper to add a file to the zip if it exists
-async function addFileToZip(zip: JSZip, filePath: string, zipPath: string) {
-  try {
-    await fs.access(filePath);
-    const fileContent = await fs.readFile(filePath);
-    zip.file(zipPath, fileContent);
-  } catch (error) {
-    console.warn(`File not found, skipping: ${filePath}`);
-  }
-}
+const MAX_DOC_SIZE = 50 * 1024 * 1024;
+const FETCH_TIMEOUT_MS = 15_000;
 
 export async function GET(request: NextRequest, props: { params: Promise<{ parts: string[] }> }) {
   const params = await props.params;
-  const [fiestaId, filename] = params.parts;
+  const parts = Array.isArray(params.parts) ? params.parts : [];
+  if (parts.length !== 2) {
+    return new NextResponse('Invalid path segments', { status: 400 });
+  }
+  const [fiestaId, filename] = parts;
+  const safeFiestaId = validarFiestaIdSeguro(fiestaId);
+  if (!safeFiestaId || !filename) {
+    return new NextResponse('Invalid path segments', { status: 400 });
+  }
 
   // Del equipo de ESA fiesta, no cualquier sesión: el personal también tiene una (auditoría 69).
-  const hasAdminAccess = fiestaId ? await esDelEquipoDeLaFiesta(await getFiestaByIdRaw(fiestaId)) : false;
-  const hasClientAccess = fiestaId ? await verifyPortalSession(fiestaId) : false;
+  const fiestaRaw = await getFiestaByIdRaw(safeFiestaId);
+  const hasAdminAccess = await esDelEquipoDeLaFiesta(fiestaRaw);
+  const hasClientAccess = await verifyPortalSession(fiestaId);
   if (!hasAdminAccess && !hasClientAccess) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
+
+  const docsAllowedDirs = getFiestaLocalAllowedDirs('documentos', safeFiestaId);
 
   // Handle the special 'download-all' command
   if (filename === 'download-all.zip') {
@@ -39,55 +48,75 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
     try {
       // Antes se pedia "la fiesta actual" y se comparaba: descargar los
       // documentos de una fiesta fallaba en cuanto habia otra mas proxima.
-      const fiesta = await getFiestaByIdRaw(fiestaId);
+      const fiesta = fiestaRaw;
       if (!fiesta) {
         return NextResponse.json({ error: 'Fiesta no encontrada' }, { status: 404 });
       }
 
+      const legacyFiesta = fiesta as typeof fiesta & {
+        otrosDocumentos?: Array<{ fileName?: string }>;
+      };
+      const docsList = [
+        ...(fiesta.othersDocumentos ?? []),
+        ...(legacyFiesta.otrosDocumentos ?? []),
+      ];
+      const seenFileNames = new Set<string>();
+
       const zip = new JSZip();
-      
-      // Add all documents from 'otrosDocumentos'
+
+      // Add all documents from 'otrosDocumentos' y 'othersDocumentos'
       let addedCount = 0;
-      if (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) {
-        const docsDir = path.join(DOCS_DIR, fiestaId);
-        for (const doc of fiesta.othersDocumentos) {
-          if (!doc.fileName) continue;
-          if (doc.fileName.startsWith('http')) {
-            try {
-              const res = await fetch(doc.fileName);
-              if (res.ok) {
-                const buf = Buffer.from(await res.arrayBuffer());
-                const name = path.basename(doc.fileName.split('?')[0]) || 'archivo';
-                zip.file(name, buf);
-                addedCount++;
-              }
-            } catch (e) {
-              console.error('Error fetching remote doc:', e);
-            }
-          } else if (doc.fileName.startsWith('data:')) {
-            try {
-              const parts = doc.fileName.split(',');
-              const base64Data = parts[1];
-              if (base64Data) {
-                const buf = Buffer.from(base64Data, 'base64');
-                const mimeMatch = parts[0].match(/data:(.*?);/);
-                const ext = mimeMatch ? '.' + mimeMatch[1].split('/')[1] : '';
-                const name = `documento-${Date.now()}${ext}`;
-                zip.file(name, buf);
-                addedCount++;
-              }
-            } catch (e) {
-              console.error('Error decoding base64 doc:', e);
-            }
-          } else {
-            const filePath = path.join(docsDir, doc.fileName);
-            try {
-              await fs.access(filePath);
-              const fileContent = await fs.readFile(filePath);
-              zip.file(doc.fileName, fileContent);
+      for (const doc of docsList) {
+        if (!doc.fileName || seenFileNames.has(doc.fileName)) continue;
+        seenFileNames.add(doc.fileName);
+
+        if (/^https?:\/\//i.test(doc.fileName)) {
+          if (!isStorageUrlAllowed(doc.fileName)) {
+            console.warn(`[SSRF Guard] Blocked download of unsafe document URL: ${doc.fileName}`);
+            continue;
+          }
+          try {
+            const buf = await fetchStorageBufferWithTimeout(doc.fileName, MAX_DOC_SIZE, FETCH_TIMEOUT_MS);
+            const rawName = path.basename(doc.fileName.split('?')[0]) || 'archivo';
+            const safeRemoteName = rawName.replace(/\.\./g, '_');
+            zip.file(safeRemoteName, buf);
+            addedCount++;
+          } catch (e) {
+            console.error('Error fetching remote doc:', e);
+          }
+        } else if (doc.fileName.startsWith('data:')) {
+          try {
+            const dataParts = doc.fileName.split(',');
+            const base64Data = dataParts[1];
+            if (base64Data) {
+              const buf = Buffer.from(base64Data, 'base64');
+              if (buf.length > MAX_DOC_SIZE) continue;
+              const mimeMatch = dataParts[0].match(/data:(.*?);/);
+              const ext = mimeMatch ? '.' + mimeMatch[1].split('/')[1].replace(/[^a-z0-9]/gi, '') : '';
+              const name = `documento-${addedCount + 1}${ext}`;
+              zip.file(name, buf);
               addedCount++;
-            } catch (error) {
-              console.warn(`File not found, skipping: ${filePath}`);
+            }
+          } catch (e) {
+            console.error('Error decoding base64 doc:', e);
+          }
+        } else {
+          const safeDocName = path.basename(doc.fileName);
+          if (safeDocName !== doc.fileName || !resolverRutaSeguraDeFiesta(safeDocName, docsAllowedDirs)) {
+            console.warn(`[Path Guard] Blocked unsafe document fileName: ${doc.fileName}`);
+            continue;
+          }
+          try {
+            const fileContent = await leerArchivoSeguroDeFiesta(safeDocName, docsAllowedDirs);
+            zip.file(safeDocName, fileContent);
+            addedCount++;
+          } catch (error) {
+            const fromStorage = await downloadFromStorage(`documentos-varios-fiesta/${safeFiestaId}/${safeDocName}`);
+            if (fromStorage) {
+              zip.file(safeDocName, fromStorage);
+              addedCount++;
+            } else {
+              console.warn(`File not found, skipping: ${safeDocName}`, error);
             }
           }
         }
@@ -98,7 +127,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
       }
 
       const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
-      const zipFilename = `documentos-${fiestaId.substring(0, 6)}.zip`;
+      const zipFilename = `documentos-${safeFiestaId.substring(0, 6)}.zip`;
 
       const headers = new Headers();
       headers.set('Content-Type', 'application/zip');
@@ -111,20 +140,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
     }
   }
 
-
-  if (!fiestaId || !filename) {
-    return new NextResponse('Fiesta ID and Filename are required', { status: 400 });
-  }
-
   // Sanitize to prevent directory traversal
-  const safeFiestaId = path.basename(fiestaId);
   const safeFilename = path.basename(filename);
-  if (safeFiestaId !== fiestaId || safeFilename !== filename) {
+  if (safeFilename !== filename || !resolverRutaSeguraDeFiesta(safeFilename, docsAllowedDirs)) {
     return new NextResponse('Invalid path segments', { status: 400 });
   }
 
   if (!hasAdminAccess) {
-    const fiesta = await getFiestaByIdRaw(safeFiestaId);
+    const fiesta = fiestaRaw;
     const legacyFiesta = fiesta as typeof fiesta & {
       documentos?: Array<{ fileName?: string }>;
       otrosDocumentos?: Array<{ fileName?: string }>;
@@ -140,15 +163,21 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
     }
   }
 
-  const filePath = path.join(DOCS_DIR, safeFiestaId, safeFilename);
-
-  if (!filePath.startsWith(DOCS_DIR)) {
+  const expectedDocsDir = path.resolve(DOCS_DIR, safeFiestaId);
+  const resolvedCandidate = path.resolve(expectedDocsDir, safeFilename);
+  if (!resolvedCandidate.startsWith(expectedDocsDir + path.sep)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
   try {
-    await fs.access(filePath);
-    const fileBuffer = await fs.readFile(filePath);
+    let fileBuffer: Buffer;
+    try {
+      fileBuffer = await leerArchivoSeguroDeFiesta(safeFilename, docsAllowedDirs);
+    } catch (fsErr) {
+      const fromStorage = await downloadFromStorage(`documentos-varios-fiesta/${safeFiestaId}/${safeFilename}`);
+      if (!fromStorage) throw fsErr;
+      fileBuffer = fromStorage;
+    }
 
     // Determine content type from file extension if possible
     let contentType = 'application/octet-stream'; // generic binary

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { readData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { MetaMensajeDirecto } from '@/lib/mensajes/bandeja-unica';
 import { clavesIguales } from '@/lib/security/claves-iguales';
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 const ARCHIVO_MENSAJES = 'social-mensajes-directos.json';
 
-async function conTimeout<T>(promesa: Promise<T>, ms = 1200): Promise<T> {
+async function conTimeout<T>(promesa: Promise<T>, ms = 8000): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
@@ -246,6 +247,23 @@ export async function POST(request: NextRequest) {
 
     const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN || process.env.INSTAGRAM_ACCESS_TOKEN || '';
 
+    const [clientesRaw, presupuestosRaw] = await Promise.all([
+      conTimeout(readData<any[]>('customers.json', []), 4000).catch(() => []),
+      conTimeout(readData<any[]>('presupuestos.json', []), 4000).catch(() => []),
+    ]);
+    const nombresClientesContratados = new Set<string>();
+    for (const c of clientesRaw || []) {
+      if (c?.estadoCliente === 'Actual' && c?.name) {
+        nombresClientesContratados.add(String(c.name).toLowerCase().trim());
+      }
+    }
+    for (const p of presupuestosRaw || []) {
+      const est = String(p?.estado || '').trim();
+      if (['Aceptado', 'Aprobado', 'Facturado', 'Cerrado', 'Señado'].includes(est) && p?.clienteNombre) {
+        nombresClientesContratados.add(String(p.clienteNombre).toLowerCase().trim());
+      }
+    }
+
     for (const dm of mensajesNuevos) {
       try {
         const displayName = dm.senderName || `${dm.canal === 'instagram_dm' ? 'Instagram' : 'Messenger'} ${dm.senderId.slice(-4)}`;
@@ -267,7 +285,7 @@ export async function POST(request: NextRequest) {
               meta: { mid: dm.mid, senderId: dm.senderId },
             }),
           ],
-        }));
+        }), 4000);
         const [
           { enriquecerLeadExistenteConIA, registrarMensajeYAnalizarProspecto },
           { getAjustesRespuestasComentarios },
@@ -283,11 +301,19 @@ export async function POST(request: NextRequest) {
             leadId: lead.id,
             mensaje: dm.texto,
             canal: dm.canal,
-          })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e)),
-          conTimeout(getAjustesRespuestasComentarios()).catch(() => ({ mensajesDirectos: true })),
-          conTimeout(verificarLeadPidePersona(dm.canal, dm.senderId)).catch(() => false),
+          }), 8000).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e)),
+          conTimeout(getAjustesRespuestasComentarios(), 4000).catch(() => ({ mensajesDirectos: true })),
+          conTimeout(verificarLeadPidePersona(dm.canal, dm.senderId), 4000).catch(() => false),
         ]);
         crmActualizados++;
+
+        const esCliente = Boolean(
+          (lead as any).esCliente ||
+          lead.presupuestoEstado === 'Aceptado' ||
+          lead.presupuestoEstado === 'Facturado' ||
+          Boolean(lead.invoiceId) ||
+          (dm.senderName && nombresClientesContratados.has(dm.senderName.toLowerCase().trim())),
+        );
 
         const dmActivo = ajustesDm?.mensajesDirectos !== false;
         if (dmActivo && !pidePersonaEnCrm && lead.atiende !== 'persona' && dm.texto.trim()) {
@@ -297,22 +323,9 @@ export async function POST(request: NextRequest) {
             nombre: displayName,
             texto: dm.texto,
             messageId: dm.mid,
+            esCliente,
           });
           if (!resultado.silenciado && resultado.respuesta) {
-            await registrarMensajeYAnalizarProspecto({
-              leadId: lead.id,
-              analizar: false,
-              mensaje: buildCrmMensaje({
-                canal: dm.canal,
-                direccion: 'saliente',
-                texto: resultado.respuesta,
-                fecha: new Date().toISOString(),
-                autor: 'Asistente AK',
-                respondidoPor: 'asistente',
-                meta: { senderId: dm.senderId },
-              }),
-            }).catch((e) => console.warn('[Meta webhook] No se pudo guardar respuesta en CRM:', e));
-
             if (pageAccessToken && dm.senderId) {
               const sendRes = await fetch(
                 `https://graph.facebook.com/v18.0/me/messages?access_token=${encodeURIComponent(pageAccessToken)}`,
@@ -330,6 +343,20 @@ export async function POST(request: NextRequest) {
               });
               if (sendRes?.ok) {
                 respuestasEnviadas++;
+                await registrarMensajeYAnalizarProspecto({
+                  leadId: lead.id,
+                  analizar: false,
+                  mensaje: buildCrmMensaje({
+                    canal: dm.canal,
+                    direccion: 'saliente',
+                    texto: resultado.respuesta,
+                    fecha: new Date().toISOString(),
+                    autor: 'Asistente AK',
+                    respondidoPor: 'asistente',
+                    meta: { senderId: dm.senderId },
+                  }),
+                }).catch((e) => console.warn('[Meta webhook] No se pudo guardar respuesta en CRM:', e));
+
                 await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
                   let cambio = false;
                   const next = guardados.map((m) => {
@@ -344,6 +371,8 @@ export async function POST(request: NextRequest) {
               } else if (sendRes) {
                 console.warn('[Meta webhook] Meta API devolvió error al enviar DM:', sendRes.status);
               }
+            } else {
+              console.warn('[Meta webhook] Falta pageAccessToken para responder DM en vivo; no se registra como enviado.');
             }
           }
         }
@@ -354,30 +383,73 @@ export async function POST(request: NextRequest) {
   }
 
   if (incomingComments.length > 0) {
+    const networkName = payload.object === 'instagram' ? 'Instagram' : 'Facebook';
+    const idPrefix = networkName === 'Instagram' ? 'ig_' : 'fb_';
+    let comentariosNuevos: any[] = [];
+
     await mutateGenericJsonArray<any>('social-comments.json', (guardados) => {
-      const idsExistentes = new Set(guardados.map((c: any) => c.id || c.commentId));
-      const paraAgregar = incomingComments.filter((c) => !idsExistentes.has(c.commentId)).map((c) => ({
-        id: c.commentId,
-        commentId: c.commentId,
-        network: payload.object === 'instagram' ? 'instagram' : 'facebook',
-        authorName: c.authorName || 'Anónimo',
-        authorId: c.authorId,
-        text: c.texto,
-        timestamp: c.fecha,
-        postId: c.postId,
-        status: 'para vos',
-        liked: false,
-        hidden: false,
-      }));
+      const idsExistentes = new Set<string>();
+      for (const g of guardados) {
+        if (g?.id) idsExistentes.add(String(g.id));
+        if (g?.networkCommentId) idsExistentes.add(String(g.networkCommentId));
+        if (g?.commentId) idsExistentes.add(String(g.commentId));
+      }
+      const paraAgregar = incomingComments
+        .filter((c) => {
+          const prefixedId = c.commentId.startsWith(idPrefix) ? c.commentId : `${idPrefix}${c.commentId}`;
+          return !idsExistentes.has(prefixedId) && !idsExistentes.has(c.commentId);
+        })
+        .map((c) => {
+          const prefixedId = c.commentId.startsWith(idPrefix) ? c.commentId : `${idPrefix}${c.commentId}`;
+          return {
+            id: prefixedId,
+            networkCommentId: c.commentId,
+            network: networkName,
+            authorName: c.authorName || (networkName === 'Instagram' ? 'Usuario de Instagram' : 'Usuario de Facebook'),
+            ...(c.authorId ? { authorId: c.authorId } : {}),
+            text: c.texto,
+            createdAt: c.fecha,
+            postId: c.postId || '',
+          };
+        });
+      comentariosNuevos = paraAgregar;
       if (paraAgregar.length === 0) return null;
       return [...paraAgregar, ...guardados];
     }).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
 
-    for (const c of incomingComments) {
+    for (const c of comentariosNuevos) {
       try {
-        const { clasificarComentario } = await import('@/lib/social-media/clasificador-comentarios');
-        const clasif = await conTimeout(clasificarComentario(c.texto, c.authorName));
-        if (!clasif?.esPregunta) continue;
+        const [{ clasificarComentario }, commentsModule] = await Promise.all([
+          import('@/lib/social-media/clasificador-comentarios'),
+          import('@/lib/social-media/comments-backfill'),
+        ]);
+        const clasif = await conTimeout(clasificarComentario(c.text, c.authorName), 8000);
+
+        let procesado = c;
+        if (typeof commentsModule.procesarComentarioRedes === 'function') {
+          procesado = await conTimeout(
+            commentsModule.procesarComentarioRedes({ ...c }, { clasificacionPrevia: clasif }),
+            8000,
+          ).catch((e) => {
+            console.warn('[Meta webhook] Error en procesarComentarioRedes:', e);
+            return c;
+          });
+          await mutateGenericJsonArray<any>('social-comments.json', (guardados) => {
+            let cambio = false;
+            const next = guardados.map((item: any) => {
+              if (item?.id === procesado.id || item?.networkCommentId === procesado.networkCommentId) {
+                cambio = true;
+                return { ...item, ...procesado };
+              }
+              return item;
+            });
+            return cambio ? next : null;
+          }).catch((e) => console.warn('[Meta webhook] No se pudo actualizar comentario procesado:', e));
+        }
+
+        if (!clasif?.esPregunta || procesado.isAutoHidden || procesado.isInsultOrSpam || procesado.isLegitimateComplaint) {
+          continue;
+        }
 
         const displayName = c.authorName || 'Usuario en redes';
         const { lead } = await conTimeout(upsertPublicCommercialLead({
@@ -389,25 +461,25 @@ export async function POST(request: NextRequest) {
           atiende: 'asistente',
           mensajesConversacion: [
             buildCrmMensaje({
-              idExterno: `meta_comment_${c.commentId}`,
+              idExterno: `meta_comment_${c.networkCommentId}`,
               canal: canalComentario,
               direccion: 'entrante',
-              texto: c.texto,
-              fecha: c.fecha,
+              texto: c.text,
+              fecha: c.createdAt,
               autor: displayName,
               meta: {
-                commentId: c.commentId,
+                commentId: c.networkCommentId,
                 ...(c.postId ? { postId: c.postId } : {}),
               },
             }),
           ],
-        }));
+        }), 4000);
         const { enriquecerLeadExistenteConIA } = await import('@/lib/crm/ia-prospecto');
         await conTimeout(enriquecerLeadExistenteConIA({
           leadId: lead.id,
-          mensaje: c.texto,
+          mensaje: c.text,
           canal: canalComentario,
-        })).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
+        }), 8000).catch((e) => console.warn('[Meta webhook] Paso secundario sin completar:', e));
         crmActualizados++;
       } catch (err) {
         console.warn('[Meta Webhook] No se pudo guardar comentario en el CRM:', err);

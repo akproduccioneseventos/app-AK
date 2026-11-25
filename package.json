@@ -61,7 +61,8 @@
     "dice-que-si?": "node scripts/nadie-dice-que-si-sin-mirar.mjs",
     "formas-que-mienten": "node scripts/las-formas-que-mienten.mjs",
     "formas-que-mienten:lo-que-cambio": "node scripts/las-formas-que-mienten.mjs --lo-que-cambio",
-    "formas-ya-arregladas": "node scripts/formas-ya-arregladas.mjs"
+    "formas-ya-arregladas": "node scripts/formas-ya-arregladas.mjs",
+    "robot:todo": "node ./node_modules/firebase-tools/lib/bin/firebase.js emulators:exec --config firebase.pruebas.json --only firestore,storage --project demo-ak-producciones \"node scripts/robot-correr.mjs\""
   },
   "dependencies": {
     "@breezystack/lamejs": "1.2.7",
@@ -197,6 +198,7 @@
     "jest": "30.3.0",
     "jest-environment-jsdom": "30.3.0",
     "knip": "6.17.1",
+    "pdfjs-dist": "^4.10.38",
     "postcss": "8.5.26",
     "tailwindcss": "^3.4.4",
     "ts-jest": "29.4.9",

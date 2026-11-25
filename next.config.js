@@ -27,10 +27,33 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     // Con esto, la entrada y la recuperacion de clave se piden siempre al servidor.
     // Es la unica puerta de la app: si se queda pegada, no hay forma de entrar a
     // arreglarla desde adentro.
-    navigateFallbackDenylist: [/^\/login/, /^\/api\//],
+    navigateFallbackDenylist: [
+      /^\/login/,
+      /^\/api\//,
+      /^\/admin(\/|$)/,
+      /^\/contabilidad(\/|$)/,
+      /^\/empresa(\/|$)/,
+      /^\/empleados(\/|$)/,
+      /^\/customers(\/|$)/,
+      /^\/invoices(\/|$)/,
+      /^\/fiestas(\/|$)/,
+      /^\/presupuestos(\/|$)/,
+      /^\/settings(\/|$)/,
+      /^\/asistente(\/|$)/,
+      /^\/auditoria(\/|$)/,
+      /^\/aprobaciones(\/|$)/,
+      /^\/calendario(\/|$)/,
+      /^\/mi-dia(\/|$)/,
+      /^\/eventos(\/|$)/,
+      /^\/incidentes(\/|$)/,
+      /^\/entrar(\/|$)/,
+      /^\/portal(\/|$)/,
+      /^\/portal-cliente(\/|$)/,
+      /^\/portal-invitado(\/|$)/,
+    ],
     runtimeCaching: [
       {
-        urlPattern: /^\/login(\?.*)?$/,
+        urlPattern: /^\/(login|api|admin|contabilidad|empresa|empleados|customers|invoices|fiestas|presupuestos|settings|asistente|auditoria|aprobaciones|calendario|mi-dia|eventos|incidentes|entrar|portal|portal-cliente|portal-invitado)(\/.*)?(\?.*)?$/,
         handler: 'NetworkOnly',
       },
     ],

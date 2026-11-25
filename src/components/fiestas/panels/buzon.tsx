@@ -24,7 +24,7 @@ import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 
 function BuzonAdminContent() {
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = searchParams.get('fiestaId') ?? searchParams.get('id');
   const { toast } = useToast();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -60,18 +60,27 @@ function BuzonAdminContent() {
     }
     if (!silent) setIsLoading(true);
     try {
-      const [fData, detalle] = await Promise.all([
+      const [fiestaResult, buzonResult] = await Promise.allSettled([
         getFiestaById(fiestaId),
-        getBuzonMessagesConDetalle(fiestaId)
+        getBuzonMessagesConDetalle(fiestaId),
       ]);
-      setFiesta(fData);
+      if (fiestaResult.status === 'fulfilled') {
+        setFiesta(fiestaResult.value);
+      } else {
+        console.error(fiestaResult.reason);
+      }
       // Una lectura que falla NO es un buzon vacio. Si fallo, se deja lo que ya
       // estaba en pantalla y se avisa: los saludos siguen guardados.
-      if (detalle.huboFalla) {
-        setHuboFallaAlLeer(true);
+      if (buzonResult.status === 'fulfilled') {
+        if (buzonResult.value.huboFalla) {
+          setHuboFallaAlLeer(true);
+        } else {
+          setHuboFallaAlLeer(false);
+          setMessages(buzonResult.value.mensajes);
+        }
       } else {
-        setHuboFallaAlLeer(false);
-        setMessages(detalle.mensajes);
+        console.error(buzonResult.reason);
+        setHuboFallaAlLeer(true);
       }
     } catch (err) {
       console.error(err);
@@ -730,7 +739,7 @@ function BuzonAdminContent() {
                 </div>
                 <h3 className="text-lg font-bold">Acceso Seguro del Invitado</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">
-                  Para probar la experiencia del invitado, asegúrate de activar el toggle de "Buzón de Mensajes" en la sección de **Portal Invitado**. Esto mostrará el acceso directo a sus celulares.
+                  Para probar la experiencia del invitado, asegúrate de activar el toggle de "Buzón de Mensajes" en la sección de Portal Invitado. Esto mostrará el acceso directo a sus celulares.
                 </p>
                 <Button asChild variant="ghost" className="border border-white/20 bg-transparent text-white hover:bg-white/10 rounded-full w-full justify-between">
                   <Link href={`/evento/buzon/${fiestaId}`} target="_blank">

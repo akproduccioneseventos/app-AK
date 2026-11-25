@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
@@ -12,9 +14,10 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { RefreshCw,
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, Hash, Info,
+  GlassWater, Utensils, Hash, Info, Sparkles, Download, Camera,
  } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData, LayoutElement } from '@/types/fiesta';
@@ -28,6 +31,10 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PapeleriaIAModal } from '@/components/fiestas/panels/papeleria-ia-modal';
+import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
+import { descargarPdfArchivo, generarPdfA4Entero, imprimirPdfEnNavegador } from '@/lib/papeleria/pdf-impresion';
+import { imagenUrlADataUrl } from '@/lib/papeleria/imagen-a-data-url';
 
 const FONT_OPTIONS = ['Playfair Display', 'Dancing Script', 'Montserrat', 'Georgia', 'Arial'] as const;
 
@@ -305,6 +312,9 @@ function CarteleriaContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSeatingQr, setShowSeatingQr] = useState(false);
+  const [iaModalPieza, setIaModalPieza] = useState<'afiche' | 'marcoFotocabina' | null>(null);
+  const [usarAficheIA, setUsarAficheIA] = useState(true);
+  const [isGeneratingAfichePdf, setIsGeneratingAfichePdf] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -555,6 +565,47 @@ function CarteleriaContent() {
   const FIXED_PAGES_COUNT = 3 + (showWelcomePoster ? 1 : 0) + (showSeatingPlan ? 1 : 0); // carta + menu + qr + opcionales
   const totalPages = FIXED_PAGES_COUNT + tablePages.length;
 
+  const aficheIaUrl = fiesta.papeleriaIA?.afiche?.url || null;
+  const marcoIaUrl = fiesta.papeleriaIA?.marcoFotocabina?.url || null;
+  const mostrarAficheIA = Boolean(aficheIaUrl && usarAficheIA);
+  const fotocabinaStation = getEntertainmentStationConfig(fiesta, 'fotocabina');
+  const printLayoutFotocabina: 'strip_3' | 'single_photo' | 'strip_4' =
+    fotocabinaStation.disenoImpresion === 'una'
+      ? 'single_photo'
+      : fotocabinaStation.fotosPorTanda === 4
+        ? 'strip_4'
+        : 'strip_3';
+
+  const handleAficheIaPdf = async (modo: 'descargar' | 'imprimir') => {
+    if (!aficheIaUrl || !fiestaId) return;
+    setIsGeneratingAfichePdf(true);
+    try {
+      const dataUrl = await imagenUrlADataUrl(aficheIaUrl);
+      if (!dataUrl) {
+        toast({
+          title: 'No se pudo generar el PDF del afiche',
+          description: 'No pudimos preparar la imagen para hoja A4. Probá regenerar el afiche con IA.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const pdf = generarPdfA4Entero(dataUrl);
+      if (modo === 'imprimir') {
+        imprimirPdfEnNavegador(pdf);
+      } else {
+        descargarPdfArchivo(pdf, `afiche-${fiestaId}.pdf`);
+      }
+    } catch (e: unknown) {
+      toast({
+        title: 'Error al generar el PDF',
+        description: e instanceof Error ? e.message : 'No se pudo generar el archivo A4.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingAfichePdf(false);
+    }
+  };
+
   return (
     <div className="bg-slate-100 min-h-screen print:bg-white">
       {/* ── Toolbar ── */}
@@ -562,7 +613,12 @@ function CarteleriaContent() {
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="icon"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-5 h-5" /></Link></Button>
           <div>
-            <h1 className="font-headline text-lg font-bold leading-tight">Generador de Cartelería de Mesas</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-headline text-lg font-bold leading-tight">Generador de Cartelería de Mesas</h1>
+              <Link href="/asistente" className="text-xs font-medium text-primary hover:underline">
+                Ver en Asistente AK
+              </Link>
+            </div>
             <p className="text-xs text-muted-foreground">{nombreEvento} · {tipoCelebracion}</p>
           </div>
         </div>
@@ -966,6 +1022,12 @@ function CarteleriaContent() {
                       <input type="checkbox" checked={showWelcomePoster} onChange={e => setShowWelcomePoster(e.target.checked)} />
                       Incluir cartel de bienvenida A4
                     </label>
+                    {showWelcomePoster && aficheIaUrl && (
+                      <label className="flex items-center gap-2 text-sm font-medium ml-6 text-muted-foreground">
+                        <input type="checkbox" checked={usarAficheIA} onChange={e => setUsarAficheIA(e.target.checked)} />
+                        Usar afiche diseñado con IA (en lugar de la plantilla original)
+                      </label>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -1003,6 +1065,118 @@ function CarteleriaContent() {
               </Card>
             </Link>
           ))}
+        </div>
+
+        {/* Piezas con IA: Afiche A4 y Marco de Fotocabina / Espejo Mágico */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Card className="border-indigo-200 bg-white">
+            <CardContent className="p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-bold text-slate-900">Afiche del agasajado (A4)</p>
+                    {aficheIaUrl ? (
+                      <Badge variant="outline" className="text-[10px] border-emerald-200 bg-emerald-50 text-emerald-700">
+                        {usarAficheIA ? 'Diseño IA activo' : 'Plantilla original activa'}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px]">Plantilla original</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Hoja A4 entera (210×297 mm). Si guardás un diseño IA queda activo en el cartel con la plantilla original como respaldo.
+                  </p>
+                </div>
+                {aficheIaUrl && (
+                  <img
+                    src={aficheIaUrl}
+                    alt="Vista previa afiche IA"
+                    className="w-12 h-16 object-cover rounded border border-slate-200 shrink-0"
+                  />
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={() => setIaModalPieza('afiche')} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  Diseñar con IA
+                </Button>
+                {aficheIaUrl && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setUsarAficheIA(v => !v)}
+                    >
+                      {usarAficheIA ? 'Usar plantilla original' : 'Usar afiche IA'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => handleAficheIaPdf('imprimir')}
+                      disabled={isGeneratingAfichePdf}
+                    >
+                      {isGeneratingAfichePdf ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <PrinterIcon className="w-3.5 h-3.5 mr-1" />}
+                      Imprimir A4
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleAficheIaPdf('descargar')}
+                      disabled={isGeneratingAfichePdf}
+                    >
+                      <Download className="w-3.5 h-3.5 mr-1" />
+                      Descargar PDF
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-indigo-200 bg-white">
+            <CardContent className="p-4 flex flex-col justify-between gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                      <Camera className="w-4 h-4 text-indigo-600" />
+                      Marco de fotocabina / espejo mágico
+                    </p>
+                    <Badge variant="outline" className="text-[10px]">
+                      {printLayoutFotocabina === 'single_photo'
+                        ? 'Foto única'
+                        : printLayoutFotocabina === 'strip_4'
+                          ? 'Tira 4 fotos'
+                          : 'Tira 3 fotos'}
+                    </Badge>
+                    {marcoIaUrl && (
+                      <Badge variant="outline" className="text-[10px] border-emerald-200 bg-emerald-50 text-emerald-700">
+                        Marco IA guardado
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {marcoIaUrl
+                      ? 'Ya tenés un marco IA guardado para esta fiesta. Podés revisarlo o generar uno nuevo.'
+                      : 'Generá el marco transparente con el nombre y estética de la fiesta según el formato configurado.'}
+                  </p>
+                </div>
+                {marcoIaUrl && (
+                  <img
+                    src={marcoIaUrl}
+                    alt="Vista previa marco fotocabina IA"
+                    className="w-12 h-16 object-contain rounded border border-slate-200 bg-slate-50 shrink-0"
+                  />
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={() => setIaModalPieza('marcoFotocabina')} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  Diseñar con IA
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground pt-1">
@@ -1225,17 +1399,73 @@ function CarteleriaContent() {
         )}
 
         {showWelcomePoster && (
-          <A4Page className="items-stretch justify-stretch p-8">
-            <WelcomePoster
-              nombreEvento={nombreEvento}
-              tipoCelebracion={tipoCelebracion}
-              fechaEvento={fechaEventoTexto}
-              primaryColor={primaryColor}
-              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
-            />
-          </A4Page>
+          mostrarAficheIA && aficheIaUrl ? (
+            <A4Page className="items-stretch justify-stretch p-0 overflow-hidden">
+              <img
+                src={aficheIaUrl}
+                alt={`Afiche de ${nombreEvento}`}
+                className="w-[210mm] h-[297mm] object-cover block"
+              />
+            </A4Page>
+          ) : (
+            <A4Page className="items-stretch justify-stretch p-8">
+              <WelcomePoster
+                nombreEvento={nombreEvento}
+                tipoCelebracion={tipoCelebracion}
+                fechaEvento={fechaEventoTexto}
+                primaryColor={primaryColor}
+                protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+              />
+            </A4Page>
+          )
         )}
       </div>
+
+      {fiestaId && (
+        <PapeleriaIAModal
+          open={iaModalPieza !== null}
+          onOpenChange={(open) => {
+            if (!open) setIaModalPieza(null);
+          }}
+          fiestaId={fiestaId}
+          pieza={iaModalPieza || 'afiche'}
+          tituloPieza={
+            iaModalPieza === 'marcoFotocabina'
+              ? 'Marco de fotocabina / espejo mágico'
+              : 'Afiche del agasajado'
+          }
+          esA4Entero={iaModalPieza !== 'marcoFotocabina'}
+          imagenGuardadaUrl={
+            iaModalPieza === 'marcoFotocabina' ? marcoIaUrl : aficheIaUrl
+          }
+          printLayout={
+            iaModalPieza === 'marcoFotocabina' ? printLayoutFotocabina : undefined
+          }
+          onGuardado={(piezaGuardada) => {
+            const clave = iaModalPieza || 'afiche';
+            setFiesta((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    papeleriaIA: {
+                      ...(prev.papeleriaIA || {}),
+                      [clave]: piezaGuardada,
+                    },
+                  }
+                : prev
+            );
+            if (clave === 'afiche') {
+              setUsarAficheIA(true);
+            }
+          }}
+          onVolverPlantilla={() => {
+            if (iaModalPieza === 'afiche') {
+              setUsarAficheIA(false);
+            }
+            setIaModalPieza(null);
+          }}
+        />
+      )}
 
       {/* Print styles */}
       <style jsx global>{`

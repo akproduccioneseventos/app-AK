@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Printer, RefreshCw, Loader2, ToggleLeft, ToggleRight, CheckCircle, Check, Slash, AlertCircle, Volume2 } from 'lucide-react';
@@ -52,6 +52,8 @@ export default function PrintStationPage() {
   const [printPost, setPrintPost] = useState<SocialGalleryPost | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
   const [pendingPrintConfirmation, setPendingPrintConfirmation] = useState<SocialGalleryPost | null>(null);
+  const [pendingMobileRequestId, setPendingMobileRequestId] = useState<string | null>(null);
+  const printImgRef = useRef<HTMLImageElement | null>(null);
   const [mobileQueue, setMobileQueue] = useState<MobilePrintRequest[]>([]);
   const [calledTicket, setCalledTicket] = useState<MobilePrintRequest | null>(null);
 
@@ -78,7 +80,7 @@ export default function PrintStationPage() {
       if (mobileRes.success) {
         setMobileQueue(mobileRes.queue);
       }
-      
+
       // Keep only approved image posts (we cannot print videos directly)
       const approvedImages = socialPosts.filter(
         p => esAprobadoParaMostrar(p) && !isVideoPost(p)
@@ -100,46 +102,113 @@ export default function PrintStationPage() {
     return () => clearInterval(interval);
   }, [loadData]);
 
+  const waitForImageToLoad = useCallback((imageUrl: string): Promise<void> => {
+    if (!imageUrl || typeof window === 'undefined') return Promise.resolve();
+    return new Promise((resolve) => {
+      const domImg = printImgRef.current;
+      if (domImg && domImg.src === imageUrl && domImg.complete && domImg.naturalWidth > 0) {
+        resolve();
+        return;
+      }
+
+      let finished = false;
+      const done = () => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeoutId);
+        resolve();
+      };
+      const timeoutId = setTimeout(done, 8000);
+
+      const probe = new window.Image();
+      probe.onload = done;
+      probe.onerror = done;
+      probe.src = imageUrl;
+      if (probe.complete) {
+        done();
+      }
+    });
+  }, []);
+
   // Handle printing trigger
-  const handlePrint = useCallback((post: SocialGalleryPost, retry = false) => {
+  const handlePrint = useCallback(async (
+    post: SocialGalleryPost,
+    retry = false,
+    mobileRequestId: string | null = null,
+  ) => {
     if (isPrinting || (pendingPrintConfirmation && !retry)) return;
     setIsPrinting(true);
     setPrintPost(post);
+    setPendingMobileRequestId(mobileRequestId);
 
-    // Give browser time to render print template before executing window.print()
-    setTimeout(() => {
-      window.print();
+    await waitForImageToLoad(post.imageUrl);
+    await new Promise<void>((resolve) => {
+      if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(() => resolve());
+      } else {
+        setTimeout(resolve, 50);
+      }
+    });
 
-      setIsPrinting(false);
-      setPrintPost(null);
-      setPendingPrintConfirmation(post);
-
-      toast({
-        title: 'Verifica la copia impresa',
-        description: 'La foto seguira en la cola hasta que confirmes que salio correctamente.',
-        duration: 2000,
+    if (typeof window !== 'undefined') {
+      await new Promise<void>((resolve) => {
+        let resolved = false;
+        const finishPrint = () => {
+          if (resolved) return;
+          resolved = true;
+          window.removeEventListener('afterprint', finishPrint);
+          clearTimeout(fallbackTimer);
+          resolve();
+        };
+        window.addEventListener('afterprint', finishPrint, { once: true });
+        // Respaldo si el entorno no dispara afterprint tras cerrar window.print()
+        const fallbackTimer = setTimeout(finishPrint, 300);
+        try {
+          window.print();
+        } catch {
+          finishPrint();
+        }
       });
-    }, 600);
-  }, [isPrinting, pendingPrintConfirmation, toast]);
+    }
 
-  const confirmPrinted = () => {
+    setIsPrinting(false);
+    setPrintPost(null);
+    setPendingPrintConfirmation(post);
+
+    toast({
+      title: 'Verifica la copia impresa',
+      description: 'La foto seguira en la cola hasta que confirmes que salio correctamente.',
+      duration: 2000,
+    });
+  }, [isPrinting, pendingPrintConfirmation, toast, waitForImageToLoad]);
+
+  const confirmPrinted = async () => {
     if (!pendingPrintConfirmation) return;
     const post = pendingPrintConfirmation;
+    const mobileId = pendingMobileRequestId;
     setPrintedIds(prev => {
       const next = new Set(prev);
       next.add(post.id);
       localStorage.setItem(`printed_${fiestaId}`, JSON.stringify(Array.from(next)));
       return next;
     });
+    if (mobileId) {
+      await updateMobilePrintStatus(fiestaId, mobileId, 'printed').catch(() => undefined);
+      setMobileQueue((prev) =>
+        prev.map((m) => (m.id === mobileId ? { ...m, status: 'printed' } : m)),
+      );
+    }
+    setPendingMobileRequestId(null);
     setPendingPrintConfirmation(null);
     toast({ title: 'Impresion confirmada', description: `Foto de ${post.authorName} completada.` });
   };
 
   const retryPrint = () => {
     const post = pendingPrintConfirmation;
+    const mobileId = pendingMobileRequestId;
     setPendingPrintConfirmation(null);
     if (post) {
-      handlePrint(post, true);
+      void handlePrint(post, true, mobileId);
     }
   };
 
@@ -181,7 +250,7 @@ export default function PrintStationPage() {
   // Auto-Print Trigger effect
   useEffect(() => {
     if (!autoPrint || posts.length === 0 || isPrinting || pendingPrintConfirmation) return;
-    
+
     // Find first unprinted post (newest approved first) that respects print limit
     const nextToPrint = [...posts]
       .reverse() // check oldest approved first so we print in order of upload
@@ -208,7 +277,7 @@ export default function PrintStationPage() {
 
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none print:bg-white print:text-black">
-      
+
       {/* 🖨️ PRINT TEMPLATE (Hidden from screen, visible only on @media print) */}
       <div id="print-area" className="hidden print:block print:absolute print:inset-0">
         {printPost && (
@@ -219,6 +288,7 @@ export default function PrintStationPage() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
+                ref={printImgRef}
                 src={printPost.imageUrl}
                 alt=""
                 className="w-full h-full object-contain"
@@ -253,7 +323,7 @@ export default function PrintStationPage() {
 
       {/* SCREEN UI */}
       <div className="flex-1 flex flex-col overflow-hidden print:hidden">
-        
+
         {/* HEADER */}
         <header className="cabecera-documento p-4 flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0 pt-safe">
           <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
@@ -293,7 +363,7 @@ export default function PrintStationPage() {
 
         {/* STATUS & CONTROLS DASHBOARD */}
         <div className="p-6 bg-zinc-900/30 border-b border-zinc-900 grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0 items-center">
-          
+
           {/* Status Counter */}
           <div className="flex items-center gap-4 bg-zinc-900/60 border border-zinc-800 p-4 rounded-3xl">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner
@@ -403,7 +473,7 @@ export default function PrintStationPage() {
                       <Button
                         size="sm"
                         className="h-8 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold px-2.5"
-                        onClick={async () => {
+                        onClick={() => {
                           const targetPost = posts.find((p) => p.id === req.postId) || {
                             id: req.postId,
                             fiestaId,
@@ -413,11 +483,7 @@ export default function PrintStationPage() {
                             likes: 0,
                             comments: [],
                           };
-                          handlePrint(targetPost);
-                          await updateMobilePrintStatus(fiestaId, req.id, 'printed').catch(() => undefined);
-                          setMobileQueue((prev) =>
-                            prev.map((m) => (m.id === req.id ? { ...m, status: 'printed' } : m)),
-                          );
+                          void handlePrint(targetPost, false, req.id);
                         }}
                       >
                         <Printer className="w-3.5 h-3.5 mr-1" /> Imprimir

@@ -84,11 +84,28 @@ export default function BarmanScreenPage() {
   const [quickDrink, setQuickDrink] = useState<Trago | null>(null);
   const [quickVersion, setQuickVersion] = useState<'con_alcohol' | 'sin_alcohol'>('con_alcohol');
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
+    };
+  }, []);
 
   const beep = useCallback(() => {
     try {
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextCtor();
+      if (!AudioContextCtor) return;
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioContextCtor();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
       oscillator.frequency.value = 880;

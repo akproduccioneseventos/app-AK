@@ -293,18 +293,18 @@ export default function ZonaDigitalPublicPage() {
           {visibleFeatures.map(item => {
             const Icon = featureIcon[item.id] ?? Sparkles;
             let href = `/evento/hub/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
-            if (item.id === 'muro_social') href = `/evento/social/${fiestaId}`;
+            if (item.id === 'muro_social') href = `/evento/social/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`;
             if (item.id === 'fotocabina') href = entertainmentLinks.find(link => link.id === 'fotocabina')?.href || '';
             if (item.id === 'plataforma360') href = entertainmentLinks.find(link => link.id === 'plataforma360')?.href || '';
             if (item.id === 'bogue') href = entertainmentLinks.find(link => link.id === 'bogue')?.href || '';
             if (item.id === 'espejo_magico') href = entertainmentLinks.find(link => link.id === 'espejoMagicoIA')?.href
               || entertainmentLinks.find(link => link.id === 'espejoMagicoFoto')?.href
               || '';
-            if (item.id === 'barra') href = `/evento/barra/${fiestaId}`;
+            if (item.id === 'barra') href = `/evento/barra/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`;
             if (item.id === 'totems') href = entertainmentLinks.find(link => link.id === 'totems')?.href || '';
             if (item.id === 'audioritmico') href = `/evento/muro-en-vivo/${fiestaId}`;
             if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
-            if (item.id === 'recap') href = `/evento/galeria/${fiestaId}`;
+            if (item.id === 'recap') href = `/evento/galeria/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`;
             if (item.id === 'transmision_invitado' || item.id === 'libro_de_firmas' || item.id === 'impresion_desde_celular') {
               href = `/evento/social/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`;
             }

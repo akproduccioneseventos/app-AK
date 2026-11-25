@@ -10,6 +10,7 @@ import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSea
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getAccesoPersonalPortalView, responderAsistenciaPersonal, registrarLlegadaPersonal } from '@/app/actions/accesos-personal-view';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { andaPorEnlace } from '@/lib/auth/permisos-por-enlace';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
@@ -23,8 +24,8 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa/pdf', icon: PackageSearch },
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
-  'reposteria': { label: 'Detalles de Repostería', href: '/fiestas/nueva/catering', icon: Cake },
-  'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/fotografia', icon: Camera },
+  'reposteria': { label: 'Detalles de Repostería', href: '/fiestas/nueva/comida?tab=catering', icon: Cake },
+  'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/show?tab=fotografia', icon: Camera },
   'presupuestos': { label: 'Presupuestos', href: '/presupuestos', icon: FileText },
   'clientes': { label: 'Base de Clientes', href: '/customers', icon: Users },
   'facturas': { label: 'Facturación', href: '/invoices', icon: Receipt },
@@ -390,7 +391,7 @@ export default function PortalPersonalPage() {
                     <div className="mt-6 pt-4 border-t">
                       <h4 className="text-sm font-bold text-slate-800 mb-3">Momentos Clave de la Noche</h4>
                       <div className="space-y-3">
-                        {fiesta.programa.map(item => (
+                        {ordenarPorHoraDelEvento(fiesta.programa, fiesta.horaInicio).map(item => (
                           <div key={item.id} className="flex gap-3 text-sm">
                             <div className="w-12 flex-shrink-0 text-slate-500 font-medium">{item.hora}</div>
                             <div className="flex-grow">
@@ -435,7 +436,8 @@ export default function PortalPersonalPage() {
 
                         // Todos los que quedan son del evento y llevan la llave:
                         // el servidor la comprueba contra esta fiesta.
-                        const linkHref = `${modulo.href}?fiestaId=${fiesta.id}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`;
+                        const separator = modulo.href.includes('?') ? '&' : '?';
+                        const linkHref = `${modulo.href}${separator}fiestaId=${fiesta.id}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`;
 
                         return (
                             <Button key={permisoId} asChild variant="outline" className="w-full h-auto justify-start p-4 text-left">

@@ -23,6 +23,7 @@ import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -42,7 +43,7 @@ function LiveEventDashboardContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const fiestaId = searchParams.get('fiestaId');
-    const tabParam = searchParams.get('tab');
+    const tabParam = searchParams.get('liveTab') || searchParams.get('tab');
     const resolvedTabParam = tabParam && VALID_LIVE_TABS.has(tabParam) ? tabParam : null;
     const [activeTab, setActiveTab] = useState(resolvedTabParam || 'operaciones');
 
@@ -169,11 +170,16 @@ function LiveEventDashboardContent() {
     };
 
     const asistentesPresentes = useMemo(() => (fiesta?.invitados || []).filter(i => i.checkedIn).reduce((s, g) => s + (g.partySize || 1), 0), [fiesta?.invitados]);
-    const totalCeliacosPresentes = useMemo(() => (fiesta?.invitados || []).filter(i => i.checkedIn && i.isCeliac).length, [fiesta?.invitados]);
+    const totalCeliacosPresentes = useMemo(
+        () => (fiesta?.invitados || [])
+            .filter(i => i.checkedIn && (i.isCeliac || i.dietaryRestriction === 'Celiaco'))
+            .reduce((s, g) => s + (g.partySize || 1), 0),
+        [fiesta?.invitados],
+    );
     const totalConfirmados = useMemo(() => (fiesta?.invitados || []).filter(i => i.rsvp === 'Confirmado').reduce((s, g) => s + (g.partySize || 1), 0), [fiesta?.invitados]);
 
     const handleShareUtilsLink = () => {
-        const url = `${window.location.origin}/fiestas/nueva/carga-operativa/retorno?fiestaId=${fiestaId}`;
+        const url = `${window.location.origin}/fiestas/nueva/show?tab=muro-social&subtab=en-vivo&liveTab=retorno&fiestaId=${fiestaId}`;
         window.open(`https://wa.me/?text=${encodeURIComponent('Hola, aquí tienes el enlace para el control de retorno al camión: ' + url)}`, '_blank');
     };
 
@@ -307,7 +313,7 @@ function LiveEventDashboardContent() {
                                     <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3 text-slate-100"><PartyPopper className="w-5 h-5 text-primary"/> Hitos del Itinerario</CardTitle></CardHeader>
                                     <CardContent className="p-6">
                                         <div className="space-y-4">
-                                            {fiesta.programa?.map(item => (
+                                            {ordenarPorHoraDelEvento(fiesta.programa || [], fiesta.configuracion?.horaInicio).map(item => (
                                                 <button key={item.id} onClick={() => handleToggleItineraryItem(item.id)} className={cn("w-full p-4 rounded-2xl flex items-center justify-between transition-all", item.completado ? "bg-emerald-500/10 text-emerald-500" : "bg-white/5 text-slate-400 hover:bg-white/10")}>
                                                     <span className="font-bold text-sm">{item.titulo}</span><span className="text-xs font-black">{item.hora}</span>
                                                 </button>
@@ -406,7 +412,7 @@ function LiveEventDashboardContent() {
                             href={mode.id === 'portero'
                               ? `/evento/accesos/${fiestaId}`
                               : mode.id === 'utilero'
-                              ? `/fiestas/nueva/en-vivo?fiestaId=${fiestaId}&tab=retorno`
+                              ? `/fiestas/nueva/show?tab=muro-social&subtab=en-vivo&liveTab=retorno&fiestaId=${fiestaId}`
                               : `#`
                             }
                             className="block p-5 rounded-3xl border border-white/10 bg-slate-800/50 hover:bg-slate-800 hover:border-white/20 transition-all"

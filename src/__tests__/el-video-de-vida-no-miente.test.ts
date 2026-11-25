@@ -9,6 +9,9 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ user: { id: 'u1', role: 'admin' } }),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
 }));
+jest.mock('@/lib/auth/event-access', () => ({
+  requireEventPermission: jest.fn(async () => ({ id: 'fiesta-video-vida-1', configuracion: { nombreEvento: 'Fiesta 15' } })),
+}));
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   saveFiesta: (...args: any[]) => saveFiestaMock(...args),

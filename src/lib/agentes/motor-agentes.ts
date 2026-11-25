@@ -8,7 +8,7 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
-import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { mutarDocumento, mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import { getFiestaTimeRange, localDateTimeToUtcMs } from '@/lib/staff-agenda-conflicts';
@@ -183,19 +183,23 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. EL QUE PERSIGUE LOS PRESUPUESTOS (NUNCA MANDA SOLO)
 // ─────────────────────────────────────────────────────────────────────────────
+const SEGUIMIENTOS_ENVIADOS_FILE = 'asistente/seguimientos-presupuestos.json';
+
 export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promise<RegistroEjecucionAgente> {
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [presupuestos, scheduledMessages, leads] = await Promise.all([
+  const [presupuestos, scheduledMessages, leads, seguimientosPrevios] = await Promise.all([
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
     readData<CrmLead[]>('crm-leads.json', []),
+    readData<Record<string, string>>(SEGUIMIENTOS_ENVIADOS_FILE, {}).catch(() => ({} as Record<string, string>)),
   ]);
 
   const ahoraMs = ahora.getTime();
   const pendientes = scheduledMessages || [];
   const nuevosMensajes: ScheduledMessage[] = [];
+  const nuevasMarcasSeguimiento: Record<string, string> = {};
 
   for (const p of presupuestos) {
     if (p.estado !== 'Enviado' || !p.clienteContacto) continue;
@@ -206,9 +210,22 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     const diasDesdeEnvio = Math.floor((ahoraMs - fechaCreacionMs) / (1000 * 60 * 60 * 24));
     const contacto = p.clienteContacto.trim();
 
-    // Ya existe un mensaje en cola para este presupuesto
-    const yaEnCola = pendientes.some((m) => m.targetPhone === contacto && m.status === 'pendiente');
-    if (yaEnCola) continue;
+    let etapaId: string | null = null;
+    if (diasDesdeEnvio >= 5 && diasDesdeEnvio < 14) {
+      etapaId = `msg_follow_${p.id}_5d`;
+    } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
+      etapaId = `msg_reactivate_${p.id}_14d`;
+    }
+    if (!etapaId) continue;
+
+    // Idempotencia: no volver a preparar el mismo seguimiento si ya se registró o si existe en la bandeja (en cualquier estado)
+    const yaRegistrado = Boolean(seguimientosPrevios?.[etapaId]) || Boolean(nuevasMarcasSeguimiento[etapaId]);
+    const yaEnBandeja = pendientes.some(
+      (m) =>
+        m.id === etapaId ||
+        (m.targetPhone === contacto && m.status === 'pendiente'),
+    );
+    if (yaRegistrado || yaEnBandeja) continue;
 
     const lead = leads.find((l) => (p.leadId && l.id === p.leadId) || l.presupuestoId === p.id || (l.phone && l.phone.trim() === contacto));
 
@@ -234,7 +251,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
       }
 
       nuevosMensajes.push({
-        id: `msg_follow_${p.id}_5d`,
+        id: etapaId,
         targetType: 'prospecto',
         targetId: p.leadId || p.id,
         targetName: p.clienteNombre,
@@ -245,6 +262,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         status: 'pendiente',
         templateType: 'personalizado',
       });
+      nuevasMarcasSeguimiento[etapaId] = ahora.toISOString();
       acciones.push(`Borrador de seguimiento preparado para ${p.clienteNombre} en la bandeja de salida.`);
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} sin respuesta hace ${diasDesdeEnvio} días (reactivación).`);
@@ -268,7 +286,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
       }
 
       nuevosMensajes.push({
-        id: `msg_reactivate_${p.id}_14d`,
+        id: etapaId,
         targetType: 'prospecto',
         targetId: p.leadId || p.id,
         targetName: p.clienteNombre,
@@ -279,12 +297,29 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         status: 'pendiente',
         templateType: 'personalizado',
       });
+      nuevasMarcasSeguimiento[etapaId] = ahora.toISOString();
       acciones.push(`Borrador de reactivación preparado para ${p.clienteNombre} en la bandeja de salida.`);
     }
   }
 
   if (nuevosMensajes.length > 0) {
-    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (actuales) => {
+      const lista = actuales || [];
+      const idsExistentes = new Set(lista.map((m) => m.id));
+      const sinDuplicar = nuevosMensajes.filter((m) => !idsExistentes.has(m.id));
+      if (sinDuplicar.length === 0) return null;
+      return [...lista, ...sinDuplicar];
+    });
+
+    if (typeof mutarDocumento === 'function') {
+      await mutarDocumento<Record<string, string>>(
+        SEGUIMIENTOS_ENVIADOS_FILE,
+        {},
+        (actual) => ({ ...(actual || {}), ...nuevasMarcasSeguimiento }),
+      ).catch(() => undefined);
+    } else {
+      await writeData(SEGUIMIENTOS_ENVIADOS_FILE, { ...(seguimientosPrevios || {}), ...nuevasMarcasSeguimiento }).catch(() => undefined);
+    }
   }
 
   const registro: RegistroEjecucionAgente = {

@@ -520,7 +520,7 @@ export async function sincronizarCompetenciaAhoraAction(): Promise<{
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
-    await sincronizarCompetenciaSemanal();
+    await sincronizarCompetenciaSemanal({ forzar: true });
     const estado = await getCompetenciaEstado();
     return { success: true, data: estado };
   } catch (error: any) {

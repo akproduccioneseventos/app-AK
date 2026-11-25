@@ -4,6 +4,8 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
@@ -559,7 +561,7 @@ export default function PublicPortalView({
 
   // Moodboard and program
   const moodboardItems: MoodboardItem[] = fiesta.decoracion?.moodboardItems ?? [];
-  const programa: ProgramaEventoItem[] = fiesta.programa ?? [];
+  const programa: ProgramaEventoItem[] = ordenarPorHoraDelEvento(fiesta.programa ?? [], fiesta.configuracion?.horaInicio);
   const musica = fiesta.musica;
 
   // Location data from digital invitation
@@ -2265,6 +2267,18 @@ export default function PublicPortalView({
                           Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                        <Link href={`/portal/${fiesta.id}/decoracion`}>
+                          <Button variant="outline" size="sm" className="w-full rounded-xl text-xs">
+                            Ver decoración 3D
+                          </Button>
+                        </Link>
+                        <Link href={`/portal/${fiesta.id}/moodboard`}>
+                          <Button variant="outline" size="sm" className="w-full rounded-xl text-xs">
+                            Abrir moodboard
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   )}
 

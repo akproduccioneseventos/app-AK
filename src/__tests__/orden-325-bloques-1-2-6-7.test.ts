@@ -33,6 +33,9 @@ const mockClasificarComentario = jest.fn(async (texto: string) => ({
   debeResponder: true,
 }));
 
+// Con la 338 y la 341 juntas, el motor mira el tope y prueba los modelos de respaldo sin clave: cada caso tarda unos
+// segundos más que el corte por defecto de 5 s, sin que cambie lo que se comprueba (24/11/2026).
+jest.setTimeout(30000);
 jest.mock('server-only', () => ({}));
 
 jest.mock('@/lib/data-service', () => ({

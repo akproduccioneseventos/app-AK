@@ -2,30 +2,32 @@ import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
 import { hayPresupuestoParaIA, reservarRespuestaProfunda, anotarFalloIA } from '@/lib/ai/consumo-servidor';
+import {
+  DEFAULT_GEMINI_FALLBACK_MODELS,
+  DEFAULT_GEMINI_LATEST_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_PRO_FALLBACK_MODEL,
+  DEFAULT_GEMINI_PRO_MODEL,
+  GEMINI_MODEL_PATTERN,
+  MODELOS_GEMINI,
+  esErrorCuotaIA,
+  esErrorModeloRetirado,
+  isRecoverableGeminiModelError,
+} from './modelos';
+
+export {
+  DEFAULT_GEMINI_FALLBACK_MODELS,
+  DEFAULT_GEMINI_LATEST_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_PRO_FALLBACK_MODEL,
+  DEFAULT_GEMINI_PRO_MODEL,
+  MODELOS_GEMINI,
+  esErrorCuotaIA,
+  esErrorModeloRetirado,
+  isRecoverableGeminiModelError,
+};
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-
-/**
- * Modelos oficiales de Google Gemini.
- *
- * Para tareas simples y operativas se usa la versión rápida y económica (Gemini Flash).
- * Para tareas complejas y estratégicas se usa la versión inteligente y profunda (Gemini Pro),
- * con respaldo automático en Flash en caso de fallas o agotamiento de saldo/cuota.
- */
-export const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
-export const DEFAULT_GEMINI_MODEL = 'googleai/gemini-flash-latest';
-export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-pro-latest';
-/** Primer respaldo si el atajo "latest" no responde: modelo rápido estable. */
-export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-flash-latest';
-
-const DEFAULT_GEMINI_FALLBACK_MODELS = [
-  DEFAULT_GEMINI_LATEST_MODEL,
-  'googleai/gemini-3.8-flash',
-  'googleai/gemini-3.6-flash',
-  'googleai/gemini-2.5-flash',
-] as const;
-
-const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
 type GeminiGenerationConfig = { maxOutputTokens: number };
@@ -73,7 +75,7 @@ export async function getEffectiveGeminiModelForAgent(
   const opts = (options && typeof options === 'object' && !(options instanceof Date)) ? options : undefined;
   const ahora = (options instanceof Date || typeof options === 'string') ? options : (opts?.ahora ?? ahoraDirect);
   const preferred = getGeminiModelForAgent(agentType, opts);
-  if (preferred === geminiProModel) {
+  if (preferred !== geminiFastModel) {
     try {
       const fecha = ahora ? (typeof ahora === 'string' ? new Date(ahora) : ahora) : undefined;
       const tienePresupuesto = await hayPresupuestoParaIA(fecha);
@@ -112,7 +114,7 @@ export const ai = genkit({
   plugins: apiKey ? [googleAI({ apiKey })] : [],
 });
 
-type GeminiGenerateRequest = Awaited<Parameters<typeof ai.generate>[0]>;
+export type GeminiGenerateRequest = Awaited<Parameters<typeof ai.generate>[0]>;
 
 function configuredFallbackModels(): string[] {
   const configured = (process.env.GEMINI_MODEL_FALLBACKS || '')
@@ -127,24 +129,13 @@ export function getGeminiFallbackCandidates(preferredModel: string): string[] {
   const isPro = /gemini-[a-z0-9.]*-?pro/i.test(preferredModel) || preferredModel === geminiProModel || preferredModel === DEFAULT_GEMINI_PRO_MODEL;
   if (isPro) {
     const prefix = preferredModel.startsWith('googleai/') ? 'googleai/' : '';
-    return [
+    const sinPrefijo = (m: string) => m.replace(/^googleai\//, '');
+    return Array.from(new Set([
       preferredModel,
-      `${prefix}gemini-flash-latest`,
-      `${prefix}gemini-3.8-flash`,
-    ];
+      ...MODELOS_GEMINI.profundo.slice(1).map((m) => `${prefix}${sinPrefijo(m)}`),
+    ]));
   }
   return Array.from(new Set([preferredModel, ...configuredFallbackModels()]));
-}
-
-export function isRecoverableGeminiModelError(error: unknown): boolean {
-  const candidate = error as { status?: number; code?: number | string; message?: string };
-  const status = Number(candidate?.status || candidate?.code);
-  const message = String(candidate?.message || error || '').toLowerCase();
-
-  return (
-    [402, 404, 408, 429, 500, 502, 503, 504].includes(status) ||
-    /(model.+(?:not found|unavailable)|resource_exhausted|overloaded|capacity|deadline exceeded|temporarily unavailable|payment required|out of credit|saldo|quota)/i.test(message)
-  );
 }
 
 /**
@@ -175,6 +166,13 @@ export async function generateWithGeminiFallback(request: GeminiGenerateRequest)
     } catch (error) {
       lastError = error;
       if (!isRecoverableGeminiModelError(error)) throw error;
+      if (esErrorModeloRetirado(error)) {
+        const motivoRetirado = error instanceof Error
+          ? error.message
+          : String((error as { message?: string })?.message || error || 'Modelo no disponible');
+        // no pasa nada si falla: anotar el modelo retirado es accesorio y el flujo sigue con el modelo de respaldo.
+        await anotarFalloIA('gemini-modelo-retirado', `${model}: ${motivoRetirado}`).catch(() => {});
+      }
       console.warn(`[Genkit] El modelo "${model}" no respondió. Probando fallback compatible.`);
     }
   }
@@ -202,6 +200,13 @@ export async function ejecutarPromptConFallback<I, R>(
     } catch (error) {
       lastError = error;
       if (!isRecoverableGeminiModelError(error)) throw error;
+      if (esErrorModeloRetirado(error)) {
+        const motivoRetirado = error instanceof Error
+          ? error.message
+          : String((error as { message?: string })?.message || error || 'Modelo no disponible');
+        // no pasa nada si falla: anotar el modelo retirado es accesorio y el flujo sigue con el modelo de respaldo.
+        await anotarFalloIA('gemini-modelo-retirado', `${model}: ${motivoRetirado}`).catch(() => {});
+      }
       console.warn(`[Genkit] El modelo "${model}" no respondió. Probando fallback compatible.`);
     }
   }

@@ -13,7 +13,8 @@
 type Item = { idServicioCatalogo?: string; costoTotalItem?: number; esRegalo?: boolean };
 
 export function esMultaDeCancelacion(item: Item): boolean {
-  return String(item.idServicioCatalogo ?? '').startsWith('multa_cancelacion');
+  const id = String(item.idServicioCatalogo ?? '');
+  return id.startsWith('multa_cancelacion') || id.startsWith('multa_cambio_fecha');
 }
 
 export function totalTrasCancelar(

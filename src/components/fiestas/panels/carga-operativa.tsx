@@ -196,6 +196,7 @@ function ListaDeCargaOperativaContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasPendingStructure, setHasPendingStructure] = useState(false);
   const focusedItemIdRef = useRef<string | null>(null);
+  const lastCommittedQuantitiesRef = useRef<Record<string, string>>({});
   const lastAppliedUpdatedAtRef = useRef<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -318,6 +319,13 @@ function ListaDeCargaOperativaContent() {
         items: cat.items || []
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
+      const committedMap: Record<string, string> = {};
+      for (const cat of categoriasConItems) {
+        for (const it of cat.items || []) {
+          committedMap[it.id] = it.cantidad;
+        }
+      }
+      lastCommittedQuantitiesRef.current = committedMap;
       lastAppliedUpdatedAtRef.current = loadedLista?.updatedAt || null;
       setHasPendingStructure(false);
       setFiesta(fiestaData);
@@ -418,17 +426,20 @@ function ListaDeCargaOperativaContent() {
         }
         return next;
       });
+      if (patch.cantidad !== undefined) {
+        lastCommittedQuantitiesRef.current[itemId] = patch.cantidad;
+      }
       setLastSaved(new Date());
+      setSaveError(null);
       return { success: true };
     } catch (patchError) {
       const msg = patchError instanceof Error ? patchError.message : 'No se pudo guardar.';
       setSaveError(msg);
-      await loadData(false);
       return { success: false, error: msg };
     } finally {
       setPendingItemUpdates((count) => Math.max(0, count - 1));
     }
-  }, [fiestaId, loadData, operatorName]);
+  }, [fiestaId, operatorName]);
 
   const stopCameraScan = useCallback(() => {
     if (scannerRef.current) {
@@ -635,7 +646,9 @@ function ListaDeCargaOperativaContent() {
         throw new Error(result.error || "Error desconocido al guardar la lista.");
       }
     } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+      const msg = err?.message || "No se pudo guardar la lista.";
+      setSaveError(msg);
+      toast({ title: "Error al Guardar", description: msg, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -755,6 +768,7 @@ function ListaDeCargaOperativaContent() {
       .find((category) => category.id === categoryId)
       ?.items.find((item) => item.id === itemId);
     if (!currentItem) return;
+    const prevCategorias = listaDeCarga.categorias;
     const cargado = !currentItem.cargado;
     setListaDeCarga(prev => ({
       ...prev,
@@ -764,7 +778,15 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
-    await persistItemPatch(categoryId, itemId, { cargado });
+    const patchResult = await persistItemPatch(categoryId, itemId, { cargado });
+    if (!patchResult.success) {
+      setListaDeCarga((prev) => ({ ...prev, categorias: prevCategorias }));
+      toast({
+        title: 'No se guardó el cambio',
+        description: patchResult.error || 'No se pudo actualizar el estado en el servidor.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const toggleItemRetornado = async (categoryId: string, itemId: string) => {
@@ -772,6 +794,7 @@ function ListaDeCargaOperativaContent() {
       .find((category) => category.id === categoryId)
       ?.items.find((item) => item.id === itemId);
     if (!currentItem) return;
+    const prevCategorias = listaDeCarga.categorias;
     const retornado = !currentItem.retornado;
     setListaDeCarga(prev => ({
       ...prev,
@@ -781,7 +804,15 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
-    await persistItemPatch(categoryId, itemId, { retornado });
+    const patchResult = await persistItemPatch(categoryId, itemId, { retornado });
+    if (!patchResult.success) {
+      setListaDeCarga((prev) => ({ ...prev, categorias: prevCategorias }));
+      toast({
+        title: 'No se guardó el cambio',
+        description: patchResult.error || 'No se pudo actualizar el retorno en el servidor.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
@@ -796,7 +827,31 @@ function ListaDeCargaOperativaContent() {
   };
 
   const handleItemQuantityCommit = async (categoryId: string, itemId: string, quantity: string) => {
-    await persistItemPatch(categoryId, itemId, { cantidad: quantity });
+    const prevCantidad = lastCommittedQuantitiesRef.current[itemId];
+    const patchResult = await persistItemPatch(categoryId, itemId, { cantidad: quantity });
+    if (!patchResult.success) {
+      if (prevCantidad !== undefined) {
+        setListaDeCarga((prev) => ({
+          ...prev,
+          categorias: (prev.categorias || []).map((c) =>
+            c.id === categoryId
+              ? {
+                  ...c,
+                  items: (c.items || []).map((i) =>
+                    i.id === itemId ? { ...i, cantidad: prevCantidad } : i
+                  ),
+                }
+              : c
+          ),
+        }));
+      }
+      toast({
+        title: 'No se guardó la cantidad',
+        description: patchResult.error || 'No se pudo guardar la cantidad en el servidor.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (!fiestaId || !fiesta?.configuracion?.fechaEvento) return;
     const cat = (listaDeCarga.categorias || []).find((c) => c.id === categoryId);
     const item = (cat?.items || []).find((i) => i.id === itemId);
@@ -1070,13 +1125,62 @@ function ListaDeCargaOperativaContent() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <AutoSaveIndicator
-            isSaving={pendingItemUpdates > 0}
+            isSaving={pendingItemUpdates > 0 || isSaving}
             lastSaved={lastSaved}
             saveError={saveError}
           />
-          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
-            Tildes sincronizadas online
-          </Badge>
+          {(() => {
+            const estadoGuardado: 'guardando' | 'error' | 'guardado' | 'inicial' =
+              pendingItemUpdates > 0 || isSaving
+                ? 'guardando'
+                : saveError
+                  ? 'error'
+                  : lastSaved
+                    ? 'guardado'
+                    : 'inicial';
+            if (estadoGuardado === 'guardando') {
+              return (
+                <Badge
+                  variant="outline"
+                  data-testid="carga-estado-guardado"
+                  className="border-sky-200 bg-sky-50 text-sky-700"
+                >
+                  Guardando…
+                </Badge>
+              );
+            }
+            if (estadoGuardado === 'error') {
+              return (
+                <Badge
+                  variant="outline"
+                  data-testid="carga-estado-guardado"
+                  className="border-rose-200 bg-rose-50 text-rose-700"
+                >
+                  No se guardó: {saveError}
+                </Badge>
+              );
+            }
+            if (estadoGuardado === 'guardado') {
+              return (
+                <Badge
+                  variant="outline"
+                  data-testid="carga-estado-guardado"
+                  className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                >
+                  Guardado
+                </Badge>
+              );
+            }
+            return (
+              <Badge
+                variant="outline"
+                data-testid="carga-estado-guardado"
+                className="border-slate-200 bg-slate-50 text-slate-600"
+              >
+                Sin cambios recientes
+              </Badge>
+            );
+          })()}
           {hasPendingStructure && (
             <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
               Guardar cambios de lista

@@ -74,7 +74,7 @@ function AlergiasContent() {
   const confirmedGuests = allGuests.filter(g => g.rsvp === 'Confirmado');
   // Celíaco marcado aparte (`isCeliac`) también es una restricción (auditoría del 18/11/2026, R18-01).
   const guestsWithRestrictions = confirmedGuests.filter(g => tieneCondicionAlimentaria(g));
-  const guestsWithCeliac = confirmedGuests.filter(g => g.isCeliac);
+  const guestsWithCeliac = confirmedGuests.filter(g => g.isCeliac || g.dietaryRestriction === 'Celiaco');
 
   /**
    * Cuenta PERSONAS, no filas de la tabla.
@@ -92,6 +92,7 @@ function AlergiasContent() {
   }, [menu, allGuests]);
   const totalConfirmados = contarPersonas(confirmedGuests);
   const personasConRestricciones = contarPersonas(guestsWithRestrictions);
+  const personasCeliacas = contarPersonas(guestsWithCeliac);
 
   // Count by diet type
   const dietCounts = useMemo(() => {
@@ -248,33 +249,33 @@ function AlergiasContent() {
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-black text-foreground">{confirmedGuests.length}</p>
+            <p className="text-2xl font-black text-foreground">{totalConfirmados}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Confirmados</p>
           </CardContent>
         </Card>
         <Card className="border-orange-200">
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-black text-orange-700">{guestsWithRestrictions.length}</p>
+            <p className="text-2xl font-black text-orange-700">{personasConRestricciones}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Con Restricción</p>
           </CardContent>
         </Card>
         <Card className="border-amber-200">
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-black text-amber-700">{guestsWithCeliac.length}</p>
+            <p className="text-2xl font-black text-amber-700">{personasCeliacas}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Celíacos</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Priority Alert */}
-      {guestsWithRestrictions.length > 0 && (
+      {personasConRestricciones > 0 && (
         <Card className="border-orange-300 bg-orange-50">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-bold text-orange-800">
-                  ⚠️ {guestsWithRestrictions.length} invitado(s) con restricciones alimentarias
+                  ⚠️ {personasConRestricciones} persona(s) con restricciones alimentarias
                 </p>
                 <p className="text-xs text-orange-700 mt-1">
                   Compartir este reporte con el equipo de catering antes del evento para evitar errores.

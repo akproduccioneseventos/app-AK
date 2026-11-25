@@ -789,6 +789,15 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-end">
+        <Link
+          href="/asistente"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 transition"
+        >
+          <Bot className="w-3.5 h-3.5 text-amber-400" />
+          Ver en Asistente AK
+        </Link>
+      </div>
       {/* 1. KPIs GRANDES (Pensados para ver de un vistazo en el celular) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div className="p-4 md:p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">

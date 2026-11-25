@@ -44,6 +44,56 @@ const formatDate = (dateString?: string) => {
   return formatearFechaEvento(dateString);
 };
 
+function generarReferenciaEventos(): string {
+  const timePart = Date.now().toString(36).slice(-4);
+  const randPart = Math.random().toString(36).slice(2, 6);
+  return `REF-${timePart}${randPart}`.toUpperCase();
+}
+
+function sanearMotivoErrorEventos(err: unknown): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const firstLine = raw.split(/\r?\n/)[0]?.trim() || '';
+  const lower = firstLine.toLowerCase();
+
+  if (lower.includes('sesi') || lower.includes('no autoriz') || lower.includes('unauth')) {
+    return 'Tu sesión venció o no está autorizada. Volvé a iniciar sesión.';
+  }
+  if (lower.includes('permiso') || lower.includes('perfil') || lower.includes('acceso') || lower.includes('forbidden')) {
+    return 'Tu cuenta no tiene permisos para ver la lista de fiestas.';
+  }
+  if (lower.includes('tiempo') || lower.includes('timeout') || lower.includes('demor') || lower.includes('deadline')) {
+    return 'La base de datos tardó demasiado en responder. Reintentá en unos segundos.';
+  }
+  if (lower.includes('network') || lower.includes('fetch') || lower.includes('econn') || lower.includes('offline')) {
+    return 'Error de conexión al consultar la lista de fiestas. Revisá tu internet e intentá de nuevo.';
+  }
+  if (
+    lower.includes('token') ||
+    lower.includes('secret') ||
+    lower.includes('password') ||
+    lower.includes('credential') ||
+    lower.includes('private_key') ||
+    lower.includes('authorization') ||
+    lower.includes('bearer')
+  ) {
+    return 'Ocurrió un problema de autenticación al leer las fiestas desde el servidor.';
+  }
+
+  const sanitized = firstLine
+    .replace(/[A-Za-z]:\\[^\s]+/g, '[ruta]')
+    .replace(/\/(?:[\w.-]+\/)+[\w.-]+/g, '[ruta]')
+    .replace(/\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/g, '[correo]')
+    .replace(/\s+at\s+.*/i, '')
+    .replace(/[A-Za-z0-9_-]{32,}/g, '[dato]')
+    .trim()
+    .slice(0, 160);
+
+  if (!sanitized || sanitized === '[ruta]' || sanitized === '[dato]') {
+    return 'No se pudo cargar la información de las fiestas desde el servidor.';
+  }
+  return sanitized;
+}
+
 export default function GestorFiestasPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -97,18 +147,25 @@ export default function GestorFiestasPage() {
         getHistorialFiestas()
       ]);
 
+      if (!Array.isArray(activas) || !Array.isArray(archivadas)) {
+        throw new Error('El servidor devolvió un formato inválido al consultar la lista de fiestas.');
+      }
+
       if (kpiResult?.success && kpiResult?.data) {
         setKpiData(kpiResult.data);
       }
       // KPI failure doesn't block fiesta loading
 
-      setFiestasActivas(Array.isArray(activas) ? activas : []);
-      setFiestasArchivadas(Array.isArray(archivadas) ? archivadas : []);
+      setFiestasActivas(activas);
+      setFiestasArchivadas(archivadas);
 
     } catch (e: any) {
-      console.error("Error loading fiestas data:", e);
-      setError("No se pudo cargar la información de las fiestas.");
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      const refId = generarReferenciaEventos();
+      console.error(`[Eventos][${refId}]`, e);
+      const motivoSeguro = sanearMotivoErrorEventos(e);
+      const mensajeError = `${motivoSeguro} Código de referencia: ${refId}`;
+      setError(mensajeError);
+      toast({ title: "Error al cargar fiestas", description: mensajeError, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -678,10 +735,16 @@ export default function GestorFiestasPage() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <Card className="text-destructive bg-destructive/10 p-6 text-center">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+          <Card className="text-destructive bg-destructive/10 p-6 text-center space-y-3" role="alert">
+            <AlertTriangle className="w-12 h-12 mx-auto" />
             <p className="font-semibold text-lg">Error al Cargar Eventos</p>
             <p className="text-sm">{error}</p>
+            <div>
+              <Button type="button" variant="outline" onClick={() => loadData()}>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reintentar
+              </Button>
+            </div>
           </Card>
         ) : filteredFiestasActivas.length > 0 ? (
           <div className="overflow-hidden rounded-md border bg-card">

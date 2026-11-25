@@ -3,7 +3,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaForPortalSession, initializePortalSession, saveListaMusica } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, saveListaMusica, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, ListaMusicaPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, ArrowLeft, AlertTriangle, Save, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const SESSION_KEY_PREFIX = 'portal_auth_';
 
 type SongListKey = 'imprescindibles' | 'siEsPosible' | 'noQuiero';
 
@@ -36,13 +34,16 @@ export default function MusicaPortalPage() {
   const [inputs, setInputs] = useState<Record<SongListKey, string>>({ imprescindibles: '', siEsPosible: '', noQuiero: '' });
 
   useEffect(() => {
-    const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) { sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); router.replace(`/portal-cliente/${fiestaId}`); return; }
-    initializePortalSession(fiestaId, accessKey)
-      .then(async session => session.success ? getFiestaForPortalSession(fiestaId) : null)
+    verificarSesionPortalCliente(fiestaId)
+      .then(async hasSession => {
+        if (!hasSession) {
+          router.replace(`/portal-cliente/${fiestaId}`);
+          return null;
+        }
+        return getFiestaForPortalSession(fiestaId);
+      })
       .then(data => {
         if (!data) {
-          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
           setError('La sesión del portal venció o no corresponde a este evento.');
           return;
         }

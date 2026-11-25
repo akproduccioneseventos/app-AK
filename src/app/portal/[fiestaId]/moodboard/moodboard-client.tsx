@@ -44,14 +44,15 @@ export default function ClientMoodboardPage() {
   }, [loadData]);
 
   const handleToggleLike = async (itemId: string) => {
-    if (!fiesta || !fiesta.decoracion) return;
-    
-    const items = (fiesta.decoracion.moodboardItems || []).map(i => 
+    if (!fiesta) return;
+
+    const baseDecoracion = fiesta.decoracion ?? { moodboardItems: [] };
+    const items = (baseDecoracion.moodboardItems || []).map(i =>
         i.id === itemId ? { ...i, likedByClient: !i.likedByClient } : i
     );
-    
-    const updatedDecoracion = { ...fiesta.decoracion, moodboardItems: items };
-    
+
+    const updatedDecoracion = { ...baseDecoracion, moodboardItems: items };
+
     // Optimistic UI
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
 
@@ -72,8 +73,9 @@ export default function ClientMoodboardPage() {
   };
 
   const handleUploadFromClient = async (url: string) => {
-    if (!fiesta || !fiesta.decoracion) return;
-    
+    if (!fiesta) return;
+
+    const baseDecoracion = fiesta.decoracion ?? { moodboardItems: [] };
     const newItem: MoodboardItem = {
         id: `mood_client_${Date.now()}`,
         url,
@@ -82,9 +84,9 @@ export default function ClientMoodboardPage() {
         timestamp: new Date().toISOString()
     };
 
-    const updatedDecoracion = { 
-        ...fiesta.decoracion, 
-        moodboardItems: [...(fiesta.decoracion.moodboardItems || []), newItem] 
+    const updatedDecoracion = {
+        ...baseDecoracion,
+        moodboardItems: [...(baseDecoracion.moodboardItems || []), newItem]
     };
 
     setIsProcessing(true);
@@ -93,6 +95,7 @@ export default function ClientMoodboardPage() {
         if (!res.success) {
           throw new Error(res.error || "No se pudo añadir la foto.");
         }
+        setFiesta({ ...fiesta, decoracion: res.updatedData ?? updatedDecoracion });
         toast({ title: "¡Foto añadida!", description: "Tu organizador verá esta sugerencia." });
         await loadData();
     } catch (e) {
@@ -106,8 +109,8 @@ export default function ClientMoodboardPage() {
     return <div className="flex h-screen flex-col items-center justify-center gap-4" role="status" aria-live="polite"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-sm font-medium text-slate-600">Estamos cargando tus ideas de decoración.</p></div>;
   }
 
-  if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><CardTitle>No pudimos cargar tu mural</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardContent><Button onClick={loadData}>Reintentar</Button></CardContent></Card></div>;
+  if (loadError || !fiesta) {
+    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><CardTitle>{loadError ? 'No pudimos cargar tu mural' : 'Evento no encontrado'}</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardContent><Button onClick={loadData}>Reintentar</Button></CardContent></Card></div>;
   }
 
   const moodItems = fiesta?.decoracion?.moodboardItems || [];

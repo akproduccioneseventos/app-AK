@@ -300,9 +300,14 @@ export function InvitacionConfigPanel({
                 <Select value={config.tipoEvento} onValueChange={v => update('tipoEvento', v as InvitacionDigitalConfig['tipoEvento'])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(TIPO_EVENTO_LABELS).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>{v}</SelectItem>
-                    ))}
+                    {Object.entries(TIPO_EVENTO_LABELS)
+                      .filter(([k]) => Boolean(k?.trim()))
+                      .map(([k, v]) => {
+                        const tipoValue = k.trim();
+                        return (
+                          <SelectItem key={tipoValue} value={tipoValue}>{v}</SelectItem>
+                        );
+                      })}
                   </SelectContent>
                 </Select>
               </div>

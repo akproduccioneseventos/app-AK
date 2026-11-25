@@ -184,10 +184,40 @@ async function ejecutarHerramienta(
         const eleccion = elegirPresupuestoPedido(presupuestos, args);
         if (!eleccion.ok) return { exito: false, resultado: eleccion.candidatos ?? null, comprobacion: eleccion.motivo };
         const p = eleccion.presupuesto;
+        if (!p) {
+          return { exito: false, resultado: null, comprobacion: 'Presupuesto no encontrado.' };
+        }
+        const [{ verifySession }, { puede, PERMISOS }] = await Promise.all([
+          import('@/lib/auth/session-token'),
+          import('@/lib/auth/perfiles'),
+        ]);
+        const auth = await verifySession().catch(() => ({ success: false as const, user: undefined }));
+        const puedeVerPlata = Boolean(auth.success && auth.user && puede(auth.user, PERMISOS.CONTABILIDAD));
+        if (!puedeVerPlata) {
+          const sinMontos = {
+            id: p.id,
+            numero: p.numero,
+            clienteNombre: p.clienteNombre,
+            eventoTipo: p.eventoTipo,
+            eventoFecha: p.eventoFecha,
+            salonFiestas: p.salonFiestas,
+            estado: p.estado,
+            itemsPresupuestados: (p.itemsPresupuestados || []).map((i) => ({
+              nombreServicio: i.nombreServicio,
+              cantidad: i.cantidad,
+              categoriaServicio: i.categoriaServicio,
+            })),
+          };
+          return {
+            exito: true,
+            resultado: sinMontos,
+            comprobacion: `Presupuesto encontrado: #${p.numero || p.id}, Estado ${p.estado} (los montos y totales son exclusivos de Contabilidad).`,
+          };
+        }
         return {
-          exito: Boolean(p),
-          resultado: p || null,
-          comprobacion: p ? `Presupuesto encontrado: Total $${Number(p.costoTotalEstimado || 0).toLocaleString('es-UY')}, Estado ${p.estado}.` : 'Presupuesto no encontrado.',
+          exito: true,
+          resultado: p,
+          comprobacion: `Presupuesto encontrado: Total $${Number(p.costoTotalEstimado || 0).toLocaleString('es-UY')}, Estado ${p.estado}.`,
         };
       }
 
@@ -285,7 +315,7 @@ async function ejecutarHerramienta(
  * comprobando cada paso en la base y haciendo una sola pregunta si falta un dato clave.
  */
 export async function ejecutarEncargado(input: AkMultiAgentInput): Promise<EncargadoExecutionResult> {
-  const hayPresupuesto = await hayPresupuestoParaIA().catch(() => true);
+  const hayPresupuesto = await hayPresupuestoParaIA().catch(() => false);
   if (!hayPresupuesto) {
     return {
       success: true,

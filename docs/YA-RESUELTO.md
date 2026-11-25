@@ -1,5 +1,168 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+
+## 25/11/2026 - El robot veía 81 pantallas rotas que no estaban rotas
+
+- El robot de la orden 339 entraba con la cookie del dueño (`userId: admin`), y en su base de prueba no existía ese
+  usuario. El servidor contestaba "Tu sesión se cerró" en cada acción y el robot lo contaba como pantalla caída. Ahora
+  `tests/robot/sembrar.ts` siembra `users/admin` y `users/auditor-e2e`: de 81 rojos quedaron 15.
+- Un recurso de afuera que no carga porque la máquina de pruebas no tiene internet (`net::ERR_TUNNEL_CONNECTION_FAILED`)
+  ya no cuenta como falla de la pantalla (`tests/robot/reglas.ts`).
+- De los 15, tres son del entorno (sin cámara; 127.0.0.1 contra localhost en `/enlaces`) y quedan como excepción con
+  "Entorno:". Los otros doce son de la app: los arregla Gemini en la orden 346, y cada uno sale de
+  `docs/robot-excepciones.json` cuando está arreglado.
+
+## 25/11/2026 - El portal del cliente decía que no había contraseña
+- Con la entrega 336, `/portal?fiestaId=` armaba la vista previa sin decir si la fiesta tenía clave, y mostraba "el
+  organizador aún no configuró una contraseña": el cliente no podía entrar nunca. Ahora la vista previa dice sólo si hay
+  clave (`tieneClave`, nunca la clave) y la pantalla pide la contraseña. Lo frenó el recorrido de pantallas.
+
+## 24/11/2026 - Publicadas las entregas 336 a 342 de Gemini, juntas
+
+- Las dos ramas corregidas (`gemini/orden-338` con 336-338 y `gemini/orden-341` con 339-342) se juntaron en una propuesta.
+  En la IA (`consumo.ts`, `decisiones.ts`, `whatsapp-media.ts`) quedó la versión del cerebro de la 341, que ya trae las
+  protecciones de la 336 (reserva liberada sólo en rechazo firme, imagen por enlace con tope de 10 MB).
+- Cinco pruebas chocaban al juntarlas, ninguna por un defecto de la app: la del robot exigía que los defectos que la 338
+  arregló siguieran en el código; la de la 325 tardaba más de 5 s con el tope mirado antes de elegir modelo; y tres de
+  pantalla (entrada del invitado, estaciones e impresos) usaban una fiesta de prueba marcada "Demo AK", que desde la 338 no
+  recibe invitados ni se ofrece en las estaciones, o buscaban los botones de imprimir de antes de la 341.
+- Revisión de la LED (para la orden 344): la reserva del plan de pagos se mostraba como 30% del total; la seña es la de
+  Ajustes ($5.000) y el 30% es la multa por cancelar.
+
+
+## 24/11/2026 - Revisión de las entregas 336, 337 y 338 (Gemini)
+
+- **El costo de algunos platos salía mil veces más caro.** La fórmula nueva de unidades (336) multiplicaba directo lo que no
+  podía convertir: 4 de 377 recetas (gramos contra un insumo en litros o por unidad, mililitros contra kilos). Ahora lo que
+  no se convierte se calcula como siempre (gramos o mililitros contra una unidad grande, dividido por mil); lo que sí se
+  convierte (gr, grs, mililitros, kg contra g) queda con la fórmula nueva. Medido: con la fórmula de hoy ninguna receta
+  cambia respecto de la vieja salvo las que se quisieron corregir.
+- **El portal del cliente buscaba la clave también en la copia en disco** (337). Si la base conoce esa fiesta, ahora manda
+  la base: una copia vieja no abre un portal que se apagó.
+- Revisado y correcto: presupuesto facturado no se edita ni se le borra un cobro; el cupón anota el total del presupuesto
+  (antes anotaba el descuento en ese lugar); cambio de fecha a otro año activa el ajuste anual; el portal guarda cancelación,
+  cambio de fecha y clave con turno; el auditor no cambia la clave maestra; el ingreso con Google compara el usuario.
+- **Las entregas 339 a 342 (#1467 y #1468) se devolvieron:** borraron casi entera esta lista (de 17.000 líneas a 30),
+  chocan con la 336-338 en la IA (consumo, decisiones, audios de WhatsApp) y agregan `pdfjs-dist` sin anotarlo en
+  `package-lock.json`, con lo que la publicación no instala.
+
+```comprobar
+prueba: src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts
+usa: comoAntes en src/lib/catering/unidades.ts
+```
+
+## 24/11/2026 - Correcciones E2E y cierre 336-338 (Gemini)
+
+- **`src/app/(app)/loading.tsx` y `/invitacion/[fiestaId]/recap/page.tsx`:** se movió `loading.tsx` adentro del grupo `(app)` y se quitó `generateMetadata` duplicado en `recap` para devolver 404 real cuando la credencial no existe en vez de ocultar el error bajo un wrapper de streaming; así `/recap` mantiene la respuesta real del servidor sin romper cargas internas.
+- **`src/app/auth-guard.tsx`:** se envolvió `AuthGuardInner` en `<Suspense>` leyendo `useSearchParams()` de Next.js en lugar de `window.location.search` para conservar `?tab=...&token=...` durante navegación suave desde `/acceso-personal/[token]` (sin perder el acceso público de proveedor).
+- **`src/components/fiestas/panels/video-vida.tsx`:** muestra visiblemente el nombre o ID de la fiesta de la URL junto al título para evitar confusión operativa y pasar el control E2E multi-fiesta.
+- **Presentación LED y carga rápida del presupuesto (`src/app/presentacion-led/page.tsx`, `src/app/(app)/presupuestos/nuevo/crear/page.tsx`, `src/components/presupuestos/paso-1-datos-evento.tsx`):** se pasó `onOpenGallery` en las slides de entrada/menú, se agregó `pendingConflictActiveRef` para que la hidratación inicial desde `sessionStorage` o URL no dispare un falso diálogo de conflicto tras el autoguardado (manteniendo la pregunta real si ya había borrador previo) y se muestra `"Cliente: ..."` visible en Paso 1.
+- **`tests/e2e/los-accesos-de-afuera-llegan.spec.ts`:** verifica los dos estados de `/q/[fiestaId]` por seguridad — sin sesión oculta la clave privada del portal (`/portal?fiestaId=...`) y con sesión del equipo apunta a `/portal/c/[accessKey]`.
+- **`tests/firebase/quitar-un-plato-queda.test.ts` y `tests/firebase/carta-tragos-y-carga-se-guardan.test.ts`:** se mockeó únicamente `scheduleAutoBackupAfterWrite` para evitar consultas asíncronas de respaldo tras el teardown del emulador, manteniendo intacta la persistencia real y el usuario simulado corregido por Claude.
+
+## 24/11/2026 - Orden 338: auditoría funcional del 23/11/2026 (fiesta de la dirección, guardados reales, presentación LED, finanzas y accesos públicos)
+
+- **Bloque 1 + P218 (Fiesta de la dirección):** `video-vida.tsx`, `fiesta--entretenimiento-control.tsx`, `portal--videos-invitados.tsx` y pestañas de entretenimiento leen `fiestaId`/`id` de la URL sin caer a `getFiestaActual()` ni armar enlaces con `undefined`; muestran cartel `"Abrí esta pantalla desde una fiesta"` con enlace a `/eventos`.
+- **Bloque 2 + P219/P220 (Guardados reales):** `updateCartaTragos` exige `requireEventPermission` y mutación atómica con `actualizarFiesta(..., { soloEquipo: true })`; `mergeMasterTragosWithFiesta` antepone tragos extras para que no queden ocultos; `"+ Trago Personalizado"` no entra a la lista antes de confirmar; `carga-operativa.actions.ts` limpia `undefined` antes de la transacción Firestore, expone error real con referencia y `carga-operativa.tsx` reemplaza `"Tildes sincronizadas online"` por estado dinámico del último guardado y revierte si falla.
+- **Bloque 3 + P221 (Pantallas que se caen o vacían):** `alertas.actions.ts` usa `'__sin_fiesta__'` y los `<Select>` filtran valores vacíos (`mi-dia--alertas.tsx`, `aprobaciones/page.tsx`, `InvitacionConfigPanel.tsx`, `ScreenPlaylistAdmin.tsx`); `customers` usa `getCustomersConDetalle()` separado de fiestas con reintento; biblioteca global del muro saltea fiestas con formato roto en lugar de caerse.
+- **Bloque 4 + P223/P225 (Presentación LED, presupuesto manual y PDF):** PDF (`BudgetDocument.tsx`, `ver/page.tsx`, `simulador-ak/page.tsx`) se clona a ancho fijo A4 `794px` sin desborde ni hojas vacías; galerías de slides abren el modal interno `onOpenGallery` en lugar de `window.location.assign`; `presentacion-led/page.tsx` hidrata y persiste claves `presentacion_*` en `sessionStorage` y manda propuesta completa (`leadName`, entradas, menú) desde `Plan de Pagos` y `Contrato`; `crear/page.tsx` usa `parseUruguayDate`, pregunta antes de pisar un borrador `presupuestoEnProgreso_v3` y muestra visible `"Descuento promocional 10%"` (**porqué: el 10% queda activo por decisión comercial del dueño**).
+- **Bloque 5 (Finanzas y compras — revisar Claude):** `getProfitAndLossData` devuelve motivo sanitizado + `REF-PL-...` y permiso claro; `finanzas.tsx` muestra error + reintentar sin ceros falsos; `costos.actions.ts` y `gestion-costos-rentabilidad.tsx` muestran `"Catering sin costo cargado: asigná el menú"`; insumos `porEvento: true` (ej. `ing-gas`) no se multiplican por invitados ni se suman entre recetas (`Math.max`).
+- **Bloque 6 + P224/P226 (Accesos y catálogos público/borrador — revisar Claude):** `mi-mesa` elimina enlace con token vacío y pide abrir invitación; `FullMenu` y `ServicioEmpresa` suman `estadoPublicacion?: 'borrador' | 'publicado'`: los nuevos/duplicados nacen en `'borrador'`, lo público (`getMenusPublicos`, `getServiciosEmpresaPublicos`, `public-simulator-persistence.ts`) los filtra y **los registros legacy sin ese campo siguen visibles para no romper el catálogo vigente**; `deleteMenuInterno` detalla números de presupuesto y nombres de fiesta reales; `menus--catalogo.tsx` excluye `_virtual_buffet` y conserva borrado de platos al recargar.
+- **Bloque 7 + P222 (Señales):** `cierre-slide.tsx` reemplaza `{SENIA}` con el monto de Ajustes; `personal.actions.ts` evita correos Google si cambian sólo puestos manuales sin persona; `invitados.tsx` suma `aria-label` y `fiestas/nueva/page.tsx` usa `truncate`.
+
+```comprobar
+prueba: src/__tests__/auditoria-338-plata-y-lo-publico.test.ts
+prueba: tests/firebase/carta-tragos-y-carga-se-guardan.test.ts
+prueba: tests/firebase/quitar-un-plato-queda.test.ts
+prueba: tests/e2e/cada-pantalla-usa-la-fiesta-de-la-direccion.spec.ts
+prueba: tests/e2e/la-presentacion-led-no-pierde-la-propuesta.spec.ts
+prueba: tests/e2e/el-pdf-del-presupuesto-entra-en-la-hoja.spec.ts
+```
+
+## 24/11/2026 - Orden 337: auditoría general maestra (accesos externos, seguridad de descargas/Google y Ajustes)
+
+- **Accesos externos que expulsaban a invitados, clientes y colaboradores (Bloque 1 + Pregunta 215):**
+  - `src/app/invitacion/[fiestaId]/recap/page.tsx` y `src/app/actions/fiesta/carga-operativa.actions.ts` leen la fiesta con `LECTURA_COMPLETA` en el servidor (tras validar el token) para que el recorte de perfil no borre `guestAccessToken` ni `listaDeCargaOperativa`, devolviendo sólo los datos públicos/autorizados. En `src/app/portal/[fiestaId]/[module]/page.tsx` se valida sesión del portal o pertenencia al equipo antes de leer `accessKey` con `LECTURA_COMPLETA`.
+  - `src/app/acceso-personal/[tokenId]/page.tsx` apunta Repostería a `/fiestas/nueva/comida?tab=catering` y Fotografía a `/fiestas/nueva/show?tab=fotografia` (respetando `&` en query params), y tanto `src/middleware.ts` como `src/app/auth-guard.tsx` dejan pasar esas dos vistas cuando traen `?token=`.
+  - `src/lib/experience-ak/ultimate-event-system.ts` manda el botón "Cliente" del QR `/q/[fiestaId]` a `/portal?fiestaId=...` cuando no hay `portalKey` (en lugar de `/fiestas/nueva/portal-cliente`).
+  - `src/lib/auth/public-paths.ts` suma `/buscar` a las rutas públicas tras confirmar que `src/app/buscar/page.tsx` no expone datos privados.
+- **Seguridad en descargas ZIP, Google OAuth y chat IA (Bloque 2 + Preguntas 216 y 217 — revisar Claude):**
+  - Nuevo helper `src/lib/security/safe-fiesta-file.ts` que valida `fiestaId`, resuelve rutas locales únicamente dentro de las carpetas de ESA fiesta (rechazando traversal, dotfiles y symlinks), limita `fetch` a dominios de Firebase Storage de la app y aplica timeout con `AbortController`.
+  - Las 4 descargas (`buzon/[fiestaId]/download`, `social-gallery/[fiestaId]/download`, `fiestas/[fiestaId]/download-recuerdos`, `documentos-fiesta/[...parts]`) usan `safe-fiesta-file.ts` y exigen permiso del módulo + pertenencia a la fiesta (`requireEventPermission` / `esDelEquipoDeLaFiesta` + `verifyPortalSession`).
+  - `src/lib/google-workspace.ts` (`decodeGoogleState`) devuelve `null` si la firma HMAC está alterada, falta o venció (`iat` > 30 min) sin caer nunca a `{ kind: 'company' }`. `/api/google/oauth/start` incluye `uid` y `/api/google/oauth/callback` valida sesión + `uid`, redirigiendo con `"El enlace venció, volvé a conectar"` (mostrado en `google-workspace.tsx`).
+  - `/api/multiagent/message` y `/api/asistente/voz-parte` exigen permisos reales de asistente/gestión y pertenencia a la fiesta cuando reciben `fiestaId`, rechazando con 403 a personal operativo raso.
+- **Ajustes y error explicativo en lista de fiestas (Bloques 3 y 5):**
+  - `src/app/(app)/settings/page.tsx` carga los paneles con `{ ssr: false }`, `key` por sección/subsección, ErrorBoundary ligero y soporte de `?tab=` además de `?sub=`; los 5 paneles (`budget-display`, `contratos`, `contratos--clausulas`, `whatsapp-business`, `feature-flags`) tienen estado de carga compacto con timeout de 15 s y reintento.
+  - Nuevo panel `src/components/settings/panels/datos-legales.tsx` para el botón **"Datos legales y cobro"** (`?seccion=empresa&sub=datos-legales`), mientras **"Administración de Datos"** (`sub=datos`) pasa a la sección Sistema conservando compatibilidad con `/settings/datos`.
+  - `src/components/settings/panels/backup.tsx` agrega timeout de 12 s y muestra el motivo real con botón de reintento si la consulta falla o tarda, evitando quedar trabado en `"AVERIGUANDO ESTADO..."`.
+  - `src/app/(app)/eventos/page.tsx` muestra el motivo seguro del error y un código de referencia (`REF-...`) logueado en consola si fallan `getFiestas` o `getHistorialFiestas`, sin tocar el arreglo previo de Claude en la lectura de listas.
+- **Pantallas a medias, despertador, manifiesto y detalles visuales (Bloque 4):**
+  - `video-vida.tsx`/`video-vida.actions.ts` y `buzon.tsx` leen `?fiestaId=`/`?id=`, inicializan `firebase/server`, evitan `signBlob denied` con tokens de descarga, separan fallos de lectura sin tapar la configuración y quitan asteriscos literales `**Portal Invitado**`.
+  - `/fiestas/nueva` acepta `?id=` además de `?fiestaId=`; `/post-fiesta` y `PostEventMemoryHub` ocultan botones muertos si falta `galeriaUrl`; `/portal/mesas` evita división por 0; `moodboard` y `decoracion.actions.ts` inicializan `decoracion` si falta; `fiesta.actions.ts` y `portal.actions.ts` suman fallback a `fiestas.json` local para Recepción y Portal; `social-gallery.ts` soporta chat en modo local sin Firebase; `/evento/accesos` acepta QRs relativos; `/evento/muro-en-vivo`, `/evento/en-vivo` y `/evento/staff/[fiestaId]/cronograma` muestran aviso claro si la fiesta no existe; `/evento/espejo-magico` corrige título duplicado y superposición del cartel sobre el botón de firma.
+  - Se unificó el manifiesto PWA en un solo archivo (`public/manifest.webmanifest` con `start_url: "/entrar?source=pwa"` y shortcut `"Hablar con AK"`, eliminando el duplicado `src/app/manifest.ts`).
+  - `functions/src/index.ts` (despertador) lanza error real si `!response.ok` o falla el `fetch`; `puerta-de-las-tareas.ts` acepta `TAREAS_SECRET` además de `CRON_SECRET`.
+  - Textos y contraste: `"Organización de la fiesta"` en `servicios-empresa.json`, contraste oscuro sólido en `/empresa/presentacion-led/configuracion`, y en `/simulador-de-presupuesto` se eliminaron `"Plan Paquete premium"`, doble `⚡`, checkboxes ovalados y título duplicado (sin tocar reloj, 10% promocional ni promesas).
+
+```comprobar
+prueba: src/__tests__/auditoria-337-descargas-y-google.test.ts
+prueba: tests/e2e/los-accesos-de-afuera-llegan.spec.ts
+prueba: tests/e2e/ajustes-abre-cada-panel.spec.ts
+```
+
+## 23/11/2026 - Orden 336: auditoría profunda (2da vuelta, 5 bloques)
+
+- **Seguridad y pérdida de datos (Secciones A y B + Escaneo 211):**
+  - `readData` marca cuando la lectura de Firestore falló/venció (`MARCA_LECTURA_FALLIDA`) y `decidirGuardado` nunca borra el resto de la lista sobre una lectura caída (`una-lectura-caida-no-borra-la-lista.test.ts`). `syncToFirestore` ya no cae a lotes sueltos sin transacción ante errores reales (sin tocar `readFromFirestore`/`listCollectionFromFirestore`, de la PR #1465 de Claude).
+  - `deleteInvoiceInner` eliminó la caída a borrado sin transacción tras 1,5 s. `saveFiesta` mezcla sólo los campos cambiados (vía `marca.campos`), lee secretos dentro de la transacción de `actualizarFiesta`, y protege `modulosContratados`, `clientPortalSettings` y datos maestros de `configuracion` frente al portal del cliente; `changeEventDate`, `cambiarClavePortal` y `cancelServicesOrParty` en `portal.actions.ts` pasaron a `actualizarFiesta` para que el cliente siga pudiendo guardar sus trámites autorizados sin reabrir `saveFiesta`. `deleteFiesta`/`deleteFiestaArchivada` borran también las copias JSON locales; caché de `leer-insumos` y `menus-catering` con TTL corto e invalidación; `storage.ts` entiende URLs `firebasestorage.googleapis.com`; `/api/backup/upload` valida extensión `.zip`, firma `PK`, estructura y tope de 50 MB; `price-adjustments.ts` relee por paso en `ambos`; `functions/src/index.ts` corta `fetch` a los 90 s y registra `!response.ok` como error.
+  - `getEntretenimientoFiesta`, `saveEntretenimientoFiesta`, `updateListaDeCargaOperativa`, `deleteAllVideoVidaPhotos`, `deleteBuzonMessage`, `uploadWelcomeAudio`, `games.actions.ts` y las 4 descargas ZIP exigen `requireEventPermission` (y rutas locales seguras dentro del proyecto); el resto de `entretenimiento.actions.ts` lee con `getFiestaByIdRaw` sin filtrar claves afuera. WebRTC en vivo (`social-live-stream.ts`) valida tokens HMAC de invitado y pantalla. `saveSocialPost` sanea `id`. Auditor bloqueado en firma digital, comentarios de redes y ajustes de clave; `roles.ts` oculta aportes sin permiso `SUELDOS`; correos HTML escapan entradas; `chequearAvisoAuditor14Dias` pide `dueno`; más de 15 acciones con sólo sesión endurecidas con `requirePermisoAlguno`/`requireEventPermission`.
+- **Plata, IA y permisos de operador (Secciones C y G + B `initializePortalSession`):**
+  - **Plata (revisar Claude):** `totalTrasCancelar` excluye `multa_cambio_fecha_*` del descuento; `changeEventDate` conserva `ajusteAnualActivo` al pasar al año siguiente; presupuestos `Facturado` bloquean edición estructural y borrado de pagos; cupones revalidan `montoMinimo` en el servidor y guardan el monto real; simulador suma platos por defecto del paso 3 y unifica proyección Club Uruguay 2028; `/presupuestos/[id]/ver` toma `fechaFirmaContrato ?? timestamp`, `total` y `precioUnitarioPresupuesto`; `reportes.ts` alinea costos pendientes con rentabilidad; `crm.ts` y `presupuestos.ts` propagan `avisoDeLaSena` y `avisoCrm`; Activos Fijos usa fechas de calendario seguras.
+  - **IA y operador (revisar Claude):** `applyFaceSwap`, `runMultiAgent`, `genkit` (marketing/comercial), `dj-ia`, `timeline-ia`, `marketing-agent`, `historicos`, `analyze-codebase` (más `ADMINISTRACION`) y `assistant` verifican `hayPresupuestoParaIA` y registran consumo; `assistant.ts` y `encargado.ts` (`leer_presupuesto`) ocultan montos sin `PERMISOS.CONTABILIDAD`; `generate_contract` (`executeGenerarContrato`) y `executeRegistrarPago` usan `unoSoloPorNombre` y exigen confirmación; `chatWithGuestBot` lee la fiesta en el servidor y `chatConAsistenteInvitado` exige token de invitado + tope de 500 caracteres; `decisiones.ts` descarga imágenes remotas y `social-gallery.ts` exige `=== true`. Fallback ante 429 en `assistant-flow`, `whatsapp-media` y `voz-en-vivo/cliente`.
+- **Planificador, catering y portales (Secciones D y E + Escaneo 214):**
+  - `useAutoSave` guarda lo pendiente al desmontar; Hoja de Cocina lee `menuData.items`; Lista de Compras resiste platos sin `ingredients`, no suma niños como adultos y unifica conversiones `gr`/`kg`/`ml` con aviso de peso vs volumen; Recibos distingue por `(empleadoId, rolId)` y excluye demo/suspendidas/archivadas; `fiesta--en-vivo` arregla enlace utileros y conteo por personas (`partySize`); `ordenarPorHoraDelEvento` en todas las vistas del cronograma.
+  - Portales (`portal--menu`, `confirmar-invitados`, `muro-social`, `mensajes`, `tu-web`, `musica`, `fotos-video`) miran `verificarSesionPortalCliente` en lugar de `sessionStorage`; `entrarAlPortalPorTelefono` normaliza `+598`/`099`/`99` y no pisa sesión con múltiples fiestas; `initializePortalSession` agrega rate limit + `timingSafeEqual`; `/portal` previsualiza sin exigir `accessKey` antes del ingreso; `/entrar` valida la cookie real; `entrarComoInvitado` excluye demos/duplicados y sube tope wifi; enlaces públicos usan `withGuestAccess`; `/portal/mesas` evita dividir por cero; copias `.txt` de adendas/cancelaciones también se respaldan en Storage.
+- **Noche de fiesta, offline, redes, crons y AK Editor (Secciones F y H):**
+  - `/evento/inicio` usa `getFiestasParaKiosco` + `getKioskStationGuestToken` (tokens `guest` por día/código); Barra no corta cámara con `isRecordingRef`; Buzón offline sincroniza `isTimeCapsule`/`unlockYears`/`durationSeconds`; Espejo reinicia consentimiento en `retake()` y permite desbloqueo sin `?kiosk=1`; Impresión móvil espera la imagen y marca después; IndexedDB cierra conexiones y `SyncStatusIndicator` sondea cada 15 s; cola offline con candado y manejo de `QuotaExceededError`; `extractor-facial` sube timeout a 8 s; Fotocabina lee `fotosPorTanda`; Touchpix sanitiza URLs sin token de operador; cierre de `AudioContext` y `revokeObjectURL` (sin `?t=` sobre `blob:`); PWA `navigateFallbackDenylist` excluye rutas privadas/portales.
+  - Publicador deja borradores sin media fuera de la cola y calcula mejor horario 21–23 hs UY sin retroceder 24 h; webhook Meta llama a `procesarComentarioRedes`, usa prefijos `fb_`/`ig_`, pasa `esCliente` y anota respuesta sólo tras `sendRes.ok`; webhook WhatsApp usa 8 s de espera, no descarta prospectos en silencio ante error IA y sincroniza leads con `mutateDataItem`; recordatorios excluyen demo/suspendidas/archivadas/canceladas; crons usan calendario Uruguay, no marcan corrida si hubo fallos y `competencia.ts` guarda resumen semanal; `perseguidor_presupuestos` guarda idempotencia diaria; `sitemap` excluye borradores; `las-direcciones-viejas-siguen-andando.test.ts` valida contra rutas reales de `src/app` y redirects válidos; AK Editor agrega `abrir_navegador_para_login`, reusa sesión Playwright, espera selector, convierte RAW a JPG temporal, usa `leer_foto` Unicode y `ThreadingHTTPServer`, IDs únicos en XML Filmora y emparejamiento de boda paralelo (`ak-editor.zip` reempaquetado).
+- **Falsos positivos / ya resueltos verificados (no se re-tocaron):**
+  - `invoicesMutex` en `invoices.ts`: `saveInvoiceInner`, `addPaymentToInvoice` y `markInvoiceEmailSent` ya corren dentro de transacciones Firestore y `decidirGuardado`.
+  - `saveSocialPost`: ya pedía `requirePermiso(PERMISOS.CRM)`; sólo faltaba sanear el `id`.
+  - `TabHostShell` / `PlanificadorSolapasShell`, enlace recap por WhatsApp con `withGuestAccess`, conteos de celíacos en `invitados.tsx`/`hoja-de-cocina.ts` y cierre de `AudioContext`/URLs en `buzon/[fiestaId]/page.tsx`: ya estaban resueltos (Orden 335 y previas).
+  - `chatWithGuestBot`: puerta pública intencional con rate limit (documentada en `auditoria-puertas-abiertas.test.ts`); se eliminó sólo la confianza en datos mandados por el navegador.
+
+```comprobar
+prueba: src/__tests__/auditoria-336-quien-ve-que.test.ts
+prueba: src/__tests__/auditoria-336-plata.test.ts
+prueba: src/__tests__/una-lectura-caida-no-borra-la-lista.test.ts
+prueba: src/__tests__/auditoria-336-portales-y-planificador.test.ts
+prueba: src/__tests__/auditoria-336-noche-de-fiesta.test.ts
+prueba: src/__tests__/auditoria-336-redes-y-crons.test.ts
+```
+## 24/11/2026 - Correcciones de devolución 339-342 (consumo, protecciones en cerebro, YA-RESUELTO y pdfjs-dist)
+
+- **Memoria compartida y lockfile (`docs/YA-RESUELTO.md`, `ESTADO-ACTUAL.md`, `package-lock.json`):** se restauró completo `docs/YA-RESUELTO.md` desde `main` agregando arriba solo las entradas nuevas de 339-342 sin perder historial, y se regeneró `package-lock.json` (`pdfjs-dist` `4.10.38`) para que `npm ci` funcione al publicar.
+- **Unión de funciones en `src/lib/ai/consumo.ts` y `src/components/marketing/gasto-ia-card.tsx`:** conviven todas las claves de ambas ramas (`perfil-dj`, `itinerario-ia`, `asistente-clasico`, `agente-marketing`, `extraccion-contrato`, `analisis-codigo` y `papeleria`, `sofia`, `cerebro`) en el tipo, tabla de costos UYU y etiquetas visuales.
+- **Protecciones 336 dentro de `src/ai/cerebro.ts`:** `decidirConCerebro` baja imágenes `https://` a `inlineData` con tope de 10 MB y tiempo límite (mantiene `fileData` solo para `GEMINI_FILES_PREFIX`), libera la reserva del tope únicamente ante rechazo firme (`400`, `401`, `403`, `404`, `413`, `429`) con guarda para mocks sin `liberar`/`anotarFalloIA`, y tanto texto/imagen/WhatsApp (`ejecutarTextoConRespaldo`, `pedirImagen`) conservan la reserva si algún intento quedó sin respuesta (`408`, `>= 500`, red o timeout).
+- **`tests/firebase/papeleria-ia-ida-y-uelta.test.ts`:** se mockeó únicamente `scheduleAutoBackupAfterWrite` para que el cierre de emuladores salga limpio en `npm run test:rules`.
+- **`src/app/actions/fiesta/papeleria-ia.actions.ts`:** pasó a usar `actualizarFiesta(..., { soloEquipo: true })` para guardar/quitar piezas con transacción atómica, evitando que `updateFiestaPartial` (`merge: true` / `deepMerge`) conserve la pieza eliminada.
+
+## 24/11/2026 - Órdenes 342 y 341 (Cerebro único de IA, Asistente AK unificado y Papelería con IA)
+
+- **Orden 342 (Cerebro único y puerta única `/asistente`):** Toda llamada a Google Gemini pasó a `src/ai/cerebro.ts` (`pedirTexto`, `pedirImagen`, `leerImagen`, `pedirVoz`, `decidirConCerebro`, `probarConexionGeminiCerebro`) con `REGLAS_INMUTABLES_IA`, tope (`hayPresupuestoParaIA` / `reservarConsumoIA`), fallback sobre `MODELOS_GEMINI`, `anotarFalloIA` y `registrarConsumoIA`. Se migraron las seis puertas externas (`gemini-image.ts`, `decisiones.ts`, `settings.ts`, `voz-gemini.ts`, `voz-en-vivo.ts`, `whatsapp-media.ts`) sin dejar `generativelanguage.googleapis.com` ni `ai.generate(` fuera de `src/ai/`. `/asistente` (`page.tsx` + `asistente-client.tsx`) junta las cuatro solapas (`Hoy`, `Lo automático` con `estadoDeLasTareas` y `TAREAS_AUTOMATICAS`, `Gasto` con `<GastoIaCard />` y desglose por función, y `Hablale`) conservando `Equipo`/`Memoria`/`Acciones` y sumando enlaces `"Ver en Asistente AK"` en las pantallas de IA.
+  - **Por qué se eligió así:** Se aislaron `src/ai/direcciones-google.ts` y `src/lib/asistente/voces-ia.ts` sin `'server-only'` porque componentes cliente (`multiagent-widget`, `AsistenteDelCliente`, `settings/asistente`) importan helpers puros desde `voz-en-vivo.ts` y la lista de voces, evitando romper el build cliente de Next.js. Se sumó `consumoYaGestionado` en `cerebro.ts` (y liberación sólo ante rechazo definitivo `[400,401,403,404,413,429]`, modelo retirado o cuota, nunca `503`) para no cobrar doble a callers previos que ya controlan su cupo (`espejo-magico-ai`, `touchpix-ai`, `decoracion`, `catalog-service`).
+
+- **Orden 341 (Papelería diseñada con IA y PDFs en mm exactos):** Se agregaron `papeleriaIA` en `src/types/fiesta.ts`, `src/lib/papeleria/disenar-con-ia.ts`, `src/app/actions/fiesta/papeleria-ia.actions.ts`, `src/lib/papeleria/pdf-impresion.ts`, `src/lib/papeleria/imagen-a-data-url.ts`, `src/components/fiestas/panels/papeleria-ia-modal.tsx`, botones `"Diseñar con IA"` y PDF exacto en los cinco paneles (`carta-tragos.tsx`, `menu-mesa.tsx`, `carteleria.tsx`, `itinerario.tsx`, `numeros-mesa.tsx`), superposición del marco IA en `src/app/evento/fotocabina/[fiestaId]/page.tsx` (`tira-fotocabina.ts` y `station-config.ts`), y prueba contra emulador `tests/firebase/papeleria-ia-ida-y-vuelta.test.ts`.
+  - **Por qué se eligió así:** Se verifica todo texto en hasta 3 intentos con `leerImagen` (volviendo a la plantilla original si fallan) y ventanas `#00FF00` -> alpha `0` con `sharp` sobre las coordenadas reales `1200×1800` de `tira-fotocabina`; `fondoMesas` genera una sola imagen por fiesta dejando limpias la solapa `30 mm` y cara base `87 mm`; `jsPDF.addImage` arma PDFs en mm exactos (`100 × 150 mm` x2 por hoja A4 en carta/menú, `210 × 297 mm` en cronograma/afiche y PDF multipágina completo en mesas) conservando las plantillas previas intactas y sin generar automáticamente al abrir pantallas.
+
+## 24/11/2026 - Órdenes 339 y 340 (Auditor robot en emuladores y alineación de modelos IA)
+
+- **Orden 339 (Auditor robot sobre emuladores):** Se agregó el proyecto `auditor-robot` en `playwright.config.ts` junto con `tests/robot/sembrar.ts`, `tests/robot/reglas.ts`, `tests/robot/pdf-inspector.ts`, `tests/robot/las-reglas-del-robot.spec.ts`, `docs/robot-excepciones.json`, `scripts/robot-correr.mjs` (`npm run robot:todo`), `scripts/robot-puerta.mjs` y su integración en `scripts/lista-de-cierre.mjs` y `scripts/se-puede-publicar.mjs`, además de la prueba de los 4 casos rotos (`src/__tests__/el-robot-marca-rojo-lo-que-encontro-el-auditor.test.ts`).
+  - **Por qué se eligió así:** El robot trabaja únicamente contra el emulador local (`FIRESTORE_EMULATOR_HOST`, `demo-ak-producciones`) con la sesión limpia para no tocar datos reales ni cuota de IA. Corre en tandas de 25 rutas (`ROBOT_BATCH_SIZE=25`, `ROBOT_WORKERS=2`) reiniciando `next start` entre tandas y acumulando parciales en memoria antes de consolidar `test-results/robot/resultados.json`, porque un único servidor se colgaba pasada la mitad de las 152 rutas y Playwright vacía `test-results/` al iniciar cada lote. En `tests/robot/pdf-inspector.ts` usa carga dinámica de `pdfjs-dist` con respaldo estructural porque al escribir la orden faltaba instalar el lockfile; ya quedó resuelto en `package-lock.json`.
+  - **Foto inicial (sin tocar pantallas de la app, según la orden):** `LISTA DE CIERRE: 537 casilleros en rojo o sin mirar (de 1672)` (`456` visuales `sin-mirar`, `1135` `robot:verde`, `81` `robot:rojo`, `0` `robot:sin-mirar`; `147/152` rutas terminadas, `148` guardadas en `resultados.json` y `4` sin guardar tras superar `120s` junto con `/`: `/evento/totem/[fiestaId]/[totemId]`, `/landing/eventos`, `/portal/[fiestaId]/decoracion`, `/q/[fiestaId]`).
+
+- **Orden 340 (Modelos Gemini centralizados e instructivo Jules):** Se creó `src/ai/modelos.ts` con `MODELOS_GEMINI` (`googleai/gemini-4-hydrogen` primero en `texto`, sin variantes pagas `carbon`/`argon`/`neon`), `esErrorModeloRetirado`, `esErrorCuotaIA` e `isRecoverableGeminiModelError`. Se migraron `src/ai/genkit.ts`, `src/lib/asistente/voz-en-vivo.ts`, `src/lib/asistente/voz-gemini.ts` y `src/lib/asistente/whatsapp-media.ts`, y se sumó `docs/jules/tarea-diaria.md` + `src/__tests__/los-modelos-de-ia-tienen-respaldo.test.ts`.
+
 ## 23/11/2026 - La lista de fiestas no se cae por un documento raro (auditoría general)
 
 - En producción, `/eventos` y ocho pantallas más daban error. Se arreglaron los tres puntos donde un solo documento raro

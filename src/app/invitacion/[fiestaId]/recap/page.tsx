@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Camera, Clock3, MapPin, Sparkles, Video, Share2 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
@@ -24,11 +25,12 @@ function formatDate(value: string): string {
   }).format(date);
 }
 
+
 export default async function MorningRecapPage({ params, searchParams }: MorningRecapPageProps) {
   const { fiestaId: encodedFiestaId } = await params;
   const { guestId = '', token = '' } = await searchParams;
   const fiestaId = decodeURIComponent(encodedFiestaId);
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) notFound();
 
   const portal = buildPublicGuestPortalData(fiesta, guestId, token);

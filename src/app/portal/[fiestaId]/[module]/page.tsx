@@ -3,6 +3,9 @@ import { redirect, notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { quienEsElEquipo } from '@/lib/auth/equipo-de-la-fiesta';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { QuienEsQuienCarasPanel } from '@/components/portal/QuienEsQuienCarasPanel';
 
@@ -73,15 +76,19 @@ export default async function LegacyPortalModuleRedirectPage(props: Props) {
   }
 
   if (params.module === 'notas' || params.module === 'pagina-publica') {
-    const fiesta = await getFiestaById(params.fiestaId);
-    if (!fiesta) {
+    const esCliente = await verifyPortalSession(params.fiestaId).catch(() => false);
+    const decideEquipo = await quienEsElEquipo().catch(() => () => false);
+    const fiestaPublica = await getFiestaById(params.fiestaId);
+    if (!fiestaPublica) {
       notFound();
     }
 
-    const accessKey = fiesta.clientPortalSettings?.accessKey;
-
-    if (accessKey) {
-      redirect(`/portal/c/${accessKey}`);
+    if (esCliente || decideEquipo(fiestaPublica)) {
+      const fiestaCompleta = await getFiestaById(params.fiestaId, LECTURA_COMPLETA);
+      const accessKey = fiestaCompleta?.clientPortalSettings?.accessKey;
+      if (accessKey) {
+        redirect(`/portal/c/${accessKey}`);
+      }
     }
 
     redirect(`/portal?fiestaId=${params.fiestaId}`);

@@ -114,7 +114,11 @@ export async function saveSocialPost(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   let posts = await getSocialPosts();
-  const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const rawPostId = formData.get('id') as string | null;
+  if (rawPostId && !/^[a-zA-Z0-9_-]{1,100}$/.test(rawPostId)) {
+    return { success: false, error: 'ID de publicación no válido.' };
+  }
+  const postId = rawPostId || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
 
   let mediaUrl: string | undefined = formData.get('existingMediaUrl') as string || undefined;
@@ -133,9 +137,14 @@ export async function saveSocialPost(
 
   if (mediaFile && mediaFile.size > 0) {
     try {
-      const fileExtension = path.extname(mediaFile.name);
+      const rawExtension = path.extname(mediaFile.name).toLowerCase();
+      const fileExtension = /^\.[a-z0-9]{1,8}$/.test(rawExtension) ? rawExtension : '';
       const newFilename = `${postId}${fileExtension}`;
-      const filePath = path.join(assetsDirectoryPath, newFilename);
+      const baseDir = path.resolve(assetsDirectoryPath);
+      const filePath = path.resolve(baseDir, newFilename);
+      if (!filePath.startsWith(baseDir + path.sep)) {
+        return { success: false, error: 'Ruta de archivo multimedia no permitida.' };
+      }
       const bytes = await mediaFile.arrayBuffer();
       await fs.writeFile(filePath, Buffer.from(bytes));
 

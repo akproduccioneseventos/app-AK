@@ -43,9 +43,10 @@ jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => true),
   requireAppSession: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 jest.mock('@/lib/auth/event-access', () => ({
-  requireEventPermission: jest.fn(async () => undefined),
+  requireEventPermission: jest.fn(async () => ({ id: 'f1', socialGallerySettings: {}, invitados: [] })),
 }));
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({
   leerFiestasCrudas: jest.fn(async () => {

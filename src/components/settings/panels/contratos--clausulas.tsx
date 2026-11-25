@@ -25,6 +25,8 @@ import {
   Loader2,
   FileText,
   GripVertical,
+  AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 
 const AVAILABLE_VARIABLES = [
@@ -38,9 +40,22 @@ const AVAILABLE_VARIABLES = [
   { key: '{{MONTO_SENA}}', desc: 'Monto de seña' },
 ];
 
+const LOAD_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export default function ClausulasContractPage() {
   const [settings, setSettings] = useState<ContractSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [puedeBorrar, setPuedeBorrar] = useState(false);
   const { toast } = useToast();
@@ -61,11 +76,21 @@ export default function ClausulasContractPage() {
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
-      const data = await getContractSettings();
+      const data = await withTimeout(
+        getContractSettings(),
+        LOAD_TIMEOUT_MS,
+        'La carga de las cláusulas del contrato tardó demasiado. Reintentá en unos segundos.',
+      );
+      if (!data) {
+        throw new Error('No se recibieron las cláusulas de contratos.');
+      }
       setSettings(data);
-    } catch {
-      toast({ title: 'Error', description: 'No se pudieron cargar las cláusulas.', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.message ? err.message : 'No se pudieron cargar las cláusulas.';
+      setLoadError(msg);
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -139,17 +164,26 @@ export default function ClausulasContractPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm font-medium">Cargando cláusulas del contrato…</p>
       </div>
     );
   }
-  if (!settings) {
+  if (loadError || !settings) {
     return (
-      <div className="flex flex-col justify-center items-center h-64 space-y-4 text-center">
-        <h2 className="text-xl font-bold">Configuración no disponible</h2>
-        <p className="text-muted-foreground">No se pudieron cargar las cláusulas de contratos.</p>
-        <Button onClick={() => window.location.reload()} variant="outline">Reintentar</Button>
+      <div className="flex flex-col justify-center items-center py-16 px-4 space-y-4 text-center">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold">Configuración no disponible</h2>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {loadError || 'No se pudieron cargar las cláusulas de contratos.'}
+          </p>
+        </div>
+        <Button onClick={() => fetchSettings()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
       </div>
     );
   }

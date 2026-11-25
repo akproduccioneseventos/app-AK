@@ -12,6 +12,8 @@ interface AsistenteDelInvitadoProps {
   fiestaId: string;
   invitadoNombre?: string;
   mesaAsignada?: string;
+  guestId?: string;
+  guestAccessToken?: string;
 }
 
 interface MensajeChat {
@@ -24,6 +26,8 @@ export function AsistenteDelInvitado({
   fiestaId,
   invitadoNombre,
   mesaAsignada,
+  guestId,
+  guestAccessToken,
 }: AsistenteDelInvitadoProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mensajes, setMensajes] = useState<MensajeChat[]>([
@@ -72,6 +76,7 @@ export function AsistenteDelInvitado({
         userText,
         invitadoNombre,
         mesaAsignada,
+        { guestId, guestAccessToken },
       );
 
       if (res.success && res.text) {

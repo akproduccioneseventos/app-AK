@@ -4,6 +4,10 @@ import type { Invitado, LayoutElement } from '@/types/fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { buildPublicGuestEvent } from '@/lib/guest-portal-public-data';
+
+const MAX_GUEST_BOT_MESSAGE_CHARS = 500;
 export async function autoAssignTables(
   invitados: Invitado[],
   tables: LayoutElement[]
@@ -101,24 +105,29 @@ export async function autoAssignTables(
 }
 
 export async function chatWithGuestBot(
-  fiesta: any,
+  fiestaIdOrFiesta: string | { id?: string },
   message: string,
   history: Array<{ role: 'bot' | 'user'; text: string }>
 ): Promise<{ success: boolean; response: string }> {
-  /**
-   * Freno contra robots: este chat le pregunta a la inteligencia artificial y eso
-   * se paga por pedido.
-   *
-   * Van dos frenos, y hacen falta los dos:
-   *
-   * - **Por celular** (25 cada cuarto de hora): frena a un robot solo insistiendo.
-   * - **Por fiesta** (120 cada cuarto de hora, sin mirar de que celular viene):
-   *   es el techo de gasto de la noche. Sin este, cien direcciones distintas
-   *   pidiendo una vez cada una gastan lo mismo que una pidiendo cien veces.
-   *
-   * El de la fiesta va alto a proposito: en un evento hay muchos invitados
-   * preguntando a la vez y no puede cortarse en el medio.
-   */
+  const fiestaId = typeof fiestaIdOrFiesta === 'string'
+    ? fiestaIdOrFiesta.trim()
+    : String(fiestaIdOrFiesta?.id || '').trim();
+  if (!fiestaId) {
+    return {
+      success: false,
+      response: 'No pudimos identificar la fiesta. Volvé a abrir el enlace de la invitación.',
+    };
+  }
+  const cleanMessage = String(message || '').trim();
+  if (!cleanMessage || cleanMessage.length > MAX_GUEST_BOT_MESSAGE_CHARS) {
+    return {
+      success: false,
+      response: cleanMessage
+        ? `Tu mensaje es demasiado largo (máximo ${MAX_GUEST_BOT_MESSAGE_CHARS} caracteres).`
+        : 'Escribí una pregunta para poder ayudarte.',
+    };
+  }
+
   try {
     await enforcePublicRateLimit({
       scope: 'guest-bot',
@@ -127,7 +136,7 @@ export async function chatWithGuestBot(
     });
     await enforcePublicRateLimit({
       scope: 'guest-bot-techo',
-      identity: `fiesta-${fiesta?.id || 'sin-fiesta'}`,
+      identity: `fiesta-${fiestaId}`,
       limit: 120,
       windowMs: 15 * 60_000,
       ignoreClientAddress: true,
@@ -139,45 +148,66 @@ export async function chatWithGuestBot(
     };
   }
 
+  const storedFiesta = await getFiestaById(fiestaId).catch(() => null);
+  if (!storedFiesta) {
+    return {
+      success: false,
+      response: 'No encontramos esa fiesta en este momento.',
+    };
+  }
+  const publicEvent = buildPublicGuestEvent(storedFiesta);
+  const fiestaSegura = {
+    id: storedFiesta.id || fiestaId,
+    eventoTipo: publicEvent.configuracion.tipoCelebracion,
+    fecha: publicEvent.configuracion.fechaEvento,
+    configuracion: {
+      nombreAgasajado: publicEvent.configuracion.nombreAgasajado || publicEvent.configuracion.nombreEvento,
+      horaInicio: publicEvent.configuracion.horaInicio,
+      salonNombre: publicEvent.configuracion.nombreLugar,
+      dressCode: publicEvent.invitacionConfig?.dressCode,
+      notasAdicionales: publicEvent.configuracion.instruccionesLlegada,
+    },
+  };
+
   try {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return { success: true, response: getMockBotResponse(message, fiesta) };
+      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
     }
 
     // Lo que se paga pasa por el contador, siempre. Sin esto el gasto de este chat
     // no aparecia en ningun lado y el tope mensual no lo frenaba.
     const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
     if (!(await hayPresupuestoParaIA())) {
-      return { success: true, response: getMockBotResponse(message, fiesta) };
+      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
     }
 
     const { generateWithGeminiFallback, geminiModel } = await import('@/ai/genkit');
 
-    const historyText = history
+    const historyText = (Array.isArray(history) ? history : [])
       .slice(-10)
-      .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${h.text}`)
+      .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${String(h.text || '').slice(0, MAX_GUEST_BOT_MESSAGE_CHARS)}`)
       .join('\n');
 
     const response = await generateWithGeminiFallback({
       model: geminiModel,
-      system: `Sos el Asistente Virtual IA de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}.
+      system: `Sos el Asistente Virtual IA de la fiesta de ${fiestaSegura.configuracion.nombreAgasajado || 'nuestro anfitrión'}.
 Tu objetivo es responder de forma amable, alegre y festiva a los invitados sobre los detalles de la fiesta.
 Usá el dialecto rioplatense (uruguayo: vos, che, ta, dale) de forma sutil y amigable.
 
 Detalles de la fiesta:
-- Nombre del agasajado/a: ${fiesta.configuracion?.nombreAgasajado || 'No especificado'}
-- Tipo de fiesta: ${fiesta.eventoTipo || 'No especificado'}
-- Fecha: ${fiesta.fecha || 'No especificado'}
-- Hora de inicio: ${fiesta.configuracion?.horaInicio || 'NO CARGADO'}
-- Ubicación / Salón: ${fiesta.configuracion?.salonNombre || 'NO CARGADO'}
-- Código de vestimenta (Dresscode): ${fiesta.configuracion?.dressCode || 'NO CARGADO'}
-- Detalles adicionales: ${fiesta.configuracion?.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
+- Nombre del agasajado/a: ${fiestaSegura.configuracion.nombreAgasajado || 'No especificado'}
+- Tipo de fiesta: ${fiestaSegura.eventoTipo || 'No especificado'}
+- Fecha: ${fiestaSegura.fecha || 'No especificado'}
+- Hora de inicio: ${fiestaSegura.configuracion.horaInicio || 'NO CARGADO'}
+- Ubicación / Salón: ${fiestaSegura.configuracion.salonNombre || 'NO CARGADO'}
+- Código de vestimenta (Dresscode): ${fiestaSegura.configuracion.dressCode || 'NO CARGADO'}
+- Detalles adicionales: ${fiestaSegura.configuracion.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
 
 Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.
 
 REGLA QUE NO SE ROMPE: si un dato de arriba dice NO CARGADO, **no lo inventes ni lo estimes**. Decí que ese dato todavía no está y que lo consulten en la invitación o con el anfitrión. Un invitado que llega a la hora equivocada porque la inventaste se queda afuera.`,
-      prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${message}`].filter(Boolean).join('\n\n'),
+      prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${cleanMessage}`].filter(Boolean).join('\n\n'),
     });
 
     await registrarConsumoIA('chat-de-la-fiesta');
@@ -185,7 +215,7 @@ REGLA QUE NO SE ROMPE: si un dato de arriba dice NO CARGADO, **no lo inventes ni
     return { success: true, response: response.text };
   } catch (error: any) {
     console.error("Error in chatWithGuestBot:", error);
-    return { success: false, response: getMockBotResponse(message, fiesta) };
+    return { success: false, response: getMockBotResponse(cleanMessage, fiestaSegura) };
   }
 }
 

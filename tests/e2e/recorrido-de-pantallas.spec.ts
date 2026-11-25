@@ -180,6 +180,21 @@ test.describe('Recorrido de las 353 pantallas', () => {
         const status = response ? response.status() : 0;
         const duracionMs = Date.now() - startTime;
 
+        // Una pantalla con dato en la dirección ([slug], [fiestaId]…) que contesta 404 está diciendo bien
+        // "eso no existe" para el dato de prueba (la promoción "quince-anos" no existe, por ejemplo). Se anota
+        // como no probada con ese dato, no como rota ni como buena (24/11/2026). Una pantalla fija con 404 sí
+        // es una falla.
+        if (status === 404 && String(r.routeTemplate || '').includes('[')) {
+          results.push({
+            ...r,
+            estado: 'NO_PROBADA',
+            motivo: 'No existe con el dato de prueba (404 de "no encontrada")',
+            duracionMs,
+          });
+          page.off('pageerror', errorListener);
+          return;
+        }
+
         if (status >= 400) {
           results.push({
             ...r,

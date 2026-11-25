@@ -24,6 +24,7 @@ import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
 import { formatEventDate } from '@/lib/public-experience/event-date';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
@@ -182,9 +183,12 @@ export default async function CentroDeFiestaPage(props: PageProps) {
 
   const pendientes = (fiesta.tareas ?? []).filter((t) => !t.completada);
 
-  const programa: PuntoDelPrograma[] = (fiesta.programa ?? [])
-    .filter((p) => p?.hora && p?.titulo)
-    .map((p) => ({ id: p.id, hora: p.hora, titulo: p.titulo }));
+  const programa: PuntoDelPrograma[] = ordenarPorHoraDelEvento(
+    (fiesta.programa ?? [])
+      .filter((p) => p?.hora && p?.titulo)
+      .map((p) => ({ id: p.id, hora: p.hora, titulo: p.titulo })),
+    fiesta.configuracion?.horaInicio,
+  );
 
   const bloques = construirBloques(params.id, fiesta);
 

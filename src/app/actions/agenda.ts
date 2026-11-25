@@ -5,7 +5,9 @@ import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
@@ -72,8 +74,7 @@ function esUnDiaQueExiste(texto: string): boolean {
 
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
   // Devuelve el calendario entero: todas las fiestas con su fecha y su cliente.
-  // Estaba abierta, y la usa solo la pantalla del calendario, que ya pide cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.CRM, PERMISOS.CONTABILIDAD, PERMISOS.NOCHE);
   try {
     const [activeFiestasRaw, archivedFiestas] = await Promise.all([
       getFiestas(false),
@@ -156,10 +157,8 @@ export async function updateFiestaDate(
   newDate: string // ISO date string YYYY-MM-DD
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Cambia la fecha de una fiesta. Estaba abierta a internet: cualquiera que
-    // supiera el numero de una fiesta podia moverle la fecha, sin cuenta. La usa
-    // solo el calendario del equipo, al arrastrar el evento a otro dia.
-    await requireAppSession();
+    // Cambia la fecha de una fiesta. Requiere permiso sobre la fiesta (no alcanza con cualquier sesión).
+    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION]);
     // Una fecha imposible —un 31 de febrero— no falla al guardarse: se corre sola al 3 de
     // marzo, se guarda como otra fecha y **le sale el aviso al cliente con el dia cambiado**.
     // Se rechaza antes de tocar nada.
@@ -223,7 +222,7 @@ export async function updateFiestaDate(
 
 export async function getOcupiedDates(): Promise<string[]> {
   // Que dias ya estan tomados. La usa solo la pantalla de crear presupuesto.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.CRM, PERMISOS.CONTABILIDAD);
   try {
     const fiestas = await getFiestas();
     const occupiedDates: string[] = [];
@@ -266,8 +265,8 @@ const agendaMutex = new AsyncMutex();
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function getAppointments(): Promise<CrmAppointment[]> {
-  // Las reuniones agendadas con los clientes, con sus datos. Estaba abierta.
-  await requireAppSession();
+  // Las reuniones agendadas con los clientes, con sus datos.
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
   try {
     const items = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
     return Array.isArray(items) ? items : [];
@@ -292,7 +291,7 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
   error?: string;
 }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
     const idDeLaPantalla = idDelIntento('cita', opciones?.idIntento);
     const newAppointment: CrmAppointment = {
       ...data,
@@ -359,7 +358,7 @@ export async function updateAppointmentStatus(
   estado: CrmAppointment['estado']
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
     if (!SIN_BASE()) {
       let encontrada = false;
       await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
@@ -405,7 +404,7 @@ export async function updateAppointment(
   cambios: Partial<Pick<CrmAppointment, 'clienteNombre' | 'clienteContacto' | 'clienteEmail' | 'fechaHora' | 'lugar' | 'notas'>>,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
 
     const nombre = cambios.clienteNombre?.trim();
     if (cambios.clienteNombre !== undefined && !nombre) {
@@ -473,7 +472,7 @@ export async function updateAppointment(
 
 /** Cancelar una cita. No se borra: queda el registro de que existió. */
 export async function cancelAppointment(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
   return updateAppointmentStatus(id, 'Cancelada');
 }
 

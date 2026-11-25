@@ -19,6 +19,8 @@ test.beforeAll(() => {
 
   const fiesta = crearFiestaDeEstaNoche({ id: `e2e_331_332_${Date.now()}_${sufijo}` });
   fiesta.codigoFiesta = codigoFiesta;
+  // La fábrica de fiestas de prueba la marca 'Demo AK', y desde la orden 338 una fiesta de muestra no recibe invitados.
+  fiesta.estado = 'Confirmada';
   if (fiesta.guestPortalSettings) {
     fiesta.guestPortalSettings.welcomeMessage = '';
   }

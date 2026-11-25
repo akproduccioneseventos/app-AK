@@ -4,6 +4,8 @@ import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { construirEstiloJson } from '@/lib/video-vida/estilo-video';
 import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_DOMAINS = [
@@ -32,6 +34,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
   if (!fiestaId) {
     return NextResponse.json({ error: 'Fiesta ID is required.' }, { status: 400 });
+  }
+
+  try {
+    await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.NOCHE, PERMISOS.ADMINISTRACION]);
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'No autorizado para descargar este evento.' }, { status: 403 });
   }
 
   try {

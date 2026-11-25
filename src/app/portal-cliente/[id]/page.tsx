@@ -78,6 +78,7 @@ import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
@@ -758,6 +759,9 @@ function PortalClientePageInner() {
             showFotosVideo && { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
             showVideosInvitados && { label: 'Videos Invitados', emoji: '🎬', href: `/portal-cliente/${fiestaId}/videos-invitados`, desc: 'Dedicatorias personales' },
             showInvitados && { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
+            showDecoration && { label: 'Decoración', emoji: '🎨', href: `/portal/${fiestaId}/decoracion`, desc: 'Diseño del salón' },
+            showDecoration && { label: 'Moodboard', emoji: '🖼️', href: `/portal/${fiestaId}/moodboard`, desc: 'Inspiración y likes' },
+            (portalSettings?.contrato?.visible !== false && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo)) && { label: fiesta.contratoFirmaInfo?.isSigned ? 'Ver Contrato' : 'Firmar Contrato', emoji: '✍️', href: `/portal/${fiestaId}/contrato`, desc: fiesta.contratoFirmaInfo?.isSigned ? 'Contrato firmado' : 'Pendiente de firma' },
             showFaq && { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
           ].filter(Boolean) as { label: string; emoji: string; href: string; desc: string }[];
 
@@ -1201,9 +1205,9 @@ function PortalClientePageInner() {
                       <p className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-primary" /> Cronograma
                       </p>
-                      {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).length > 0 ? (
+                      {ordenarPorHoraDelEvento((fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false), config.horaInicio).length > 0 ? (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).map((item, i) => (
+                          {ordenarPorHoraDelEvento((fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false), config.horaInicio).map((item, i) => (
                             <div key={i} className="flex gap-3 items-start">
                               <span className="text-xs font-black text-primary shrink-0 pt-0.5">{item.hora}</span>
                               <div>
@@ -1331,6 +1335,20 @@ function PortalClientePageInner() {
                     </div>
                   </div>
                 )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                  <Button asChild variant="outline" className="w-full font-bold text-xs">
+                    <Link href={`/portal/${fiesta.id}/decoracion`}>
+                      Ver propuesta de decoración
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full font-bold text-xs">
+                    <Link href={`/portal/${fiesta.id}/moodboard`}>
+                      Abrir moodboard e inspiración
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </Button>
+                </div>
                 <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-xs uppercase tracking-wider mt-2">
                   <Link href={`/portal?fiestaId=${fiesta.id}`}>
                     Ver propuesta completa: Así va a quedar tu fiesta
@@ -1486,6 +1504,16 @@ function PortalClientePageInner() {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-4">No hay plan de pagos cargado aún.</p>
+                )}
+                {(fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+                  <div className="pt-2">
+                    <Button asChild variant={fiesta.contratoFirmaInfo?.isSigned ? 'outline' : 'default'} className="w-full font-bold">
+                      <Link href={`/portal/${fiesta.id}/contrato`}>
+                        {fiesta.contratoFirmaInfo?.isSigned ? 'Ver contrato firmado' : 'Ir a firmar mi contrato'}
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
                 )}
               </div>
             </motion.section>

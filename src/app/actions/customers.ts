@@ -2,7 +2,7 @@
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Customer, CustomerStatus } from '@/types/customer';
-import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -39,6 +39,20 @@ const STORAGE_SALON_CONTRACTS_PATH = 'salon-contracts';
 export async function getCustomers(): Promise<Customer[]> {
   await requirePermisoAlguno(...VER_CLIENTES);
   return readData<Customer[]>(CUSTOMERS_FILE, []);
+}
+
+export async function getCustomersConDetalle(): Promise<{
+  customers: Customer[];
+  huboFalla: boolean;
+  motivo?: string;
+}> {
+  await requirePermisoAlguno(...VER_CLIENTES);
+  const { valor, huboFalla, motivo } = await readDataConDetalle<Customer[]>(CUSTOMERS_FILE, []);
+  return {
+    customers: Array.isArray(valor) ? valor : [],
+    huboFalla,
+    motivo,
+  };
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {

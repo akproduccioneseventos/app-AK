@@ -1,5 +1,7 @@
 'use server';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { exigirQueNoSalgaAfuera } from '@/lib/auth/solo-lectura';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getFiestaById, getFiestas } from './fiesta/fiesta.actions';
@@ -343,15 +345,11 @@ export async function syncReunionToGoogleWorkspace(
   reunion: Reunion,
   options: { sendEmails?: boolean; forceEmail?: boolean } = {}
 ) {
-  // Manda correos e invitaciones de calendario. Es una direccion de internet por su
-  // cuenta: sin esto cualquiera podia disparar avisos a nombre de la empresa.
-  await requireAppSession();
+  // Manda correos e invitaciones de calendario. Exige permiso sobre esta fiesta y bloquea salida externa en auditoría.
+  const fiesta = await requireEventPermission(fiestaId, [PERMISOS.ORGANIZACION, PERMISOS.CRM]);
+  await exigirQueNoSalgaAfuera();
 
-  const [fiesta, records] = await Promise.all([
-    getFiestaById(fiestaId),
-    readSyncRecords(),
-  ]);
-  if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+  const records = await readSyncRecords();
 
   const warnings: string[] = [];
   const { email: clientEmail, name: clientName } = await resolveClientContact(fiesta);
@@ -654,9 +652,9 @@ export async function notifyClientPortalKeyRecovery(fiestaId: string) {
     subject: `AK Producciones - Tu clave del portal - ${getFiestaTitle(fiesta)}`,
     html: `
       <div style="font-family:Arial,sans-serif;font-size:15px;color:#111">
-        <p>Hola ${clientName || ''},</p>
-        <p>Nos pediste la clave de tu portal de <strong>${getFiestaTitle(fiesta)}</strong>. Es esta:</p>
-        <p style="font-size:22px;font-weight:bold;letter-spacing:1px">${clave}</p>
+        <p>Hola ${escapeHtml(clientName || '')},</p>
+        <p>Nos pediste la clave de tu portal de <strong>${escapeHtml(getFiestaTitle(fiesta))}</strong>. Es esta:</p>
+        <p style="font-size:22px;font-weight:bold;letter-spacing:1px">${escapeHtml(clave)}</p>
         <p>Si no fuiste vos quien la pidio, avisanos y te la cambiamos.</p>
         <p>AK Producciones Eventos · Salto, Uruguay · 098 355 530</p>
       </div>

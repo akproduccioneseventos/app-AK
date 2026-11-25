@@ -121,6 +121,7 @@ import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { enviarResumenMananaWhatsApp } from '@/lib/asistente/resumen-manana-whatsapp';
 import { clasificarImagenWhatsApp, descargarMediaWhatsApp, transcribirAudioWhatsApp } from '@/lib/asistente/whatsapp-media';
+import { ai } from '@/ai/genkit';
 import { getResumenDeGasto, registrarConsumoIA, reservarConsumoIA, setTopeMensual } from '@/lib/ai/consumo-servidor';
 import { armarContextoDelNegocio } from '@/lib/multiagent/contexto-negocio';
 import { ID_MEMORIA_DUENO, loQueSe, olvidar, recordar } from '@/lib/asistente/memoria';
@@ -523,20 +524,17 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
   test('reserva presupuesto antes de Gemini y cuenta el intento una sola vez', async () => {
     process.env.GEMINI_API_KEY = 'gemini-test-key';
     await setTopeMensual(1);
-    const fetchAnterior = global.fetch;
-    const fetchGemini = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ candidates: [{ content: { parts: [{ text: 'Llamar al salón mañana.' }] } }] }),
-    });
-    global.fetch = fetchGemini as unknown as typeof fetch;
+    const generateSpy = jest.spyOn(ai, 'generate').mockResolvedValue({
+      text: 'Llamar al salón mañana.',
+    } as any);
     try {
       await expect(transcribirAudioWhatsApp({ mimeType: 'audio/webm', base64: 'YXVkaW8=' })).resolves.toBe('Llamar al salón mañana.');
-      expect(fetchGemini).toHaveBeenCalledTimes(1);
+      expect(generateSpy).toHaveBeenCalledTimes(1);
       await expect(transcribirAudioWhatsApp({ mimeType: 'audio/webm', base64: 'YXVkaW8=' })).rejects.toThrow(/tope mensual/i);
-      expect(fetchGemini).toHaveBeenCalledTimes(1);
+      expect(generateSpy).toHaveBeenCalledTimes(1);
       expect(await getResumenDeGasto()).toMatchObject({ gastadoUYU: 1, porFuncion: { 'whatsapp-media': 1 } });
     } finally {
-      global.fetch = fetchAnterior;
+      generateSpy.mockRestore();
       delete process.env.GEMINI_API_KEY;
       delete process.env.META_WHATSAPP_TOKEN;
     }
@@ -555,17 +553,17 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
 
   test('libera solo rechazos definitivos del proveedor y conserva cargos inciertos', async () => {
     process.env.GEMINI_API_KEY = 'gemini-test-key';
-    const fetchAnterior = global.fetch;
+    const generateSpy = jest.spyOn(ai, 'generate');
     try {
-      global.fetch = jest.fn().mockResolvedValueOnce({ ok: false, status: 400 }) as unknown as typeof fetch;
+      generateSpy.mockRejectedValueOnce(Object.assign(new Error('invalid request'), { status: 400 }));
       await expect(transcribirAudioWhatsApp({ mimeType: 'audio/webm', base64: 'YXVkaW8=' })).rejects.toThrow(/Gemini no pudo/i);
       expect((await getResumenDeGasto()).gastadoUYU).toBe(0);
 
-      global.fetch = jest.fn().mockResolvedValueOnce({ ok: false, status: 503 }) as unknown as typeof fetch;
+      generateSpy.mockRejectedValue(Object.assign(new Error('overloaded'), { status: 503 }));
       await expect(transcribirAudioWhatsApp({ mimeType: 'audio/webm', base64: 'YXVkaW8=' })).rejects.toThrow(/Gemini no pudo/i);
       expect((await getResumenDeGasto()).gastadoUYU).toBe(1);
     } finally {
-      global.fetch = fetchAnterior;
+      generateSpy.mockRestore();
       delete process.env.GEMINI_API_KEY;
     }
   });
@@ -589,22 +587,19 @@ describe('Orden 255: resumen matutino del asistente AK', () => {
 
   test('lee campos del comprobante desde una sola llamada multimodal', async () => {
     process.env.GEMINI_API_KEY = 'gemini-test-key';
-    const fetchAnterior = global.fetch;
-    const fetchGemini = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({
+    const generateSpy = jest.spyOn(ai, 'generate').mockResolvedValueOnce({
+      text: JSON.stringify({
         tipo: 'comprobante', descripcion: 'Ticket de almacén', proveedor: 'Almacén Centro', fecha: '29/10/2026',
         monto: 1234, categoria: 'Insumos', confianza: 'alta', detalle: 'Cuatro bandejas',
-      }) }] } }] }),
-    });
-    global.fetch = fetchGemini as unknown as typeof fetch;
+      }),
+    } as any);
     try {
       await expect(clasificarImagenWhatsApp({ mimeType: 'image/jpeg', base64: 'aW1hZ2U=' })).resolves.toMatchObject({
         tipo: 'comprobante', proveedor: 'Almacén Centro', monto: 1234, confianza: 'alta',
       });
-      expect(fetchGemini).toHaveBeenCalledTimes(1);
+      expect(generateSpy).toHaveBeenCalledTimes(1);
     } finally {
-      global.fetch = fetchAnterior;
+      generateSpy.mockRestore();
       delete process.env.GEMINI_API_KEY;
     }
   });

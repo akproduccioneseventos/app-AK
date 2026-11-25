@@ -2,11 +2,9 @@
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { generateWithGeminiFallback, geminiModel } from '@/ai/genkit';
 
-import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { getFiestaById as getFiestaPublica } from '@/app/actions/fiesta/fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { TriviaGame, type TriviaQuestion, PhotoMission, calculateLeaderboard } from '@/lib/games/game-engine';
-import { requireAppSession } from '@/lib/auth/require-session';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -126,38 +124,30 @@ function sanitizeGeneratedTriviaQuestions(raw: unknown): TriviaQuestion[] {
  * campo correspondiente.
  */
 export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promise<boolean> {
-  await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-  if (!fiesta) return false;
-
-  const result = await saveFiesta({
-    ...fiesta,
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+  const result = await actualizarFiesta(fiestaId, (actual) => ({
+    ...actual,
     triviaGame: game,
-  });
+  }));
   return result.success;
 }
 
 export async function getTriviaGame(fiestaId: string): Promise<TriviaGame | null> {
-  await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+  const fiesta = await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   return fiesta?.triviaGame || null;
 }
 
 export async function savePhotoMissions(fiestaId: string, missions: PhotoMission[]): Promise<boolean> {
-  await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-  if (!fiesta) return false;
-
-  const result = await saveFiesta({
-    ...fiesta,
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+  const result = await actualizarFiesta(fiestaId, (actual) => ({
+    ...actual,
     photoMissions: missions,
-  });
+  }));
   return result.success;
 }
 
 export async function getPhotoMissions(fiestaId: string): Promise<PhotoMission[] | null> {
-  await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+  const fiesta = await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   return fiesta?.photoMissions || null;
 }
 
@@ -290,7 +280,6 @@ export async function getMiProgresoDeJuegos(
 
 /** El operador muestra la respuesta correcta: desde ahí la pregunta cierra y ya no se suma. */
 export async function revelarRespuestaTrivia(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const guardado = await actualizarFiesta(fiestaId, (fresca) => {
@@ -310,7 +299,6 @@ export async function revelarRespuestaTrivia(fiestaId: string): Promise<{ succes
 
 /** Termina la trivia: deja el podio por mesa y el top 5 individual para la pantalla gigante. */
 export async function terminarTrivia(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const guardado = await actualizarFiesta(fiestaId, (fresca) => {
@@ -344,15 +332,13 @@ export async function terminarTrivia(fiestaId: string): Promise<{ success: boole
 export async function generarTriviaConIa(
   fiestaId: string
 ): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
-  await requireAppSession();
   try {
-    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const canUseAI = await hayPresupuestoParaIA().catch(() => false);
     if (!canUseAI) {
       return { success: false, error: 'Tope de IA agotado para este período.' };
     }
 
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
     const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.clienteNombre || 'la fiesta';
@@ -413,10 +399,10 @@ Respondé ÚNICAMENTE un array JSON con 5 objetos con el formato:
       confirmadaPorEquipo: false,
     };
 
-    const guardado = await saveFiesta({
-      ...fiesta,
+    const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
       triviaGame: nuevaTrivia,
-    });
+    }));
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la trivia.' };
     }
@@ -431,7 +417,6 @@ export async function confirmarTrivia(
   fiestaId: string,
   preguntas?: TriviaQuestion[]
 ): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
-  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     if (!fiesta.triviaGame) {
@@ -445,10 +430,10 @@ export async function confirmarTrivia(
       status: 'active',
     };
 
-    const res = await saveFiesta({
-      ...fiesta,
+    const res = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
       triviaGame: triviaActualizada,
-    });
+    }));
 
     if (!res.success) {
       return { success: false, error: res.error || 'Error al confirmar la trivia.' };

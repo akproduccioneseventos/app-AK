@@ -66,6 +66,7 @@ export async function updatePersonal(
       releaseAgendaLocks = await acquireStaffAgendaLocks(empleadosNuevos);
     }
     let result: Awaited<ReturnType<typeof updateFiestaPartial>>;
+    let empleadosCache: Awaited<ReturnType<typeof import('../empleados').getEmpleados>> | null = null;
 
     try {
       if (fecha && empleadosNuevos.length > 0) {
@@ -75,6 +76,7 @@ export async function updatePersonal(
           getEmpleados(),
           readActiveFiestasForStaffAgenda(() => getFiestas(false)),
         ]);
+        empleadosCache = empleados;
 
         for (const empleadoId of empleadosNuevos) {
           const agenda = evaluarAgendaEmpleado(fiestas, empleadoId, currentData, fiestaId);
@@ -111,20 +113,41 @@ export async function updatePersonal(
 
     if (!result.success) throw new Error(result.error);
 
+    const claveAsignacion = (p: PersonalAsignadoDetalleStorage) =>
+      `${(p.empleadoId || '').trim()}|${(p.rolId || '').trim()}`;
+    const asignadosAntes = currentPersonal.filter((p) => Boolean(p.empleadoId?.trim()));
+    const asignadosDespues = personal.filter((p) => Boolean(p.empleadoId?.trim()));
+    const cambiaronPersonasAsignadas =
+      asignadosAntes.map(claveAsignacion).sort().join(',') !==
+      asignadosDespues.map(claveAsignacion).sort().join(',');
     let googleSyncWarning = '';
-    try {
-      const syncRes = await syncFiestaToGoogleWorkspace(fiestaId, {
-        reason: 'personal',
-        sendEmails: true,
-      });
-      if (!syncRes.success) {
-        googleSyncWarning = syncRes.error || syncRes.warnings?.join(' | ') || 'Google Workspace rechazo la sincronización.';
-      } else if (syncRes.warnings && syncRes.warnings.length > 0) {
-        googleSyncWarning = syncRes.warnings.join(' | ');
+    if (asignadosDespues.length > 0 || asignadosAntes.length > 0) {
+      let tieneCorreoAsignado = false;
+      if (cambiaronPersonasAsignadas && asignadosDespues.length > 0) {
+        if (!empleadosCache) {
+          const { getEmpleados } = await import('../empleados');
+          empleadosCache = await getEmpleados();
+        }
+        const idsAsignados = new Set(asignadosDespues.map((p) => p.empleadoId.trim()));
+        tieneCorreoAsignado = empleadosCache.some(
+          (emp) => idsAsignados.has(emp.id) && Boolean((emp.googleWorkspaceEmail || emp.email || '').trim()),
+        );
       }
-    } catch (syncError: any) {
-      console.warn('[personal.actions] Google Workspace sync failed:', syncError);
-      googleSyncWarning = syncError?.message || 'No se pudo sincronizar los avisos por correo con Google Workspace.';
+
+      try {
+        const syncRes = await syncFiestaToGoogleWorkspace(fiestaId, {
+          reason: 'personal',
+          sendEmails: cambiaronPersonasAsignadas && tieneCorreoAsignado,
+        });
+        if (!syncRes.success) {
+          googleSyncWarning = syncRes.error || syncRes.warnings?.join(' | ') || 'Google Workspace rechazo la sincronización.';
+        } else if (syncRes.warnings && syncRes.warnings.length > 0) {
+          googleSyncWarning = syncRes.warnings.join(' | ');
+        }
+      } catch (syncError: any) {
+        console.warn('[personal.actions] Google Workspace sync failed:', syncError);
+        googleSyncWarning = syncError?.message || 'No se pudo sincronizar los avisos por correo con Google Workspace.';
+      }
     }
 
     // El aviso queda anotado en la fiesta para que el equipo lo vea al volver a

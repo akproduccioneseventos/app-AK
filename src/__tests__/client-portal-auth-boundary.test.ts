@@ -31,7 +31,7 @@ describe('client portal authentication boundary', () => {
   });
 
   it('exchanges the client key for a verified portal session before loading social controls', () => {
-    expect(socialControlPage).toContain('initializePortalSession(fiestaId, key)');
+    expect(socialControlPage).toContain('verificarSesionPortalCliente(fiestaId)');
     expect(socialControlPage).toContain('getFiestaForPortalSession(fiestaId)');
     expect(socialControlPage).not.toContain('getFiestaByAccessKey(key)');
     expect(socialControlPage).not.toContain('getFiestaById(fiestaId)');

@@ -17,6 +17,7 @@ import { requireEventPermission } from '@/lib/auth/event-access';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 import { readData } from '@/lib/data-service';
+import * as logger from '@/lib/logger';
 import {
   calcularEstadisticasEnVivo,
   type GuestPresenceRecord,
@@ -418,17 +419,78 @@ export async function uploadScreenMediaAsset(
   }
 }
 
-export async function getGlobalScreenMediaLibrary(): Promise<ScreenMediaAsset[]> {
+export interface GlobalScreenMediaLibraryResult {
+  assets: ScreenMediaAsset[];
+  skippedFiestas: number;
+  error?: string;
+  codigoError?: string;
+}
+
+function generarRefBibliotecaMuro(): string {
+  const tiempo = Date.now().toString(36).slice(-4).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 4).toUpperCase();
+  return `REF-MURO-LIB-${tiempo}${azar}`;
+}
+
+export async function getGlobalScreenMediaLibrary(): Promise<GlobalScreenMediaLibraryResult> {
   const permiso = await requirePermiso(PERMISOS.NOCHE);
-  if (!permiso.ok) return [];
-  const fiestas = await getFiestas(false);
-  const dedup = new Map<string, ScreenMediaAsset>();
-  for (const fiesta of fiestas) {
-    for (const asset of fiesta.socialGallerySettings?.screenMediaLibrary ?? []) {
-      if (!dedup.has(asset.id)) dedup.set(asset.id, asset);
-    }
+  if (!permiso.ok) {
+    return {
+      assets: [],
+      skippedFiestas: 0,
+      error: permiso.error || 'Tu perfil no tiene permisos para consultar la biblioteca global.',
+      codigoError: generarRefBibliotecaMuro(),
+    };
   }
-  return Array.from(dedup.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  try {
+    const fiestas = await getFiestas(false);
+    const dedup = new Map<string, ScreenMediaAsset>();
+    let skippedFiestas = 0;
+
+    for (const fiesta of Array.isArray(fiestas) ? fiestas : []) {
+      try {
+        if (!fiesta || typeof fiesta !== 'object') {
+          skippedFiestas += 1;
+          continue;
+        }
+        const rawLibrary = fiesta.socialGallerySettings?.screenMediaLibrary;
+        if (rawLibrary === undefined || rawLibrary === null) continue;
+        if (!Array.isArray(rawLibrary)) {
+          skippedFiestas += 1;
+          logger.warn('[screen-mode] Se omitió biblioteca de fiesta con formato inválido:', fiesta.id);
+          continue;
+        }
+        for (const asset of rawLibrary) {
+          if (!asset || typeof asset !== 'object') continue;
+          if (typeof asset.id !== 'string' || !asset.id.trim()) continue;
+          if (typeof asset.url !== 'string' || !asset.url.trim()) continue;
+          if (!dedup.has(asset.id)) {
+            dedup.set(asset.id, {
+              ...asset,
+              createdAt: typeof asset.createdAt === 'string' ? asset.createdAt : '',
+            });
+          }
+        }
+      } catch (fiestaErr) {
+        skippedFiestas += 1;
+        logger.warn('[screen-mode] Se omitió una fiesta al armar la biblioteca global:', fiesta?.id, fiestaErr);
+      }
+    }
+
+    const assets = Array.from(dedup.values()).sort((a, b) =>
+      (b.createdAt || '').localeCompare(a.createdAt || ''),
+    );
+    return { assets, skippedFiestas };
+  } catch (err) {
+    const codigoError = generarRefBibliotecaMuro();
+    logger.error(`[screen-mode] (${codigoError}) Error al leer la biblioteca global de medios:`, err);
+    return {
+      assets: [],
+      skippedFiestas: 0,
+      error: 'No se pudo consultar la lista de fiestas para armar la biblioteca global.',
+      codigoError,
+    };
+  }
 }
 
 /** Lanza un juego en la pantalla gigante en tiempo real */

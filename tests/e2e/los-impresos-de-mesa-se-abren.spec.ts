@@ -21,21 +21,23 @@ const IMPRESOS = [
     oldPath: '/fiestas/nueva/menu-mesa',
     tab: 'menu-mesa',
     heading: 'Editor de Menú de Mesa',
-    printSelector: { type: 'title' as const, value: 'Imprimir PDF' },
+    // Orden 341: el botón de imprimir arma el PDF en milímetros exactos y se llama "Imprimir".
+    printSelector: { type: 'title' as const, value: 'Imprimir' },
   },
   {
     cardTitle: 'Números de Mesa',
     oldPath: '/fiestas/nueva/numeros-mesa',
     tab: 'numeros-mesa',
     heading: 'Torres de Mesa A4',
-    printSelector: { type: 'role' as const, name: /Imprimir en A4/i },
+    printSelector: { type: 'role' as const, name: /Imprimir PDF A4 completo/i },
   },
   {
     cardTitle: 'Carta de Tragos',
     oldPath: '/fiestas/nueva/carta-tragos',
     tab: 'carta-tragos',
-    heading: 'Editor de Carta de Tragos (15x10 cm)',
-    printSelector: { type: 'title' as const, value: 'Imprimir PDF' },
+    // Orden 341: el formato por omisión pasó a 10×15 vertical, dos por hoja A4.
+    heading: 'Editor de Carta de Tragos',
+    printSelector: { type: 'title' as const, value: 'Imprimir' },
   },
 ];
 
@@ -89,7 +91,7 @@ test.describe('Orden 335 Bloque 2 — Los impresos de mesa se abren desde el pla
       if (item.printSelector.type === 'role') {
         await expect(page.getByRole('button', { name: item.printSelector.name })).toBeVisible();
       } else {
-        await expect(page.getByTitle(item.printSelector.value)).toBeVisible();
+        await expect(page.getByTitle(item.printSelector.value, { exact: true })).toBeVisible();
       }
     }
   });

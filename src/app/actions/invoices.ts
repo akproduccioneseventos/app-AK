@@ -9,7 +9,6 @@ import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado, getPresupuestos } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
-import { isDefaultCredentialError } from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
@@ -627,76 +626,62 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
 
   if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
     const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const ref = dbAdmin.collection('facturas').doc(id);
-      let errorMsg: string | undefined;
-      let facturaEliminada: Invoice | undefined;
+    if (!dbAdmin) {
+      return { success: false, error: 'La base de datos no está disponible para eliminar la factura de forma segura.' };
+    }
+    const ref = dbAdmin.collection('facturas').doc(id);
+    let errorMsg: string | undefined;
+    let facturaEliminada: Invoice | undefined;
 
-      let timer: NodeJS.Timeout | undefined;
-      try {
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          timer = setTimeout(() => reject(new Error('Could not load the default credentials (timeout)')), 1500);
-          timer.unref?.();
-        });
-        // no pasa nada si falla: es la espera que corta la carrera; el error real lo maneja el race de abajo.
-        timeoutPromise.catch(() => {});
-
-        await Promise.race([
-          dbAdmin.runTransaction(async (transaction: any) => {
-            errorMsg = undefined;
-            facturaEliminada = undefined;
-            const snapshot = await transaction.get(ref);
-            if (!snapshot.exists) {
-              errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
-              return;
-            }
-            const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
-            if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
-              errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
-              return;
-            }
-            transaction.delete(ref);
-            facturaEliminada = data;
-          }),
-          timeoutPromise,
-        ]);
-      } catch (txError: any) {
-        if (
-          isDefaultCredentialError(txError) ||
-          (typeof txError?.message === 'string' && txError.message.includes('Could not load the default credentials'))
-        ) {
-          console.warn('[deleteInvoiceInner] Error de credenciales en transacción Firestore, continuando con persistencia local:', txError?.message);
-        } else {
-          console.error('Error en transacción de Firestore al eliminar factura:', txError);
-          return { success: false, error: txError.message || 'Error al eliminar la factura.' };
+    try {
+      await dbAdmin.runTransaction(async (transaction: any) => {
+        errorMsg = undefined;
+        facturaEliminada = undefined;
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) {
+          errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
+          return;
         }
-      } finally {
-        if (timer) clearTimeout(timer);
-      }
+        const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
+        if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
+          errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
+          return;
+        }
+        transaction.delete(ref);
+        facturaEliminada = data;
+      });
+    } catch (txError: any) {
+      console.error('Error en transacción de Firestore al eliminar factura:', txError);
+      return {
+        success: false,
+        error: txError?.message || 'No se pudo eliminar la factura en la base de datos. Probá de nuevo en unos segundos.',
+      };
+    }
 
-      if (errorMsg) {
-        return { success: false, error: errorMsg };
-      }
+    if (errorMsg) {
+      return { success: false, error: errorMsg };
+    }
 
-      if (facturaEliminada) {
-        const originalInvoices = await leerFacturasSinGuardia();
-        const invoices = originalInvoices.filter(inv => inv.id !== id);
-        try {
-          await writeData(INVOICES_FILE, invoices);
-          if (linkedFiestaId) {
-            const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
-            if (!unlinkResult.success) {
-              await ref.set(facturaEliminada);
-              await writeData(INVOICES_FILE, originalInvoices);
-              return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
-            }
-          }
-          return { success: true };
-        } catch (writeError: any) {
-          console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
-          return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
+    if (!facturaEliminada) {
+      return { success: false, error: `No se pudo confirmar la eliminación de la factura ${id}.` };
+    }
+
+    const originalInvoices = await leerFacturasSinGuardia();
+    const invoices = originalInvoices.filter(inv => inv.id !== id);
+    try {
+      await writeData(INVOICES_FILE, invoices);
+      if (linkedFiestaId) {
+        const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+        if (!unlinkResult.success) {
+          await ref.set(facturaEliminada);
+          await writeData(INVOICES_FILE, originalInvoices);
+          return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
         }
       }
+      return { success: true };
+    } catch (writeError: any) {
+      console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
+      return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
     }
   }
 

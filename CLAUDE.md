@@ -1526,6 +1526,11 @@ matafuego.
 
 ## CÓMO SE TRABAJA: resultados, no relato
 
+**Orden del dueño, 25 de noviembre de 2026:** *"no vuelvas a poner lo que ponés al final… no soy programador"*. **Nunca
+cerrar un mensaje con el estado de la verificación, de la rama, de lo guardado o sin guardar, ni de los datos de prueba.**
+Si pregunta algo, se contesta eso y se corta. El aviso de "falta commitear" del sistema se resuelve en silencio, sin
+contárselo.
+
 **Orden del dueño, 18 de noviembre de 2026:** *"no me hagas textos enormes repitiendo cosas; sé más concreto; que te quede
 como regla"*. **Cada respuesta: máximo cinco renglones**, sin repetir lo ya dicho, sin listas de lo que se hizo paso a paso.
 Lo que cambia para el negocio y, si hace falta, una decisión suya. Nada más.
@@ -1560,6 +1565,18 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Cifras, 2027 y Club Uruguay (25 de noviembre de 2026).** "+200 fiestas" y "8 años" se cuentan solos: inicio el
+  **8/8/2018**, y cada fiesta realizada desde 2027 suma una (orden 349, bloque 6). **Se borra todo lo anterior a 2027,
+  incluidas las fiestas de noviembre y diciembre de 2026**; quedan sólo las de 2027 en adelante, cargadas solas por la app.
+  **Club Uruguay: $19.990 desde 2027** (hoy $16.900); el tachado sigue siendo el doble.
+- **El simulador, el 15% y empezar 2027 de cero (24 de noviembre de 2026).** "En 2 minutos" y "válido 30 días" son
+  ciertos y van; el reloj queda. Un interruptor en Ajustes esconde el precio de cada servicio en todo lo que ve el
+  prospecto (encendido = como hoy) y el detalle aparece recién con el contrato. Paquetes pre-armados por tipo de fiesta
+  (civil sólo en bodas, sin cuadro de firmas en infantiles). El ajuste es **"15% acumulativo"** (no "compuesto": *"no se
+  entiende"*), sin mostrar montos de años futuros; los contratos viejos pueden ir con **15% simple**. No había cobros: se
+  borra todo lo anterior a 2027 **con una tarea de una sola vez, sin botones** (*"no quiero botones para borrar"*), y lo de
+  2027 en adelante queda cargado con su contrato y el del salón. Órdenes 343, 344 y 345.
 
 - **Un solo cerebro de IA y una sola puerta (23 de noviembre de 2026).** Palabras suyas: *"lo más importante: que toda la
   parte de inteligencia artificial tenga un mismo núcleo… que se haga automático, y que sea fácil: dónde lo encuentro"*. Toda
@@ -2152,6 +2169,7 @@ con otra cara.
 | Mirar la lista de fiestas guardaba códigos y abrir un presupuesto reescribía fechas, también con el auditor | `src/__tests__/mirar-no-escribe.test.ts` |
 | Un documento raro (fecha de la base, sin número, sin configuración) tiraba la lista de fiestas y nueve pantallas | `src/__tests__/la-lista-de-fiestas-no-se-cae-por-un-documento-raro.test.ts` |
 | Pantallas con la fiesta de muestra, carteles de "sincronizado" fijos, desplegables con opción vacía, marcadores y fechas sin convertir, enlaces sin credencial | Escaneos 218 y 220 a 224 en `scripts/las-formas-que-mienten.mjs` |
+| Una fórmula nueva de unidades daba platos mil veces más caros en lo que no podía convertir | `src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts` (pregunta 227) |
 
 ### Cómo se elige el matafuego
 

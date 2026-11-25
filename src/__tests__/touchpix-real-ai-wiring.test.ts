@@ -30,13 +30,23 @@ describe("Touchpix real AI wiring", () => {
       path.join(sourceRoot, "lib", "ai", "gemini-image.ts"),
       "utf8",
     );
+    const modelosSource = fs.readFileSync(
+      path.join(sourceRoot, "ai", "modelos.ts"),
+      "utf8",
+    );
+    const cerebroSource = fs.readFileSync(
+      path.join(sourceRoot, "ai", "cerebro.ts"),
+      "utf8",
+    );
 
     expect(actionSource).toContain("generateGeminiImage({");
     expect(actionSource).toContain("images: [{ base64, contentType }]");
     expect(actionSource).not.toContain("googleai/imagen3");
     expect(actionSource).not.toContain("gemini-1.5-flash");
-    expect(imageHelper).toContain("gemini-3.1-flash-image");
-    expect(imageHelper).toContain("inlineData");
+    expect(imageHelper).toContain("pedirImagen");
+    expect(imageHelper).toContain("@/ai/cerebro");
+    expect(modelosSource).toContain("gemini-3.1-flash-image");
+    expect(cerebroSource).toContain("inlineData");
   });
 
   it("reuses a stable content hash so an offline retry cannot duplicate a photo", () => {

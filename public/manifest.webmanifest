@@ -3,7 +3,7 @@
   "short_name": "AK Producciones",
   "description": "Plataforma inteligente de AK Producciones para organizar eventos, clientes, invitados y operacion.",
   "id": "/ak-producciones-pwa",
-  "start_url": "/?source=pwa",
+  "start_url": "/entrar?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
@@ -46,6 +46,13 @@
     }
   ],
   "shortcuts": [
+    {
+      "name": "Hablar con AK",
+      "short_name": "Hablar",
+      "description": "Asistente por voz para tu día",
+      "url": "/mi-dia?hablar=1",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
     {
       "name": "Nueva fiesta",
       "short_name": "Nueva fiesta",

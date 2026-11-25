@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { getGastoDeIA, setTopeDeIA, setTopeDiarioDeIA } from '@/app/actions/ai-consumo';
-import type { ResumenDeGasto } from '@/lib/ai/consumo';
+import { COSTO_ESTIMADO_UYU, type FuncionConCosto, type ResumenDeGasto } from '@/lib/ai/consumo';
 
 /**
  * Cuánto va gastado del mes en los efectos de las fotos, y el tope.
@@ -30,15 +30,60 @@ const BARRA: Record<ResumenDeGasto['estado'], string> = {
   pasado: 'bg-rose-500',
 };
 
-export function GastoIaCard() {
+const NOMBRES_FUNCION: Record<FuncionConCosto, string> = {
+  touchpix: 'Fotocabina Touchpix',
+  'espejo-magico': 'Espejo mágico',
+  'foto-del-salon': 'Visualización del salón',
+  remarketing: 'Remarketing',
+  'vendedor-virtual': 'Vendedor virtual',
+  'seguimiento-comercial': 'Seguimiento comercial',
+  'material-post-evento': 'Material post-evento',
+  'revision-diaria': 'Revisión diaria',
+  'clasificacion-comentarios': 'Comentarios en redes',
+  'copiloto-presupuesto': 'Copiloto de presupuesto',
+  'chat-de-la-fiesta': 'Chat de la fiesta',
+  'encargado-general': 'Encargado general',
+  'nota-del-blog': 'Notas del blog',
+  multiagente: 'Asistente multiagente',
+  'armar-web-evento': 'Web del evento',
+  'lectura-recibo': 'Lectura de comprobantes',
+  'resumen-feedback': 'Resumen de encuestas',
+  'sugerir-paleta': 'Paleta de colores',
+  'catalogo-decoracion': 'Catálogo de decoración',
+  'extraccion-prospecto-whatsapp': 'Datos desde WhatsApp',
+  'trivia-ia': 'Trivia con IA',
+  'voz-cliente': 'Voz con clientes',
+  'voz-equipo': 'Voz con el equipo',
+  'whatsapp-media': 'Audios e imágenes de WhatsApp',
+  'asistente-dot-contador': 'Asistente contable',
+  'recorte-decoracion': 'Recorte de decoración',
+  'respuesta-profunda': 'Respuestas profundas',
+  decisiones: 'Decisiones rápidas',
+  'perfil-dj': 'Perfil musical DJ',
+  'itinerario-ia': 'Itinerario con IA',
+  'asistente-clasico': 'Asistente general',
+  'agente-marketing': 'Agente de marketing',
+  'extraccion-contrato': 'Lectura de contrato',
+  'analisis-codigo': 'Análisis técnico',
+  papeleria: 'Papelería del evento',
+  sofia: 'Sofía (simulador)',
+  cerebro: 'Consultas generales',
+};
+
+export function GastoIaCard({ initialResumen = null }: { initialResumen?: ResumenDeGasto | null }) {
   const { toast } = useToast();
-  const [resumen, setResumen] = useState<ResumenDeGasto | null>(null);
-  const [topeInput, setTopeInput] = useState('');
+  const [resumen, setResumen] = useState<ResumenDeGasto | null>(initialResumen);
+  const [topeInput, setTopeInput] = useState(
+    initialResumen && initialResumen.topeUYU > 0 ? String(initialResumen.topeUYU) : '',
+  );
   const [guardando, setGuardando] = useState(false);
-  const [topeDiarioInput, setTopeDiarioInput] = useState('');
+  const [topeDiarioInput, setTopeDiarioInput] = useState(
+    initialResumen ? String(initialResumen.topeDiarioProfundo ?? 40) : '',
+  );
   const [guardandoDiario, setGuardandoDiario] = useState(false);
 
   useEffect(() => {
+    if (initialResumen) return;
     let vigente = true;
     getGastoDeIA()
       .then((valor) => {
@@ -51,7 +96,7 @@ export function GastoIaCard() {
     return () => {
       vigente = false;
     };
-  }, []);
+  }, [initialResumen]);
 
   const guardarTope = async () => {
     const limpio = topeInput.trim();
@@ -143,20 +188,34 @@ export function GastoIaCard() {
   }
 
   const ancho = resumen.topeUYU > 0 ? Math.min(100, resumen.porcentaje) : 0;
+  const desglosePorFuncion = Object.entries(resumen.porFuncion ?? {})
+    .map(([funcion, cantidad]) => {
+      const usos = Number(cantidad) || 0;
+      const costoUnitario = COSTO_ESTIMADO_UYU[funcion as FuncionConCosto] ?? 0;
+      const subtotalUYU = Math.round(usos * costoUnitario);
+      return {
+        funcion,
+        nombre: NOMBRES_FUNCION[funcion as FuncionConCosto] || funcion,
+        usos,
+        subtotalUYU,
+      };
+    })
+    .filter((item) => item.usos > 0)
+    .sort((a, b) => b.subtotalUYU - a.subtotalUYU || b.usos - a.usos);
 
   return (
     <div className={`space-y-4 rounded-2xl border p-4 text-sm ${COLORES[resumen.estado]}`}>
       <div className="space-y-1">
         <div className="flex items-center gap-2 font-bold">
           <Sparkles className="h-4 w-4 shrink-0" />
-          Gasto del mes en los efectos de las fotos
+          Gasto del mes en inteligencia artificial
         </div>
         <p className="text-xs opacity-90">{resumen.mensaje}</p>
       </div>
 
       <div className="flex flex-wrap gap-2 text-[11px] font-black uppercase tracking-wider">
         <span className="rounded-full bg-white px-3 py-1 shadow-sm">
-          {resumen.generaciones} fotos con efecto
+          {resumen.generaciones} usos este mes
         </span>
         <span className="rounded-full bg-white px-3 py-1 shadow-sm">
           ${resumen.gastadoUYU} estimados
@@ -174,6 +233,29 @@ export function GastoIaCard() {
           />
         </div>
       )}
+
+      {/* Desglose por función */}
+      <div className="space-y-2 rounded-xl border border-black/5 bg-white/75 p-3">
+        <p className="text-xs font-bold text-slate-800">Desglose por función este mes</p>
+        {desglosePorFuncion.length === 0 ? (
+          <p className="text-xs text-slate-500">Todavía no se registró consumo por función este mes.</p>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {desglosePorFuncion.map((item) => (
+              <div key={item.funcion} className="flex items-center justify-between gap-2 py-1.5 text-xs">
+                <div className="min-w-0">
+                  <span className="font-semibold text-slate-800">{item.nombre}</span>
+                  <span className="ml-2 font-mono text-[11px] text-slate-400">({item.funcion})</span>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="text-slate-500">{item.usos} {item.usos === 1 ? 'uso' : 'usos'}</span>
+                  <span className="font-bold text-slate-900">${item.subtotalUYU}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1">

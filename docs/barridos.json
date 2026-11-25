@@ -381,6 +381,14 @@
       "fecha": "2026-10-23",
       "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
     },
+    "96": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
+    },
+    "97": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
+    },
     "98": {
       "fecha": "2026-10-26",
       "resultado": "barrida en src/app y src/lib sobre la 1353+Codex: once controles de permiso comparan role con 'admin' (ai-consumo, blog-ai, marketing-automation x3, api/marketing/automation, api/admin/clean-db, auth.ts 741, carga-operativa, motor-agentes x2). Orden 233 urgente para Gemini. Quedan afuera el ingreso (auth.ts 455-486) y perfiles.ts."
@@ -388,14 +396,6 @@
     "99": {
       "fecha": "2026-10-26",
       "resultado": "barrida por Codex en la 1353 (orden 229): video con marco sin audio y captura vacía presentada como lista; arreglado en la propuesta 1363 (recorded-video.ts, video-frame-processor.ts) con sus pruebas. Pendiente que Gemini lo junte en la 1353 (orden 232)."
-    },
-    "97": {
-      "fecha": "2026-10-24",
-      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
-    },
-    "96": {
-      "fecha": "2026-10-24",
-      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
     },
     "100": {
       "fecha": "2026-10-26",
@@ -904,6 +904,10 @@
     "226": {
       "fecha": "2026-11-23",
       "resultado": "Menú de prueba en la presentación LED (confirmado en el informe); el resto de lo público → barrido de la orden 338."
+    },
+    "227": {
+      "fecha": "2026-11-24",
+      "resultado": "Fórmula vieja contra nueva sobre las 377 recetas: 4 salían ×1000 (gramos contra litro/unidad, ml contra kg); arreglado. Las otras fórmulas de plata de la entrega 336-338 (total del presupuesto, cupón, compras por evento) revisadas a mano: cambios buscados."
     }
   },
   "hallazgos": {
@@ -1342,6 +1346,14 @@
     "orden-339": {
       "fecha": "2026-11-24",
       "resultado": "El auditor robot recorre todas las pantallas con las reglas de las preguntas 218 a 226; su primera corrida da la lista completa de rojos."
+    },
+    "orden-346": {
+      "fecha": "2026-11-25",
+      "resultado": "El robot corrió sobre las 152 pantallas con el usuario sembrado: 15 rojos, 3 del entorno y 12 de la app, todos en la orden 346."
+    },
+    "orden-349": {
+      "fecha": "2026-11-25",
+      "resultado": "Informe del auditor externo del 25/11: platos sin precio y textos PRUEBA en la LED pública, cifra inventada (500 familias), tildes y fechas, campana contra centro de alertas, botones sin nombre. El barrido de cifras escritas a mano y de platos sin precio en pantallas públicas va en la orden 349, con dos reglas nuevas del robot."
     }
   }
 }

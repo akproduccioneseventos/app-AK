@@ -85,6 +85,18 @@ jest.mock('@/app/actions/crm', () => ({
   moveCrmLead: jest.fn().mockResolvedValue({ success: true }),
 }));
 
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn().mockResolvedValue(true),
+  registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn().mockResolvedValue({
+    success: true,
+    user: { uid: 'test-admin', rol: 'administrador', permisos: ['contabilidad', 'crm', 'fiestas', 'administracion'] },
+  }),
+}));
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Imports
 // ─────────────────────────────────────────────────────────────────────────────

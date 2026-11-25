@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { mutateGenericJsonArray, readGenericJsonFile } from '@/lib/generic-json-store';
+import { mutarDocumento, mutateGenericJsonArray, readGenericJsonFile } from '@/lib/generic-json-store';
 import { geminiCommercialModel, generateWithGeminiFallback } from '@/ai/genkit';
 import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
 
@@ -28,16 +28,39 @@ export interface CompetenciaEstado {
 }
 
 const COMPETENCIA_FILE = 'marketing-competencia.json';
+const COMPETENCIA_RESUMEN_FILE = 'asistente/marketing-competencia-resumen.json';
+const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface CompetenciaResumenGuardado {
+  resumenIA?: string;
+  actualizadoAt?: string;
+}
+
+async function guardarResumenCompetencia(resumenIA: string, actualizadoAt: string): Promise<void> {
+  const payload: CompetenciaResumenGuardado = { resumenIA, actualizadoAt };
+  if (typeof mutarDocumento === 'function') {
+    await mutarDocumento<CompetenciaResumenGuardado>(COMPETENCIA_RESUMEN_FILE, {}, () => payload).catch(() => undefined);
+    return;
+  }
+  // En tests donde solo se mockea readGenericJsonFile / mutateGenericJsonArray
+  try {
+    const { writeData } = await import('@/lib/data-service');
+    await writeData(COMPETENCIA_RESUMEN_FILE, payload).catch(() => undefined);
+  } catch {
+    // ignore
+  }
+}
 
 export async function getCompetenciaEstado(): Promise<CompetenciaEstado> {
-  const guardadas = (await readGenericJsonFile(COMPETENCIA_FILE)) as CompetenciaCuenta[] | null;
-  if (!guardadas || !Array.isArray(guardadas)) {
-    return {
-      cuentas: [],
-    };
-  }
+  const [guardadas, resumenDoc] = await Promise.all([
+    readGenericJsonFile(COMPETENCIA_FILE) as Promise<CompetenciaCuenta[] | null>,
+    (readGenericJsonFile(COMPETENCIA_RESUMEN_FILE) as Promise<CompetenciaResumenGuardado | null>).catch(() => null),
+  ]);
+  const cuentas = Array.isArray(guardadas) ? guardadas : [];
   return {
-    cuentas: guardadas,
+    cuentas,
+    ...(resumenDoc?.resumenIA ? { resumenIA: resumenDoc.resumenIA } : {}),
+    ...(resumenDoc?.actualizadoAt ? { actualizadoAt: resumenDoc.actualizadoAt } : {}),
   };
 }
 
@@ -45,10 +68,23 @@ export async function guardarCompetenciaCuentas(cuentas: CompetenciaCuenta[]): P
   await mutateGenericJsonArray<CompetenciaCuenta>(COMPETENCIA_FILE, () => cuentas);
 }
 
-export async function sincronizarCompetenciaSemanal(): Promise<void> {
+export async function sincronizarCompetenciaSemanal(options?: { forzar?: boolean; ahora?: Date }): Promise<void> {
+  const ahora = options?.ahora ?? new Date();
+  const ahoraMs = ahora.getTime();
   const estado = await getCompetenciaEstado();
   const cuentasActivas = estado.cuentas.filter((c) => c.activo);
   if (cuentasActivas.length === 0) return;
+
+  if (!options?.forzar) {
+    const todasRecientes = cuentasActivas.every((c) => {
+      if (!c.ultimaActualizacion) return false;
+      const ms = new Date(c.ultimaActualizacion).getTime();
+      return Number.isFinite(ms) && ahoraMs - ms < SIETE_DIAS_MS;
+    });
+    if (todasRecientes && estado.resumenIA) {
+      return;
+    }
+  }
 
   const token = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || '';
   const igUserId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.META_PAGE_ID || '';
@@ -62,7 +98,7 @@ export async function sincronizarCompetenciaSemanal(): Promise<void> {
     try {
       if (!token || !igUserId) {
         cuenta.error = undefined;
-        cuenta.ultimaActualizacion = new Date().toISOString();
+        cuenta.ultimaActualizacion = ahora.toISOString();
         continue;
       }
 
@@ -77,6 +113,7 @@ export async function sincronizarCompetenciaSemanal(): Promise<void> {
         } else {
           cuenta.error = errorMsg;
         }
+        cuenta.ultimaActualizacion = ahora.toISOString();
       } else if (data.business_discovery) {
         const bd = data.business_discovery;
         cuenta.seguidores = bd.followers_count || 0;
@@ -90,9 +127,10 @@ export async function sincronizarCompetenciaSemanal(): Promise<void> {
           permalink: m.permalink,
         }));
         cuenta.error = undefined;
-        cuenta.ultimaActualizacion = new Date().toISOString();
+        cuenta.ultimaActualizacion = ahora.toISOString();
       } else {
         cuenta.error = 'Esta cuenta no es de empresa: Instagram no deja verla desde otra aplicación';
+        cuenta.ultimaActualizacion = ahora.toISOString();
       }
     } catch (err: any) {
       cuenta.error = err?.message || 'Error al conectar con Meta';
@@ -100,7 +138,8 @@ export async function sincronizarCompetenciaSemanal(): Promise<void> {
   }
 
   await guardarCompetenciaCuentas(nuevasCuentas);
-  await generarResumenCompetenciaIA();
+  const resumen = await generarResumenCompetenciaIA();
+  await guardarResumenCompetencia(resumen, ahora.toISOString());
 }
 
 export async function generarResumenCompetenciaIA(): Promise<string> {

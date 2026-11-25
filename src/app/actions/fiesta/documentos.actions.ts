@@ -227,6 +227,10 @@ export async function signContractDigitally(
     if (!(await verifyPortalSession(fiestaId))) {
       return { success: false, error: 'Sesión del portal no autorizada.' };
     }
+    const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
+    if (await esSesionDeAuditor()) {
+      return { success: false, error: 'El auditor no puede firmar contratos en nombre del cliente.' };
+    }
     try {
         const nombre = String(signerName || '').trim().slice(0, 120) || 'Cliente';
         const h = await headers();

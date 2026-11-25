@@ -1,8 +1,7 @@
 import "server-only";
 
-const DEFAULT_GEMINI_IMAGE_MODEL = "gemini-3.1-flash-image";
-const GEMINI_IMAGE_API_BASE =
-  "https://generativelanguage.googleapis.com/v1/models";
+import { pedirImagen } from "@/ai/cerebro";
+import type { FuncionConCosto } from "@/lib/ai/consumo";
 
 export interface GeminiImageReference {
   base64: string;
@@ -15,9 +14,10 @@ interface GenerateGeminiImageOptions {
   aspectRatio?: string;
   imageSize?: "512" | "1K" | "2K" | "4K";
   timeoutMs?: number;
+  quien?: FuncionConCosto;
 }
 
-function resolveImageModel(): string {
+function resolveConfiguredImageModels(): string[] | undefined {
   const configured = (
     process.env.GEMINI_IMAGE_EDIT_MODEL ||
     process.env.GEMINI_IMAGE_MODEL ||
@@ -32,14 +32,14 @@ function resolveImageModel(): string {
     configured.toLowerCase().includes("imagen") ||
     configured.toLowerCase().includes("preview")
   ) {
-    return DEFAULT_GEMINI_IMAGE_MODEL;
+    return undefined;
   }
 
   if (!/^[a-z0-9._-]+$/i.test(configured)) {
     throw new Error("El modelo de imagen configurado no es valido.");
   }
 
-  return configured;
+  return [configured];
 }
 
 export async function generateGeminiImage({
@@ -48,71 +48,24 @@ export async function generateGeminiImage({
   aspectRatio = "3:4",
   imageSize = "1K",
   timeoutMs = 60_000,
+  quien,
 }: GenerateGeminiImageOptions): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("Falta configurar la clave de Gemini.");
-  const model = resolveImageModel();
-  const response = await fetch(
-    `${GEMINI_IMAGE_API_BASE}/${encodeURIComponent(model)}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              ...images.map((image) => ({
-                inlineData: {
-                  mimeType: image.contentType,
-                  data: image.base64,
-                },
-              })),
-              { text: prompt },
-            ],
-          },
-        ],
-        generationConfig: {
-          responseModalities: ["IMAGE"],
-          responseFormat: {
-            image: {
-              aspectRatio,
-              imageSize,
-            },
-          },
-        },
-      }),
-      signal: AbortSignal.timeout(timeoutMs),
-      cache: "no-store",
-    },
-  );
+  const modelos = resolveConfiguredImageModels();
+  const consumoYaGestionado = quien === undefined;
+  const res = await pedirImagen({
+    prompt,
+    images,
+    aspectRatio,
+    imageSize,
+    timeoutMs,
+    consumoYaGestionado,
+    ...(modelos ? { modelos } : {}),
+    ...(quien ? { quien } : {}),
+  });
 
-  if (!response.ok) {
-    const detail = (await response.text()).slice(0, 500);
-    throw new Error(
-      `Gemini no pudo generar la imagen (HTTP ${response.status})${detail ? `: ${detail}` : "."}`,
-    );
+  if (!res.ok) {
+    throw new Error(res.error || "Gemini no pudo generar la imagen.");
   }
 
-  const result = (await response.json()) as {
-    candidates?: Array<{
-      content?: {
-        parts?: Array<{
-          inlineData?: { data?: string };
-          inline_data?: { data?: string };
-        }>;
-      };
-    }>;
-  };
-
-  for (const candidate of result.candidates || []) {
-    for (const part of candidate.content?.parts || []) {
-      const base64 = part.inlineData?.data || part.inline_data?.data;
-      if (base64) return base64;
-    }
-  }
-
-  return null;
+  return res.base64;
 }

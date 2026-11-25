@@ -22,6 +22,7 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
 import { qrParaDescargarEntero } from '@/lib/qr/qr-para-descargar-entero';
+import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -344,7 +345,7 @@ function RsvpFormContent() {
                         Pasada esa fecha, no será posible realizar cambios.
                       </p>
                       <a
-                        href={`/invitacion/${fiestaId}/rsvp`}
+                        href={withGuestAccess(`/invitacion/${fiestaId}/rsvp`, confirmedGuest.id, confirmedGuest.guestAccessToken || '')}
                         className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-800 transition"
                       >
                         Cancelar mi confirmación →
@@ -364,14 +365,14 @@ function RsvpFormContent() {
                   </div>
                   <div className="flex justify-center">
                     <QRCodeStylized
-                      value={`${baseUrl}/evento/social/${fiestaId}`}
+                      value={`${baseUrl}${withGuestAccess(`/evento/social/${fiestaId}`, confirmedGuest.id, confirmedGuest.guestAccessToken || '')}`}
                       size={120}
                       level="M"
                       id="qr-social-rsvp"
                     />
                   </div>
                   <a
-                    href={`/evento/social/${fiestaId}`}
+                    href={withGuestAccess(`/evento/social/${fiestaId}`, confirmedGuest.id, confirmedGuest.guestAccessToken || '')}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
                   >
                     📷 Entrar al muro social →

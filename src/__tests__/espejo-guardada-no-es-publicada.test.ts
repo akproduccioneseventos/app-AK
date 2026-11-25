@@ -27,6 +27,9 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(async () => JSON.parse(JSON.stringify(fiestaGuardada))),
   saveFiesta: jest.fn(),
 }));
+jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({
+  getFiestaByIdRaw: jest.fn(async () => JSON.parse(JSON.stringify(fiestaGuardada))),
+}));
 jest.mock('@/lib/auth/entertainment-token', () => ({
   createEntertainmentAccessToken: jest.fn(),
   hasEntertainmentGuestAccess: jest.fn(async (_f: string, m: string, token: string) => token === `ok-${m}`),

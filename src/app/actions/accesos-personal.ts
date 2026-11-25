@@ -95,7 +95,13 @@ export async function verifyAccesoPersonalToken(
 }> {
   const session = await verifySession();
   if (session.success) {
-    return { authorized: true, isExternalProvider: false };
+    try {
+      const { requireEventPermission } = await import('@/lib/auth/event-access');
+      await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+      return { authorized: true, isExternalProvider: false };
+    } catch {
+      return { authorized: false, isExternalProvider: false, motivo: 'sin-permiso' };
+    }
   }
 
   if (!accessToken) {

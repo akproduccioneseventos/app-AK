@@ -126,6 +126,7 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
+import { sanitizarUrlCompartirTouchpix } from '@/lib/entertainment/touchpix-share-url';
 
 function QrModal({
   showQrModal,
@@ -140,7 +141,7 @@ function QrModal({
 }) {
   if (!showQrModal) return null;
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareUrl = typeof window !== 'undefined' ? sanitizarUrlCompartirTouchpix(window.location.href) : '';
 
   return (
     <motion.div
@@ -454,10 +455,29 @@ export default function TouchpixPage() {
 
   const toggleCamera = () => setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        void audioCtxRef.current.close().catch(() => undefined);
+      }
+      audioCtxRef.current = null;
+    };
+  }, []);
+
   /* ── Audio Beep ── */
   const playBeep = useCallback((freq = 880, duration = 0.1) => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextCtor) return;
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioContextCtor();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        void ctx.resume().catch(() => undefined);
+      }
       const osc = ctx.createOscillator();
       osc.frequency.value = freq;
       osc.connect(ctx.destination);

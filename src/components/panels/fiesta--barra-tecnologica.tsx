@@ -3,7 +3,7 @@
 import { CierreDeBarra } from '@/components/barra/CierreDeBarra';
 import { Suspense, useCallback, useEffect, useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Camera, ExternalLink, Instagram, Info, Loader2, Martini, Monitor, Save, Share2, Smartphone, Sparkles, Tv, Video, Wine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,8 +34,7 @@ const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
 
 function BarraTecnologicaContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = (searchParams.get('fiestaId') || searchParams.get('id') || '').trim();
   const { toast } = useToast();
 
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
@@ -48,7 +47,7 @@ function BarraTecnologicaContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      router.replace('/eventos');
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -68,7 +67,7 @@ function BarraTecnologicaContent() {
       toast({ title: 'No se pudo cargar', description: result.error, variant: 'destructive' });
     }
     setIsLoading(false);
-  }, [fiestaId, router, toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -116,6 +115,21 @@ function BarraTecnologicaContent() {
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+
+  if (!fiestaId) {
+    return (
+      <div className="mx-auto max-w-xl p-8 text-center space-y-4">
+        <Martini className="mx-auto h-12 w-12 text-primary" />
+        <h2 className="text-xl font-bold">Abrí esta pantalla desde una fiesta</h2>
+        <p className="text-sm text-muted-foreground">
+          Elegí una fiesta del listado para configurar su barra tecnológica.
+        </p>
+        <Button asChild>
+          <Link href="/eventos">Ir a Eventos</Link>
+        </Button>
+      </div>
+    );
   }
 
   if (error) {

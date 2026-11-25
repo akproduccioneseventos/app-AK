@@ -135,31 +135,37 @@ export async function POST(request: Request) {
   const voz = vozValida(ajustes.vozSeleccionada);
   const instrucciones = armarInstruccionesDeVoz(contextoLimpio);
 
-  // Si hay API key real, pide la ficha temporal de Gemini
+  // Si hay API key real, pide la ficha temporal de Gemini probando modelos de respaldo ante 429 o caída
   if (apiKey && apiKey.length >= 10 && apiKey !== 'dummy') {
-    try {
-      const modelo = modelosEnVivo()[0];
-      const res = await fetch(direccionDeLaFicha(apiKey, version), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(armarCuerpoFicha({ modelo, voz, instrucciones, minutos: 1 })),
-      });
-      const data: any = await res.json().catch(() => ({}));
-      if (res.ok && data?.name) {
-        // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
-        // no pasa nada si falla: la llamada ya tiene ficha válida y no se debe cortar por la métrica
-        await registrarConsumoIA('voz-cliente').catch((err) => {
-          console.warn('[VozCliente] Error registrando consumo IA:', err);
+    for (const modelo of modelosEnVivo()) {
+      try {
+        const res = await fetch(direccionDeLaFicha(apiKey, version), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(armarCuerpoFicha({ modelo, voz, instrucciones, minutos: 1 })),
         });
-        return NextResponse.json({
-          token: data.name,
-          model: modelo,
-          voz,
-          segundosMaximos: 60,
-        });
+        const data: any = await res.json().catch(() => ({}));
+        if (res.ok && data?.name) {
+          // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
+          // no pasa nada si falla: la llamada ya tiene ficha válida y no se debe cortar por la métrica
+          await registrarConsumoIA('voz-cliente').catch((err) => {
+            console.warn('[VozCliente] Error registrando consumo IA:', err);
+          });
+          return NextResponse.json({
+            token: data.name,
+            model: modelo,
+            voz,
+            segundosMaximos: 60,
+          });
+        }
+        const detalle = String(data?.error?.message || '');
+        const esRecuperable =
+          [404, 408, 429, 500, 502, 503, 504].includes(res.status) ||
+          (res.status >= 400 && res.status < 500 && /model|quota|resource_exhausted/i.test(detalle));
+        if (!esRecuperable) break;
+      } catch {
+        // Si falla la generación de la ficha con este modelo, probamos el siguiente o devolvemos el minuto
       }
-    } catch {
-      // Si falla la generación de la ficha en Gemini, salta a la devolución
     }
   }
 

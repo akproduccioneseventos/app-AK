@@ -259,9 +259,14 @@ async function registrarUsoCuponEnLaBase(
 
     let rechazo: string | undefined;
     let codigo = '';
+    const montoValidar = Number(montoPresupuesto);
     const actualizado = await mutateDataItem<Coupon>(CUPONES_FILE, 'cupones', couponId, (cupon) => {
       rechazo = motivoParaNoUsar(cupon) ?? undefined;
       if (rechazo) return null;
+      if (cupon.montoMinimo && (!Number.isFinite(montoValidar) || montoValidar < cupon.montoMinimo)) {
+        rechazo = `El monto mínimo para usar este cupón es $${cupon.montoMinimo.toLocaleString()}.`;
+        return null;
+      }
       codigo = cupon.codigo;
       return { ...cupon, usosActuales: (Number(cupon.usosActuales) || 0) + 1, actualizadoEn: new Date().toISOString() };
     });
@@ -322,6 +327,10 @@ export async function registrarUsoCupon(
       const cupon = cupones[idx];
       const motivo = motivoParaNoUsar(cupon);
       if (motivo) return { success: false, error: motivo };
+      const montoValidar = Number(montoPresupuesto);
+      if (cupon.montoMinimo && (!Number.isFinite(montoValidar) || montoValidar < cupon.montoMinimo)) {
+        return { success: false, error: `El monto mínimo para usar este cupón es $${cupon.montoMinimo.toLocaleString()}.` };
+      }
 
       cupones[idx].usosActuales += 1;
       cupones[idx].actualizadoEn = new Date().toISOString();

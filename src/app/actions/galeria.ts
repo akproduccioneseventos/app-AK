@@ -3,7 +3,8 @@
 import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import type { GaleriaData, GaleriaFoto, GaleriaVideo } from '@/types/galeria';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const GALERIA_FILE = 'galeria-publica.json';
 
@@ -14,7 +15,7 @@ export async function getGaleriaItems(): Promise<GaleriaData> {
 }
 
 export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
     return {
       fotos: [...(actual?.fotos || []), foto],
@@ -26,7 +27,7 @@ export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
 }
 
 export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
     return {
       fotos: actual?.fotos || [],
@@ -45,7 +46,7 @@ export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
  * no lo está usando ninguna otra foto ni video.
  */
 export async function deleteGaleriaItem(id: string): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   let itemEliminado: GaleriaFoto | GaleriaVideo | undefined;
   let dataFinal: GaleriaData = DEFAULT_DATA;
 
@@ -87,7 +88,7 @@ export async function updateGaleriaItem(
   id: string,
   updates: Partial<GaleriaFoto | GaleriaVideo>
 ): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
     const fotoIdx = (actual?.fotos || []).findIndex((f) => f.id === id);
     if (fotoIdx !== -1) {
@@ -109,7 +110,7 @@ export async function reorderGaleriaItems(
   tipo: 'foto' | 'video',
   ids: string[]
 ): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
     if (tipo === 'foto') {
       const fotos = [...(actual?.fotos || [])];
@@ -132,7 +133,7 @@ export async function reorderGaleriaItems(
 }
 
 export async function toggleDestacada(id: string): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
     const foto = (actual?.fotos || []).find((f) => f.id === id);
     if (foto) {
@@ -174,7 +175,7 @@ export async function updateGaleriaFoto(
   id: string,
   updates: Partial<GaleriaFoto>
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   try {
     let encontrada = false;
     await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {

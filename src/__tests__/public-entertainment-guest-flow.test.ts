@@ -32,7 +32,7 @@ describe('public entertainment guest flows', () => {
     expect(source).toContain('FOTOS_POR_TANDA');
     expect(source).toContain('SEGUNDOS_PRIMERA_FOTO');
     expect(source).toContain('componerTiraDeFotos');
-    expect(source).toContain('Foto {fotoEnCurso} de {FOTOS_POR_TANDA}');
+    expect(source).toContain('Foto {fotoEnCurso} de {fiesta?.station.fotosPorTanda || FOTOS_POR_TANDA}');
     expect(source).toContain('handleImprimir(true)');
     expect(source).toContain('Quiero otra copia');
   });

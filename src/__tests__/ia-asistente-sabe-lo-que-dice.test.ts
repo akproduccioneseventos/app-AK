@@ -48,6 +48,7 @@ jest.mock('@/lib/auth/session-token', () => ({
   verifySession: jest.fn(async () => ({ success: true, user: { userId: 'u1', email: 'a@b.c', role: 'user', perfil: perfilDeLaSesion } })),
 }));
 jest.mock('@/lib/data-service', () => ({
+  readData: jest.fn(async () => []),
   readDataConDetalle: jest.fn(async (_f: string, defecto: any) =>
     presupuestosCrudos === 'FALLA' ? { valor: defecto, huboFalla: true } : { valor: copia(presupuestosCrudos), huboFalla: false },
   ),

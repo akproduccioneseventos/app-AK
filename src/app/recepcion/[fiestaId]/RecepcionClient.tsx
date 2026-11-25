@@ -61,14 +61,22 @@ export default function RecepcionClient({
     setIsCheckingIn(guestId);
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        enqueueOfflineAction({
-          id: `checkin_${fiestaId}_${guestId}`,
-          type: 'recepcion_checkin',
-          fiestaId,
-          payload: { guestId },
-        });
-        setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
-        toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+        try {
+          enqueueOfflineAction({
+            id: `checkin_${fiestaId}_${guestId}`,
+            type: 'recepcion_checkin',
+            fiestaId,
+            payload: { guestId },
+          });
+          setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
+          toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+        } catch {
+          toast({
+            title: 'No se pudo guardar el ingreso',
+            description: 'Este dispositivo se quedó sin lugar para guardar cambios sin conexión.',
+            variant: 'destructive',
+          });
+        }
         return;
       }
 
@@ -81,14 +89,22 @@ export default function RecepcionClient({
         toast({ title: 'No se pudo registrar el ingreso', description: res.error || 'El servidor rechazó el ingreso.', variant: 'destructive' });
       }
     } catch (e) {
-      enqueueOfflineAction({
-        id: `checkin_${fiestaId}_${guestId}`,
-        type: 'recepcion_checkin',
-        fiestaId,
-        payload: { guestId },
-      });
-      setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
-      toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+      try {
+        enqueueOfflineAction({
+          id: `checkin_${fiestaId}_${guestId}`,
+          type: 'recepcion_checkin',
+          fiestaId,
+          payload: { guestId },
+        });
+        setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, checkedIn: true } : inv));
+        toast({ title: 'Guardado sin conexión 📶', description: 'Se sincronizará automáticamente al volver internet.' });
+      } catch {
+        toast({
+          title: 'No se pudo guardar el ingreso',
+          description: 'Este dispositivo se quedó sin lugar para guardar cambios sin conexión.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsCheckingIn(null);
     }
