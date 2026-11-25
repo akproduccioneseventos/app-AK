@@ -2,23 +2,17 @@
 
 ## TU TRABAJO DE HOY (lo actualiza Claude; leelo primero, siempre)
 
-**Actualizado el 24/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
+**Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
-- **Ya publicadas:** 336 a 342 (Claude las juntó, arregló cinco pruebas que chocaban entre sí y las publicó). No las
-  rehagas.
-- **AHORA, UNA sola propuesta con cuatro órdenes, rama nueva `gemini/orden-343` desde la principal recién actualizada:**
-  1. **Orden 343 (`docs/ordenes/343-gemini-el-simulador-que-vende-solo.md`):** el simulador es el primer canal de venta
-     del dueño. Una sola bienvenida que vende antes del precio, color y movimiento en un punto medio, el interruptor de
-     precios en Ajustes y los paquetes armados por tipo de fiesta.
-  2. **Orden 344 (`docs/ordenes/344-gemini-la-presentacion-led-como-el-catalogo.md`):** la presentación LED sin nada
-     tapado, cada servicio con su foto, sin promesas, y la seña real en el plan de pagos.
-  3. **Orden 345 (`docs/ordenes/345-gemini-ajuste-acumulativo-y-empezar-2027.md`):** el 15% "acumulativo" sin montos
-     futuros, el 15% simple para contratos viejos, "Cargar contrato" con IA y la tarea de una sola vez que deja sólo
-     2027 en adelante. **Toca plata: Claude la revisa línea por línea.**
-  4. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`), al final:** las doce pantallas que el robot marca en
-     rojo (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
+- **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
+- **AHORA, UNA sola propuesta con dos órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
+  1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
+     (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
      arreglás, sacás su línea de `docs/robot-excepciones.json`.
-  - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
+  2. **Orden 347 (`docs/ordenes/347-gemini-las-paginas-por-tipo-de-fiesta.md`):** las páginas por tipo de fiesta
+     (bodas primero): "un solo contacto, toda tu fiesta", preguntas frecuentes para Google, reseñas del mismo tipo,
+     nada inventado en bodas, la página nueva de empresas y la portada `/fiestas`.
+  - Si una se traba, entregá la otra en la misma propuesta y avisá cuál faltó y por qué.
   - Antes de entregar: `npx tsc --noEmit`, `npx jest`, `npm run test:rules`, `npm run check:acentos`,
     `node scripts/ordenes-cumplidas.mjs` y las pruebas de navegador nuevas en verde. Leé `docs/ANTES-DE-ENTREGAR.md`.
 
