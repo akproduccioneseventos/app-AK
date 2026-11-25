@@ -287,6 +287,7 @@ function ClientPortalContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(() => (!fiestaId ? 'ID de evento no especificado en la URL. Si tenés un enlace de acceso directo al portal de tu evento, usalo directamente o comunicate con AK Producciones.' : null));
   const [isLoading, setIsLoading] = useState(() => Boolean(fiestaId));
+  const [portalTieneClave, setPortalTieneClave] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [notes, setNotes] = useState('');
@@ -370,6 +371,7 @@ function ClientPortalContent() {
           configuracion: preview.configuracion,
           clientPortalSettings: { enabled: true },
         } as FiestaEnPlanificacion);
+        setPortalTieneClave(preview.tieneClave);
         setNotes('');
         setPresupuesto(null);
       } catch {
@@ -557,7 +559,7 @@ function ClientPortalContent() {
   }
 
   if (!isAuthenticated) {
-    if (!fiesta.clientPortalSettings?.accessKey) {
+    if (!portalTieneClave && !fiesta.clientPortalSettings?.accessKey) {
       return (
         <div className="ak-public-page grid min-h-screen place-items-center p-4">
           <Card className="ak-public-card max-w-md w-full text-center">

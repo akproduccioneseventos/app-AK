@@ -309,6 +309,8 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
 export async function getPortalPublicPreview(fiestaId: string): Promise<{
   id: string;
   enabled: boolean;
+  /** Sólo si hay clave, nunca la clave: sin esto el portal decía "aún no configuró una contraseña" y nadie entraba. */
+  tieneClave: boolean;
   configuracion: {
     nombreEvento?: string;
     fechaEvento?: string;
@@ -325,6 +327,7 @@ export async function getPortalPublicPreview(fiestaId: string): Promise<{
   return {
     id: fiesta.id,
     enabled: true,
+    tieneClave: Boolean(fiesta.clientPortalSettings?.accessKey),
     configuracion: {
       nombreEvento: fiesta.configuracion?.nombreEvento,
       fechaEvento: fiesta.configuracion?.fechaEvento,

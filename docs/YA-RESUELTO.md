@@ -2,6 +2,11 @@
 
 
 
+## 25/11/2026 - El portal del cliente decía que no había contraseña
+- Con la entrega 336, `/portal?fiestaId=` armaba la vista previa sin decir si la fiesta tenía clave, y mostraba "el
+  organizador aún no configuró una contraseña": el cliente no podía entrar nunca. Ahora la vista previa dice sólo si hay
+  clave (`tieneClave`, nunca la clave) y la pantalla pide la contraseña. Lo frenó el recorrido de pantallas.
+
 ## 24/11/2026 - Publicadas las entregas 336 a 342 de Gemini, juntas
 
 - Las dos ramas corregidas (`gemini/orden-338` con 336-338 y `gemini/orden-341` con 339-342) se juntaron en una propuesta.

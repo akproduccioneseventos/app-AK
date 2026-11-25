@@ -351,9 +351,19 @@ describe('Orden 336 Bloque 3 — Sección D y E + Escaneo 214', () => {
       expect(preview).toEqual({
         id: 'f-pub',
         enabled: true,
+        tieneClave: true,
         configuracion: expect.objectContaining({ nombreEvento: 'Fiesta Pública' }),
       });
       expect(JSON.stringify(preview)).not.toContain('NO_DEBE_SALIR');
+    });
+
+    test('el portal con clave pide la clave, no dice "aún no configuró una contraseña"', async () => {
+      // Lo encontró el recorrido el 25/11/2026: la vista previa no decía si había clave y el cliente no podía entrar.
+      mockGetFiestaByIdRaw.mockResolvedValue({ id: 'f-sin', configuracion: {}, clientPortalSettings: { enabled: true } });
+      expect((await getPortalPublicPreview('f-sin'))?.tieneClave).toBe(false);
+      const code = readProjectFile('src/app/portal/page.tsx');
+      expect(code).toContain('setPortalTieneClave(preview.tieneClave)');
+      expect(code).toContain('!portalTieneClave && !fiesta.clientPortalSettings?.accessKey');
     });
 
     test('/entrar valida la sesión con verifySession() y no redirige por cookie suelta', () => {
