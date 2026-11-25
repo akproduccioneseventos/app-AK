@@ -107,8 +107,8 @@ function ExperienciaContent() {
       .then((data) => {
         if (activo && data) setCifras(data);
       })
+      // no pasa nada si falla: se muestran las cifras base, que son las mismas que cuenta el servidor
       .catch(() => {
-        // no pasa nada si falla: se muestran las cifras base, que son las mismas que cuenta el servidor
       });
     return () => {
       activo = false;

@@ -51,8 +51,8 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
       .then((data) => {
         if (vigente && data) setCifras(data);
       })
+      // no pasa nada si falla: quedan las cifras base, sólo es una lectura para mostrar
       .catch(() => {
-        // no pasa nada si falla: quedan las cifras base, sólo es una lectura para mostrar
       });
     return () => {
       vigente = false;

@@ -78,8 +78,8 @@ export function StatsSection({ stats, cifras: cifrasIniciales }: StatsSectionPro
       .then((res) => {
         if (activo && res) setCifras(res);
       })
+      // no pasa nada si falla: queda el cálculo local, sólo es una lectura para mostrar
       .catch(() => {
-        // no pasa nada si falla: queda el cálculo local, sólo es una lectura para mostrar
       });
     return () => {
       activo = false;
