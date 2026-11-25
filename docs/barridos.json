@@ -908,6 +908,22 @@
     "227": {
       "fecha": "2026-11-24",
       "resultado": "Fórmula vieja contra nueva sobre las 377 recetas: 4 salían ×1000 (gramos contra litro/unidad, ml contra kg); arreglado. Las otras fórmulas de plata de la entrega 336-338 (total del presupuesto, cupón, compras por evento) revisadas a mano: cambios buscados."
+    },
+    "228": {
+      "fecha": "2026-11-25",
+      "resultado": "47 contadores \"({lista.length})\" en títulos; confirmados que se pintan antes de cargar /empleados y /eventos (KPIs). El resto lo mira Gemini en la orden 355."
+    },
+    "229": {
+      "fecha": "2026-11-25",
+      "resultado": "9 títulos de primer nivel con el sufijo a mano (cumpleaños, quinceañeras, privacidad, blog, experiencia, catálogo, LED, galerías); van todos en la orden 355, bloque 1."
+    },
+    "230": {
+      "fecha": "2026-11-25",
+      "resultado": "Nada escribe \"Realizada\" en citas; tareas y recordatorios del despertador sí se cierran solos. Las citas van en la orden 355, bloque 8."
+    },
+    "231": {
+      "fecha": "2026-11-25",
+      "resultado": "5 lugares: perfil (\"contraseña compartida\"), simulator-agenda, SimulatorMeetingScheduler (dos) y el valor por defecto del calendario. Todos en la orden 355."
     }
   },
   "hallazgos": {
@@ -1354,6 +1370,10 @@
     "orden-349": {
       "fecha": "2026-11-25",
       "resultado": "Informe del auditor externo del 25/11: platos sin precio y textos PRUEBA en la LED pública, cifra inventada (500 familias), tildes y fechas, campana contra centro de alertas, botones sin nombre. El barrido de cifras escritas a mano y de platos sin precio en pantallas públicas va en la orden 349, con dos reglas nuevas del robot."
+    },
+    "orden-355": {
+      "fecha": "2026-11-25",
+      "resultado": "Cuarta auditoría externa del 25/11: títulos dobles, páginas por tipo repetidas para Google, ceros mientras carga, conteos distintos de fiestas próximas, citas que no se cierran, oficina inexistente, textos fijos del perfil. Barrido de las cuatro formas nuevas (228 a 231) en toda la app, todo dentro de la orden 355."
     }
   }
 }
