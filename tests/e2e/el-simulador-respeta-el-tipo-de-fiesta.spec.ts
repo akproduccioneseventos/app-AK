@@ -4,10 +4,6 @@ test.describe('Orden 96 / Orden 290: El simulador respeta el tipo de fiesta y no
   test('abre con ?tipo=boda y queda seleccionada Boda', async ({ page }) => {
     await page.goto('/simulador-de-presupuesto?tipo=boda', { waitUntil: 'domcontentloaded' });
 
-    // Con ?tipo= arranca directamente en el paso 1; el botón para avanzar al paso 2 es simulator-first-step-cta
-    const firstStepCta = page.getByTestId('simulator-first-step-cta');
-    await expect(firstStepCta).toBeVisible({ timeout: 15_000 });
-    await firstStepCta.click();
 
     // El selector de tipo de evento en el paso 2 debe mostrar "Boda"
     const selectorTipo = page.locator('button[role="combobox"]').first();
@@ -18,9 +14,6 @@ test.describe('Orden 96 / Orden 290: El simulador respeta el tipo de fiesta y no
   test('abre con ?tipo=XV%20años y queda seleccionada 15 años', async ({ page }) => {
     await page.goto('/simulador-de-presupuesto?tipo=XV%20a%C3%B1os', { waitUntil: 'domcontentloaded' });
 
-    const firstStepCta = page.getByTestId('simulator-first-step-cta');
-    await expect(firstStepCta).toBeVisible({ timeout: 15_000 });
-    await firstStepCta.click();
 
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
@@ -35,10 +28,6 @@ test.describe('Orden 96 / Orden 290: El simulador respeta el tipo de fiesta y no
     await expect(coverStart).toBeVisible({ timeout: 15_000 });
     await coverStart.click();
 
-    // En el paso 1, el botón para avanzar al paso 2 es simulator-first-step-cta
-    const firstStepCta = page.getByTestId('simulator-first-step-cta');
-    await expect(firstStepCta).toBeVisible({ timeout: 15_000 });
-    await firstStepCta.click();
 
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
