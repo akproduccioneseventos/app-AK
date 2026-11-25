@@ -61,7 +61,19 @@ ingrese una fiesta es 201, y pasa el tiempo y va a ser 9 años; ponemos como fec
    diciendo "DJ profesional con +200 fiestas realizadas" usando la misma cifra.
 3. Si el dueño escribió otra cifra a mano en el editor de la portada, se respeta la suya.
 
-## Barrido en toda la app
+## Bloque 7 — Segunda auditoría externa del 25/11 (sin plata)
+1. **Hora del respaldo** (Ajustes → Sistema → Backup): el título sale en hora de Greenwich ("10:06" cuando eran las 7:06).
+   Una sola hora, la de Uruguay.
+2. **Pantallas en blanco mientras cargan** (Pagos rápidos, estado de cuenta, editar servicio, Personal → Reporte, Fiestas,
+   Backup, Reportes → Comparativa): un "Cargando…" visible hasta que llegan los datos.
+3. **"Para hacer hoy" sugiere escribir a un número inventado** (59899000000, "Prueba Test"): las sugerencias dejan afuera
+   los registros que empiezan con "PRUEBA" o "Prueba Test" y los números que no son celulares reales.
+4. **Tareas automáticas dice "0 tareas, el despertador todavía no corrió"** mientras Hoy muestra avisos del Vigilante, el
+   Cobrador y el Perseguidor: las dos pantallas leen el mismo registro de corridas.
+5. **El pie muestra "Martin, Contabilidad" o "Bruno, Responsable de fiesta" según la pantalla**, con la misma sesión: si
+   es un rótulo del módulo, que no parezca una persona; si no, que muestre el usuario de la sesión.
+
+
 - Platos o servicios sin precio en pantallas públicas: `grep -rn "precioPorPersona\|precio" src/app/presentacion-led
   src/app/simulador-de-presupuesto` y mirar cada lista que se muestra al cliente. Lo encontrado se arregla en esta orden.
 - Cifras de clientes o fiestas escritas a mano: `grep -rnE "[0-9]{3,} (familias|fiestas|eventos|clientes)" src --include=*.tsx`.
