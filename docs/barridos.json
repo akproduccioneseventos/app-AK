@@ -1350,6 +1350,10 @@
     "orden-346": {
       "fecha": "2026-11-25",
       "resultado": "El robot corrió sobre las 152 pantallas con el usuario sembrado: 15 rojos, 3 del entorno y 12 de la app, todos en la orden 346."
+    },
+    "orden-349": {
+      "fecha": "2026-11-25",
+      "resultado": "Informe del auditor externo del 25/11: platos sin precio y textos PRUEBA en la LED pública, cifra inventada (500 familias), tildes y fechas, campana contra centro de alertas, botones sin nombre. El barrido de cifras escritas a mano y de platos sin precio en pantallas públicas va en la orden 349, con dos reglas nuevas del robot."
     }
   }
 }
