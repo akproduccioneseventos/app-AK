@@ -968,6 +968,10 @@
     "242": {
       "fecha": "2026-11-26",
       "resultado": "motor-agentes.ts traga el error de cada agente y el asistente proactivo se marca corrido; el blog con candado ocupado también. El resto lo barre Gemini en la orden 367."
+    },
+    "243": {
+      "fecha": "2026-11-26",
+      "resultado": "comments-backfill.ts: isAutoHidden antes de hideCommentOnMeta y sin mirar el resultado (automático y manual). El resto de las marcas que dependen de afuera lo barre Gemini en la orden 368."
     }
   },
   "hallazgos": {
@@ -1466,6 +1470,10 @@
     "orden-367": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 12 (seis especialistas): listas del cliente y del recontacto que se pisan (210), 'mp' en 'compra' y bloques pagados a medias en la ganancia (241), ingreso sin ajuste en Finanzas, parte del equipo con cuotas a cualquiera, caras de invitados públicas, avisos que dicen 'enviado' sin enviar, tareas corridas con agentes caídos (242), fechas de cobros y cuotas en hora de Greenwich (70), botones de 36 px del invitado."
+    },
+    "orden-368": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 13 (seis especialistas): 'Oculto' sin que Meta oculte (243), cabina IA 'en el muro' con aprobación pendiente, marca del espejo que no se apaga al imprimir, editar empleado borra el mail de Workspace, documentos de la fiesta que se pisan (210), tres acciones de invitados sin control, 'barra' y 'ron' por pedazos en bebidas (241), repostería en cero que suma, docena contra unidad, stock que no convierte, cuota final un día antes (70), botón de 32 px en mesas."
     }
   }
 }
