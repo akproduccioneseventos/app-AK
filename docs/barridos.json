@@ -928,6 +928,10 @@
     "232": {
       "fecha": "2026-11-26",
       "resultado": "20 archivos fuera de src/ai llaman a generateWithGeminiFallback o ejecutarPromptConFallback; todos en la orden 358."
+    },
+    "233": {
+      "fecha": "2026-11-26",
+      "resultado": "La marca photosUploaded del Video de Vida (se prende con la primera foto y no se apaga al borrar) en la orden 359; el resto de marcas \"true\" lo revisa Gemini en el barrido de esa orden."
     }
   },
   "hallazgos": {
@@ -1390,6 +1394,10 @@
     "orden-358": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 3 (plata, permisos, integraciones): plata y permisos sin errores nuevos; Meta y Mercado Pago verifican firma y no duplican; 20 llamadas a la IA sin pasar por el cerebro (pregunta 232), barridas y pedidas en la orden 358."
+    },
+    "orden-359": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 4 (fiesta, portal, celular y textos): Video de Vida que da por terminado lo empezado (pregunta 233), invitados que se pisan y devuelven la fiesta entera, tilde del cronograma en vivo que se pierde, fiesta de hoy contada como pasada, botones de 28 px en el portal. Textos públicos sin promesas prohibidas."
     }
   }
 }

@@ -50,6 +50,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
      se guardan y las tareas con fallas no dicen "al día".
   9. **Orden 358 (`docs/ordenes/358-gemini-robot-vuelta-3-toda-la-ia-por-el-cerebro.md`):** 20 archivos que llaman a la
      IA sin pasar por el cerebro (sin tope ni registro): pasarlos a `pedirTexto` y que el control lo vea.
+  10. **Orden 359 (`docs/ordenes/359-gemini-robot-vuelta-4-video-de-vida-invitados-e-itinerario.md`):** el Video de Vida no
+      da por terminado lo que empezó, los invitados no se pisan ni devuelven la fiesta entera, el tilde del cronograma en vivo
+      no se pierde y la fiesta de hoy no sale como pasada.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
