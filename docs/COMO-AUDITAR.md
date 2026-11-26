@@ -2221,3 +2221,8 @@ reintentar. El aviso de fotos por WhatsApp lo tomaba como falla, no lo anotaba, 
 Decimoséptima vuelta del robot, 26/11/2026: los documentos de la fiesta (contratos, recibos de seña y de sueldo) los sube sólo quien tiene
 contabilidad, pero los bajaba cualquiera del equipo de la fiesta, incluido el operador, y el portal del cliente recibía también los recibos
 del personal.
+
+### 249. Lo que una acción devuelve al navegador, ¿se arma con lo guardado entero (`...guardado`) y lleva secretos?
+
+Decimoctava vuelta del robot, 26/11/2026: guardar la dirección de Facebook devolvía la conexión entera, con el token de publicación, porque
+la respuesta se armaba con todo lo guardado más el cambio.

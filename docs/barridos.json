@@ -992,6 +992,10 @@
     "248": {
       "fecha": "2026-11-26",
       "resultado": "documentos-fiesta/[...parts]/route.ts entrega cualquier documento al equipo de la fiesta y al portal sin mirar el tipo. El resto de las rutas de archivos lo barre Gemini en la orden 372."
+    },
+    "249": {
+      "fecha": "2026-11-26",
+      "resultado": "social-connections.ts devuelve la conexión con tokens en saveSocialCredentials y testInstagramConnection (3 lugares encontrados por el escaneo). El resto lo barre Gemini en la orden 373."
     }
   },
   "hallazgos": {
@@ -1510,6 +1514,10 @@
     "orden-372": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 17 (seis especialistas): documentos de plata que baja el operador y recibos del personal en el portal (248), correo del contador público, Google 'conectado' fijo, historial 'sincronizado' sin datos, 'al día' con falla posterior, recontacto corrido sin enviar, listas del asistente pisadas con lectura fallida (244), propuestas resueltas que cambian, dos cuentas con el mismo correo, fecha de la fiesta guardada con hora (70), Poner al día sin el ajuste, devoluciones de botellas que no se hicieron."
+    },
+    "orden-373": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 18 (seis especialistas): tokens de redes en la respuesta (249) y despachador sin recortar, proveedor contado dos veces, comparativa sin recargo, pasar cobros 'correctamente' a ciegas (244), seña pagada dos veces, reintegro parcial como devolución total, voz del cliente sin reserva y fuera del control, marcas de tareas que se pisan (210), clima y diagnóstico (orden 194 sin hacer) y tope de avisos en Greenwich (70)."
     }
   }
 }

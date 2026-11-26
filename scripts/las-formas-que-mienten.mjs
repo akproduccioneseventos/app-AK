@@ -321,6 +321,13 @@ const FORMAS = [
     comoSeArregla: 'Pasar la marca a la copia (marcarLecturaFallida) o devolver la falla antes de copiar.',
   },
   {
+    pregunta: 249,
+    nombre: 'Una acción que devuelve al navegador lo guardado entero, con secretos',
+    porque: 'Guardar la URL de Facebook devolvía la conexión completa con el token de publicación (robot, vuelta 18, 26/11/2026).',
+    buscar: /return \{ success: true, connection: (?:updatedConnection|updated) \}/g,
+    comoSeArregla: 'Devolver la conexión sin tokens ni claves, como getSocialConnectionsPublicas.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
