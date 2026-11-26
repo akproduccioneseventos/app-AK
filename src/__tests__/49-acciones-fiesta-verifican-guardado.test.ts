@@ -17,6 +17,20 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   saveFiesta: (...args: any[]) => saveFiestaMock(...args),
   updateFiestaPartial: (...args: any[]) => updateFiestaPartialMock(...args),
+  requireFiestaWriteAccess: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: async (id: string, fn: any) => {
+    const fiesta = await require('@/app/actions/fiesta/fiesta.actions').getFiestaById(id);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
+    const updated = typeof fn === 'function' ? await fn(fiesta) : { ...fiesta, ...fn };
+    const r = await updateFiestaPartialMock(id, updated);
+    return r?.success ? { success: true, updatedFiesta: updated } : { success: false, error: r?.error || 'No se pudo guardar' };
+  },
+}));
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn().mockResolvedValue(false),
+  registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('@/app/actions/fiesta-actual', () => ({
   getFiestaById: jest.fn(),

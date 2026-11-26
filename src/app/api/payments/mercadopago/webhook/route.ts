@@ -42,14 +42,25 @@ export async function POST(request: NextRequest) {
     const result = await reconcileMercadoPagoPayment(payment);
     if (result.changed) {
       const approved = result.sessionStatus === 'approved';
+      const partialRefund =
+        result.sessionStatus === 'refunded'
+        && (result.netAmount ?? 0) > 0
+        && (result.refundedAmount ?? 0) > 0;
+      const formatMoney = (val: number) => `$${Math.round(val).toLocaleString('es-UY')}`;
       // no-mira-el-resultado: el pago ya fue conciliado y el saldo actualizado; la notificacion al admin es secundaria
       await createNotification({
-        titulo: approved ? 'Pago de Mercado Pago confirmado' : 'Pago de Mercado Pago revertido',
+        titulo: approved
+          ? 'Pago de Mercado Pago confirmado'
+          : partialRefund
+            ? 'Devolución parcial de Mercado Pago'
+            : 'Pago de Mercado Pago revertido',
         mensaje: result.requiresReview
           ? 'El pago fue recibido, pero requiere revision porque el saldo cambio durante el checkout.'
           : approved
             ? 'Mercado Pago confirmo el cobro y el saldo se actualizo automaticamente.'
-            : 'Mercado Pago informo una devolucion o contracargo y el saldo fue restaurado.',
+            : partialRefund
+              ? `Mercado Pago informó una devolución parcial: se devolvieron ${formatMoney(result.refundedAmount ?? 0)}; siguen cobrados ${formatMoney(result.netAmount ?? 0)}.`
+              : 'Mercado Pago informo una devolucion o contracargo y el saldo fue restaurado.',
         href: `/presupuestos/${result.presupuestoId}/estado-de-cuenta`,
         icono: 'ListChecks',
         tipo: result.requiresReview ? 'aviso' : approved ? 'exito' : 'aviso',

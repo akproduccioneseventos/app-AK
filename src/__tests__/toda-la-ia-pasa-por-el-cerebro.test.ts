@@ -359,4 +359,38 @@ describe('Orden 342: toda la IA pasa por el cerebro', () => {
       else process.env.GOOGLE_API_KEY = prevGoogleKey;
     }
   });
+
+  it('h) bloquea imports de @/ai/direcciones-google fuera de src/ai/ y src/lib/asistente/voz-en-vivo.ts', () => {
+    const srcDir = path.join(process.cwd(), 'src');
+    const violaciones: string[] = [];
+
+    function recorrerDir(dir: string) {
+      const entradas = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entrada of entradas) {
+        const rutaCompleta = path.join(dir, entrada.name);
+        const rutaRelativa = path.relative(process.cwd(), rutaCompleta).replace(/\\/g, '/');
+
+        if (
+          rutaRelativa.startsWith('src/ai/') ||
+          rutaRelativa === 'src/lib/asistente/voz-en-vivo.ts' ||
+          rutaRelativa.startsWith('src/__tests__/') ||
+          rutaRelativa.includes('node_modules')
+        ) {
+          continue;
+        }
+
+        if (entrada.isDirectory()) {
+          recorrerDir(rutaCompleta);
+        } else if (entrada.isFile() && /\.(ts|tsx|js|jsx)$/.test(entrada.name)) {
+          const contenido = fs.readFileSync(rutaCompleta, 'utf8');
+          if (contenido.includes('direcciones-google')) {
+            violaciones.push(rutaRelativa);
+          }
+        }
+      }
+    }
+
+    recorrerDir(srcDir);
+    expect(violaciones).toEqual([]);
+  });
 });

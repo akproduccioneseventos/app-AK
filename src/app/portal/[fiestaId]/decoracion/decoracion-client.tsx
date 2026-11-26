@@ -54,19 +54,34 @@ export default function ClientDecoracionPage() {
     }
   }, [fiestaId]);
 
-  const handleGuardarIdeas = async (nextPhotos: string[]) => {
+  const handleEliminarIdea = async (url: string) => {
     setIsSavingIdeas(true);
     try {
-      const { subirIdeasDecoracionCliente } = await import('@/app/actions/fiesta/portal.actions');
-      const res = await subirIdeasDecoracionCliente(fiestaId, nextPhotos);
-      if (res.success) {
-        setIdeasPhotos(nextPhotos);
-        toast({
-          title: 'Ideas guardadas',
-          description: 'El equipo de diseño ya puede ver tus fotos de referencia.',
-        });
+      const { eliminarIdeaDecoracionCliente } = await import('@/app/actions/fiesta/portal.actions');
+      const res = await eliminarIdeaDecoracionCliente(fiestaId, url);
+      if (res.success && res.updatedList) {
+        setIdeasPhotos(res.updatedList);
+        toast({ title: 'Foto eliminada', description: 'Se actualizó tu galería de ideas.' });
       } else {
-        toast({ title: 'Error', description: res.error || 'No se pudieron guardar las fotos.', variant: 'destructive' });
+        toast({ title: 'Error', description: res.error || 'No se pudo eliminar la foto.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servidor.', variant: 'destructive' });
+    } finally {
+      setIsSavingIdeas(false);
+    }
+  };
+
+  const handleAgregarIdea = async (dataUrl: string) => {
+    setIsSavingIdeas(true);
+    try {
+      const { agregarIdeaDecoracionCliente } = await import('@/app/actions/fiesta/portal.actions');
+      const res = await agregarIdeaDecoracionCliente(fiestaId, dataUrl);
+      if (res.success && res.updatedList) {
+        setIdeasPhotos(res.updatedList);
+        toast({ title: 'Idea agregada', description: 'El equipo de diseño ya puede ver tu foto.' });
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo agregar la foto.', variant: 'destructive' });
       }
     } catch {
       toast({ title: 'Error', description: 'Error al conectar con el servidor.', variant: 'destructive' });
@@ -385,10 +400,7 @@ export default function ClientDecoracionPage() {
                 <ImagenConRespaldo src={url} alt={`Idea ${idx + 1}`} fill className="object-cover" />
                 <button
                   type="button"
-                  onClick={() => {
-                    const next = ideasPhotos.filter((_, i) => i !== idx);
-                    handleGuardarIdeas(next);
-                  }}
+                  onClick={() => handleEliminarIdea(url)}
                   className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 opacity-80 group-hover:opacity-100 transition-opacity"
                   title="Eliminar foto"
                 >
@@ -412,8 +424,7 @@ export default function ClientDecoracionPage() {
                     reader.onload = (evt) => {
                       const dataUrl = String(evt.target?.result || '');
                       if (dataUrl) {
-                        const next = [...ideasPhotos, dataUrl].slice(0, 6);
-                        handleGuardarIdeas(next);
+                        handleAgregarIdea(dataUrl);
                       }
                     };
                     reader.readAsDataURL(file);

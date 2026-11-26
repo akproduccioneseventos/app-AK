@@ -1,4 +1,5 @@
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
 /**
  * Las cosas que la app promete hacer SOLA, y cuando paso cada una por ultima vez.
@@ -145,25 +146,28 @@ export async function marcarCorrida(
   origen: OrigenDisparo = 'despertador',
 ): Promise<void> {
   try {
-    const marcas = await readData<Marcas>(ARCHIVO, {});
-    marcas[id] = {
-      fecha: ahora.toISOString(),
-      origen,
-    };
-    await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<Marcas>(ARCHIVO, {}, (marcas) => {
+      const actual = marcas || {};
+      return {
+        ...actual,
+        [id]: {
+          fecha: ahora.toISOString(),
+          origen,
+        },
+      };
+    });
 
-    // Limpia el fallo si existía
-    try {
-      const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
+    await mutarDocumentoConTransaccion<any>(ESTADO_AL_ENTRAR_FILE, {}, (estadoAlEntrar) => {
+      const estado = estadoAlEntrar || {};
+      const ultimoFallo = { ...(estado.ultimoFallo || {}) };
       const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
-      if (estadoAlEntrar?.ultimoFallo && (estadoAlEntrar.ultimoFallo[nombreEntrar] || estadoAlEntrar.ultimoFallo[id])) {
-        delete estadoAlEntrar.ultimoFallo[nombreEntrar];
-        delete estadoAlEntrar.ultimoFallo[id];
-        await writeData(ESTADO_AL_ENTRAR_FILE, estadoAlEntrar, undefined, { skipAutoBackup: true });
+      if (ultimoFallo[nombreEntrar] || ultimoFallo[id]) {
+        delete ultimoFallo[nombreEntrar];
+        delete ultimoFallo[id];
+        return { ...estado, ultimoFallo };
       }
-    } catch {
-      // Ignorar error al limpiar fallo
-    }
+      return estado;
+    }).catch(() => {});
   } catch {
     // Que falle la marca no puede tumbar la tarea que si corrio.
   }
@@ -176,11 +180,13 @@ export async function marcarFallo(
   ahora: Date = new Date(),
 ): Promise<void> {
   try {
-    const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
-    const ultimoFallo = { ...(estadoAlEntrar?.ultimoFallo || {}) };
-    const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
-    ultimoFallo[nombreEntrar] = { fecha: ahora.toISOString(), error };
-    await writeData(ESTADO_AL_ENTRAR_FILE, { ...estadoAlEntrar, ultimoFallo }, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<any>(ESTADO_AL_ENTRAR_FILE, {}, (estadoAlEntrar) => {
+      const estado = estadoAlEntrar || {};
+      const ultimoFallo = { ...(estado.ultimoFallo || {}) };
+      const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
+      ultimoFallo[nombreEntrar] = { fecha: ahora.toISOString(), error };
+      return { ...estado, ultimoFallo };
+    });
   } catch {
     // Que falle registrar el error no debe propagar excepción
   }
@@ -303,12 +309,13 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
 /** Deja constancia de que el despertador externo/Google toco la puerta del despachador. */
 export async function marcarToqueDespertador(ahora: Date = new Date()): Promise<void> {
   try {
-    const marcas = await readData<Marcas>(ARCHIVO, {});
-    marcas['__despertador_toque__'] = {
-      fecha: ahora.toISOString(),
-      origen: 'despertador',
-    };
-    await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<Marcas>(ARCHIVO, {}, (actual) => ({
+      ...(actual || {}),
+      __despertador_toque__: {
+        fecha: ahora.toISOString(),
+        origen: 'despertador',
+      },
+    }));
   } catch {
     // Si falla el guardado de la marca, no frena la ejecucion.
   }

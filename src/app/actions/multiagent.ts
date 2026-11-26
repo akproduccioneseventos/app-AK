@@ -15,6 +15,7 @@ const PERMISOS_MULTIAGENTE = [
 
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
 import { esConfirmacionSola } from '@/lib/multiagent/confirmacion';
+import { validarAccesoAlAgente } from '@/lib/multiagent/validar-acceso-agente';
 import { appendMultiAgentChatTurn, getMultiAgentChatSession, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -45,6 +46,18 @@ export async function sendMultiAgentMessage(
       agentName: 'Multiagente AK',
       action: { type: 'none' },
       error: 'No autorizado',
+    };
+  }
+
+  const permisoAgente = validarAccesoAlAgente(session.user, options?.agentType);
+  if (!permisoAgente.ok) {
+    return {
+      success: false,
+      response: 'Tu perfil no tiene acceso a ese asistente.',
+      agentType: options?.agentType ?? 'central',
+      agentName: 'Multiagente AK',
+      action: { type: 'none' },
+      error: 'Tu perfil no tiene acceso a ese asistente.',
     };
   }
 
@@ -120,6 +133,17 @@ export async function sendPersistentMultiAgentMessage(input: {
       agentType: input.agentType ?? 'central',
       agentName: 'AK',
       error: 'Sesion no autorizada.',
+    };
+  }
+
+  const accesoAgente = validarAccesoAlAgente(sesion.user, input.agentType);
+  if (!accesoAgente.ok) {
+    return {
+      success: false,
+      response: 'Tu perfil no tiene acceso a ese asistente.',
+      agentType: input.agentType ?? 'central',
+      agentName: 'AK',
+      error: 'Tu perfil no tiene acceso a ese asistente.',
     };
   }
 

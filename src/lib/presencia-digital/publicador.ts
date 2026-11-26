@@ -56,7 +56,7 @@ async function mutarPosteo(
 ): Promise<SocialPost | null> {
   // Con base, SOLO la transacción: si falla, no se reescribe la lista entera (pisaría lo que otro
   // guardó). El modo de archivos locales no tiene transacción y se cuida con el turno.
-  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true' && typeof mutateDataItem === 'function') {
     return mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, postId, cambiar);
   }
   {
@@ -204,8 +204,11 @@ async function publicarSinReclamo(
           updatedAt: new Date().toISOString(),
           lastError: undefined,
         };
-        posts[postIndex] = updatedPost;
-        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+        const saved = await mutarPosteo(postId, () => updatedPost);
+        if (!saved) {
+          posts[postIndex] = updatedPost;
+          await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+        }
         return {
           success: true,
           publishedTo: unifiedRes.publishedTo || selectedPlatforms,
@@ -438,8 +441,11 @@ async function publicarSinReclamo(
         status: 'Listo para copiar',
         updatedAt: new Date().toISOString(),
       };
-      posts[postIndex] = manualPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => manualPost);
+      if (!saved) {
+        posts[postIndex] = manualPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
       return {
         success: true,
         readyForManualCopy: true,
@@ -465,8 +471,11 @@ async function publicarSinReclamo(
         updatedAt: new Date().toISOString(),
       };
 
-      posts[postIndex] = updatedFailedPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => updatedFailedPost);
+      if (!saved) {
+        posts[postIndex] = updatedFailedPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
 
       return {
         success: false,
@@ -487,8 +496,11 @@ async function publicarSinReclamo(
         updatedAt: new Date().toISOString(),
       };
 
-      posts[postIndex] = updatedProcessingPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => updatedProcessingPost);
+      if (!saved) {
+        posts[postIndex] = updatedProcessingPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
 
       return {
         success: true,
@@ -509,8 +521,11 @@ async function publicarSinReclamo(
       ...(tiktokPublishId ? { publishId: tiktokPublishId } : {}),
     };
 
-    posts[postIndex] = updatedPost;
-    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    const saved = await mutarPosteo(postId, () => updatedPost);
+    if (!saved) {
+      posts[postIndex] = updatedPost;
+      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    }
 
     return {
       success: true,
@@ -739,7 +754,7 @@ export async function procesarBorradoresPublicarSolo(
   const posts = await readData<SocialPost[]>(POSTS_FILE, []);
   const ahoraTime = ahora.getTime();
   const doceHorasMs = 12 * 60 * 60 * 1000;
-  let huboCambios = false;
+  const cambiosPorId = new Map<string, Partial<SocialPost>>();
 
   for (let i = 0; i < posts.length; i++) {
     const post = posts[i];
@@ -757,10 +772,11 @@ export async function procesarBorradoresPublicarSolo(
     }
 
     if (statusNorm === 'programado' && esBorradorSinMediaRequerida(post)) {
+      const updatedAt = ahora.toISOString();
       post.status = 'Borrador';
-      post.updatedAt = ahora.toISOString();
+      post.updatedAt = updatedAt;
       resultado.descartados.push(post.id);
-      huboCambios = true;
+      cambiosPorId.set(post.id, { status: 'Borrador', updatedAt });
       continue;
     }
 
@@ -776,8 +792,9 @@ export async function procesarBorradoresPublicarSolo(
     if (!(post as any).previewEnviadaAlDuenioAt) {
       const enviado = await enviarPreviewBorradorAlDuenio(post).catch(() => false);
       if (enviado) {
-        (post as any).previewEnviadaAlDuenioAt = ahora.toISOString();
-        huboCambios = true;
+        const previewAt = ahora.toISOString();
+        (post as any).previewEnviadaAlDuenioAt = previewAt;
+        cambiosPorId.set(post.id, { previewEnviadaAlDuenioAt: previewAt } as Partial<SocialPost>);
       }
       resultado.esperando.push(post.id);
       continue;
@@ -801,15 +818,31 @@ export async function procesarBorradoresPublicarSolo(
 
     // Pasa a estado Programado en el mejor horario respetando ritmo máximo 1 por día
     const fechaProgramada = calcularFechaProximaPublicacionSinSaturar(posts, post.platform, ahora);
+    const updatedAt = ahora.toISOString();
     post.status = 'Programado';
     post.publishDate = fechaProgramada;
-    post.updatedAt = ahora.toISOString();
+    post.updatedAt = updatedAt;
     resultado.promocionados.push(post.id);
-    huboCambios = true;
+    cambiosPorId.set(post.id, { status: 'Programado', publishDate: fechaProgramada, updatedAt });
   }
 
-  if (huboCambios) {
-    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
+  // Cada posteo se actualiza dentro de su turno releyendo el estado fresco: si alguien tocó
+  // "No publicar" mientras corría la revisión, NO se vuelve a pasar a Programado ni se pisa.
+  for (const [postId, patch] of cambiosPorId.entries()) {
+    await mutarPosteo(postId, (actual) => {
+      const actualStatus = String(actual.status || '').toLowerCase().trim();
+      const marcadoNoPublicar =
+        ['descartado', 'cancelado', 'no publicar'].includes(actualStatus) ||
+        (actual as { noPublicar?: boolean }).noPublicar === true ||
+        (actual as { descartado?: boolean }).descartado === true;
+      if (marcadoNoPublicar) {
+        return actual;
+      }
+      if (patch.status === 'Programado' && actualStatus !== 'borrador') {
+        return actual;
+      }
+      return { ...actual, ...patch };
+    });
   }
 
   return resultado;

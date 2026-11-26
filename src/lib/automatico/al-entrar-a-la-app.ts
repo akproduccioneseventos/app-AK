@@ -488,11 +488,30 @@ export async function ponerAlDiaAlEntrar(
     }
 
     if (resultado.corrio.length > 0 || resultado.fallaron.length > 0) {
-      await writeData(
+      const { mutarDocumentoConTransaccion } = await import('@/lib/generic-json-store');
+      const corridasNuevas = new Set<string>(resultado.corrio);
+      const fallosNuevos = new Map<string, { fecha: string; error: string }>();
+      for (const fallo of resultado.fallaron) {
+        if (ultimoFallo[fallo.tarea]) {
+          fallosNuevos.set(fallo.tarea, ultimoFallo[fallo.tarea]!);
+        }
+      }
+      await mutarDocumentoConTransaccion<{ ultimaCorrida?: typeof ultimaCorrida; ultimoFallo?: typeof ultimoFallo }>(
         ESTADO_FILE,
-        { ultimaCorrida, ultimoFallo },
-        undefined,
-        { skipAutoBackup: true },
+        {},
+        (actual) => {
+          const baseCorrida = { ...(actual?.ultimaCorrida ?? {}) };
+          const baseFallo = { ...(actual?.ultimoFallo ?? {}) };
+          for (const nombre of corridasNuevas) {
+            const k = nombre as NombreDeTarea;
+            if (ultimaCorrida[k]) baseCorrida[k] = ultimaCorrida[k];
+            delete baseFallo[k];
+          }
+          for (const [nombre, detalle] of fallosNuevos) {
+            baseFallo[nombre as NombreDeTarea] = detalle;
+          }
+          return { ultimaCorrida: baseCorrida, ultimoFallo: baseFallo };
+        },
       );
     }
 

@@ -20,24 +20,20 @@ export async function autoAssignTables(
     // 1. Clonar lista para no mutar original
     const newInvitados = [...invitados].map(i => ({ ...i }));
 
-    // 2. Extraer mesas y su capacidad
-    const availableTables = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
+    // 2. Extraer mesas y su capacidad real o fallback
+    const tableSeats = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
       t.category?.toLowerCase().includes('mesa') === true &&
       typeof t.width === 'number' &&
       typeof t.height === 'number'
-    )).map(t => ({
-      name: t.name,
-      capacity: ((t.width || 0) / 40) * 2 + ((t.height || 0) / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
-      seatsOccupied: 0,
-      tags: new Set<string>()
-    }));
-
-    // Mejorar la capacidad: si el elemento tiene maxCapacity, usarlo, si no, asumir 8 o 10.
-    // Como el tipo LayoutElement en este proyecto tiene width/height pero capaz no 'capacity' explicita, fijaremos 10 genéricamente
-    const tableSeats = availableTables.map(t => ({
-      ...t,
-      capacity: 10 // Mock capacity for now
-    }));
+    )).map(t => {
+      const capacidadReal = (t as any).seats ?? (t as any).capacidad ?? 10;
+      return {
+        name: t.name,
+        capacity: Number(capacidadReal) || 10,
+        seatsOccupied: 0,
+        tags: new Set<string>()
+      };
+    });
 
     // 3. Contar ocupación actual (para mantener a los que YA tienen mesa)
     newInvitados.forEach(inv => {

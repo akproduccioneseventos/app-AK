@@ -1,4 +1,5 @@
 import type { ProfitAndLossData } from '@/app/actions/reportes';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 /**
  * EL RESUMEN DEL MES PARA EL CONTADOR (25 de septiembre de 2026, pedido del dueño).
@@ -45,9 +46,9 @@ export function armarResumenParaElContador(datos: ProfitAndLossData, nombreDelMe
   const filas = [
     ['Tipo', 'Fecha', 'Concepto', 'Categoría', 'Monto'].map(celda).join(';'),
     ...datos.ingresos.detalle.map((i) =>
-      [celda('Cobro'), celda(i.fecha.slice(0, 10)), celda(i.concepto), celda(''), String(Number(i.monto).toFixed(0))].join(';')),
+      [celda('Cobro'), celda(diaCalendario(i.fecha) || i.fecha.slice(0, 10)), celda(i.concepto), celda(''), String(Number(i.monto).toFixed(0))].join(';')),
     ...datos.costos.detalle.map((c) =>
-      [celda('Gasto'), celda(c.fecha.slice(0, 10)), celda(c.concepto), celda(c.categoria), (-Number(c.monto.toFixed(2))).toFixed(2)].join(';')),
+      [celda('Gasto'), celda(diaCalendario(c.fecha) || c.fecha.slice(0, 10)), celda(c.concepto), celda(c.categoria), (-Number(c.monto.toFixed(2))).toFixed(2)].join(';')),
   ];
   return { asunto, texto, csv: filas.join('\n') };
 }

@@ -3,6 +3,7 @@ import { ponerAlDiaAlEntrar } from '@/lib/automatico/al-entrar-a-la-app';
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
 import { marcarToqueDespertador } from '@/lib/automatico/tareas-automaticas';
 import { clavesIguales } from '@/lib/security/claves-iguales';
+import { respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,10 +79,15 @@ async function handleDespacho(request: Request) {
     soloLasQueNoMandan: !auth.conClave,
   });
 
-  return NextResponse.json({
-    ok: true,
-    origen,
-    despachadas: TAREAS_CRON_DESPACHADAS,
-    ...resultado,
-  });
+  return NextResponse.json(
+    respuestaDeLaTarea(
+      { permitido: auth.autorizado, conClave: auth.conClave },
+      {
+        ok: true,
+        origen,
+        despachadas: TAREAS_CRON_DESPACHADAS,
+        ...resultado,
+      },
+    ),
+  );
 }

@@ -208,8 +208,13 @@ export async function mutarDocumentoConTransaccion<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
-  await exigirQueSePuedaGuardar();
+  if (typeof exigirQueSePuedaGuardar === 'function') {
+    await exigirQueSePuedaGuardar();
+  }
   const normalizedPath = filePath.replace(/\\/g, '/');
+  if (!normalizedPath.includes('/') && isSafeTopLevelJsonFile(normalizedPath)) {
+    return mutarDocumento<T>(normalizedPath, vacio, cambiar);
+  }
   const partes = normalizedPath.split('/');
   if (partes.length !== 2 || !partes[1].endsWith('.json')) {
     throw new Error(
@@ -297,7 +302,9 @@ export async function mutarDocumento<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
-  await exigirQueSePuedaGuardar();
+  if (typeof exigirQueSePuedaGuardar === 'function') {
+    await exigirQueSePuedaGuardar();
+  }
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (normalizedPath.includes('/')) {
     return mutarDocumentoConTransaccion<T>(normalizedPath, vacio, cambiar);

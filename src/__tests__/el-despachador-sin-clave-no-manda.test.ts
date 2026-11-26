@@ -155,14 +155,8 @@ describe('cron-despachador sin clave no manda ni borra (Orden 365)', () => {
     expect(spyNoAbierta).not.toHaveBeenCalled();
     expect(spyAvisos).not.toHaveBeenCalled();
     expect(spyEmpezar2027).not.toHaveBeenCalled();
-    expect(body.omitidas).toEqual(
-      expect.arrayContaining([
-        'avisos_cliente',
-        'recordatorio_invitados',
-        'recordar_invitacion',
-        'empezar_2027',
-      ]),
-    );
+    // Orden 373 recorta la respuesta pública sin clave vía respuestaDeLaTarea para no exponer detalles internos.
+    expect(body).toEqual({ ok: true, recortada: true });
   });
 
   it('con CRON_SECRET válido y sesión de dueño SÍ corre las tareas que mandan y empezar_2027', async () => {

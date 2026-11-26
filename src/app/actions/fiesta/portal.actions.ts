@@ -1974,7 +1974,16 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       updatedItems = remainingItems;
 
       // Nuevo total: con TODAS las multas guardadas, no sólo la de esta vez (orden 210, A5).
-      nuevoTotal = totalTrasCancelar(remainingItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
+      const nuevoTotalBase = totalTrasCancelar(remainingItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
+      // Cifra cobrable real (multas ya ajustadas sin doble ajuste; servicios vigentes conservan ajuste).
+      nuevoTotal = getBudgetPaymentSummary(
+        {
+          ...presupuesto,
+          itemsPresupuestados: remainingItems,
+          totalConDescuento: nuevoTotalBase,
+        },
+        { includeAnnualAdjustment: true },
+      ).total;
 
       docContent = `============================================================
            AK PRODUCCIONES - CONTRATO DE CANCELACIÓN PARCIAL
@@ -2028,13 +2037,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // descuento, que ya estaba en el total del que sale. En cancelación total, penaltyTotal
     // ya incluye el ajuste inflacionario al año de cancelación: no se re-aplica sobre la multa.
     presupuesto.totalConDescuento = totalTrasCancelar(updatedItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
-    nuevoTotal = presupuesto.totalConDescuento;
     if (payload.cancelAll) {
       presupuesto.ajusteAnualActivo = false;
       presupuesto.ajusteAnualPorcentaje = 0;
     }
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
-    presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
+    const summaryFinal = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true });
+    nuevoTotal = summaryFinal.total;
+    presupuesto.saldo = summaryFinal.balance;
 
     presupuesto.ajustesAplicados = [
       ...marcasPrevias,
@@ -2051,6 +2061,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       return armado.yaEstaba ? null : armado.presupuesto;
     });
     if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
+    if (armado && (armado as { cancelada?: boolean }).cancelada) {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
     if (!armado || (armado as any).yaEstaba) {
       return { success: true, yaEstaba: true, refundAmount: 0, pendingDue: 0 };
     }
@@ -2151,6 +2164,9 @@ export async function changeEventDate(
     if (payload.passwordInput.trim() !== expectedPassword.trim()) {
       return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
     }
+    if ((fiesta as { estado?: string }).estado === 'Cancelada') {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
 
     // Check date availability
     const availRes = await checkDateAvailability(fiestaId, payload.newDate);
@@ -2170,6 +2186,9 @@ export async function changeEventDate(
     const armar = (original: any) => {
     const presupuesto = JSON.parse(JSON.stringify(original));
     const marcasPrevias: string[] = Array.isArray(presupuesto.ajustesAplicados) ? presupuesto.ajustesAplicados : [];
+    if (marcasPrevias.includes('cancelacion-total')) {
+      return { yaEstaba: false as const, cancelada: true as const };
+    }
     if (presupuesto.eventoFecha && String(presupuesto.eventoFecha).slice(0, 10) === String(payload.newDate).slice(0, 10)) {
       return { yaEstaba: true as const };
     }
@@ -2179,8 +2198,12 @@ export async function changeEventDate(
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 
-    // Calculate 10% penalty for date change
-    const penaltyAmount = Math.round(totalOriginal * 0.1);
+    // La multa del 10% va sobre el total contratado, sin sumar multas de cambios de fecha anteriores.
+    const multasCambioFechaAnteriores = (presupuesto.itemsPresupuestados || [])
+      .filter((i: any) => !i?.esRegalo && String(i?.idServicioCatalogo || '').startsWith('multa_cambio_fecha_'))
+      .reduce((sum: number, i: any) => sum + (Number(i?.costoTotalItem) || 0), 0);
+    const totalContratadoSinMultasFecha = Math.max(0, totalOriginal - multasCambioFechaAnteriores);
+    const penaltyAmount = Math.round(totalContratadoSinMultasFecha * 0.1);
     const nuevoTotal = totalOriginal + penaltyAmount;
 
     // Create penalty item
@@ -2273,14 +2296,20 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     let antes: any = null;
     const mutado = await mutarPresupuesto(fiesta.presupuestoId, (actual) => {
       antes = actual;
-      armado = armar(actual);
-      return armado.yaEstaba ? null : armado.presupuesto;
+      const calculado = armar(actual);
+      armado = calculado;
+      if (calculado.yaEstaba || ('cancelada' in calculado && calculado.cancelada)) return null;
+      return calculado.presupuesto;
     });
+    const armadoFinal: any = armado;
     if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
-    if (!armado || (armado as any).yaEstaba) {
+    if (armadoFinal && armadoFinal.cancelada) {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
+    if (!armadoFinal || armadoFinal.yaEstaba) {
       return { success: true, yaEstaba: true, penaltyAmount: 0, newBalance: (mutado.presupuesto ?? antes)?.saldo };
     }
-    const { presupuesto, docContent, filename, docId, penaltyAmount } = armado as Extract<ReturnType<typeof armar>, { yaEstaba: false }>;
+    const { presupuesto, docContent, filename, docId, penaltyAmount } = armadoFinal;
 
     // Orden: primero el presupuesto (adentro de la transaccion), despues el documento y la fiesta.
     // Si lo de despues falla, se DEVUELVE el presupuesto a como estaba: el recargo no puede quedar
@@ -2578,6 +2607,64 @@ export async function getMensajesCliente(
  * Guarda las fotos de referencia o ideas de decoración que sube el cliente (hasta 6),
  * y avisa al equipo con createNotification.
  */
+export async function agregarIdeaDecoracionCliente(
+  fiestaId: string,
+  fotoUrl: string
+): Promise<{ success: boolean; error?: string; updatedList?: string[] }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  let resultadoLista: string[] = [];
+  const res = await updateFiestaData(fiestaId, data => {
+    const deco = data.decoracion || {};
+    const actuales = [...(deco.fotosIdeasCliente || [])];
+    if (fotoUrl && !actuales.includes(fotoUrl) && actuales.length < 6) {
+      actuales.push(fotoUrl);
+    }
+    resultadoLista = actuales;
+    return {
+      ...data,
+      decoracion: {
+        ...deco,
+        fotosIdeasCliente: actuales,
+      },
+    };
+  });
+
+  if (res.success) {
+    await createNotification({
+      mensaje: `🎨 El cliente agregó una foto de ideas para la decoración.`,
+      href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,
+      icono: 'Palette',
+    });
+  }
+  return { ...res, updatedList: resultadoLista };
+}
+
+export async function eliminarIdeaDecoracionCliente(
+  fiestaId: string,
+  fotoUrl: string
+): Promise<{ success: boolean; error?: string; updatedList?: string[] }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  let resultadoLista: string[] = [];
+  const res = await updateFiestaData(fiestaId, data => {
+    const deco = data.decoracion || {};
+    const actuales = [...(deco.fotosIdeasCliente || [])];
+    const filtradas = actuales.filter(url => url !== fotoUrl);
+    resultadoLista = filtradas;
+    return {
+      ...data,
+      decoracion: {
+        ...deco,
+        fotosIdeasCliente: filtradas,
+      },
+    };
+  });
+  return { ...res, updatedList: resultadoLista };
+}
+
 export async function subirIdeasDecoracionCliente(
   fiestaId: string,
   fotos: string[]
@@ -2588,11 +2675,17 @@ export async function subirIdeasDecoracionCliente(
   const fotosValidas = (fotos || []).slice(0, 6);
   const res = await updateFiestaData(fiestaId, data => {
     const deco = data.decoracion || {};
+    // Mantener compatibilidad si se llama con formato antiguo combinando de forma segura
+    const byUrl = new Set(deco.fotosIdeasCliente || []);
+    for (const f of fotosValidas) {
+      byUrl.add(f);
+    }
+    const finalFotos = Array.from(byUrl).slice(0, 6);
     return {
       ...data,
       decoracion: {
         ...deco,
-        fotosIdeasCliente: fotosValidas,
+        fotosIdeasCliente: finalFotos,
       },
     };
   });
@@ -2600,7 +2693,7 @@ export async function subirIdeasDecoracionCliente(
   if (res.success) {
     // no-mira-el-resultado: aviso interno al panel; las ideas de decoracion ya quedaron guardadas
     await createNotification({
-      mensaje: `🎨 El cliente subió ${fotosValidas.length} foto(s) de ideas para la decoración.`,
+      mensaje: `🎨 El cliente actualizó sus fotos de ideas para la decoración.`,
       href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,
       icono: 'Palette',
     });

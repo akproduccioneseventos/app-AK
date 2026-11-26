@@ -16,8 +16,16 @@ jest.mock('@/lib/auth/equipo-de-la-fiesta', () => ({
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   updateFiestaPartial: jest.fn(async (_id, _data, _opts) => ({ success: true })),
-  getFiestaById: jest.fn(async () => null),
+  getFiestaById: jest.fn(async () => ({ id: 'fiesta_portal_123', decoracion: {} })),
   saveFiesta: jest.fn(async () => ({ success: true })),
+  requireFiestaWriteAccess: jest.fn(async () => undefined),
+}));
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (_id: string, fn: any) => {
+    const base = { id: _id, decoracion: {} };
+    const updated = typeof fn === 'function' ? await fn(base) : { ...base, ...fn };
+    return { success: true, updatedFiesta: updated };
+  }),
 }));
 
 describe('El portal ve lo que muestra y protege la privacidad', () => {

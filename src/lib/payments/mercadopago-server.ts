@@ -41,6 +41,8 @@ export interface MercadoPagoCheckoutSession {
   providerPaymentId?: string;
   providerStatus?: string;
   confirmedAt?: string;
+  refundedAmount?: number;
+  netAmount?: number;
   error?: string;
   requiresReview?: boolean;
   reviewReason?: string;
@@ -164,6 +166,35 @@ export async function createMercadoPagoCheckout(input: {
   });
   const financing = calculateMercadoPagoCuotas(serviceAmount);
   const now = new Date();
+  const db = await getDb();
+  // Si ya hay un checkout pendiente vigente por el mismo presupuesto, fin y monto, lo reutilizamos
+  // en vez de abrir otro boleto paralelo.
+  const existingSnapshot = await db
+    .collection(SESSION_COLLECTION)
+    .where('presupuestoId', '==', input.presupuesto.id)
+    .get();
+  const nowMs = now.getTime();
+  const sandbox = isMercadoPagoSandbox();
+  const existingSession = existingSnapshot.docs
+    .map((doc) => doc.data() as MercadoPagoCheckoutSession)
+    .find((candidate) => {
+      if (candidate.purpose !== input.purpose) return false;
+      if (!['creating', 'ready', 'pending'].includes(candidate.status)) return false;
+      const expiresAtMs = new Date(candidate.expiresAt).getTime();
+      if (!Number.isFinite(expiresAtMs) || expiresAtMs <= nowMs) return false;
+      if (roundMoney(candidate.serviceAmount) !== roundMoney(serviceAmount)) return false;
+      const candidateUrl = sandbox
+        ? candidate.sandboxCheckoutUrl || candidate.checkoutUrl
+        : candidate.checkoutUrl;
+      return Boolean(candidateUrl);
+    });
+  if (existingSession) {
+    const existingUrl = (sandbox
+      ? existingSession.sandboxCheckoutUrl || existingSession.checkoutUrl
+      : existingSession.checkoutUrl) as string;
+    return { session: existingSession, checkoutUrl: existingUrl };
+  }
+
   const session: MercadoPagoCheckoutSession = {
     id: randomUUID(),
     presupuestoId: input.presupuesto.id,
@@ -177,7 +208,6 @@ export async function createMercadoPagoCheckout(input: {
     updatedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + SESSION_TTL_MS).toISOString(),
   };
-  const db = await getDb();
   const ref = db.collection(SESSION_COLLECTION).doc(session.id);
   await ref.set(session);
 
@@ -232,6 +262,8 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPaymentSna
   sessionStatus: MercadoPagoSessionStatus;
   changed: boolean;
   requiresReview: boolean;
+  refundedAmount: number;
+  netAmount: number;
 }> {
   const sessionId = payment.external_reference?.trim();
   if (!sessionId) throw new Error('El pago no tiene una referencia de checkout valida.');
@@ -246,6 +278,8 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPaymentSna
     sessionStatus: 'pending' as MercadoPagoSessionStatus,
     changed: false,
     requiresReview: false,
+    refundedAmount: 0,
+    netAmount: 0,
   };
 
   await db.runTransaction(async (transaction) => {
@@ -285,6 +319,8 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPaymentSna
       providerPaymentId,
       providerStatus: payment.status,
       confirmedAt: status === 'approved' ? new Date().toISOString() : session.confirmedAt,
+      refundedAmount: reconciliation.refundedAmount,
+      netAmount: reconciliation.netAmount,
       requiresReview: reconciliation.requiresReview,
       reviewReason: reconciliation.reviewReason || null,
       updatedAt: new Date().toISOString(),
@@ -295,6 +331,8 @@ export async function reconcileMercadoPagoPayment(payment: MercadoPagoPaymentSna
       sessionStatus: status,
       changed: reconciliation.changed,
       requiresReview: reconciliation.requiresReview,
+      refundedAmount: reconciliation.refundedAmount,
+      netAmount: reconciliation.netAmount,
     };
   });
 

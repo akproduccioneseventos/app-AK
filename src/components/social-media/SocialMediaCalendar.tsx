@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { hoyEnUruguay } from '@/lib/utils';
 import { Calendar } from "@/components/ui/calendar";
 import { DayButton, type DayButtonProps } from 'react-day-picker';
 import { es } from 'react-day-picker/locale';
@@ -43,7 +44,8 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
     const postsByDay = useMemo(() => {
         const grouped: Record<string, SocialPost[]> = {};
         posts.forEach(post => {
-            const day = new Date(post.publishDate).toISOString().split('T')[0];
+            const fecha = new Date(post.publishDate);
+            const day = Number.isNaN(fecha.getTime()) ? String(post.publishDate).slice(0, 10) : hoyEnUruguay(fecha);
             if (!grouped[day]) {
                 grouped[day] = [];
             }
@@ -55,7 +57,7 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
     const SocialDayButton = (dayProps: DayButtonProps) => {
         const [open, setOpen] = useState(false);
         const date = dayProps.day.date;
-        const dayString = date.toISOString().split('T')[0];
+        const dayString = hoyEnUruguay(date);
         const postsForDay = postsByDay[dayString];
 
         if (!postsForDay) {

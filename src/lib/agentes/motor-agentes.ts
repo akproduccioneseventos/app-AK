@@ -605,6 +605,19 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<ServicioEmpresa[]>('insumos.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(inventario)) {
+    const registroError: RegistroEjecucionAgente = {
+      id: `reg_noche_${Date.now()}`,
+      agenteId: 'vigilante_noche',
+      agenteNombre: 'Operador de la Noche',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: ['No se pudo leer la agenda de fiestas o el inventario de barra desde la base de datos.'],
+      accionesPreparadas: ['Lectura fallida al auditar la noche; reintentar más tarde.'],
+      estado: 'error',
+    };
+    await registrarEjecucionAgente(registroError);
+    return registroError;
+  }
   const horaLocal = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'America/Montevideo',
     hour: '2-digit',
@@ -726,6 +739,24 @@ export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroE
     readData<Array<{ id: string; nombre: string }>>('roles.json', []),
     readData<Invoice[]>('invoices.json', []),
   ]);
+  if (
+    esLecturaFallida(fiestasTodas)
+    || esLecturaFallida(presupuestos)
+    || esLecturaFallida(roles)
+    || esLecturaFallida(invoices)
+  ) {
+    const registroError: RegistroEjecucionAgente = {
+      id: `reg_anticipador_${ahora.getTime()}`,
+      agenteId: 'anticipador',
+      agenteNombre: 'Anticipador',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: ['No se pudieron leer las fiestas, presupuestos, roles o facturas desde la base de datos.'],
+      accionesPreparadas: ['Lectura fallida; reintentar antes de evaluar faltantes o cuotas.'],
+      estado: 'error',
+    };
+    await registrarEjecucionAgente(registroError);
+    return registroError;
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
   const presupuestosPorId = new Map(presupuestos.map((presupuesto) => [presupuesto.id, presupuesto]));
   const facturasPorId = new Map(invoices.filter(isFirmSalesInvoice).map((invoice) => [invoice.id, invoice]));

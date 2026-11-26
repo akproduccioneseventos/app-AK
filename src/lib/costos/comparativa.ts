@@ -58,8 +58,9 @@ function mesDe(fecha?: string): string {
 
 function resumir(clave: string, fiestas: FiestaConGanancia[]): ResumenDeGrupo {
   const ingreso = fiestas.reduce((s, f) => s + f.ganancia.ingreso, 0);
+  const recargosCobrados = fiestas.reduce((s, f) => s + f.ganancia.recargosCobrados, 0);
   const costoReal = fiestas.reduce((s, f) => s + f.ganancia.costoReal, 0);
-  const gananciaReal = ingreso - costoReal;
+  const gananciaReal = ingreso + recargosCobrados - costoReal;
 
   return {
     clave,

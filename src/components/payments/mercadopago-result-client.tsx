@@ -29,6 +29,8 @@ type PaymentResult = {
   surchargeAmount: number;
   purpose: 'deposit' | 'balance';
   requiresReview: boolean;
+  refundedAmount?: number;
+  netAmount?: number;
 };
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', {
@@ -104,6 +106,16 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
       };
     }
     if (result.status === 'refunded') {
+      const refunded = Number(result.refundedAmount ?? 0);
+      const net = Number(result.netAmount ?? 0);
+      if (net > 0 && refunded > 0) {
+        return {
+          icon: AlertTriangle,
+          iconClass: 'text-amber-600',
+          title: 'Devolucion parcial registrada',
+          description: `Mercado Pago devolvio ${formatCurrency(refunded)}; siguen cobrados ${formatCurrency(net)}.`,
+        };
+      }
       return {
         icon: AlertTriangle,
         iconClass: 'text-amber-600',

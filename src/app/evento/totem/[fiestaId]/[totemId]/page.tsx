@@ -85,11 +85,7 @@ export default function TotemPublicPage() {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     setOrigin(currentOrigin);
     try {
-      const [fiestaData, socialPosts] = await withPublicRequestTimeout(Promise.all([
-        getPublicSocialEvent(fiestaId),
-        // Si falla la lectura de fotos se conservan las que ya se muestran (no se vacía el tótem).
-        getPublicSocialPosts(fiestaId).catch(() => null),
-      ]));
+      const fiestaData = await withPublicRequestTimeout(getPublicSocialEvent(fiestaId));
       if (!fiestaData) {
         setLoadError('No encontramos la configuración de este tótem.');
         return;
@@ -98,13 +94,19 @@ export default function TotemPublicPage() {
         || fallbackTotem(fiestaData, totemId, currentOrigin);
       setFiesta(fiestaData);
       setTotem(selected);
-      if (socialPosts) {
-        setPosts(
-          socialPosts
-            .filter(esAprobadoParaMostrar)
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 18)
-        );
+
+      if (selected.syncedWithSocialWall !== false) {
+        const socialPosts = await getPublicSocialPosts(fiestaId).catch(() => null);
+        if (socialPosts) {
+          setPosts(
+            socialPosts
+              .filter(esAprobadoParaMostrar)
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+              .slice(0, 18)
+          );
+        }
+      } else {
+        setPosts([]);
       }
       setLoadError(null);
     } catch (error) {

@@ -162,7 +162,10 @@ export async function syncAllEventCosts(
                 else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) qty = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad);
 
                 const totalLineCost = costoUnitario * qty;
-                if (totalLineCost > 0) {
+                const yaTieneCostoDeCatalogo = (fiesta.gestionCostos?.costosItems || []).some(
+                    (c) => c.id === `sync_budget_${item.idServicioCatalogo}` && Boolean(c.costoDeCatalogo),
+                );
+                if (!yaTieneCostoDeCatalogo && totalLineCost > 0) {
                     autoCostItems.push({
                         id: `auto_prov_${catalogItem.id}`,
                         nombre: `${item.nombreServicio} (Costo Proveedor)`,

@@ -713,6 +713,63 @@ export async function saveAjustesLlegadaPersonal(
   });
 }
 
+export interface SalonSinUbicacion {
+  salonNombre: string;
+  eventoNombre: string;
+  fechaEvento: string;
+}
+
+export async function getSalonesSinUbicacionProximasFiestas(): Promise<SalonSinUbicacion[]> {
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+  try {
+    const [{ leerFiestasCrudas }, { hoyEnUruguay }, { extraerCoordenadasDeUrl }, { esLecturaFallida }] = await Promise.all([
+      import('@/lib/fiesta/leer-fiestas'),
+      import('@/lib/utils'),
+      import('@/lib/geo/distancia'),
+      import('@/lib/marca-de-lectura'),
+    ]);
+    const [fiestasRaw, salonesRaw] = await Promise.all([
+      leerFiestasCrudas(false),
+      readData<Array<{ id?: string; nombre?: string; lat?: number; lng?: number; googleMapsUrl?: string }>>('salones.json', []),
+    ]);
+    if (esLecturaFallida(fiestasRaw) || !Array.isArray(fiestasRaw)) return [];
+    const salones = !esLecturaFallida(salonesRaw) && Array.isArray(salonesRaw) ? salonesRaw : [];
+    const hoy = hoyEnUruguay();
+    const vistos = new Set<string>();
+    const resultado: SalonSinUbicacion[] = [];
+
+    for (const f of fiestasRaw) {
+      const fecha = String(f?.configuracion?.fechaEvento ?? '').slice(0, 10);
+      if (!fecha || fecha < hoy) continue;
+      if ((f as { estado?: string })?.estado === 'Cancelada') continue;
+      const mapsUrl = f?.configuracion?.googleMapsUrl;
+      if (mapsUrl && extraerCoordenadasDeUrl(mapsUrl)) continue;
+      const nombreLugar = String(f?.configuracion?.nombreLugar ?? '').trim();
+      if (!nombreLugar) continue;
+      const salon = salones.find(
+        (s) =>
+          (s?.nombre && s.nombre.toLowerCase().trim() === nombreLugar.toLowerCase())
+          || s?.id === nombreLugar,
+      );
+      const tieneCoordsSalon =
+        Boolean(salon && salon.lat != null && salon.lng != null)
+        || Boolean(salon?.googleMapsUrl && extraerCoordenadasDeUrl(salon.googleMapsUrl));
+      if (tieneCoordsSalon) continue;
+      const clave = `${nombreLugar.toLowerCase()}::${fecha}`;
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      resultado.push({
+        salonNombre: nombreLugar,
+        eventoNombre: String(f?.configuracion?.nombreEvento || 'Fiesta'),
+        fechaEvento: fecha,
+      });
+    }
+    return resultado.sort((a, b) => a.fechaEvento.localeCompare(b.fechaEvento));
+  } catch {
+    return [];
+  }
+}
+
 const TUTORIALES_SETTINGS_FILE = 'tutoriales-settings.json';
 
 /**

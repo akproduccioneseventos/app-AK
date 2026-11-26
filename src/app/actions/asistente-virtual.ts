@@ -207,10 +207,10 @@ ${messageText}`,
         }
       }
 
-      // Si no se pudo guardar el dato, igual no se deja al cliente sin respuesta.
+      // Si no se pudo guardar el dato o faltan datos, no decimos que anotamos.
       return {
         success: true,
-        text: 'Anoté lo que me contaste. Para no hacerte esperar, escribinos por WhatsApp y te armamos el presupuesto en el momento.',
+        text: 'Para avanzar con tu presupuesto, por favor indicame tu nombre y teléfono de contacto, o escribinos directamente por WhatsApp.',
         nivel,
       };
     }

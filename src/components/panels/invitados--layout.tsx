@@ -12,8 +12,9 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
+import { mutarDecoracion } from '@/app/actions/fiesta/decoracion.actions';
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { generarEscenaAutomatica } from '@/lib/decoracion/generar-layout-automatico';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
@@ -386,9 +387,10 @@ function SalonLayoutContent() {
     data: decoracion,
     onSave: async (d) => {
       if (!fiestaId || !d) return { success: false, error: 'No hay datos de distribución para guardar' };
-      // Se mira el resultado a proposito: antes se anunciaba "guardado" aunque el
-      // guardado hubiera fallado, y el trabajo del salon se perdia sin aviso.
-      const guardado = await updateDecoracionFiestaActual(fiestaId, d);
+      const guardado = await mutarDecoracion(fiestaId, {
+        salonElements: d.salonElements,
+        ...(d.zonasDiseno ? { zonasDiseno: d.zonasDiseno } : {}),
+      });
       if (!guardado?.success) {
         return { success: false, error: guardado?.error || 'No se pudo guardar la distribución del salón.' };
       }
@@ -587,7 +589,7 @@ function SalonLayoutContent() {
       if (dataUrl) {
         const updatedDeco = { ...decoracion, salonPreview3dUrl: dataUrl };
         setDecoracion(updatedDeco);
-        const guardado = await updateDecoracionFiestaActual(fiestaId, updatedDeco);
+        const guardado = await mutarDecoracion(fiestaId, { salonPreview3dUrl: dataUrl });
         if (!guardado?.success) {
           toast({ title: "No se pudo guardar la vista", description: guardado?.error || "La imagen no llegó al portal del cliente. Probá de nuevo.", variant: "destructive" });
           return;
@@ -624,7 +626,7 @@ function SalonLayoutContent() {
   };
 
   const handleAutoAssign = async () => {
-    if (!fiesta || !decoracion) return;
+    if (!fiesta || !decoracion || !fiestaId) return;
     setIsAssigning(true);
     try {
       const result = await autoAssignTables(fiesta.invitados || [], decoracion.salonElements || []);
@@ -638,6 +640,17 @@ function SalonLayoutContent() {
           }
         }
 
+        let fallosGuardado = 0;
+        for (const u of result.updatedInvitados) {
+          const antes = anteriores.find(a => a.id === u.id);
+          if (u.tableNumber !== antes?.tableNumber) {
+            const res = await updateInvitadoFiestaActual(fiestaId, u);
+            if (!res.success) {
+              fallosGuardado += 1;
+            }
+          }
+        }
+
         setResumenAsignaciones(asignacionesNuevas);
         setIsModalAsignacionesOpen(true);
 
@@ -645,10 +658,18 @@ function SalonLayoutContent() {
           ? `${asignacionesNuevas.length} invitados ubicados en mesas.`
           : 'Distribución de mesas optimizada.';
 
-        toast({
-          title: "IA: Asignación Completada",
-          description: detalleTexto,
-        });
+        if (fallosGuardado > 0) {
+          toast({
+            title: "Atención",
+            description: `La asignación se calculó, pero ${fallosGuardado} invitado(s) no se pudieron guardar en la base de datos.`,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "IA: Asignación Completada",
+            description: detalleTexto,
+          });
+        }
 
         const updatedFiesta = { ...fiesta, invitados: result.updatedInvitados };
         setFiesta(updatedFiesta);

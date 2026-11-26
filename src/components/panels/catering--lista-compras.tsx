@@ -736,7 +736,12 @@ function ListaDeComprasContent() {
                                                 </div>
                                                 <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter mt-0.5">Ref: {item.origen}</p>
                                             </TableCell>
-                                            <TableCell className="text-right font-black text-slate-800">{item.cantidadNecesaria.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <p className="font-black text-slate-800">{item.cantidadAComprar.toFixed(2)}</p>
+                                                <p className="text-[10px] font-medium text-slate-400">
+                                                    Necesario {item.cantidadNecesaria.toFixed(2)} · Se compran {item.cantidadAComprar.toFixed(2)}
+                                                </p>
+                                            </TableCell>
                                             <TableCell className="text-[10px] font-black text-slate-400 uppercase">{item.unit}</TableCell>
                                             <TableCell className="text-right pr-8 font-black text-primary">{item.costoTotalFaltante > 0 ? formatCurrency(item.costoTotalFaltante) : '-'}</TableCell>
                                         </TableRow>

@@ -252,7 +252,28 @@ export async function saveSocialCredentials(
   }
 
   await writeData(CONNECTIONS_FILE, connections);
-  return { success: true, connection: updatedConnection };
+
+  const {
+    pageId,
+    pageAccessToken,
+    instagramAccountId,
+    tokenExpiresAt,
+    apiKey,
+    accessToken,
+    refreshToken,
+    webhookUrl,
+    ...visibleConn
+  } = updatedConnection;
+  void pageId;
+  void pageAccessToken;
+  void instagramAccountId;
+  void tokenExpiresAt;
+  void apiKey;
+  void accessToken;
+  void refreshToken;
+  void webhookUrl;
+
+  return { success: true, connection: visibleConn as SocialConnection };
 }
 
 /**

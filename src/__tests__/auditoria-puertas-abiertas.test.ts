@@ -118,6 +118,8 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'fiesta.actions.ts:updateClienteDebeLlevar':
     'lo toca EL CLIENTE desde su portal. El guardado de abajo ya pide sesion del ' +
     'equipo o la clave del cliente de esa fiesta.',
+  'decoracion.actions.ts:mutarDecoracion':
+    'unifica las mutaciones de decoracion (tablero y moodboard) usando actualizarFiesta, que exige sesion del equipo o clave de portal.',
   'decoracion.actions.ts:updateDecoracion':
     'el CLIENTE arma su tablero de decoracion desde su portal, con la misma ' +
     'proteccion de abajo.',

@@ -67,6 +67,7 @@ import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experien
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+import { calcularExtraServicioPortal } from '@/lib/portal/extra-servicio-portal';
 // Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
 
 type PublicPortalClientExperienceProps = {
@@ -948,8 +949,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   });
   const selectedService = catalogServices.find(service => service.id === selectedServiceId);
   const selectedServiceBasePrice = getCatalogServiceBasePrice(selectedService, currentGuestCount) * Math.max(1, serviceQuantity);
-  const selectedServiceAdditional = Math.round(selectedServiceBasePrice * (1 + annualAdjustmentPercent / 100));
-  const selectedServiceNewTotal = totalPresupuesto + selectedServiceAdditional;
+  const { additional: selectedServiceAdditional, newTotal: selectedServiceNewTotal } = calcularExtraServicioPortal({
+    presupuesto,
+    basePrice: selectedServiceBasePrice,
+    currentTotal: totalPresupuesto,
+    fechaFirmaContrato: fiesta?.contratoDatos?.fechaFirmaContrato,
+    eventoFecha: config.fechaEvento,
+    annualAdjustmentPercent,
+  });
 
   const handlePaymentFile = (file?: File) => {
     if (!file) return;
@@ -1719,12 +1726,24 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   Podés solicitar la reprogramación de fecha del evento o la cancelación de uno o más servicios contratados de forma directa. Estas acciones requieren verificación de tu PIN/Contraseña y generarán el documento de adenda correspondiente para firma manual.
                 </p>
                 <div className="flex flex-wrap gap-2 text-sm">
-                  <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
-                    Cancelar servicios o fiesta
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => { setCambioFechaModalOpen(true); setNewProposedDate(''); setDateAvailabilityResult(null); }}>
-                    Cambiar fecha del evento
-                  </Button>
+                  {(
+                    (Array.isArray((presupuesto as { ajustesAplicados?: string[] } | null | undefined)?.ajustesAplicados)
+                      && (presupuesto as { ajustesAplicados?: string[] }).ajustesAplicados?.includes('cancelacion-total'))
+                    || fiesta?.estado === 'Cancelada'
+                  ) ? (
+                    <p className="text-xs font-semibold text-rose-700">
+                      Este evento fue cancelado; no se puede reprogramar la fecha.
+                    </p>
+                  ) : (
+                    <>
+                      <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
+                        Cancelar servicios o fiesta
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-xs border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => { setCambioFechaModalOpen(true); setNewProposedDate(''); setDateAvailabilityResult(null); }}>
+                        Cambiar fecha del evento
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
 

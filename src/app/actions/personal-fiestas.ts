@@ -41,14 +41,22 @@ export async function marcarLlegadaPersonal(
   const usuario = (sesion.ok ? sesion.user : null) || usuarioApp;
   const perfil = perfilDe(usuario);
   if (perfil === 'personal') {
-    const { getEmpleados } = await import('@/app/actions/empleados');
-    const empleados = await getEmpleados();
     const emailNorm = (usuario.email || '').trim().toLowerCase();
-    const esElMismo = empleados.some(
-      (e) => (e.id === usuario.userId || [e.email, e.googleWorkspaceEmail].filter(Boolean).some(m => m?.trim().toLowerCase() === emailNorm)) && e.id === empleadoId
-    );
-    if (!esElMismo) {
-      return { success: false, error: 'No podés marcar la llegada de otra persona.' };
+    const userId = usuario.userId || '';
+    if (userId !== empleadoId) {
+      if (!emailNorm) {
+        return { success: false, error: 'No podés marcar la llegada de otra persona.' };
+      }
+      // Lectura interna filtrada al propio usuario: el perfil `personal` no tiene acceso
+      // a `getEmpleados()` (ver empleados.ts), así que si llamaba a esa acción quedaba colgado.
+      const { readData } = await import('@/lib/data-service');
+      const empleadosRaw = await readData<Array<{ id?: string; email?: string; googleWorkspaceEmail?: string }>>('empleados.json', []);
+      const empleadoActual = (Array.isArray(empleadosRaw) ? empleadosRaw : []).find(
+        (e) => e.id === empleadoId && [e.email, e.googleWorkspaceEmail].filter(Boolean).some(m => m?.trim().toLowerCase() === emailNorm)
+      );
+      if (!empleadoActual) {
+        return { success: false, error: 'No podés marcar la llegada de otra persona.' };
+      }
     }
   }
 

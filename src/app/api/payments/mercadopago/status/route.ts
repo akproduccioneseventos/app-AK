@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
       surchargeAmount: session.surchargeAmount,
       purpose: session.purpose,
       requiresReview: Boolean(session.requiresReview),
+      refundedAmount: session.refundedAmount ?? 0,
+      netAmount: session.netAmount,
     }, {
       headers: { 'Cache-Control': 'no-store' },
     });

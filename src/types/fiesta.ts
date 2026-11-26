@@ -194,7 +194,7 @@ export interface PersonalAsignadoDetalleStorage {
   rolId: string;
   eventSalary: number;
   checkInTimestamp?: string;
-  checkInUbicacion?: { lat: number; lng: number; distanciaMetros: number };
+  checkInUbicacion?: { lat: number; lng: number; distanciaMetros: number; ubicacionVerificada?: boolean };
   asistenciaConfirmada?: boolean;
   fechaConfirmacionAsistencia?: string;
   motivoRechazoAsistencia?: string;

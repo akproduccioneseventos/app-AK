@@ -114,11 +114,45 @@ export function calcularGananciaDeEvento(
   // funcionales 17/11/2026: ingreso $1.200, inversión $1.500). Se listan para que se les cargue el costo, pero como costo
   // cuenta sólo lo que se le pagó al proveedor en ese renglón. Desde el 17/11 la copia trae el costo base del catálogo
   // (`costoDeCatalogo`); ese sí cuenta.
-  const items = (gestionCostos?.costosItems ?? [])
-    .filter((item) => item.id !== MERMA_DUPLICADA)
-    .map((item) => (esPrecioDeVentaCopiado(item.id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo ? { ...item, montoEstimado: 0 } : item));
   const pagos = pagosProveedores ?? [];
   const others = gestionCostos?.others;
+
+  // Lo pagado, agrupado por el renglón al que corresponde (se calcula antes para desduplicar).
+  const pagadoPorItem = new Map<string, number>();
+  for (const pago of pagos) {
+    const clave = pago?.costoAsociadoId ?? '';
+    pagadoPorItem.set(clave, (pagadoPorItem.get(clave) ?? 0) + Math.max(0, aNumero(pago?.monto)));
+  }
+  const pagadoAProveedores = [...pagadoPorItem.values()].reduce((s, monto) => s + monto, 0);
+
+  // Si un servicio ya tiene `sync_budget_<id>` con costo base del catálogo y además quedó
+  // un `auto_prov_<id>` viejo, contamos sólo uno (el que tenga pagos cargados, o el del catálogo).
+  const rawItems = (gestionCostos?.costosItems ?? []).filter((item) => item.id !== MERMA_DUPLICADA);
+  const syncConCostoPorServicio = new Set(
+    rawItems
+      .filter((item) => esPrecioDeVentaCopiado(item.id) && Boolean((item as { costoDeCatalogo?: boolean }).costoDeCatalogo))
+      .map((item) => String(item.id).slice('sync_budget_'.length)),
+  );
+  const items = rawItems.map((item) => {
+    const id = String(item.id || '');
+    if (esPrecioDeVentaCopiado(id) && !(item as { costoDeCatalogo?: boolean }).costoDeCatalogo) {
+      return { ...item, montoEstimado: 0 };
+    }
+    if (id.startsWith('auto_prov_')) {
+      const servId = id.slice('auto_prov_'.length);
+      if (syncConCostoPorServicio.has(servId) && (pagadoPorItem.get(id) ?? 0) === 0) {
+        return { ...item, montoEstimado: 0 };
+      }
+    }
+    if (esPrecioDeVentaCopiado(id) && (item as { costoDeCatalogo?: boolean }).costoDeCatalogo) {
+      const servId = id.slice('sync_budget_'.length);
+      const autoProvId = `auto_prov_${servId}`;
+      if (rawItems.some((r) => r.id === autoProvId) && (pagadoPorItem.get(autoProvId) ?? 0) > 0 && (pagadoPorItem.get(id) ?? 0) === 0) {
+        return { ...item, montoEstimado: 0 };
+      }
+    }
+    return item;
+  });
 
   const personalList = Array.isArray(personalAsignado)
     ? personalAsignado
@@ -140,14 +174,6 @@ export function calcularGananciaDeEvento(
 
   const estimadoDeItems = items.reduce((suma, item) => suma + Math.max(0, aNumero(item.montoEstimado)), 0);
   const costoEstimado = estimadoDeItems + estimadoBloques;
-
-  // Lo pagado, agrupado por el renglón al que corresponde.
-  const pagadoPorItem = new Map<string, number>();
-  for (const pago of pagos) {
-    const clave = pago?.costoAsociadoId ?? '';
-    pagadoPorItem.set(clave, (pagadoPorItem.get(clave) ?? 0) + Math.max(0, aNumero(pago?.monto)));
-  }
-  const pagadoAProveedores = [...pagadoPorItem.values()].reduce((s, monto) => s + monto, 0);
 
   const idsDeItems = new Set(items.map((item) => item.id));
   const idsDeBloques = new Set(BLOQUES_AUTOMATICOS.map((b) => b.id));

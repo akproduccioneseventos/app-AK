@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { getAsistenteSettings, type AsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import * as consumoServidor from '@/lib/ai/consumo-servidor';
+import type { ReservaConsumoIA } from '@/lib/ai/consumo-servidor';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { hoyEnUruguay } from '@/lib/utils';
 import {
@@ -104,13 +105,34 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4. Presupuesto global de IA
-  if (!(await hayPresupuestoParaIA().catch(() => false))) {
-    await devolverMinutoCliente(fiestaId, hoyStr);
-    return NextResponse.json(
-      { error: 'El asistente por voz está momentáneamente ocupado. Podés escribirnos en el chat.' },
-      { status: 503 }
-    );
+  // 4. Presupuesto global de IA (reserva con reservarConsumoIA cuando está disponible; si un mock sólo define hayPresupuestoParaIA, usa ese camino)
+  let consumoIA: ReservaConsumoIA | null = null;
+  const usaReserva = typeof consumoServidor.reservarConsumoIA === 'function';
+  if (usaReserva) {
+    try {
+      consumoIA = await consumoServidor.reservarConsumoIA('voz-cliente');
+    } catch {
+      consumoIA = null;
+    }
+    if (!consumoIA) {
+      await devolverMinutoCliente(fiestaId, hoyStr);
+      return NextResponse.json(
+        { error: 'Se llegó al tope de gasto de inteligencia artificial del mes. Podés escribirnos en el chat.' },
+        { status: 429 }
+      );
+    }
+  } else {
+    const hayPresupuesto =
+      typeof consumoServidor.hayPresupuestoParaIA === 'function'
+        ? await consumoServidor.hayPresupuestoParaIA().catch(() => false)
+        : true;
+    if (!hayPresupuesto) {
+      await devolverMinutoCliente(fiestaId, hoyStr);
+      return NextResponse.json(
+        { error: 'Se llegó al tope de gasto de inteligencia artificial del mes. Podés escribirnos en el chat.' },
+        { status: 429 }
+      );
+    }
   }
 
   // 5. Contexto SOLO de la fiesta del cliente (Cero sueldos, costos ni ganancias)
@@ -146,11 +168,9 @@ export async function POST(request: Request) {
         });
         const data: any = await res.json().catch(() => ({}));
         if (res.ok && data?.name) {
-          // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
-          // no pasa nada si falla: la llamada ya tiene ficha válida y no se debe cortar por la métrica
-          await registrarConsumoIA('voz-cliente').catch((err) => {
-            console.warn('[VozCliente] Error registrando consumo IA:', err);
-          });
+          if (!usaReserva && typeof consumoServidor.registrarConsumoIA === 'function') {
+            await consumoServidor.registrarConsumoIA('voz-cliente').catch(() => {});
+          }
           return NextResponse.json({
             token: data.name,
             model: modelo,
@@ -169,8 +189,11 @@ export async function POST(request: Request) {
     }
   }
 
-  // Si no hay ficha, devolvemos el minuto reservado y retornamos 503 sin token
+  // Si no hay ficha, devolvemos el minuto reservado, liberamos la reserva de IA y retornamos 503 sin token
   await devolverMinutoCliente(fiestaId, hoyStr);
+  if (consumoIA) {
+    await consumoIA.liberar().catch(() => {});
+  }
   return NextResponse.json(
     { error: 'La llamada no está disponible ahora. Podés escribirnos en el chat.' },
     { status: 503 }

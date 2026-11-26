@@ -13,11 +13,12 @@ const PESO_CHICO = new Set(['g', 'gr', 'grs', 'gramo', 'gramos']);
 const VOLUMEN_CHICO = new Set(['ml', 'cc', 'mililitro', 'mililitros']);
 const UNIDAD_CONTABLE = new Set(['u', 'ud', 'uds', 'unidad', 'unidades']);
 // Docena equivale a 12 unidades en recetas y catálogo (Orden 368 B5.3).
-const DOCENA_CONTABLE = new Set(['doc', 'docena', 'docenas']);
+const DOCENA_CONTABLE = new Set(['doc', 'docena', 'docenas', 'media docena', 'media-docena']);
 
 function factorContable(unidad: string): number | null {
   if (UNIDAD_CONTABLE.has(unidad)) return 1;
-  if (DOCENA_CONTABLE.has(unidad)) return 12;
+  if (unidad === 'docena' || unidad === 'doc' || unidad === 'docenas') return 12;
+  if (unidad === 'media docena' || unidad === 'media-docena') return 6;
   return null;
 }
 
@@ -61,6 +62,12 @@ export function calcularCostoIngredienteEnReceta(
   const comoAntes = () => (recetaChica && !catalogoChico ? quantity / 1000 : quantity) * unitCost;
 
   if (!recipeUnit || recipeUnit === 'no definido') return comoAntes();
+
+  const sinCantidad = new Set(['caja', 'pack', 'rollo', 'bolsa', 'lata', 'botella', 'bidon', 'frasco', 'blister', 'pote']);
+  if (sinCantidad.has(recipeUnit) || (catalogUnit && sinCantidad.has(catalogUnit))) {
+    const converted = convertirCatering(quantity, recipeUnit, catalogUnit || recipeUnit);
+    if (converted === null) return 0;
+  }
 
   // Si el catálogo no especifica unidad pero la receta está en gramos/mililitros, se asume kg/l.
   let targetUnit = catalogUnit;

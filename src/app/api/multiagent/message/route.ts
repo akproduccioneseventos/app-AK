@@ -109,11 +109,12 @@ export async function POST(request: NextRequest) {
     ? body.agentType as AkAgentType
     : undefined;
 
-  if (agentType === 'contable' && !puede(user, PERMISOS.CONTABILIDAD)) {
-    return NextResponse.json({ error: 'Tu perfil no tiene acceso al módulo contable.' }, { status: 403 });
-  }
-  if (agentType === 'comercial' && !puede(user, PERMISOS.CRM)) {
-    return NextResponse.json({ error: 'Tu perfil no tiene acceso al módulo comercial.' }, { status: 403 });
+  if (agentType === 'contable' || agentType === 'comercial' || agentType) {
+    const { validarAccesoAlAgente } = await import('@/lib/multiagent/validar-acceso-agente');
+    const accesoAgente = validarAccesoAlAgente(user, agentType);
+    if (!accesoAgente.ok) {
+      return NextResponse.json({ error: accesoAgente.error }, { status: 403 });
+    }
   }
 
   let safeFiestaId: string | undefined;

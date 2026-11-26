@@ -66,7 +66,13 @@ export type OpcionesConsolidado = {
 const limpiar = (n: number) => Math.round(n * 1e9) / 1e9;
 
 export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConsolidado): CompraConsolidada[] {
-  const grupos = new Map<string, { item: CompraConsolidada; fuente: CompraCruda; granularidad: number }>();
+  const grupos = new Map<string, {
+    item: CompraConsolidada;
+    fuente: CompraCruda;
+    granularidad: number;
+    cantidadReceta: number;
+    cantidadPedido: number;
+  }>();
 
   crudos.forEach(raw => {
     const proveedorId = raw.proveedorId ?? raw.proveedor;
@@ -76,16 +82,25 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
     const esPorEvento = Boolean(
       raw.porEvento || (raw.unit || '').trim().toLowerCase() === 'por evento'
     );
+    const esPedidoFijo = Boolean(raw.isOrder);
     // Se suma en la unidad del renglon. Una unidad desconocida tiene factor 1.
     const enBase = convertir(raw.cantidadNecesaria, raw.unit, base) ?? raw.cantidadNecesaria;
     const existente = grupos.get(key);
     if (existente) {
       if (esPorEvento || existente.fuente.porEvento) {
-        existente.item.cantidadNecesaria = Math.max(existente.item.cantidadNecesaria, enBase);
+        if (esPedidoFijo) {
+          existente.cantidadPedido = Math.max(existente.cantidadPedido, enBase);
+        } else {
+          existente.cantidadReceta = Math.max(existente.cantidadReceta, enBase);
+        }
         existente.item.porEvento = true;
         existente.fuente = { ...existente.fuente, porEvento: true };
       } else {
-        existente.item.cantidadNecesaria += enBase;
+        if (esPedidoFijo) {
+          existente.cantidadPedido += enBase;
+        } else {
+          existente.cantidadReceta += enBase;
+        }
       }
       existente.granularidad = Math.min(existente.granularidad, factor);
       if (opciones.juntarOrigenes && !existente.item.origen.includes(raw.origen)) {
@@ -113,6 +128,8 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
     grupos.set(key, {
       fuente: esPorEvento ? { ...raw, porEvento: true } : raw,
       granularidad: factor,
+      cantidadReceta: esPedidoFijo ? 0 : enBase,
+      cantidadPedido: esPedidoFijo ? enBase : 0,
       item: {
         id: key,
         nombre: raw.nombre,
@@ -133,9 +150,10 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
     });
   });
 
-  return Array.from(grupos.values()).map(({ item, fuente, granularidad }) => {
-    const necesidad = limpiar(item.cantidadNecesaria);
-    const faltante = item.isOrder ? necesidad : Math.max(0, limpiar(necesidad - item.stockDisponible));
+  return Array.from(grupos.values()).map(({ item, fuente, granularidad, cantidadReceta, cantidadPedido }) => {
+    const necesidad = limpiar(cantidadReceta + cantidadPedido);
+    const faltanteReceta = Math.max(0, limpiar(cantidadReceta - item.stockDisponible));
+    const faltante = limpiar(faltanteReceta + cantidadPedido);
     // Se compra para arriba, en el escalon mas chico que aparecio (200 g + 2 kg se
     // redondea al gramo, no al kilo). Una sola unidad se redondea a entero como siempre.
     const paso = granularidad > 0 ? granularidad : 1;

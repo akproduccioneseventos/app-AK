@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { getAjustesLlegadaPersonal, saveAjustesLlegadaPersonal } from '@/app/actions/settings';
+import { getAjustesLlegadaPersonal, saveAjustesLlegadaPersonal, getSalonesSinUbicacionProximasFiestas, type SalonSinUbicacion } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 /**
@@ -72,21 +72,24 @@ export default function AccesosPersonalPage() {
   const [llegadaConUbicacion, setLlegadaConUbicacion] = useState(false);
   const [radioMetros, setRadioMetros] = useState(300);
   const [isSavingAjustes, setIsSavingAjustes] = useState(false);
+  const [salonesSinUbicacion, setSalonesSinUbicacion] = useState<SalonSinUbicacion[]>([]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fiesta, fetchedAccesos, fetchedEmpleados, ajustesLlegada] = await Promise.all([
+      const [fiesta, fetchedAccesos, fetchedEmpleados, ajustesLlegada, salonesFaltantes] = await Promise.all([
         getFiestaActual(),
         getAccesosGenerales(),
         getEmpleados(),
         getAjustesLlegadaPersonal(),
+        getSalonesSinUbicacionProximasFiestas().catch(() => []),
       ]);
       setFiestaActual(fiesta);
       setAccesos(fetchedAccesos);
       setEmpleados(fetchedEmpleados);
       setLlegadaConUbicacion(ajustesLlegada.llegadaConUbicacion);
       setRadioMetros(ajustesLlegada.radioMetros || 300);
+      setSalonesSinUbicacion(salonesFaltantes);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -326,6 +329,23 @@ export default function AccesosPersonalPage() {
               <p className="text-xs text-muted-foreground">
                 Por defecto 300 metros alrededor del salón asignado al evento.
               </p>
+              {salonesSinUbicacion.length > 0 && (
+                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  <p className="font-semibold">
+                    Salones de próximas fiestas sin ubicación cargada ({salonesSinUbicacion.length}):
+                  </p>
+                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                    {salonesSinUbicacion.map((item) => (
+                      <li key={`${item.salonNombre}-${item.fechaEvento}`}>
+                        {item.salonNombre} ({item.eventoNombre} · {item.fechaEvento})
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-1 text-[11px] text-amber-800">
+                    La llegada en estos salones se anotará igual, marcada como sin verificar hasta que cargues sus coordenadas.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

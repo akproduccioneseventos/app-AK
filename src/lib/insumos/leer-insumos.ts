@@ -1,4 +1,5 @@
 import { readData } from '@/lib/data-service';
+import { esLecturaFallida, marcarLecturaFallida } from '@/lib/marca-de-lectura';
 import type { ServicioEmpresa } from '@/types/empresa';
 
 /**
@@ -24,6 +25,7 @@ export function limpiarCacheInsumos() {
 export async function leerInsumosCrudos(): Promise<ServicioEmpresa[]> {
   if (cache && Date.now() - cacheAt < CACHE_TTL_MS) return cache;
   const items = await readData<Array<Record<string, unknown>>>(INSUMOS_FILE, []);
+  const fallida = esLecturaFallida(items);
   const mapped = (Array.isArray(items) ? items : []).map((item) => ({
     ...item,
     tipoItem: item.tipoItem || 'Insumo/Ingrediente',
@@ -36,6 +38,9 @@ export async function leerInsumosCrudos(): Promise<ServicioEmpresa[]> {
         ? Number(item.cantidadDisponible)
         : undefined,
   })) as ServicioEmpresa[];
+  if (fallida) {
+    return marcarLecturaFallida(mapped, 'No se pudo leer la lista de insumos');
+  }
   cache = mapped;
   cacheAt = Date.now();
   return mapped;

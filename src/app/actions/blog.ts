@@ -105,6 +105,8 @@ export interface EstadoBlogAdmin {
 }
 
 export async function getEstadoBlogAdmin(): Promise<EstadoBlogAdmin> {
+  const sesion = await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
+  void sesion;
   const posts = await getBlogPosts();
   let ultimaNota: EstadoBlogAdmin['ultimaNota'] = null;
   let diasSinNota = 0;

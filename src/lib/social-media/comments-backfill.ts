@@ -192,7 +192,7 @@ export function armarMensajePrivadoPalabraClave(comentario: SocialComment): stri
 }
 
 export function limpiarNumerosDePrecio(texto: string): string {
-  return texto.replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|pesos|uyu)?/gi, '').trim();
+  return texto.replace(/(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)\s*\d+([.,]\d+)?|\d+([.,]\d+)?\s*(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)|\b\d{1,3}(?:\.\d{3})+(?:[.,]\d+)?\b/gi, '').trim();
 }
 
 export async function armarRespuestaAPregunta(

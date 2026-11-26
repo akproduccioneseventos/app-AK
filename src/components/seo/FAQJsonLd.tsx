@@ -52,7 +52,7 @@ export const EVENTOS_FAQS: Record<'bodas' | 'quinceaneras' | 'cumpleanos' | 'gen
     },
     {
       question: '¿Cómo son las formas de pago y señas para contratar?',
-      answer: 'Se reserva con una seña inicial congelando la fecha y el saldo se puede abonar en cuotas coordinadas hasta la fecha de la celebración.',
+      answer: 'Se reserva con una seña inicial y el saldo se puede abonar en cuotas coordinadas hasta la fecha de la celebración.',
     },
   ],
   bodas: [

@@ -52,7 +52,9 @@ export async function enviarResumenMananaWhatsApp(
     {},
     (actual) => {
       if (actual.fecha === momento.fecha && actual.estado !== 'error') return null;
-      const actuales = parte.items ?? parte.itemsPrincipales ?? [];
+      const preventivas = (parte as any).items || [];
+      const itemsPrincipales = parte.itemsPrincipales || [];
+      const actuales = [...preventivas, ...itemsPrincipales];
       const idsPospuestos = new Set(actual.pospuestosIds || []);
       const itemsPrioritarios = actuales.filter((item) => idsPospuestos.has(item.id));
       const itemsRestantes = actuales.filter((item) => !idsPospuestos.has(item.id));
