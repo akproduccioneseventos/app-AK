@@ -944,6 +944,10 @@
     "236": {
       "fecha": "2026-11-26",
       "resultado": "El contrato en papel encontraba el recibo de seña ya creado y no lo sumaba a invoiceIds (documentos.actions.ts); el resto de las ramas 'ya existe' lo barre Gemini en la orden 363."
+    },
+    "237": {
+      "fecha": "2026-11-26",
+      "resultado": "Cuotas pagadas en planDePagos y saldo desde pagosCliente: portal del cliente, portal público, asistente, cobrador y Finanzas leen libros distintos. El resto de los lectores lo barre Gemini en la orden 364."
     }
   },
   "hallazgos": {
@@ -1426,6 +1430,10 @@
     "orden-363": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 8 (personal y contrato, de punta a punta): el autoguardado del Personal borraba llegadas y confirmaciones marcadas en el medio (pregunta 210), sueldo de una segunda asignación copiado de la primera, recibo de seña sin enganchar al reintentar el contrato (pregunta 236), firma ya hecha anunciada como registrada."
+    },
+    "orden-364": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 9 (plata y comida, las cuentas): cuotas pagadas que no llegan al saldo del presupuesto (pregunta 237), celíaco que además es vegetariano fuera de la hoja de cocina, platos tomados como infantiles por tener 'nin', bebidas multiplicadas por los invitados en la contabilidad."
     }
   }
 }

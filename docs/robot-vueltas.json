@@ -217,6 +217,34 @@
       ],
       "orden": 363,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T07:41",
+      "areas": [
+        "plata",
+        "comida"
+      ],
+      "aspecto": "plata y comida (las cuentas)",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "cuotas pagadas fuera del saldo del presupuesto",
+        "Finanzas ignora las cuotas si hay un cobro",
+        "celíaco vegetariano fuera de la hoja de cocina",
+        "'nin' marca platos como infantiles",
+        "bebidas multiplicadas por los invitados en la contabilidad"
+      ],
+      "descartados": [
+        "ganancia por fiesta",
+        "rango de fechas del reporte",
+        "cuotas vencidas",
+        "cobro confirmado",
+        "unidades y consolidación de compras",
+        "medianoche exacta de Greenwich: dudoso, sin caso real",
+        "redondeo a pesos: se trabaja en pesos enteros"
+      ],
+      "orden": 364,
+      "corregidos": []
     }
   ]
 }

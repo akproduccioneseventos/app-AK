@@ -345,6 +345,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   230: 'Un estado que nunca se cierra con el tiempo es un comportamiento: lo cubre tests/e2e/la-cuarta-auditoria-del-25-11.spec.ts (cita de ayer, orden 355).',
   234: 'Que un permiso se mire al ejecutar y no sólo al programar es un comportamiento: lo cubre src/__tests__/redes-mira-el-permiso-al-publicar.test.ts (orden 361).',
   236: 'Que la rama "ya existía" haga lo mismo que la rama "lo creé" es un comportamiento: lo cubre src/__tests__/el-reintento-del-contrato-engancha-la-sena.test.ts (orden 363).',
+  237: 'Que la misma plata se lea de un solo libro en todas las pantallas es un comportamiento: lo cubre src/__tests__/una-cuota-cobrada-se-ve-en-todos-lados.test.ts (orden 364).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
