@@ -2226,3 +2226,15 @@ del personal.
 
 Decimoctava vuelta del robot, 26/11/2026: guardar la dirección de Facebook devolvía la conexión entera, con el token de publicación, porque
 la respuesta se armaba con todo lo guardado más el cambio.
+
+### 250. Un filtro que limpia lo que sale en público, ¿saca sólo lo prohibido o se lleva también lo que estaba bien?
+
+Decimonovena vuelta del robot, 26/11/2026: para que una respuesta a un comentario no dijera un precio, el filtro borraba cualquier
+número. "Atendemos de 9 a 18 hs, más de 7 años" salía publicado como "Atendemos de a hs, más de años". Se prueba el filtro con una
+frase permitida que tenga números: tiene que salir igual.
+
+### 251. Al juntar dos renglones en uno, ¿se queda con la marca del primero y pierde la del segundo?
+
+Decimonovena vuelta del robot, 26/11/2026: la lista de compras juntaba un pedido fijo y un ingrediente de receta del mismo producto, y el
+renglón se quedaba con "pedido fijo" del primero: el stock no se descontaba y se compraba de más, según el orden de carga. Un resultado
+que cambia al cambiar el orden de los renglones está mal.

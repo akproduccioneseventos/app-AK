@@ -82,6 +82,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       de verdad, el asistente sin pisar listas, la fecha de la fiesta como día y Poner al día con el ajuste.
   24. **Orden 373 (`docs/ordenes/373-gemini-robot-vuelta-18-seis-especialistas.md`):** tokens que no viajan al navegador, el proveedor
       una sola vez, la seña que no se paga dos veces, la voz del cliente por el tope y las marcas de las tareas.
+  25. **Orden 374 (`docs/ordenes/374-gemini-robot-vuelta-19-seis-especialistas.md`):** no borrar a ciegas (personal y
+      proveedores), la llegada del personal, Sincronizado del tótem, respuestas públicas con números, "No publicar" que no se
+      pisa y la lista de compras con docenas.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

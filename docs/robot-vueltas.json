@@ -823,6 +823,71 @@
       ],
       "orden": 373,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T17:45",
+      "areas": [
+        "contrato",
+        "personal",
+        "comida",
+        "proveedores",
+        "invitado",
+        "estaciones",
+        "redes",
+        "portal"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "contrato",
+          "personal"
+        ],
+        "plata": [
+          "comida",
+          "proveedores"
+        ],
+        "permisos": [
+          "proveedores",
+          "personal"
+        ],
+        "promesas": [
+          "invitado",
+          "estaciones"
+        ],
+        "automaticos": [
+          "redes"
+        ],
+        "fechas-y-celular": [
+          "portal"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "baja de empleado con la agenda sin leer",
+        "borrado de proveedor con insumos sin leer",
+        "llegada del personal colgada",
+        "Sincronizado del tótem sin efecto",
+        "respuesta pública sin números",
+        "No publicar pisado por la tarea de 12 h",
+        "docena sin convertir",
+        "pantalla muestra lo necesario y cobra lo comprado",
+        "pedido fijo que no descuenta stock al juntar"
+      ],
+      "repetidos_sin_arreglar": [
+        "cron-despachador sin clave (orden 278)",
+        "niños contados como adultos (orden 357)",
+        "celíaco vegetariano (orden 364)"
+      ],
+      "descartados": [
+        "fechas de cuotas en el portal: la hora es la de creación, no medianoche",
+        "botón de 36 px: mínimo, no roto",
+        "barra para niños: decisión del dueño sin tomar",
+        "historial de recibos: necesita dos dispositivos, dudoso",
+        "email del empleado repetido: no ocurre"
+      ],
+      "orden": 374,
+      "corregidos": []
     }
   ]
 }

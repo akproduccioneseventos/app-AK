@@ -1588,3 +1588,5 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 371 → pregunta 247
 - Orden 372 → pregunta 248
 - Orden 373 → pregunta 249
+- Orden 374 → pregunta 250
+- Orden 374 → pregunta 251
