@@ -936,6 +936,10 @@
     "234": {
       "fecha": "2026-11-26",
       "resultado": "Posteos programados que se publican sin volver a mirar el permiso de la foto (publicador.ts); el resto de lo programado lo barre Gemini en la orden 361."
+    },
+    "235": {
+      "fecha": "2026-11-26",
+      "resultado": "Agendar reunión y preparar mail en multiagent.ts con esUnSi suelto o el confirmado del modelo; el resto de las acciones que salen para afuera lo barre Gemini en la orden 362."
     }
   },
   "hallazgos": {
@@ -1410,6 +1414,10 @@
     "orden-361": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 6 (web, redes, sincronización de documentos enteros): simulador que no avisa si no guardó, datos internos del servicio en la carga pública, permiso de la foto no revisado al publicar (pregunta 234), aviso al dueño marcado sin salir (pregunta 122), siete documentos leídos y reescritos sin turno (pregunta 22)."
+    },
+    "orden-362": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 7 (asistente y tareas automáticas): reunión con el cliente agendada sin un sí de verdad (pregunta 235), propuestas de plata sin responsable visibles para todo el equipo, agentes que toman una lectura fallida como 'al día' (pregunta 210), días del cobrador en hora de Greenwich (pregunta 70), historial del chat del cliente sin tope. La migración 2027 que borraba con una lectura fallida la arregló Claude."
     }
   }
 }

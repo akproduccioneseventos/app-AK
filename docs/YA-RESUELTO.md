@@ -2,6 +2,18 @@
 
 
 
+## 26/11/2026 - Empezar 2027 no borra nada si una lectura falla (robot, vuelta 7)
+
+La tarea de una sola vez que borra lo anterior a 2027 leía presupuestos, fiestas, facturas y clientes. Si la lectura de
+facturas fallaba, la vuelta tomaba "no hay facturas" y podía borrar presupuestos que una factura protegía. Ahora, si
+cualquiera de las lecturas viene marcada como fallida, no borra nada, queda en "falló" y se reintenta en la próxima entrada.
+Lo demás de la vuelta 7 (asistente y agentes) va en la orden 362.
+
+```comprobar
+usa: esLecturaFallida en src/lib/automatico/empezar-2027.ts
+prueba: src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts
+```
+
 ## 25/11/2026 - Revisión de Claude de la entrega 343-345 y la auditoría profunda de Gemini (#1472, #1473)
 
 - **Club Uruguay a $19.990** (decisión del dueño): `defaultClubUruguayConfig` con revisión `2026-11-25`; un precio guardado

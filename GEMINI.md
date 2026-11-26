@@ -58,6 +58,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       siguiente invitado y "resumen visto" que no miraba si se guardó.
   12. **Orden 361 (`docs/ordenes/361-gemini-robot-vuelta-6-simulador-redes-y-documentos-sin-turno.md`):** el simulador avisa
       si no guardó, redes vuelve a mirar el permiso de la foto al publicar y siete documentos pasan a tener turno.
+  13. **Orden 362 (`docs/ordenes/362-gemini-robot-vuelta-7-asistente-y-agentes.md`):** el asistente pide un sí de verdad
+      antes de agendar, las propuestas de plata no las ve cualquiera y los agentes no dicen "al día" sin haber leído.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
