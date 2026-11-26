@@ -11,6 +11,18 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
 **Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
+- **DEVUELTA (26/11): tu propuesta 1475 (346 a 349) no pasó la verificación.** Compila y Jest da verde, pero fallan 9
+  pruebas de navegador en lo que tocaste: `catering-maestro-simulador-fotos`, `el-simulador-respeta-el-tipo-de-fiesta`
+  ("$0" en el pie del paso 1), `el-simulador-vende-antes-del-precio`, `la-portada-vende-con-confianza` (/cumpleanos dice
+  "barra libre"), `la-web-de-venta-se-mueve` (quieto pero visible), `layout-baseline`, `orden-331-y-332` (redirecciones del
+  planificador), `prospecto-simulador` (no llega a ver un precio). Corrélas sueltas con
+  `node scripts/run-playwright-production.mjs tests/e2e/<archivo>`; si la prueba pide algo que tu cambio sacó a propósito
+  por una orden, adaptá la prueba y decilo; si no, arreglá la app.
+  **Además aplicá el parche de Claude** `docs/ordenes/parches/revision-1475.patch` (`git apply`): la IA de la reunión pide
+  sesión, se saca el atajo que reescribía insumos y menús enteros con la base vacía (si el robot lo necesita, sembrá el
+  emulador), contadores sin "(0)" mientras cargan y el comentario de las cifras públicas.
+  **Seguí en la misma rama `gemini/orden-346`** traída de la principal; faltan también de la 349 la prueba
+  `tests/e2e/la-tercera-auditoria-del-25-11.spec.ts` y "Encargado general" en `src/components/multiagent/multiagent-widget.tsx`.
 - **AHORA, UNA sola propuesta con todas estas órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
   1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
      (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
@@ -29,7 +41,33 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
      y las estaciones del salón (unas 48).
   6. **Orden 355 (`docs/ordenes/355-gemini-auditoria-4-del-25-11.md`):** la cuarta auditoría externa del 25/11: títulos con
      el nombre dos veces, páginas por tipo de fiesta repetidas para Google, ceros mientras carga, citas pasadas que no se
-     cierran, "oficina" que no existe y textos fijos del perfil.
+     cierran, "oficina" que no existe, textos fijos del perfil y **la tarea que borra sola los registros "PRUEBA"** (bloque 10, el dueño dijo que sí).
+  7. **Orden 356 (`docs/ordenes/356-gemini-robot-vuelta-1-sena-barra-y-listas.md`):** primera vuelta del robot: la seña
+     con un solo importe (el de Ajustes), la barra que no pierde pedidos, y el blog y las plantillas que no se borran si
+     falla una lectura. Toca plata: Claude la revisa línea por línea.
+  8. **Orden 357 (`docs/ordenes/357-gemini-robot-vuelta-2-cocina-personal-y-tareas.md`):** segunda vuelta del robot: la
+     cocina cuenta a los niños igual que el costo, el total cobrado del personal es sólo lo pagado, los recibos se leen donde
+     se guardan y las tareas con fallas no dicen "al día".
+  9. **Orden 358 (`docs/ordenes/358-gemini-robot-vuelta-3-toda-la-ia-por-el-cerebro.md`):** 20 archivos que llaman a la
+     IA sin pasar por el cerebro (sin tope ni registro): pasarlos a `pedirTexto` y que el control lo vea.
+  10. **Orden 359 (`docs/ordenes/359-gemini-robot-vuelta-4-video-de-vida-invitados-e-itinerario.md`):** el Video de Vida no
+      da por terminado lo que empezó, los invitados no se pisan ni devuelven la fiesta entera, el tilde del cronograma en vivo
+      no se pierde y la fiesta de hoy no sale como pasada.
+  11. **Orden 360 (`docs/ordenes/360-gemini-robot-vuelta-5-confirmacion-fotocabina-y-resumen.md`):** confirmar sin enlace no
+      le borra la restricción de comida a quien ya estaba, el tope de confirmaciones, el aviso de la fotocabina que hereda el
+      siguiente invitado y "resumen visto" que no miraba si se guardó.
+  12. **Orden 361 (`docs/ordenes/361-gemini-robot-vuelta-6-simulador-redes-y-documentos-sin-turno.md`):** el simulador avisa
+      si no guardó, redes vuelve a mirar el permiso de la foto al publicar y siete documentos pasan a tener turno.
+  13. **Orden 362 (`docs/ordenes/362-gemini-robot-vuelta-7-asistente-y-agentes.md`):** el asistente pide un sí de verdad
+      antes de agendar, las propuestas de plata no las ve cualquiera y los agentes no dicen "al día" sin haber leído.
+  14. **Orden 363 (`docs/ordenes/363-gemini-robot-vuelta-8-personal-y-contrato.md`):** guardar el Personal no borra las
+      llegadas, el contrato engancha el recibo de seña que ya existe y la firma ya hecha no dice "registrada".
+  15. **Orden 364 (`docs/ordenes/364-gemini-robot-vuelta-9-cuotas-cocina-y-bebidas.md`):** una cuota cobrada se ve cobrada
+      en todos lados, el celíaco vegetariano llega a la cocina y las bebidas no se multiplican por los invitados.
+  16. **Orden 365 (`docs/ordenes/365-gemini-robot-vuelta-10-despachador-y-barra.md`):** sin clave, el despachador no manda
+      mensajes ni borra, y la barra no confunde a dos invitados con el mismo nombre.
+  17. **Orden 366 (`docs/ordenes/366-gemini-robot-vuelta-11-sofia-y-avisos-de-impresion.md`):** Sofía no congela precios ni
+      dice "seña del 30%", y un fallo de impresión no se anuncia como foto perdida.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

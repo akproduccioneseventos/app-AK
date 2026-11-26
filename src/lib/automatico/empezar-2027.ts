@@ -14,6 +14,7 @@ import { perfilDe } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 import { esSesionDeAuditor, esSesionDeSoloLectura } from '@/lib/auth/solo-lectura';
 import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import {
   buildSalonContractDraft,
   esSalonClubUruguay,
@@ -420,6 +421,24 @@ export async function correrMigracionEmpezar2027(
       readDataFn<ContractTemplateItem[]>('contract-templates.json', []),
       readDataFn<string>('contract-template.json', CONTRACT_TEMPLATE),
     ]);
+
+    // Una lectura que falla vuelve vacía, y una lista vacía de facturas o históricas deja sin protección presupuestos que
+    // esta migración después BORRA (robot, vuelta 7, 26/11/2026; pregunta 210). Si algo no se pudo leer, no se borra nada:
+    // la migración queda en "fallo" y se reintenta en la próxima entrada.
+    const lecturasFallidas = (
+      [
+        ['presupuestos', presupuestosRaw],
+        ['fiestas', fiestasRaw],
+        ['fiestas históricas', historicasRaw],
+        ['facturas', invoicesRaw],
+        ['clientes', customersRaw],
+      ] as Array<[string, unknown]>
+    )
+      .filter(([, valor]) => esLecturaFallida(valor))
+      .map(([nombre]) => nombre);
+    if (lecturasFallidas.length > 0) {
+      throw new Error(`No se pudo leer ${lecturasFallidas.join(', ')}: no se borró nada y se reintenta en la próxima entrada.`);
+    }
 
     const presupuestos = Array.isArray(presupuestosRaw) ? presupuestosRaw : [];
     const fiestas = Array.isArray(fiestasRaw) ? fiestasRaw : [];

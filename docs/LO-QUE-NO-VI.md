@@ -1567,3 +1567,15 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 349 → pregunta 226
 - Orden 350 → no es un defecto
 - Orden 355 → pregunta 228
+- Orden 356 → pregunta 210
+- Orden 357 → pregunta 150
+- Orden 358 → pregunta 232
+- Orden 359 → pregunta 233
+- Orden 360 → pregunta 210
+- Orden 361 → pregunta 234
+- Orden 362 → pregunta 235
+- Orden 363 → pregunta 236
+- Orden 364 → pregunta 237
+- Orden 365 → pregunta 238
+- Orden 366 → pregunta 239
+- Orden 366 → pregunta 240

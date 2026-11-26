@@ -2,6 +2,18 @@
 
 
 
+## 26/11/2026 - Empezar 2027 no borra nada si una lectura falla (robot, vuelta 7)
+
+La tarea de una sola vez que borra lo anterior a 2027 leía presupuestos, fiestas, facturas y clientes. Si la lectura de
+facturas fallaba, la vuelta tomaba "no hay facturas" y podía borrar presupuestos que una factura protegía. Ahora, si
+cualquiera de las lecturas viene marcada como fallida, no borra nada, queda en "falló" y se reintenta en la próxima entrada.
+Lo demás de la vuelta 7 (asistente y agentes) va en la orden 362.
+
+```comprobar
+usa: esLecturaFallida en src/lib/automatico/empezar-2027.ts
+prueba: src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts
+```
+
 ## 25/11/2026 - Auditoría en vivo en akproducciones.uy + Órdenes 346, 347, 348, 349, 350 y 355 (Rama `gemini/orden-346`)
 
 - **Orden 350 — Tutoriales en video (`"¿Cómo funciona?"`)**:

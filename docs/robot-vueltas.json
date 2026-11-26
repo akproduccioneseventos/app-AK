@@ -1,0 +1,303 @@
+{
+  "vueltas": [
+    {
+      "fecha": "2026-11-25T23:41",
+      "areas": [
+        "contrato",
+        "barra"
+      ],
+      "aspecto": "sincronizacion",
+      "robot_todo": "no corrido: la verificación de la entrega 346-349 ocupaba la máquina; va en la vuelta 2",
+      "hallazgos_confirmados": [
+        "seña con tres importes distintos",
+        "{{MONTO_SENA}} en blanco",
+        "hitos de la cláusula 3 un día antes",
+        "pedidos de barra del respaldo invisibles",
+        "pedido manual del barman sin turno",
+        "cierre de barra que dice guardado sin mover el depósito",
+        "cambiar trago sin clientRequestId",
+        "listos devuelve guestId y nota",
+        "blog se borra con lectura fallida",
+        "plantillas de decoración se borran con lectura fallida"
+      ],
+      "descartados": [
+        "tótem por nombre (decisión del 6/10)",
+        "dudosos de sincronización 4 a 8: ventanas chicas, quedan para mirar en la vuelta de sincronización siguiente"
+      ],
+      "orden": 356,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T00:41",
+      "areas": [
+        "comida",
+        "personal"
+      ],
+      "aspecto": "tareas automaticas",
+      "robot_todo": "152 pantallas: 4 rojos, 2 viejos (orden 346, sin publicar) y 2 del entorno (sin cámara); cero nuevos",
+      "hallazgos_confirmados": [
+        "plato infantil del menú asignado comprado para todos",
+        "niños detectados sólo con tilde en la lista",
+        "mesa buffet con dos comparaciones",
+        "unidades incompatibles suman al total",
+        "total cobrado del reporte con pendientes",
+        "recibos guardados y leídos de lugares distintos (latente)",
+        "año de la fiesta corrido",
+        "posteos fallados como corrida buena",
+        "ruta del blog sin includeRecontacto false"
+      ],
+      "descartados": [
+        "recordatorio de invitados disparado por una visita: una vez por día y con interruptor, es la decisión del dueño",
+        "escrituras del candado por visita: costo chico",
+        "muestra del auditor con clave fija: datos de muestra"
+      ],
+      "orden": 357,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T01:42",
+      "areas": [
+        "plata",
+        "permisos"
+      ],
+      "aspecto": "integraciones",
+      "robot_todo": "no repetido: la app no cambió desde la vuelta 2 (sólo documentos)",
+      "hallazgos_confirmados": [
+        "20 archivos llaman a la IA sin pasar por el cerebro"
+      ],
+      "descartados": [
+        "auditor que escribe en cualquier fiesta: el candado de solo lectura frena todo guardado",
+        "libro contable con archivados: el panel le pasa la lista sin archivados",
+        "proveedor que ve sus propias notas: es su registro",
+        "pedidos listos con guestId: ya pedido en la 356"
+      ],
+      "areas_limpias_esta_vuelta": [
+        "plata",
+        "permisos"
+      ],
+      "orden": 358,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T02:41",
+      "areas": [
+        "fiesta",
+        "portal"
+      ],
+      "aspecto": "celular y textos",
+      "robot_todo": "no repetido: la app publicada no cambió desde la vuelta 2",
+      "gemini": "la 1475 sumó 350 y 355 sobre una principal anterior a la devolución: se le avisó en la propuesta que traiga la principal",
+      "hallazgos_confirmados": [
+        "Video de Vida: \"fotos recibidas\" con la primera foto y sin enlace para seguir",
+        "Video de Vida: \"Fotos cargadas: 50\" sin fotos",
+        "Video de Vida: borrar todo no apaga la marca",
+        "editar un invitado pisa la confirmación y la llegada",
+        "editar un invitado borrado dice actualizado",
+        "agregar y borrar invitados devuelven la fiesta entera al portal",
+        "borrar invitado deja su id en los videos",
+        "autoguardado del itinerario destilda hitos en vivo",
+        "fiesta de hoy contada como pasada en Eventos",
+        "botones de 28 px en la mesa del portal"
+      ],
+      "descartados": [
+        "promesas prohibidas en textos públicos: ninguna",
+        "textos en inglés: ninguno"
+      ],
+      "para_el_duenio": [
+        "años del Club Uruguay: la LED dice \"más de 120\" y la página \"150\""
+      ],
+      "orden": 359,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T03:41",
+      "areas": [
+        "invitado",
+        "estaciones"
+      ],
+      "aspecto": "funcionalidad de punta a punta",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos desde el aviso",
+      "hallazgos_confirmados": [
+        "confirmar sin enlace con el nombre de otro borra su marca de celíaco",
+        "tope de 12 confirmaciones por dirección en 15 minutos",
+        "aviso de espera de la fotocabina heredado por el siguiente",
+        "resumen del asistente marcado visto sin mirar el resultado"
+      ],
+      "descartados": [
+        "invitación pública sin datos de otros invitados",
+        "fechas y calendario de la invitación correctos",
+        "estación de otra fiesta: el código va firmado",
+        "botones del panel: todos miran el resultado salvo uno",
+        "acciones sin uso (ak-100, experience-total, smart-automations…): ninguna pantalla las promete"
+      ],
+      "areas_limpias_esta_vuelta": [],
+      "orden": 360,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T04:41",
+      "areas": [
+        "web",
+        "redes"
+      ],
+      "aspecto": "sincronizacion (segunda pasada, documentos enteros)",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "simulador: guardado automático falla en silencio",
+        "simulador: paso 1 sin aviso si no guarda",
+        "servicios públicos con mantenimiento, stock y contacto",
+        "posteo programado sin volver a mirar el permiso",
+        "aviso al dueño marcado sin salir",
+        "borrador viejo programado sin aviso previo",
+        "7 documentos leídos y reescritos sin turno"
+      ],
+      "descartados": [
+        "enlaces de la portada",
+        "formulario de contacto sin duplicados",
+        "precio del simulador con la misma función",
+        "redes no borra, sólo oculta",
+        "sin duplicados al sincronizar",
+        "prospectos públicos: la lista tiene marca de lectura"
+      ],
+      "orden": 361,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T05:41",
+      "areas": [
+        "asistente",
+        "automaticos"
+      ],
+      "aspecto": "contenido de cada tarea automática y lo que el asistente hace solo",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "Empezar 2027 borraba con una lectura fallida (arreglado por Claude)",
+        "reunión agendada con un 'si' suelto o el confirmado del modelo",
+        "propuestas de plata sin responsable visibles para todo el equipo",
+        "agentes que dicen 'al día' sin haber leído",
+        "cobrador cuenta los días en hora de Greenwich",
+        "historial del chat del cliente sin tope y tareas del equipo en su resumen"
+      ],
+      "descartados": [
+        "cobrar, borrar, cerrar y permisos prohibidos en chat, voz y WhatsApp",
+        "chat del invitado valida su enlace",
+        "saldos del asistente con la misma cuenta del panel"
+      ],
+      "orden": 362,
+      "corregidos": [
+        "Empezar 2027 no borra si una lectura falla"
+      ]
+    },
+    {
+      "fecha": "2026-11-26T06:41",
+      "areas": [
+        "contrato",
+        "personal"
+      ],
+      "aspecto": "funcionalidad de punta a punta",
+      "robot_todo": "no repetido: el único cambio publicado es una tarea del servidor",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "autoguardado del Personal borra llegadas y confirmaciones",
+        "sueldo de la segunda asignación copiado de la primera",
+        "recibo de seña sin enganchar al reintentar el contrato",
+        "archivo del contrato subido de nuevo en cada reintento",
+        "firma ya hecha anunciada como registrada"
+      ],
+      "descartados": [
+        "recibos con candado de pagado",
+        "cédula y sueldo para quien no tiene permiso",
+        "llegada por enlace con ubicación",
+        "firma digital con huella y constancia",
+        "hitos y seña: ya en la orden 356",
+        "dos altas con el mismo nombre: dudoso, sin plata"
+      ],
+      "orden": 363,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T07:41",
+      "areas": [
+        "plata",
+        "comida"
+      ],
+      "aspecto": "plata y comida (las cuentas)",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "cuotas pagadas fuera del saldo del presupuesto",
+        "Finanzas ignora las cuotas si hay un cobro",
+        "celíaco vegetariano fuera de la hoja de cocina",
+        "'nin' marca platos como infantiles",
+        "bebidas multiplicadas por los invitados en la contabilidad"
+      ],
+      "descartados": [
+        "ganancia por fiesta",
+        "rango de fechas del reporte",
+        "cuotas vencidas",
+        "cobro confirmado",
+        "unidades y consolidación de compras",
+        "medianoche exacta de Greenwich: dudoso, sin caso real",
+        "redondeo a pesos: se trabaja en pesos enteros"
+      ],
+      "orden": 364,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T08:41",
+      "areas": [
+        "barra",
+        "permisos"
+      ],
+      "aspecto": "permisos (quién puede hacer qué)",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "despachador sin clave corre las tareas que mandan y borran",
+        "force=1 del blog sin clave",
+        "pedido del tótem asociado a cualquier invitado con el mismo nombre",
+        "pedido de otra fiesta encontrado por id"
+      ],
+      "descartados": [
+        "acciones de gestión de la barra con permiso",
+        "enlace del invitado mirado contra la fiesta",
+        "claves comparadas con clavesIguales",
+        "rutas de respaldo, contratos, comprobantes y descargas con permiso",
+        "lista de listos pública: ya en orden 356",
+        "tótem por nombre sin sesión: decisión",
+        "carta pública con stock: la usa para 'agotado'",
+        "estado del pago con id aleatorio"
+      ],
+      "orden": 365,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T09:41",
+      "areas": [
+        "web",
+        "estaciones"
+      ],
+      "aspecto": "textos que ven el prospecto y el invitado",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "Sofía: congelamos el precio y seña del 30%",
+        "fotocabina: fallo de impresión dice 'No se pudo publicar'",
+        "Vogue: fallo de impresión dice 'Fallo conexión'"
+      ],
+      "descartados": [
+        "palabras prohibidas visibles en la web: ninguna",
+        "WhatsApp: todos con el mismo número",
+        "sin inglés visible",
+        "sin nombres de personal",
+        "oficina y cifras fijas: ya en órdenes 355 y 349",
+        "mensajes crudos de error: sólo si falla también el respaldo, dudoso"
+      ],
+      "orden": 366,
+      "corregidos": []
+    }
+  ]
+}

@@ -2129,3 +2129,53 @@ siempre, contadas como pendientes del mes. Si nada lo cierra, la pantalla la mue
 
 Cuarta auditoría externa del 25/11/2026: el perfil decía "contraseña compartida" a quien entró con Google, y las citas
 decían "Oficina AK Producciones" cuando no hay oficina (decisión del dueño, 17/11).
+
+### 232. Una llamada a la IA, ¿pasa por el cerebro o por una puerta lateral que hace lo mismo?
+
+Tercera vuelta del robot, 26/11/2026: 20 archivos usaban `generateWithGeminiFallback` de `src/ai/genkit.ts`, que llama a la
+IA sin el tope central ni el registro. El control buscaba sólo `ai.generate(`. Cuando se cierra una puerta, se buscan también
+las funciones que la envuelven.
+
+### 233. Una marca de "terminado", ¿se prende al terminar o al empezar? ¿Y quién la apaga si se borra todo?
+
+Cuarta vuelta del robot, 26/11/2026: el Video de Vida marcaba "fotos recibidas" con la primera de 50 fotos, el portal le
+sacaba al cliente el enlace para subir las demás y el recordatorio automático se callaba. Al borrar todo, la marca quedaba.
+
+### 234. Un permiso que se mira al programar algo, ¿se vuelve a mirar cuando se ejecuta?
+
+Sexta vuelta del robot, 26/11/2026: un posteo se programaba con el permiso de la foto vigente y salía horas después aunque
+el cliente lo hubiera retirado en el medio. Lo que se ejecuta más tarde mira el permiso en el momento de ejecutar.
+
+### 235. Una acción que sale para afuera (calendario, mail, mensaje), ¿se ejecuta sólo con un "sí" de verdad dado después de preguntar?
+
+Séptima vuelta del robot, 26/11/2026: el asistente del equipo agendaba la reunión en Google Calendar —y le llegaba la
+invitación al cliente— si el pedido tenía la palabra "si" en cualquier parte ("no sé si puedo") o si el modelo decía que
+estaba confirmado. Lo que sale para afuera se pregunta primero, y el sí lo da una persona en el mensaje siguiente.
+
+### 236. Cuando un reintento encuentra lo que ya se creó la vez anterior, ¿lo engancha igual que si lo hubiera creado?
+
+Octava vuelta del robot, 26/11/2026: al reintentar el contrato en papel, la app encontraba el recibo de seña que ya había
+creado, no lo volvía a crear (bien) y tampoco lo sumaba a las facturas de la fiesta (mal). La rama "ya existía" tiene que
+dejar todo como la rama "lo creé".
+
+### 237. La misma plata, ¿se anota en un solo lugar, o en dos libros que cada pantalla lee distinto?
+
+Novena vuelta del robot, 26/11/2026: marcar una cuota como pagada la anotaba en el plan de pagos y no en los cobros del
+presupuesto. El portal del cliente decía "saldo $0" y el portal público, el asistente y el cobrador decían que debía todo.
+Toda pantalla que muestra lo cobrado o el saldo lee el mismo libro que el panel.
+
+### 238. Una ruta que se puede llamar sin clave, ¿corre algo que manda mensajes o borra?
+
+Décima vuelta del robot, 26/11/2026: el recordatorio a invitados se había sacado de las tareas que corren sin clave, pero el
+despachador tenía su propia verificación, dejaba pasar sin clave y corría todas las tareas, incluidas las que mandan WhatsApp
+y Gmail a clientes e invitados. Sin clave, sólo corre lo que no sale para afuera.
+
+### 239. Lo que el dueño prohibió decir, ¿se buscó también en lo que dice la IA (instrucciones y respuestas guardadas)?
+
+Undécima vuelta del robot, 26/11/2026: la web ya no prometía congelar precios, pero Sofía, la asistente del simulador, tenía
+escrito en sus instrucciones "congelamos el precio tras la seña del 30%". Lo que dice la IA también lo ve el prospecto.
+
+### 240. Dos fallas distintas, ¿comparten el mismo aviso en pantalla?
+
+Misma vuelta: en la fotocabina y en el Vogue, un fallo de impresión se guardaba en el mismo estado que la subida, y la pantalla
+decía "No se pudo publicar" o "Fallo conexión" con la foto subida. Cada falla tiene su aviso.

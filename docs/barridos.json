@@ -924,6 +924,42 @@
     "231": {
       "fecha": "2026-11-25",
       "resultado": "Barridos \"oficina\", \"contraseña compartida\" y \"estás autenticado\" en toda la app: arreglados /perfil (rol y método reales sin texto fijo), simulator-agenda, SimulatorMeetingScheduler, agenda-utils, google-workspace y calendario (\"A coordinar\" al mostrar sin alterar datos guardados); el rubro contable \"Alquiler Oficina/Depósito\" es válido y queda."
+    },
+    "232": {
+      "fecha": "2026-11-26",
+      "resultado": "20 archivos fuera de src/ai llaman a generateWithGeminiFallback o ejecutarPromptConFallback; todos en la orden 358."
+    },
+    "233": {
+      "fecha": "2026-11-26",
+      "resultado": "La marca photosUploaded del Video de Vida (se prende con la primera foto y no se apaga al borrar) en la orden 359; el resto de marcas \"true\" lo revisa Gemini en el barrido de esa orden."
+    },
+    "234": {
+      "fecha": "2026-11-26",
+      "resultado": "Posteos programados que se publican sin volver a mirar el permiso de la foto (publicador.ts); el resto de lo programado lo barre Gemini en la orden 361."
+    },
+    "235": {
+      "fecha": "2026-11-26",
+      "resultado": "Agendar reunión y preparar mail en multiagent.ts con esUnSi suelto o el confirmado del modelo; el resto de las acciones que salen para afuera lo barre Gemini en la orden 362."
+    },
+    "236": {
+      "fecha": "2026-11-26",
+      "resultado": "El contrato en papel encontraba el recibo de seña ya creado y no lo sumaba a invoiceIds (documentos.actions.ts); el resto de las ramas 'ya existe' lo barre Gemini en la orden 363."
+    },
+    "237": {
+      "fecha": "2026-11-26",
+      "resultado": "Cuotas pagadas en planDePagos y saldo desde pagosCliente: portal del cliente, portal público, asistente, cobrador y Finanzas leen libros distintos. El resto de los lectores lo barre Gemini en la orden 364."
+    },
+    "238": {
+      "fecha": "2026-11-26",
+      "resultado": "cron-despachador corre sin clave todas las tareas de al-entrar-a-la-app, incluidas las que mandan; despertar sólo anota el toque. El resto de las rutas con verificación propia lo barre Gemini en la orden 365."
+    },
+    "239": {
+      "fecha": "2026-11-26",
+      "resultado": "Sofía: 'congelamos el precio' y 'seña del 30%' en copilot.ts y copilot-config.json; el resto de las instrucciones de IA lo barre Gemini en la orden 366."
+    },
+    "240": {
+      "fecha": "2026-11-26",
+      "resultado": "Fotocabina (errorMsg) y Vogue (uploadError) mezclan el fallo de impresión con el de subida; el resto de las estaciones lo barre Gemini en la orden 366."
     }
   },
   "hallazgos": {
@@ -1374,6 +1410,50 @@
     "orden-355": {
       "fecha": "2026-11-25",
       "resultado": "Cuarta auditoría externa del 25/11: títulos dobles, páginas por tipo repetidas para Google, ceros mientras carga, conteos distintos de fiestas próximas, citas que no se cierran, oficina inexistente, textos fijos del perfil. Barrido de las cuatro formas nuevas (228 a 231) en toda la app, todo dentro de la orden 355."
+    },
+    "orden-356": {
+      "fecha": "2026-11-25",
+      "resultado": "Robot vuelta 1 (contrato, barra, sincronización): seña con tres cuentas distintas (pregunta 110), pedidos de barra del respaldo invisibles, blog y plantillas que se borran con una lectura fallida (pregunta 210), fechas de hitos un día antes. Barrido de seña, catch que devuelve [] y fechas AAAA-MM-DD en la orden 356."
+    },
+    "orden-357": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 2 (comida, personal, tareas automáticas y recorrido de 152 pantallas sin rojos nuevos): niños contados distinto en lista y costo (pregunta 150), mesa buffet con dos comparaciones, unidades incompatibles en el total, total cobrado del personal con pendientes, recibos guardados en un lugar y leídos de otro, año corrido, posteos fallados como corrida buena, blog que podía disparar recontacto. Barridos en la orden 357."
+    },
+    "orden-358": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 3 (plata, permisos, integraciones): plata y permisos sin errores nuevos; Meta y Mercado Pago verifican firma y no duplican; 20 llamadas a la IA sin pasar por el cerebro (pregunta 232), barridas y pedidas en la orden 358."
+    },
+    "orden-359": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 4 (fiesta, portal, celular y textos): Video de Vida que da por terminado lo empezado (pregunta 233), invitados que se pisan y devuelven la fiesta entera, tilde del cronograma en vivo que se pierde, fiesta de hoy contada como pasada, botones de 28 px en el portal. Textos públicos sin promesas prohibidas."
+    },
+    "orden-360": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 5 (invitado, estaciones, botones del panel): confirmar sin enlace borraba la marca de celíaco de quien ya estaba (pregunta 210, una escritura que pisa lo guardado), tope de confirmaciones bajo para un wifi compartido, aviso de la fotocabina heredado por el siguiente invitado (error 10), \"resumen visto\" sin mirar el resultado. Barridos en la orden 360."
+    },
+    "orden-361": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 6 (web, redes, sincronización de documentos enteros): simulador que no avisa si no guardó, datos internos del servicio en la carga pública, permiso de la foto no revisado al publicar (pregunta 234), aviso al dueño marcado sin salir (pregunta 122), siete documentos leídos y reescritos sin turno (pregunta 22)."
+    },
+    "orden-362": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 7 (asistente y tareas automáticas): reunión con el cliente agendada sin un sí de verdad (pregunta 235), propuestas de plata sin responsable visibles para todo el equipo, agentes que toman una lectura fallida como 'al día' (pregunta 210), días del cobrador en hora de Greenwich (pregunta 70), historial del chat del cliente sin tope. La migración 2027 que borraba con una lectura fallida la arregló Claude."
+    },
+    "orden-363": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 8 (personal y contrato, de punta a punta): el autoguardado del Personal borraba llegadas y confirmaciones marcadas en el medio (pregunta 210), sueldo de una segunda asignación copiado de la primera, recibo de seña sin enganchar al reintentar el contrato (pregunta 236), firma ya hecha anunciada como registrada."
+    },
+    "orden-364": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 9 (plata y comida, las cuentas): cuotas pagadas que no llegan al saldo del presupuesto (pregunta 237), celíaco que además es vegetariano fuera de la hoja de cocina, platos tomados como infantiles por tener 'nin', bebidas multiplicadas por los invitados en la contabilidad."
+    },
+    "orden-365": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 10 (barra y permisos de las rutas /api): el despachador sin clave corre las tareas que mandan mensajes y borran (pregunta 238), force=1 del blog sin clave, pedidos del tótem asociados a cualquier invitado con el mismo nombre, pedido de otra fiesta encontrado por id."
+    },
+    "orden-366": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 11 (textos de la web y de las estaciones): Sofía congela precios y dice seña del 30% (pregunta 239), fallo de impresión anunciado como foto no publicada o falla de conexión (pregunta 240)."
     }
   }
 }
