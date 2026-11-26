@@ -888,6 +888,80 @@
       ],
       "orden": 374,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T18:45",
+      "areas": [
+        "fiesta",
+        "barra",
+        "contrato",
+        "portal",
+        "invitado",
+        "web",
+        "asistente",
+        "personal",
+        "redes"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "fiesta",
+          "barra"
+        ],
+        "plata": [
+          "contrato",
+          "portal"
+        ],
+        "permisos": [
+          "invitado",
+          "web"
+        ],
+        "promesas": [
+          "asistente",
+          "web"
+        ],
+        "automaticos": [
+          "personal",
+          "contrato"
+        ],
+        "fechas-y-celular": [
+          "redes",
+          "barra"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "extra del portal con 15% que el servidor no suma",
+        "cancelación parcial con ajuste doble sobre la multa",
+        "cambio de fecha de una fiesta cancelada",
+        "multa de cambio de fecha sobre multas previas",
+        "decoración que se pisa entre equipo y portal",
+        "Auto-Acomodar sin guardar y capacidad fija",
+        "llegada sin ubicación que no deja marca",
+        "dos recordatorios al mismo cliente",
+        "estado del blog sin permiso",
+        "'Anoté' sin anotar",
+        "'congelando' en el texto para Google",
+        "calendario de redes en Greenwich"
+      ],
+      "repetidos_sin_arreglar": [
+        "updateInvitado pisa al invitado (orden 359)",
+        "pedidos de barra (orden 356)",
+        "Sofía 'congelamos' (orden 366)",
+        "oficina en el simulador (orden 355)",
+        "vectores de caras (orden 367)"
+      ],
+      "descartados": [
+        "tope del simulador por teléfono: bajo, sin daño de datos",
+        "entrar con el celular: pedido en la orden 332",
+        "cancelar un trago en milisegundos: ventana mínima",
+        "reposición doble en el respaldo de la barra: dudoso",
+        "'En un rato te pasamos el presupuesto' y 'te respondemos enseguida': textos para consultar al dueño",
+        "botones chicos en pantallas internas"
+      ],
+      "orden": 375,
+      "corregidos": []
     }
   ]
 }

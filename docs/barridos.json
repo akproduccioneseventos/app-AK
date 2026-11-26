@@ -1004,6 +1004,18 @@
     "251": {
       "fecha": "2026-11-26",
       "resultado": "consolidar-compras.ts se queda con el isOrder del primer renglón. El resto de las uniones lo barre Gemini en la orden 374."
+    },
+    "252": {
+      "fecha": "2026-11-26",
+      "resultado": "PublicPortalClientExperience.tsx suma el 15% al extra siempre. El resto lo barre Gemini en la orden 375."
+    },
+    "253": {
+      "fecha": "2026-11-26",
+      "resultado": "escaneo-recordatorios.ts no suma lo reservado en la corrida. El resto lo barre Gemini en la orden 375."
+    },
+    "254": {
+      "fecha": "2026-11-26",
+      "resultado": "accesos-personal-view.ts saltea la ubicación sin coordenadas del salón. El resto lo barre Gemini en la orden 375."
     }
   },
   "hallazgos": {
@@ -1530,6 +1542,10 @@
     "orden-374": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 19 (seis especialistas): baja de empleado y borrado de proveedor con lectura caída (210), llegada del personal colgada, Sincronizado del tótem sin leer, respuesta pública sin números (250), No publicar pisado por la lista vieja (22), docena sin convertir (227), pantalla vs pedido y pedido fijo que no descuenta stock (251)."
+    },
+    "orden-375": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 20 (seis especialistas): extra del portal con 15% que el servidor no suma (252), cancelación parcial con ajuste doble, cambio de fecha de fiesta cancelada, decoración que se pisa (22), Auto-Acomodar sin guardar (179), llegada sin ubicación (254), recordatorio doble (253), estado del blog sin permiso (35), 'Anoté' sin anotar (160), 'congelando' en Google y calendario de redes en Greenwich (174)."
     }
   }
 }

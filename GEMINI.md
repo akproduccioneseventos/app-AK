@@ -85,6 +85,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   25. **Orden 374 (`docs/ordenes/374-gemini-robot-vuelta-19-seis-especialistas.md`):** no borrar a ciegas (personal y
       proveedores), la llegada del personal, Sincronizado del tótem, respuestas públicas con números, "No publicar" que no se
       pisa y la lista de compras con docenas.
+  26. **Orden 375 (`docs/ordenes/375-gemini-robot-vuelta-20-seis-especialistas.md`):** el extra del portal cuesta lo mismo,
+      cancelación y cambio de fecha sin ajustes dobles, la decoración que no se pisa, Auto-Acomodar que guarda, la llegada sin
+      ubicación, un recordatorio por cliente, el blog con permiso, el chat que no dice "anoté" y el calendario de redes.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
