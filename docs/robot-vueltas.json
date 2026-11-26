@@ -594,6 +594,81 @@
       ],
       "orden": 370,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T14:41",
+      "areas": [
+        "web",
+        "redes",
+        "asistente",
+        "comida",
+        "estaciones",
+        "barra",
+        "contrato",
+        "invitado",
+        "fiesta"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "web",
+          "redes"
+        ],
+        "plata": [
+          "asistente",
+          "redes"
+        ],
+        "permisos": [
+          "comida",
+          "estaciones"
+        ],
+        "promesas": [
+          "barra",
+          "contrato"
+        ],
+        "automaticos": [
+          "estaciones",
+          "invitado"
+        ],
+        "fechas-y-celular": [
+          "web",
+          "fiesta"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "cita editada se mueve un día",
+        "entrega de fotos un día antes",
+        "cliente deja de ser 'Actual' el día de la fiesta",
+        "Vision fuera del tope",
+        "consulta de marketing contada dos veces",
+        "cualquier sesión maneja estaciones de otra fiesta",
+        "permiso del afiche para cualquier fiesta",
+        "el operador ve costos y márgenes",
+        "fotos por WhatsApp repetidas con 'uncertain'",
+        "pedido de barra sin señal rechazado sin aviso",
+        "cancelación dice error ya guardada",
+        "recordatorio no-abiertas con lectura fallida",
+        "Search Console borra settings con lectura fallida",
+        "redes guarda los valores por defecto encima",
+        "menciones de historias que se borran"
+      ],
+      "descartados": [
+        "tope de publicidad sobre lo comprometido: decisión anotada",
+        "fechas del simulador y reloj",
+        "cuenta regresiva",
+        "deudas del asistente",
+        "tokens atados a fiesta y módulo",
+        "firma digital y contrato en papel",
+        "recordatorio a confirmados con id fijo",
+        "caras en el navegador",
+        "CRM, catálogo y galería",
+        "tablet del salón el día de la fiesta: a propósito",
+        "publicación directa sin aprobación: opción del dueño"
+      ],
+      "orden": 371,
+      "corregidos": []
     }
   ]
 }

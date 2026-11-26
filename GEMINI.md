@@ -76,6 +76,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       "listo" sin guardar, el freno del simulador, el calendario del invitado, los menús y los recordatorios de cuota a ciegas.
   21. **Orden 370 (`docs/ordenes/370-gemini-robot-vuelta-15-seis-especialistas.md`):** la consulta del cliente fuera del chat de
       invitados, Entretenimiento sin borrar fotos, el personal que sigue a los invitados y fechas de Uruguay.
+  22. **Orden 371 (`docs/ordenes/371-gemini-robot-vuelta-16-seis-especialistas.md`):** estaciones de otra fiesta, costos del
+      operador, IA por el tope, avisos que se repiten y fechas que se corren.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

@@ -2210,3 +2210,8 @@ Decimoquinta vuelta del robot, 26/11/2026: las vacantes de mozos, cocina y utile
 
 Misma vuelta: la consulta que el cliente le hacía a AK desde su portal se guardaba en el chat en vivo de la fiesta, que leen todos los
 invitados con el enlace.
+
+### 247. Cuando un servicio de afuera contesta "no sé si llegó", ¿se anota como enviado para no mandarlo dos veces?
+
+Decimosexta vuelta del robot, 26/11/2026: Meta avisa `delivery: 'uncertain'` cuando tarda (el mensaje pudo haber salido) y pide no
+reintentar. El aviso de fotos por WhatsApp lo tomaba como falla, no lo anotaba, y en la tanda siguiente el invitado lo recibía otra vez.
