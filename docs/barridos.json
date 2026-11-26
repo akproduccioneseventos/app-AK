@@ -1378,6 +1378,10 @@
     "orden-356": {
       "fecha": "2026-11-25",
       "resultado": "Robot vuelta 1 (contrato, barra, sincronización): seña con tres cuentas distintas (pregunta 110), pedidos de barra del respaldo invisibles, blog y plantillas que se borran con una lectura fallida (pregunta 210), fechas de hitos un día antes. Barrido de seña, catch que devuelve [] y fechas AAAA-MM-DD en la orden 356."
+    },
+    "orden-357": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 2 (comida, personal, tareas automáticas y recorrido de 152 pantallas sin rojos nuevos): niños contados distinto en lista y costo (pregunta 150), mesa buffet con dos comparaciones, unidades incompatibles en el total, total cobrado del personal con pendientes, recibos guardados en un lugar y leídos de otro, año corrido, posteos fallados como corrida buena, blog que podía disparar recontacto. Barridos en la orden 357."
     }
   }
 }
