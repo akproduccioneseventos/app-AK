@@ -519,6 +519,81 @@
       ],
       "orden": 369,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T13:42",
+      "areas": [
+        "barra",
+        "estaciones",
+        "personal",
+        "web",
+        "invitado",
+        "portal",
+        "fiesta",
+        "comida",
+        "contrato",
+        "automaticos"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "barra",
+          "estaciones"
+        ],
+        "plata": [
+          "personal",
+          "web"
+        ],
+        "permisos": [
+          "personal",
+          "invitado"
+        ],
+        "promesas": [
+          "web",
+          "portal"
+        ],
+        "automaticos": [
+          "fiesta",
+          "comida"
+        ],
+        "fechas-y-celular": [
+          "contrato",
+          "automaticos"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "'Enviado' al tildar en el portal",
+        "correo de recuperación sin aviso si tira",
+        "Entretenimiento borra fotos del invitado",
+        "consulta del cliente en el chat público",
+        "fecha de solicitud de adenda y cancelación en Greenwich",
+        "parte de la mañana 'en 0 días' y aviso del contador fuera de fecha",
+        "Mi día con hoy de Greenwich",
+        "'Mis XV' en cualquier fiesta",
+        "personal que no sigue a los invitados",
+        "invitadosCantidad || 100",
+        "sueldo 0 leído distinto",
+        "cuotas del simulador que suman de más"
+      ],
+      "descartados": [
+        "personal por invitados según la regla",
+        "Club Uruguay y tachado",
+        "descuento simulador/presupuesto",
+        "ajustes y apertura de barra",
+        "recibos y agenda del personal",
+        "portal del empleado",
+        "videos para invitados",
+        "cierre posfiesta",
+        "papelería con IA",
+        "cierre de barra con insumo borrado: dudoso",
+        "búsqueda de mesa por nombre: a propósito",
+        "'Te llega en PDF': texto del cliente, lo decide el dueño",
+        "tres planes de pago distintos y LED sin el 15%: lo decide el dueño"
+      ],
+      "orden": 370,
+      "corregidos": []
     }
   ]
 }

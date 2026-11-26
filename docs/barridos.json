@@ -976,6 +976,14 @@
     "244": {
       "fecha": "2026-11-26",
       "resultado": "leer-facturas.ts copia con .map y pierde la marca; el escaneo encontró dos lugares con la misma forma. El resto lo barre Gemini en la orden 369."
+    },
+    "245": {
+      "fecha": "2026-11-26",
+      "resultado": "Vacantes de personal llenadas sólo si personalAsignado está vacío (fiesta.actions.ts) y panel con item.cantidad. El resto lo barre Gemini en la orden 370."
+    },
+    "246": {
+      "fecha": "2026-11-26",
+      "resultado": "portal--faq.tsx manda la consulta del cliente al chat público con addChatMessage. El resto de los usos lo barre Gemini en la orden 370."
     }
   },
   "hallazgos": {
@@ -1482,6 +1490,10 @@
     "orden-369": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 14 (seis especialistas): la vista previa de la cancelación cobra distinto que el servidor, carteles de 'listo' sin mirar el guardado (asistente, música, muro), freno del simulador por teléfono, calendario del invitado a medianoche y días de reseñas en Greenwich (70), menús que deshacen el ajuste de márgenes y proveedores con el mismo nombre (210), recordatorios de cuota a ciegas con la base caída (244)."
+    },
+    "orden-370": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 15 (seis especialistas): 'Enviado' al tildar y correo de recuperación sin aviso en el portal, Entretenimiento que borra fotos del invitado (210), consulta del cliente en el chat público (246), fechas de solicitud, parte de la mañana y Mi día en Greenwich (70), 'Mis XV' en cualquier fiesta, personal que no sigue a los invitados (245), sueldo 0 leído distinto y cuotas que suman de más."
     }
   }
 }
