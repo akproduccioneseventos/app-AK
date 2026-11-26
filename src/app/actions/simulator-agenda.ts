@@ -50,7 +50,7 @@ export async function bookAppointmentFromSimulator(data: {
   clienteContacto: string;
   clienteEmail?: string;
   fechaHora: string; // ISO 8601 string
-  tipoReunion?: 'Presencial en Oficina' | 'Presencial a coordinar' | 'Videollamada Google Meet';
+  tipoReunion?: 'Presencial a coordinar' | 'Videollamada Google Meet';
   presupuestoId?: string;
 }): Promise<{
   success: boolean;

@@ -303,6 +303,7 @@ export default function SincronizacionesPage() {
         <CardHeader className="bg-slate-50/70 border-b border-slate-200 py-4 px-6">
           <div className="flex items-center justify-between">
             <div>
+              {/* no pasa nada si falla: la lista se muestra recién con datos cargados (!sinDatos). */}
               <CardTitle className="text-base font-bold text-slate-800">
                 Plataformas e Integraciones Externas ({filtradas.length})
               </CardTitle>

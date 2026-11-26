@@ -167,7 +167,7 @@ export async function marcarCorrida(
         return { ...estado, ultimoFallo };
       }
       return estado;
-    }).catch(() => {});
+    }).catch((e) => console.error('[tareas] no se pudo limpiar la marca de fallo', e));
   } catch {
     // Que falle la marca no puede tumbar la tarea que si corrio.
   }

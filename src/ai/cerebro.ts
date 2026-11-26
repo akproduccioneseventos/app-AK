@@ -281,6 +281,7 @@ async function ejecutarTextoConRespaldo({
         ? await ejecutarModelo(request)
         : fetchFn
           ? await llamarModeloTextoPorFetch(fetchFn, modelo, prompt ?? '', system, maxOutputTokens)
+          // no pasa nada si falla: esta es la puerta del cerebro; acá se llama al modelo después del tope.
           : await generateWithGeminiFallback(request);
 
       const resAny = res as { text?: string | null; output?: any; custom?: any; raw?: any; fuentes?: unknown; sources?: unknown };

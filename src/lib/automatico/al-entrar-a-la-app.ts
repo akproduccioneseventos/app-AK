@@ -470,7 +470,7 @@ export async function ponerAlDiaAlEntrar(
         if (check.fallo) {
           throw new Error(check.motivo || 'No se pudo completar la tarea.');
         }
-        if (res && typeof res === 'object' && (res as any).skipped === true) {
+        if (res && typeof res === 'object' && (res as { skipped?: unknown }).skipped === true) {
           resultado.omitidas.push(tarea.nombre);
           continue;
         }

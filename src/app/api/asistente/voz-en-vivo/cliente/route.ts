@@ -169,7 +169,7 @@ export async function POST(request: Request) {
         const data: any = await res.json().catch(() => ({}));
         if (res.ok && data?.name) {
           if (!usaReserva && typeof consumoServidor.registrarConsumoIA === 'function') {
-            await consumoServidor.registrarConsumoIA('voz-cliente').catch(() => {});
+            await consumoServidor.registrarConsumoIA('voz-cliente').catch((e) => console.error('[voz-cliente] no se pudo anotar el consumo de IA', e));
           }
           return NextResponse.json({
             token: data.name,
@@ -192,7 +192,7 @@ export async function POST(request: Request) {
   // Si no hay ficha, devolvemos el minuto reservado, liberamos la reserva de IA y retornamos 503 sin token
   await devolverMinutoCliente(fiestaId, hoyStr);
   if (consumoIA) {
-    await consumoIA.liberar().catch(() => {});
+    await consumoIA.liberar().catch((e) => console.error('[voz-cliente] no se pudo liberar el lugar del tope', e));
   }
   return NextResponse.json(
     { error: 'La llamada no está disponible ahora. Podés escribirnos en el chat.' },

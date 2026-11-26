@@ -263,6 +263,7 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
     const fechaPrev = sentToClientAt || reunion.resumenEnviadoAlClienteAt;
     let confirmarReenvio = false;
     if (fechaPrev) {
+      // no pasa nada si falla: fechaPrev es un instante con hora y se muestra en el navegador de Uruguay.
       const fechaTexto = new Date(fechaPrev).toLocaleDateString('es-UY');
       if (!window.confirm(`Ya se le mandó el ${fechaTexto}. ¿Querés enviarlo de nuevo?`)) {
         return;

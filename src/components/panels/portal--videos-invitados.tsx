@@ -480,6 +480,7 @@ function VideosInvitadosContent() {
         {videosGuardados.length > 0 && (
           <Card className="bg-slate-900 border-white/10 text-white">
             <CardHeader className="pb-3">
+              {/* no pasa nada si falla: la tarjeta sólo se muestra con videos ya cargados (length > 0). */}
               <CardTitle className="text-base font-bold">Videos Grabados ({videosGuardados.length})</CardTitle>
               <CardDescription className="text-slate-400 text-xs">
                 Dedicatorias listas para mostrarse en el evento.
