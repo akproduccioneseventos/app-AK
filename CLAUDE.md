@@ -1592,6 +1592,9 @@ lo que hice?* Si es lo segundo, no se manda.
   errores"; las sesiones nuevas arrancaban sin la app y terminaban en un minuto). Cada vuelta deja su línea en
   `docs/robot-vueltas.json`; un error ya pedido no cuenta como nuevo y se marca corregido sólo cuando se vuelve a mirar y no
   está. Se apaga sola únicamente cuando no queda ninguno. Manda sobre "no auditar por auditar" y "despertadores apagados".
+  **Comandante y seis especialistas (26/11/2026):** *"un robot que comande y especialistas"*. Las 64 fallas de las vueltas 1 a 11
+  caen en seis clases, y cada una tiene su ayudante en `.claude/agents/ak-esp-*.md` (guardados, plata y comida, permisos,
+  promesas de pantalla, automáticos e IA, fechas y celular). Corren a la vez; Claude comanda, confirma y escribe una sola orden.
 - **Cifras, 2027 y Club Uruguay (25 de noviembre de 2026).** "+200 fiestas" y "8 años" se cuentan solos: inicio el
   **8/8/2018**, y cada fiesta realizada desde 2027 suma una (orden 349, bloque 6). **Se borra todo lo anterior a 2027,
   incluidas las fiestas de noviembre y diciembre de 2026**; quedan sólo las de 2027 en adelante, cargadas solas por la app.
