@@ -240,6 +240,7 @@ async function notificarFallaDevolucionBarra(
   logger.warn('[barra-tecnologica] botellas pendientes sin poder devolver:', { detalle });
   try {
     const { createNotification } = await import('@/lib/notifications/create-notification');
+    // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
     await createNotification({
       tipo: 'alerta',
       titulo: 'Devolución de botellas pendiente en barra',

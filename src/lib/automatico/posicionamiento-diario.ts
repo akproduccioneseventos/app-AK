@@ -89,6 +89,7 @@ export async function ejecutarRevisionPosicionamiento(
       if (estadoAviso?.ultimaFechaAviso !== hoyUy) {
         const { createNotification } = await import('@/lib/notifications/create-notification');
         const listado = rotas.map((r) => `${r.ruta} (${r.mensaje})`).join(', ');
+        // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
         await createNotification({
           titulo: `Salud web: ${rotas.length} ${rotas.length === 1 ? 'página rota' : 'páginas rotas'}`,
           mensaje: `Revisá estas páginas públicas que fallaron: ${listado}`,

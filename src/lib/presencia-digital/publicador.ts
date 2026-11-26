@@ -892,6 +892,7 @@ export async function procesarPosteosProgramados(
       })).catch(() => null);
       try {
         const { createNotification } = await import('@/lib/notifications/create-notification');
+        // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
         await createNotification({
           titulo: 'Publicación frenada: foto sin permiso promocional',
           mensaje: `El posteo "${(post.text || post.id).slice(0, 60)}" no salió porque la foto no tiene permiso promocional vigente.`,
