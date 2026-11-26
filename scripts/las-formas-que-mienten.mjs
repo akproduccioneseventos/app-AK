@@ -383,6 +383,8 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   237: 'Que la misma plata se lea de un solo libro en todas las pantallas es un comportamiento: lo cubre src/__tests__/una-cuota-cobrada-se-ve-en-todos-lados.test.ts (orden 364).',
   240: 'Que dos fallas distintas no compartan el mismo aviso es un comportamiento: lo cubre tests/e2e/la-impresion-fallida-no-dice-foto-perdida.spec.ts (orden 366).',
   242: 'Que una tarea que junta varias no se marque corrida si una de adentro falló es un comportamiento: lo cubre src/__tests__/una-tarea-con-un-agente-caido-no-figura-corrida.test.ts (orden 367).',
+  245: 'Que algo calculado una vez se recalcule cuando cambia lo que lo origina es un comportamiento: lo cubre src/__tests__/el-personal-sigue-a-los-invitados.test.ts (orden 370).',
+  246: 'Que lo escrito en un lugar privado no termine en una lista pública es un comportamiento: lo cubre src/__tests__/la-consulta-del-cliente-no-va-al-chat.test.ts (orden 370).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',

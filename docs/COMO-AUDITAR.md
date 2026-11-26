@@ -2200,3 +2200,13 @@ respuesta. Con el acceso vencido, la queja seguía pública, la pantalla decía 
 Decimocuarta vuelta del robot, 26/11/2026: `readData` devuelve una lista vacía con una marca cuando la base no contesta, y quien la mira
 sabe que no es "no hay nada". Pero la lectura de facturas la copiaba con `.map` antes de devolverla: la copia salía sin marca, el escaneo de
 cuotas vencidas no armaba ningún aviso y la tarea figuraba al día.
+
+### 245. Lo que la app arma sola una vez (vacantes, cantidades), ¿se vuelve a armar cuando cambia lo que lo origina?
+
+Decimoquinta vuelta del robot, 26/11/2026: las vacantes de mozos, cocina y utileros se llenaban sólo la primera vez. Si el cliente aprobaba
+50 invitados más, el presupuesto cobraba seis mozos y la lista de personal seguía pidiendo cuatro.
+
+### 246. Lo que alguien escribe en un lugar privado, ¿termina en una lista que lee cualquiera?
+
+Misma vuelta: la consulta que el cliente le hacía a AK desde su portal se guardaba en el chat en vivo de la fiesta, que leen todos los
+invitados con el enlace.
