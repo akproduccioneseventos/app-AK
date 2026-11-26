@@ -42,7 +42,7 @@ import { deleteTaskTemplate } from '@/app/actions/task-templates';
 import { deleteDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
 import { deleteMarketingTemplate } from '@/app/actions/marketing';
 import { resetAllPresupuestos } from '@/app/actions/presupuestos';
-import { updateGuestRsvp } from '@/app/actions/fiesta/invitados.actions';
+import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 
 const conEmuladores = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 const FIESTA_ID = `prueba-293-${Date.now()}`;
@@ -152,8 +152,8 @@ describe('ida y vuelta contra la base: las once del auditor', () => {
     if (crudo.exists) expect(crudo.data()?.menuAsignadoId).toBeUndefined();
   });
 
-  it('updateGuestRsvp: Celiaco -> Ninguna deja isCeliac en falso', async () => {
-    const r = await updateGuestRsvp(FIESTA_ID, 'inv_293', { rsvp: 'Confirmado', dietaryRestriction: 'Ninguna' });
+  it('updateInvitado: Celiaco -> Ninguna deja isCeliac en falso', async () => {
+    const r = await updateInvitado(FIESTA_ID, { id: 'inv_293', nombre: 'Invitado 293', rsvp: 'Confirmado', dietaryRestriction: 'Ninguna' } as any);
     expect(r.success).toBe(true);
     const f = await readData<any>(`fiestas/${FIESTA_ID}.json`, null);
     const inv = f.invitados.find((i: any) => i.id === 'inv_293');

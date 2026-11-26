@@ -188,7 +188,7 @@ export async function getKioskStationGuestToken(
 export async function getPermisoDelAfiche(fiestaId: string) {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
     if (!fiesta) return { success: false as const, error: 'Evento no encontrado.' };
     const segundos = segundosDelPermisoDelAfiche(fiesta.configuracion?.fechaEvento);
     if (segundos <= 0) {
@@ -208,16 +208,48 @@ export async function saveEntretenimientoFiesta(fiestaId: string, entretenimient
     await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
 
     const nextEntertainment = normalizeEntertainmentData(entretenimiento);
-    const result = await actualizarFiesta(fiestaId, (actual) => ({
-      ...actual,
-      others: {
-        ...(actual.others || {}),
-        entretenimiento: nextEntertainment,
-      },
-    }));
+    let savedEntertainment: any = nextEntertainment;
+    const result = await actualizarFiesta(fiestaId, (actual) => {
+      const actualEntertainment = getStoredEntertainment(actual) || {};
+      const actualModules = actualEntertainment.modules || {};
+      const nextModules = nextEntertainment.modules || {};
+      const moduleIds = new Set([
+        ...Object.keys(actualModules),
+        ...Object.keys(nextModules),
+      ]);
+      const mergedModules: Record<string, any> = {};
+      for (const modId of moduleIds) {
+        const modActual = actualModules[modId];
+        const modNext = nextModules[modId];
+        if (!modNext) {
+          mergedModules[modId] = modActual;
+          continue;
+        }
+        const mediaActual = Array.isArray(modActual?.media)
+          ? modActual.media
+          : (Array.isArray(modNext?.media) ? modNext.media : []);
+        mergedModules[modId] = {
+          ...(modActual || {}),
+          ...modNext,
+          media: mediaActual,
+        };
+      }
+      savedEntertainment = {
+        ...actualEntertainment,
+        ...nextEntertainment,
+        modules: mergedModules,
+      };
+      return {
+        ...actual,
+        others: {
+          ...(actual.others || {}),
+          entretenimiento: savedEntertainment,
+        },
+      };
+    });
     if (!result.success) throw new Error(result.error || 'No se pudo guardar entretenimiento.');
 
-    return { success: true, data: nextEntertainment };
+    return { success: true, data: savedEntertainment };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo guardar entretenimiento.' };
   }

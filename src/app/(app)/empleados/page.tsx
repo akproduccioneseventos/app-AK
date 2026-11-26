@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download, History } from 'lucide-react';
+import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download, History, Copy } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
@@ -89,6 +89,7 @@ function EmpleadosPageInner() {
   // terminaba más. Se filtra por año.
   const [filtroAnioHistorial, setFiltroAnioHistorial] = useState<string>('todos');
   const [puedeBorrar, setPuedeBorrar] = useState(false);
+  const [blockedSummaryText, setBlockedSummaryText] = useState<string | null>(null);
 
   const anioDeFiesta = (fiesta: FiestaEnPlanificacion) => {
     const raw = fiesta.configuracion?.fechaEvento;
@@ -182,6 +183,7 @@ function EmpleadosPageInner() {
   };
 
   const openPartiesReport = async (empleado: Empleado) => {
+    setBlockedSummaryText(null);
     setPartiesDialog({
       open: true,
       empleado,
@@ -232,9 +234,19 @@ function EmpleadosPageInner() {
     const message = `¡Hola ${empleado.nombre}! 👋\n\nAcá tenés el resumen de tus próximos eventos confirmados con AK Producciones:\n\n${lines.join('\n\n') || 'Sin eventos próximos registrados.'}\n\n¡Cualquier duda, avisanos! 🎉`;
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const win = window.open(url, '_blank');
+    if (!win) {
+      setBlockedSummaryText(message);
+      toast({
+        title: 'El navegador bloqueó la ventana de WhatsApp',
+        description: 'Copiá el texto del resumen desde el cuadro para enviarlo manualmente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setBlockedSummaryText(null);
     setPartiesDialog(prev => ({ ...prev, open: false }));
-    toast({ title: '✅ Resumen enviado', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
+    toast({ title: 'Resumen listo: tocá enviar en WhatsApp', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
   };
 
   const getPartiesRows = (fiestas: FiestaEnPlanificacion[], empleadoId?: string) => {
@@ -650,7 +662,13 @@ function EmpleadosPageInner() {
       </Dialog>
 
       {/* Parties Report Dialog */}
-      <Dialog open={partiesDialog.open} onOpenChange={open => setPartiesDialog(prev => ({ ...prev, open }))}>
+      <Dialog
+        open={partiesDialog.open}
+        onOpenChange={open => {
+          if (!open) setBlockedSummaryText(null);
+          setPartiesDialog(prev => ({ ...prev, open }));
+        }}
+      >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -770,6 +788,30 @@ function EmpleadosPageInner() {
                       Enviar
                     </Button>
                   </div>
+                  {blockedSummaryText && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2 text-xs text-amber-900">
+                      <p className="font-medium">
+                        El navegador bloqueó la ventana emergente de WhatsApp. Copiá el texto y pegalo en el chat:
+                      </p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(blockedSummaryText);
+                            toast({ title: 'Texto copiado', description: 'Pegalo en WhatsApp para enviarlo.' });
+                          } catch {
+                            toast({ title: 'No se pudo copiar automáticamente', description: 'Copialo manualmente del recuadro.', variant: 'destructive' });
+                          }
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5 mr-1.5" />
+                        Copiar texto
+                      </Button>
+                      <Textarea readOnly rows={4} value={blockedSummaryText} className="bg-white text-xs" />
+                    </div>
+                  )}
                 </div>
               </div>
             </>

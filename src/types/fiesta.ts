@@ -621,6 +621,7 @@ export interface InvitacionDigitalConfig {
 
 export interface InvitacionDigitalData {
   name?: string;
+  horaEvento?: string;
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo';
   musicaFondoUrl?: string;

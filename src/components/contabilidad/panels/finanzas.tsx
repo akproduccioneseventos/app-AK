@@ -13,6 +13,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getBudgetPaymentSummary, normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
+import { resolverIngresoRentabilidad } from '@/lib/costos/ingreso-rentabilidad';
 import { getMisPermisos } from '@/app/actions/sesion';
 import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
@@ -39,20 +40,27 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoClien
 }
 
 function resumenPresupuestoDeFiesta(fiesta: FiestaEnPlanificacion, presupuesto?: any): { ingresos: number; totalPactado: number; pagosCliente?: PagoCliente[] } {
-  if (presupuesto) {
-    const normalizado = normalizePresupuestoFinancials(presupuesto);
-    const summary = getBudgetPaymentSummary(normalizado, { includeAnnualAdjustment: true });
+  const normalizado = presupuesto ? normalizePresupuestoFinancials(presupuesto) : null;
+  const summary = normalizado ? getBudgetPaymentSummary(normalizado, { includeAnnualAdjustment: true }) : null;
+  const ingresoResuelto = resolverIngresoRentabilidad({
+    presupuestoId: fiesta.presupuestoId,
+    presupuesto: normalizado,
+    ingresosGuardados: fiesta.gestionCostos?.ingresosTotalesEstimados ?? fiesta.configuracion.presupuestoEstimado ?? 0,
+    resumenPresupuesto: summary,
+  });
+
+  if (normalizado && summary) {
     return {
       ingresos: summary.paid,
-      totalPactado: summary.total,
+      totalPactado: ingresoResuelto.ingreso ?? summary.total,
       pagosCliente: normalizado.pagosCliente,
     };
   }
-  const ingresos = 0;
-  const totalPactado = fiesta.gestionCostos?.ingresosTotalesEstimados
-    ?? fiesta.configuracion.presupuestoEstimado
-    ?? 0;
-  return { ingresos, totalPactado, pagosCliente: (fiesta as any).pagosCliente };
+  return {
+    ingresos: 0,
+    totalPactado: ingresoResuelto.ingresoGuardado,
+    pagosCliente: (fiesta as any).pagosCliente,
+  };
 }
 
 export default function FinanzasPage() {

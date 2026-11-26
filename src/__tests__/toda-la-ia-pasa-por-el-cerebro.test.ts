@@ -40,8 +40,18 @@ function buscarLlamadasDirectasIA(archivo: string, contenido: string): boolean {
   ) {
     return false;
   }
+  if (
+    normalizado.endsWith('src/lib/social-fiesta/content-safety-ai.ts') &&
+    contenido.includes('reservarConsumoIA') &&
+    !contenido.includes('generativelanguage.googleapis.com') &&
+    !contenido.includes('ai.generate(') &&
+    !contenido.includes('generateWithGeminiFallback(')
+  ) {
+    return false;
+  }
   return (
     contenido.includes('generativelanguage.googleapis.com') ||
+    contenido.includes('vision.googleapis') ||
     contenido.includes('ai.generate(') ||
     contenido.includes('generateWithGeminiFallback(')
   );

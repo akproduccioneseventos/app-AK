@@ -3,6 +3,7 @@ import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/setting
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export interface AutomationContext {
   targetId: string;
@@ -11,6 +12,9 @@ export interface AutomationContext {
   targetPhone?: string;
   leadId?: string;
   fiestaId?: string;
+  invoiceId?: string;
+  dueDate?: string;
+  cuotaId?: string;
   // Template variables
   nombre?: string;
   fecha?: string;
@@ -134,7 +138,16 @@ export async function triggerWhatsAppAutomation(
           Date.now() + rule.delayHours * 60 * 60 * 1000
         ).toISOString();
 
-        const newMsg: Omit<ScheduledMessage, 'id' | 'createdAt'> = {
+        const esAvisoFactura =
+          Boolean(ctx.invoiceId || ctx.cuotaId) ||
+          trigger === 'pago_vencido' ||
+          trigger === 'pago_por_vencer';
+        const idDeterministico = esAvisoFactura
+          ? `aviso_${trigger}_${ctx.invoiceId || ctx.targetId}_${ctx.cuotaId || ctx.dueDate || ctx.fecha || 'unica'}_${hoyEnUruguay()}_${rule.id}`.replace(/[^\w-]/g, '_')
+          : undefined;
+
+        const newMsg: Omit<ScheduledMessage, 'id' | 'createdAt'> & { id?: string } = {
+          ...(idDeterministico ? { id: idDeterministico } : {}),
           targetType: rule.targetType,
           targetId: ctx.targetId,
           targetName: ctx.targetName,
@@ -152,9 +165,10 @@ export async function triggerWhatsAppAutomation(
         const result = await saveScheduledMessage(
           newMsg,
           internalToken === WHATSAPP_AUTOMATION_INTERNAL_TOKEN ? internalToken : undefined,
+          idDeterministico ? { idEstable: idDeterministico } : undefined,
         );
         if (result.success) {
-          scheduled++;
+          if (!result.yaExistia) scheduled++;
         } else {
           errors.push(`Error programando mensaje para regla "${rule.name}": ${result.error}`);
         }

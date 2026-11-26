@@ -4,6 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import JSZip from 'jszip';
 import { esDelEquipoDeLaFiesta } from '@/lib/auth/equipo-de-la-fiesta';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
+import { verifySession } from '@/lib/auth/session-token';
+import {
+  esDocumentoDePlata,
+  esDocumentoDelCliente,
+  esReciboPersonal,
+  type DocMetadata,
+} from '@/lib/fiesta/documentos-permisos';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 import { downloadFromStorage } from '@/lib/firebase/storage';
@@ -40,11 +48,16 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
+  const sesion = hasAdminAccess ? await verifySession() : { success: false, user: null };
+  const usuario = sesion.success ? sesion.user : null;
+  const tieneContabilidad = Boolean(hasAdminAccess && usuario && puede(usuario, PERMISOS.CONTABILIDAD));
+  const tieneSueldos = Boolean(hasAdminAccess && usuario && puede(usuario, PERMISOS.SUELDOS));
+
   const docsAllowedDirs = getFiestaLocalAllowedDirs('documentos', safeFiestaId);
 
   // Handle the special 'download-all' command
   if (filename === 'download-all.zip') {
-    if (!hasAdminAccess) return new NextResponse('Forbidden', { status: 403 });
+    if (!hasAdminAccess || !tieneContabilidad) return new NextResponse('Forbidden', { status: 403 });
     try {
       // Antes se pedia "la fiesta actual" y se comparaba: descargar los
       // documentos de una fiesta fallaba en cuanto habia otra mas proxima.
@@ -54,7 +67,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
       }
 
       const legacyFiesta = fiesta as typeof fiesta & {
-        otrosDocumentos?: Array<{ fileName?: string }>;
+        otrosDocumentos?: Array<DocMetadata>;
       };
       const docsList = [
         ...(fiesta.othersDocumentos ?? []),
@@ -68,6 +81,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
       let addedCount = 0;
       for (const doc of docsList) {
         if (!doc.fileName || seenFileNames.has(doc.fileName)) continue;
+        if (esReciboPersonal(doc) && !tieneSueldos) continue;
         seenFileNames.add(doc.fileName);
 
         if (/^https?:\/\//i.test(doc.fileName)) {
@@ -146,21 +160,31 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
     return new NextResponse('Invalid path segments', { status: 400 });
   }
 
+  const fiesta = fiestaRaw;
+  const legacyFiesta = fiesta as typeof fiesta & {
+    documentos?: Array<DocMetadata>;
+    otrosDocumentos?: Array<DocMetadata>;
+  };
+  const allDocuments = [
+    ...(legacyFiesta?.documentos ?? []),
+    ...(legacyFiesta?.otrosDocumentos ?? []),
+    ...(fiesta?.othersDocumentos ?? []),
+  ];
+  const matchedDoc = allDocuments.find((doc) => {
+    if (!doc?.fileName) return false;
+    return doc.fileName === safeFilename || path.basename(doc.fileName.split('?')[0]) === safeFilename;
+  });
+
   if (!hasAdminAccess) {
-    const fiesta = fiestaRaw;
-    const legacyFiesta = fiesta as typeof fiesta & {
-      documentos?: Array<{ fileName?: string }>;
-      otrosDocumentos?: Array<{ fileName?: string }>;
-    };
-    const allowedDocuments = [
-      ...(legacyFiesta?.documentos ?? []),
-      ...(legacyFiesta?.otrosDocumentos ?? []),
-      ...(fiesta?.othersDocumentos ?? []),
-    ];
-    const isClientDocument = allowedDocuments.some(doc => doc.fileName === safeFilename);
-    if (!fiesta?.clientPortalSettings?.enabled || !isClientDocument) {
+    if (!fiesta?.clientPortalSettings?.enabled || !matchedDoc || !esDocumentoDelCliente(matchedDoc, safeFilename)) {
       return new NextResponse('Forbidden', { status: 403 });
     }
+  } else if (esReciboPersonal(matchedDoc, safeFilename)) {
+    if (!tieneSueldos && !tieneContabilidad) {
+      return new NextResponse('Forbidden', { status: 403 });
+    }
+  } else if (esDocumentoDePlata(matchedDoc, safeFilename) && !tieneContabilidad) {
+    return new NextResponse('Forbidden', { status: 403 });
   }
 
   const expectedDocsDir = path.resolve(DOCS_DIR, safeFiestaId);

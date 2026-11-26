@@ -227,6 +227,7 @@ export default function TouchpixPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [esperaAprobacion, setEsperaAprobacion] = useState(false);
   const [queuedOffline, setQueuedOffline] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -253,7 +254,12 @@ export default function TouchpixPage() {
   const subidosRef = useRef<Set<string>>(new Set());
   const procesandoRef = useRef<Set<string>>(new Set());
   const [ultimoAvisoIA, setUltimoAvisoIA] = useState<{ id: string; raw: string; timestamp: number } | null>(null);
-  const [avisoFinalizado, setAvisoFinalizado] = useState<{ id: string; fueIA: boolean; destino: DestinoDeLaFoto } | null>(null);
+  const [avisoFinalizado, setAvisoFinalizado] = useState<{
+    id: string;
+    fueIA: boolean;
+    destino: DestinoDeLaFoto;
+    esperaAprobacion?: boolean;
+  } | null>(null);
   const [fotoSinGuardar, setFotoSinGuardar] = useState<{ id: string; dataUrl: string } | null>(null);
 
   useEffect(() => {
@@ -898,6 +904,7 @@ export default function TouchpixPage() {
     // falla, el resultado queda en la cola del equipo con los mismos bytes, y el servidor rechaza
     // la segunda copia por su huella ("ya fue subida").
     let destino: DestinoDeLaFoto = 'subida';
+    let esperaAprobacionIA = false;
     if (!subidosRef.current.has(trabajo.id)) {
       subidosRef.current.add(trabajo.id);
       const pendingFile = await dataUrlToFile(finalImageUrl, `touchpix-${trabajo.id}.jpg`);
@@ -918,6 +925,9 @@ export default function TouchpixPage() {
           if (etiquetas.character) uploadFormData.append('characterLabel', etiquetas.character);
           const res = await uploadTouchpixPhoto(uploadFormData);
           if (res.success) {
+            if (res.post?.moderationStatus === 'pending') {
+              esperaAprobacionIA = true;
+            }
             const capturaFinal = await capturaDe(trabajo);
             void updateEntertainmentSessionStatus(
               fiestaId,
@@ -973,7 +983,7 @@ export default function TouchpixPage() {
     setTrabajosIA(prev =>
       prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' || destino.startsWith('original-') ? 'completado' : 'error', fueIA, destino } : t))
     );
-    setAvisoFinalizado({ id: trabajo.id, fueIA, destino });
+    setAvisoFinalizado({ id: trabajo.id, fueIA, destino, esperaAprobacion: esperaAprobacionIA });
   }, [
     accessToken,
     applyFilterToCanvas,
@@ -1211,6 +1221,7 @@ export default function TouchpixPage() {
     setIsProcessing(false);
     setProcessingResult(null);
     setQueuedOffline(false);
+    setEsperaAprobacion(false);
     setUploadError(null);
     setShowSuccess(false);
     setWizardStep(0);
@@ -1251,6 +1262,7 @@ export default function TouchpixPage() {
     if (!capturedImage) return;
     setIsUploading(true);
     setUploadError(null);
+    setEsperaAprobacion(false);
     const sessionForThisUpload = currentPhotoSessionIdRef.current || photoSessionId;
     activeUploadSessionIdRef.current = sessionForThisUpload;
 
@@ -1285,6 +1297,7 @@ export default function TouchpixPage() {
         throw new Error(res.error || 'Error al subir');
       }
       uploadConfirmed = true;
+      const pendienteDeAprobacion = res.post?.moderationStatus === 'pending';
 
       const statusRes = await updateEntertainmentSessionStatus(
         fiestaId,
@@ -1301,6 +1314,7 @@ export default function TouchpixPage() {
         return;
       }
       setQueuedOffline(false);
+      setEsperaAprobacion(pendienteDeAprobacion);
 
       setShowSuccess(true);
       if (resetTimerRef.current) {
@@ -1963,12 +1977,20 @@ export default function TouchpixPage() {
             >
               <PartyPopper className="w-24 h-24 text-fuchsia-400 mb-4 animate-bounce" />
               <h2 className="text-3xl font-black text-white mb-2">
-                {queuedOffline ? '¡Foto guardada!' : '¡Foto enviada!'}
+                {queuedOffline
+                  ? '¡Foto guardada!'
+                  : esperaAprobacion
+                    ? '¡Foto guardada!'
+                    : '¡Foto enviada!'}
               </h2>
               <p className="text-lg text-zinc-300">
                 {queuedOffline
                   ? 'Se publicará automáticamente cuando vuelva Internet.' /* audit-promesa-verificada: offline-sync-manager */
-                  : fiesta?.socialWallEnabled ? 'Ya está en el muro de la fiesta 🎉' : 'Ya está guardada 🎉'}
+                  : esperaAprobacion
+                    ? 'Tu foto quedó esperando la aprobación del equipo'
+                    : fiesta?.socialWallEnabled
+                      ? 'Ya está en el muro de la fiesta 🎉'
+                      : 'Ya está guardada 🎉'}
               </p>
             </motion.div>
           )}
@@ -2068,7 +2090,9 @@ export default function TouchpixPage() {
               exit={{ opacity: 0, y: 20 }}
               className="absolute bottom-4 left-4 right-4 z-40 mx-auto max-w-sm rounded-xl border border-white/10 bg-zinc-900/90 p-3 text-center text-xs font-medium text-zinc-200 shadow-xl backdrop-blur-md"
             >
-              {avisoDelDestino(avisoFinalizado.destino, avisoFinalizado.fueIA)}
+              {avisoFinalizado.destino === 'subida' && avisoFinalizado.esperaAprobacion
+                ? 'Tu foto quedó esperando la aprobación del equipo para salir en el muro.'
+                : avisoDelDestino(avisoFinalizado.destino, avisoFinalizado.fueIA)}
               {avisoFinalizado.destino === 'no-guardada' && fotoSinGuardar?.id === avisoFinalizado.id && (
                 <a
                   href={fotoSinGuardar.dataUrl}

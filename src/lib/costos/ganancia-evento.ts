@@ -1,4 +1,5 @@
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
+import { resolverSueldoDelRol } from '@/lib/fiesta/sueldo-del-rol';
 import type { GestionCostosData, PagoProveedor } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
 
@@ -126,7 +127,7 @@ export function calcularGananciaDeEvento(
 
   const personalCalculado = personalList.reduce((sum: number, pa: any) => {
     const rol = rolesList.find((r: any) => r.id === pa.rolId);
-    const sueldo = Math.max(0, aNumero(pa.eventSalary || pa.sueldo || rol?.sueldoPorEvento || 0));
+    const sueldo = resolverSueldoDelRol(pa, rol);
     const aportes = Math.round((sueldo * Math.max(0, aNumero(rol?.porcentajeAportesPatronales || 0))) / 100);
     return sum + sueldo + aportes;
   }, 0);
@@ -179,10 +180,11 @@ export function calcularGananciaDeEvento(
   let realDeBloques = 0;
 
   for (const bloque of BLOQUES_AUTOMATICOS) {
-    const pagado = pagadoPorItem.get(bloque.id) ?? 0;
-    const estimado = bloque.getEstimado(others, personalCalculado);
+    const pagado = Math.max(0, pagadoPorItem.get(bloque.id) ?? 0);
+    const estimado = Math.max(0, bloque.getEstimado(others, personalCalculado));
     if (pagado > 0) {
-      realDeBloques += pagado;
+      realDeBloques += Math.max(pagado, estimado);
+      sinRendir += Math.max(0, estimado - pagado);
     } else {
       realDeBloques += estimado;
       sinRendir += estimado;
@@ -200,7 +202,7 @@ export function calcularGananciaDeEvento(
     if (!texto) return false;
     const t = String(texto).toLowerCase();
     const tieneComision = t.includes('comision') || t.includes('comisión');
-    const tieneMP = t.includes('mercado pago') || t.includes('mercadopago') || t.includes('mp');
+    const tieneMP = t.includes('mercado pago') || t.includes('mercadopago') || /\bmp\b/i.test(t);
     return tieneComision && tieneMP;
   }
 

@@ -7,6 +7,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import type { Presupuesto } from '@/types/presupuesto';
 import { toPublicGuestStatsInput } from '@/lib/client-portal/public-guest-stats';
+import { esDocumentoDelCliente } from '@/lib/fiesta/documentos-permisos';
 import PublicPortalClientExperience from './PublicPortalClientExperience';
 
 interface PageProps {
@@ -103,21 +104,21 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
       isSigned: fiesta.contratoFirmaInfo.isSigned,
     } : {},
     contratoServicioTexto: fiesta.contratoServicioTexto || '',
-    documentos: (fiesta.documentos || []).map((doc: any) => ({
+    documentos: (fiesta.documentos || []).filter(esDocumentoDelCliente).map((doc: any) => ({
       id: doc.id,
       fileName: doc.fileName,
       nombre: doc.nombre,
       titulo: doc.titulo,
       tipo: doc.tipo,
     })),
-    otrosDocumentos: (fiesta.otrosDocumentos || []).map((doc: any) => ({
+    otrosDocumentos: (fiesta.otrosDocumentos || []).filter(esDocumentoDelCliente).map((doc: any) => ({
       id: doc.id,
       fileName: doc.fileName,
       nombre: doc.nombre,
       titulo: doc.titulo,
       tipo: doc.tipo,
     })),
-    othersDocumentos: (fiesta.othersDocumentos || []).map((doc: any) => ({
+    othersDocumentos: (fiesta.othersDocumentos || []).filter(esDocumentoDelCliente).map((doc: any) => ({
       id: doc.id,
       fileName: doc.fileName,
       nombre: doc.nombre,

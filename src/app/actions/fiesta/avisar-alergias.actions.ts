@@ -18,7 +18,7 @@ const limpiar = (t: unknown, max = 60) => String(t ?? '').replace(/\s+/g, ' ').t
 export async function avisarChoquesDeAlergiasACocina(
   fiestaId: string,
   choques: ChoqueParaAviso[],
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; enviado?: boolean; motivo?: string; error?: string }> {
   await requireFiestaWriteAccess(fiestaId);
 
   const lista = (Array.isArray(choques) ? choques : []).slice(0, 20);
@@ -40,7 +40,7 @@ export async function avisarChoquesDeAlergiasACocina(
       icono: 'AlertTriangle',
     });
     if (!res?.success) return { success: false, error: res?.error || 'No se pudo crear el aviso.' };
-    return { success: true };
+    return { success: true, enviado: res.enviado, motivo: res.motivo };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'No se pudo crear el aviso.' };
   }

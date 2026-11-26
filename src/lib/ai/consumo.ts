@@ -53,7 +53,8 @@ export type FuncionConCosto =
   | 'sofia'
   | 'cerebro'
   | 'galeria'
-  | 'presentacion';
+  | 'presentacion'
+  | 'revision-fotos';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -109,6 +110,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   cerebro: 1,
   galeria: 1,
   presentacion: 1,
+  'revision-fotos': 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

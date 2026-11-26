@@ -15,6 +15,7 @@ import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
@@ -128,9 +129,11 @@ export async function getDigitalPresenceDashboard(): Promise<{
       },
       {
         platform: 'Google',
-        isConnected: true,
+        isConnected: connections.some(
+          (c) => c.platform === 'Google' && c.isConnected && Boolean(c.accessToken) && Boolean(c.locationId)
+        ),
         followers: null,
-        daysWithoutPost: 0,
+        daysWithoutPost: review?.inactivePlatforms.find((p) => p.platform === 'Google')?.daysWithoutPost || 0,
         canAutoPublish: true,
         publishNote: 'Actualización en Ficha de Google y Reseñas.',
       },
@@ -564,16 +567,25 @@ export async function compartirMencionEnHistoriaAction(mentionId: string): Promi
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
-    const mentiones = await readData<StoryMentionItem[]>('social-story-mentions.json', []);
     let targetMediaUrl: string | undefined = undefined;
-    const actualizadas = mentiones.map((m) => {
-      if (m.id === mentionId) {
-        targetMediaUrl = m.mediaUrl;
-        return { ...m, shared: true, compartidoEnMiHistoria: true };
-      }
-      return m;
+    let encontrada = false;
+    await mutateGenericJsonArray<StoryMentionItem>('social-story-mentions.json', (mentiones) => {
+      targetMediaUrl = undefined;
+      encontrada = false;
+      const lista = Array.isArray(mentiones) ? mentiones : [];
+      const actualizadas = lista.map((m) => {
+        if (m.id === mentionId) {
+          encontrada = true;
+          targetMediaUrl = m.mediaUrl;
+          return { ...m, shared: true, compartidoEnMiHistoria: true };
+        }
+        return m;
+      });
+      return encontrada ? actualizadas : null;
     });
-    await writeData('social-story-mentions.json', actualizadas);
+    if (!encontrada) {
+      return { success: false, error: 'No encontramos la mención en historias.' };
+    }
     return { success: true, mediaUrl: targetMediaUrl };
   } catch (error: any) {
     return { success: false, error: error?.message || 'Error al compartir mención.' };

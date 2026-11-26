@@ -39,6 +39,7 @@ const CRON_ID_A_NOMBRE_ENTRAR: Record<string, string> = {
 };
 
 import {
+  ETIQUETA_ESTADO_TAREA,
   resumirTareasAutomaticas,
   tieneFalloPosteriorAlExito,
   type EstadoDeTarea,
@@ -49,6 +50,7 @@ import {
 } from '@/lib/automatico/resumen-tareas';
 
 export {
+  ETIQUETA_ESTADO_TAREA,
   resumirTareasAutomaticas,
   tieneFalloPosteriorAlExito,
   type EstadoDeTarea,
@@ -256,6 +258,7 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
     );
 
     if (!marca) {
+      const estadoSinMarca: EstadoTarea = falloPosteriorAlExito ? 'fallo_ultimo' : 'nunca';
       return {
         ...tarea,
         ultimaCorrida: null,
@@ -264,19 +267,22 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
         faltaConexion,
         falloPosteriorAlExito,
         disparadoPor: null,
-        estado: 'nunca' as const,
+        estado: estadoSinMarca,
         horasDesdeLaUltima: null,
       };
     }
 
     const horas = (ahora.getTime() - new Date(marca).getTime()) / 3_600_000;
     // Si le falta la conexión requerida no está al día ni funcionando: queda no disponible.
-    // Si tiene conexión, se le da el doble del intervalo antes de marcarla atrasada.
+    // Si falló después del último éxito, tampoco está al día: queda en 'fallo_ultimo'.
+    // Si tiene conexión y no falló al final, se le da el doble del intervalo antes de marcarla atrasada.
     const estado: EstadoTarea = faltaConexion
       ? 'no-disponible'
-      : horas > tarea.cadaHoras * 2
-        ? 'atrasada'
-        : 'al-dia';
+      : falloPosteriorAlExito
+        ? 'fallo_ultimo'
+        : horas > tarea.cadaHoras * 2
+          ? 'atrasada'
+          : 'al-dia';
 
     return {
       ...tarea,

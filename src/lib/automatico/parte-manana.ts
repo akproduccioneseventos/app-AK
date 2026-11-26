@@ -5,7 +5,7 @@ import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
-import { hoyEnUruguay } from '@/lib/utils';
+import { diasHastaEnUruguay, getUruguayParts, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
 
 const PARTE_CACHE_FILE = 'parte-manana-cache.json';
@@ -147,7 +147,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
     const fechaFiesta = fiesta.configuracion?.fechaEvento || (fiesta.configuracion as any)?.fecha;
     if (!fechaFiesta) continue;
 
-    const diasParaFiesta = Math.ceil((new Date(fechaFiesta).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    const diasParaFiesta = diasHastaEnUruguay(fechaFiesta, ahora);
     const pagos = (p.pagosCliente || [])
       // Sólo lo cobrado de verdad: un pago a confirmar no baja el saldo (Codex, auditoría 81).
       .filter(isConfirmedClientPayment)
@@ -156,11 +156,12 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
     const saldo = total - pagos;
 
     if (saldo > 500 && diasParaFiesta >= 0 && diasParaFiesta <= 14) {
+      const cuando = diasParaFiesta === 0 ? 'hoy' : `en ${diasParaFiesta} ${diasParaFiesta === 1 ? 'día' : 'días'}`;
       items.push({
         id: `cobro_${fiesta.id}`,
         tipo: 'cobranza',
         titulo: `Cobranza de ${p.clienteNombre}`,
-        detalle: `Saldo de $${saldo.toLocaleString('es-UY')} para la fiesta en ${diasParaFiesta} días. Mensaje listo en bandeja.`,
+        detalle: `Saldo de $${saldo.toLocaleString('es-UY')} para la fiesta ${cuando}. Mensaje listo en bandeja.`,
         accionHref: '/contabilidad/crm/outbox',
         accionTexto: 'Ver mensaje',
       });
@@ -172,7 +173,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
     const fechaStr = fiesta.configuracion?.fechaEvento || (fiesta.configuracion as any)?.fecha;
     if (!fechaStr) continue;
 
-    const dias = Math.ceil((new Date(fechaStr).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    const dias = diasHastaEnUruguay(fechaStr, ahora);
     if (dias >= 0 && dias <= 14) {
       const nombre = fiesta.configuracion?.nombreEvento || 'Fiesta';
       const faltantes: string[] = [];
@@ -216,9 +217,10 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
 
   // 4. Los primeros cinco días del mes: el resumen del mes anterior para el contador está
   //    listo para mandar (25 de septiembre de 2026, pedido del dueño). Va primero: es plata.
-  if (ahora.getDate() <= 5) {
+  const { day: diaUruguay } = getUruguayParts(ahora);
+  if (diaUruguay <= 5) {
     const { mesAnteriorA } = await import('@/lib/contabilidad/resumen-para-el-contador');
-    const mes = mesAnteriorA(ahora);
+    const mes = mesAnteriorA(parseUruguayDate(hoyStr));
     items.unshift({
       id: `contador_${mes.clave}`,
       tipo: 'contador',

@@ -479,6 +479,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         <AddToCalendarButton
                           eventName={detalle.titulo || fiesta.configuracion.nombreEvento || 'Mi Evento'}
                           startDate={detalle.fecha || fiesta.configuracion.fechaEvento || new Date().toISOString()}
+                          horaEvento={detalle.hora || invitacionData.horaEvento || fiesta.configuracion?.horaInicio || (fiesta.configuracion as { horaEvento?: string } | undefined)?.horaEvento || ''}
                           location={detalle.direccionLugar || detalle.nombreLugar}
                           description={`${fiesta.configuracion.nombreEvento || ''} — ${detalle.nombreLugar || ''}`}
                           primaryColor={primaryColor}

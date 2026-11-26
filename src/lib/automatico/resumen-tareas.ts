@@ -11,7 +11,15 @@ export interface TareaAutomatica {
   cadaHoras: number;
 }
 
-export type EstadoTarea = 'nunca' | 'atrasada' | 'al-dia' | 'no-disponible';
+export type EstadoTarea = 'nunca' | 'atrasada' | 'al-dia' | 'no-disponible' | 'fallo_ultimo';
+
+export const ETIQUETA_ESTADO_TAREA: Record<EstadoTarea, string> = {
+  'al-dia': 'Al día',
+  atrasada: 'Atrasada',
+  nunca: 'Nunca corrió',
+  'no-disponible': 'No disponible',
+  fallo_ultimo: 'Falló la última vez',
+};
 
 export interface EstadoDeTarea extends TareaAutomatica {
   ultimaCorrida: string | null;
@@ -38,6 +46,7 @@ export interface ResumenTareasAutomaticas {
   atrasadas: number;
   nunca: number;
   noDisponibles: number;
+  falloUltimo: number;
   conFalloReciente: EstadoDeTarea[];
 }
 
@@ -58,21 +67,25 @@ export function resumirTareasAutomaticas(tareas: EstadoDeTarea[]): ResumenTareas
   let atrasadas = 0;
   let nunca = 0;
   let noDisponibles = 0;
+  let falloUltimo = 0;
   const conFalloReciente: EstadoDeTarea[] = [];
 
   for (const t of tareas) {
+    const falloPosterior = Boolean(t.falloPosteriorAlExito) || tieneFalloPosteriorAlExito(t);
+    if (falloPosterior) {
+      conFalloReciente.push(t);
+    }
+
     if (t.estado === 'no-disponible' || Boolean(t.faltaConexion)) {
       noDisponibles += 1;
+    } else if (t.estado === 'fallo_ultimo' || falloPosterior) {
+      falloUltimo += 1;
     } else if (t.estado === 'al-dia') {
       alDia += 1;
     } else if (t.estado === 'atrasada') {
       atrasadas += 1;
     } else {
       nunca += 1;
-    }
-
-    if (tieneFalloPosteriorAlExito(t)) {
-      conFalloReciente.push(t);
     }
   }
 
@@ -82,6 +95,7 @@ export function resumirTareasAutomaticas(tareas: EstadoDeTarea[]): ResumenTareas
     atrasadas,
     nunca,
     noDisponibles,
+    falloUltimo,
     conFalloReciente,
   };
 }

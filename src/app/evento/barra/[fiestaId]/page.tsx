@@ -45,7 +45,12 @@ import {
 import { getDrinkDescription, getDrinkTags, buildInstagramUrl, AK_INSTAGRAM_HANDLE } from '@/lib/barra-tecnologica';
 import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
-import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
+import {
+  dequeueOfflineAction,
+  enqueueOfflineAction,
+  flushOfflineQueue,
+  getPendingOfflineActions,
+} from '@/lib/offline/offline-action-queue';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
@@ -637,6 +642,7 @@ export default function BarraTecnologicaTouchPage() {
   // El invitado veia "se envia solo" y el trago no llegaba jamas a la barra.
   useEffect(() => {
     const alVolverLaSenal = () => {
+      if (getPendingOfflineActions(fiestaId, 'barra_pedido').length === 0) return;
       // Solo los pedidos de barra: antes agarraba todo lo pendiente y lo que no
       // sabia mandar lo daba por enviado, borrando los check-in de recepcion.
       void flushOfflineQueue(async (action) => {
@@ -649,12 +655,37 @@ export default function BarraTecnologicaTouchPage() {
           clientRequestId: action.payload.clientRequestId || action.id,
           version: action.payload.version,
         });
+        if (res.success) {
+          if (res.order) {
+            setLastOrder(res.order);
+          }
+          toast({
+            title: '¡Trago Pedido!',
+            description: `Tu pedido de ${action.payload?.drinkName || 'trago'} llegó a la barra.`,
+          });
+        } else {
+          const errText = String(res.error || '');
+          const esRechazoDefinitivo =
+            !errText ||
+            !/red|conexi|timeout|fetch|internet|demasiados intentos|l[ií]mite/i.test(errText);
+          if (esRechazoDefinitivo) {
+            dequeueOfflineAction(action.id);
+            toast({
+              title: 'Tu pedido no llegó a la barra',
+              description: `Tu pedido de ${action.payload?.drinkName || 'trago'} no llegó: elegí otro`,
+              variant: 'destructive',
+            });
+          }
+        }
         return { success: res.success, error: res.error };
       }, { fiestaId, types: ['barra_pedido'] });
     };
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      alVolverLaSenal();
+    }
     window.addEventListener('online', alVolverLaSenal);
     return () => window.removeEventListener('online', alVolverLaSenal);
-  }, [fiestaId]);
+  }, [fiestaId, toast]);
 
   // Timer automático de 20 segundos para la pantalla de éxito (llevarse la foto)
   useEffect(() => {

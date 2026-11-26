@@ -47,6 +47,9 @@ export type CompraConsolidada = {
   origenId?: string;
   isOrder?: boolean;
   porEvento?: boolean;
+  /** Aviso cuando el stock del catálogo no pudo convertirse a `unit` (Orden 368 B5.4). */
+  stockInconvertibleAviso?: string;
+  stockSinDescontar?: { cantidad: number; unidad: string };
 };
 
 export type OpcionesConsolidado = {
@@ -56,6 +59,8 @@ export type OpcionesConsolidado = {
   plataEntera?: boolean;
   /** Anotar de que recetas viene cada renglon. */
   juntarOrigenes?: boolean;
+  /** Si se provee, acumula los avisos de stock que no se pudo convertir a la unidad de la receta. */
+  avisosConversion?: string[];
 };
 
 const limpiar = (n: number) => Math.round(n * 1e9) / 1e9;
@@ -89,10 +94,21 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
       return;
     }
     let stock = 0;
+    let stockInconvertibleAviso: string | undefined;
+    let stockSinDescontar: { cantidad: number; unidad: string } | undefined;
     const stockCrudo = raw.stockDisponible || 0;
     if (stockCrudo) {
       const unidadStock = raw.unidadStock?.trim() ? raw.unidadStock : raw.unit;
-      stock = convertir(stockCrudo, unidadStock, base) ?? 0;
+      const stockConvertido = convertir(stockCrudo, unidadStock, base);
+      if (stockConvertido === null) {
+        stockInconvertibleAviso = `Stock sin descontar en "${raw.nombre}": tenés ${stockCrudo} ${unidadStock} en catálogo y la receta pide en ${base}. Revisalo para no comprar de más.`;
+        stockSinDescontar = { cantidad: stockCrudo, unidad: unidadStock };
+        if (opciones.avisosConversion && !opciones.avisosConversion.includes(stockInconvertibleAviso)) {
+          opciones.avisosConversion.push(stockInconvertibleAviso);
+        }
+      } else {
+        stock = stockConvertido;
+      }
     }
     grupos.set(key, {
       fuente: esPorEvento ? { ...raw, porEvento: true } : raw,
@@ -112,6 +128,7 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
         origenId: raw.origenId,
         isOrder: raw.isOrder,
         ...(esPorEvento ? { porEvento: true } : {}),
+        ...(stockInconvertibleAviso ? { stockInconvertibleAviso, stockSinDescontar } : {}),
       },
     });
   });
@@ -125,8 +142,9 @@ export function consolidarCompras(crudos: CompraCruda[], opciones: OpcionesConso
     const aComprar =
       opciones.redondeo === 'arriba' ? limpiar(Math.ceil(faltante / paso - 1e-9) * paso) : faltante;
     // El precio viene en la unidad del catalogo: se pasa a la unidad del renglon.
+    const costoBase = Number(fuente.costoUnitario) || 0;
     const porUnidad = convertir(1, item.unit, fuente.unidadCosto?.trim() ? fuente.unidadCosto : fuente.unit);
-    const precio = porUnidad === null ? fuente.costoUnitario : fuente.costoUnitario * porUnidad;
+    const precio = porUnidad === null ? costoBase : costoBase * porUnidad;
     const total = precio * aComprar;
     return {
       ...item,

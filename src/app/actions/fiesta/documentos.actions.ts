@@ -140,13 +140,12 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
             timestamp: new Date().toISOString(),
         };
 
-        const updatedFiesta = {
-            ...fiesta,
-            othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
-        };
-        // El archivo ya esta subido y ocupando lugar: si la ficha no se guarda, el
-        // documento no aparece en ningun lado. Eso se avisa, no se calla.
-        const guardado = await saveFiesta(updatedFiesta);
+        // Se agrega sobre la lista actual dentro de la transacción: una adenda o documento
+        // cargado mientras subía el archivo nunca desaparece.
+        const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+            ...actual,
+            othersDocumentos: [...(actual.othersDocumentos || []), newDoc],
+        }));
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'El archivo se subio pero no se pudo guardar en el evento.' };
         }
@@ -186,13 +185,12 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
             });
         }
 
-        const updatedFiesta = {
-            ...fiesta,
-            othersDocumentos: (fiesta.othersDocumentos || []).filter(d => d.id !== docId)
-        };
-        // El archivo ya se borro: si la ficha no se guarda, el evento queda
-        // apuntando a un documento que no existe.
-        const guardado = await saveFiesta(updatedFiesta);
+        // Se filtra sobre la lista actual dentro de la transacción para no pisar documentos
+        // agregados o borrados en paralelo mientras se limpiaba Storage.
+        const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+            ...actual,
+            othersDocumentos: (actual.othersDocumentos || []).filter(d => d.id !== docId),
+        }));
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'El archivo se borro pero el evento no se pudo guardar.' };
         }

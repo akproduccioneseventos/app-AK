@@ -6,6 +6,7 @@ jest.mock('@/lib/auth/require-session', () => ({
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(),
   writeData: jest.fn(),
+  updateDataPartial: jest.fn(),
 }));
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
@@ -21,11 +22,12 @@ import {
   toggleFeedOverrideAdmin,
   type SocialGlobalSettings,
 } from '@/app/actions/social-admin';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import { getFiestas, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 
 const mockReadData = readData as jest.MockedFunction<typeof readData>;
 const mockWriteData = writeData as jest.MockedFunction<typeof writeData>;
+const mockUpdateDataPartial = updateDataPartial as jest.MockedFunction<typeof updateDataPartial>;
 const mockGetFiestas = getFiestas as jest.MockedFunction<typeof getFiestas>;
 const mockGetFiestaById = getFiestaById as jest.MockedFunction<typeof getFiestaById>;
 const mockSaveFiesta = saveFiesta as jest.MockedFunction<typeof saveFiesta>;
@@ -46,7 +48,7 @@ describe('social-admin actions', () => {
     });
 
     it('guarda la configuración global de publicidad en redes', async () => {
-      mockWriteData.mockResolvedValue(undefined);
+      mockUpdateDataPartial.mockResolvedValue({ success: true } as any);
       const customSettings: SocialGlobalSettings = {
         adFrequency: 5,
         ads: [
@@ -64,7 +66,7 @@ describe('social-admin actions', () => {
 
       const res = await saveSocialGlobalSettings(customSettings);
       expect(res.success).toBe(true);
-      expect(mockWriteData).toHaveBeenCalledWith('social-global-settings.json', customSettings);
+      expect(mockUpdateDataPartial).toHaveBeenCalledWith('social-global-settings.json', customSettings);
     });
   });
 

@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion, CuotaPlanPago } from '@/types/fiesta';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export type TipoProblemaFiesta =
   | 'pasada_sin_archivar'
@@ -45,7 +46,7 @@ export function esFiestaSuspendida(fiesta: FiestaEnPlanificacion | null | undefi
 export function suspenderFiesta(
   fiesta: FiestaEnPlanificacion,
   motivo: string,
-  fecha: string = new Date().toISOString().split('T')[0]
+  fecha: string = hoyEnUruguay()
 ): FiestaEnPlanificacion {
   return {
     ...fiesta,
@@ -106,8 +107,7 @@ export function detectarProblemasFiesta(
   opciones?: { presupuestos?: any[]; hoy?: Date }
 ): ProblemaFiesta[] {
   const problemas: ProblemaFiesta[] = [];
-  const hoy = opciones?.hoy || new Date();
-  const hoyStr = hoy.toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay(opciones?.hoy);
 
   const estado = (fiesta.estado || '').toLowerCase().trim();
   const esArchivada = estado === 'archivada' || estado === 'archivado' || estado === 'cerrada';

@@ -1,8 +1,17 @@
 'use server';
 
-import { requirePermiso } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+
+const PERMISOS_MULTIAGENTE = [
+  PERMISOS.ADMINISTRACION,
+  PERMISOS.CONTABILIDAD,
+  PERMISOS.CRM,
+  PERMISOS.ORGANIZACION,
+  PERMISOS.INSUMOS,
+  PERMISOS.NOCHE,
+] as const;
 
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
 import { esConfirmacionSola } from '@/lib/multiagent/confirmacion';
@@ -12,7 +21,6 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { verifySession } from '@/lib/auth/session-token';
-import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 
@@ -465,9 +473,7 @@ export async function getChatsMultiagente(input?: {
   fiestaId?: string;
   limit?: number;
 }): Promise<AkAgentChatSession[]> {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return listMultiAgentChatSessions(input);
 }
 
@@ -479,9 +485,7 @@ export async function guardarAprendizajeAgente(input: {
   module?: string;
   tags?: string[];
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return saveAgentLearning({
     agentType: input.agentType,
     title: input.title,
@@ -495,17 +499,14 @@ export async function guardarAprendizajeAgente(input: {
 }
 
 export async function getMemoriasMultiagente() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return listAgentMemoryProfiles();
 }
 
 export async function getMultiAgentTeamBriefing() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
-  const briefing = await buildMultiAgentTeamBriefing();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
+  const contable = await requirePermiso(PERMISOS.CONTABILIDAD);
+  const briefing = await buildMultiAgentTeamBriefing({ incluirContabilidad: contable.ok });
   return { success: true, data: briefing };
 }
 
@@ -519,10 +520,9 @@ async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[
 }
 
 export async function runMultiAgentTeamReview() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
-  const briefing = await buildMultiAgentTeamBriefing();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
+  const contable = await requirePermiso(PERMISOS.CONTABILIDAD);
+  const briefing = await buildMultiAgentTeamBriefing({ incluirContabilidad: contable.ok });
   const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
   let saved = 0;
   let failed = 0;
@@ -673,9 +673,7 @@ export async function enviarAprendizajeAFiestasGeneral(input: {
   title: string;
   content: string;
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   const title = input.title.trim();
   const content = input.content.trim();
   if (!title || !content) return { success: false, error: 'Falta título o contenido.' };
@@ -709,9 +707,7 @@ export async function cerrarFiestaConRetroalimentacion(input: {
   fiestaId: string;
   notasFinales?: string;
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 

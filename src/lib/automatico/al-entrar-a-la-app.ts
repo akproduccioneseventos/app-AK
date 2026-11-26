@@ -121,12 +121,33 @@ export function esFalla(valor: unknown): { fallo: boolean; motivo?: string } {
   if (v.ok === false) return { fallo: true, motivo: v.error || (Array.isArray(v.errores) && v.errores.length > 0 ? v.errores.join(', ') : 'ok: false') };
   if (v.corrio === false) return { fallo: true, motivo: v.motivo || 'corrio: false' };
   if (v.error && typeof v.error === 'string' && v.error.trim().length > 0) return { fallo: true, motivo: v.error };
+  if (Array.isArray(v.agentesFallidos) && v.agentesFallidos.length > 0) {
+    return {
+      fallo: true,
+      motivo: Array.isArray(v.errores) && v.errores.length > 0
+        ? v.errores.join(', ')
+        : `Agentes fallidos: ${v.agentesFallidos.join(', ')}`,
+    };
+  }
   if (Array.isArray(v.errores) && v.errores.length > 0) return { fallo: true, motivo: v.errores.join(', ') };
   if (Array.isArray(v.fallados) && v.fallados.length > 0) return { fallo: true, motivo: v.fallados.map((f: any) => f?.error || f?.id || 'fallo').join(', ') };
   if (typeof v.reservasFallidas === 'number' && v.reservasFallidas > 0) return { fallo: true, motivo: `${v.reservasFallidas} reservas fallidas` };
   if (Array.isArray(v.reservasFallidas) && v.reservasFallidas.length > 0) return { fallo: true, motivo: `${v.reservasFallidas.length} reservas fallidas` };
   if (v.seoError && typeof v.seoError === 'string' && v.seoError.trim().length > 0) return { fallo: true, motivo: v.seoError };
   if (v.seoSucceeded === false) return { fallo: true, motivo: v.seoError || 'seoSucceeded: false' };
+  if (Array.isArray(valor)) {
+    const elementosFallidos = valor
+      .map((item) => ({ item, check: esFalla(item) }))
+      .filter((entry) => entry.check.fallo);
+    if (elementosFallidos.length > 0) {
+      return {
+        fallo: true,
+        motivo: elementosFallidos
+          .map((entry) => entry.check.motivo || (entry.item as any)?.agenteId || 'fallo')
+          .join(', '),
+      };
+    }
+  }
   return { fallo: false };
 }
 
@@ -243,6 +264,9 @@ export async function ponerAlDiaAlEntrar(
           const res = await runMarketingAutomation({ includeRecontacto: false });
           if ((res as any)?.seoError || (res as any)?.seoSucceeded === false) {
             throw new Error((res as any)?.seoError || (res as any)?.motivo || (res as any)?.error || 'No se pudo publicar la nota del blog.');
+          }
+          if ((res as any)?.skipped === true) {
+            return res;
           }
 
           if (tocabaPublicar) {
@@ -445,6 +469,10 @@ export async function ponerAlDiaAlEntrar(
         const check = esFalla(res);
         if (check.fallo) {
           throw new Error(check.motivo || 'No se pudo completar la tarea.');
+        }
+        if (res && typeof res === 'object' && (res as any).skipped === true) {
+          resultado.omitidas.push(tarea.nombre);
+          continue;
         }
         ultimaCorrida[tarea.nombre] = ahora.toISOString();
         delete ultimoFallo[tarea.nombre];

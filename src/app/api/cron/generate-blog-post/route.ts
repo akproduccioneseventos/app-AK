@@ -37,6 +37,10 @@ async function handleCron(request: Request) {
       );
     }
 
+    if (result.skipped) {
+      return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, ...result }));
+    }
+
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('generate-blog-post');

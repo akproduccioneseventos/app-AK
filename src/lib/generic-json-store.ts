@@ -54,18 +54,10 @@ export async function syncGenericJsonFile(filePath: string, data: any): Promise<
   await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _value: data, _syncedAt: new Date().toISOString() });
 }
 
-async function debeUsarDataService(normalizedPath: string): Promise<boolean> {
-  if (
+function debeUsarDataService(): boolean {
+  return (
     process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
     (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)
-  ) {
-    return true;
-  }
-  const firebaseSync = await import('./firebase-sync').catch(() => null);
-  return Boolean(
-    firebaseSync &&
-    typeof firebaseSync.esArchivoConColeccionPropia === 'function' &&
-    firebaseSync.esArchivoConColeccionPropia(normalizedPath),
   );
 }
 
@@ -85,7 +77,7 @@ export async function mutateGenericJsonArray<T>(
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
 
-  if (await debeUsarDataService(normalizedPath)) {
+  if (debeUsarDataService()) {
     const dataService = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
@@ -108,17 +100,31 @@ export async function mutateGenericJsonArray<T>(
   }
 
   const db = await getDbAdmin();
+  const firebaseSync = await import('./firebase-sync').catch(() => null);
+  const tieneColeccionPropia = Boolean(
+    firebaseSync?.esArchivoConColeccionPropia?.(normalizedPath) &&
+    typeof (db as any)?.collection?.(normalizedPath)?.get === 'function',
+  );
+  const semillaColeccion: T[] | null = tieneColeccionPropia && typeof firebaseSync?.readFromFirestore === 'function'
+    ? await firebaseSync.readFromFirestore(normalizedPath).then((v) => (Array.isArray(v) ? (v as T[]) : null)).catch(() => null)
+    : null;
+
   const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
   let resultado: T[] | null = null;
   await db.runTransaction(async (transaction) => {
     resultado = null;
     const snapshot = await transaction.get(ref);
-    const actual = snapshot.exists ? unwrapGenericDocument(snapshot.data()) : [];
+    const actual = snapshot.exists
+      ? unwrapGenericDocument(snapshot.data())
+      : (semillaColeccion ?? []);
     const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
     if (!nueva) return;
     transaction.set(ref, { _filePath: normalizedPath, _arrayData: nueva, _syncedAt: new Date().toISOString() });
     resultado = nueva;
   });
+  if (resultado !== null && tieneColeccionPropia && typeof firebaseSync?.syncToFirestore === 'function') {
+    await firebaseSync.syncToFirestore(normalizedPath, resultado);
+  }
   return resultado;
 }
 
@@ -303,7 +309,7 @@ export async function mutarDocumento<T>(
     );
   }
 
-  if (await debeUsarDataService(normalizedPath)) {
+  if (debeUsarDataService()) {
     const dataService = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {

@@ -50,7 +50,13 @@ interface ShoppingListItem {
   origen: string;
   origenId?: string;
   isOrder?: boolean; // If true, it's an order to a provider (like pastry)
+  stockInconvertibleAviso?: string;
 }
+
+const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) => {
+  if (a.proveedorId && b.proveedorId) return a.proveedorId === b.proveedorId;
+  return Boolean(a.proveedor && b.proveedor && a.proveedor === b.proveedor);
+};
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -366,11 +372,16 @@ function ListaDeComprasContent() {
       // litros) y en la practica se compran botellas y paquetes enteros:
       // anotar 20,75 y comprar 20 es quedarse sin bebida en la fiesta. De mas
       // sobra un poco; de menos no hay como resolverlo a las dos de la manana.
+      const avisosStock: string[] = [];
       const finalList: ShoppingListItem[] = consolidarCompras(crudos, {
           redondeo: 'arriba',
           plataEntera: true,
           juntarOrigenes: true,
+          avisosConversion: avisosStock,
       }).sort((a, b) => a.proveedor.localeCompare(b.proveedor));
+      if (avisosStock.length > 0) {
+          setUnidadesIncompatibles(Array.from(new Set([...incompatibles, ...avisosStock])));
+      }
 
       setShoppingList(finalList);
       setTotalInvestment(finalList.reduce((sum, item) => sum + item.costoTotalFaltante, 0));
@@ -442,7 +453,7 @@ function ListaDeComprasContent() {
     if (!fiestaId || !nuevo.proveedorId) return;
     setIsSavingStatus(nuevo.proveedorId);
     const siguientes = [
-      ...estadosCompra.filter(e => e.proveedorId !== nuevo.proveedorId && e.proveedor !== nuevo.proveedor),
+      ...estadosCompra.filter(e => !mismoProveedor(e, nuevo)),
       nuevo,
     ];
     setEstadosCompra(siguientes);

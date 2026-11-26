@@ -28,7 +28,7 @@ import { SUAVE, DURACION } from '@/lib/motion';
 import {
   getPublicSocialEvent,
   getPublicSocialPosts,
-  getCarasDeFiesta,
+  buscarmeEnLaGaleria,
   registrarCaraInvitado,
   borrarCaraInvitado,
   obtenerMisFotosInvitado,
@@ -127,17 +127,6 @@ export default function GaleriaPage() {
       })
       // no pasa nada si falla: las caras sólo suman el filtro "buscame"; la galería se ve igual.
       .catch(() => {});
-
-    getCarasDeFiesta(fiestaId)
-      .then((c: CaraEnFoto[]) => {
-        if (c && c.length > 0) {
-          setCaras(c);
-        }
-      })
-      .catch((err) => {
-        // no pasa nada si falla: sin el índice de caras la galería se ve entera, sin el filtro.
-        console.warn('[GaleriaPage] No se pudieron leer caras:', err);
-      });
 
     if (guestId && guestAccessToken) {
       obtenerMisFotosInvitado(fiestaId, guestId, guestAccessToken)
@@ -448,10 +437,21 @@ export default function GaleriaPage() {
         }
       }
 
-      const resultado = buscarFotosDeUnaCara(vectoresExtraidos, caras);
+      const busqueda = await buscarmeEnLaGaleria(
+        fiestaId,
+        vectoresExtraidos.map((v) => Array.from(v)),
+      );
+      if (!busqueda.success) {
+        toast({
+          title: 'No pudimos buscar tus fotos',
+          description: busqueda.error || 'Intentá nuevamente en unos segundos.',
+          variant: 'destructive',
+        });
+        return;
+      }
       setConfirmedDudosas([]);
       setRejectedDudosas([]);
-      setSelfieResult(resultado);
+      setSelfieResult({ seguras: busqueda.seguras, dudosas: busqueda.dudosas });
       setSelectedPersonaId(null);
     } catch (err: any) {
       detenerCamara();
@@ -460,7 +460,7 @@ export default function GaleriaPage() {
         setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
       }
     }
-  }, [caras, detenerCamara, fiestaId, guestAccessToken, guestId, modoRegistroCara]);
+  }, [detenerCamara, fiestaId, guestAccessToken, guestId, modoRegistroCara]);
 
   const handleBorrarMiCara = useCallback(async () => {
     if (!guestId || !guestAccessToken) return;

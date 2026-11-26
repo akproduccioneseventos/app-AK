@@ -69,20 +69,53 @@ export async function saveEmpleado(
   let uploadedContractUrl: string | undefined;
 
   if (empleadoData instanceof FormData) {
-    empleadoToSave.id = empleadoData.get('id') as string | undefined;
-    empleadoToSave.nombre = empleadoData.get('nombre') as string;
-    empleadoToSave.cedula = empleadoData.get('cedula') as string | undefined;
-    empleadoToSave.fechaNacimiento = empleadoData.get('fechaNacimiento') as string | undefined;
-    empleadoToSave.telefono = empleadoData.get('telefono') as string | undefined;
-    empleadoToSave.email = empleadoData.get('email') as string | undefined;
-    empleadoToSave.googleWorkspaceEmail = empleadoData.get('googleWorkspaceEmail') as string | undefined;
-    empleadoToSave.googleCalendarId = empleadoData.get('googleCalendarId') as string | undefined;
-    empleadoToSave.portalNotas = empleadoData.get('portalNotas') as string | undefined;
-    const rolIdsStr = empleadoData.get('rolIds') as string | null;
-    empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',') : [];
+    if (empleadoData.has('id')) {
+      const idVal = String(empleadoData.get('id') ?? '').trim();
+      if (idVal) {
+        empleadoToSave.id = idVal;
+      }
+    }
+    if (empleadoData.has('nombre')) {
+      empleadoToSave.nombre = String(empleadoData.get('nombre') ?? '');
+    }
+    if (empleadoData.has('cedula')) {
+      empleadoToSave.cedula = String(empleadoData.get('cedula') ?? '');
+    }
+    if (empleadoData.has('fechaNacimiento')) {
+      empleadoToSave.fechaNacimiento = String(empleadoData.get('fechaNacimiento') ?? '');
+    }
+    if (empleadoData.has('telefono')) {
+      empleadoToSave.telefono = String(empleadoData.get('telefono') ?? '');
+    }
+    if (empleadoData.has('email')) {
+      empleadoToSave.email = String(empleadoData.get('email') ?? '');
+    }
+    if (empleadoData.has('googleWorkspaceEmail')) {
+      empleadoToSave.googleWorkspaceEmail = String(empleadoData.get('googleWorkspaceEmail') ?? '');
+    }
+    if (empleadoData.has('googleCalendarId')) {
+      empleadoToSave.googleCalendarId = String(empleadoData.get('googleCalendarId') ?? '');
+    }
+    if (empleadoData.has('portalNotas')) {
+      empleadoToSave.portalNotas = String(empleadoData.get('portalNotas') ?? '');
+    }
+    if (empleadoData.has('rolIds')) {
+      const rolIdsStr = empleadoData.get('rolIds') as string | null;
+      empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',').filter(Boolean) : [];
+    }
     contractFile = empleadoData.get('contract') as File | null;
-    empleadoToSave.contractFileName = empleadoData.get('existingContract') as string || undefined;
-    empleadoToSave.photoUrl = empleadoData.get('photoUrl') as string | undefined || undefined;
+    if (empleadoData.has('existingContract')) {
+      const existingContract = String(empleadoData.get('existingContract') ?? '').trim();
+      if (existingContract) {
+        empleadoToSave.contractFileName = existingContract;
+      }
+    }
+    if (empleadoData.has('photoUrl')) {
+      const photoUrl = String(empleadoData.get('photoUrl') ?? '').trim();
+      if (photoUrl) {
+        empleadoToSave.photoUrl = photoUrl;
+      }
+    }
 
   } else {
     empleadoToSave = { ...empleadoData };

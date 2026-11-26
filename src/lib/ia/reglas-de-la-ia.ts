@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
-import { mutarDocumento } from '@/lib/generic-json-store';
+import { mutarDocumento, mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { AsyncMutex } from '@/lib/mutex';
 
 export type ReglaModo = 'sola' | 'preguntar' | 'apagada';
@@ -39,14 +40,28 @@ const ARCHIVO_APRENDIZAJE = 'ia-aprendizaje.json';
 const MAX_REGISTRO = 100;
 const MAX_APRENDIZAJE = 300;
 
-async function leerJson<T>(filename: string, fallback: T): Promise<T> {
+async function leerJson<T>(
+  filename: string,
+  fallback: T,
+  opciones?: { lanzarSiFalla?: boolean },
+): Promise<T> {
   // La base manda (con varios servidores, apagar una tarea tiene que valer en todos).
   // La copia local es sólo respaldo si la base no está o no tiene el dato.
+  let falloBase: string | undefined;
   try {
-    const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
-    if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
-  } catch {
-    // Sin base: cae a la copia local
+    const { valor, huboFalla, motivo } = await readDataConDetalle<T | null>(filename, null);
+    if (!huboFalla && valor !== null && valor !== undefined && !esLecturaFallida(valor)) {
+      return valor as T;
+    }
+    if (huboFalla || esLecturaFallida(valor)) {
+      falloBase = motivo || `No se pudo leer ${filename} desde la base.`;
+    }
+  } catch (err: any) {
+    falloBase = err?.message || `No se pudo leer ${filename} desde la base.`;
+  }
+
+  if (falloBase && opciones?.lanzarSiFalla) {
+    throw new Error(falloBase);
   }
 
   const localPath = path.join(process.cwd(), 'data', filename);
@@ -59,6 +74,43 @@ async function leerJson<T>(filename: string, fallback: T): Promise<T> {
     // Si falla lectura local, continuar
   }
   return fallback;
+}
+
+async function mutarListaIA<T>(
+  filename: string,
+  maxItems: number,
+  nuevoItem: T,
+): Promise<T[]> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    return turnoLocalDeReglas.runExclusive(async () => {
+      const anteriores = await leerJson<T[]>(filename, []);
+      const lista = Array.isArray(anteriores) ? anteriores : [];
+      const actualizados = [nuevoItem, ...lista].slice(0, maxItems);
+      await guardarJson(filename, actualizados);
+      return actualizados;
+    });
+  }
+
+  const nueva = await mutateGenericJsonArray<T>(filename, (anteriores) => {
+    if (esLecturaFallida(anteriores)) {
+      throw new Error(`No se pudo leer ${filename} para guardar sin pisar registros.`);
+    }
+    const lista = Array.isArray(anteriores) ? anteriores : [];
+    return [nuevoItem, ...lista].slice(0, maxItems);
+  });
+  if (nueva === null) {
+    throw new Error(`No se pudo guardar ${filename}.`);
+  }
+
+  try {
+    const localPath = path.join(process.cwd(), 'data', filename);
+    fs.mkdirSync(path.dirname(localPath), { recursive: true });
+    fs.writeFileSync(localPath, JSON.stringify(nueva, null, 2), 'utf8');
+  } catch {
+    // la base ya guardó: la copia local es sólo respaldo
+  }
+
+  return nueva;
 }
 
 /**
@@ -374,10 +426,7 @@ export async function registrarAccionSola(accion: {
   };
 
   try {
-    const anteriores = await leerJson<AccionSolaRegistro[]>(ARCHIVO_REGISTRO, []);
-    const lista = Array.isArray(anteriores) ? anteriores : [];
-    const actualizados = [registro, ...lista].slice(0, MAX_REGISTRO);
-    await guardarJson(ARCHIVO_REGISTRO, actualizados);
+    await mutarListaIA<AccionSolaRegistro>(ARCHIVO_REGISTRO, MAX_REGISTRO, registro);
   } catch (error) {
     console.warn('[Reglas IA] Error al registrar acción sola:', error);
   }
@@ -412,10 +461,7 @@ export async function registrarDecisionDuenio(decision: {
   };
 
   try {
-    const anteriores = await leerJson<DecisionDuenio[]>(ARCHIVO_APRENDIZAJE, []);
-    const lista = Array.isArray(anteriores) ? anteriores : [];
-    const todas = [nuevaDecision, ...lista].slice(0, MAX_APRENDIZAJE);
-    await guardarJson(ARCHIVO_APRENDIZAJE, todas);
+    const todas = await mutarListaIA<DecisionDuenio>(ARCHIVO_APRENDIZAJE, MAX_APRENDIZAJE, nuevaDecision);
 
     if (decision.decision === 'no') {
       const normTarea = decision.tipoTarea.toLowerCase().replace(/[_-]/g, '');

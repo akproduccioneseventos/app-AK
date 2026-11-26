@@ -123,7 +123,7 @@ function PlanPagosContent() {
       id: `cuota_${Date.now()}`,
       descripcion: `Cuota ${cuotas.length + 1}`,
       monto: 0,
-      fechaVencimiento: new Date().toISOString().split('T')[0],
+      fechaVencimiento: hoyEnUruguay(),
       estado: 'pendiente',
     };
     setCuotas(prev => [...prev, newCuota]);

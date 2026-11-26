@@ -57,7 +57,7 @@ import { buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmail
 import type { CalendarEvent } from '@/app/actions/agenda';
 import type { CrmAppointment } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, getUruguayParts, hoyEnUruguay } from '@/lib/utils';
 import {
   DndContext,
   DragOverlay,
@@ -408,13 +408,17 @@ export default function CalendarioInteractivoPage() {
   const abrirEdicionDeCita = (appt: CrmAppointment) => {
     const fecha = new Date(appt.fechaHora);
     const valida = !Number.isNaN(fecha.getTime());
+    const parts = valida ? getUruguayParts(fecha) : null;
+    const horaUY = parts
+      ? `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
+      : '18:00';
     setCitaEnEdicion(appt);
     setCitaNombre(appt.clienteNombre || '');
     setCitaTelefono(appt.clienteContacto || '');
     setCitaEmail(appt.clienteEmail || '');
     setCitaTipo(appt.eventoTipo || 'Fiesta de 15');
-    setCitaFecha(valida ? fecha.toISOString().slice(0, 10) : '');
-    setCitaHora(valida ? fecha.toTimeString().slice(0, 5) : '18:00');
+    setCitaFecha(valida ? hoyEnUruguay(fecha) : '');
+    setCitaHora(horaUY);
     setCitaLugar(mostrarLugarCita(appt.lugar));
     setCitaNotas(appt.notas || '');
     setIsCitaModalOpen(true);
@@ -447,7 +451,8 @@ export default function CalendarioInteractivoPage() {
     }
     setIsSubmittingCita(true);
     try {
-      const fullDateTime = new Date(`${citaFecha}T${citaHora}`).toISOString();
+      const horaNormalizada = citaHora && citaHora.length === 5 ? `${citaHora}:00` : (citaHora || '18:00:00');
+      const fullDateTime = new Date(`${citaFecha}T${horaNormalizada}-03:00`).toISOString();
 
       if (citaEnEdicion) {
         const res = await updateAppointment(citaEnEdicion.id, {

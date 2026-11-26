@@ -532,7 +532,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
   // Si la lectura falló, lo primero que lee el usuario es eso (no queda enterrado en el medio).
   const avisar = (respuesta: string) => conAvisoDeLectura(respuesta, context.sinLeer, context.falloTotal);
 
-  const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
   const tienePresupuesto = await hayPresupuestoParaIA().catch(() => false);
   if (!tienePresupuesto) {
     return {
@@ -555,7 +555,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
         eventType:         fiestaTipo(context.fiesta),
         attachmentDataUri: input.imageDataUri,
       });
-      await registrarConsumoIA('multiagente').catch(() => null);
+      // chatWithMarketingAgent ya pasa por pedirTexto({ quien: 'agente-marketing' }); no duplicar registro.
 
       await saveAgentLearning({
         agentType: 'marketing',

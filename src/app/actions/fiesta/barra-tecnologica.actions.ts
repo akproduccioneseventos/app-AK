@@ -224,21 +224,50 @@ async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMo
   });
 }
 
+async function notificarFallaDevolucionBarra(
+  fallidos: Array<{ insumoId: string; nombre?: string; motivo: string }>,
+) {
+  if (fallidos.length === 0) return;
+  let catalogo: ServicioEmpresa[] = [];
+  if (fallidos.some((f) => !f.nombre)) {
+    const { leerInsumosCrudos } = await import('@/lib/insumos/leer-insumos');
+    catalogo = await leerInsumosCrudos().catch(() => []);
+  }
+  const detalle = fallidos.map((f) => {
+    const nombre = f.nombre || catalogo.find((c) => c.id === f.insumoId)?.nombre || f.insumoId;
+    return `${nombre} (${f.motivo})`;
+  });
+  logger.warn('[barra-tecnologica] botellas pendientes sin poder devolver:', { detalle });
+  try {
+    const { createNotification } = await import('@/lib/notifications/create-notification');
+    await createNotification({
+      tipo: 'alerta',
+      titulo: 'Devolución de botellas pendiente en barra',
+      mensaje: `No se pudieron devolver botellas de: ${detalle.join(', ')}. Quedaron pendientes para revisar en depósito.`,
+      href: '/empresa/insumos',
+      modulo: 'barra',
+    });
+  } catch (notifyErr) {
+    logger.warn('[barra-tecnologica] no se pudo crear la notificación de devolución fallida:', notifyErr);
+  }
+}
+
 async function reintentarDevolucionesPendientes() {
   const db = await getDb();
   if (db) {
     // Devolver las botellas y sacarlas de la lista es UNA sola operacion de la base (25 de
     // septiembre de 2026, lo marco Codex). Antes se vaciaba la lista y despues se devolvia:
     // un reinicio del servidor en el medio perdia la devolucion. Ahora, si algo se corta,
-    // no paso nada y la lista sigue ahi para el proximo pedido. Y si dos servidores lo
-    // intentan a la vez, la base repite la operacion del segundo con la lista ya vacia:
-    // las botellas se devuelven una sola vez.
+    // no paso nada y la lista sigue ahi para el proximo pedido. Si un insumo ya no existe o
+    // tiene stock inválido, sus botellas quedan pendientes y se avisa al equipo (Orden 372 B5.2).
     let devueltas: DevolucionPendiente[] = [];
+    const fallidos = new Map<string, { insumoId: string; nombre?: string; motivo: string }>();
     try {
       await mutateGenericJsonArrayConTransaccion<DevolucionPendiente>(
         DEVOLUCIONES_PENDIENTES_FILE,
         async (lista, transaction, base) => {
           devueltas = [];
+          fallidos.clear();
           if (lista.length === 0) return null;
           const totales = new Map<string, number>();
           for (const pendiente of lista) {
@@ -250,14 +279,43 @@ async function reintentarDevolucionesPendientes() {
           const ids = [...totales.keys()];
           const refs = ids.map((id) => base.collection('insumos').doc(id));
           const snapshots = refs.length > 0 ? await transaction.getAll(...refs) : [];
+          const validIds = new Set<string>();
           snapshots.forEach((snapshot, index) => {
-            if (!snapshot.exists) return;
-            const available = Number(snapshot.data()?.cantidadDisponible);
-            if (!Number.isFinite(available)) return;
-            transaction.update(snapshot.ref, { cantidadDisponible: available + (totales.get(ids[index]) || 0) });
+            const insumoId = ids[index];
+            if (!snapshot.exists) {
+              fallidos.set(insumoId, { insumoId, motivo: 'el insumo ya no existe en depósito' });
+              return;
+            }
+            const data = snapshot.data();
+            const rawDisponible = data?.cantidadDisponible;
+            const available = rawDisponible === undefined || rawDisponible === null || rawDisponible === ''
+              ? NaN
+              : Number(rawDisponible);
+            if (!Number.isFinite(available)) {
+              fallidos.set(insumoId, {
+                insumoId,
+                nombre: data?.nombre ? String(data.nombre) : undefined,
+                motivo: 'el stock no es un número válido',
+              });
+              return;
+            }
+            validIds.add(insumoId);
+            transaction.update(snapshot.ref, { cantidadDisponible: available + (totales.get(insumoId) || 0) });
           });
-          devueltas = lista;
-          return [];
+
+          const restantes: DevolucionPendiente[] = [];
+          for (const pendiente of lista) {
+            const movs = pendiente.movimientos || [];
+            const movsDevueltos = movs.filter((m) => m?.insumoId && m.cantidad > 0 && validIds.has(m.insumoId));
+            const movsFallidos = movs.filter((m) => m?.insumoId && m.cantidad > 0 && fallidos.has(m.insumoId));
+            if (movsDevueltos.length > 0) {
+              devueltas.push({ ...pendiente, movimientos: movsDevueltos });
+            }
+            if (movsFallidos.length > 0) {
+              restantes.push({ ...pendiente, movimientos: movsFallidos });
+            }
+          }
+          return restantes;
         },
       );
     } catch (error) {
@@ -267,6 +325,9 @@ async function reintentarDevolucionesPendientes() {
     if (devueltas.length > 0) {
       limpiarCacheInsumos();
       for (const d of devueltas) logger.info(`[barra-tecnologica] se devolvieron las botellas pendientes del pedido ${d.pedido}.`);
+    }
+    if (fallidos.size > 0) {
+      await notificarFallaDevolucionBarra([...fallidos.values()]);
     }
     return;
   }
@@ -283,15 +344,28 @@ async function reintentarDevolucionesPendientes() {
     logger.warn('[barra-tecnologica] no se pudo leer la lista de devoluciones pendientes:', error);
     return;
   }
+  const fallidosLocales: Array<{ insumoId: string; nombre?: string; motivo: string }> = [];
   for (const pendiente of pendientes) {
     try {
-      await reponerStock(pendiente.movimientos);
-      logger.info(`[barra-tecnologica] se devolvieron las botellas pendientes del pedido ${pendiente.pedido}.`);
+      const noDevueltos = await reponerStock(pendiente.movimientos);
+      if (noDevueltos.length > 0) {
+        fallidosLocales.push(...noDevueltos);
+        await anotarDevolucionPendiente(
+          pendiente.pedido,
+          noDevueltos.map(({ insumoId, cantidad }) => ({ insumoId, cantidad })),
+        );
+      }
+      if (noDevueltos.length < (pendiente.movimientos || []).length) {
+        logger.info(`[barra-tecnologica] se devolvieron las botellas pendientes del pedido ${pendiente.pedido}.`);
+      }
     } catch (error) {
       await anotarDevolucionPendiente(pendiente.pedido, pendiente.movimientos).catch(() => {
         logger.error('[barra-tecnologica] devolucion pendiente perdida, corregir a mano:', { ...pendiente, error });
       });
     }
+  }
+  if (fallidosLocales.length > 0) {
+    await notificarFallaDevolucionBarra(fallidosLocales);
   }
 }
 
@@ -323,6 +397,7 @@ async function descontarStock(
   if (recipe.length === 0) return [];
   const db = await getDb();
   if (db) {
+    const omitidos: string[] = [];
     const movements = await db.runTransaction(async transaction => {
       const refs = recipe.map(item => db.collection('insumos').doc(item.insumoId));
       const snapshots = await transaction.getAll(...refs);
@@ -335,15 +410,29 @@ async function descontarStock(
       }
       const applied: BarStockMovement[] = [];
       snapshots.forEach((snapshot, index) => {
-        if (!snapshot.exists) return;
-        const available = Number(snapshot.data()?.cantidadDisponible);
-        if (!Number.isFinite(available)) return;
+        const insumoId = recipe[index].insumoId;
+        if (!snapshot.exists) {
+          omitidos.push(`${insumoId} (inexistente)`);
+          return;
+        }
+        const data = snapshot.data();
+        const rawDisponible = data?.cantidadDisponible;
+        const available = rawDisponible === undefined || rawDisponible === null || rawDisponible === ''
+          ? NaN
+          : Number(rawDisponible);
+        if (!Number.isFinite(available)) {
+          omitidos.push(`${data?.nombre || insumoId} (sin stock numérico)`);
+          return;
+        }
         const cantidad = calculateActualStockMovement(available, recipe[index].cantidad);
         transaction.update(snapshot.ref, { cantidadDisponible: available - cantidad });
-        if (cantidad > 0) applied.push({ insumoId: recipe[index].insumoId, cantidad });
+        if (cantidad > 0) applied.push({ insumoId, cantidad });
       });
       return applied;
     });
+    if (omitidos.length > 0) {
+      logger.warn('[barra-tecnologica] insumos omitidos al descontar stock:', { omitidos });
+    }
     limpiarCacheInsumos();
     return movements;
   }
@@ -403,50 +492,99 @@ async function descontarYGuardarEnUnaOperacion(
     });
     if (falta) return { sinStock: true, movimientos: [] };
     const movimientos: BarStockMovement[] = [];
+    const omitidos: string[] = [];
     snapshots.forEach((snapshot, index) => {
-      if (!snapshot.exists) return;
-      const available = Number(snapshot.data()?.cantidadDisponible);
-      if (!Number.isFinite(available)) return;
+      const insumoId = recipe[index].insumoId;
+      if (!snapshot.exists) {
+        omitidos.push(`${insumoId} (inexistente)`);
+        return;
+      }
+      const data = snapshot.data();
+      const rawDisponible = data?.cantidadDisponible;
+      const available = rawDisponible === undefined || rawDisponible === null || rawDisponible === ''
+        ? NaN
+        : Number(rawDisponible);
+      if (!Number.isFinite(available)) {
+        omitidos.push(`${data?.nombre || insumoId} (sin stock numérico)`);
+        return;
+      }
       const cantidad = calculateActualStockMovement(available, recipe[index].cantidad);
       transaction.update(snapshot.ref, { cantidadDisponible: available - cantidad });
-      if (cantidad > 0) movimientos.push({ insumoId: recipe[index].insumoId, cantidad });
+      if (cantidad > 0) movimientos.push({ insumoId, cantidad });
     });
     transaction.set(orderRef, { ...order, stockMovements: movimientos });
-    return { movimientos };
+    return { movimientos, omitidos };
   });
+  if (resultado.omitidos && resultado.omitidos.length > 0) {
+    logger.warn('[barra-tecnologica] insumos omitidos al descontar stock en pedido:', { orderId: order.id, omitidos: resultado.omitidos });
+  }
   if (!resultado.yaEstaba && !resultado.sinStock) limpiarCacheInsumos();
   return resultado;
 }
 
-async function reponerStock(movements: BarStockMovement[]) {
-  if (movements.length === 0) return;
+async function reponerStock(movements: BarStockMovement[]): Promise<Array<{ insumoId: string; cantidad: number; nombre?: string; motivo: string }>> {
+  if (movements.length === 0) return [];
+  const noDevueltos: Array<{ insumoId: string; cantidad: number; nombre?: string; motivo: string }> = [];
   const db = await getDb();
   if (db) {
     await db.runTransaction(async transaction => {
+      noDevueltos.length = 0;
       const refs = movements.map(item => db.collection('insumos').doc(item.insumoId));
       const snapshots = await transaction.getAll(...refs);
       snapshots.forEach((snapshot, index) => {
-        if (!snapshot.exists) return;
-        const available = Number(snapshot.data()?.cantidadDisponible);
-        if (!Number.isFinite(available)) return;
-        transaction.update(snapshot.ref, { cantidadDisponible: available + movements[index].cantidad });
+        const mov = movements[index];
+        if (!snapshot.exists) {
+          noDevueltos.push({ insumoId: mov.insumoId, cantidad: mov.cantidad, motivo: 'el insumo ya no existe en depósito' });
+          return;
+        }
+        const data = snapshot.data();
+        const rawDisponible = data?.cantidadDisponible;
+        const available = rawDisponible === undefined || rawDisponible === null || rawDisponible === ''
+          ? NaN
+          : Number(rawDisponible);
+        if (!Number.isFinite(available)) {
+          noDevueltos.push({
+            insumoId: mov.insumoId,
+            cantidad: mov.cantidad,
+            nombre: data?.nombre ? String(data.nombre) : undefined,
+            motivo: 'el stock no es un número válido',
+          });
+          return;
+        }
+        transaction.update(snapshot.ref, { cantidadDisponible: available + mov.cantidad });
       });
     });
     limpiarCacheInsumos();
-    return;
+    return noDevueltos;
   }
 
   const nextPromise = enLaColaDeStock(async () => {
+    noDevueltos.length = 0;
     const inventory = await readData<ServicioEmpresa[]>(INSUMOS_FILE, []);
     for (const movement of movements) {
       const supply = inventory.find(candidate => candidate.id === movement.insumoId);
-      if (supply && supply.cantidadDisponible !== undefined) supply.cantidadDisponible += movement.cantidad;
+      if (!supply) {
+        noDevueltos.push({ insumoId: movement.insumoId, cantidad: movement.cantidad, motivo: 'el insumo ya no existe en depósito' });
+        continue;
+      }
+      const rawDisponible = supply.cantidadDisponible;
+      if (rawDisponible === undefined || rawDisponible === null || !Number.isFinite(Number(rawDisponible))) {
+        noDevueltos.push({
+          insumoId: movement.insumoId,
+          cantidad: movement.cantidad,
+          nombre: supply.nombre,
+          motivo: 'el stock no es un número válido',
+        });
+        continue;
+      }
+      supply.cantidadDisponible = Number(rawDisponible) + movement.cantidad;
     }
     await writeData(INSUMOS_FILE, inventory);
     limpiarCacheInsumos();
   });
 
   await nextPromise;
+  return noDevueltos;
 }
 
 async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | null> {

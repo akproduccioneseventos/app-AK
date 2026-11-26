@@ -19,6 +19,7 @@ import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { leerFacturasSinGuardia } from '@/lib/invoices/leer-facturas';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { cobrosDeFacturaSinPasarAlPresupuesto, referenciaDelCobro } from '@/lib/commercial-flow/cobros-sin-pasar-al-presupuesto';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
@@ -1019,6 +1020,7 @@ export async function ejecutarEscaneoDeRecordatorios(
   // tiraba y la tarea no preparaba ningun recordatorio (Codex, auditoria 81).
   let invoices: any[];
   let scheduledMessages: any[];
+  const lecturaFallidaMsg = 'No pudimos leer las facturas o los mensajes programados. No se preparan avisos para evitar duplicados.';
   try {
     [invoices, scheduledMessages] = await Promise.all([
       leerFacturasSinGuardia(),
@@ -1027,6 +1029,10 @@ export async function ejecutarEscaneoDeRecordatorios(
   } catch (err: any) {
     const errorMsg = 'No pudimos leer los mensajes programados. No se preparan avisos para evitar duplicados.';
     return { success: false, triggeredCount: 0, errors: [err?.message || errorMsg] };
+  }
+
+  if (esLecturaFallida(invoices) || esLecturaFallida(scheduledMessages)) {
+    return { success: false, triggeredCount: 0, errors: [lecturaFallidaMsg] };
   }
 
   const avisos = calcularAvisosPendientes(invoices, scheduledMessages, {
@@ -1044,6 +1050,8 @@ export async function ejecutarEscaneoDeRecordatorios(
       targetType: 'cliente' as const,
       targetPhone: inv.customer.phone,
       fiestaId: inv.sourceFiestaId,
+      invoiceId: inv.id,
+      dueDate: inv.dueDate,
       nombre: inv.customer.name,
       saldo: `${inv.currency || 'UYU'} ${balance}`,
       fecha: inv.dueDate,

@@ -886,12 +886,19 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
 // ─────────────────────────────────────────────────────────────────────────────
 // EJECUTOR GLOBAL RESPETANDO CONFIGURACIÓN Y LIMITES
 // ─────────────────────────────────────────────────────────────────────────────
+export type ResultadoEjecucionAgentes = RegistroEjecucionAgente[] & {
+  agentesFallidos?: string[];
+  errores?: string[];
+};
+
 export async function ejecutarAgentesAutonomos(
   ahora = new Date(),
   opciones: { ignorarIntervalo?: boolean } = {},
-): Promise<RegistroEjecucionAgente[]> {
+): Promise<ResultadoEjecucionAgentes> {
   const config = await getConfiguracionAgentes();
   const resultados: RegistroEjecucionAgente[] = [];
+  const agentesFallidos: string[] = [];
+  const errores: string[] = [];
 
   for (const agente of config) {
     if (!agente.activo) continue;
@@ -932,16 +939,23 @@ export async function ejecutarAgentesAutonomos(
       }
       if (reg) {
         resultados.push(reg);
-        if (modo === 'sola') {
+        const falloAgente = reg.estado === 'error' || reg.lecturaFallida === true || reg.ok === false;
+        if (falloAgente) {
+          agentesFallidos.push(agente.id);
+          errores.push(`${agente.nombre}: ${reg.error || reg.hallazgos?.[0] || 'Error de ejecución'}`);
+        } else if (modo === 'sola') {
           await registrarAccionSola({ tareaId: agente.id, que: `Ejecutó automáticamente: ${agente.nombre}` });
         }
       }
     } catch (err) {
+      const mensaje = err instanceof Error ? err.message : String(err || 'Error desconocido');
       console.error(`[Agentes] Error ejecutando ${agente.id}:`, err);
+      agentesFallidos.push(agente.id);
+      errores.push(`${agente.nombre}: ${mensaje}`);
     }
   }
 
-  return resultados;
+  return Object.assign(resultados, { agentesFallidos, errores });
 }
 
 

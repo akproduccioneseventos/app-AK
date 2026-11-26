@@ -568,11 +568,37 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
   const handlePonerAlDia = async () => {
     setSyncingAll(true);
     try {
-      const res = await dispararTareasVencidasDeFondo();
-      if (res.ejecutadas.length > 0) {
-        toast({ title: 'Listo', description: `Se pusieron al día ${res.ejecutadas.length} tareas atrasadas.` });
+      const res = (await dispararTareasVencidasDeFondo()) as {
+        ejecutadas?: string[];
+        errores?: string[];
+        success?: boolean;
+        error?: string;
+      };
+      const ejecutadas = Array.isArray(res?.ejecutadas) ? res.ejecutadas : [];
+      const errores = Array.isArray(res?.errores) ? res.errores : [];
+
+      if (res?.success === false || res?.error) {
+        toast({
+          title: 'No se pudo poner al día',
+          description: res.error || errores.join(' | ') || 'No tenés permiso o ocurrió un error.',
+          variant: 'destructive',
+        });
+      } else if (errores.length > 0 && ejecutadas.length === 0) {
+        toast({
+          title: 'No se pudieron ejecutar las tareas',
+          description: errores.join(' | '),
+          variant: 'destructive',
+        });
+      } else if (errores.length > 0) {
+        toast({
+          title: 'Se ejecutó con errores',
+          description: `Se pusieron al día ${ejecutadas.length} tarea(s), pero fallaron ${errores.length}: ${errores.join(' | ')}`,
+          variant: 'destructive',
+        });
+      } else if (ejecutadas.length > 0) {
+        toast({ title: 'Listo', description: `Se pusieron al día ${ejecutadas.length} tareas atrasadas.` });
       } else {
-        toast({ title: 'Todo al día', description: 'Las tareas automáticas desatendidas ya están al día.' });
+        toast({ title: 'Sin tareas pendientes', description: 'No se ejecutó ninguna tarea atrasada.' });
       }
       await cargar();
     } catch (err: any) {

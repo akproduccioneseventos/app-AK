@@ -740,7 +740,7 @@ function CopyButton({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button onClick={handleCopy} className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors" style={{ color: 'var(--inv-primary)', backgroundColor: 'var(--inv-secondary)' }}>
+    <button onClick={handleCopy} className="inline-flex items-center gap-1.5 min-h-10 text-sm font-medium px-3 py-2 rounded-lg transition-colors" style={{ color: 'var(--inv-primary)', backgroundColor: 'var(--inv-secondary)' }}>
       {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       {copied ? 'Copiado' : 'Copiar'}
     </button>

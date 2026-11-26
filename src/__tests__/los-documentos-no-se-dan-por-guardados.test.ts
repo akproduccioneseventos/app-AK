@@ -20,6 +20,15 @@ jest.mock('@/lib/firebase/storage', () => ({
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   saveFiesta: jest.fn(),
+  requireFiestaWriteAccess: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (fiestaId: string, fn: any) => {
+    const { getFiestaById, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+    const actual = await getFiestaById(fiestaId);
+    const next = typeof fn === 'function' ? await fn(actual) : { ...actual, ...fn };
+    return saveFiesta(next);
+  }),
 }));
 jest.mock('@/app/actions/invoices', () => ({ registerBookingDeposit: jest.fn() }));
 jest.mock('@/lib/invoices/leer-facturas', () => ({ leerFacturasSinGuardia: jest.fn().mockResolvedValue([]) }));

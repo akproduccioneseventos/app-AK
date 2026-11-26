@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { hoyEnUruguay, diasHastaEnUruguay } from '@/lib/utils';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
@@ -114,6 +115,7 @@ function esRechazoConocido(error: any): boolean {
 export interface ResultadoRecordatorioInvitacion {
   corrio: boolean;
   motivo?: string;
+  lecturaFallida?: boolean;
   totalFiestas: number;
   totalInvitadosEvaluados: number;
   enviados: number;
@@ -173,6 +175,14 @@ export async function correrTareaRecordarInvitacionNoAbierta(
   }
 
   const fiestas = await readData<FiestaEnPlanificacion[]>(FIESTAS_FILE, []);
+  if (esLecturaFallida(fiestas)) {
+    return {
+      ...vacio,
+      corrio: false,
+      lecturaFallida: true,
+      motivo: 'No se pudieron leer las fiestas desde la base de datos',
+    };
+  }
   if (!fiestas || fiestas.length === 0) {
     return { ...vacio, corrio: true, motivo: 'no hay fiestas' };
   }

@@ -99,7 +99,10 @@ export async function aceptarPropuestaAction(propuestaId: string) {
 export async function posponerPropuestaAction(propuestaId: string) {
   try {
     await requirePermisoAlguno(...PERMISOS_EQUIPO);
-    await posponerPropuesta(propuestaId);
+    const res = await posponerPropuesta(propuestaId);
+    if (!res.ok) {
+      return { success: false, error: res.error || 'No se pudo posponer la propuesta.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -109,7 +112,10 @@ export async function posponerPropuestaAction(propuestaId: string) {
 export async function descartarPropuestaAction(propuestaId: string) {
   try {
     await requirePermisoAlguno(...PERMISOS_EQUIPO);
-    await descartarNoAvisarMas(propuestaId);
+    const res = await descartarNoAvisarMas(propuestaId);
+    if (!res.ok) {
+      return { success: false, error: res.error || 'No se pudo descartar la propuesta.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -121,7 +127,10 @@ export async function tomarPropuestaAction(propuestaId: string) {
     await requirePermisoAlguno(...PERMISOS_EQUIPO);
     const session = await verifySession();
     const usuarioNombre = (session.success && session.user?.email) || 'Equipo AK';
-    await tomarPropuesta(propuestaId, usuarioNombre);
+    const res = await tomarPropuesta(propuestaId, usuarioNombre);
+    if (!res.ok) {
+      return { success: false, error: res.error || 'No se pudo tomar la propuesta.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -183,7 +192,10 @@ export async function eliminarReglaAprendidaAction(reglaId: string) {
     return { success: false, error: permiso.error };
   }
   try {
-    await desestimarReglaAprendida(reglaId);
+    const res = await desestimarReglaAprendida(reglaId);
+    if (!res.ok) {
+      return { success: false, error: res.error || 'Regla no encontrada.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

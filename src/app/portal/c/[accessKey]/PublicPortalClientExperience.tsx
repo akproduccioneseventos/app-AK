@@ -57,6 +57,8 @@ import {
   getPortalPaymentSummary,
 } from '@/lib/client-portal/client-portal-summary';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
+import { buildAnnualAdjustmentProjection, getYearFromDate } from '@/lib/budget/formal-budget';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva, textoDeEstadoDeFiestaParaPortal } from '@/lib/portal/cuenta-regresiva';
@@ -739,44 +741,80 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [actionSuccessData, setActionSuccessData] = useState<{ fileName: string; refundAmount?: number; pendingDue?: number; penaltyAmount?: number; newBalance?: number } | null>(null);
 
   const getCancellationImpact = () => {
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
-      : new Date().getFullYear();
+    const signingYear = getYearFromDate(
+      fiesta.contratoDatos?.fechaFirmaContrato ??
+      (presupuesto as { fechaFirmaContrato?: string } | null | undefined)?.fechaFirmaContrato
+    ) ?? new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, currentYear - signingYear);
     const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto?.ajusteAnualPorcentaje ?? 15;
-    const esAjusteSimple = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual === 'simple';
-    const factorAjuste = esAjusteSimple
-      ? 1 + (porcentajeAjuste / 100) * yearsDiff
-      : Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+    const tipoAjusteAnual = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual;
 
     const originalTotal = paymentSummary.total;
     const paid = paymentSummary.paid;
 
+    const proyeccion = buildAnnualAdjustmentProjection({
+      baseTotal: originalTotal > 0 ? originalTotal : 1000,
+      eventDate: `${currentYear}-01-01`,
+      currentYear: signingYear,
+      adjustmentPct: porcentajeAjuste,
+      tipoAjusteAnual,
+    });
+    const factorAjuste = proyeccion.adjustedTotal / (originalTotal > 0 ? originalTotal : 1000);
+
     if (cancellationMode === 'all') {
-      const adjustedTotal = originalTotal * factorAjuste;
+      const adjustedTotal = originalTotal > 0 ? proyeccion.adjustedTotal : 0;
       const penalty = Math.round(adjustedTotal * 0.3);
-      const newTotal = penalty;
+      const newTotal = totalTrasCancelar(
+        [{ idServicioCatalogo: 'multa_cancelacion_total', costoTotalItem: penalty }],
+        presupuesto?.descuentoTipo,
+        presupuesto?.descuentoValor,
+      );
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
       return { adjustedTotal, penalty, newTotal, refund, owed, factorAjuste, yearsDiff };
     } else {
-      // Partial cancellation
+      // Cancelación parcial: misma cuenta exacta que el servidor (totalTrasCancelar + ajuste anual)
+      const selectedSet = new Set(selectedServicesToCancel);
       let cancelledOriginalSum = 0;
-      const cancelledItems = lineItems.filter((item: any) => selectedServicesToCancel.includes(item.idServicioCatalogo));
-      for (const item of cancelledItems) {
-        cancelledOriginalSum += item.costoTotalItem || 0;
+      let penalty = 0;
+      const remainingItems: any[] = [];
+
+      for (const item of lineItems) {
+        if (selectedSet.has(item.idServicioCatalogo)) {
+          const originalCost = item.costoTotalItem || 0;
+          const adjustedCost = buildAnnualAdjustmentProjection({
+            baseTotal: originalCost,
+            eventDate: `${currentYear}-01-01`,
+            currentYear: signingYear,
+            adjustmentPct: porcentajeAjuste,
+            tipoAjusteAnual,
+          }).adjustedTotal;
+          cancelledOriginalSum += originalCost;
+          penalty += Math.round(adjustedCost * 0.3);
+        } else {
+          remainingItems.push(item);
+        }
       }
 
-      const adjustedCancelled = cancelledOriginalSum * factorAjuste;
-      const penalty = Math.round(adjustedCancelled * 0.3);
-      const newTotal = (originalTotal - cancelledOriginalSum) + penalty;
+      if (penalty > 0) {
+        remainingItems.push({
+          idServicioCatalogo: 'multa_cancelacion_preview',
+          costoTotalItem: penalty,
+        });
+      }
+
+      const newTotal = totalTrasCancelar(
+        remainingItems,
+        presupuesto?.descuentoTipo,
+        presupuesto?.descuentoValor,
+      );
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
       return {
-        adjustedTotal: adjustedCancelled,
+        adjustedTotal: cancelledOriginalSum * factorAjuste,
         penalty,
         newTotal,
         refund,

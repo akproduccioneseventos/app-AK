@@ -147,8 +147,8 @@ async function leerCompanyInfo(): Promise<CompanyInfo> {
  * AK y no las necesita ninguna pantalla publica.
  */
 export async function getCompanyInfoPublica(): Promise<CompanyInfo> {
-  const info = await leerCompanyInfo();
-  return { ...info, cuentasBancariasPortal: [] };
+  const { emailContador: _emailContador, ...infoSinEmailContador } = await leerCompanyInfo();
+  return { ...infoSinEmailContador, cuentasBancariasPortal: [] };
 }
 
 async function saveCompanyInfoInterno(

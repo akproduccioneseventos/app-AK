@@ -32,7 +32,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
@@ -145,7 +145,8 @@ function FotografiaContent() {
                             let editionDays = lowerName.includes('fiesta') ? 20 : 10;
                             let deliveryDate = undefined;
                             if (fiesta.configuracion.fechaEvento) {
-                                const d = new Date(fiesta.configuracion.fechaEvento);
+                                const base = parseUruguayDate(fiesta.configuracion.fechaEvento);
+                                const d = parseUruguayDate(hoyEnUruguay(base));
                                 d.setDate(d.getDate() + editionDays);
                                 deliveryDate = d.toISOString();
                             }
@@ -286,15 +287,15 @@ function FotografiaContent() {
                            </div>
                             <div className="space-y-1">
                                 <Label htmlFor="item-fecha">Fecha Estimada de Entrega</Label>
-                                <DatePickerDemo selectedDate={currentItem.fechaEntregaEstimada ? new Date(currentItem.fechaEntregaEstimada) : undefined} onDateChange={(date) => setCurrentItem(p => p ? {...p, fechaEntregaEstimada: date?.toISOString()} : null)}/>
+                                <DatePickerDemo selectedDate={currentItem.fechaEntregaEstimada ? parseUruguayDate(currentItem.fechaEntregaEstimada) : undefined} onDateChange={(date) => setCurrentItem(p => p ? {...p, fechaEntregaEstimada: date?.toISOString()} : null)}/>
                                 {currentItem.nombre?.toLowerCase().includes('fiesta') && eventDate && (
                                     <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Clock className="w-3 h-3"/> El plazo de 20 días comienza el día después de la fiesta ({new Date(new Date(eventDate).getTime() + 86400000).toLocaleDateString('es-UY')})
+                                        <Clock className="w-3 h-3"/> El plazo de 20 días comienza el día después de la fiesta ({(() => { const d = parseUruguayDate(hoyEnUruguay(parseUruguayDate(eventDate))); d.setDate(d.getDate() + 1); return d.toLocaleDateString('es-UY', { timeZone: 'America/Montevideo' }); })()})
                                     </p>
                                 )}
                                 {(currentItem.nombre?.toLowerCase().includes('exterior') || currentItem.nombre?.toLowerCase().includes('civil') || currentItem.nombre?.toLowerCase().includes('iglesia')) && eventDate && (
                                     <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Clock className="w-3 h-3"/> El plazo de 10 días comienza el día después de la fiesta ({new Date(new Date(eventDate).getTime() + 86400000).toLocaleDateString('es-UY')})
+                                        <Clock className="w-3 h-3"/> El plazo de 10 días comienza el día después de la fiesta ({(() => { const d = parseUruguayDate(hoyEnUruguay(parseUruguayDate(eventDate))); d.setDate(d.getDate() + 1); return d.toLocaleDateString('es-UY', { timeZone: 'America/Montevideo' }); })()})
                                     </p>
                                 )}
                            </div>
@@ -367,7 +368,7 @@ function FotografiaContent() {
                                       <div className="space-y-1 text-sm text-muted-foreground">
                                           <div className="flex items-center gap-2">
                                               <Clock className="w-4 h-4 text-primary/60"/>
-                                              <span>Entrega estimada: <strong>{servicio.fechaEntregaEstimada ? new Date(servicio.fechaEntregaEstimada).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Pendiente'}</strong></span>
+                                              <span>Entrega estimada: <strong>{servicio.fechaEntregaEstimada ? parseUruguayDate(servicio.fechaEntregaEstimada).toLocaleDateString('es-ES', { timeZone: 'America/Montevideo', day: 'numeric', month: 'long', year: 'numeric' }) : 'Pendiente'}</strong></span>
                                           </div>
                                           {servicio.linkEntrega && (
                                               <div className="flex items-center gap-2 text-primary hover:underline">

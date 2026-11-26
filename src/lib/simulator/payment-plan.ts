@@ -16,6 +16,8 @@ export type SimulatorPaymentPlan = {
   balance: number;
   installments: number;
   installmentAmount: number;
+  lastInstallmentAmount: number;
+  installmentAmounts: number[];
   paymentDeadline: Date | null;
 };
 
@@ -40,13 +42,21 @@ export function calculateSimulatorPaymentPlan(input: SimulatorPaymentPlanInput):
     ? Math.max(1, Math.min(24, Math.ceil((paymentDeadline.getTime() - now.getTime()) / AVERAGE_MONTH_MS)))
     : 6;
   const installments = balance > 0 ? availableMonths : 0;
+  const installmentAmount = installments > 0 ? Math.floor(balance / installments) : 0;
+  const sumaAnteriores = installmentAmount * Math.max(0, installments - 1);
+  const lastInstallmentAmount = installments > 0 ? balance - sumaAnteriores : 0;
+  const installmentAmounts = installments > 0
+    ? [...Array(Math.max(0, installments - 1)).fill(installmentAmount), lastInstallmentAmount]
+    : [];
 
   return {
     totalForPlan,
     deposit,
     balance,
     installments,
-    installmentAmount: installments > 0 ? Math.ceil(balance / installments) : 0,
+    installmentAmount,
+    lastInstallmentAmount,
+    installmentAmounts,
     paymentDeadline,
   };
 }

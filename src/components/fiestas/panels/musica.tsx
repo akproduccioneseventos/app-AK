@@ -158,7 +158,15 @@ function MusicaContent() {
         setDjBrief(res.data);
         setMusicaData(prev => ({ ...prev, briefDj: briefObj }));
         if (fiestaId) {
-          await updateMusicaFiestaActual(fiestaId, { ...musicaData, briefDj: briefObj });
+          const saveRes = await updateMusicaFiestaActual(fiestaId, { ...musicaData, briefDj: briefObj });
+          if (!saveRes?.success) {
+            toast({
+              title: 'Briefing generado, pero no se pudo guardar',
+              description: saveRes?.error || 'El texto quedó en pantalla. Probá guardar manualmente.',
+              variant: 'destructive',
+            });
+            return;
+          }
         }
         toast({ title: 'Briefing Generado', description: 'El reporte del DJ Assistant está guardado en la fiesta.' });
       } else {

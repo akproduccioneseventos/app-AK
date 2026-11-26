@@ -94,7 +94,7 @@ const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }
   pendiente: { label: 'Pendiente', color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
   enviado:   { label: 'Enviado',   color: 'text-blue-700 dark:text-blue-400',   bg: 'bg-blue-500/10 border-blue-500/20'   },
   revisado:  { label: 'En revisión', color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
-  listo:     { label: 'Listo ✓',   color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  listo:     { label: 'Lo tengo listo', color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -317,11 +317,16 @@ function PortalClientePageInner() {
       // la clave nueva ya quedo guardada, que es lo que vino a hacer.
       const correo = correoRecuperacion.trim();
       if (correo) {
-        const guardado = await guardarCorreoDeRecuperacion(fiestaId, correo).catch(() => null);
-        if (guardado && !guardado.success) {
+        let guardado: { success: boolean; error?: string } | null = null;
+        try {
+          guardado = await guardarCorreoDeRecuperacion(fiestaId, correo);
+        } catch {
+          guardado = null;
+        }
+        if (!guardado || !guardado.success) {
           toast({
             title: 'Guardamos tu clave, pero no el correo',
-            description: guardado.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
+            description: guardado?.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
           });
         }
       }
@@ -365,17 +370,31 @@ function PortalClientePageInner() {
   };
 
   const handleToggleLlevar = async (itemId: string) => {
-    const updated = debeLlevarItems.map(item =>
+    const prevItems = debeLlevarItems;
+    const target = prevItems.find(item => item.id === itemId);
+    if (!target) return;
+    const nextCompletado = !target.completado;
+    const nextEstado: ClienteDebeLlevarItem['estado'] = nextCompletado ? 'listo' : 'pendiente';
+    const updated = prevItems.map(item =>
       item.id === itemId
-        ? { ...item, completado: !item.completado, estado: (!item.completado ? 'enviado' : 'pendiente') as ClienteDebeLlevarItem['estado'] }
+        ? { ...item, completado: nextCompletado, estado: nextEstado }
         : item
     );
     setDebeLlevarItems(updated);
     setIsSavingLlevar(true);
     try {
-      const result = await updateClientPackingList(fiestaId, updated);
+      const result = await updateClientPackingList(fiestaId, {
+        op: 'toggle',
+        itemId,
+        completado: nextCompletado,
+        estado: nextEstado,
+      });
       if (!result.success) throw new Error(result.error);
+      if (result.items) {
+        setDebeLlevarItems(result.items);
+      }
     } catch {
+      setDebeLlevarItems(prevItems);
       toast({ title: 'Error al guardar', description: 'No se pudo guardar el estado. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
     } finally {
       setIsSavingLlevar(false);
@@ -1153,7 +1172,7 @@ function PortalClientePageInner() {
               <div className="space-y-2.5">
                 <p className="text-xs text-muted-foreground pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
                 {debeLlevarItems.map(item => {
-                  const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'enviado' : 'pendiente')];
+                  const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'listo' : 'pendiente')] ?? ESTADO_CONFIG.pendiente;
                   return (
                     <button
                       key={item.id}

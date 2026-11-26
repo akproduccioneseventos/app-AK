@@ -929,7 +929,7 @@ export default function EspejoMagicoPage() {
         colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d4a574',
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
-        textoDeMarca: 'AK Producciones',
+        textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
       });
       const resultado = imprimirRecuerdo(tiraPersonalizada);
       if (!resultado.ok) {

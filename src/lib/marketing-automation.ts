@@ -139,10 +139,14 @@ async function correrMarketingAutomation(options?: {
   // el blog, porque escribirle al prospecto que no seno tiene su propio reloj. Se
   // apaga solo si el dueno no lo prendio en Ajustes, que es como viene de fabrica.
   let recontacto: ResultadoDeRecontacto | undefined;
+  let recontactoFalloConElegibles = false;
   if (recontactoDue) {
     try {
       recontacto = await correrRecontactoAutomatico(now);
-      if (recontacto.corrio) {
+      recontactoFalloConElegibles = Boolean(
+        !recontacto.corrio && recontacto.elegidos > 0 && recontacto.enviados === 0,
+      );
+      if (recontacto.corrio && !recontactoFalloConElegibles) {
         state.lastRecontactoAt = now.toISOString();
         await writeData(
           AUTOMATION_STATE_FILE,
@@ -168,6 +172,21 @@ async function correrMarketingAutomation(options?: {
   const nextInstagramAt = state.lastInstagramSyncAt ? addMs(state.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS) : now.toISOString();
 
   if (!seoDue && !instagramDue) {
+    if (recontactoFalloConElegibles) {
+      const motivo = recontacto?.motivo || 'El recontacto automático no pudo enviar ningún mensaje.';
+      return {
+        success: false,
+        skipped: false,
+        source,
+        ranSeo: false,
+        ranInstagram: false,
+        nextSeoAt,
+        nextInstagramAt,
+        recontacto,
+        message: motivo,
+        error: motivo,
+      };
+    }
     return {
       success: true,
       skipped: true,
@@ -266,9 +285,11 @@ async function correrMarketingAutomation(options?: {
   const instagramSucceeded = instagramDue && instagramResult?.success === true;
   const seoSucceeded = seoDue && Boolean(blogResult);
   const completedJobs = Number(instagramSucceeded) + Number(seoSucceeded);
-  const errors = [instagramFailed ? instagramResult?.error : undefined, seoError].filter(
-    (message): message is string => Boolean(message)
-  );
+  const errors = [
+    instagramFailed ? instagramResult?.error : undefined,
+    seoError,
+    recontactoFalloConElegibles ? recontacto?.motivo : undefined,
+  ].filter((message): message is string => Boolean(message));
   const success = completedJobs > 0;
 
   if (success) {

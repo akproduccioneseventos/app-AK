@@ -48,7 +48,11 @@ jest.mock('@/lib/auth/event-access', () => ({
   requireEventPermission: jest.fn(async () => {}),
 }));
 
-import { updateGuestDetails, updateGuestRsvp } from '@/app/actions/fiesta/invitados.actions';
+jest.mock('@/lib/commercial/public-rate-limit', () => ({
+  enforcePublicRateLimit: jest.fn(async () => {}),
+}));
+
+import { updateInvitado, submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import { armarHojaDeCocina } from '@/lib/catering/hoja-de-cocina';
 
 describe('Bloque 5 — Volver a "Ninguna" saca la celiaquía', () => {
@@ -64,15 +68,19 @@ describe('Bloque 5 — Volver a "Ninguna" saca la celiaquía', () => {
           dietaryRestriction: 'Celiaco',
           isCeliac: true,
           partySize: 1,
+          guestAccessToken: 'tok_cel_01',
         } as Invitado,
       ],
     } as any;
   });
 
-  it('cambiar de Celíaco a Ninguna en updateGuestDetails deja isCeliac en false', async () => {
-    const res = await updateGuestDetails('fiesta_celiaco_01', 'inv_01', {
+  it('cambiar de Celíaco a Ninguna en updateInvitado deja isCeliac en false', async () => {
+    const res = await updateInvitado('fiesta_celiaco_01', {
+      id: 'inv_01',
+      nombre: 'Gastón Rodríguez',
+      rsvp: 'Confirmado',
       dietaryRestriction: 'Ninguna',
-    });
+    } as Invitado);
 
     expect(res.success).toBe(true);
     expect(res.invitado?.dietaryRestriction).toBe('Ninguna');
@@ -89,10 +97,14 @@ describe('Bloque 5 — Volver a "Ninguna" saca la celiaquía', () => {
     expect(celiaquia).toBeUndefined();
   });
 
-  it('cambiar de Celíaco a Ninguna en updateGuestRsvp deja isCeliac en false', async () => {
-    const res = await updateGuestRsvp('fiesta_celiaco_01', 'inv_01', {
-      rsvp: 'Confirmado',
+  it('cambiar de Celíaco a Ninguna en submitPublicRsvp con su credencial deja isCeliac en false', async () => {
+    const res = await submitPublicRsvp('fiesta_celiaco_01', {
+      guestId: 'inv_01',
+      guestAccessToken: 'tok_cel_01',
+      nombre: 'Gastón Rodríguez',
+      asistencia: 'Confirmado',
       dietaryRestriction: 'Ninguna',
+      cancionesDJ: [],
     });
 
     expect(res.success).toBe(true);
@@ -105,9 +117,12 @@ describe('Bloque 5 — Volver a "Ninguna" saca la celiaquía', () => {
 
   it('una actualización sin campo de restricción conserva los valores anteriores intactos', async () => {
     // Si viene sin dietaryRestriction, mantiene isCeliac: true y dietaryRestriction: 'Celiaco'
-    const res = await updateGuestDetails('fiesta_celiaco_01', 'inv_01', {
+    const res = await updateInvitado('fiesta_celiaco_01', {
+      id: 'inv_01',
+      nombre: 'Gastón Rodríguez',
+      rsvp: 'Confirmado',
       companionNames: ['Acompañante 1'],
-    });
+    } as Invitado);
 
     expect(res.success).toBe(true);
     expect(res.invitado?.dietaryRestriction).toBe('Celiaco');

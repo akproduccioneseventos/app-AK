@@ -55,14 +55,14 @@ export default function PortalFaqPage() {
     if (!qText) return;
     setIsSubmitting(true);
     try {
-      const { addChatMessage } = await import('@/app/actions/social-gallery');
+      const { enviarConsultaPrivadaPortal } = await import('@/app/actions/fiesta/portal.actions');
       const fiestaId = params.id;
       // Pregunta 58: reintento de una respuesta perdida = la misma consulta, no dos.
       const alcance = `consulta-portal:${fiestaId}`;
       const idIntento = await obtenerIntento(alcance, { qText });
-      const enviada = await addChatMessage(fiestaId, `❓ Consulta de Cliente: ${qText}`, 'Cliente VIP Portal', {}, { idIntento });
+      const enviada = await enviarConsultaPrivadaPortal(fiestaId, qText, { idIntento });
       if (!enviada.success) {
-        throw new Error((enviada as any).error || 'No se pudo enviar la consulta.');
+        throw new Error(enviada.error || 'No se pudo enviar la consulta.');
       }
       terminarIntento(alcance);
       setUserQuestions(prev => [...prev, { q: qText, status: 'Enviada al equipo' }]);

@@ -5,6 +5,7 @@ import { TabHostShell as __AkTabHostShell } from '@/components/ui/tab-host-shell
 const __AkPanel1 = __akDynamic(() => import('@/components/panels/personal--recibos'));
 
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
+import { resolveBudgetGuestTotal } from '@/lib/budget/financial-guardrails';
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn, parseUruguayDate } from '@/lib/utils';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 import { ObservacionesPosfiesta } from '@/components/fiestas/observaciones-posfiesta';
 
@@ -148,7 +149,7 @@ function AsignarPersonalEventoContent() {
 
       if (presupuestoData) {
         const requirements: RequiredRole[] = [];
-        const totalGuests = (presupuestoData.invitadosAdultos || 0) + (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
+        const totalGuests = resolveBudgetGuestTotal(presupuestoData) || fiestaActual.configuracion?.invitadosEstimados || 0;
 
         const findAndAdd = (search: string, qty: number, source: string, salary?: number) => {
             const rol = buscarRol(rolesData, search);
@@ -190,7 +191,7 @@ function AsignarPersonalEventoContent() {
             findAndAdd('Ayudante de Decoración', 1, item.nombreServicio);
           }
           if (name.includes('mozo') && !name.includes('cocina')) {
-            findAndAdd('Mozo', item.cantidad, item.nombreServicio);
+            findAndAdd('Mozo', Math.max(1, Math.ceil(totalGuests / 25)), item.nombreServicio);
           }
           if (name.includes('asado') || name.includes('asador')) {
             findAndAdd('Asador', 1, item.nombreServicio);
@@ -211,7 +212,7 @@ function AsignarPersonalEventoContent() {
 
           if (name.includes('cocina') || name.includes('chef')) {
             // La primera persona de la cocina es el chef; el resto, ayudantes (regla del dueño, 21/10/2026).
-            const cocina = personalDeCocina((item.cantidad || 1) * 25);
+            const cocina = personalDeCocina(totalGuests);
             findAndAdd(rolesData.some(r => r.nombre.toLowerCase().includes('chef')) ? 'Chef' : 'Cocinero', cocina.chef, item.nombreServicio);
             if (cocina.ayudantes > 0) findAndAdd('Ayudante de Cocina', cocina.ayudantes, item.nombreServicio);
           }
@@ -407,11 +408,11 @@ function AsignarPersonalEventoContent() {
 
   const formatEventDate = (fechaEvento: string | undefined, long = false) => {
     if (!fechaEvento) return long ? 'Fecha a confirmar' : 'Sin fecha';
-    return new Date(fechaEvento + 'T00:00:00').toLocaleDateString(
+    return parseUruguayDate(fechaEvento).toLocaleDateString(
       'es-UY',
       long
-        ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-        : { day: '2-digit', month: '2-digit', year: 'numeric' }
+        ? { timeZone: 'America/Montevideo', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        : { timeZone: 'America/Montevideo', day: '2-digit', month: '2-digit', year: 'numeric' }
     );
   };
 
@@ -868,7 +869,12 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                 {registroDialog.fiestas.map(fiesta => {
                   const cfg = fiesta.configuracion;
                   const fecha = cfg.fechaEvento
-                    ? new Date(cfg.fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    ? parseUruguayDate(cfg.fechaEvento).toLocaleDateString('es-UY', {
+                        timeZone: 'America/Montevideo',
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                      })
                     : 'Sin fecha';
                   const asignaciones = (fiesta.personalAsignado || []).filter(
                     p => p.empleadoId === registroDialog.empleado?.id

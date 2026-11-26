@@ -147,6 +147,9 @@ export async function updateInvitado(fiestaId: string, invitadoActualizado: Invi
       fusionado = {
         ...inv,
         ...invitadoActualizado,
+        isCeliac: invitadoActualizado.dietaryRestriction !== undefined
+          ? invitadoActualizado.dietaryRestriction === 'Celiaco'
+          : (invitadoActualizado.isCeliac ?? inv.isCeliac),
         guestAccessToken: inv.guestAccessToken || invitadoActualizado.guestAccessToken,
       };
       return fusionado;
@@ -183,63 +186,6 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
 }
 
 // ─── RSVP ────────────────────────────────────────────────────────────────────
-
-/**
- * Full RSVP update from the individual guest page.
- * Covers: attendance status, party size, companion names, dietary restrictions,
- * specific allergies, DJ song suggestions, and optional message to hosts.
- */
-export async function updateGuestRsvp(
-  fiestaId: string,
-  invitadoId: string,
-  submission: {
-    rsvp: RsvpStatus;
-    partySize?: number;
-    companionNames?: string[];
-    dietaryRestriction?: DietaryRestriction;
-    alergiasEspecificas?: string;
-    cancionesDJ?: string[];
-    mensaje?: string;
-    requiereAccesibilidad?: boolean;
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let updatedInvitado: Invitado | undefined;
-  let encontrado = false;
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id !== invitadoId) return inv;
-      encontrado = true;
-      const nuevaRestriccion = submission.dietaryRestriction !== undefined
-        ? submission.dietaryRestriction
-        : inv.dietaryRestriction;
-      const nuevoIsCeliac = submission.dietaryRestriction !== undefined
-        ? submission.dietaryRestriction === 'Celiaco'
-        : inv.isCeliac;
-      updatedInvitado = {
-        ...inv,
-        rsvp: submission.rsvp,
-        partySize: submission.partySize ?? inv.partySize,
-        companionNames: submission.companionNames ?? inv.companionNames,
-        dietaryRestriction: nuevaRestriccion,
-        alergiasEspecificas:
-          submission.alergiasEspecificas !== undefined
-            ? submission.alergiasEspecificas
-            : inv.alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ ?? inv.cancionesDJ,
-        isCeliac: nuevoIsCeliac,
-        ...(submission.mensaje !== undefined ? { mensaje: submission.mensaje } : {}),
-        ...(submission.requiereAccesibilidad !== undefined ? { requiereAccesibilidad: submission.requiereAccesibilidad } : {}),
-      };
-      return updatedInvitado;
-    });
-    if (!encontrado) return data;
-    return { ...data, invitados };
-  });
-  if (result.success && !encontrado) {
-    return { success: false, error: 'Este invitado ya no existe (lo borró otra persona).' };
-  }
-  return soloLoDelInvitado(result, updatedInvitado);
-}
 
 /** Legacy full-form RSVP used by the invitation templates. */
 export async function handleRsvpSubmission(
@@ -336,77 +282,6 @@ export async function handleRsvpSubmission(
     return data;
   });
 
-  return soloLoDelInvitado(result, updatedInvitado);
-}
-
-// ─── Personalized experience ─────────────────────────────────────────────────
-
-/**
- * Update the guest's personalized experience fields:
- * message to hosts and/or uploaded photos.
- */
-export async function updateGuestExperience(
-  fiestaId: string,
-  invitadoId: string,
-  data: { mensaje?: string; fotosSubidas?: string[] }
-): Promise<{ success: boolean; error?: string }> {
-  let encontrado = false;
-  const result = await updateFiestaData(fiestaId, fiesta => {
-    const invitados = (fiesta.invitados ?? []).map(inv => {
-      if (inv.id !== invitadoId) return inv;
-      encontrado = true;
-      return { ...inv, ...data };
-    });
-    if (!encontrado) {
-      throw new Error('Ese invitado ya no está: lo borró otra persona.');
-    }
-    return { ...fiesta, invitados };
-  });
-  return { success: result.success, error: result.error };
-}
-
-// ─── Restrictions & companions ────────────────────────────────────────────────
-
-/**
- * Update only the guest's dietary restrictions and companion information
- * without touching RSVP status.
- */
-export async function updateGuestDetails(
-  fiestaId: string,
-  invitadoId: string,
-  details: {
-    dietaryRestriction?: DietaryRestriction;
-    alergiasEspecificas?: string;
-    companionNames?: string[];
-    partySize?: number;
-    cancionesDJ?: string[];
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let updatedInvitado: Invitado | undefined;
-  const result = await updateFiestaData(fiestaId, data => {
-    let encontrado = false;
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id !== invitadoId) return inv;
-      encontrado = true;
-      const nuevaRestriccion = details.dietaryRestriction !== undefined
-        ? details.dietaryRestriction
-        : inv.dietaryRestriction;
-      const nuevoIsCeliac = details.dietaryRestriction !== undefined
-        ? details.dietaryRestriction === 'Celiaco'
-        : inv.isCeliac;
-      updatedInvitado = {
-        ...inv,
-        ...details,
-        dietaryRestriction: nuevaRestriccion,
-        isCeliac: nuevoIsCeliac,
-      };
-      return updatedInvitado;
-    });
-    if (!encontrado) {
-      throw new Error('Ese invitado ya no está: lo borró otra persona.');
-    }
-    return { ...data, invitados };
-  });
   return soloLoDelInvitado(result, updatedInvitado);
 }
 

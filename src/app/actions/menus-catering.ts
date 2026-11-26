@@ -6,9 +6,10 @@ import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, updateDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
 import { getInsumos } from './insumos';
-import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requirePermisoAlguno, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
+import { huellaDe, marcaDe, marcarItemLectura, sacarMarcas } from '@/lib/marca-de-lectura';
 
 import { leerInsumosCrudos } from '@/lib/insumos/leer-insumos';
 import { calcularCostoIngredienteEnReceta } from '@/lib/catering/unidades';
@@ -123,11 +124,58 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
     };
 }
 
+async function puedeVerCostosDeMenus(): Promise<boolean> {
+  if (typeof requirePermiso === 'function') {
+    for (const permiso of [PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD]) {
+      if ((await requirePermiso(permiso)).ok) return true;
+    }
+    return false;
+  }
+  try {
+    await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sinCostosMenu(menu: FullMenu): FullMenu {
+  return {
+    ...menu,
+    items: (menu.items || []).map((item) => {
+      const {
+        totalDishCost: _tdc,
+        profitMargin: _pm,
+        suggestedSellingPrice: _ssp,
+        ...itemSinCostos
+      } = item;
+      const ingredients = (item.ingredients || []).map((ing) => {
+        const {
+          costoUnitario: _cu,
+          costoTotalReceta: _ctr,
+          ...ingSinCostos
+        } = ing;
+        return ingSinCostos as Ingredient;
+      });
+      return {
+        ...itemSinCostos,
+        ingredients,
+      } as MenuItem;
+    }),
+  };
+}
+
 export async function getMenus(): Promise<FullMenu[]> {
-  // Trae la receta de cada plato con lo que sale cada ingrediente y el margen de
-  // ganancia. Eso es del equipo.
-  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
-  return armarMenus();
+  // Trae la receta de cada plato. Quien no tiene INSUMOS ni CONTABILIDAD (p. ej. el
+  // operador) recibe nombres y cantidades sin costos ni márgenes (Orden 371 B3.3).
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION);
+  const menus = await armarMenus();
+  if (!(await puedeVerCostosDeMenus())) {
+    return menus.map(sinCostosMenu);
+  }
+  return menus.map((m) =>
+    marcarItemLectura(m as unknown as Record<string, unknown>, m.updatedAt) as unknown as FullMenu
+  );
 }
 
 import { sincronizarDescripcionMenu } from '@/lib/catering/sincronizar-menu';
@@ -177,10 +225,14 @@ export async function getMenusPublicos(): Promise<FullMenu[]> {
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION);
   const allMenus = await armarMenus();
   const menu = allMenus.find(m => m.id === id);
-  return menu || null;
+  if (!menu) return null;
+  if (!(await puedeVerCostosDeMenus())) {
+    return sinCostosMenu(menu);
+  }
+  return marcarItemLectura(menu as unknown as Record<string, unknown>, menu.updatedAt) as unknown as FullMenu;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
@@ -189,7 +241,7 @@ async function readMenusFile(): Promise<FullMenu[]> {
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
   const cleanData = data.map(menu => sincronizarDescripcionMenu({
-      ...menu,
+      ...sacarMarcas(menu),
       items: menu.items.filter(item => !item.id.endsWith('_virtual_buffet'))
   }));
   await writeData(MENUS_CATERING_COLLECTION_JSON, cleanData);
@@ -205,20 +257,24 @@ async function saveMenuInterno(
   const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
   let menuId: string;
 
+  const esActualizacionParcial =
+    'id' in menuDataInput && Boolean(menuDataInput.id) && menuDataInput.items === undefined;
   const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
 
   // Un menu sin platos se podia guardar y despues aparecia para elegir en un
   // presupuesto: el cliente contrataba un menu vacio y la cocina no tenia que
   // preparar.
-  if (cleanItems.length === 0) {
+  if (!esActualizacionParcial && cleanItems.length === 0) {
     return { success: false, error: 'El menú tiene que tener al menos un plato.' };
   }
 
   // Cantidades y costos en menos: el costo negativo entra derecho al presupuesto
   // y muestra una ganancia que no existe.
-  const numerosMal = numerosDeMenuInvalidos({ items: cleanItems });
-  if (numerosMal) {
-    return { success: false, error: numerosMal };
+  if (!esActualizacionParcial) {
+    const numerosMal = numerosDeMenuInvalidos({ items: cleanItems });
+    if (numerosMal) {
+      return { success: false, error: numerosMal };
+    }
   }
 
   // Pregunta 58: un alta con identidad de intento que YA esta guardada (la respuesta se perdio y la
@@ -227,42 +283,76 @@ async function saveMenuInterno(
   const idDeLaPantalla = idDelIntento('menu', opciones?.idIntento);
   const previo = !('id' in menuDataInput && menuDataInput.id) && idDeLaPantalla ? menus.find((m) => m.id === idDeLaPantalla) : undefined;
 
-  const esNuevo = !('id' in menuDataInput && menuDataInput.id) && !previo;
-  const estadoPub = esNuevo
-    ? (menuDataInput.estadoPublicacion ?? 'borrador')
-    : (menuDataInput.estadoPublicacion ?? previo?.estadoPublicacion);
-
-  const sanitizedMenuInput = { ...menuDataInput, items: cleanItems, estadoPublicacion: estadoPub } as FullMenu;
-
   const allDishes = menus.flatMap(m => m.items);
-  let menuToSave = recalculateMenu(sanitizedMenuInput, catalog, allDishes);
+  const targetId = ('id' in menuDataInput && menuDataInput.id)
+    ? menuDataInput.id
+    : previo?.id;
 
-  if (previo) menuToSave = { ...menuToSave, id: previo.id, createdAt: previo.createdAt } as FullMenu;
+  if (targetId) {
+    menuId = targetId;
+    const marca = marcaDe(menuDataInput);
+    const entradaLimpia = sacarMarcas(menuDataInput) as Record<string, unknown>;
+    const clavesEditadas = new Set<string>();
+    if (esActualizacionParcial) {
+      for (const [k, v] of Object.entries(entradaLimpia)) {
+        if (k === 'id' || k === 'createdAt' || k === 'updatedAt' || k === '_syncedAt') continue;
+        if (v !== undefined) clavesEditadas.add(k);
+      }
+    } else if (marca?.campos) {
+      for (const [k, v] of Object.entries(entradaLimpia)) {
+        if (k === 'id' || k === 'createdAt' || k === 'updatedAt' || k === '_syncedAt') continue;
+        if (v === undefined) continue;
+        if (!(k in marca.campos) || huellaDe(v) !== marca.campos[k]) {
+          clavesEditadas.add(k);
+        }
+      }
+    } else {
+      for (const [k, v] of Object.entries(entradaLimpia)) {
+        if (k === 'id' || k === 'createdAt' || k === 'updatedAt' || k === '_syncedAt') continue;
+        if (v !== undefined) clavesEditadas.add(k);
+      }
+    }
 
-  if ('id' in menuToSave && menuToSave.id) {
-    menuId = menuToSave.id;
-    const index = menus.findIndex(m => m.id === menuId);
-    if (index === -1) return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
-
-    const estadoFinal = menuDataInput.estadoPublicacion ?? menus[index].estadoPublicacion;
-
-    menus[index] = sinBuffetVirtual(recalculateMenu({
-      ...menuToSave,
-      estadoPublicacion: estadoFinal,
-      updatedAt: new Date().toISOString()
-    }, catalog, allDishes)) as FullMenu;
+    const aplicarCambiosSobreActual = (actual: FullMenu): FullMenu => {
+      const base = sacarMarcas(actual) as unknown as Record<string, unknown>;
+      const siguiente: Record<string, unknown> = { ...base };
+      for (const clave of clavesEditadas) {
+        if (clave === 'items') {
+          siguiente.items = cleanItems;
+        } else if (entradaLimpia[clave] !== undefined) {
+          siguiente[clave] = entradaLimpia[clave];
+        }
+      }
+      siguiente.updatedAt = new Date().toISOString();
+      const menuResultante = siguiente as unknown as FullMenu;
+      const actualizado = clavesEditadas.has('items')
+        ? recalculateMenu(menuResultante, catalog, allDishes)
+        : menuResultante;
+      return sincronizarDescripcionMenu(sinBuffetVirtual(actualizado));
+    };
 
     await invalidateMenusCacheInterno();
     if (!SIN_BASE()) {
-      const guardado = await updateDataItem(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menuId, sinBuffetVirtual(menus[index]));
+      const guardado = await mutateDataItem<FullMenu>(
+        MENUS_CATERING_COLLECTION_JSON,
+        MENUS_CATERING_COLLECTION,
+        menuId,
+        aplicarCambiosSobreActual,
+      );
       await invalidateMenusCacheInterno();
       if (!guardado) return { success: false, error: 'Ese menú ya no existe: lo borró otra persona.' };
-      return { success: true, id: menuId, menu: menus[index] };
+      return { success: true, id: menuId, menu: guardado };
     }
+
+    const index = menus.findIndex(m => m.id === menuId);
+    if (index === -1) return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
+    menus[index] = aplicarCambiosSobreActual(menus[index]);
   } else {
     menuId = idDeLaPantalla ?? `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const entradaLimpia = sacarMarcas(menuDataInput);
     const newMenu: FullMenu = sinBuffetVirtual(recalculateMenu({
-      ...(menuToSave as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
+      ...(entradaLimpia as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
+      items: cleanItems,
       id: menuId,
       estadoPublicacion: menuDataInput.estadoPublicacion ?? 'borrador',
       createdAt: new Date().toISOString(),

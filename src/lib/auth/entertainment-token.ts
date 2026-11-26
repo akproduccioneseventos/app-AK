@@ -139,6 +139,13 @@ export async function hasEntertainmentGuestAccess(
   moduleId: string,
   token?: string | null
 ) {
-  if (await hasAppSession()) return true;
+  if (await hasAppSession()) {
+    try {
+      await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+      return true;
+    } catch {
+      // Un usuario con sesión que no pertenece al equipo de ESTA fiesta sólo entra con token válido de la estación.
+    }
+  }
   return verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'guest');
 }

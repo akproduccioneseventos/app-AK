@@ -4,6 +4,7 @@
  */
 
 import * as logger from '@/lib/logger';
+import type { FuncionConCosto } from '@/lib/ai/consumo';
 
 export type SafeSearchLikelihood =
   | 'UNKNOWN'
@@ -52,8 +53,25 @@ export async function checkImageSafety(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
+  let reserva: { liberar: () => Promise<void> } | null = null;
 
   try {
+    const consumoMod = await import('@/lib/ai/consumo-servidor');
+    if (typeof consumoMod.hayPresupuestoParaIA === 'function') {
+      const tienePresupuesto = await consumoMod.hayPresupuestoParaIA().catch(() => false);
+      if (!tienePresupuesto) {
+        logger.warn('[ContentSafetyAI] Tope de IA alcanzado. Foto queda pendiente de revisión manual.');
+        return { safe: true, reason: 'error' };
+      }
+    }
+    reserva = typeof consumoMod.reservarConsumoIA === 'function'
+      ? await consumoMod.reservarConsumoIA('revision-fotos').catch(() => null)
+      : null;
+    if (!reserva) {
+      logger.warn('[ContentSafetyAI] No hay cupo disponible para revisar la foto. Queda pendiente.');
+      return { safe: true, reason: 'error' };
+    }
+
     let base64Image = '';
     if (Buffer.isBuffer(imageBufferOrBase64)) {
       base64Image = imageBufferOrBase64.toString('base64');
@@ -88,6 +106,9 @@ export async function checkImageSafety(
     );
 
     if (!response.ok) {
+      if ([400, 401, 403, 404, 413, 429].includes(response.status)) {
+        await reserva.liberar().catch(() => undefined);
+      }
       const errText = await response.text();
       logger.error('[ContentSafetyAI] API returned error response:', response.status, errText);
       return { safe: true, reason: 'error' };

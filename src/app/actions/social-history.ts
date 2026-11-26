@@ -288,12 +288,28 @@ export async function sincronizarHistorialRedesAction(options?: {
     const totalActualizadas = (historialMeta.updated || 0) + (historialYouTube.updated || 0);
     const totalLeidas = (historialMeta.fetched || 0) + (historialYouTube.fetched || 0);
 
+    const redesConError = detallesPorRed.filter((d) => Boolean(d.error));
+    const detalleErrores = redesConError.map((d) => `${d.red}: ${d.error}`).join(' | ');
+    const todasFallaronSinDatos =
+      totalLeidas === 0 && totalImportadas === 0 && totalActualizadas === 0 && redesConError.length > 0;
+
+    if (todasFallaronSinDatos) {
+      return {
+        success: false,
+        totalImportadas,
+        totalActualizadas,
+        totalLeidas,
+        mensaje: `No se pudo sincronizar ninguna red. ${detalleErrores}`,
+        detallesPorRed,
+        error: detalleErrores,
+      };
+    }
+
     const algunaFalla = detallesPorRed.some((d) => d.error && d.traidas === 0);
 
     let mensaje = `Sincronización finalizada: se leyeron ${totalLeidas} publicaciones (${totalImportadas} nuevas guardadas, ${totalActualizadas} actualizadas).`;
     if (algunaFalla) {
-      const redesConError = detallesPorRed.filter((d) => d.error).map((d) => d.red).join(', ');
-      mensaje += ` Hubo advertencias en: ${redesConError}.`;
+      mensaje += ` Hubo advertencias en: ${detalleErrores}.`;
     }
 
     return {
