@@ -972,6 +972,10 @@
     "243": {
       "fecha": "2026-11-26",
       "resultado": "comments-backfill.ts: isAutoHidden antes de hideCommentOnMeta y sin mirar el resultado (automático y manual). El resto de las marcas que dependen de afuera lo barre Gemini en la orden 368."
+    },
+    "244": {
+      "fecha": "2026-11-26",
+      "resultado": "leer-facturas.ts copia con .map y pierde la marca; el escaneo encontró dos lugares con la misma forma. El resto lo barre Gemini en la orden 369."
     }
   },
   "hallazgos": {
@@ -1474,6 +1478,10 @@
     "orden-368": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 13 (seis especialistas): 'Oculto' sin que Meta oculte (243), cabina IA 'en el muro' con aprobación pendiente, marca del espejo que no se apaga al imprimir, editar empleado borra el mail de Workspace, documentos de la fiesta que se pisan (210), tres acciones de invitados sin control, 'barra' y 'ron' por pedazos en bebidas (241), repostería en cero que suma, docena contra unidad, stock que no convierte, cuota final un día antes (70), botón de 32 px en mesas."
+    },
+    "orden-369": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 14 (seis especialistas): la vista previa de la cancelación cobra distinto que el servidor, carteles de 'listo' sin mirar el guardado (asistente, música, muro), freno del simulador por teléfono, calendario del invitado a medianoche y días de reseñas en Greenwich (70), menús que deshacen el ajuste de márgenes y proveedores con el mismo nombre (210), recordatorios de cuota a ciegas con la base caída (244)."
     }
   }
 }

@@ -444,6 +444,81 @@
       ],
       "orden": 368,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T12:42",
+      "areas": [
+        "comida",
+        "fiesta",
+        "plata",
+        "portal",
+        "web",
+        "barra",
+        "asistente",
+        "contrato",
+        "personal",
+        "invitado",
+        "redes"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "comida",
+          "fiesta"
+        ],
+        "plata": [
+          "plata",
+          "portal"
+        ],
+        "permisos": [
+          "web",
+          "barra"
+        ],
+        "promesas": [
+          "asistente",
+          "fiesta"
+        ],
+        "automaticos": [
+          "contrato",
+          "personal"
+        ],
+        "fechas-y-celular": [
+          "invitado",
+          "redes"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "vista previa de la cancelación parcial cobra distinto",
+        "'Todo al día' con tareas fallidas",
+        "brief del DJ 'guardado' sin guardar",
+        "'Portada eliminada' sin guardar",
+        "freno del simulador por teléfono",
+        "escudo del armado rápido por nombre",
+        "calendario del invitado a medianoche",
+        "'hace N días' de reseñas en Greenwich",
+        "botón de copiar alias de 32 px",
+        "publicar un menú deshace el ajuste de márgenes",
+        "lista de compras saca al proveedor del mismo nombre",
+        "recordatorios de cuota a ciegas con la base caída",
+        "mensajes programados caídos duplican avisos"
+      ],
+      "descartados": [
+        "saldo con recargo de MP",
+        "seña con recargo",
+        "cancelación total del servidor",
+        "copiloto y agenda del simulador",
+        "acciones de la barra",
+        "lista de compras en el servidor",
+        "presupuestos por celular: decisión del dueño",
+        "ruta del asistente proactivo sin llamar: dudoso, puede tener programador afuera",
+        "aviso al cliente cortado a la mitad: dudoso",
+        "reunión a 1 hora: dudoso",
+        "cuenta regresiva del invitado bien"
+      ],
+      "orden": 369,
+      "corregidos": []
     }
   ]
 }

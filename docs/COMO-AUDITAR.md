@@ -2194,3 +2194,9 @@ corrida hoy. Y el blog con el candado ocupado se marcaba hecho sin haberlo hecho
 
 Decimotercera vuelta del robot, 26/11/2026: la app marcaba la queja como "Oculta" antes de pedirle a Meta que la oculte y sin mirar la
 respuesta. Con el acceso vencido, la queja seguía pública, la pantalla decía "Oculto" y la corrida siguiente no lo reintentaba.
+
+### 244. Una lista leída que se copia (`.map`, `.filter`) antes de devolverla, ¿conserva la marca de lectura fallida?
+
+Decimocuarta vuelta del robot, 26/11/2026: `readData` devuelve una lista vacía con una marca cuando la base no contesta, y quien la mira
+sabe que no es "no hay nada". Pero la lectura de facturas la copiaba con `.map` antes de devolverla: la copia salía sin marca, el escaneo de
+cuotas vencidas no armaba ningún aviso y la tarea figuraba al día.

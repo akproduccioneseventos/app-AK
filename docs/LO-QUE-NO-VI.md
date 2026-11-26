@@ -1582,3 +1582,4 @@ prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
 - Orden 367 → pregunta 241
 - Orden 367 → pregunta 242
 - Orden 368 → pregunta 243
+- Orden 369 → pregunta 244
