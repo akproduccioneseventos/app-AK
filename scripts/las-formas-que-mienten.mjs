@@ -335,6 +335,20 @@ const FORMAS = [
     comoSeArregla: 'Sacar sólo los montos (con $, pesos, USD o separador de miles) y dejar el resto de los números.',
   },
   {
+    pregunta: 255,
+    nombre: 'Un objeto pasado con un campo cambiado mientras el que lo recibe lee otro',
+    porque: 'Los avisos de mozos se sumaban a itemsPrincipales y el WhatsApp de la mañana leía items primero (robot, vuelta 21, 26/11/2026).',
+    buscar: /\{\s*\.\.\.parte,\s*itemsPrincipales:/g,
+    comoSeArregla: 'Cambiar también el campo que se lee primero, o que quien recibe lea una sola lista.',
+  },
+  {
+    pregunta: 256,
+    nombre: 'Un envío al cliente forzado, sin la mano de una persona',
+    porque: 'Procesar una reunión con IA le mandaba al cliente el mail de acuerdos con forceEmail, cada vez (robot, vuelta 21, 26/11/2026).',
+    buscar: /forceEmail:\s*true/g,
+    comoSeArregla: 'Dejar el mail preparado y mandarlo con un botón; nada de forzar el control de ya enviado.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
@@ -400,6 +414,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   245: 'Que algo calculado una vez se recalcule cuando cambia lo que lo origina es un comportamiento: lo cubre src/__tests__/el-personal-sigue-a-los-invitados.test.ts (orden 370).',
   246: 'Que lo escrito en un lugar privado no termine en una lista pública es un comportamiento: lo cubre src/__tests__/la-consulta-del-cliente-no-va-al-chat.test.ts (orden 370).',
   247: 'Que un envío con respuesta "no sé si llegó" se anote como enviado es un comportamiento: lo cubre src/__tests__/las-fotos-por-whatsapp-no-se-repiten.test.ts (orden 371).',
+  257: 'Que se miren las dos versiones de una receta es un comportamiento: lo cubre src/__tests__/el-cierre-cuenta-lo-sin-alcohol.test.ts (orden 376).',
   252: 'Que la cifra de la pantalla y la del servidor coincidan es una cuenta: lo cubre src/__tests__/el-extra-del-portal-cuesta-lo-mismo.test.ts (orden 375).',
   253: 'Que la corrida vea lo que ella misma preparó es un comportamiento: lo cubre src/__tests__/un-recordatorio-por-cliente-por-corrida.test.ts (orden 375).',
   254: 'Que un control sin su dato deje marca es un comportamiento: lo cubre src/__tests__/la-llegada-sin-ubicacion-queda-sin-verificar.test.ts (orden 375).',
