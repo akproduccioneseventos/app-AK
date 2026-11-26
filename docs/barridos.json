@@ -924,6 +924,10 @@
     "231": {
       "fecha": "2026-11-25",
       "resultado": "5 lugares: perfil (\"contraseña compartida\"), simulator-agenda, SimulatorMeetingScheduler (dos) y el valor por defecto del calendario. Todos en la orden 355."
+    },
+    "232": {
+      "fecha": "2026-11-26",
+      "resultado": "20 archivos fuera de src/ai llaman a generateWithGeminiFallback o ejecutarPromptConFallback; todos en la orden 358."
     }
   },
   "hallazgos": {
@@ -1382,6 +1386,10 @@
     "orden-357": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 2 (comida, personal, tareas automáticas y recorrido de 152 pantallas sin rojos nuevos): niños contados distinto en lista y costo (pregunta 150), mesa buffet con dos comparaciones, unidades incompatibles en el total, total cobrado del personal con pendientes, recibos guardados en un lugar y leídos de otro, año corrido, posteos fallados como corrida buena, blog que podía disparar recontacto. Barridos en la orden 357."
+    },
+    "orden-358": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 3 (plata, permisos, integraciones): plata y permisos sin errores nuevos; Meta y Mercado Pago verifican firma y no duplican; 20 llamadas a la IA sin pasar por el cerebro (pregunta 232), barridas y pedidas en la orden 358."
     }
   }
 }

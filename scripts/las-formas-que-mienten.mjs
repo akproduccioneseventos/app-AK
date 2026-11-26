@@ -265,6 +265,13 @@ const FORMAS = [
     comoSeArregla: 'Sacarlo de la sesión o decir "a coordinar".',
   },
   {
+    pregunta: 232,
+    nombre: 'La IA llamada por la puerta lateral, sin el cerebro',
+    porque: '20 archivos llamaban a la IA con generateWithGeminiFallback, sin tope ni registro (robot, vuelta 3, 26/11/2026).',
+    buscar: /\b(?:generateWithGeminiFallback|ejecutarPromptConFallback)\(/g,
+    comoSeArregla: 'pedirTexto de src/ai/cerebro.ts.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',

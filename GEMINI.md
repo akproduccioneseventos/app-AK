@@ -48,6 +48,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   8. **Orden 357 (`docs/ordenes/357-gemini-robot-vuelta-2-cocina-personal-y-tareas.md`):** segunda vuelta del robot: la
      cocina cuenta a los niños igual que el costo, el total cobrado del personal es sólo lo pagado, los recibos se leen donde
      se guardan y las tareas con fallas no dicen "al día".
+  9. **Orden 358 (`docs/ordenes/358-gemini-robot-vuelta-3-toda-la-ia-por-el-cerebro.md`):** 20 archivos que llaman a la
+     IA sin pasar por el cerebro (sin tope ni registro): pasarlos a `pedirTexto` y que el control lo vea.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
