@@ -108,6 +108,32 @@
       ],
       "orden": 359,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T03:41",
+      "areas": [
+        "invitado",
+        "estaciones"
+      ],
+      "aspecto": "funcionalidad de punta a punta",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos desde el aviso",
+      "hallazgos_confirmados": [
+        "confirmar sin enlace con el nombre de otro borra su marca de celíaco",
+        "tope de 12 confirmaciones por dirección en 15 minutos",
+        "aviso de espera de la fotocabina heredado por el siguiente",
+        "resumen del asistente marcado visto sin mirar el resultado"
+      ],
+      "descartados": [
+        "invitación pública sin datos de otros invitados",
+        "fechas y calendario de la invitación correctos",
+        "estación de otra fiesta: el código va firmado",
+        "botones del panel: todos miran el resultado salvo uno",
+        "acciones sin uso (ak-100, experience-total, smart-automations…): ninguna pantalla las promete"
+      ],
+      "areas_limpias_esta_vuelta": [],
+      "orden": 360,
+      "corregidos": []
     }
   ]
 }

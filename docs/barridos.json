@@ -1398,6 +1398,10 @@
     "orden-359": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 4 (fiesta, portal, celular y textos): Video de Vida que da por terminado lo empezado (pregunta 233), invitados que se pisan y devuelven la fiesta entera, tilde del cronograma en vivo que se pierde, fiesta de hoy contada como pasada, botones de 28 px en el portal. Textos públicos sin promesas prohibidas."
+    },
+    "orden-360": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 5 (invitado, estaciones, botones del panel): confirmar sin enlace borraba la marca de celíaco de quien ya estaba (pregunta 210, una escritura que pisa lo guardado), tope de confirmaciones bajo para un wifi compartido, aviso de la fotocabina heredado por el siguiente invitado (error 10), \"resumen visto\" sin mirar el resultado. Barridos en la orden 360."
     }
   }
 }
