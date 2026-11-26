@@ -53,6 +53,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   10. **Orden 359 (`docs/ordenes/359-gemini-robot-vuelta-4-video-de-vida-invitados-e-itinerario.md`):** el Video de Vida no
       da por terminado lo que empezó, los invitados no se pisan ni devuelven la fiesta entera, el tilde del cronograma en vivo
       no se pierde y la fiesta de hoy no sale como pasada.
+  11. **Orden 360 (`docs/ordenes/360-gemini-robot-vuelta-5-confirmacion-fotocabina-y-resumen.md`):** confirmar sin enlace no
+      le borra la restricción de comida a quien ya estaba, el tope de confirmaciones, el aviso de la fotocabina que hereda el
+      siguiente invitado y "resumen visto" que no miraba si se guardó.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
