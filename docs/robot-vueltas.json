@@ -190,6 +190,33 @@
       "corregidos": [
         "Empezar 2027 no borra si una lectura falla"
       ]
+    },
+    {
+      "fecha": "2026-11-26T06:41",
+      "areas": [
+        "contrato",
+        "personal"
+      ],
+      "aspecto": "funcionalidad de punta a punta",
+      "robot_todo": "no repetido: el único cambio publicado es una tarea del servidor",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "autoguardado del Personal borra llegadas y confirmaciones",
+        "sueldo de la segunda asignación copiado de la primera",
+        "recibo de seña sin enganchar al reintentar el contrato",
+        "archivo del contrato subido de nuevo en cada reintento",
+        "firma ya hecha anunciada como registrada"
+      ],
+      "descartados": [
+        "recibos con candado de pagado",
+        "cédula y sueldo para quien no tiene permiso",
+        "llegada por enlace con ubicación",
+        "firma digital con huella y constancia",
+        "hitos y seña: ya en la orden 356",
+        "dos altas con el mismo nombre: dudoso, sin plata"
+      ],
+      "orden": 363,
+      "corregidos": []
     }
   ]
 }

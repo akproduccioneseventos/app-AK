@@ -940,6 +940,10 @@
     "235": {
       "fecha": "2026-11-26",
       "resultado": "Agendar reunión y preparar mail en multiagent.ts con esUnSi suelto o el confirmado del modelo; el resto de las acciones que salen para afuera lo barre Gemini en la orden 362."
+    },
+    "236": {
+      "fecha": "2026-11-26",
+      "resultado": "El contrato en papel encontraba el recibo de seña ya creado y no lo sumaba a invoiceIds (documentos.actions.ts); el resto de las ramas 'ya existe' lo barre Gemini en la orden 363."
     }
   },
   "hallazgos": {
@@ -1418,6 +1422,10 @@
     "orden-362": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 7 (asistente y tareas automáticas): reunión con el cliente agendada sin un sí de verdad (pregunta 235), propuestas de plata sin responsable visibles para todo el equipo, agentes que toman una lectura fallida como 'al día' (pregunta 210), días del cobrador en hora de Greenwich (pregunta 70), historial del chat del cliente sin tope. La migración 2027 que borraba con una lectura fallida la arregló Claude."
+    },
+    "orden-363": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 8 (personal y contrato, de punta a punta): el autoguardado del Personal borraba llegadas y confirmaciones marcadas en el medio (pregunta 210), sueldo de una segunda asignación copiado de la primera, recibo de seña sin enganchar al reintentar el contrato (pregunta 236), firma ya hecha anunciada como registrada."
     }
   }
 }
