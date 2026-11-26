@@ -7,10 +7,11 @@ import { FAQSection } from '@/components/landing/FAQSection';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'fiestas',
-  title: 'Tipos de fiesta en Salto | AK Producciones',
+  title: 'Tipos de fiesta en Salto',
   description: 'Elegí tu tipo de fiesta en Salto: bodas, 15 años, cumpleaños, fiestas empresariales y fiestas infantiles. Un solo contacto, una sola seña y todos los servicios en un solo lugar.',
   image: '/media/catalogo-servicios/quinceanera_hero.png',
   imageAlt: 'Organización integral de fiestas y eventos en Salto, Uruguay',
@@ -107,6 +108,9 @@ export default function FiestasIndexPage() {
             <h1 className="mt-4 max-w-3xl font-headline text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
               Tipos de fiesta en Salto: un solo contacto, toda tu fiesta
             </h1>
+            <div className="mt-4">
+              <BotonComoFunciona clave="paginas-por-tipo" variant="dark" />
+            </div>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
               Elegí el tipo de celebración que estás planeando en Salto. Resolvemos salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos, fotocabina, Vogue y plataforma 360 en un solo equipo.
             </p>

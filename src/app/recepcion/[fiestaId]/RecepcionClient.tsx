@@ -11,6 +11,7 @@ import { Search, CheckCircle2, UserPlus, AlertCircle, XCircle, Moon, Sun, WifiOf
 import { toast } from '@/hooks/use-toast';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
 import { contarPersonasDelPortal } from '@/lib/fiesta/guest-counts';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function RecepcionClient({
   fiestaId,
@@ -148,6 +149,7 @@ export default function RecepcionClient({
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-black truncate pr-2 text-white">Recepción: {fiestaName}</h1>
           <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="recepcion" variant="dark" />
             <button
               onClick={() => setNightMode(!nightMode)}
               className="p-2 rounded-lg bg-zinc-800 text-zinc-300 hover:text-white transition"

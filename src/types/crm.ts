@@ -158,7 +158,7 @@ export interface CrmAppointment {
   fechaHora: string;
   lugar?: string;
   notas?: string;
-  estado: 'Agendada' | 'Confirmada' | 'Realizada' | 'Cancelada';
+  estado: 'Agendada' | 'Confirmada' | 'Realizada' | 'No asistió' | 'Cancelada';
   recordatorioEnviado?: boolean;
   creadoEn: string;
 }

@@ -56,6 +56,7 @@ const DURATION_OPTIONS = [
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 import { armarLineaDeTiempo360, type EstiloEdicion360 } from '@/lib/entretenimiento/edicion-360';
 
@@ -1192,6 +1193,9 @@ export default function Plataforma360Page() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Plataforma 360</h2>
                   <p className="text-sm text-zinc-300">Preparate. La plataforma empezará a girar y grabará en cámara lenta. ¡Hacé tu mejor pose!</p>
+                  <div className="pt-1 flex justify-center">
+                    <BotonComoFunciona clave="plataforma-360" variant="dark" />
+                  </div>
                   {cameraError && <p className="text-sm text-rose-300" role="alert">{cameraError}</p>}
                 </div>
 

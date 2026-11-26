@@ -383,6 +383,7 @@ export async function loginUser(
         perfil: 'dueno',
         modules: ['all'],
         versionDeSesion: 1,
+        metodo: 'clave',
       });
     } catch (cookieError) {
       return {
@@ -456,6 +457,7 @@ export async function loginUser(
             perfil: 'dueno',
         modules: ['all'],
         versionDeSesion: 1,
+        metodo: 'clave',
       });
 
           return {
@@ -589,6 +591,7 @@ export async function loginUser(
       // nadie quede afuera de lo que ya usaba.
       perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
       modules: user.modules,
+      metodo: 'clave',
       ...(typeof userDoc?.versionDeSesion === 'number' ? { versionDeSesion: userDoc.versionDeSesion } : {}),
     });
 

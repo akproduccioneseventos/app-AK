@@ -411,7 +411,7 @@ function EmpleadosPageInner() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
+          <CardTitle className="font-headline">Listado de Empleados{!isLoading && !error ? ` (${empleados.length})` : ''}</CardTitle>
           <CardDescription>Consulta y gestiona la información de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -427,7 +427,58 @@ function EmpleadosPageInner() {
               <p className="text-sm">{error}</p>
             </div>
           ) : empleados.length > 0 ? (
-            <div className="overflow-x-auto">
+            <>
+              <div className="sm:hidden space-y-3">
+                {empleados.map((empleado) => (
+                  <div key={empleado.id} className="rounded-xl border p-4 space-y-2.5 bg-card shadow-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
+                          {empleado.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={empleado.photoUrl} alt={empleado.nombre} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-slate-400 text-xs font-bold">{empleado.nombre.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm truncate">{empleado.nombre}</p>
+                          <p className="text-xs text-muted-foreground">CI: {empleado.cedula || '—'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <span>{empleado.telefono || 'Sin teléfono'}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {(empleado.rolIds && empleado.rolIds.length > 0) ? empleado.rolIds.map(rolId => {
+                        const rol = roles.find(r => r.id === rolId);
+                        return rol ? <Badge key={rolId} variant="secondary">{rol.nombre}</Badge> : null;
+                      }) : <span className="text-xs text-muted-foreground">Sin Rol</span>}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1 pt-1 border-t">
+                      <Button asChild variant="ghost" size="sm" className="min-h-10 px-2.5 text-indigo-600">
+                        <Link href={`/empleados/${empleado.id}/historial`}>
+                          <History className="w-4 h-4 mr-1" /> Historial
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="min-h-10 px-2.5 text-blue-600" onClick={() => openPartiesReport(empleado)}>
+                        <CalendarDays className="w-4 h-4 mr-1" /> Fiestas
+                      </Button>
+                      <Button variant="ghost" size="sm" className="min-h-10 px-2.5 text-green-600" onClick={() => openWhatsApp(empleado)}>
+                        <MessageCircle className="w-4 h-4 mr-1" /> WhatsApp
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="min-h-10 px-2.5">
+                        <Link href={`/empleados/${empleado.id}/editar`}>
+                          <Edit className="w-4 h-4 mr-1" /> Editar
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden sm:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -534,7 +585,8 @@ function EmpleadosPageInner() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+              </div>
+            </>
           ) : (
             <div className="py-10 text-center">
               <Users className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />

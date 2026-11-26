@@ -15,6 +15,7 @@ import type { FiestaEnPlanificacion, MoodboardItem } from '@/types/fiesta';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function ClientMoodboardPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
@@ -128,7 +129,10 @@ export default function ClientMoodboardPage() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tablero de Inspiración del Evento</p>
                     </div>
                 </div>
-                <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
+                <div className="flex items-center gap-2">
+                  <BotonComoFunciona clave="moodboard" />
+                  <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
+                </div>
             </header>
 
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">

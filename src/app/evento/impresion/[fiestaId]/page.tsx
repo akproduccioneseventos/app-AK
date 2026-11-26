@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_INTERVAL_MS = 3000;
 
@@ -335,9 +336,12 @@ export default function PrintStationPage() {
             </h1>
             {fiesta && <p className="text-xs text-zinc-400 truncate max-w-[180px]">{fiesta.configuracion?.nombreEvento}</p>}
           </div>
-          <Button variant="ghost" size="icon" onClick={() => loadData(true)} className="h-10 w-10 bg-white/5 rounded-full">
-            <RefreshCw className="w-4 h-4 text-zinc-400" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="impresion" variant="dark" />
+            <Button variant="ghost" size="icon" onClick={() => loadData(true)} className="h-10 w-10 bg-white/5 rounded-full">
+              <RefreshCw className="w-4 h-4 text-zinc-400" />
+            </Button>
+          </div>
         </header>
 
         {/* PERMANENT OFFLINE / RECONNECTING WARNING BANNER */}

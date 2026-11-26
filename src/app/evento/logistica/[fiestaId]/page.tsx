@@ -12,6 +12,7 @@ import {
   CloudRain, MapPin, Navigation, Clock, ExternalLink, Info
 } from 'lucide-react';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function LogisticaPage() {
   const params = useParams<{ fiestaId: string }>();
@@ -66,6 +67,7 @@ export default function LogisticaPage() {
             <p className="text-sm font-black text-white truncate">{config?.nombreEvento ?? 'Evento'}</p>
             <p className="text-xs text-slate-400">Información de Logística y Accesos</p>
           </div>
+          <BotonComoFunciona clave="staff-cronograma" variant="dark" />
         </div>
       </header>
 

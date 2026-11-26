@@ -44,6 +44,7 @@ import {
 import type { Trago } from '@/types/fiesta';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevo',
@@ -290,6 +291,7 @@ export default function BarmanScreenPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <BotonComoFunciona clave="barman" variant="dark" />
           <Button
             variant="outline"
             className="h-12 rounded-lg border-emerald-500/40 bg-emerald-950/30 text-emerald-300 font-bold hover:bg-emerald-900/40"

@@ -1,9 +1,10 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType, AjustesLlegadaPersonal } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType, AjustesLlegadaPersonal, TutorialesSettings } from '@/types/settings';
 import type { CuentaBancaria } from '@/types/fiesta';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings, defaultAjustesLlegadaPersonal } from '@/types/settings';
+import { esClaveTemaTutorial, validarEnlaceYoutubeTutorial } from '@/lib/tutoriales/temas';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
@@ -706,4 +707,78 @@ export async function saveAjustesLlegadaPersonal(
   };
   await writeData(AJUSTES_LLEGADA_FILE, updated);
   return updated;
+}
+
+const TUTORIALES_SETTINGS_FILE = 'tutoriales-settings.json';
+
+/**
+ * PUBLICA A PROPOSITO: la leen pantallas externas sin sesion (simulador,
+ * portal del cliente, invitaciones, estaciones) para mostrar el boton
+ * "¿Cómo funciona?" cuando hay un enlace de YouTube cargado.
+ */
+export async function getTutorialesSettings(): Promise<TutorialesSettings> {
+  try {
+    const raw = await readData<TutorialesSettings>(TUTORIALES_SETTINGS_FILE, {});
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    const clean: TutorialesSettings = {};
+    for (const [clave, valor] of Object.entries(raw)) {
+      if (!esClaveTemaTutorial(clave) || !valor || typeof valor !== 'object') continue;
+      const fromUrl = valor.youtubeUrl ? validarEnlaceYoutubeTutorial(valor.youtubeUrl) : null;
+      const videoId =
+        fromUrl?.ok && fromUrl.videoId
+          ? fromUrl.videoId
+          : typeof valor.videoId === 'string' && /^[A-Za-z0-9_-]{3,32}$/.test(valor.videoId.trim())
+            ? valor.videoId.trim()
+            : undefined;
+      if (videoId) {
+        clean[clave] = {
+          ...(valor.youtubeUrl ? { youtubeUrl: valor.youtubeUrl.trim() } : {}),
+          videoId,
+        };
+      }
+    }
+    return clean;
+  } catch {
+    return {};
+  }
+}
+
+export async function saveTutorialesSettings(
+  settings: TutorialesSettings,
+): Promise<{ success: boolean; settings?: TutorialesSettings; error?: string }> {
+  try {
+    await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+    if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+      return { success: false, error: 'Datos de tutoriales inválidos.' };
+    }
+
+    const sanitized: TutorialesSettings = {};
+    for (const [clave, entry] of Object.entries(settings)) {
+      if (!esClaveTemaTutorial(clave)) {
+        return { success: false, error: `Clave de tutorial no permitida: ${clave}` };
+      }
+      if (!entry || typeof entry !== 'object') continue;
+      const urlInput = (entry.youtubeUrl || '').trim();
+      if (!urlInput) continue;
+
+      const parsed = validarEnlaceYoutubeTutorial(urlInput);
+      if (!parsed.ok || !parsed.videoId) {
+        return { success: false, error: parsed.error || 'Pegá un enlace de YouTube' };
+      }
+      sanitized[clave] = {
+        youtubeUrl: parsed.youtubeUrl,
+        videoId: parsed.videoId,
+      };
+    }
+
+    await writeData(TUTORIALES_SETTINGS_FILE, sanitized);
+    return { success: true, settings: sanitized };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error?.message || 'No se pudieron guardar los tutoriales en video.',
+    };
+  }
 }

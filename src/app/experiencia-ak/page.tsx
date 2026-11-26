@@ -21,10 +21,11 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { AK_WHATSAPP_NUMBER, buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'La Experiencia AK | Fiestas y Eventos en Salto | AK Producciones Eventos',
+  title: 'La Experiencia AK en Salto',
   description:
     'Viví una fiesta única en Salto con tecnología interactiva, discoteca, pantallas LED, fotocabina 360, muro en vivo y gastronomía gourmet coordinada por un solo equipo.',
   alternates: {
@@ -108,6 +109,9 @@ export default function ExperienciaAkPage() {
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-tight">
                 Una fiesta que se siente distinta de principio a fin
               </h1>
+              <div className="flex justify-center">
+                <BotonComoFunciona clave="experiencia" variant="dark" />
+              </div>
               <p className="text-base sm:text-xl text-slate-300 leading-relaxed font-medium">
                 Unimos discoteca profesional, pantallas LED interactivas, estaciones de fotos y servicio gastronómico completo para que vos y tus invitados disfruten cada segundo.
               </p>

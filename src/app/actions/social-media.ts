@@ -377,7 +377,7 @@ export async function syncInstagramPosts(
         const syncedPhoto = {
           id: post.id,
           url: post.mediaUrl,
-          titulo: `Instagram: ${category}`,
+          titulo: category,
           descripcion: post.text,
           categoriaServicio: category,
           destacada: true,

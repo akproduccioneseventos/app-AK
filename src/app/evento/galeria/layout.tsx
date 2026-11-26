@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Galería de la Fiesta | AK Producciones',
+  title: 'Galería de la Fiesta',
   description: 'Reviví los mejores momentos de la fiesta.',
 };
 

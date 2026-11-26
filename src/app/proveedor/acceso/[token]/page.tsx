@@ -32,6 +32,7 @@ import type {
   EstadoProveedorPortal,
   ProveedorPortalAccess,
 } from '@/types/provider-portal';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const STATUS_STYLES: Record<EstadoProveedorPortal, string> = {
   Pendiente: 'border-slate-300 bg-slate-50 text-slate-700',
@@ -156,9 +157,12 @@ export default function ProveedorAccessPage() {
               <h1 className="mt-1 text-2xl font-bold">{provider.nombreProveedor}</h1>
               <p className="mt-1 text-sm text-muted-foreground">{provider.tipoProveedor}</p>
             </div>
-            <Badge variant="outline" className={STATUS_STYLES[provider.estadoActual]}>
-              {provider.estadoActual}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <BotonComoFunciona clave="portal-proveedor" variant="compact" />
+              <Badge variant="outline" className={STATUS_STYLES[provider.estadoActual]}>
+                {provider.estadoActual}
+              </Badge>
+            </div>
           </div>
         </div>
       </header>

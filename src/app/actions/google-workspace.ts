@@ -526,10 +526,13 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
     const startIso = new Date(appointment.fechaHora).toISOString();
     const endIso = new Date(new Date(appointment.fechaHora).getTime() + 60 * 60 * 1000).toISOString();
 
+    const lugarTexto = (appointment.lugar || '').trim();
+    const lugarCita = !lugarTexto || /oficina ak/i.test(lugarTexto) ? 'Lugar a coordinar por WhatsApp' : lugarTexto;
+
     const calendarEventInput: GoogleWorkspaceEventInput = {
       summary: `Entrevista AK Producciones - ${appointment.clienteNombre} (${appointment.eventoTipo || 'Cita Comercial'})`,
-      description: `Cita Comercial agendada con ${appointment.clienteNombre}.\nContacto: ${appointment.clienteContacto}\nTipo: ${appointment.eventoTipo || 'Fiesta'}\nLugar: ${appointment.lugar || 'Oficina AK Salto'}\nNotas: ${appointment.notas || 'Sin notas'}`,
-      location: appointment.lugar || 'Oficina AK Producciones Salto',
+      description: `Cita Comercial agendada con ${appointment.clienteNombre}.\nContacto: ${appointment.clienteContacto}\nTipo: ${appointment.eventoTipo || 'Fiesta'}\nLugar: ${lugarCita}\nNotas: ${appointment.notas || 'Sin notas'}`,
+      location: lugarCita,
       startIso,
       endIso,
       attendees: clientEmail ? [clientEmail] : undefined,
@@ -562,7 +565,7 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
           <li><strong>Contacto:</strong> ${escapeHtml(appointment.clienteContacto)}</li>
           <li><strong>Tipo de Evento:</strong> ${escapeHtml(appointment.eventoTipo || 'Fiesta')}</li>
           <li><strong>Fecha:</strong> ${escapeHtml(dateFormatted)} a las ${escapeHtml(timeFormatted)} hs</li>
-          <li><strong>Lugar:</strong> ${escapeHtml(appointment.lugar || 'Oficina AK Salto')}</li>
+          <li><strong>Lugar:</strong> ${escapeHtml(lugarCita)}</li>
           ${appointment.notas ? `<li><strong>Notas:</strong> ${escapeHtml(appointment.notas)}</li>` : ''}
         </ul>
         <p style="font-size: 12px; color: #64748b;">AK Producciones — Ecosistema Digital</p>
@@ -586,7 +589,7 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
           <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
             <p style="margin: 4px 0;"><strong>📅 Fecha:</strong> ${escapeHtml(dateFormatted)}</p>
             <p style="margin: 4px 0;"><strong>⏰ Hora:</strong> ${escapeHtml(timeFormatted)} hs</p>
-            <p style="margin: 4px 0;"><strong>📍 Lugar:</strong> ${escapeHtml(appointment.lugar || 'Oficina AK Producciones Salto')}</p>
+            <p style="margin: 4px 0;"><strong>📍 Lugar:</strong> ${escapeHtml(lugarCita)}</p>
             <p style="margin: 4px 0;"><strong>🎉 Tipo de Celebración:</strong> ${escapeHtml(appointment.eventoTipo || 'Evento')}</p>
           </div>
           <p>En esta entrevista repasaremos la propuesta, presupuestos y tecnología para tu gran día.</p>

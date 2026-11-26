@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, CheckCircle2, Users, Wrench, RefreshCw, CalendarDays } from 'lucide-react';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getEmpleados } from '@/app/actions/empleados';
+import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
+import { esFiestaProxima } from '@/lib/fiesta/esFiestaProxima';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 
@@ -83,6 +85,7 @@ function formatFechaString(fecha: string): string {
 function RecursosMultiEventoContent() {
   const [loading, setLoading] = useState(true);
   const [fiestas, setFiestas] = useState<FiestaEnPlanificacion[]>([]);
+  const [eventosProximosCount, setEventosProximosCount] = useState(0);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [conflictosPersonal, setConflictosPersonal] = useState<ConflictoPersonal[]>([]);
   const [fechasConEventos, setFechasConEventos] = useState<Record<string, FiestaEnPlanificacion[]>>({});
@@ -95,12 +98,13 @@ function RecursosMultiEventoContent() {
         getEmpleados(),
       ]);
       const upcomingFiestas = fs.filter(f => {
-        if (esFiestaSuspendida(f)) return false;
+        if (esFiestaDemo(f) || esFiestaSuspendida(f)) return false;
         const fecha = f.configuracion?.fechaEvento;
         if (!fecha) return false;
         return new Date(fecha) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // last 30 days + future
       });
       setFiestas(upcomingFiestas);
+      setEventosProximosCount(fs.filter((f) => esFiestaProxima(f)).length);
       setEmpleados(emps);
       const { conflictosPersonal: cp, fechasConEventos: fce } = detectarConflictos(upcomingFiestas, emps);
       setConflictosPersonal(cp);
@@ -153,7 +157,7 @@ function RecursosMultiEventoContent() {
         <Card>
           <CardContent className="pt-4 pb-4 text-center">
             <CalendarDays className="w-6 h-6 mx-auto mb-1 text-blue-500" />
-            <p className="text-2xl font-black text-blue-700">{fiestas.length}</p>
+            <p className="text-2xl font-black text-blue-700">{eventosProximosCount}</p>
             <p className="text-xs text-muted-foreground">Eventos próximos</p>
           </CardContent>
         </Card>

@@ -62,6 +62,7 @@ import {
   procesarFondoCanvas,
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
@@ -1617,6 +1618,9 @@ export default function TouchpixPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          {!capturedImage && !isProcessing && countdown === null && (
+            <BotonComoFunciona clave="touchpix" variant="dark" />
+          )}
           <button
             type="button"
             onClick={() => setVoiceEnabled(prev => !prev)}

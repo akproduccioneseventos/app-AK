@@ -24,6 +24,7 @@ import {
   registerGuestLiveInterest,
 } from '@/app/actions/evento-en-vivo';
 import type { EventoEnVivoData, VotacionEnVivo } from '@/types/fiesta';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_INTERVAL = 15_000;
 
@@ -266,7 +267,10 @@ export default function InvitadosPage() {
         <div>
           <h1 className="text-lg font-bold leading-tight truncate max-w-[60vw]">{fiestaName}</h1>
         </div>
-        <Badge className="bg-red-600 text-white animate-pulse shrink-0">🔴 En Vivo</Badge>
+        <div className="flex items-center gap-2">
+          <BotonComoFunciona clave="en-vivo" variant="dark" />
+          <Badge className="bg-red-600 text-white animate-pulse shrink-0">🔴 En Vivo</Badge>
+        </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-4">

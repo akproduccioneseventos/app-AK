@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type PaymentStatus =
   | 'creating'
@@ -152,6 +153,9 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
           <Icon className={`h-9 w-9 ${content.iconClass}`} />
         </div>
         <h1 className="mt-5 text-2xl font-bold text-slate-950">{content.title}</h1>
+        <div className="mt-2 flex justify-center">
+          <BotonComoFunciona clave="mercado-pago" />
+        </div>
         <p className="mt-3 text-sm leading-6 text-slate-600">{content.description}</p>
         <div className="mt-6 border-y border-slate-100 py-5">
           <p className="text-xs font-bold uppercase text-slate-500">

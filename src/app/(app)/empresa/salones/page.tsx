@@ -784,7 +784,7 @@ function SalonesPageInner() {
       {/* Tabs: All salones / Club Uruguay */}
       <Tabs defaultValue="todos">
         <TabsList>
-          <TabsTrigger value="todos">Todos los Salones ({salones.length})</TabsTrigger>
+          <TabsTrigger value="todos">Todos los Salones{!isLoading ? ` (${salones.length})` : ''}</TabsTrigger>
           {clubUruguaySalones.length > 0 && (
             <TabsTrigger value="club-uruguay" className="text-amber-700">
               <Star className="w-3.5 h-3.5 mr-1.5" />
@@ -796,7 +796,7 @@ function SalonesPageInner() {
         <TabsContent value="todos">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-headline text-lg">Salones Guardados ({salones.length})</CardTitle>
+              <CardTitle className="font-headline text-lg">Salones Guardados{!isLoading ? ` (${salones.length})` : ''}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (

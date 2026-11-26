@@ -64,6 +64,7 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experience/event-date';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 // Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
 
 type PublicPortalClientExperienceProps = {
@@ -1092,6 +1093,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="space-y-3">
               <p className="text-sm font-semibold text-white/80">{config.tipoCelebracion || 'Evento'}</p>
               <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">{eventName}</h1>
+              <div>
+                <BotonComoFunciona clave="portal-cliente" variant="dark" />
+              </div>
               <p className="max-w-2xl text-base leading-7 text-white/90">
                 {portalExperience.welcomeMessage || portalExperience.organizerMessage || 'Toda la información importante del evento en un solo lugar.'}
               </p>

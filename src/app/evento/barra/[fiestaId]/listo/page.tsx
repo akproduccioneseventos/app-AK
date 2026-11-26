@@ -7,6 +7,7 @@ import { Martini, Sparkles, CheckCircle2, Clock, Volume2 } from 'lucide-react';
 import { getBarPedidosListos } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import type { BarDrinkOrder } from '@/types/barra-tecnologica';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function PantallaTragoListoPage() {
   usePantallaPrendida();
@@ -58,9 +59,12 @@ export default function PantallaTragoListoPage() {
           </div>
         </div>
 
-        <div className="text-right hidden sm:block">
-          <span className="text-xs uppercase tracking-widest text-slate-400 font-mono">AK Producciones</span>
-          <div className="text-sm font-semibold text-slate-300">{nombreEvento}</div>
+        <div className="text-right hidden sm:flex items-center gap-3">
+          <BotonComoFunciona clave="pedir-trago" variant="dark" />
+          <div>
+            <span className="text-xs uppercase tracking-widest text-slate-400 font-mono">AK Producciones</span>
+            <div className="text-sm font-semibold text-slate-300">{nombreEvento}</div>
+          </div>
         </div>
       </header>
 

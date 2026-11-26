@@ -338,7 +338,7 @@ function InventarioInsumosContent({ initialItems }: { initialItems?: ServicioEmp
 
        <Card className="shadow-lg print:hidden">
         <CardHeader>
-          <CardTitle>Catálogo de Insumos ({filteredItems.length})</CardTitle>
+          <CardTitle>Catálogo de Insumos{!isLoading && !error ? ` (${filteredItems.length})` : ''}</CardTitle>
           <div className="flex flex-col md:flex-row gap-2 pt-2">
             <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

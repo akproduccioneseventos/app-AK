@@ -35,6 +35,7 @@ import {
   toggleVotacionActiva,
 } from '@/app/actions/evento-en-vivo';
 import type { EventoEnVivoData, VotacionOpcion } from '@/types/fiesta';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_INTERVAL = 10_000;
 
@@ -160,6 +161,7 @@ export default function OrganizadorPage() {
             <p className="text-xs text-slate-400">Panel del Organizador</p>
           </div>
           <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="control-pantalla" variant="dark" />
             <Button
               variant="ghost"
               size="sm"

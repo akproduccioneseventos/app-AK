@@ -5,6 +5,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import Link from 'next/link';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -451,6 +452,9 @@ function GuestPortalContent() {
             <span>Portal del invitado // Acceso Exclusivo</span>
           </div>
           <h1 className="mt-3 text-4xl font-black text-white sm:text-6xl drop-shadow-sm">{config?.nombreEvento || 'Tu evento'}</h1>
+          <div className="mt-3">
+            <BotonComoFunciona clave="portal-invitado" variant="dark" />
+          </div>
           <p className="mt-3 text-xl font-medium text-slate-200">Hola, <span className="font-black text-white">{guest.nombre}</span></p>
           {gps.welcomeMessage && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300/90">{gps.welcomeMessage}</p>}
           {(fecha || config?.nombreLugar) && (

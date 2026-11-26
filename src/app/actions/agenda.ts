@@ -332,7 +332,7 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
     // Registrar en el historial del CRM si está vinculado a un prospecto
     if (newAppointment.leadId) {
       const { scheduleCrmMeeting } = await import('@/app/actions/crm');
-      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'Oficina AK'})`).catch((err) => {
+      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'A coordinar'})`).catch((err) => {
         console.warn('[agenda] CRM meeting schedule failed:', err);
       });
     }

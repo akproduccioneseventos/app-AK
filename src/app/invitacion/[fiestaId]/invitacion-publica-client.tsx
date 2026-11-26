@@ -22,6 +22,7 @@ import type { InvitacionAccesosVivos } from '@/lib/invitacion/accesos-vivos';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -1763,6 +1764,9 @@ export function InvitacionPublicaClient({ config, fiestaId, horaEvento, codigoFi
                 </>
               )}
             </h1>
+            <div className="mb-4 flex justify-center">
+              <BotonComoFunciona clave="invitacion" variant="dark" />
+            </div>
             {config.fechaEvento && (
               <p className="text-base sm:text-xl opacity-90 capitalize">
                 {formatDate(config.fechaEvento)}

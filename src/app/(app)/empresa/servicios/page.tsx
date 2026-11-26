@@ -277,7 +277,7 @@ function CatalogoServiciosPageInner() {
 
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
         <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
-          <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter">Listado Maestro de Servicios ({filteredItems.length})</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter">Listado Maestro de Servicios{!isLoading && !error ? ` (${filteredItems.length})` : ''}</CardTitle>
           <div className="relative pt-4">
             <Search className="absolute left-3 top-7 h-4 w-4 text-slate-400" />
             <Input type="text" placeholder="Buscar por nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-white border-slate-200 shadow-sm text-base"/>

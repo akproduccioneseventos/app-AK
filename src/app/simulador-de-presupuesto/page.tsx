@@ -6,6 +6,7 @@ import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1926,6 +1927,9 @@ function SimuladorContent() {
                             <h1 className="mt-1.5 text-3xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                                 Tu presupuesto en 2 minutos.
                             </h1>
+                            <div className="mt-4">
+                                <BotonComoFunciona clave="simulador" variant="dark" />
+                            </div>
 
                             <div ref={heroCtaRef} className="mt-6 sm:mt-8">
                                 <motion.div
@@ -2059,9 +2063,17 @@ function SimuladorContent() {
                                 </h2>
                             </motion.div>
                             <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-                                {fotosDestacadas.slice(0, 6).map((foto) => {
+                                {fotosDestacadas.slice(0, 6).map((foto, index) => {
                                     const imgUrl = safeImageUrl(foto.url);
                                     if (!imgUrl) return null;
+                                    const categoriaLimpia = (foto.categoriaServicio || foto.titulo || '')
+                                        .replace(/^instagram:\s*/i, '')
+                                        .trim();
+                                    const categoriaVisible = categoriaLimpia
+                                        ? categoriaLimpia.charAt(0).toUpperCase() + categoriaLimpia.slice(1)
+                                        : '';
+                                    const altFoto = foto.descripcion?.trim()
+                                        || `${categoriaVisible || 'Fiesta'} de AK Producciones, foto ${index + 1}`;
                                     return (
                                         <div
                                             key={foto.id}
@@ -2071,14 +2083,14 @@ function SimuladorContent() {
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img
                                                     src={imgUrl}
-                                                    alt={foto.titulo || foto.servicioNombre || 'Fiesta real AK Producciones'}
+                                                    alt={altFoto}
                                                     className="h-full w-full object-cover"
                                                 />
                                             </div>
-                                            {(foto.titulo || foto.tipoFiesta) && (
+                                            {(categoriaVisible || foto.tipoFiesta) && (
                                                 <div className="p-3">
-                                                    {foto.titulo && (
-                                                        <p className="truncate text-xs font-black text-slate-900">{foto.titulo}</p>
+                                                    {categoriaVisible && (
+                                                        <p className="truncate text-xs font-black text-slate-900">{categoriaVisible}</p>
                                                     )}
                                                     {foto.tipoFiesta && (
                                                         <p className="text-[11px] font-semibold text-slate-500">{foto.tipoFiesta}</p>
@@ -2755,7 +2767,10 @@ function SimuladorContent() {
                     <div className="flex justify-between items-center mb-2 sm:mb-4">
                       <div className="w-8 hidden sm:block" />
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
-                      <VideoDeAyuda lugar="simulador" />
+                      <div className="flex items-center gap-2">
+                        <BotonComoFunciona clave="simulador" variant="compact" />
+                        <VideoDeAyuda lugar="simulador" />
+                      </div>
                     </div>
                     <CardTitle className="text-xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-1 text-xs sm:text-sm font-bold text-slate-500">
@@ -2850,7 +2865,12 @@ function SimuladorContent() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Cantidad de invitados</span>
+                                        <BotonComoFunciona clave="invitados-y-precio" variant="compact" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <Label>Adultos</Label>
                                         <Input type="number" min={1} step={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Math.floor(Number(e.target.value) || 0))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
@@ -2859,6 +2879,7 @@ function SimuladorContent() {
                                     <div className="space-y-2">
                                         <Label>Niños y adolescentes</Label>
                                         <Input type="number" min={0} step={1} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Math.floor(Number(e.target.value) || 0)))} className="h-12 rounded-md bg-white text-slate-900" />
+                                    </div>
                                     </div>
                                 </div>
                             </div>

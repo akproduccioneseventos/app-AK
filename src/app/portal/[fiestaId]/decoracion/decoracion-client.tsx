@@ -17,6 +17,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { enviarOpinionDecoracion } from '@/app/actions/fiesta/decoracion.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function ClientDecoracionPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
@@ -178,9 +179,12 @@ export default function ClientDecoracionPage() {
               Portal
             </Link>
           </Button>
-          <div className="text-right">
-            <p className="text-xs text-slate-400 font-medium">Ambientación y Estilo</p>
-            <p className="text-sm font-bold text-slate-100">{fiesta.configuracion.nombreEvento}</p>
+          <div className="flex items-center gap-3">
+            <BotonComoFunciona clave="decoracion" variant="dark" />
+            <div className="text-right">
+              <p className="text-xs text-slate-400 font-medium">Ambientación y Estilo</p>
+              <p className="text-sm font-bold text-slate-100">{fiesta.configuracion.nombreEvento}</p>
+            </div>
           </div>
         </div>
       </header>

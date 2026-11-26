@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { BajaLaApp } from '@/components/BajaLaApp';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const SITE_URL = 'https://akproducciones.uy';
 
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/enlaces`,
     siteName: 'AK Producciones Eventos',
     locale: 'es_UY',
+    images: [
+      {
+        url: '/media/catalogo-servicios/quinceanera_hero.png',
+        width: 1200,
+        height: 630,
+        alt: 'AK Producciones Eventos en Salto',
+      },
+    ],
   },
 };
 
@@ -29,9 +38,15 @@ export default function EnlacesPage() {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">AK Producciones</h1>
           <p className="text-sm text-neutral-400">Todo para tu fiesta en un solo lugar</p>
+          <div className="pt-1 flex justify-center">
+            <BotonComoFunciona clave="enlaces-bio" variant="dark" />
+          </div>
         </div>
 
         <div className="w-full flex flex-col space-y-4">
+          <h2 className="text-center text-xs font-bold uppercase tracking-widest text-neutral-400">
+            Lo que hacemos
+          </h2>
           <a
             href="/api/enlaces/clic?d=presupuesto"
             className="w-full py-4 px-6 bg-white text-black font-semibold rounded-2xl text-center shadow-lg hover:bg-neutral-200 transition"

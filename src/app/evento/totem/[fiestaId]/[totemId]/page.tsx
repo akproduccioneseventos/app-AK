@@ -15,6 +15,7 @@ import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { cn } from '@/lib/utils';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_MS = 2500;
 
@@ -335,6 +336,9 @@ export default function TotemPublicPage() {
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white break-words">
                 {totem.honoreeName || totem.title}
               </h1>
+              <div>
+                <BotonComoFunciona clave="totem" variant="dark" />
+              </div>
               <p className="text-base sm:text-xl font-semibold text-white/80 leading-relaxed max-w-xl">
                 {totem.subtitle}
               </p>

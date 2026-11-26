@@ -18,6 +18,7 @@ import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 // NPS Score Button
 function NpsButton({ score, selected, onClick }: { score: number; selected: boolean; onClick: () => void }) {
@@ -241,6 +242,9 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
             <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
             <CardTitle className="text-3xl font-bold font-headline">¡Valora tu experiencia!</CardTitle>
             <CardDescription className="text-lg">Tu opinión sobre &ldquo;{fiestaNombre}&rdquo; es muy importante para nosotros.</CardDescription>
+            <div className="pt-2 flex justify-center">
+              <BotonComoFunciona clave="encuesta" />
+            </div>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-8">

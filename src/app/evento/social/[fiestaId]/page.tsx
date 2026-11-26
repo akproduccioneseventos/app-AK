@@ -100,6 +100,7 @@ import { obtenerEstiloFotosAK } from '@/app/actions/estilo-fotos';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
 import type { CaraEnFoto } from '@/lib/caras/agrupar-caras';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
@@ -1338,6 +1339,7 @@ export default function SocialEventPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
           <div className="min-w-0 flex-1"><h1 className="break-words text-base font-black leading-tight sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
+          <BotonComoFunciona clave="subir-fotos-videos" variant="compact" />
           <VideoDeAyuda lugar="muro-subir-foto" />
           <a
             href={`/evento/mi-mesa/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}

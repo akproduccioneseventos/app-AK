@@ -4,13 +4,16 @@ import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
-export const metadata: Metadata = createEventLandingMetadata({
-  slug: 'bodas',
-  title: 'Bodas y Casamientos en Salto | AK Producciones',
-  description: 'Salón, comida, decoración, discoteca, fotografía y más en un solo lugar. Un solo contacto para toda tu boda en Salto.',
-  image: '/media/catalogo-servicios/boda_persuasiva.png',
-  imageAlt: 'Imagen ilustrativa de una boda',
-});
+export const metadata: Metadata = {
+  ...createEventLandingMetadata({
+    slug: 'bodas',
+    title: 'Bodas y Casamientos en Salto',
+    description: 'Salón, comida, decoración, discoteca, fotografía y más en un solo lugar. Un solo contacto para toda tu boda en Salto.',
+    image: '/media/catalogo-servicios/boda_persuasiva.png',
+    imageAlt: 'Imagen ilustrativa de una boda',
+  }),
+  alternates: { canonical: '/bodas' },
+};
 
 export default function BodasLanding() {
   return (

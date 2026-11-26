@@ -4,7 +4,7 @@ import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Catálogo de fiestas y servicios en Salto | AK Producciones Eventos',
+  title: 'Catálogo de fiestas y servicios en Salto',
   description:
     'Mirá todo lo que incluye tu fiesta en Salto: comida, discoteca, iluminación, fotografía, decoración y salones, con precios claros y opciones a medida.',
   alternates: {

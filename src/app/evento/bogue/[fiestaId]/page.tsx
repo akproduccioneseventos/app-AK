@@ -79,6 +79,7 @@ import {
   METADATOS_MODOS_CAPTURA,
 } from '@/lib/entretenimiento/modos-captura';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function VoguePage() {
   usePantallaPrendida();
@@ -1194,6 +1195,9 @@ export default function VoguePage() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Boomerang</h2>
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estación crea un loop con la cámara web.</p>
+                  <div className="pt-1 flex justify-center">
+                    <BotonComoFunciona clave="vogue" variant="dark" />
+                  </div>
                 </div>
 
                 {/* Selector táctil de fondo virtual */}

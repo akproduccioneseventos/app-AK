@@ -47,6 +47,7 @@ import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -999,6 +1000,9 @@ export default function BarraTecnologicaTouchPage() {
               <p className="mt-6 text-2xl font-semibold text-slate-300 drop-shadow-md max-w-2xl mx-auto">
                 {settings?.subtitle || 'Pedí tragos desde la pantalla, sacate fotos premium y subilas en vivo al muro.'}
               </p>
+              <div className="mt-4 flex justify-center">
+                <BotonComoFunciona clave="pedir-trago" variant="dark" />
+              </div>
             </div>
 
             <div className="flex flex-col gap-6 w-full max-w-2xl">

@@ -4,13 +4,16 @@ import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
-export const metadata: Metadata = createEventLandingMetadata({
-  slug: 'cumpleanos',
-  title: 'Cumpleaños y fiestas en Salto | AK Producciones',
-  description: 'Organizamos cumpleaños y fiestas sociales en Salto: salón, comida con vajilla y mobiliario, decoración, barra de tragos, discoteca y fotografía en un solo lugar.',
-  image: '/media/catalogo-servicios/social_persuasivo.png',
-  imageAlt: 'Imagen ilustrativa de un cumpleaños en Salto',
-});
+export const metadata: Metadata = {
+  ...createEventLandingMetadata({
+    slug: 'cumpleanos',
+    title: 'Cumpleaños y fiestas en Salto',
+    description: 'Organizamos cumpleaños y fiestas sociales en Salto: salón, comida con vajilla y mobiliario, decoración, barra de tragos, discoteca y fotografía en un solo lugar.',
+    image: '/media/catalogo-servicios/social_persuasivo.png',
+    imageAlt: 'Imagen ilustrativa de un cumpleaños en Salto',
+  }),
+  alternates: { canonical: '/cumpleanos' },
+};
 
 export default function CumpleanosLanding() {
   return (

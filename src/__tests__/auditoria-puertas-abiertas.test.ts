@@ -70,6 +70,8 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
     'sólo devuelve lo propio: sin jugador reconocido devuelve ceros.',
   'settings.ts:getAjustesLlegadaPersonal':
     'la consulta el personal desde su enlace de acceso para saber si la llegada requiere ubicación y a qué distancia.',
+  'settings.ts:getTutorialesSettings':
+    'la leen pantallas públicas y portales sin sesión para mostrar el botón "¿Cómo funciona?" cuando el dueño cargó un tutorial de YouTube (sólo devuelve enlaces/ids públicos de tutoriales).',
   'auth.ts:initializeAdminIfNeeded':
     'crea la primera cuenta de administrador y la llama el propio ingreso, antes de ' +
     'que exista sesión. No hace nada si ya hay usuarios, y necesita la contraseña ' +

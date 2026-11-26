@@ -55,6 +55,7 @@ import {
   extraerDescriptorFacial,
 } from '@/lib/caras/extractor-facial';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'invitados';
 
@@ -551,6 +552,9 @@ export default function GaleriaPage() {
                 {fiesta.configuracion?.nombreEvento}
               </p>
             )}
+            <div className="mt-1 flex justify-center">
+              <BotonComoFunciona clave="subir-fotos-videos" variant="dark" />
+            </div>
           </div>
 
           <button

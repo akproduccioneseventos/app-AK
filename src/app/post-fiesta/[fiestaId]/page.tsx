@@ -27,6 +27,7 @@ import { buildUltimateEventSystem } from '@/lib/experience-ak/ultimate-event-sys
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type PageProps = {
   params: Promise<{
@@ -79,9 +80,12 @@ export default async function PostFiestaPage(props: PageProps) {
       <section className="relative overflow-hidden bg-slate-900 px-6 py-20 text-white sm:px-12">
         <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_20%_20%,#6366f1_0%,transparent_30%),radial-gradient(circle_at_80%_10%,#4f46e5_0%,transparent_25%)]" />
         <div className="relative mx-auto max-w-5xl space-y-6">
-          <Badge className="bg-indigo-500 text-white hover:bg-indigo-600 rounded-full px-3 py-1 font-semibold text-xs border-none">
-            Recuerdos Premium AK
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="bg-indigo-500 text-white hover:bg-indigo-600 rounded-full px-3 py-1 font-semibold text-xs border-none">
+              Recuerdos Premium AK
+            </Badge>
+            <BotonComoFunciona clave="post-fiesta" variant="dark" />
+          </div>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight max-w-4xl text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-200">
             {eventName}
           </h1>

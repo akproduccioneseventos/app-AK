@@ -78,6 +78,7 @@ import {
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara, reflejarCarasEnHorizontal, FILTROS_DISPONIBLES, iniciarNuevoIntentoRuleta } from '@/lib/entretenimiento/filtros-cara';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -1518,6 +1519,9 @@ export default function FotocabinaPage() {
                   <p className="text-sm text-zinc-300">
                     Prepara tu pose. La foto se captura con la camara web de esta pantalla.
                   </p>
+                  <div className="pt-1 flex justify-center">
+                    <BotonComoFunciona clave="fotocabina" variant="dark" />
+                  </div>
                 </div>
 
                 <div className="pt-2">

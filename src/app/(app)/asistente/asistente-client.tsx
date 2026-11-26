@@ -660,7 +660,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900">
-                Tareas automáticas ({tareas.length})
+                Tareas automáticas{loading && tareas.length === 0 ? '' : ` (${tareas.length})`}
               </CardTitle>
               <CardDescription className="text-xs">
                 Todas las tareas declaradas en el sistema, con su última corrida y qué pasa si se frenan.

@@ -6,7 +6,7 @@ import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'fiestas-infantiles',
-  title: 'Fiestas infantiles en Salto | AK Producciones',
+  title: 'Fiestas infantiles en Salto',
   description: 'Organizamos fiestas infantiles en Salto para que mamá y papá también disfruten: salón, organización, comida, decoración, discoteca, fotocabina y fotografía en un solo lugar.',
   image: '/media/catalogo-servicios/familia_feliz_evento.png',
   imageAlt: 'Imagen ilustrativa de una fiesta infantil en familia',

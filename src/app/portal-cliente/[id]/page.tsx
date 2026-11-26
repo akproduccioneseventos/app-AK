@@ -85,6 +85,7 @@ import { SUAVE, DURACION } from '@/lib/motion';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 import { AsistenteDelCliente } from '@/components/portal/AsistenteDelCliente';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -639,6 +640,7 @@ function PortalClientePageInner() {
             <p className="text-xs text-muted-foreground">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <BotonComoFunciona clave="portal-cliente" variant="compact" />
             <VideoDeAyuda lugar="portal-cliente" />
             <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
               Portal VIP
@@ -724,7 +726,10 @@ function PortalClientePageInner() {
               <span className="text-3xl shrink-0">✨</span>
               <div className="text-left">
                 <p className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1">¡Evento Concluido!</p>
-                <h3 className="text-base font-black text-foreground">Muro de Recuerdos & Descargas</h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-black text-foreground">Muro de Recuerdos & Descargas</h3>
+                  <BotonComoFunciona clave="cliente-fotos-video" variant="compact" />
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   Ya podés acceder a todas las fotos y videos compartidos por tus invitados, así como a las dedicatorias y audios.
                 </p>
@@ -1037,8 +1042,11 @@ function PortalClientePageInner() {
             >
               <Card className="rounded-xl border border-amber-500/20 bg-amber-500/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base font-black text-amber-700 dark:text-amber-400">
-                    <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                  <CardTitle className="flex items-center justify-between gap-2 text-base font-black text-amber-700 dark:text-amber-400">
+                    <span className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                    </span>
+                    <BotonComoFunciona clave="cliente-pendientes" variant="compact" />
                   </CardTitle>
                   <CardDescription className="text-muted-foreground text-xs">
                     Completá estos pasos para que tu evento esté 100% listo.
@@ -1083,11 +1091,14 @@ function PortalClientePageInner() {
         <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
           {/* ── Resumen del Evento ──────────────────────── */}
           <AccordionItem value="resumen" id="resumen" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <CalendarDays className="w-5 h-5 text-primary" /> Resumen del Evento
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <CalendarDays className="w-5 h-5 text-primary" /> Resumen del Evento
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="cliente-resumen" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5">
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-3">
@@ -1123,16 +1134,19 @@ function PortalClientePageInner() {
 
           {/* ── Lo que tenés que llevar ───────────── */}
           <AccordionItem value="llevar" id="llevar" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <PackageCheck className="w-5 h-5 text-primary" /> Lo que tenés que llevar
-                {debeLlevarItems.filter(i => i.completado).length > 0 && (
-                  <Badge className="ml-1 bg-primary/10 text-primary border-0 text-xs">
-                    {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
-                  </Badge>
-                )}
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <PackageCheck className="w-5 h-5 text-primary" /> Lo que tenés que llevar
+                  {debeLlevarItems.filter(i => i.completado).length > 0 && (
+                    <Badge className="ml-1 bg-primary/10 text-primary border-0 text-xs">
+                      {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
+                    </Badge>
+                  )}
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="cliente-lo-que-llevas" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-2.5">
                 <p className="text-xs text-muted-foreground pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
@@ -1178,11 +1192,14 @@ function PortalClientePageInner() {
           {/* ── Menú y Cronograma ────────────────────────── */}
           {(showCatering || showTimeline) && (
             <AccordionItem value="catering" id="catering" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-                <span className="flex items-center gap-2 text-base font-black text-foreground">
-                  <UtensilsCrossed className="w-5 h-5 text-amber-500" /> Menú e Itinerario
-                </span>
-              </AccordionTrigger>
+              <div className="flex items-center justify-between gap-2 pr-4">
+                <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                  <span className="flex items-center gap-2 text-base font-black text-foreground">
+                    <UtensilsCrossed className="w-5 h-5 text-amber-500" /> Menú e Itinerario
+                  </span>
+                </AccordionTrigger>
+                <BotonComoFunciona clave="cliente-menu" variant="compact" />
+              </div>
               <AccordionContent className="px-5 pb-5">
                 <div className="grid sm:grid-cols-2 gap-6">
                   {showCatering && (
@@ -1236,15 +1253,18 @@ function PortalClientePageInner() {
             id="video-vida"
             className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
           >
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <span className="text-xl">🎬</span> Video de Vida
-                {fiesta.videoVida?.photosUploaded
-                  ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
-                  : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
-                }
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <span className="text-xl">🎬</span> Video de Vida
+                  {fiesta.videoVida?.photosUploaded
+                    ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
+                    : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
+                  }
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="video-vida" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5 space-y-3">
               <p className="text-sm text-muted-foreground">
                 El video de vida es uno de los momentos más especiales de tu fiesta.
@@ -1286,14 +1306,17 @@ function PortalClientePageInner() {
           {/* ── Decoración ───────────────────────────────── */}
           {showDecoration && (
             <AccordionItem value="decoracion" id="decoracion" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-                <span className="flex items-center gap-2 text-base font-black text-foreground">
-                  <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
-                  {fiesta.decoracion?.tema && (
-                    <span className="ml-1 text-xs font-normal text-muted-foreground">Tema: {fiesta.decoracion.tema}</span>
-                  )}
-                </span>
-              </AccordionTrigger>
+              <div className="flex items-center justify-between gap-2 pr-4">
+                <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                  <span className="flex items-center gap-2 text-base font-black text-foreground">
+                    <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
+                    {fiesta.decoracion?.tema && (
+                      <span className="ml-1 text-xs font-normal text-muted-foreground">Tema: {fiesta.decoracion.tema}</span>
+                    )}
+                  </span>
+                </AccordionTrigger>
+                <BotonComoFunciona clave="decoracion" variant="compact" />
+              </div>
               <AccordionContent className="px-5 pb-5 space-y-4">
                 {fiesta.decoracion?.paletaColores && (
                   <div className="space-y-2">
@@ -1372,13 +1395,14 @@ function PortalClientePageInner() {
               transition={{ duration: DURACION.entrar, ease: SUAVE }}
               className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
             >
-              <div className="px-5 py-4 border-b border-border">
+              <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <Users className="w-5 h-5 text-primary" /> Invitados
                   <span className="ml-1 text-xs font-normal text-muted-foreground">
                     {personas.confirmados} personas confirmadas · {personas.sinResponder} sin responder
                   </span>
                 </span>
+                <BotonComoFunciona clave="cliente-invitados" variant="compact" />
               </div>
               <div className="px-5 py-5 space-y-5">
                 {/* RSVP Tracker */}
@@ -1459,10 +1483,11 @@ function PortalClientePageInner() {
               transition={{ duration: DURACION.entrar, ease: SUAVE }}
               className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
             >
-              <div className="px-5 py-4 border-b border-border">
+              <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Estado Financiero
                 </span>
+                <BotonComoFunciona clave="cliente-pagos" variant="compact" />
               </div>
               <div className="px-5 py-5 space-y-6">
                 <div className="grid grid-cols-3 gap-3">
@@ -1532,9 +1557,12 @@ function PortalClientePageInner() {
           className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm"
           data-testid="seccion-faq-contrato"
         >
-          <div className="mb-4">
-            <h2 className="text-lg font-black text-foreground">Preguntas Frecuentes del Servicio</h2>
-            <p className="text-xs text-muted-foreground">Términos claros y transparentes de nuestro contrato y organización.</p>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-black text-foreground">Preguntas Frecuentes del Servicio</h2>
+              <p className="text-xs text-muted-foreground">Términos claros y transparentes de nuestro contrato y organización.</p>
+            </div>
+            <BotonComoFunciona clave="cliente-mensajes" variant="compact" />
           </div>
           <Accordion type="single" collapsible className="w-full">
             {PREGUNTAS_FRECUENTES_DEL_CONTRATO.map((faq, idx) => (

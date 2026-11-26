@@ -7,6 +7,7 @@ import { getBarraTecnologicaDashboard } from '@/app/actions/fiesta/barra-tecnolo
 import type { BarTechnologyDashboard } from '@/types/barra-tecnologica';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function BarraStatsPage() {
   const params = useParams();
@@ -48,14 +49,17 @@ export default function BarraStatsPage() {
     <main className="min-h-screen bg-zinc-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto space-y-8">
 
-        <header className="flex items-center gap-4 border-b border-white/10 pb-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-            <BarChart3 className="w-8 h-8 text-white" />
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <BarChart3 className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tight text-white">Estadísticas de la Barra</h1>
+              <p className="text-zinc-400">{dashboard?.eventName}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-white">Estadísticas de la Barra</h1>
-            <p className="text-zinc-400">{dashboard?.eventName}</p>
-          </div>
+          <BotonComoFunciona clave="barman" variant="dark" />
         </header>
 
         <div className="grid gap-6 md:grid-cols-3">

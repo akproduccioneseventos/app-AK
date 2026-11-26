@@ -28,6 +28,7 @@ import { addChatMessage, getChatMessages } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { ChatMessage } from '@/types/social-gallery';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function EventoEnVivoPage() {
   usePantallaPrendida();
@@ -167,8 +168,11 @@ export default function EventoEnVivoPage() {
               <p className="text-[10px] text-slate-400">Transmisión Privada Exclusiva</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-red-500/20 text-red-400 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border border-red-500/30">
-            <Radio className="h-3.5 w-3.5" /> En Vivo
+          <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="en-vivo" variant="dark" />
+            <div className="flex items-center gap-1.5 bg-red-500/20 text-red-400 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border border-red-500/30">
+              <Radio className="h-3.5 w-3.5" /> En Vivo
+            </div>
           </div>
         </div>
       </header>

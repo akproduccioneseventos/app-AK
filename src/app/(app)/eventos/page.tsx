@@ -36,6 +36,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents, esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
+import { esFiestaProxima } from '@/lib/fiesta/esFiestaProxima';
 import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -181,13 +182,7 @@ export default function GestorFiestasPage() {
   );
 
   const activePlanningCount = React.useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return dedupedFiestasActivas.filter(fiesta => {
-      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-      return !eventDate || eventDate >= today || fiesta.estado === 'Contratada';
-    }).length;
+    return dedupedFiestasActivas.filter(fiesta => esFiestaProxima(fiesta)).length;
   }, [dedupedFiestasActivas]);
 
   const fiestasDemo = React.useMemo(() => {
@@ -606,7 +601,7 @@ export default function GestorFiestasPage() {
           </CardHeader>
           <CardContent>
             <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
-              {error ? "No se pudo leer la lista" : kpiData.fiestasPasadas}
+              {error ? "No se pudo leer la lista" : isLoading ? "…" : kpiData.fiestasPasadas}
             </div>
             <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
           </CardContent>
@@ -619,7 +614,7 @@ export default function GestorFiestasPage() {
           </CardHeader>
           <CardContent>
             <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
-              {error ? "No se pudo leer la lista" : activePlanningCount}
+              {error ? "No se pudo leer la lista" : isLoading ? "…" : activePlanningCount}
             </div>
             <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
           </CardContent>

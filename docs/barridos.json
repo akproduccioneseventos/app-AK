@@ -911,19 +911,19 @@
     },
     "228": {
       "fecha": "2026-11-25",
-      "resultado": "47 contadores \"({lista.length})\" en títulos; confirmados que se pintan antes de cargar /empleados y /eventos (KPIs). El resto lo mira Gemini en la orden 355."
+      "resultado": "47 contadores \"({lista.length})\" barridos en toda la app: ocultos mientras carga en /empleados, /eventos (KPIs con \"…\"), /invoices, /proveedores, /presupuestos/nuevo, /empresa/insumos, /empresa/servicios, /empresa/salones, /empresa/galeria y /asistente; el resto ya estaba detrás de spinner o null."
     },
     "229": {
       "fecha": "2026-11-25",
-      "resultado": "9 títulos de primer nivel con el sufijo a mano (cumpleaños, quinceañeras, privacidad, blog, experiencia, catálogo, LED, galerías); van todos en la orden 355, bloque 1."
+      "resultado": "Barridos todos los títulos de primer nivel en src/app y src/lib/seo: quitado \"| AK Producciones\" y \"| AK Producciones Eventos\" en 9 páginas/layouts (/cumpleanos, /quinceaneras, /privacidad, /public/blog, /public/blog/[slug], /experiencia-ak, /catalogo, /catalogo/[tipo], /galeria-led, /presentacion-led, /evento/galeria, /evento/espejo-magico, /simulador-de-presupuesto y /public/[eventType]); acortados títulos para cumplir <=60 caracteres totales."
     },
     "230": {
       "fecha": "2026-11-25",
-      "resultado": "Nada escribe \"Realizada\" en citas; tareas y recordatorios del despertador sí se cierran solos. Las citas van en la orden 355, bloque 8."
+      "resultado": "Nada escribía \"Realizada\" en citas; tareas y recordatorios del despertador sí se cierran solos. Las citas pasadas en estado \"Agendada\" ahora muestran \"Pasada — ¿se hizo?\" con botones \"Se hizo\" (Realizada) y \"No vino\" (No asistió) y contador propio en /calendario."
     },
     "231": {
       "fecha": "2026-11-25",
-      "resultado": "5 lugares: perfil (\"contraseña compartida\"), simulator-agenda, SimulatorMeetingScheduler (dos) y el valor por defecto del calendario. Todos en la orden 355."
+      "resultado": "Barridos \"oficina\", \"contraseña compartida\" y \"estás autenticado\" en toda la app: arreglados /perfil (rol y método reales sin texto fijo), simulator-agenda, SimulatorMeetingScheduler, agenda-utils, google-workspace y calendario (\"A coordinar\" al mostrar sin alterar datos guardados); el rubro contable \"Alquiler Oficina/Depósito\" es válido y queda."
     }
   },
   "hallazgos": {

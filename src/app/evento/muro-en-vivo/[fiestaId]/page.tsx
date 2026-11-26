@@ -64,6 +64,7 @@ function isPostApprovedForScreen(post: SocialGalleryPost) {
 
 
 import { FONDOS_MURO } from '@/lib/social-fiesta/fondos-muro';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function MuroEnVivoPage() {
   usePantallaPrendida();
@@ -594,6 +595,7 @@ export default function MuroEnVivoPage() {
             <span className="text-sm font-semibold text-white/65">{eventName}</span>
           )}
           <div className="flex items-center gap-3">
+            <BotonComoFunciona clave="subir-fotos-videos" variant="dark" />
             <button
               onClick={() => {
                 // no pasa nada si falla: si el navegador no deja la pantalla completa, el muro se sigue viendo igual.

@@ -40,6 +40,7 @@ import { getTestimonials } from '@/app/actions/feedback';
 import { getGaleriaFotosByTipoFiesta } from '@/app/actions/galeria';
 import { getSalonesPublicos } from '@/app/actions/salones';
 import { CURATED_CLUB_URUGUAY_PHOTOS, dedupeSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import type { GaleriaFoto } from '@/types/galeria';
 import type { Testimonial } from '@/types/feedback';
 import fallbackTestimonials from '@/data/testimonials.json';
@@ -418,6 +419,7 @@ export function EventLandingPage({
             <span className="flex items-center gap-1.5 text-amber-300">
               <Clock className="h-4 w-4 shrink-0" /> Presupuesto detallado en pesos uruguayos
             </span>
+            <BotonComoFunciona clave="paginas-por-tipo" variant="dark" />
           </div>
         </div>
 

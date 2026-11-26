@@ -5,6 +5,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, HelpCircle, ChevronDown, ChevronUp, Send, CheckCircle2 } from 'lucide-react';
@@ -93,14 +94,17 @@ export default function PortalFaqPage() {
 
         <Card className="rounded-2xl border-slate-200 shadow-sm overflow-hidden bg-white">
           <CardHeader className="bg-gradient-to-r from-red-900 to-slate-900 text-white p-6 sm:p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur-md">
-                <HelpCircle className="w-6 h-6" />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur-md">
+                  <HelpCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-black">Preguntas Frecuentes</CardTitle>
+                  <p className="text-xs text-slate-300 mt-1">Guía práctica y respuestas para organizar tu evento con AK Producciones</p>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-2xl font-black">Preguntas Frecuentes</CardTitle>
-                <p className="text-xs text-slate-300 mt-1">Guía práctica y respuestas para organizar tu evento con AK Producciones</p>
-              </div>
+              <BotonComoFunciona clave="cliente-mensajes" variant="dark" />
             </div>
           </CardHeader>
           <CardContent className="p-6 sm:p-8 space-y-6">

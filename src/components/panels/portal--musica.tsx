@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getFiestaForPortalSession, saveListaMusica, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, ListaMusicaPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -117,9 +118,12 @@ export default function MusicaPortalPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900">🎵 Tu Lista Musical</h1>
-          <p className="text-slate-500 text-sm mt-1">Armá la banda de sonido perfecta para tu evento</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900">🎵 Tu Lista Musical</h1>
+            <p className="text-slate-500 text-sm mt-1">Armá la banda de sonido perfecta para tu evento</p>
+          </div>
+          <BotonComoFunciona clave="cliente-musica" variant="compact" />
         </div>
 
         {sections.map(section => (

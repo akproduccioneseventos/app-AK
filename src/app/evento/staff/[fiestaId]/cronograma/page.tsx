@@ -10,6 +10,7 @@ import { marcarHitoPrograma } from '@/app/actions/fiesta/itinerario.actions';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
 import { hoyEnUruguay } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const ROLES = [
   { id: 'Todos', label: 'Todo el Equipo' },
@@ -160,9 +161,12 @@ export default function StaffCronogramaPage() {
               Lo tuyo, ahora
             </h1>
           </div>
-          <div className="text-right">
-            <div className="font-mono text-xl font-black text-amber-400">{currentTime}</div>
-            <span className="text-[10px] text-slate-400 uppercase">Hora actual</span>
+          <div className="flex items-center gap-3">
+            <BotonComoFunciona clave="staff-cronograma" variant="dark" />
+            <div className="text-right">
+              <div className="font-mono text-xl font-black text-amber-400">{currentTime}</div>
+              <span className="text-[10px] text-slate-400 uppercase">Hora actual</span>
+            </div>
           </div>
         </div>
 
