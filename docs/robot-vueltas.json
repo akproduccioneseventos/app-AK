@@ -26,6 +26,33 @@
       ],
       "orden": 356,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T00:41",
+      "areas": [
+        "comida",
+        "personal"
+      ],
+      "aspecto": "tareas automaticas",
+      "robot_todo": "152 pantallas: 4 rojos, 2 viejos (orden 346, sin publicar) y 2 del entorno (sin cámara); cero nuevos",
+      "hallazgos_confirmados": [
+        "plato infantil del menú asignado comprado para todos",
+        "niños detectados sólo con tilde en la lista",
+        "mesa buffet con dos comparaciones",
+        "unidades incompatibles suman al total",
+        "total cobrado del reporte con pendientes",
+        "recibos guardados y leídos de lugares distintos (latente)",
+        "año de la fiesta corrido",
+        "posteos fallados como corrida buena",
+        "ruta del blog sin includeRecontacto false"
+      ],
+      "descartados": [
+        "recordatorio de invitados disparado por una visita: una vez por día y con interruptor, es la decisión del dueño",
+        "escrituras del candado por visita: costo chico",
+        "muestra del auditor con clave fija: datos de muestra"
+      ],
+      "orden": 357,
+      "corregidos": []
     }
   ]
 }
