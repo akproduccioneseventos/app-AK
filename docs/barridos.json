@@ -1374,6 +1374,10 @@
     "orden-355": {
       "fecha": "2026-11-25",
       "resultado": "Cuarta auditoría externa del 25/11: títulos dobles, páginas por tipo repetidas para Google, ceros mientras carga, conteos distintos de fiestas próximas, citas que no se cierran, oficina inexistente, textos fijos del perfil. Barrido de las cuatro formas nuevas (228 a 231) en toda la app, todo dentro de la orden 355."
+    },
+    "orden-356": {
+      "fecha": "2026-11-25",
+      "resultado": "Robot vuelta 1 (contrato, barra, sincronización): seña con tres cuentas distintas (pregunta 110), pedidos de barra del respaldo invisibles, blog y plantillas que se borran con una lectura fallida (pregunta 210), fechas de hitos un día antes. Barrido de seña, catch que devuelve [] y fechas AAAA-MM-DD en la orden 356."
     }
   }
 }

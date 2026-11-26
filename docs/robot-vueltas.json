@@ -1,0 +1,31 @@
+{
+  "vueltas": [
+    {
+      "fecha": "2026-11-25T23:41",
+      "areas": [
+        "contrato",
+        "barra"
+      ],
+      "aspecto": "sincronizacion",
+      "robot_todo": "no corrido: la verificación de la entrega 346-349 ocupaba la máquina; va en la vuelta 2",
+      "hallazgos_confirmados": [
+        "seña con tres importes distintos",
+        "{{MONTO_SENA}} en blanco",
+        "hitos de la cláusula 3 un día antes",
+        "pedidos de barra del respaldo invisibles",
+        "pedido manual del barman sin turno",
+        "cierre de barra que dice guardado sin mover el depósito",
+        "cambiar trago sin clientRequestId",
+        "listos devuelve guestId y nota",
+        "blog se borra con lectura fallida",
+        "plantillas de decoración se borran con lectura fallida"
+      ],
+      "descartados": [
+        "tótem por nombre (decisión del 6/10)",
+        "dudosos de sincronización 4 a 8: ventanas chicas, quedan para mirar en la vuelta de sincronización siguiente"
+      ],
+      "orden": 356,
+      "corregidos": []
+    }
+  ]
+}

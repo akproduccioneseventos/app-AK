@@ -96,6 +96,24 @@ la DEMO** e incluye 30 días para atrás, y el cartel dice "Eventos próximos".
    `src/app/evento/actual/mesa/page.tsx` ~26 ("No se proporcionó ID de invitado."): los lee un invitado. Texto: "Abrí este
    enlace desde tu invitación o pedile el QR a la recepción." Los botones de salida que ya tienen quedan.
 
+## Bloque 10 — Borrar los registros de prueba de la base (decisión del dueño, 25/11/2026: "Sí")
+El dueño autorizó borrar lo cargado para probar. **Sin botones** (decisión del 24/11): una tarea de una sola vez, igual que
+`empezar_2027` en `src/lib/automatico/al-entrar-a-la-app.ts` (~55, ~74, ~371-387), llamada `limpiar_pruebas`, en
+`src/lib/automatico/limpiar-pruebas.ts`.
+1. Borra **sólo** registros cuyo nombre o título empieza con "PRUEBA" (sin distinguir mayúsculas) o que son exactamente
+   "Prueba Test", "Prueba Led Transferencia 23nov" y "Cliente Prueba" (presupuesto #1173), en: platos y menús
+   (`menus-catering`), prospectos del CRM, presupuestos, clientes, empleados, salones e insumos.
+2. **Uno por uno** con el borrado de a un registro que ya usa cada módulo, nunca reescribiendo la lista entera.
+3. **Si un presupuesto de prueba tiene cobros, cuotas pagadas, factura o contrato firmado, no se borra**: queda en la lista
+   de "no se borró y por qué".
+4. Antes de borrar guarda una copia de lo que va a borrar (`data/limpiar-pruebas-copia.json` o el respaldo que ya existe) y
+   al terminar deja el resultado en el registro de tareas: qué borró y qué no.
+5. Las faltas de ortografía del catálogo y de los activos (Filmacion, Chesecake, EXTRUCTURA…) **no se tocan**: son datos
+   del dueño.
+Prueba: `src/__tests__/limpiar-pruebas-borra-solo-lo-de-prueba.test.ts`: con datos de la forma real, borra "PRUEBA Salón…"
+y "Prueba Test", **no** borra "Pruebas de sonido Salón Arapey" ni un presupuesto "PRUEBA" con un cobro, y una segunda corrida
+no hace nada.
+
 ## Barrido en toda la app
 - Contadores en 0 mientras cargan (pregunta 228): `npm run formas-que-mienten` y además
   `grep -rnE "\(\{\w+\.length\}\)" src/app src/components --include=*.tsx`; en cada uno, mirar si se pinta antes de cargar.
@@ -154,6 +172,9 @@ usa: descripcion en src/app/simulador-de-presupuesto/page.tsx
 usa: tu invitación en src/app/evento/actual/checkin/page.tsx
 usa: tu invitación en src/app/evento/actual/mesa/page.tsx
 usa: Ir a Fiestas en src/app/(app)/fiestas/nueva/page.tsx
+archivo: src/lib/automatico/limpiar-pruebas.ts
+usa: limpiar_pruebas en src/lib/automatico/al-entrar-a-la-app.ts
+prueba: src/__tests__/limpiar-pruebas-borra-solo-lo-de-prueba.test.ts
 prueba: src/__tests__/auditoria-4-del-25-11.test.ts
 prueba: tests/e2e/la-cuarta-auditoria-del-25-11.spec.ts
 ```
