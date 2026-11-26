@@ -20,6 +20,8 @@ test.describe('Orden 349 - Tercera auditoría del 25/11 en celular (390 px)', ()
     await expect(sendBtn).toBeVisible({ timeout: 15_000 });
 
     const inputBox = await input.boundingBox();
+    // El botón se vuelve a pintar cuando carga Sofía: se espera a que tenga caja, no se lee una sola vez.
+    await expect.poll(async () => (await sendBtn.boundingBox()) !== null, { timeout: 10_000 }).toBe(true);
     const btnBox = await sendBtn.boundingBox();
     expect(inputBox?.width).toBeGreaterThan(120);
     expect(btnBox).not.toBeNull();
