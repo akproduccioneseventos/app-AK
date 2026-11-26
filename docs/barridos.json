@@ -960,6 +960,14 @@
     "240": {
       "fecha": "2026-11-26",
       "resultado": "Fotocabina (errorMsg) y Vogue (uploadError) mezclan el fallo de impresión con el de subida; el resto de las estaciones lo barre Gemini en la orden 366."
+    },
+    "241": {
+      "fecha": "2026-11-26",
+      "resultado": "ganancia-evento.ts: includes('mp') toma 'compra' por Mercado Pago; hoja-de-cocina.ts includes('nin') ya en la orden 364. El resto lo barre Gemini en la orden 367."
+    },
+    "242": {
+      "fecha": "2026-11-26",
+      "resultado": "motor-agentes.ts traga el error de cada agente y el asistente proactivo se marca corrido; el blog con candado ocupado también. El resto lo barre Gemini en la orden 367."
     }
   },
   "hallazgos": {
@@ -1454,6 +1462,10 @@
     "orden-366": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 11 (textos de la web y de las estaciones): Sofía congela precios y dice seña del 30% (pregunta 239), fallo de impresión anunciado como foto no publicada o falla de conexión (pregunta 240)."
+    },
+    "orden-367": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 12 (seis especialistas): listas del cliente y del recontacto que se pisan (210), 'mp' en 'compra' y bloques pagados a medias en la ganancia (241), ingreso sin ajuste en Finanzas, parte del equipo con cuotas a cualquiera, caras de invitados públicas, avisos que dicen 'enviado' sin enviar, tareas corridas con agentes caídos (242), fechas de cobros y cuotas en hora de Greenwich (70), botones de 36 px del invitado."
     }
   }
 }

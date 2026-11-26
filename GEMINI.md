@@ -68,6 +68,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       mensajes ni borra, y la barra no confunde a dos invitados con el mismo nombre.
   17. **Orden 366 (`docs/ordenes/366-gemini-robot-vuelta-11-sofia-y-avisos-de-impresion.md`):** Sofía no congela precios ni
       dice "seña del 30%", y un fallo de impresión no se anuncia como foto perdida.
+  18. **Orden 367 (`docs/ordenes/367-gemini-robot-vuelta-12-seis-especialistas.md`):** listas que se pisan, las cuentas de la
+      ganancia, quién ve el parte y las caras, avisos que no salieron, tareas corridas que fallaron y fechas de Uruguay.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

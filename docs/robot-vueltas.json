@@ -298,6 +298,82 @@
       ],
       "orden": 366,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T10:42",
+      "areas": [
+        "portal",
+        "invitado",
+        "contrato",
+        "fiesta",
+        "asistente",
+        "redes",
+        "personal",
+        "comida",
+        "automaticos",
+        "web",
+        "plata",
+        "estaciones"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "portal",
+          "invitado"
+        ],
+        "plata": [
+          "contrato",
+          "fiesta"
+        ],
+        "permisos": [
+          "asistente",
+          "redes"
+        ],
+        "promesas": [
+          "personal",
+          "comida"
+        ],
+        "automaticos": [
+          "automaticos",
+          "web"
+        ],
+        "fechas-y-celular": [
+          "plata",
+          "estaciones"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "lista de lo que lleva el cliente se pisa",
+        "recontacto reescribe todos los prospectos",
+        "'mp' en 'compra' baja la comisión de MP",
+        "bloques pagados a medias cuentan sólo lo pagado",
+        "ingreso sin ajuste en Finanzas, comparativa y aviso de margen",
+        "parte del equipo con cuotas y comprobantes a cualquiera",
+        "caras de los invitados públicas",
+        "alergias: 'enviado a cocina' con el aviso apagado",
+        "'Resumen enviado' sin enviar",
+        "agentes caídos y tarea corrida",
+        "blog con candado ocupado marcado corrido",
+        "posicionamiento con páginas rotas sin aviso",
+        "blog sin control de plazos prometidos",
+        "fecha del pago y de la cuota en Greenwich",
+        "fiesta de hoy 'pasada' a la noche",
+        "cuota vencida desde las 21",
+        "botones de 36 px en el social del invitado"
+      ],
+      "descartados": [
+        "'Te avisaremos' de la barra: la pantalla se actualiza cada 5 segundos",
+        "recibos, empleado, menú: miran success",
+        "firma digital y cambio de fecha",
+        "multas fuera del descuento",
+        "webhook de Meta y voz",
+        "amortización y 10% del cambio de fecha: reglas del negocio",
+        "clave fija de la fiesta de muestra: datos de mentira"
+      ],
+      "orden": 367,
+      "corregidos": []
     }
   ]
 }

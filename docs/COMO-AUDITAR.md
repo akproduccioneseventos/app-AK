@@ -2179,3 +2179,13 @@ escrito en sus instrucciones "congelamos el precio tras la seña del 30%". Lo qu
 
 Misma vuelta: en la fotocabina y en el Vogue, un fallo de impresión se guardaba en el mismo estado que la subida, y la pantalla
 decía "No se pudo publicar" o "Fallo conexión" con la foto subida. Cada falla tiene su aviso.
+
+### 241. Una palabra corta que se busca adentro de un texto, ¿puede aparecer como pedazo de otra?
+
+Duodécima vuelta del robot, 26/11/2026: la ganancia restaba de la comisión de Mercado Pago cualquier gasto con "comisión" y "mp", y
+"mp" está en "compra". Ya había pasado con "nin" en "Panini" (orden 364). Una palabra de dos o tres letras se busca entera.
+
+### 242. Una tarea que junta varias, ¿se marca "corrida" aunque una de adentro haya fallado?
+
+Misma vuelta: el asistente proactivo corre varios agentes; si uno tiraba error, sólo se anotaba en la consola y la tarea figuraba
+corrida hoy. Y el blog con el candado ocupado se marcaba hecho sin haberlo hecho nadie. La corrida se marca cuando todo salió.

@@ -300,6 +300,13 @@ const FORMAS = [
     comoSeArregla: 'Sacarlo del texto de la IA y armar la seña con el monto de Ajustes.',
   },
   {
+    pregunta: 241,
+    nombre: 'Una palabra corta buscada por pedazos adentro de otras',
+    porque: 'La ganancia tomaba "Comisión por compra" como comisión de Mercado Pago porque buscaba "mp", que está en "compra" (robot, vuelta 12, 26/11/2026).',
+    buscar: /\.includes\(\s*'(?:mp|mo|nin|ni|kg|uy)'\s*\)/g,
+    comoSeArregla: 'Buscar la palabra entera (\\b) o el nombre completo, no un pedazo de dos o tres letras.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
@@ -361,6 +368,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   236: 'Que la rama "ya existía" haga lo mismo que la rama "lo creé" es un comportamiento: lo cubre src/__tests__/el-reintento-del-contrato-engancha-la-sena.test.ts (orden 363).',
   237: 'Que la misma plata se lea de un solo libro en todas las pantallas es un comportamiento: lo cubre src/__tests__/una-cuota-cobrada-se-ve-en-todos-lados.test.ts (orden 364).',
   240: 'Que dos fallas distintas no compartan el mismo aviso es un comportamiento: lo cubre tests/e2e/la-impresion-fallida-no-dice-foto-perdida.spec.ts (orden 366).',
+  242: 'Que una tarea que junta varias no se marque corrida si una de adentro falló es un comportamiento: lo cubre src/__tests__/una-tarea-con-un-agente-caido-no-figura-corrida.test.ts (orden 367).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
