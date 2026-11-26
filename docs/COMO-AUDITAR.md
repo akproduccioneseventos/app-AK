@@ -2215,3 +2215,9 @@ invitados con el enlace.
 
 Decimosexta vuelta del robot, 26/11/2026: Meta avisa `delivery: 'uncertain'` cuando tarda (el mensaje pudo haber salido) y pide no
 reintentar. El aviso de fotos por WhatsApp lo tomaba como falla, no lo anotaba, y en la tanda siguiente el invitado lo recibía otra vez.
+
+### 248. Una ruta que entrega archivos, ¿mira qué tipo de documento es, o sólo que la persona sea "del equipo"?
+
+Decimoséptima vuelta del robot, 26/11/2026: los documentos de la fiesta (contratos, recibos de seña y de sueldo) los sube sólo quien tiene
+contabilidad, pero los bajaba cualquiera del equipo de la fiesta, incluido el operador, y el portal del cliente recibía también los recibos
+del personal.

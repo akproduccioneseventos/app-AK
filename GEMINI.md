@@ -78,6 +78,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       invitados, Entretenimiento sin borrar fotos, el personal que sigue a los invitados y fechas de Uruguay.
   22. **Orden 371 (`docs/ordenes/371-gemini-robot-vuelta-16-seis-especialistas.md`):** estaciones de otra fiesta, costos del
       operador, IA por el tope, avisos que se repiten y fechas que se corren.
+  23. **Orden 372 (`docs/ordenes/372-gemini-robot-vuelta-17-seis-especialistas.md`):** documentos de plata, "conectado" y "al día"
+      de verdad, el asistente sin pisar listas, la fecha de la fiesta como día y Poner al día con el ajuste.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

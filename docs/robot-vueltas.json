@@ -669,6 +669,86 @@
       ],
       "orden": 371,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T15:41",
+      "areas": [
+        "asistente",
+        "permisos",
+        "plata",
+        "automaticos",
+        "contrato",
+        "redes",
+        "web",
+        "barra",
+        "personal",
+        "comida"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "asistente",
+          "permisos"
+        ],
+        "plata": [
+          "plata",
+          "automaticos"
+        ],
+        "permisos": [
+          "plata",
+          "contrato"
+        ],
+        "promesas": [
+          "redes",
+          "automaticos"
+        ],
+        "automaticos": [
+          "web",
+          "barra"
+        ],
+        "fechas-y-celular": [
+          "personal",
+          "comida"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "el operador baja contratos y recibos",
+        "recibos del personal en el portal del cliente",
+        "correo del contador público",
+        "Google 'conectado' fijo",
+        "historial 'sincronizado' sin datos",
+        "'al día' con falla posterior",
+        "recontacto 'corrido' sin enviar",
+        "decisiones del asistente borradas con lectura fallida",
+        "reglas aprendidas borradas con lectura fallida",
+        "propuestas resueltas que cambian",
+        "dos cuentas con el mismo correo",
+        "fecha de la fiesta guardada con hora: 'Invalid Date'",
+        "Poner al día cobra sin el ajuste",
+        "devoluciones de botellas que no se hicieron"
+      ],
+      "repetidos_sin_arreglar": [
+        "'mp' en 'compra' (orden 367)",
+        "bloques pagados a medias (orden 367)"
+      ],
+      "descartados": [
+        "subir y borrar documentos con CONTABILIDAD",
+        "firma digital",
+        "rutas de contratos y comprobantes",
+        "acciones de plata con guarda",
+        "Mercado Pago",
+        "pagos a proveedores",
+        "publicador y bandeja",
+        "comentarios",
+        "altas de perfiles",
+        "WhatsApp 'conectado' al guardar el número: dudoso",
+        "reintegro parcial de MP: dudoso",
+        "doble descuento si se corta la respuesta: dudoso"
+      ],
+      "orden": 372,
+      "corregidos": []
     }
   ]
 }

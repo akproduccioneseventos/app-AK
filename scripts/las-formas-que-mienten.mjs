@@ -386,6 +386,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   245: 'Que algo calculado una vez se recalcule cuando cambia lo que lo origina es un comportamiento: lo cubre src/__tests__/el-personal-sigue-a-los-invitados.test.ts (orden 370).',
   246: 'Que lo escrito en un lugar privado no termine en una lista pública es un comportamiento: lo cubre src/__tests__/la-consulta-del-cliente-no-va-al-chat.test.ts (orden 370).',
   247: 'Que un envío con respuesta "no sé si llegó" se anote como enviado es un comportamiento: lo cubre src/__tests__/las-fotos-por-whatsapp-no-se-repiten.test.ts (orden 371).',
+  248: 'Que un archivo se entregue según el tipo de documento y el permiso es un comportamiento: lo cubre src/__tests__/los-documentos-de-plata-no-los-baja-el-operador.test.ts (orden 372).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
