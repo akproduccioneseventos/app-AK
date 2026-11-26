@@ -2189,3 +2189,8 @@ Duodécima vuelta del robot, 26/11/2026: la ganancia restaba de la comisión de 
 
 Misma vuelta: el asistente proactivo corre varios agentes; si uno tiraba error, sólo se anotaba en la consola y la tarea figuraba
 corrida hoy. Y el blog con el candado ocupado se marcaba hecho sin haberlo hecho nadie. La corrida se marca cuando todo salió.
+
+### 243. Una marca de "hecho" que depende de otro servicio (Meta, Google, WhatsApp), ¿se pone después de su respuesta buena?
+
+Decimotercera vuelta del robot, 26/11/2026: la app marcaba la queja como "Oculta" antes de pedirle a Meta que la oculte y sin mirar la
+respuesta. Con el acceso vencido, la queja seguía pública, la pantalla decía "Oculto" y la corrida siguiente no lo reintentaba.

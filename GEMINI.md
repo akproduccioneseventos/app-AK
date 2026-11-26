@@ -70,6 +70,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       dice "seña del 30%", y un fallo de impresión no se anuncia como foto perdida.
   18. **Orden 367 (`docs/ordenes/367-gemini-robot-vuelta-12-seis-especialistas.md`):** listas que se pisan, las cuentas de la
       ganancia, quién ve el parte y las caras, avisos que no salieron, tareas corridas que fallaron y fechas de Uruguay.
+  19. **Orden 368 (`docs/ordenes/368-gemini-robot-vuelta-13-seis-especialistas.md`):** "oculto" sólo si Meta lo ocultó, carteles que
+      festejan lo que no pasó, la ficha del empleado, los documentos de la fiesta y las cuentas de comida.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

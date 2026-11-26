@@ -374,6 +374,76 @@
       ],
       "orden": 367,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T11:41",
+      "areas": [
+        "contrato",
+        "personal",
+        "comida",
+        "barra",
+        "fiesta",
+        "portal",
+        "estaciones",
+        "invitado",
+        "redes",
+        "asistente"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "contrato",
+          "personal"
+        ],
+        "plata": [
+          "comida",
+          "barra"
+        ],
+        "permisos": [
+          "fiesta",
+          "portal"
+        ],
+        "promesas": [
+          "estaciones",
+          "invitado"
+        ],
+        "automaticos": [
+          "redes",
+          "asistente"
+        ],
+        "fechas-y-celular": [
+          "barra",
+          "portal"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "'Oculto' sin que Meta lo oculte",
+        "cabina IA 'en el muro' con aprobación pendiente",
+        "marca del espejo impresa aunque se apague",
+        "editar empleado borra el mail de Workspace",
+        "documentos de la fiesta que se pisan",
+        "tres acciones de invitados sin control",
+        "'barra'/'ron' por pedazos meten equipos en bebidas",
+        "repostería con cantidad 0 suma",
+        "docena contra unidad en el costo del plato",
+        "stock que no convierte se toma como cero",
+        "cuota final un día antes en el portal",
+        "botón de 32 px en las mesas del cliente"
+      ],
+      "descartados": [
+        "recibos del personal, firma digital, contrato en papel, cancelaciones",
+        "PIN vacío del portal: el cliente ya entra con su sesión, queda como está",
+        "cierre de barra y merma",
+        "respuestas públicas en redes sin precios",
+        "IA de reseñas repetida: dudoso, sin medir",
+        "dos respuestas a la vez en redes: dudoso",
+        "reacciones en memoria: dudoso",
+        "changeEventDate con doble falla: dudoso"
+      ],
+      "orden": 368,
+      "corregidos": []
     }
   ]
 }

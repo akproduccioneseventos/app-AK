@@ -307,6 +307,13 @@ const FORMAS = [
     comoSeArregla: 'Buscar la palabra entera (\\b) o el nombre completo, no un pedazo de dos o tres letras.',
   },
   {
+    pregunta: 243,
+    nombre: 'Una marca de hecho que se pone antes de saber si lo de afuera salió',
+    porque: 'Un comentario quedaba "Oculto" en la app aunque Meta no lo hubiera ocultado, y nunca se reintentaba (robot, vuelta 13, 26/11/2026).',
+    buscar: /isAutoHidden\s*=\s*true;[\s\S]{0,600}?await\s+hideCommentOnMeta\(/g,
+    comoSeArregla: 'Marcar hecho sólo con la respuesta buena de afuera; si falla, queda pendiente y se reintenta.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
