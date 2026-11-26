@@ -44,7 +44,9 @@ test.describe('Tótem respeta syncedWithSocialWall (Orden 374 B4)', () => {
     });
 
     await page.goto(`/evento/totem/${fiestaId}/totem-sin-muro`);
-    await expect(page.getByRole('heading', { name: 'Tótem sin muro' })).toBeVisible({ timeout: 15000 });
+    const heading = page.getByRole('heading', { name: 'Tótem sin muro' });
+    await expect(heading).toHaveText('Tótem sin muro', { timeout: 15000 });
+    await expect(page.getByText('Prueba sin muro')).toContainText('Prueba sin muro');
     expect(llamoAlMuro).toBe(false);
   });
 });
