@@ -2221,3 +2221,36 @@ reintentar. El aviso de fotos por WhatsApp lo tomaba como falla, no lo anotaba, 
 Decimoséptima vuelta del robot, 26/11/2026: los documentos de la fiesta (contratos, recibos de seña y de sueldo) los sube sólo quien tiene
 contabilidad, pero los bajaba cualquiera del equipo de la fiesta, incluido el operador, y el portal del cliente recibía también los recibos
 del personal.
+
+### 249. Lo que una acción devuelve al navegador, ¿se arma con lo guardado entero (`...guardado`) y lleva secretos?
+
+Decimoctava vuelta del robot, 26/11/2026: guardar la dirección de Facebook devolvía la conexión entera, con el token de publicación, porque
+la respuesta se armaba con todo lo guardado más el cambio.
+
+### 250. Un filtro que limpia lo que sale en público, ¿saca sólo lo prohibido o se lleva también lo que estaba bien?
+
+Decimonovena vuelta del robot, 26/11/2026: para que una respuesta a un comentario no dijera un precio, el filtro borraba cualquier
+número. "Atendemos de 9 a 18 hs, más de 7 años" salía publicado como "Atendemos de a hs, más de años". Se prueba el filtro con una
+frase permitida que tenga números: tiene que salir igual.
+
+### 251. Al juntar dos renglones en uno, ¿se queda con la marca del primero y pierde la del segundo?
+
+Decimonovena vuelta del robot, 26/11/2026: la lista de compras juntaba un pedido fijo y un ingrediente de receta del mismo producto, y el
+renglón se quedaba con "pedido fijo" del primero: el stock no se descontaba y se compraba de más, según el orden de carga. Un resultado
+que cambia al cambiar el orden de los renglones está mal.
+
+### 252. La cuenta que ve el cliente antes de pedir algo, ¿usa la misma regla que el servidor cuando lo aprueba?
+
+Vigésima vuelta del robot, 26/11/2026: el portal le sumaba el 15% a cada extra siempre, y el servidor sólo lo suma cuando el evento es
+de un año posterior a la firma. El cliente veía $257.500 y el total quedaba en $250.000. Se compara la cifra de la pantalla con la que
+guarda la acción, en los dos casos de la regla.
+
+### 253. Un control de "ya se avisó", ¿ve también lo que la misma corrida acaba de preparar?
+
+Vigésima vuelta del robot, 26/11/2026: los recordatorios de cuota miraban sólo los mensajes leídos al empezar. Un cliente con dos cuotas
+vencidas recibía dos recordatorios el mismo día.
+
+### 254. Un control que compara contra un dato, ¿qué hace cuando ese dato falta?
+
+Vigésima vuelta del robot, 26/11/2026: con la verificación de ubicación prendida, si el salón no tenía coordenadas, la verificación no
+corría y la llegada se anotaba como verificada. Un control que se saltea sin dejar marca es un control apagado sin aviso.
