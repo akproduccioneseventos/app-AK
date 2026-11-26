@@ -962,6 +962,79 @@
       ],
       "orden": 375,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T19:45",
+      "areas": [
+        "portal",
+        "invitado",
+        "barra",
+        "personal",
+        "fiesta",
+        "asistente",
+        "comida",
+        "plata",
+        "contrato"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "portal",
+          "invitado"
+        ],
+        "plata": [
+          "barra",
+          "personal"
+        ],
+        "permisos": [
+          "fiesta",
+          "asistente"
+        ],
+        "promesas": [
+          "fiesta",
+          "portal"
+        ],
+        "automaticos": [
+          "comida",
+          "asistente"
+        ],
+        "fechas-y-celular": [
+          "plata",
+          "contrato"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "mail de acuerdos al cliente sin mano humana",
+        "asistente contable y comercial sin permiso",
+        "disponibilidad de decoración con fiestas ajenas",
+        "tareas del portal que se pisan y fallan en silencio",
+        "fotos de ideas que se pisan",
+        "briefing del DJ 'guardado' sin mirar",
+        "Operador de la Noche y anticipador a ciegas",
+        "resumen de la mañana sin preventivas",
+        "IA de reuniones y pitch sin tope",
+        "hoy del servidor en el panel de cobros",
+        "CSV del contador en Greenwich",
+        "año de la firma en Greenwich",
+        "cierre de barra sin receta sin alcohol"
+      ],
+      "repetidos_sin_arreglar": [
+        "RSVP sin enlace por nombre (orden 360)",
+        "lista 'qué llevar' (orden 367)",
+        "parte del equipo con cuotas (orden 367)",
+        "total cobrado del personal (órdenes 357 y 370)"
+      ],
+      "descartados": [
+        "'Sincronizado desde Empresa': el texto dice lo que hace",
+        "fondo de papelería: dudoso sin confirmar",
+        "itinerario con sólo sesión: el personal marca hitos",
+        "recibos con filas viejas: no hay altas así",
+        "funciones muertas del motor de agentes: nadie las llama"
+      ],
+      "orden": 376,
+      "corregidos": []
     }
   ]
 }

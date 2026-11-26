@@ -2254,3 +2254,18 @@ vencidas recibía dos recordatorios el mismo día.
 
 Vigésima vuelta del robot, 26/11/2026: con la verificación de ubicación prendida, si el salón no tenía coordenadas, la verificación no
 corría y la llegada se anotaba como verificada. Un control que se saltea sin dejar marca es un control apagado sin aviso.
+
+### 255. Cuando se pasa un objeto con un campo cambiado, ¿el que lo recibe lee ese campo, u otro que tiene prioridad?
+
+Vigesimoprimera vuelta del robot, 26/11/2026: el resumen de la mañana sumaba los avisos de mozos en `itemsPrincipales`, y el envío
+por WhatsApp leía primero `items`, que venía sin cambiar. Los avisos se perdían sin error.
+
+### 256. Un envío al cliente, ¿tiene un "forzar" que salta el control de "ya se mandó" o la mano de una persona?
+
+Vigesimoprimera vuelta del robot, 26/11/2026: procesar una reunión con la IA le mandaba el mail de acuerdos al cliente con
+`forceEmail: true`, sin que nadie lo tocara, y lo repetía en cada nuevo proceso.
+
+### 257. Lo que tiene dos versiones (con y sin alcohol, adulto y niño), ¿se mira en las dos?
+
+Vigesimoprimera vuelta del robot, 26/11/2026: el cierre de la barra armaba la lista de insumos sólo con la receta con alcohol. Lo que
+se gastaba sólo en la receta sin alcohol no aparecía nunca como faltante.

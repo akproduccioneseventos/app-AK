@@ -88,6 +88,9 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   26. **Orden 375 (`docs/ordenes/375-gemini-robot-vuelta-20-seis-especialistas.md`):** el extra del portal cuesta lo mismo,
       cancelación y cambio de fecha sin ajustes dobles, la decoración que no se pisa, Auto-Acomodar que guarda, la llegada sin
       ubicación, un recordatorio por cliente, el blog con permiso, el chat que no dice "anoté" y el calendario de redes.
+  27. **Orden 376 (`docs/ordenes/376-gemini-robot-vuelta-21-seis-especialistas.md`):** el mail de la reunión con botón, el
+      asistente con permisos, listas del portal de a un renglón, agentes de la noche, el resumen de la mañana, la IA por el tope,
+      fechas de la noche en plata y el cierre de barra con lo sin alcohol.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

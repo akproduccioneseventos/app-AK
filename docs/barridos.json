@@ -1016,6 +1016,18 @@
     "254": {
       "fecha": "2026-11-26",
       "resultado": "accesos-personal-view.ts saltea la ubicación sin coordenadas del salón. El resto lo barre Gemini en la orden 375."
+    },
+    "255": {
+      "fecha": "2026-11-26",
+      "resultado": "asistente-proactivo/route.ts pasa itemsPrincipales y el resumen lee items (lo encuentra el escaneo). El resto lo barre Gemini en la orden 376."
+    },
+    "256": {
+      "fecha": "2026-11-26",
+      "resultado": "meeting-intelligence.ts manda el mail al cliente con forceEmail (lo encuentra el escaneo). El resto lo barre Gemini en la orden 376."
+    },
+    "257": {
+      "fecha": "2026-11-26",
+      "resultado": "cierre-de-barra.ts sólo mira la receta con alcohol. El resto lo barre Gemini en la orden 376."
     }
   },
   "hallazgos": {
@@ -1546,6 +1558,10 @@
     "orden-375": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 20 (seis especialistas): extra del portal con 15% que el servidor no suma (252), cancelación parcial con ajuste doble, cambio de fecha de fiesta cancelada, decoración que se pisa (22), Auto-Acomodar sin guardar (179), llegada sin ubicación (254), recordatorio doble (253), estado del blog sin permiso (35), 'Anoté' sin anotar (160), 'congelando' en Google y calendario de redes en Greenwich (174)."
+    },
+    "orden-376": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 21 (seis especialistas): mail de la reunión que sale solo (256), asistente sin permisos de contable y comercial (35), disponibilidad de decoración con fiestas ajenas (35), tareas y fotos del portal que se pisan (22), briefing 'guardado' sin guardar (160), agentes de la noche a ciegas (210), resumen de la mañana sin preventivas (255), IA de reuniones sin tope, fechas de la noche en panel, contador y firma (70), cierre de barra sin lo sin alcohol (257)."
     }
   }
 }
