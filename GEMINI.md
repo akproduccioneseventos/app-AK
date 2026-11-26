@@ -66,6 +66,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       en todos lados, el celíaco vegetariano llega a la cocina y las bebidas no se multiplican por los invitados.
   16. **Orden 365 (`docs/ordenes/365-gemini-robot-vuelta-10-despachador-y-barra.md`):** sin clave, el despachador no manda
       mensajes ni borra, y la barra no confunde a dos invitados con el mismo nombre.
+  17. **Orden 366 (`docs/ordenes/366-gemini-robot-vuelta-11-sofia-y-avisos-de-impresion.md`):** Sofía no congela precios ni
+      dice "seña del 30%", y un fallo de impresión no se anuncia como foto perdida.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

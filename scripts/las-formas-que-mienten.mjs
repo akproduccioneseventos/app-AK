@@ -293,6 +293,13 @@ const FORMAS = [
     comoSeArregla: 'Sin clave, correr sólo lo que no manda mensajes ni borra; lo que manda espera la clave.',
   },
   {
+    pregunta: 239,
+    nombre: 'Instrucciones de la IA que prometen lo que el dueño prohibió',
+    porque: 'Sofía, la asistente del simulador, tenía escrito "congelamos el precio tras la seña del 30%" (robot, vuelta 11, 26/11/2026).',
+    buscar: /congelamos\s+(?:el\s+)?precio|seña del 30\s?%/gi,
+    comoSeArregla: 'Sacarlo del texto de la IA y armar la seña con el monto de Ajustes.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
@@ -353,6 +360,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   234: 'Que un permiso se mire al ejecutar y no sólo al programar es un comportamiento: lo cubre src/__tests__/redes-mira-el-permiso-al-publicar.test.ts (orden 361).',
   236: 'Que la rama "ya existía" haga lo mismo que la rama "lo creé" es un comportamiento: lo cubre src/__tests__/el-reintento-del-contrato-engancha-la-sena.test.ts (orden 363).',
   237: 'Que la misma plata se lea de un solo libro en todas las pantallas es un comportamiento: lo cubre src/__tests__/una-cuota-cobrada-se-ve-en-todos-lados.test.ts (orden 364).',
+  240: 'Que dos fallas distintas no compartan el mismo aviso es un comportamiento: lo cubre tests/e2e/la-impresion-fallida-no-dice-foto-perdida.spec.ts (orden 366).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',

@@ -952,6 +952,14 @@
     "238": {
       "fecha": "2026-11-26",
       "resultado": "cron-despachador corre sin clave todas las tareas de al-entrar-a-la-app, incluidas las que mandan; despertar sólo anota el toque. El resto de las rutas con verificación propia lo barre Gemini en la orden 365."
+    },
+    "239": {
+      "fecha": "2026-11-26",
+      "resultado": "Sofía: 'congelamos el precio' y 'seña del 30%' en copilot.ts y copilot-config.json; el resto de las instrucciones de IA lo barre Gemini en la orden 366."
+    },
+    "240": {
+      "fecha": "2026-11-26",
+      "resultado": "Fotocabina (errorMsg) y Vogue (uploadError) mezclan el fallo de impresión con el de subida; el resto de las estaciones lo barre Gemini en la orden 366."
     }
   },
   "hallazgos": {
@@ -1442,6 +1450,10 @@
     "orden-365": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 10 (barra y permisos de las rutas /api): el despachador sin clave corre las tareas que mandan mensajes y borran (pregunta 238), force=1 del blog sin clave, pedidos del tótem asociados a cualquier invitado con el mismo nombre, pedido de otra fiesta encontrado por id."
+    },
+    "orden-366": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 11 (textos de la web y de las estaciones): Sofía congela precios y dice seña del 30% (pregunta 239), fallo de impresión anunciado como foto no publicada o falla de conexión (pregunta 240)."
     }
   }
 }

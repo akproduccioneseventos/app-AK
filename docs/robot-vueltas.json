@@ -273,6 +273,31 @@
       ],
       "orden": 365,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T09:41",
+      "areas": [
+        "web",
+        "estaciones"
+      ],
+      "aspecto": "textos que ven el prospecto y el invitado",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "Sofía: congelamos el precio y seña del 30%",
+        "fotocabina: fallo de impresión dice 'No se pudo publicar'",
+        "Vogue: fallo de impresión dice 'Fallo conexión'"
+      ],
+      "descartados": [
+        "palabras prohibidas visibles en la web: ninguna",
+        "WhatsApp: todos con el mismo número",
+        "sin inglés visible",
+        "sin nombres de personal",
+        "oficina y cifras fijas: ya en órdenes 355 y 349",
+        "mensajes crudos de error: sólo si falla también el respaldo, dudoso"
+      ],
+      "orden": 366,
+      "corregidos": []
     }
   ]
 }

@@ -2169,3 +2169,13 @@ Toda pantalla que muestra lo cobrado o el saldo lee el mismo libro que el panel.
 Décima vuelta del robot, 26/11/2026: el recordatorio a invitados se había sacado de las tareas que corren sin clave, pero el
 despachador tenía su propia verificación, dejaba pasar sin clave y corría todas las tareas, incluidas las que mandan WhatsApp
 y Gmail a clientes e invitados. Sin clave, sólo corre lo que no sale para afuera.
+
+### 239. Lo que el dueño prohibió decir, ¿se buscó también en lo que dice la IA (instrucciones y respuestas guardadas)?
+
+Undécima vuelta del robot, 26/11/2026: la web ya no prometía congelar precios, pero Sofía, la asistente del simulador, tenía
+escrito en sus instrucciones "congelamos el precio tras la seña del 30%". Lo que dice la IA también lo ve el prospecto.
+
+### 240. Dos fallas distintas, ¿comparten el mismo aviso en pantalla?
+
+Misma vuelta: en la fotocabina y en el Vogue, un fallo de impresión se guardaba en el mismo estado que la subida, y la pantalla
+decía "No se pudo publicar" o "Fallo conexión" con la foto subida. Cada falla tiene su aviso.
