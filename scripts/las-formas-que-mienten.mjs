@@ -272,6 +272,13 @@ const FORMAS = [
     comoSeArregla: 'pedirTexto de src/ai/cerebro.ts.',
   },
   {
+    pregunta: 233,
+    nombre: 'Una marca de terminado que se prende con el primer elemento',
+    porque: 'El Video de Vida decía "fotos recibidas" con 1 de 50 y le sacaba al cliente el enlace para subir (robot, vuelta 4, 26/11/2026).',
+    buscar: /\b(?:photosUploaded|\w+(?:Uploaded|Enviad[oa]s?|Completad[oa]))\s*:\s*true\b/g,
+    comoSeArregla: 'Que la marca diga cuántos de cuántos, y se apague si se borra todo.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',

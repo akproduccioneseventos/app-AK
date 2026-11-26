@@ -77,6 +77,37 @@
       ],
       "orden": 358,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T02:41",
+      "areas": [
+        "fiesta",
+        "portal"
+      ],
+      "aspecto": "celular y textos",
+      "robot_todo": "no repetido: la app publicada no cambió desde la vuelta 2",
+      "gemini": "la 1475 sumó 350 y 355 sobre una principal anterior a la devolución: se le avisó en la propuesta que traiga la principal",
+      "hallazgos_confirmados": [
+        "Video de Vida: \"fotos recibidas\" con la primera foto y sin enlace para seguir",
+        "Video de Vida: \"Fotos cargadas: 50\" sin fotos",
+        "Video de Vida: borrar todo no apaga la marca",
+        "editar un invitado pisa la confirmación y la llegada",
+        "editar un invitado borrado dice actualizado",
+        "agregar y borrar invitados devuelven la fiesta entera al portal",
+        "borrar invitado deja su id en los videos",
+        "autoguardado del itinerario destilda hitos en vivo",
+        "fiesta de hoy contada como pasada en Eventos",
+        "botones de 28 px en la mesa del portal"
+      ],
+      "descartados": [
+        "promesas prohibidas en textos públicos: ninguna",
+        "textos en inglés: ninguno"
+      ],
+      "para_el_duenio": [
+        "años del Club Uruguay: la LED dice \"más de 120\" y la página \"150\""
+      ],
+      "orden": 359,
+      "corregidos": []
     }
   ]
 }

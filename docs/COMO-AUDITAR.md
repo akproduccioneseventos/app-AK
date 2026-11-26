@@ -2135,3 +2135,8 @@ decían "Oficina AK Producciones" cuando no hay oficina (decisión del dueño, 1
 Tercera vuelta del robot, 26/11/2026: 20 archivos usaban `generateWithGeminiFallback` de `src/ai/genkit.ts`, que llama a la
 IA sin el tope central ni el registro. El control buscaba sólo `ai.generate(`. Cuando se cierra una puerta, se buscan también
 las funciones que la envuelven.
+
+### 233. Una marca de "terminado", ¿se prende al terminar o al empezar? ¿Y quién la apaga si se borra todo?
+
+Cuarta vuelta del robot, 26/11/2026: el Video de Vida marcaba "fotos recibidas" con la primera de 50 fotos, el portal le
+sacaba al cliente el enlace para subir las demás y el recordatorio automático se callaba. Al borrar todo, la marca quedaba.
