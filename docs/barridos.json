@@ -984,6 +984,10 @@
     "246": {
       "fecha": "2026-11-26",
       "resultado": "portal--faq.tsx manda la consulta del cliente al chat público con addChatMessage. El resto de los usos lo barre Gemini en la orden 370."
+    },
+    "247": {
+      "fecha": "2026-11-26",
+      "resultado": "social-gallery.ts ignora delivery 'uncertain' en el aviso de fotos por WhatsApp. El resto de los envíos lo barre Gemini en la orden 371."
     }
   },
   "hallazgos": {
@@ -1494,6 +1498,10 @@
     "orden-370": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 15 (seis especialistas): 'Enviado' al tildar y correo de recuperación sin aviso en el portal, Entretenimiento que borra fotos del invitado (210), consulta del cliente en el chat público (246), fechas de solicitud, parte de la mañana y Mi día en Greenwich (70), 'Mis XV' en cualquier fiesta, personal que no sigue a los invitados (245), sueldo 0 leído distinto y cuotas que suman de más."
+    },
+    "orden-371": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 16 (seis especialistas): cita, entrega de fotos y cliente 'Actual' con fechas corridas (70), Vision fuera del tope y marketing contado dos veces, cualquier sesión maneja estaciones de otra fiesta y el operador ve costos, fotos por WhatsApp repetidas (247), pedido de barra sin señal rechazado sin aviso, cancelación que dice error ya guardada, recordatorio no-abiertas a ciegas (244), settings y redes pisados con lectura fallida, menciones que se borran (210)."
     }
   }
 }
