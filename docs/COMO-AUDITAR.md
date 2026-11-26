@@ -2140,3 +2140,8 @@ las funciones que la envuelven.
 
 Cuarta vuelta del robot, 26/11/2026: el Video de Vida marcaba "fotos recibidas" con la primera de 50 fotos, el portal le
 sacaba al cliente el enlace para subir las demás y el recordatorio automático se callaba. Al borrar todo, la marca quedaba.
+
+### 234. Un permiso que se mira al programar algo, ¿se vuelve a mirar cuando se ejecuta?
+
+Sexta vuelta del robot, 26/11/2026: un posteo se programaba con el permiso de la foto vigente y salía horas después aunque
+el cliente lo hubiera retirado en el medio. Lo que se ejecuta más tarde mira el permiso en el momento de ejecutar.

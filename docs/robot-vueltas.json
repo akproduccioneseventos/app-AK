@@ -134,6 +134,35 @@
       "areas_limpias_esta_vuelta": [],
       "orden": 360,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T04:41",
+      "areas": [
+        "web",
+        "redes"
+      ],
+      "aspecto": "sincronizacion (segunda pasada, documentos enteros)",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "simulador: guardado automático falla en silencio",
+        "simulador: paso 1 sin aviso si no guarda",
+        "servicios públicos con mantenimiento, stock y contacto",
+        "posteo programado sin volver a mirar el permiso",
+        "aviso al dueño marcado sin salir",
+        "borrador viejo programado sin aviso previo",
+        "7 documentos leídos y reescritos sin turno"
+      ],
+      "descartados": [
+        "enlaces de la portada",
+        "formulario de contacto sin duplicados",
+        "precio del simulador con la misma función",
+        "redes no borra, sólo oculta",
+        "sin duplicados al sincronizar",
+        "prospectos públicos: la lista tiene marca de lectura"
+      ],
+      "orden": 361,
+      "corregidos": []
     }
   ]
 }
