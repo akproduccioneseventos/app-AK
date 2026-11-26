@@ -2163,3 +2163,9 @@ dejar todo como la rama "lo creé".
 Novena vuelta del robot, 26/11/2026: marcar una cuota como pagada la anotaba en el plan de pagos y no en los cobros del
 presupuesto. El portal del cliente decía "saldo $0" y el portal público, el asistente y el cobrador decían que debía todo.
 Toda pantalla que muestra lo cobrado o el saldo lee el mismo libro que el panel.
+
+### 238. Una ruta que se puede llamar sin clave, ¿corre algo que manda mensajes o borra?
+
+Décima vuelta del robot, 26/11/2026: el recordatorio a invitados se había sacado de las tareas que corren sin clave, pero el
+despachador tenía su propia verificación, dejaba pasar sin clave y corría todas las tareas, incluidas las que mandan WhatsApp
+y Gmail a clientes e invitados. Sin clave, sólo corre lo que no sale para afuera.
