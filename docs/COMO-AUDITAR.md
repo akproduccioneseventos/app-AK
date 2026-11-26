@@ -2145,3 +2145,9 @@ sacaba al cliente el enlace para subir las demás y el recordatorio automático 
 
 Sexta vuelta del robot, 26/11/2026: un posteo se programaba con el permiso de la foto vigente y salía horas después aunque
 el cliente lo hubiera retirado en el medio. Lo que se ejecuta más tarde mira el permiso en el momento de ejecutar.
+
+### 235. Una acción que sale para afuera (calendario, mail, mensaje), ¿se ejecuta sólo con un "sí" de verdad dado después de preguntar?
+
+Séptima vuelta del robot, 26/11/2026: el asistente del equipo agendaba la reunión en Google Calendar —y le llegaba la
+invitación al cliente— si el pedido tenía la palabra "si" en cualquier parte ("no sé si puedo") o si el modelo decía que
+estaba confirmado. Lo que sale para afuera se pregunta primero, y el sí lo da una persona en el mensaje siguiente.

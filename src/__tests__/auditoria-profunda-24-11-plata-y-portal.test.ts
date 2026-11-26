@@ -572,5 +572,33 @@ describe('Auditoría profunda 24/11 — Garantías de plata, contratos, portal y
       // Lo anterior a 2027 se borra, también noviembre de 2026 (decisión del dueño, 25/11).
       expect(persistedPresupuestos.some((p) => p.id === 'p-2026-nov')).toBe(false);
     });
+
+    it('si una lectura falla no borra nada y queda para reintentar (robot, vuelta 7)', async () => {
+      const { marcarLecturaFallida } = await import('@/lib/marca-de-lectura');
+      const escrituras: string[] = [];
+      const res = await correrMigracionEmpezar2027({
+        currentUid: 'u-dueno',
+        currentPerfil: 'dueno',
+        currentRole: 'admin',
+        ahora: new Date('2026-11-26T15:00:00.000Z'),
+        getDbFn: async () => createMockDb(),
+        crearRespaldoFn: async () => ({ success: true, point: { id: 'bkp-3' } }),
+        crearNotificacionFn: async () => undefined,
+        readDataFn: async <T>(file: string, def: T): Promise<T> => {
+          if (file === 'presupuestos.json') {
+            return [buildBasePresupuesto({ id: 'p-2026-con-factura', clienteNombre: 'Con factura', eventoFecha: '2026-10-10', estado: 'Aceptado' })] as T;
+          }
+          if (file === 'invoices.json') return marcarLecturaFallida([] as unknown as T, 'se cortó');
+          return def;
+        },
+        writeDataFn: async (file: string) => {
+          escrituras.push(file);
+        },
+      });
+      expect(res.success).toBe(false);
+      expect(res.fallo).toBe('migracion');
+      expect(res.error).toContain('facturas');
+      expect(escrituras).toEqual([]);
+    });
   });
 });

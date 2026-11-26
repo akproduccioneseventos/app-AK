@@ -163,6 +163,33 @@
       ],
       "orden": 361,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T05:41",
+      "areas": [
+        "asistente",
+        "automaticos"
+      ],
+      "aspecto": "contenido de cada tarea automática y lo que el asistente hace solo",
+      "robot_todo": "no repetido: la app publicada no cambió",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "Empezar 2027 borraba con una lectura fallida (arreglado por Claude)",
+        "reunión agendada con un 'si' suelto o el confirmado del modelo",
+        "propuestas de plata sin responsable visibles para todo el equipo",
+        "agentes que dicen 'al día' sin haber leído",
+        "cobrador cuenta los días en hora de Greenwich",
+        "historial del chat del cliente sin tope y tareas del equipo en su resumen"
+      ],
+      "descartados": [
+        "cobrar, borrar, cerrar y permisos prohibidos en chat, voz y WhatsApp",
+        "chat del invitado valida su enlace",
+        "saldos del asistente con la misma cuenta del panel"
+      ],
+      "orden": 362,
+      "corregidos": [
+        "Empezar 2027 no borra si una lectura falla"
+      ]
     }
   ]
 }

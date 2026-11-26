@@ -279,6 +279,13 @@ const FORMAS = [
     comoSeArregla: 'Que la marca diga cuántos de cuántos, y se apague si se borra todo.',
   },
   {
+    pregunta: 235,
+    nombre: 'Una acción que sale para afuera se confirma con lo que dice el modelo o con un "si" suelto',
+    porque: 'El asistente agendaba la reunión y le llegaba la invitación al cliente con "no sé si puedo" o con el confirmado que ponía el modelo (robot, vuelta 7, 26/11/2026).',
+    buscar: /esUnSi\([^)]*\)\s*\|\|\s*Boolean\(\s*data\??\.confirmado/g,
+    comoSeArregla: 'Preguntar primero y ejecutar sólo si el mensaje siguiente es un sí solo; lo que dice el modelo no confirma.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
