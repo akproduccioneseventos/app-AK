@@ -85,14 +85,7 @@ export function getCateringSortScore(item: CateringItemLike): number {
   if (
     id.startsWith('dish_child_') ||
     id.startsWith('dish_infantil_') ||
-    subcat.includes('niñ') ||
-    subcat.includes('nin') ||
-    subcat.includes('infantil') ||
-    subcat.includes('adolescente') ||
-    combined.includes('niñ') ||
-    combined.includes('nin') ||
-    combined.includes('infantil') ||
-    combined.includes('adolescente') ||
+    /\b(ni[nñ]os?|ninos?|infantil|infantiles|adolescente|adolescentes|kids)\b/i.test(`${subcat} ${combined}`) ||
     combined.includes('hamburguesa') ||
     combined.includes('nugget')
   ) {

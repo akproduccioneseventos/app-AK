@@ -25,6 +25,7 @@ import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
+import { parseUruguayDate } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +42,12 @@ import { Separator } from '@/components/ui/separator';
 
 const formatEventDate = (fechaEvento?: string) => {
   if (!fechaEvento) return 'Sin fecha';
-  return new Date(fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  return parseUruguayDate(fechaEvento).toLocaleDateString('es-UY', {
+    timeZone: 'America/Montevideo',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 };
 
@@ -86,7 +91,9 @@ function EmpleadosPageInner() {
   const [puedeBorrar, setPuedeBorrar] = useState(false);
 
   const anioDeFiesta = (fiesta: FiestaEnPlanificacion) => {
-    const fecha = new Date(fiesta.configuracion?.fechaEvento || '');
+    const raw = fiesta.configuracion?.fechaEvento;
+    if (!raw) return null;
+    const fecha = parseUruguayDate(raw);
     return Number.isNaN(fecha.getTime()) ? null : String(fecha.getFullYear());
   };
 
@@ -188,8 +195,8 @@ function EmpleadosPageInner() {
       // De la más nueva a la más vieja: antes había que bajar hasta el final de
       // la tabla para ver el último evento en el que trabajó.
       const ordenadas = [...fiestas].sort((a, b) => {
-        const fa = new Date(a.configuracion?.fechaEvento || 0).getTime() || 0;
-        const fb = new Date(b.configuracion?.fechaEvento || 0).getTime() || 0;
+        const fa = a.configuracion?.fechaEvento ? parseUruguayDate(a.configuracion.fechaEvento).getTime() : 0;
+        const fb = b.configuracion?.fechaEvento ? parseUruguayDate(b.configuracion.fechaEvento).getTime() : 0;
         return fb - fa;
       });
       setFiltroAnioHistorial('todos');

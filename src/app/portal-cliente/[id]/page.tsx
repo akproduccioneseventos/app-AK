@@ -76,13 +76,14 @@ import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
-import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { progresoVideoVida } from '@/lib/video-vida/tope-de-fotos';
 import { AsistenteDelCliente } from '@/components/portal/AsistenteDelCliente';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
@@ -604,12 +605,13 @@ function PortalClientePageInner() {
   const showMensajes   = simplicityMode ? false : (portalSettings?.notasCliente?.visible ?? true);
   const showVideosInvitados = portalSettings?.videosParaInvitadosActivo === true;
 
-  // ── Financials ───────────────────────────────────────────────
+  // ── Financials (desde presupuesto normalizado en el servidor, un solo libro: pagosCliente) ───────
   const cuotas      = plan?.cuotas ?? [];
-  const paymentSummary = getPaymentPlanSummary(cuotas);
-  const totalCost   = paymentSummary.total;
-  const totalPaid   = paymentSummary.paid;
-  const balance     = paymentSummary.balance;
+  const resumenPres = (fiesta as any)?.resumenPresupuesto;
+  const totalCost   = Number(resumenPres?.total ?? fiesta.gestionCostos?.ingresosTotalesEstimados ?? config.presupuestoEstimado ?? 0);
+  const totalPaid   = Number(resumenPres?.paid ?? 0);
+  const balance     = resumenPres ? Number(resumenPres.balance ?? 0) : Math.max(0, totalCost - totalPaid);
+  void normalizePresupuestoFinancials;
 
   // ── RSVP ────────────────────────────────────────────────────
   const confirmed = invitados.filter(i => i.rsvp === 'Confirmado');
@@ -1005,7 +1007,7 @@ function PortalClientePageInner() {
           if (showMusica && (fiesta.modulosContratados?.discoteca ?? true) && (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo')) {
             pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica` });
           }
-          if (showVideoVida && (fiesta.modulosContratados?.videoVida ?? true) && !fiesta.videoVida?.photosUploaded) {
+          if (showVideoVida && (fiesta.modulosContratados?.videoVida ?? true) && !progresoVideoVida(fiesta.videoVida).completo) {
             pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: `/portal-cliente/${fiestaId}/fotos-video` });
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
@@ -1247,6 +1249,9 @@ function PortalClientePageInner() {
           )}
 
           {/* ── Video de Vida ────────────────────────────── */}
+          {(() => {
+            const videoProgreso = progresoVideoVida(fiesta.videoVida);
+            return (
           <AccordionItem
             data-testid="portal-video-vida"
             value="video-vida"
@@ -1257,9 +1262,11 @@ function PortalClientePageInner() {
               <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <span className="text-xl">🎬</span> Video de Vida
-                  {fiesta.videoVida?.photosUploaded
+                  {videoProgreso.completo
                     ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
-                    : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
+                    : videoProgreso.subidas > 0
+                      ? <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">{videoProgreso.subidas} de {videoProgreso.total} fotos</Badge>
+                      : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
                   }
                 </span>
               </AccordionTrigger>
@@ -1270,13 +1277,17 @@ function PortalClientePageInner() {
                 El video de vida es uno de los momentos más especiales de tu fiesta.
                 Necesitamos tus fotos y canciones favoritas para crearlo.
               </p>
-              {fiesta.videoVida?.photosUploaded ? (
+              {videoProgreso.completo ? (
                 <div className="flex items-center gap-2 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-sm text-emerald-700 dark:text-emerald-400">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
+                  <span className="font-semibold">¡Fotos recibidas! ({videoProgreso.subidas} de {videoProgreso.total}) Tu organizador está trabajando en el video.</span>
+                </div>
+              ) : videoProgreso.subidas > 0 ? (
+                <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
+                  <span className="font-semibold">{videoProgreso.subidas} de {videoProgreso.total} fotos subidas. Podés seguir cargando las que faltan.</span>
                 </div>
               ) : null}
-              {!fiesta.videoVida?.photosUploaded && (
+              {!videoProgreso.completo && (
                 <Link
                   href={`/portal-cliente/${fiestaId}?tab=fotos-video`}
                   className="flex items-center justify-between p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-sm hover:bg-amber-500/15 transition-colors"
@@ -1302,6 +1313,8 @@ function PortalClientePageInner() {
               )}
             </AccordionContent>
           </AccordionItem>
+            );
+          })()}
 
           {/* ── Decoración ───────────────────────────────── */}
           {showDecoration && (
@@ -1440,17 +1453,17 @@ function PortalClientePageInner() {
                           {editingId === inv.id ? (
                             <div className="flex items-center gap-2 shrink-0">
                               <Input
-                                className="h-7 w-20 text-xs rounded-lg"
+                                className="h-10 w-24 text-sm rounded-lg"
                                 placeholder="N° mesa"
                                 value={editingTable}
                                 onChange={e => setEditingTable(e.target.value)}
                                 autoFocus
                                 onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
                               />
-                              <Button size="sm" className="h-7 px-2 text-xs rounded-lg" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
+                              <Button size="sm" className="h-10 px-3 text-xs rounded-lg" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
                                 {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs rounded-lg" onClick={() => setEditingId(null)}>✕</Button>
+                              <Button size="sm" variant="ghost" className="h-10 px-3 text-xs rounded-lg" onClick={() => setEditingId(null)}>✕</Button>
                             </div>
                           ) : (
                             <button

@@ -5,9 +5,7 @@ import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.action
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import {
   postEventInputSchema,
   postEventMaterialSchema,

@@ -65,10 +65,11 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
       text: 'Borrador reciente de 15 años',
       mediaUrl: 'https://example.com/foto-con-permiso.jpg',
       eventId: 'fiesta_101',
+      previewEnviadaAlDuenioAt: hace11Horas,
       createdAt: hace11Horas,
       updatedAt: hace11Horas,
       publishDate: '',
-    };
+    } as any;
 
     store['social-posts.json'] = [post11h];
 
@@ -81,7 +82,7 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
     expect(posts[0].status).toBe('Borrador');
   });
 
-  it('un borrador de hace 13 horas pasa a Programado en el mejor horario', async () => {
+  it('un borrador con aviso enviado hace 13 horas pasa a Programado en el mejor horario', async () => {
     const post13h: SocialPost = {
       id: 'post_13h',
       platform: 'Instagram',
@@ -89,10 +90,11 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
       text: 'Borrador maduro para publicar solo',
       mediaUrl: 'https://example.com/foto-con-permiso.jpg',
       eventId: 'fiesta_102',
+      previewEnviadaAlDuenioAt: hace13Horas,
       createdAt: hace13Horas,
       updatedAt: hace13Horas,
       publishDate: '',
-    };
+    } as any;
 
     store['social-posts.json'] = [post13h];
 
@@ -154,10 +156,11 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
       text: 'Foto de cliente sin consentimiento promocional firmado',
       mediaUrl: 'https://example.com/foto-prohibida.jpg',
       eventId: 'fiesta_sin_permiso',
+      previewEnviadaAlDuenioAt: hace13Horas,
       createdAt: hace13Horas,
       updatedAt: hace13Horas,
       publishDate: '',
-    };
+    } as any;
 
     store['social-posts.json'] = [postSinPermiso];
 
@@ -177,10 +180,11 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
       status: 'Borrador',
       text: 'Foto suelta sin fiesta ni permiso en galería propia',
       mediaUrl: 'https://example.com/foto-suelta-no-autorizada.jpg',
+      previewEnviadaAlDuenioAt: hace13Horas,
       createdAt: hace13Horas,
       updatedAt: hace13Horas,
       publishDate: '',
-    };
+    } as any;
 
     // La función debe devolver false directamente
     const tienePermiso = await validarPermisoPromocionalPosteo(postFotoSueltaSinPermiso);
@@ -214,10 +218,11 @@ describe('Publicar solo espera 12 horas (Orden 282 - Bloque 4)', () => {
       status: 'Borrador',
       text: 'Foto de galería propia marcada para promoción',
       mediaUrl: 'https://example.com/foto-galeria-promo.jpg',
+      previewEnviadaAlDuenioAt: hace13Horas,
       createdAt: hace13Horas,
       updatedAt: hace13Horas,
       publishDate: '',
-    };
+    } as any;
 
     const tienePermiso = await validarPermisoPromocionalPosteo(postFotoSueltaConPermiso);
     expect(tienePermiso).toBe(true);

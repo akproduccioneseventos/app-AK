@@ -32,8 +32,19 @@ import {
 } from '@/lib/ai/consumo-servidor';
 import { transcribirAudioWhatsApp } from '@/lib/asistente/whatsapp-media';
 
-function buscarLlamadasDirectasIA(_archivo: string, contenido: string): boolean {
-  return contenido.includes('generativelanguage.googleapis.com') || contenido.includes('ai.generate(');
+function buscarLlamadasDirectasIA(archivo: string, contenido: string): boolean {
+  const normalizado = archivo.replace(/\\/g, '/');
+  if (
+    normalizado.endsWith('src/ai/cerebro.ts') ||
+    normalizado.endsWith('src/ai/genkit.ts')
+  ) {
+    return false;
+  }
+  return (
+    contenido.includes('generativelanguage.googleapis.com') ||
+    contenido.includes('ai.generate(') ||
+    contenido.includes('generateWithGeminiFallback(')
+  );
 }
 
 const leer = (rel: string) => fs.readFileSync(path.join(process.cwd(), rel), 'utf8');
@@ -65,7 +76,13 @@ describe('Orden 342: toda la IA pasa por el cerebro', () => {
         const rutaCompleta = path.join(dir, entrada.name);
         const rutaRelativa = path.relative(process.cwd(), rutaCompleta).replace(/\\/g, '/');
 
-        if (rutaRelativa.startsWith('src/ai/') || rutaRelativa.startsWith('src/__tests__/') || rutaRelativa.includes('node_modules')) {
+        if (
+          rutaRelativa === 'src/ai/cerebro.ts' ||
+          rutaRelativa === 'src/ai/genkit.ts' ||
+          rutaRelativa.startsWith('src/ai/direcciones-google') ||
+          rutaRelativa.startsWith('src/__tests__/') ||
+          rutaRelativa.includes('node_modules')
+        ) {
           continue;
         }
 

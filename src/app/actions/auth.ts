@@ -1293,15 +1293,17 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
     invalidateUserSessionCache(userId);
 
     try {
-      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
-      historial.push({
-        id: crypto.randomUUID(),
-        email,
-        abiertoEl: ahora,
-        cerradoEl: null,
-        activo: true,
-      });
-      await writeData('auditores-historial.json', historial);
+      const { mutateGenericJsonArray } = await import('@/lib/generic-json-store');
+      await mutateGenericJsonArray<HistorialAuditorItem>('auditores-historial.json', (historial) => [
+        ...(Array.isArray(historial) ? historial : []),
+        {
+          id: crypto.randomUUID(),
+          email,
+          abiertoEl: ahora,
+          cerradoEl: null,
+          activo: true,
+        },
+      ]);
     } catch (histError) {
       console.warn('[auth] No se pudo guardar en auditores-historial.json:', histError);
     }
@@ -1366,16 +1368,18 @@ export async function cerrarAccesoAuditor(emailAuditor?: string): Promise<{
     }
 
     try {
-      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
-      for (const item of historial) {
-        if (!emailAuditor || item.email.toLowerCase() === emailAuditor.toLowerCase()) {
-          if (item.activo || !item.cerradoEl) {
-            item.activo = false;
-            item.cerradoEl = ahora;
+      const { mutateGenericJsonArray } = await import('@/lib/generic-json-store');
+      await mutateGenericJsonArray<HistorialAuditorItem>('auditores-historial.json', (lista) => {
+        const historial = Array.isArray(lista) ? lista : [];
+        return historial.map((item) => {
+          if (!emailAuditor || item.email.toLowerCase() === emailAuditor.toLowerCase()) {
+            if (item.activo || !item.cerradoEl) {
+              return { ...item, activo: false, cerradoEl: ahora };
+            }
           }
-        }
-      }
-      await writeData('auditores-historial.json', historial);
+          return item;
+        });
+      });
     } catch (histError) {
       console.warn('[auth] No se pudo actualizar auditores-historial.json:', histError);
     }

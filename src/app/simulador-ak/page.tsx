@@ -1576,7 +1576,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
             size="icon"
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
-            className="h-10 w-10 shrink-0 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+            className="h-10 !w-10 shrink-0 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
             aria-label="Enviar mensaje"
             title="Enviar mensaje"
           >

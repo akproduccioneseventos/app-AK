@@ -261,6 +261,7 @@ export function replaceContractPlaceholders(text: string, vars: ContractVarsInpu
     .replace(/\{\{SALON\}\}/g, salonFinal)
     .replace(/\{\{EVENTO_SALON\}\}/g, salonFinal)
     .replace(/\{\{SENIA\}\}/g, senaFinal)
+    .replace(/\{\{MONTO_SENA\}\}/g, senaFinal)
     .replace(/\{\{HITO_30\}\}/g, hito30)
     .replace(/\{\{HITO_50\}\}/g, hito50)
     .replace(/\{\{FECHA_SALDO_TOTAL\}\}/g, fechaSaldoTotal)

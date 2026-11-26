@@ -1,4 +1,6 @@
-import { generateWithGeminiFallback, getEffectiveGeminiModelForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import { getEffectiveGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { z } from 'zod';
 
 export const GenerateSalesPitchSchema = z.object({
@@ -32,12 +34,15 @@ Reglas:
 - NO devuelvas JSON, devuelve directamente el texto del mensaje listo para copiar y pegar en WhatsApp.`;
 
     const model = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'vendedor-virtual',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
     });
+    if (!result.ok) throw new Error(result.error || 'La IA devolvió el mensaje vacío.');
 
-    const texto = (result.text || '').trim();
+    const texto = result.texto.trim();
     if (!texto) throw new Error('La IA devolvió el mensaje vacío.');
     return texto;
   } catch (error) {

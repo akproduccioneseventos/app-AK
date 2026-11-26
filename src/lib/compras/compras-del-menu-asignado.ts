@@ -4,6 +4,8 @@
  * Vive aparte de la pantalla porque el arreglo del 17/11 quedó adentro del bloque que sólo corre con presupuesto, y el
  * auditor lo probó sin presupuesto: la lista seguía vacía (auditoría del 18/11/2026, N26). La pantalla lo llama siempre.
  */
+import { getGuestCountForItem } from '@/lib/calculations';
+
 type Ingrediente = {
   name: string;
   quantityPerPerson?: unknown;
@@ -13,7 +15,7 @@ type Ingrediente = {
   proveedor?: string;
   origenId?: string;
 };
-type Plato = { id: string; name: string; ingredients?: Ingrediente[] };
+type Plato = { id: string; name: string; type?: string; ingredients?: Ingrediente[] };
 type Insumo = { id: string; valorUnitarioEstimado?: number; proveedor?: string; porEvento?: boolean; unidad?: string };
 
 export type CompraDelMenu = {
@@ -44,7 +46,7 @@ function esPorEvento(ing: Ingrediente, insumo?: Insumo): boolean {
 export function comprasDelMenuAsignado(
   menu: { items?: Plato[] } | undefined,
   platosYaContados: Set<string>,
-  totalInvitados: number,
+  invitados: number | { adultos: number; chicos: number },
   catalogoInsumos: Insumo[],
 ): { compras: CompraDelMenu[]; sinIngredientes: string[] } {
   const compras: CompraDelMenu[] = [];
@@ -56,6 +58,15 @@ export function comprasDelMenuAsignado(
       sinIngredientes.push(plato.name);
       continue;
     }
+    const targetGuests =
+      typeof invitados === 'number'
+        ? invitados
+        : getGuestCountForItem(
+            { nombreServicio: plato.name, categoriaServicio: plato.type },
+            invitados.adultos,
+            0,
+            invitados.chicos,
+          );
     for (const ing of plato.ingredients) {
       const porPersona = numero(ing.quantityPerPerson);
       if (porPersona <= 0) continue;
@@ -63,7 +74,7 @@ export function comprasDelMenuAsignado(
       const porEvento = esPorEvento(ing, insumo);
       compras.push({
         nombre: ing.name,
-        cantidadNecesaria: porEvento ? porPersona : porPersona * totalInvitados,
+        cantidadNecesaria: porEvento ? porPersona : porPersona * targetGuests,
         unit: ing.unit,
         ...(porEvento ? { porEvento: true } : {}),
         costoUnitario: insumo?.valorUnitarioEstimado || ing.costoUnitario,

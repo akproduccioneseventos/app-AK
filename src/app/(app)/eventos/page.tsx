@@ -196,7 +196,7 @@ export default function GestorFiestasPage() {
       if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
       const nombre = fiesta.configuracion.nombreEvento || '';
       const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const eventDate = fiesta.configuracion.fechaEvento ? parseEventDate(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       const isFutureOrNoDate = !eventDate || eventDate >= today;
       return matchesSearch && (isFutureOrNoDate || isContracted);
@@ -208,7 +208,7 @@ export default function GestorFiestasPage() {
     today.setHours(0, 0, 0, 0);
     return sortPastEvents(dedupedFiestasActivas.filter(fiesta => {
       if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const eventDate = fiesta.configuracion.fechaEvento ? parseEventDate(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       return eventDate && eventDate < today && !isContracted;
     }));
@@ -226,10 +226,12 @@ export default function GestorFiestasPage() {
     filteredFiestasActivas.forEach(fiesta => {
       const fecha = fiesta.configuracion.fechaEvento;
       if (!fecha) return;
-      // Use Date parsing to safely extract YYYY-MM-DD, handling timezones
-      const dateObj = new Date(fecha);
-      if (isNaN(dateObj.getTime())) return;
-      const dateKey = dateObj.toISOString().substring(0, 10); // YYYY-MM-DD
+      const dateObj = parseEventDate(fecha);
+      if (!dateObj || isNaN(dateObj.getTime())) return;
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const dateKey = `${y}-${m}-${d}`;
       if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
       dateGroups[dateKey].push(fiesta);
     });

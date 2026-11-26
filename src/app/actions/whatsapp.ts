@@ -1,8 +1,9 @@
 'use server';
 
 import { extraerDatosPresupuestoProspecto } from '@/lib/asistente/por-whatsapp';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { pedirTexto } from '@/ai/cerebro';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
 
 import { readData, writeData } from '@/lib/data-service';
 import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppStats } from '@/types/whatsapp';
@@ -352,21 +353,22 @@ export async function processIncomingMessage(
             summary?: string;
           } = {};
 
-          const canUseAi = await hayPresupuestoParaIA().catch(() => false);
-          if (canUseAi) {
-            try {
-              const model = getGeminiModelForAgent('comercial');
-              const prompt = `Sos un asistente comercial de AK Producciones. Extraé datos clave de este mensaje de WhatsApp de un cliente potencial:\nMENSAJE: "${message.replace(/"/g, '\\"')}"\n\nDevolvé SOLO un JSON válido con estas claves:\n{\n  "partyType": "Boda, 15 Años, Cumpleaños, Infantil, Empresarial, etc. o null",\n  "eventDate": "YYYY-MM-DD o null",\n  "guestCount": número entero o null,\n  "venueName": "salón/lugar o null",\n  "nextAction": "acción comercial sugerida",\n  "summary": "resumen en 1 o 2 oraciones"\n}`;
-              const aiRes = await generateWithGeminiFallback({ model, prompt });
-              const raw = aiRes?.text?.trim() || '';
-              const match = raw.match(/\{[\s\S]*\}/);
-              if (match) {
-                extracted = JSON.parse(match[0]);
-                await registrarConsumoIA('extraccion-prospecto-whatsapp').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
-              }
-            } catch (err) {
-              console.warn('[whatsapp] Error con Gemini en extracción, usando fallback:', err);
+          try {
+            const model = getGeminiModelForAgent('comercial');
+            const prompt = `Sos un asistente comercial de AK Producciones. Extraé datos clave de este mensaje de WhatsApp de un cliente potencial:\nMENSAJE: "${message.replace(/"/g, '\\"')}"\n\nDevolvé SOLO un JSON válido con estas claves:\n{\n  "partyType": "Boda, 15 Años, Cumpleaños, Infantil, Empresarial, etc. o null",\n  "eventDate": "YYYY-MM-DD o null",\n  "guestCount": número entero o null,\n  "venueName": "salón/lugar o null",\n  "nextAction": "acción comercial sugerida",\n  "summary": "resumen en 1 o 2 oraciones"\n}`;
+            const aiRes = await pedirTexto({
+              prompt,
+              quien: 'extraccion-prospecto-whatsapp',
+              incluirReglas: false,
+              modelos: [model, ...MODELOS_GEMINI.texto],
+            });
+            const raw = aiRes.ok ? aiRes.texto : '';
+            const match = raw.match(/\{[\s\S]*\}/);
+            if (match) {
+              extracted = JSON.parse(match[0]);
             }
+          } catch (err) {
+            console.warn('[whatsapp] Error con Gemini en extracción, usando fallback:', err);
           }
 
           let modificado = false;

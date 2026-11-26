@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect } from '@playwright/test';
-import { ponerSesionDelEquipo, ponerSesionDeAuditor } from './helpers/fiesta-de-prueba';
+import { ponerSesionDelEquipo, ponerSesionDeAuditor, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -116,6 +116,37 @@ test.describe('Orden 355 - Cuarta auditoría externa del 25/11', () => {
     const texto = await page.locator('body').innerText();
     expect(texto).toContain('Auditor');
     expect(texto).not.toContain('contraseña compartida');
+  });
+
+  test('una fiesta con fecha de hoy aparece en activas y no en pasadas', async ({ page, context }, testInfo) => {
+    const baseURL = (testInfo.project.use.baseURL as string) || 'http://127.0.0.1:3100';
+    await ponerSesionDelEquipo(context, baseURL);
+
+    const hoyEnUruguay = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Montevideo' }).format(new Date());
+    const fiestaHoy = {
+      id: `e2e_hoy_orden_359_${Date.now()}`,
+      configuracion: {
+        nombreEvento: 'Fiesta De Hoy Orden 359',
+        fechaEvento: hoyEnUruguay,
+        clienteNombre: 'Cliente Hoy',
+      },
+      invitados: [],
+      estado: 'Confirmado',
+    };
+
+    try {
+      guardarFiesta(fiestaHoy as any);
+
+      await page.goto('/eventos', { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText('Fiesta De Hoy Orden 359')).toBeVisible({ timeout: 25_000 });
+      const pasadasTab = page.getByRole('tab', { name: /Pasadas/i });
+      if (await pasadasTab.count()) {
+        await pasadasTab.first().click();
+        await expect(page.getByText('Fiesta De Hoy Orden 359')).toHaveCount(0);
+      }
+    } finally {
+      borrarFiesta(fiestaHoy.id);
+    }
   });
 
   test('en /presentacion-led los puntitos de navegación tienen nombre accesible', async ({ page }) => {

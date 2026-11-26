@@ -773,18 +773,22 @@ export async function procesarBorradoresPublicarSolo(
       continue;
     }
 
-    const createdTime = new Date(post.createdAt).getTime();
-    const edadMs = Number.isNaN(createdTime) ? doceHorasMs : (ahoraTime - createdTime);
-
-    // Si tiene menos de 12 horas, sigue en borrador
-    if (edadMs < doceHorasMs) {
-      resultado.esperando.push(post.id);
-
-      if (!(post as any).previewEnviadaAlDuenioAt) {
-        await enviarPreviewBorradorAlDuenio(post).catch(() => false);
+    if (!(post as any).previewEnviadaAlDuenioAt) {
+      const enviado = await enviarPreviewBorradorAlDuenio(post).catch(() => false);
+      if (enviado) {
         (post as any).previewEnviadaAlDuenioAt = ahora.toISOString();
         huboCambios = true;
       }
+      resultado.esperando.push(post.id);
+      continue;
+    }
+
+    const avisoTime = new Date((post as any).previewEnviadaAlDuenioAt).getTime();
+    const edadMs = Number.isNaN(avisoTime) ? 0 : (ahoraTime - avisoTime);
+
+    // Si tiene menos de 12 horas desde que salio el aviso al dueño, sigue en borrador
+    if (edadMs < doceHorasMs) {
+      resultado.esperando.push(post.id);
       continue;
     }
 
@@ -844,6 +848,31 @@ export async function procesarPosteosProgramados(
   const fallados: Array<{ id: string; error: string }> = [];
 
   for (const post of aProcesar) {
+    const requierePermiso = Boolean(post.eventId) || (!post.isGeneralCampaign && post.mediaType !== 'video');
+    const tienePermiso = requierePermiso ? await validarPermisoPromocionalPosteo(post) : true;
+    if (!tienePermiso) {
+      await mutarPosteo(post.id, (actual) => ({
+        ...actual,
+        status: 'Rechazado por permiso' as any,
+        lastError: 'Permiso promocional retirado o no autorizado.',
+        updatedAt: ahora.toISOString(),
+      })).catch(() => null);
+      try {
+        const { createNotification } = await import('@/lib/notifications/create-notification');
+        await createNotification({
+          titulo: 'Publicación frenada: foto sin permiso promocional',
+          mensaje: `El posteo "${(post.text || post.id).slice(0, 60)}" no salió porque la foto no tiene permiso promocional vigente.`,
+          tipo: 'alerta',
+          href: '/empresa/redes-sociales',
+        });
+      } catch {}
+      fallados.push({
+        id: post.id,
+        error: 'Rechazado por permiso: la foto ya no tiene consentimiento promocional vigente.',
+      });
+      continue;
+    }
+
     // Se RECLAMA el posteo antes de publicar (escritura atómica). Dos corridas a la vez
     // (despertador y visita) leían "Programado" las dos y publicaban lo mismo dos veces.
     const ganado = await reclamarPosteo(post.id, ahora);
@@ -871,7 +900,7 @@ export async function procesarPosteosProgramados(
   }
 
     return {
-    ok: true,
+    ok: fallados.length === 0,
     totalPendientes: programadosVencidos.length,
     procesados: aProcesar.length,
     publicados,

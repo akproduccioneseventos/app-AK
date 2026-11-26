@@ -1,7 +1,8 @@
 import type { FeedbackSubmission } from '@/types/feedback';
 import { generateTestimonialFlow } from '@/ai/flows/generate-testimonial-flow';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 export interface ResumenFeedbackMensual {
   /** false = la IA no pudo analizar las encuestas: los temas y mejoras vienen vacíos, no de relleno. */
@@ -104,20 +105,18 @@ export async function generarResumenFeedbackMensual(
   let avisoAnalisis: string | undefined =
     'No se pudo analizar las encuestas con la IA (sin presupuesto de IA disponible). Los temas repetidos y las mejoras se muestran cuando el análisis funcione.';
 
-  const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-  if (canUseAI) {
-    try {
-      const model = getGeminiModelForAgent('marketing');
-      const comentarios = submissions
-        .map((s) => {
-          const rating = (s as any).overallRating ?? (s.npsScore ? Math.round(s.npsScore / 2) : 5);
-          const feedbackText = s.enjoyedMost || s.generalComments || (s as any).comments || '';
-          const mejora = s.toImprove || (s as any).improvements || 'Ninguna';
-          return `- [${rating}★] ${s.clientName || 'Cliente'}: ${feedbackText} | Mejoras sugeridas: ${mejora}`;
-        })
-        .join('\n');
+  try {
+    const model = getGeminiModelForAgent('marketing');
+    const comentarios = submissions
+      .map((s) => {
+        const rating = (s as any).overallRating ?? (s.npsScore ? Math.round(s.npsScore / 2) : 5);
+        const feedbackText = s.enjoyedMost || s.generalComments || (s as any).comments || '';
+        const mejora = s.toImprove || (s as any).improvements || 'Ninguna';
+        return `- [${rating}★] ${s.clientName || 'Cliente'}: ${feedbackText} | Mejoras sugeridas: ${mejora}`;
+      })
+      .join('\n');
 
-      const prompt = `Analizá las siguientes encuestas de satisfacción de clientes de AK Producciones:
+    const prompt = `Analizá las siguientes encuestas de satisfacción de clientes de AK Producciones:
 ${comentarios}
 
 Identificá:
@@ -130,8 +129,14 @@ Devolvé SOLO un JSON válido con esta estructura:
   "mejorasPropuestas": ["mejora 1", "mejora 2", "mejora 3"]
 }`;
 
-      const res = await generateWithGeminiFallback({ model, prompt });
-      const raw = res?.text?.trim() || '';
+    const res = await pedirTexto({
+      prompt,
+      quien: 'resumen-feedback',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
+    });
+    if (res.ok) {
+      const raw = res.texto.trim();
       const match = raw.match(/\{[\s\S]*\}/);
       if (match) {
         const parsed = JSON.parse(match[0]);
@@ -143,12 +148,13 @@ Devolvé SOLO un JSON válido con esta estructura:
         }
         analisisDisponible = temasRepetidos.length > 0 || mejorasPropuestas.length > 0;
         avisoAnalisis = analisisDisponible ? undefined : 'La IA contestó pero no se pudo leer el análisis de las encuestas.';
-        await registrarConsumoIA('resumen-feedback').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
       }
-    } catch (e) {
-      console.warn('[feedback] No se pudo analizar las encuestas:', e);
+    } else if (!res.topeAlcanzado) {
       avisoAnalisis = 'No se pudo analizar las encuestas con la IA. Probá de nuevo más tarde.';
     }
+  } catch (e) {
+    console.warn('[feedback] No se pudo analizar las encuestas:', e);
+    avisoAnalisis = 'No se pudo analizar las encuestas con la IA. Probá de nuevo más tarde.';
   }
 
   return {

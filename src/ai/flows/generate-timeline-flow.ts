@@ -1,4 +1,6 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { z } from 'zod';
 
 export const GenerateTimelineSchema = z.object({
@@ -40,13 +42,16 @@ El resultado debe ser un JSON Array, donde cada objeto tenga:
 Devuelve SOLO el JSON array.`;
 
     const model = getGeminiModelForAgent('fiestas_general');
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'itinerario-ia',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
       output: { format: 'json' },
     });
+    if (!result.ok) throw new Error(result.error || 'La IA no devolvió una lista de momentos.');
 
-    const crudo = (result.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+    const crudo = result.texto.replace(/```json/gi, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(crudo);
     if (!Array.isArray(parsed) || parsed.length === 0) {
       throw new Error('La IA no devolvió una lista de momentos.');

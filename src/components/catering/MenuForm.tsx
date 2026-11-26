@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, ImageIcon, ChevronDown, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { esMesaBuffetBase } from '@/lib/simulator/catalog';
 import { saveMenu, getMenus } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
@@ -149,7 +150,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     let finalIngredients = [...(item.ingredients || [])];
     if (item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) {
         const buffetBase = allDishesForMerge.find(d =>
-            (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
+            esMesaBuffetBase(d.name) && d.id !== item.id
         );
         if (buffetBase && buffetBase.ingredients) {
             buffetBase.ingredients.forEach(bi => {

@@ -80,6 +80,7 @@ Plata, cobros y permisos: se lista y Claude lo revisa.
 usa: photosUploaded: false en src/app/actions/fiesta/video-vida.actions.ts
 no-usa: return { ...result, invitado: nuevoInvitado } en src/app/actions/fiesta/invitados.actions.ts
 usa: lo borró otra persona en src/app/actions/fiesta/invitados.actions.ts
+usa: actual.completado en src/app/actions/fiesta/itinerario.actions.ts
 no-usa: ? new Date(fiesta.configuracion.fechaEvento) : en src/app/(app)/eventos/page.tsx
 no-usa: h-7 w-20 en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-video-de-vida-no-da-por-terminado-lo-empezado.test.ts

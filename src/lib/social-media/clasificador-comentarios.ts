@@ -17,8 +17,8 @@
  *    sin '24/7', sin nombrar personal ni agasajado).
  */
 
-import { generateWithGeminiFallback } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { pedirTexto } from '@/ai/cerebro';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 import { readData } from '@/lib/data-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
@@ -121,11 +121,13 @@ REGLAS ESTRICTAS DE SEGURIDAD Y ESTILO:
 4. NO nombres a nadie del personal ni menciones el nombre del agasajado o cliente específico.
 5. Mostrá calidez, cercanía y gratitud sincera.`;
 
-    const respuesta = await generateWithGeminiFallback({ prompt });
-    const textoIA = (respuesta.text || '').trim();
+    const respuesta = await pedirTexto({
+      prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
+    });
+    const textoIA = respuesta.ok ? respuesta.texto.trim() : '';
     const agradecimiento = textoIA || '¡Muchas gracias por el apoyo y la linda onda!';
-
-    await registrarConsumoIA('clasificacion-comentarios');
 
     return sanitizarTextoRespuesta(agradecimiento);
   } catch {
@@ -148,15 +150,6 @@ export async function clasificarComentario(
       esPregunta: false,
       autoHideRecommended: false,
       debeResponder: false,
-    };
-  }
-
-  // 1. Control de presupuesto
-  const tienePresupuesto = await hayPresupuestoParaIA();
-  if (!tienePresupuesto) {
-    return {
-      classified: false,
-      error: 'Sin presupuesto de IA disponible este mes.',
     };
   }
 
@@ -198,21 +191,27 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
   "debeResponder": boolean
 }`;
 
-    // Pasa por la función con respaldos de modelo: antes llamaba a gemini-1.5-flash (retirado) por
-    // fetch directo y, si fallaba, no probaba ningún otro.
-    const respuesta = await generateWithGeminiFallback({
+    const respuesta = await pedirTexto({
       prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
       output: { format: 'json' },
     });
-    const rawContent = (respuesta.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+    if (!respuesta.ok) {
+      if (respuesta.topeAlcanzado) {
+        return { classified: false, error: 'Sin presupuesto de IA disponible este mes.' };
+      }
+      if (respuesta.error?.toLowerCase().includes('respuesta vacía')) {
+        return { classified: false, error: 'Respuesta vacía de la IA' };
+      }
+      return { classified: false, error: respuesta.error || 'Respuesta vacía de la IA' };
+    }
+    const rawContent = respuesta.texto.replace(/```json/gi, '').replace(/```/g, '').trim();
     if (!rawContent) {
       return { classified: false, error: 'Respuesta vacía de la IA' };
     }
 
     const parsed = JSON.parse(rawContent);
-
-    // Registrar consumo contabilizado
-    await registrarConsumoIA('clasificacion-comentarios');
 
     const sentiment: CommentSentiment =
       parsed.sentiment === 'positivo' || parsed.sentiment === 'negativo'

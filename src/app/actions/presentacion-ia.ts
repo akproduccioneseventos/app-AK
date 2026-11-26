@@ -3,6 +3,7 @@
 import { pedirTexto } from '@/ai/cerebro';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { hasAppSession } from '@/lib/auth/require-session';
 
 export interface ServicioPresentacionOption {
   id: string;
@@ -84,6 +85,11 @@ export async function interpretarPedidoPresentacionIA(input: {
   frase: string;
   servicios?: ServicioPresentacionOption[];
 }): Promise<ResultadoPresentacionIA> {
+  // La presentación LED es pública, pero la IA la usa el equipo en la reunión: sin sesión, un desconocido podía gastar el
+  // tope diario de IA de la empresa (revisión de la entrega 346-349, 25/11/2026).
+  if (!(await hasAppSession())) {
+    return { ok: false, error: 'La IA de la reunión la usa el equipo: iniciá sesión para pedirle cambios.' };
+  }
   await enforcePublicRateLimit({
     scope: 'presentacion-led-ia',
     limit: 40,

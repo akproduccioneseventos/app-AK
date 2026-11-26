@@ -5,8 +5,8 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
-import { esUnSi } from '@/lib/multiagent/confirmacion';
-import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
+import { esConfirmacionSola } from '@/lib/multiagent/confirmacion';
+import { appendMultiAgentChatTurn, getMultiAgentChatSession, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
@@ -115,13 +115,38 @@ export async function sendPersistentMultiAgentMessage(input: {
     };
   }
 
-  const result = await sendMultiAgentMessage(input.message, input.history ?? [], {
-    requestId: input.requestId,
-    pathname: input.pathname,
-    fiestaId: input.fiestaId,
-    agentType: input.agentType,
-    imageDataUri: input.imageDataUri,
-  });
+  const sesionExistente = input.sessionId
+    ? await getMultiAgentChatSession(input.sessionId).catch(() => null)
+    : null;
+  const accionPendiente = sesionExistente?.pendingAction ?? null;
+
+  let result: AkMultiAgentOutput;
+  let pendingActionNext: { type: 'agendar_reunion' | 'preparar_mail'; data: any; requestedAt: string } | null | undefined = undefined;
+
+  if (accionPendiente && esConfirmacionSola(input.message)) {
+    const res = await ejecutarAccionSecretario({
+      accion: accionPendiente.type,
+      datos: accionPendiente.data,
+      confirmado: true,
+    });
+    pendingActionNext = null;
+    result = {
+      success: res.success,
+      response: res.mensaje || res.error || 'Listo.',
+      agentType: input.agentType ?? 'central',
+      agentName: 'Secretario AK',
+      action: { type: accionPendiente.type, data: accionPendiente.data } as any,
+      error: res.error,
+    };
+  } else {
+    result = await sendMultiAgentMessage(input.message, input.history ?? [], {
+      requestId: input.requestId,
+      pathname: input.pathname,
+      fiestaId: input.fiestaId,
+      agentType: input.agentType,
+      imageDataUri: input.imageDataUri,
+    });
+  }
 
   // Ejecutar acciones reales detectadas por la IA
   if (result.success && result.action && result.action.type !== 'none') {
@@ -343,17 +368,25 @@ export async function sendPersistentMultiAgentMessage(input: {
         }
       } else if (action.type === 'agendar_reunion') {
         const data = action.data as any;
-        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
-        const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
+        if (pendingActionNext !== null) {
+          const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: false });
+          if (res.esperandoConfirmacion) {
+            pendingActionNext = { type: 'agendar_reunion', data, requestedAt: new Date().toISOString() };
+          }
+          result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
+        }
       } else if (action.type === 'ver_mi_semana') {
         const res = await ejecutarAccionSecretario({ accion: 'ver_mi_semana', datos: action.data });
         result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       } else if (action.type === 'preparar_mail') {
         const data = action.data as any;
-        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
-        const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
+        if (pendingActionNext !== null) {
+          const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: false });
+          if (res.esperandoConfirmacion) {
+            pendingActionNext = { type: 'preparar_mail', data, requestedAt: new Date().toISOString() };
+          }
+          result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
+        }
       } else if (action.type === 'buscar_en_la_web') {
         const res = await ejecutarAccionSecretario({ accion: 'buscar_en_la_web', datos: action.data });
         result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
@@ -381,6 +414,7 @@ export async function sendPersistentMultiAgentMessage(input: {
       fiestaId: input.fiestaId,
       userMessage: input.message,
       assistantMessage: result.response,
+      ...(pendingActionNext !== undefined ? { pendingAction: pendingActionNext } : {}),
     });
     sessionId = session.id;
     savedChat = true;

@@ -416,10 +416,12 @@ export async function saveWhatsAppSettings(
 ): Promise<{ success: boolean; settings?: WhatsAppSettings; error?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-    const currentSettings = await getWhatsAppSettings();
-    const settingsToSave: WhatsAppSettings = { ...currentSettings, ...settings };
-    await writeData(WHATSAPP_SETTINGS_FILE, settingsToSave);
-    return { success: true, settings: settingsToSave };
+    return await turnoDeAjustes.runExclusive(async () => {
+      const currentSettings = await getWhatsAppSettings();
+      const settingsToSave: WhatsAppSettings = { ...currentSettings, ...settings };
+      await writeData(WHATSAPP_SETTINGS_FILE, settingsToSave);
+      return { success: true, settings: settingsToSave };
+    });
   } catch (error: any) {
     return { success: false, error: error.message || "Error desconocido al guardar la configuración de WhatsApp." };
   }
@@ -700,13 +702,15 @@ export async function saveAjustesLlegadaPersonal(
   settings: Partial<AjustesLlegadaPersonal>
 ): Promise<AjustesLlegadaPersonal> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  const current = await getAjustesLlegadaPersonal();
-  const updated: AjustesLlegadaPersonal = {
-    ...current,
-    ...settings,
-  };
-  await writeData(AJUSTES_LLEGADA_FILE, updated);
-  return updated;
+  return turnoDeAjustes.runExclusive(async () => {
+    const current = await getAjustesLlegadaPersonal();
+    const updated: AjustesLlegadaPersonal = {
+      ...current,
+      ...settings,
+    };
+    await writeData(AJUSTES_LLEGADA_FILE, updated);
+    return updated;
+  });
 }
 
 const TUTORIALES_SETTINGS_FILE = 'tutoriales-settings.json';

@@ -11,7 +11,7 @@ import type {
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 import { readData, writeData } from '@/lib/data-service';
 import { mutarComentarios, aplicarParches, parcheEntre } from '@/lib/social-media/guardar-comentarios';
-import { generateWithGeminiFallback } from '@/ai/genkit';
+import { pedirTexto } from '@/ai/cerebro';
 import { enlaceAlSimuladorDelProspecto } from '@/lib/whatsapp/datos-prospecto';
 import {
   getGoogleBusinessReviews,
@@ -31,7 +31,7 @@ export {
   sanitizarTextoRespuesta,
   alertarDuenioPorComentarioNegativo,
 };
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 
 const COMMENTS_FILE = 'social-comments.json';
 const CONNECTIONS_FILE = 'social-connections.json';
@@ -220,15 +220,16 @@ REGLAS ESTRICTAS:
 5. NUNCA menciones atención o servicio "24/7" ni "24 horas".
 6. NO nombres personal ni menciones agasajados o clientes específicos.`;
 
-    // Con respaldos de modelo (antes: fetch directo a gemini-1.5-flash, ya retirado). Si la IA falla
-    // se mantiene el mismo texto neutro de siempre: nunca se publica algo inventado.
-    const respuesta = await generateWithGeminiFallback({ prompt });
-    const textoIA = (respuesta.text || '').trim();
+    const respuesta = await pedirTexto({
+      prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
+    });
+    const textoIA = respuesta.ok ? respuesta.texto.trim() : '';
     if (!textoIA) {
       return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
     }
 
-    await registrarConsumoIA('clasificacion-comentarios');
     return sanitizarTextoRespuesta(textoIA);
   } catch {
     return '¡Hola! Para consultar disponibilidad y coordinar, escribinos por WhatsApp.';
@@ -1000,10 +1001,13 @@ REGLAS:
 2. NO uses "garantía", "garantizar", "24/7" ni promesas de plazos.
 3. Invitá a conversar en privado para entender qué pasó y resolverlo.`;
 
-    const res = await generateWithGeminiFallback({ prompt });
-    const texto = (res.text || '').trim();
+    const res = await pedirTexto({
+      prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
+    });
+    const texto = res.ok ? res.texto.trim() : '';
     if (!texto) return sanitizarTextoRespuesta(fallback);
-    await registrarConsumoIA('clasificacion-comentarios').catch((e) => console.warn('[comments-backfill] Paso secundario sin completar:', e));
     return sanitizarTextoRespuesta(texto);
   } catch {
     return sanitizarTextoRespuesta(fallback);

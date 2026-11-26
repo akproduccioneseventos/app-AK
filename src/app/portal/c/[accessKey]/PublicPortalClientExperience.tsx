@@ -1422,7 +1422,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     </div>
                   </div>
                   <div className="space-y-2 text-sm text-slate-600">
-                    {fiesta?.videoVida?.galleryEnabled && <p className="rounded-lg bg-slate-50 p-3">Video de vida activo. Fotos cargadas: {fiesta?.videoVida?.photoCount ?? 0}.</p>}
+                    {fiesta?.videoVida?.galleryEnabled && (() => {
+                      const subidas = typeof fiesta.videoVida?.uploadedCount === 'number'
+                        ? fiesta.videoVida.uploadedCount
+                        : (typeof fiesta.videoVida?.photosUploaded === 'number'
+                          ? fiesta.videoVida.photosUploaded
+                          : (fiesta.videoVida?.photosUploaded ? (fiesta.videoVida?.photoCount ?? 0) : 0));
+                      const total = fiesta.videoVida?.photoCount ?? 50;
+                      return (
+                        <p className="rounded-lg bg-slate-50 p-3">
+                          Video de vida activo. Fotos cargadas: {subidas} de {total}.
+                        </p>
+                      );
+                    })()}
                     {fiesta?.fotografiaYFilmacion?.notasGenerales && <p className="rounded-lg bg-slate-50 p-3">{fiesta.fotografiaYFilmacion.notasGenerales}</p>}
                     {fiesta?.socialGallerySettings?.enabled ? (
                       <Button variant="outline" asChild>

@@ -32,6 +32,9 @@ jest.mock('@/lib/auth/require-session', () => ({
 jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn(async () => fiesta) }));
 const leerPresupuesto = jest.fn(async (_id: string): Promise<any> => null);
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestoById: (id: string) => leerPresupuesto(id) }));
+jest.mock('@/app/actions/settings', () => ({
+  getBudgetDisplaySettings: jest.fn(async () => ({ bookingDepositAmount: 5000 })),
+}));
 
 import { syncLaundryCosts } from '@/app/actions/fiesta/costos.actions';
 import { resolveDepositAmount } from '@/lib/fiesta/sena-del-contrato';
@@ -69,8 +72,8 @@ describe('la seña del contrato en papel no se inventa', () => {
     expect(await resolveDepositAmount(fiesta)).toBe(30000);
   });
 
-  it('sin presupuesto en la fiesta, va el valor por defecto de siempre', async () => {
-    expect(await resolveDepositAmount({ ...fiesta, presupuestoId: undefined })).toBe(20000);
+  it('sin presupuesto en la fiesta, va el valor configurado en Ajustes (Orden 356)', async () => {
+    expect(await resolveDepositAmount({ ...fiesta, presupuestoId: undefined })).toBe(5000);
     expect(leerPresupuesto).not.toHaveBeenCalled();
   });
 });

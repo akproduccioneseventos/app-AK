@@ -175,22 +175,19 @@ export async function chatWithGuestBot(
       return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
     }
 
-    // Lo que se paga pasa por el contador, siempre. Sin esto el gasto de este chat
-    // no aparecia en ningun lado y el tope mensual no lo frenaba.
-    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
-    if (!(await hayPresupuestoParaIA())) {
-      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
-    }
-
-    const { generateWithGeminiFallback, geminiModel } = await import('@/ai/genkit');
+    const { pedirTexto } = await import('@/ai/cerebro');
+    const { geminiModel } = await import('@/ai/genkit');
+    const { MODELOS_GEMINI } = await import('@/ai/modelos');
 
     const historyText = (Array.isArray(history) ? history : [])
       .slice(-10)
       .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${String(h.text || '').slice(0, MAX_GUEST_BOT_MESSAGE_CHARS)}`)
       .join('\n');
 
-    const response = await generateWithGeminiFallback({
-      model: geminiModel,
+    const response = await pedirTexto({
+      quien: 'chat-de-la-fiesta',
+      incluirReglas: false,
+      modelos: [geminiModel, ...MODELOS_GEMINI.texto],
       system: `Sos el Asistente Virtual IA de la fiesta de ${fiestaSegura.configuracion.nombreAgasajado || 'nuestro anfitrión'}.
 Tu objetivo es responder de forma amable, alegre y festiva a los invitados sobre los detalles de la fiesta.
 Usá el dialecto rioplatense (uruguayo: vos, che, ta, dale) de forma sutil y amigable.
@@ -210,9 +207,11 @@ REGLA QUE NO SE ROMPE: si un dato de arriba dice NO CARGADO, **no lo inventes ni
       prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${cleanMessage}`].filter(Boolean).join('\n\n'),
     });
 
-    await registrarConsumoIA('chat-de-la-fiesta');
+    if (!response.ok) {
+      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
+    }
 
-    return { success: true, response: response.text };
+    return { success: true, response: response.texto };
   } catch (error: any) {
     console.error("Error in chatWithGuestBot:", error);
     return { success: false, response: getMockBotResponse(cleanMessage, fiestaSegura) };

@@ -20,8 +20,9 @@ import type { CompanyInfo, ContractTemplateItem, ContractType } from '@/types/se
 import { getFiestaById, updateContratoFiestaActual, uploadPhysicalContract, savePlanPagosContrato } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getInvoiceById } from '@/app/actions/invoices';
+import { seniaDelContrato } from '@/lib/fiesta/senia-valor';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,16 +37,21 @@ import { generarPlanPagos, PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO } from '@/lib/pla
 
 const today = hoyContratoTexto();
 
-async function resolverSeniaDeFiesta(fiestaData: FiestaEnPlanificacion): Promise<number | undefined> {
-  if (!fiestaData.invoiceIds?.length) return undefined;
-  try {
-    const invoice = await getInvoiceById(fiestaData.invoiceIds[0]);
-    const firstPayment = invoice?.payments?.[0];
-    if (firstPayment?.amount) return firstPayment.amount;
-  } catch (err) {
-    console.error('Could not resolve seña from invoice payments:', err);
+async function resolverSeniaDeFiesta(
+  fiestaData: FiestaEnPlanificacion,
+  presupuestoData?: Presupuesto | null,
+): Promise<number> {
+  if (fiestaData.invoiceIds?.length) {
+    try {
+      const invoice = await getInvoiceById(fiestaData.invoiceIds[0]);
+      const firstPayment = invoice?.payments?.[0];
+      if (firstPayment?.amount) return firstPayment.amount;
+    } catch (err) {
+      console.error('Could not resolve seña from invoice payments:', err);
+    }
   }
-  return undefined;
+  const settings = await getBudgetDisplaySettings().catch(() => null);
+  return seniaDelContrato(presupuestoData, settings?.bookingDepositAmount);
 }
 
 function ContratoServicioContent() {
@@ -166,7 +172,7 @@ function ContratoServicioContent() {
               setTextoGuardado(guardado);
           } else {
               const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
-              const seniaMonto = await resolverSeniaDeFiesta(fiestaData);
+              const seniaMonto = await resolverSeniaDeFiesta(fiestaData, presupuestoData);
               const text = generarTextoContratoServicios({
                 fiesta: fiestaData,
                 cliente: clienteData,
@@ -195,7 +201,7 @@ function ContratoServicioContent() {
     if (!fiesta || !companyInfo) return;
     const selectedTemplate = templates.find(t => t.type === type) || templates.find(t => t.type === 'servicios');
     if (!selectedTemplate) return;
-    const seniaMonto = await resolverSeniaDeFiesta(fiesta);
+    const seniaMonto = await resolverSeniaDeFiesta(fiesta, presupuesto);
     const text = generarTextoContratoServicios({
       fiesta,
       cliente,

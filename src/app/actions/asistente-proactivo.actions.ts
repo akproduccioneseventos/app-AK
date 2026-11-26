@@ -48,9 +48,13 @@ export async function getBandejaAsistenteAction(area?: AsistenteArea) {
   // Sólo el dueño ve todas las propuestas (plata, lo que pregunta cada cliente). Antes decía
   // "|| true" y cualquiera del equipo las veía todas.
   const esDuenio = perfilDe(session.user) === 'dueno';
+  const puedeVerPlata = esDuenio || Boolean((session.user as any)?.perfil && (await import('@/lib/auth/perfiles')).puede(session.user, PERMISOS.CONTABILIDAD)) || Boolean((await import('@/lib/auth/perfiles')).puede(session.user, PERMISOS.ADMINISTRACION));
 
   try {
-    const propuestas = await getPropuestasParaUsuario(usuarioNombre, esDuenio, area);
+    const propuestas = await getPropuestasParaUsuario(usuarioNombre, esDuenio, area, {
+      puedeVerPlata,
+      perfil: (session.user as any)?.perfil,
+    });
     const resumen = await getResumenMientrasNoEstabas();
     const settings = await getAsistenteSettings();
 

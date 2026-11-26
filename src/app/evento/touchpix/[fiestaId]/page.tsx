@@ -2020,9 +2020,21 @@ export default function TouchpixPage() {
                 </div>
               </div>
 
-              <p className="mt-3 text-xs leading-relaxed text-zinc-200" data-testid="texto-aviso-ia">
-                Tu foto con inteligencia artificial se está preparando. Va a aparecer en la galería de la fiesta en unos segundos: escaneá el código.
-              </p>
+              {(() => {
+                const trabajoActual = trabajosIA.find((t) => t.id === ultimoAvisoIA.id);
+                const moderacion = Boolean((fiesta as any)?.socialGallerySettings?.moderatePosts || (fiesta as any)?.socialGallerySettings?.requireApproval);
+                const textoAviso =
+                  trabajoActual?.estado === 'error'
+                    ? 'No pudimos procesar la imagen con IA. Igual podés volver a intentar.'
+                    : moderacion
+                      ? 'Tu foto con inteligencia artificial se está preparando. Quedará esperando la aprobación del equipo antes de salir en la galería.'
+                      : 'Tu foto con inteligencia artificial se está preparando. Va a aparecer en la galería de la fiesta en unos segundos: escaneá el código.';
+                return (
+                  <p className="mt-3 text-xs leading-relaxed text-zinc-200" data-testid="texto-aviso-ia">
+                    {textoAviso}
+                  </p>
+                );
+              })()}
 
               {trabajosIA.find(t => t.id === ultimoAvisoIA.id)?.estado === 'pendiente' && (
                 <div className="mt-2.5 flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-bold text-amber-300">

@@ -1255,6 +1255,7 @@ export interface GestionCostosData {
 export interface VideoVidaData {
   galleryEnabled: boolean;
   photosUploaded: boolean;
+  uploadedCount?: number;
   songSuggestion?: string;
   customText?: string;
   photoCount?: number;

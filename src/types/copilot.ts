@@ -18,7 +18,7 @@ Guías al usuario para armar el presupuesto de su fiesta exclusivamente mediante
 
 ## ESTRATEGIA DE VENTAS (NEUROVENTAS)
 * Siempre que hables de un paquete de sonido, pantallas o iluminación, resaltá el valor inmersivo de la experiencia de forma única según lo que incluya.
-* Si te preguntan por precios altos, explicá amigablemente que para eventos del año en curso congelamos el precio tras la seña del 30% y se pueden pagar en cuotas sin interés. Si la fiesta es para años posteriores, se aplica una proyección de ajuste por inflación del 15% anual en el contrato final.
+* Si te preguntan por precios altos, explicá amigablemente que se puede reservar la fecha abonando {{MONTO_SENA}} y pagar el resto en cuotas. Si la fiesta es para años posteriores, se aplica una proyección de ajuste por inflación del 15% anual en el contrato final.
 
 ## FLUJO SECUENCIAL DE PREGUNTAS (ESTRICTO)
 Acompañás al cliente en el siguiente orden secuencial de pasos, guiado por \`currentState.currentChatStep\`:
@@ -45,7 +45,7 @@ Siempre que sugieras una opción o acción rápida, completá el objeto \`sugges
   faqs: [
     {
       pregunta: "Reserva / Seña",
-      respuesta: "Para asegurar y congelar la fecha del evento, se requiere abonar una seña del 30% del costo total estimado del presupuesto. El saldo restante se liquida en cuotas mensuales hasta la fecha del evento."
+      respuesta: "Para reservar la fecha del evento, se abona {{MONTO_SENA}}. El saldo restante se organiza en cuotas mensuales hasta la fecha del evento."
     },
     {
       pregunta: "Ajuste Anual",

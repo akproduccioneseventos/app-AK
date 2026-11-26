@@ -130,26 +130,56 @@ export async function addInvitado(
     const invitados = [...(data.invitados || []), nuevoInvitado];
     return { ...data, invitados };
   });
-  return { ...result, invitado: nuevoInvitado };
+  return soloLoDelInvitado(result, nuevoInvitado ?? undefined);
 }
 
 export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
   await requireEquipoOPortal(fiestaId);
+  let encontrado = false;
+  let fusionado: Invitado | undefined;
   const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv =>
-      inv.id === invitadoActualizado.id ? invitadoActualizado : inv
-    );
+    const lista = data.invitados || [];
+    const existe = lista.some(inv => inv.id === invitadoActualizado.id);
+    if (!existe) return data;
+    encontrado = true;
+    const invitados = lista.map(inv => {
+      if (inv.id !== invitadoActualizado.id) return inv;
+      fusionado = {
+        ...inv,
+        ...invitadoActualizado,
+        guestAccessToken: inv.guestAccessToken || invitadoActualizado.guestAccessToken,
+      };
+      return fusionado;
+    });
     return { ...data, invitados };
   });
-  return soloLoDelInvitado(result, invitadoActualizado);
+  if (!result.success) return { success: false, error: result.error };
+  if (!encontrado) {
+    return { success: false, error: 'Este invitado ya no existe (lo borró otra persona).' };
+  }
+  return soloLoDelInvitado(result, fusionado);
 }
 
 export async function deleteInvitado(fiestaId: string, invitadoId: string) {
   await requireEquipoOPortal(fiestaId);
-  return updateFiestaData(fiestaId, data => {
+  const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
-    return { ...data, invitados };
+    const videosLimpios = Array.isArray(data.videosParaInvitados)
+      ? data.videosParaInvitados
+          .map((v: any) =>
+            Array.isArray(v?.invitadoIds)
+              ? { ...v, invitadoIds: v.invitadoIds.filter((id: string) => id !== invitadoId) }
+              : v
+          )
+          .filter((v: any) => v?.invitadoId !== invitadoId)
+      : undefined;
+    return {
+      ...data,
+      invitados,
+      ...(videosLimpios !== undefined ? { videosParaInvitados: videosLimpios } : {}),
+    };
   });
+  return { success: result.success, error: result.error };
 }
 
 // ─── RSVP ────────────────────────────────────────────────────────────────────
@@ -174,9 +204,11 @@ export async function updateGuestRsvp(
   }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let updatedInvitado: Invitado | undefined;
+  let encontrado = false;
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== invitadoId) return inv;
+      encontrado = true;
       const nuevaRestriccion = submission.dietaryRestriction !== undefined
         ? submission.dietaryRestriction
         : inv.dietaryRestriction;
@@ -200,8 +232,12 @@ export async function updateGuestRsvp(
       };
       return updatedInvitado;
     });
+    if (!encontrado) return data;
     return { ...data, invitados };
   });
+  if (result.success && !encontrado) {
+    return { success: false, error: 'Este invitado ya no existe (lo borró otra persona).' };
+  }
   return soloLoDelInvitado(result, updatedInvitado);
 }
 
@@ -314,10 +350,16 @@ export async function updateGuestExperience(
   invitadoId: string,
   data: { mensaje?: string; fotosSubidas?: string[] }
 ): Promise<{ success: boolean; error?: string }> {
+  let encontrado = false;
   const result = await updateFiestaData(fiestaId, fiesta => {
-    const invitados = (fiesta.invitados ?? []).map(inv =>
-      inv.id === invitadoId ? { ...inv, ...data } : inv
-    );
+    const invitados = (fiesta.invitados ?? []).map(inv => {
+      if (inv.id !== invitadoId) return inv;
+      encontrado = true;
+      return { ...inv, ...data };
+    });
+    if (!encontrado) {
+      throw new Error('Ese invitado ya no está: lo borró otra persona.');
+    }
     return { ...fiesta, invitados };
   });
   return { success: result.success, error: result.error };
@@ -342,8 +384,10 @@ export async function updateGuestDetails(
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let updatedInvitado: Invitado | undefined;
   const result = await updateFiestaData(fiestaId, data => {
+    let encontrado = false;
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== invitadoId) return inv;
+      encontrado = true;
       const nuevaRestriccion = details.dietaryRestriction !== undefined
         ? details.dietaryRestriction
         : inv.dietaryRestriction;
@@ -358,6 +402,9 @@ export async function updateGuestDetails(
       };
       return updatedInvitado;
     });
+    if (!encontrado) {
+      throw new Error('Ese invitado ya no está: lo borró otra persona.');
+    }
     return { ...data, invitados };
   });
   return soloLoDelInvitado(result, updatedInvitado);
@@ -533,7 +580,7 @@ export async function submitPublicRsvp(
   await enforcePublicRateLimit({
     scope: 'public-event-rsvp',
     identity: fiestaId,
-    limit: 12,
+    limit: 60,
     windowMs: 15 * 60 * 1000,
   });
 
@@ -599,6 +646,29 @@ export async function submitPublicRsvp(
         kidsCount: submittedKidsCount ?? existing.kidsCount,
         categoria: existing.categoria,
       });
+      const restriccionExistente = existing.dietaryRestriction;
+      const restriccionNuevaVacia = !dietary || dietary === 'Ninguna';
+      const restriccionPublica: DietaryRestriction = updatingOwnRecord
+        ? dietary
+        : (!restriccionExistente || restriccionExistente === 'Ninguna')
+          ? dietary
+          : restriccionExistente;
+      const extraDistinta =
+        !updatingOwnRecord &&
+        restriccionExistente &&
+        restriccionExistente !== 'Ninguna' &&
+        !restriccionNuevaVacia &&
+        dietary !== restriccionExistente
+          ? dietary
+          : undefined;
+      const alergiasCombinadas = updatingOwnRecord
+        ? alergiasEspecificas
+        : ([existing.alergiasEspecificas, extraDistinta, alergiasEspecificas]
+            .map((texto) => (texto || '').trim())
+            .filter(Boolean)
+            .filter((valor, idx, arr) => arr.indexOf(valor) === idx)
+            .join(' · ') || undefined);
+
       savedInvitado = {
         ...existing,
         // Stamp a token if the existing invitado doesn't have one yet
@@ -610,14 +680,16 @@ export async function submitPublicRsvp(
         kidsCount: effectiveKidsCount,
         categoria: effectiveKidsCount >= effectivePartySize ? 'Niño/Adolescente' : 'Adulto',
         companionNames: updatingOwnRecord ? (companionNames ?? []) : (companionNames ?? existing.companionNames),
-        dietaryRestriction: dietary,
-        alergiasEspecificas: updatingOwnRecord ? alergiasEspecificas : (alergiasEspecificas ?? existing.alergiasEspecificas),
+        dietaryRestriction: restriccionPublica,
+        alergiasEspecificas: alergiasCombinadas,
         cancionesDJ: updatingOwnRecord
           ? cancionesDJ
           : (cancionesDJ.length > 0 ? cancionesDJ : existing.cancionesDJ),
         mensaje: updatingOwnRecord ? mensaje : (mensaje ?? existing.mensaje),
         requiereAccesibilidad: submission.requiereAccesibilidad ?? existing.requiereAccesibilidad,
-        isCeliac: dietary === 'Celiaco',
+        ...(updatingOwnRecord
+          ? { isCeliac: dietary === 'Celiaco' }
+          : { isCeliac: existing.isCeliac || (dietary === 'Celiaco' ? true : existing.isCeliac) }),
       };
       currentInvitados[existingIndex] = savedInvitado;
       return { ...data, invitados: [...currentInvitados] };

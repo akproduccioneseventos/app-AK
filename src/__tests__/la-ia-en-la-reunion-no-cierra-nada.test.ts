@@ -10,6 +10,11 @@ jest.mock('@/ai/cerebro', () => ({
   pedirTexto: jest.fn(),
 }));
 
+const mockHasAppSession = jest.fn(async () => true);
+jest.mock('@/lib/auth/require-session', () => ({
+  hasAppSession: () => mockHasAppSession(),
+}));
+
 jest.mock('@/lib/commercial/public-rate-limit', () => ({
   enforcePublicRateLimit: jest.fn(async () => undefined),
 }));
@@ -136,5 +141,13 @@ describe('Orden 348 — La IA en la reunión interpreta cambios pero nunca guard
       expect(accionSrc).not.toContain(simbolo);
       expect(ledSrc).not.toContain(simbolo);
     }
+  });
+
+  it('sin sesión del equipo no consulta a la IA (un desconocido no gasta el tope diario)', async () => {
+    mockHasAppSession.mockResolvedValueOnce(false);
+    mockPedirTexto.mockClear();
+    const r = await interpretarPedidoPresentacionIA({ frase: 'agregá la fuente de chocolate' });
+    expect(r.ok).toBe(false);
+    expect(mockPedirTexto).not.toHaveBeenCalled();
   });
 });

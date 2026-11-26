@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { aniosDeAK } from '../../src/lib/marketing/cifras-de-ak';
 
 async function assertWelcomeScreen(page: Page, isMobile: boolean) {
   await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
@@ -22,7 +23,7 @@ async function assertWelcomeScreen(page: Page, isMobile: boolean) {
   const trustStrip = page.getByTestId('simulator-trust-strip');
   await expect(trustStrip).toBeVisible();
   await expect(trustStrip).toContainText('+200');
-  await expect(trustStrip).toContainText('+7');
+  await expect(trustStrip).toContainText(`+${aniosDeAK()}`);
 
   // Seis tarjetas de miedo
   await expect(page.getByRole('heading', { name: /Tu miedo, nuestra respuesta/i })).toBeVisible();

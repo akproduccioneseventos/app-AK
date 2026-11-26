@@ -21,7 +21,8 @@ async function handleCron(request: Request) {
 
     const result = await runMarketingAutomation({
       source: 'cron',
-      force: searchParams.get('force') === '1',
+      force: Boolean(puerta.conClave) && searchParams.get('force') === '1',
+      includeRecontacto: false,
     });
 
     const fallo = !result.success || Boolean(result.seoError) || result.seoSucceeded === false || Boolean(result.error);

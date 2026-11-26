@@ -10,7 +10,8 @@ import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
 import { mutarDocumento, mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
-import { hoyEnUruguay } from '@/lib/utils';
+import { diasHastaEnUruguay, hoyEnUruguay } from '@/lib/utils';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { getFiestaTimeRange, localDateTimeToUtcMs } from '@/lib/staff-agenda-conflicts';
 import { applyAutomaticStaffByGuests, createLiveBudgetState } from '@/lib/commercial/live-budget-editor';
 import { buscarRol } from '@/lib/fiesta/personal-por-invitados';
@@ -150,6 +151,21 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(presupuestos) || esLecturaFallida(descartes)) {
+    const motivo = 'No se pudieron leer las fiestas o presupuestos desde la base de datos.';
+    return {
+      id: `reg_vigilante_${Date.now()}`,
+      agenteId: 'vigilante_fiestas',
+      agenteNombre: 'Vigilante de Fiestas',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
@@ -195,6 +211,21 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     readData<CrmLead[]>('crm-leads.json', []),
     readData<Record<string, string>>(SEGUIMIENTOS_ENVIADOS_FILE, {}).catch(() => ({} as Record<string, string>)),
   ]);
+  if (esLecturaFallida(presupuestos) || esLecturaFallida(scheduledMessages) || esLecturaFallida(leads)) {
+    const motivo = 'No se pudieron leer los presupuestos o seguimientos desde la base de datos.';
+    return {
+      id: `reg_perseguidor_${Date.now()}`,
+      agenteId: 'perseguidor_presupuestos',
+      agenteNombre: 'Perseguidor de Presupuestos',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
 
   const ahoraMs = ahora.getTime();
   const pendientes = scheduledMessages || [];
@@ -348,6 +379,21 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(presupuestos) || esLecturaFallida(scheduledMessages)) {
+    const motivo = 'No se pudieron leer fiestas o cobros desde la base de datos.';
+    return {
+      id: `reg_cobrador_${Date.now()}`,
+      agenteId: 'cobrador',
+      agenteNombre: 'Agente Cobrador',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const presupuestosMap = new Map(presupuestos.map((p) => [p.id, p]));
@@ -362,7 +408,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     const fechaStr = fiesta.configuracion?.fechaEvento || (fiesta.configuracion as any)?.fecha;
     if (!fechaStr) continue;
 
-    const diffDias = Math.ceil((new Date(fechaStr).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDias = diasHastaEnUruguay(fechaStr, ahora);
     const pagos = (p.pagosCliente || []).filter(isConfirmedClientPayment).reduce((s, pg) => s + (Number(pg.monto) || 0), 0);
     const total = getBudgetCollectibleTotal(p);
     const saldo = total - pagos;

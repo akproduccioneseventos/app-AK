@@ -2,8 +2,6 @@ import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { calculateReadinessScore } from '@/lib/readiness-score';
 import { subDays, startOfWeek } from 'date-fns';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 
 export interface GenerarTareasParams {
   fiesta: FiestaEnPlanificacion;

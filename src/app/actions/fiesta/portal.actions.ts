@@ -362,7 +362,32 @@ export async function getFiestaForPortalSession(fiestaId: string): Promise<Fiest
   const fiesta = await getFiestaByIdRaw(fiestaId);
   if (!fiesta) return null;
   if (!esEquipoOAuditor && !fiesta?.clientPortalSettings?.enabled) return null;
-  return mapFiestaToClientPortal(fiesta);
+  if (fiesta.videoVida?.galleryEnabled && typeof fiesta.videoVida.uploadedCount !== 'number') {
+    const { getLifeStoryVideoPhotos } = await import('@/app/actions/fiesta/video-vida.actions');
+    const lectura = await getLifeStoryVideoPhotos(fiesta.id).catch(() => null);
+    if (lectura && lectura.estado !== 'error') {
+      fiesta.videoVida = { ...fiesta.videoVida, uploadedCount: lectura.urls.length };
+    }
+  }
+  const mapped = mapFiestaToClientPortal(fiesta) as any;
+  if (fiesta.presupuestoId) {
+    try {
+      const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+      const { normalizePresupuestoFinancials, getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+      const pres = await getPresupuestoById(fiesta.presupuestoId);
+      if (pres) {
+        const norm = normalizePresupuestoFinancials(pres);
+        const summary = getBudgetPaymentSummary(norm, { includeAnnualAdjustment: true });
+        mapped.resumenPresupuesto = {
+          total: summary.total,
+          paid: summary.paid,
+          balance: summary.balance,
+          paidPercent: summary.paidPercent,
+        };
+      }
+    } catch { /* ignore */ }
+  }
+  return mapped;
 }
 
 export async function updateClientGuestTable(
@@ -551,7 +576,26 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
       }
     }
 
-    return mapFiestaToClientPortal(fiesta);
+    if (!fiesta) return null;
+    const mapped = mapFiestaToClientPortal(fiesta) as any;
+  if (fiesta.presupuestoId) {
+    try {
+      const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+      const { normalizePresupuestoFinancials, getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+      const pres = await getPresupuestoById(fiesta.presupuestoId);
+      if (pres) {
+        const norm = normalizePresupuestoFinancials(pres);
+        const summary = getBudgetPaymentSummary(norm, { includeAnnualAdjustment: true });
+        mapped.resumenPresupuesto = {
+          total: summary.total,
+          paid: summary.paid,
+          balance: summary.balance,
+          paidPercent: summary.paidPercent,
+        };
+      }
+    } catch { /* ignore */ }
+  }
+  return mapped;
   } catch (error) {
     // "No existe" (null, arriba) es distinto de "no se pudo leer": una falla de lectura
     // se lanza para que la pantalla no le diga al cliente que su enlace expiró.

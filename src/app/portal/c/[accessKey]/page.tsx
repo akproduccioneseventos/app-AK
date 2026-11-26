@@ -83,6 +83,8 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
     videoVida: fiesta.videoVida ? {
       galleryEnabled: fiesta.videoVida.galleryEnabled,
       photoCount: fiesta.videoVida.photoCount,
+      photosUploaded: fiesta.videoVida.photosUploaded,
+      uploadedCount: fiesta.videoVida.uploadedCount,
     } : {},
     fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
       notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,

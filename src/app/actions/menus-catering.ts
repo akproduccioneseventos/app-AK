@@ -1,7 +1,7 @@
 'use server';
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
-import { agregarVariantesBufet, getMenuItemSellingPrice } from '@/lib/simulator/catalog';
+import { agregarVariantesBufet, esMesaBuffetBase, getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, updateDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
@@ -84,10 +84,9 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 
             const upperName = item.name.toUpperCase();
             if (upperName.includes('MESA BUFET') || upperName.includes('MESA BUFFET')) {
-                const mesaBuffetBase = allDishes.find(d => {
-                    const dName = d.name.toUpperCase();
-                    return (dName === 'MESA BUFET' || dName === 'MESA BUFFET') && d.id !== item.id;
-                });
+                const mesaBuffetBase = allDishes.find(d =>
+                    esMesaBuffetBase(d.name) && d.id !== item.id
+                );
 
                 if (mesaBuffetBase && mesaBuffetBase.ingredients) {
                     mesaBuffetBase.ingredients.forEach(buffetIng => {
@@ -453,21 +452,7 @@ export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa, operationId?
         continue;
       }
       const guardado = await mutateDataItem<FullMenu>(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menu.id, (actual) => sinBuffetVirtual(cambiar(actual)) as FullMenu);
-      if (!guardado) {
-        const { dbAdmin } = await import('@/lib/firebase/server');
-        const firestoreVacio = dbAdmin
-          ? (await dbAdmin.collection(MENUS_CATERING_COLLECTION).limit(1).get()).empty
-          : false;
-        if (firestoreVacio) {
-          const frescos = await readMenusFile();
-          const i = frescos.findIndex((m) => m.id === menu.id);
-          if (i === -1) continue;
-          frescos[i] = cambiar(frescos[i]);
-          await writeMenusFile(frescos);
-          continue;
-        }
-        return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
-      }
+      if (!guardado) return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
     }
     limpiarCacheMenusInterno();
     return { success: true };

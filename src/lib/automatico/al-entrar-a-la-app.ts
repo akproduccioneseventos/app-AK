@@ -53,6 +53,7 @@ const CADA_CUANTO = {
   muestra_auditor: 60 * 60 * 1000,
   clasificar_galeria_ia: 6 * 60 * 60 * 1000,
   empezar_2027: 24 * 60 * 60 * 1000,
+  limpiar_pruebas: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -72,6 +73,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   muestra_auditor: 'fiesta-muestra-auditor',
   clasificar_galeria_ia: 'clasificar-galeria-ia',
   empezar_2027: 'empezar-2027',
+  limpiar_pruebas: 'limpiar-pruebas',
 };
 
 interface EstadoDeTareas {
@@ -114,11 +116,13 @@ function enHorarioRecordatoriosUruguay(ahora: Date): boolean {
 export function esFalla(valor: unknown): { fallo: boolean; motivo?: string } {
   if (!valor || typeof valor !== 'object') return { fallo: false };
   const v = valor as Record<string, any>;
+  if (v.lecturaFallida === true || v.estado === 'error') return { fallo: true, motivo: v.error || v.motivo || 'Lectura fallida desde la base' };
   if (v.success === false) return { fallo: true, motivo: v.error || 'success: false' };
   if (v.ok === false) return { fallo: true, motivo: v.error || (Array.isArray(v.errores) && v.errores.length > 0 ? v.errores.join(', ') : 'ok: false') };
   if (v.corrio === false) return { fallo: true, motivo: v.motivo || 'corrio: false' };
   if (v.error && typeof v.error === 'string' && v.error.trim().length > 0) return { fallo: true, motivo: v.error };
   if (Array.isArray(v.errores) && v.errores.length > 0) return { fallo: true, motivo: v.errores.join(', ') };
+  if (Array.isArray(v.fallados) && v.fallados.length > 0) return { fallo: true, motivo: v.fallados.map((f: any) => f?.error || f?.id || 'fallo').join(', ') };
   if (typeof v.reservasFallidas === 'number' && v.reservasFallidas > 0) return { fallo: true, motivo: `${v.reservasFallidas} reservas fallidas` };
   if (Array.isArray(v.reservasFallidas) && v.reservasFallidas.length > 0) return { fallo: true, motivo: `${v.reservasFallidas.length} reservas fallidas` };
   if (v.seoError && typeof v.seoError === 'string' && v.seoError.trim().length > 0) return { fallo: true, motivo: v.seoError };
@@ -159,6 +163,7 @@ export async function todasSalieron(partes: Record<string, () => Promise<unknown
 export async function ponerAlDiaAlEntrar(
   ahora: Date = new Date(),
   origen: OrigenDisparo = 'app',
+  opciones?: { soloLasQueNoMandan?: boolean },
 ): Promise<ResultadoAlEntrar> {
   const lockAdquirido = await intentarAdquirirLock(origen);
   if (!lockAdquirido) {
@@ -374,9 +379,34 @@ export async function ponerAlDiaAlEntrar(
           return correrMigracionEmpezar2027({ ahora });
         },
       },
+      {
+        nombre: 'limpiar_pruebas',
+        correr: async () => {
+          const { correrLimpiezaDePruebas } = await import('@/lib/automatico/limpiar-pruebas');
+          return correrLimpiezaDePruebas({ ahora });
+        },
+      },
     ];
 
+    const soloLasQueNoMandan = Boolean(opciones?.soloLasQueNoMandan);
+    const TAREAS_QUE_MANDAN_O_BORRAN = new Set<NombreDeTarea>([
+      'avisos_cliente',
+      'recordatorio_invitados',
+      'recordar_invitacion',
+      'empezar_2027',
+      'limpiar_pruebas',
+    ]);
+
+    if (!soloLasQueNoMandan) {
+      const { correrSincronizacionCuotasPagosUnaVez } = await import('@/lib/automatico/sincronizar-cuotas-pagos');
+      await correrSincronizacionCuotasPagosUnaVez().catch(() => null);
+    }
+
     for (const tarea of tareas) {
+      if (soloLasQueNoMandan && TAREAS_QUE_MANDAN_O_BORRAN.has(tarea.nombre)) {
+        resultado.omitidas.push(tarea.nombre);
+        continue;
+      }
       if (
         (tarea.nombre === 'recordatorio_invitados' || tarea.nombre === 'recordar_invitacion') &&
         !enHorarioRecordatoriosUruguay(ahora)
@@ -384,7 +414,7 @@ export async function ponerAlDiaAlEntrar(
         resultado.omitidas.push(tarea.nombre);
         continue;
       }
-      if (tarea.nombre === 'empezar_2027') {
+      if (tarea.nombre === 'empezar_2027' || tarea.nombre === 'limpiar_pruebas') {
         const { verifySession } = await import('@/lib/auth/session-token');
         const { esSesionDeAuditor, esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
         const { perfilDe } = await import('@/lib/auth/perfiles');

@@ -117,6 +117,12 @@ describe('el sueldo cargado a mano entra en la ganancia aunque no haya presupues
     const g = calcularGananciaDeEvento({ costosItems: [], others: { totalPersonalCost: 5000 } }, [], [], [{ rolId: 'coord', eventSalary: 1 }], []);
     expect(g.personalEstimado).toBe(5000);
   });
+  it('calcula los hitos desde una fecha civil AAAA-MM-DD sin correrse por UTC', () => {
+    const h = calcularHitosDeContrato('2027-03-15', '2026-12-01');
+    expect(h.fechaSaldoTotal).toBe('13 de febrero de 2027');
+    expect(h.hito30).not.toBe('');
+    expect(h.hito50).not.toBe('');
+  });
 });
 
 describe('el gasto del mantenimiento queda en el día que se eligió', () => {

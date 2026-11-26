@@ -263,6 +263,9 @@ export async function writeData<T>(
   const lecturaFallida = !options?.esRestauracion && (
     esLecturaFallida(data) || fueLecturaFallidaReciente(normalizedFilePath)
   );
+  if (lecturaFallida && Array.isArray(data) && data.length === 0) {
+    throw new Error('No se guardó la lista vacía porque la última lectura falló.');
+  }
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn)
     dataToWrite = [...data].sort(sortFn) as unknown as T;

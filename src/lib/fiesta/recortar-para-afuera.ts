@@ -211,9 +211,13 @@ export function reponerLoDelPerfil(
     else delete copia.gestionCostos;
   }
   if (!puede(usuarioEfectivo ?? null, PERMISOS.SUELDOS) && Array.isArray(nueva.personalAsignado)) {
-    const antes = new Map((guardada?.personalAsignado || []).map((p) => [p.empleadoId, p]));
+    const porPersonaYRol = new Map(
+      (guardada?.personalAsignado || []).map((p) => [`${p.empleadoId || ''}::${p.rolId || ''}`, p]),
+    );
+    const porPersona = new Map((guardada?.personalAsignado || []).map((p) => [p.empleadoId, p]));
     copia.personalAsignado = nueva.personalAsignado.map((p) => {
-      const previo = antes.get(p.empleadoId);
+      const claveExacta = `${p.empleadoId || ''}::${p.rolId || ''}`;
+      const previo = porPersonaYRol.get(claveExacta) ?? porPersona.get(p.empleadoId);
       const r = { ...p } as Record<string, unknown>;
       if (previo && previo.eventSalary !== undefined) r.eventSalary = previo.eventSalary;
       else delete r.eventSalary;

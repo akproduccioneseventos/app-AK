@@ -24,11 +24,14 @@ const MAX_LARGO_QR = 1500;
 export function QrRecuerdo({
   qrCodeUrl,
   error,
+  avisoModeracion,
   size = 180,
 }: {
   qrCodeUrl: string;
   /** Texto del fallo, si la subida no salio. Vacio o nulo cuando todo va bien. */
   error?: string | null;
+  /** Aviso cuando el recuerdo quedo guardado esperando aprobacion del equipo. */
+  avisoModeracion?: string | null;
   size?: number;
 }) {
   // Un QR no entra con un enlace enorme (p. ej. el archivo guardado adentro del enlace, como pasa
@@ -41,7 +44,9 @@ export function QrRecuerdo({
         style={{ width: size, height: size }}
       >
         <p className="text-sm font-black leading-tight text-zinc-900">Tu recuerdo quedó guardado</p>
-        <p className="text-xs leading-tight text-zinc-600">Lo vas a encontrar en la galería de la fiesta.</p>
+        <p className="text-xs leading-tight text-zinc-600">
+          {avisoModeracion || 'Lo vas a encontrar en la galería de la fiesta.'}
+        </p>
       </div>
     );
   }

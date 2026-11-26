@@ -8,9 +8,21 @@ import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 export async function updatePrograma(fiestaId: string, programa: ProgramaEventoItem[]): Promise<{ success: boolean; updatedData?: ProgramaEventoItem[]; error?: string }> {
   await requireAppSession();
   try {
-    const result = await actualizarFiesta(fiestaId, (fiesta) => ({ ...fiesta, programa }), { soloEquipo: true });
+    let programaFinal: ProgramaEventoItem[] = programa;
+    const result = await actualizarFiesta(fiestaId, (fiesta) => {
+      const actualPorId = new Map((fiesta.programa || []).map((item) => [item.id, item]));
+      programaFinal = programa.map((item) => {
+        const actual = actualPorId.get(item.id);
+        if (!actual) return item;
+        return {
+          ...item,
+          completado: Boolean(actual.completado || item.completado),
+        };
+      });
+      return { ...fiesta, programa: programaFinal };
+    }, { soloEquipo: true });
     if (!result.success) throw new Error(result.error);
-    return { success: true, updatedData: programa };
+    return { success: true, updatedData: programaFinal };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

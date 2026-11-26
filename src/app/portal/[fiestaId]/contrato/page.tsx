@@ -152,7 +152,14 @@ export default function ClientContractPage() {
         const huellaVista = await huellaDelTexto(fiesta.contratoServicioTexto || '');
         const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos, huellaVista);
         if (result.success) {
-            toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
+            if (result.yaEstabaFirmado) {
+                toast({
+                    title: "Este contrato ya figura firmado",
+                    description: "Ya teníamos registrada una firma vigente para este evento.",
+                });
+            } else {
+                toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
+            }
             await loadData();
         } else throw new Error(result.error);
     } catch (e: any) {

@@ -31,6 +31,7 @@ import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
 import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { readData, writeData } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import { mutateGenericJsonArray, mutateGenericJsonArrayConTransaccion } from '@/lib/generic-json-store';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import * as logger from '@/lib/logger';
@@ -500,6 +501,32 @@ async function saveFallbackOrders(
 const conElPedidoNuevo = (order: BarDrinkOrder) => (orders: BarDrinkOrder[]) =>
   orders.some((o) => o.id === order.id) ? orders : [order, ...orders];
 
+function pedidosDeLaFiesta(
+  fiesta: FiestaEnPlanificacion,
+  firestoreOrders: BarDrinkOrder[] | null | undefined,
+): BarDrinkOrder[] {
+  const map = new Map<string, BarDrinkOrder>();
+  for (const order of getStoredBarData(fiesta).orders || []) {
+    if (order?.id) map.set(order.id, order);
+  }
+  for (const order of firestoreOrders || []) {
+    if (order?.id) map.set(order.id, order);
+  }
+  return [...map.values()].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+}
+
+const manualOrderLocks = new Map<string, AsyncMutex>();
+function getManualOrderMutex(key: string): AsyncMutex {
+  let mutex = manualOrderLocks.get(key);
+  if (!mutex) {
+    mutex = new AsyncMutex();
+    manualOrderLocks.set(key, mutex);
+  }
+  return mutex;
+}
+
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISO_DE_LA_BARRA);
@@ -512,9 +539,7 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
       getFirestoreOrders(fiestaId).catch(() => null),
     ]);
 
-    const orders = firestoreOrders ?? [...(stored.orders || [])].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const orders = pedidosDeLaFiesta(fiesta, firestoreOrders);
 
     return {
       success: true,
@@ -542,9 +567,20 @@ function findAuthorizedGuest(fiesta: FiestaEnPlanificacion, guestId: string, gue
   ) || null;
 }
 
-function orderBelongsToGuest(order: BarDrinkOrder, guest: { id: string; nombre: string }) {
+function orderBelongsToGuest(
+  order: BarDrinkOrder,
+  guest: { id: string; nombre: string },
+  invitadosFiesta?: Array<{ nombre?: string }>,
+) {
   if (order.guestId) return order.guestId === guest.id;
-  return order.guestName.trim().toLocaleLowerCase('es') === guest.nombre.trim().toLocaleLowerCase('es');
+  const nombreBuscado = guest.nombre.trim().toLocaleLowerCase('es');
+  if (Array.isArray(invitadosFiesta)) {
+    const coincidencias = invitadosFiesta.filter(
+      (i) => String(i?.nombre || '').trim().toLocaleLowerCase('es') === nombreBuscado,
+    ).length;
+    if (coincidencias !== 1) return false;
+  }
+  return order.guestName.trim().toLocaleLowerCase('es') === nombreBuscado;
 }
 
 /**
@@ -561,7 +597,11 @@ async function findBarOrder(fiesta: FiestaEnPlanificacion, orderId: string) {
   const db = await getDb();
   if (db) {
     const snapshot = await db.collection(BAR_ORDERS_COLLECTION).doc(orderId).get();
-    if (snapshot.exists) return snapshot.data() as BarDrinkOrder;
+    if (snapshot.exists) {
+      const order = snapshot.data() as BarDrinkOrder;
+      if (order.fiestaId !== fiesta.id) return null;
+      return order;
+    }
   }
   return getStoredBarData(fiesta).orders?.find((order) => order.id === orderId) || null;
 }
@@ -817,7 +857,8 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // stock" nunca saltaba y la barra se quedaba sin bebida con el sistema
     // marcando que habia de sobra.
     const currentOrders = await getFirestoreOrders(input.fiestaId).catch(() => null);
-    const allOrders = currentOrders ?? [order, ...(stored.orders || [])];
+    const mergedOrders = pedidosDeLaFiesta(fiesta, currentOrders);
+    const allOrders = mergedOrders.some((o) => o.id === order.id) ? mergedOrders : [order, ...mergedOrders];
     const queuePosition = allOrders.filter(
       (item) => item.status === 'nuevo' || item.status === 'preparando',
     ).length;
@@ -861,70 +902,92 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       return { success: false, error: 'Este trago con alcohol es sólo para mayores de 18. Elegí la versión sin alcohol.' };
     }
 
-    // Pregunta 58: si la respuesta se perdio y el barman reintenta, el pedido ya esta con ese id:
-    // se devuelve ese y NO se vuelven a descontar las botellas.
     const pedidoId = input.clientRequestId
       ? `bar_manual_${String(input.clientRequestId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)}`
       : '';
-    if (pedidoId) {
-      const yaEsta = await findBarOrder(fiesta, pedidoId);
-      if (yaEsta) {
-        if (yaEsta.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
-        return { success: true, order: yaEsta };
+    const ejecutarManual = async (): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> => {
+      if (pedidoId) {
+        const fiestaActual = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
+        const yaEsta = await findBarOrder(fiestaActual || fiesta, pedidoId);
+        if (yaEsta) {
+          if (yaEsta.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+          return { success: true, order: yaEsta };
+        }
       }
-    }
 
-    const drinkName = (version === 'sin_alcohol' && drink.nombreSinAlcohol)
-      ? drink.nombreSinAlcohol
-      : drink.nombre;
+      const drinkName = (version === 'sin_alcohol' && drink.nombreSinAlcohol)
+        ? drink.nombreSinAlcohol
+        : drink.nombre;
 
-    const now = new Date().toISOString();
-    const order: BarDrinkOrder = {
-      id: pedidoId || `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      fiestaId: input.fiestaId,
-      drinkId: drink.id,
-      drinkName,
-      version,
-      guestName: 'Barman',
-      status: 'entregado',
-      createdAt: now,
-      updatedAt: now,
-      source: 'staff',
+      const now = new Date().toISOString();
+      const order: BarDrinkOrder = {
+        id: pedidoId || `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        fiestaId: input.fiestaId,
+        drinkId: drink.id,
+        drinkName,
+        version,
+        guestName: 'Barman',
+        status: 'entregado',
+        createdAt: now,
+        updatedAt: now,
+        source: 'staff',
+      };
+
+      const db = await getDb();
+      let hechoEnUnaOperacion = false;
+      if (db) {
+        try {
+          const r = await descontarYGuardarEnUnaOperacion(db, drink, order, version);
+          if (r.yaEstaba) {
+            if (r.yaEstaba.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+            return { success: true, order: r.yaEstaba };
+          }
+          if (!r.sinStock) {
+            order.stockMovements = r.movimientos;
+            hechoEnUnaOperacion = true;
+          }
+        } catch (error) {
+          logger.warn('[barra-tecnologica] fallo descontarYGuardarEnUnaOperacion manual, usando respaldo:', error);
+        }
+      }
+
+      if (!hechoEnUnaOperacion) {
+        order.stockMovements = await descontarStock(drink, { version });
+
+        let errorAlGuardar: string | null = null;
+        if (db) {
+          try {
+            await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
+          } catch {
+            const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+            if (!respaldo.success) errorAlGuardar = respaldo.error || 'No se pudo guardar el pedido manual.';
+          }
+        } else {
+          const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+          if (!respaldo.success) errorAlGuardar = respaldo.error || 'No se pudo guardar el pedido manual.';
+        }
+
+        // El pedido no quedó guardado en ningún lado: las botellas vuelven (Codex, auditoría 66).
+        if (errorAlGuardar) {
+          try {
+            await reponerStock(order.stockMovements || []);
+          } catch (errorAlReponer) {
+            logger.error('[barra-tecnologica] no se pudieron devolver las botellas del pedido manual:', errorAlReponer);
+            await anotarDevolucionPendiente(order.id, order.stockMovements || []).catch((errorAlAnotar) => {
+              logger.error('[barra-tecnologica] tampoco se pudo anotar la devolucion pendiente:', errorAlAnotar);
+            });
+          }
+          return { success: false, error: errorAlGuardar };
+        }
+      }
+
+      return { success: true, order };
     };
 
-    order.stockMovements = await descontarStock(drink, { version });
-
-    const db = await getDb();
-    const stored = getStoredBarData(fiesta);
-    let errorAlGuardar: string | null = null;
-    if (db) {
-      try {
-        await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
-      } catch (error) {
-        const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
-        if (!respaldo.success) errorAlGuardar = respaldo.error || 'No se pudo guardar el pedido manual.';
-      }
-    } else {
-      const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
-      if (!respaldo.success) errorAlGuardar = respaldo.error || 'No se pudo guardar el pedido manual.';
+    if (pedidoId) {
+      return await getManualOrderMutex(`${input.fiestaId}:${pedidoId}`).runExclusive(ejecutarManual);
     }
-
-    // El pedido no quedó guardado en ningún lado: las botellas vuelven (Codex, auditoría 66). Antes
-    // quedaban descontadas por un pedido que no existe. Si devolverlas también falla, se anota
-    // como devolución pendiente, igual que en el pedido del invitado.
-    if (errorAlGuardar) {
-      try {
-        await reponerStock(order.stockMovements || []);
-      } catch (errorAlReponer) {
-        logger.error('[barra-tecnologica] no se pudieron devolver las botellas del pedido manual:', errorAlReponer);
-        await anotarDevolucionPendiente(order.id, order.stockMovements || []).catch((errorAlAnotar) => {
-          logger.error('[barra-tecnologica] tampoco se pudo anotar la devolucion pendiente:', errorAlAnotar);
-        });
-      }
-      return { success: false, error: errorAlGuardar };
-    }
-
-    return { success: true, order };
+    return await ejecutarManual();
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo crear el pedido manual.' };
   }
@@ -941,8 +1004,8 @@ export async function getGuestBarOrders(
     const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
     if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
     const firestoreOrders = await getFirestoreOrders(fiestaId).catch(() => null);
-    const orders = firestoreOrders ?? getStoredBarData(fiesta).orders ?? [];
-    return { success: true, orders: orders.filter((order) => orderBelongsToGuest(order, guest)) };
+    const orders = pedidosDeLaFiesta(fiesta, firestoreOrders);
+    return { success: true, orders: orders.filter((order) => orderBelongsToGuest(order, guest, fiesta.invitados)) };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudieron cargar tus pedidos.' };
   }
@@ -959,7 +1022,7 @@ export async function cancelBarDrinkOrder(
   const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
   if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
   const order = await findBarOrder(fiesta, orderId);
-  if (!order || !orderBelongsToGuest(order, guest)) return { success: false, error: 'Pedido no encontrado.' };
+  if (!order || !orderBelongsToGuest(order, guest, fiesta.invitados)) return { success: false, error: 'Pedido no encontrado.' };
   if (order.status !== 'nuevo') return { success: false, error: 'El pedido ya esta en preparacion y no se puede cancelar.' };
   return updateBarDrinkOrderStatusInternal(fiestaId, orderId, 'cancelado');
 }
@@ -971,6 +1034,7 @@ export async function changeBarDrinkOrder(
   guestId: string,
   guestAccessToken: string,
   version?: 'con_alcohol' | 'sin_alcohol',
+  clientRequestId?: string,
 ): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
@@ -978,7 +1042,7 @@ export async function changeBarDrinkOrder(
     const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
     if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
     const existing = await findBarOrder(fiesta, orderId);
-    if (!existing || !orderBelongsToGuest(existing, guest)) {
+    if (!existing || !orderBelongsToGuest(existing, guest, fiesta.invitados)) {
       return { success: false, error: 'Pedido no encontrado.' };
     }
     if (existing.status !== 'nuevo') {
@@ -1026,6 +1090,7 @@ export async function changeBarDrinkOrder(
       guestName: existing.guestName,
       guestId: guest.id,
       guestAccessToken,
+      clientRequestId,
       tableNumber: existing.tableNumber,
       note: existing.note,
       version: targetVersion,
@@ -1280,7 +1345,7 @@ export async function getCierreDeBarra(fiestaId: string): Promise<{
       getBarDrinks(fiesta),
       getFirestoreOrders(fiestaId).catch(() => null),
     ]);
-    const orders = firestoreOrders ?? (getStoredBarData(fiesta).orders || []);
+    const orders = pedidosDeLaFiesta(fiesta, firestoreOrders);
     const ids = insumosDeLaBarra(drinks);
     const stock = await leerStockDeInsumos(ids);
     const consumo = consumoPorPedidos(orders);
@@ -1328,11 +1393,27 @@ async function leerStockDeInsumos(ids: string[]): Promise<Map<string, { nombre: 
  * se mueve por la DIFERENCIA con lo que se mostró, no se pisa el número, así un pedido
  * que entró mientras se contaba no se pierde.
  */
+const turnosCierreDeBarra = new Map<string, Promise<unknown>>();
+
+async function conTurnoDeCierre<T>(fiestaId: string, fn: () => Promise<T>): Promise<T> {
+  const previa = turnosCierreDeBarra.get(fiestaId) ?? Promise.resolve();
+  const actual = previa.catch(() => undefined).then(fn);
+  turnosCierreDeBarra.set(fiestaId, actual);
+  try {
+    return await actual;
+  } finally {
+    if (turnosCierreDeBarra.get(fiestaId) === actual) {
+      turnosCierreDeBarra.delete(fiestaId);
+    }
+  }
+}
+
 export async function guardarCierreDeBarra(
   fiestaId: string,
   conteo: Record<string, number | undefined>,
   ajustarDeposito: boolean,
 ): Promise<{ success: boolean; cierre?: CierreDeBarraGuardado; error?: string }> {
+  return conTurnoDeCierre(fiestaId, async () => {
   try {
     await requireEventPermission(fiestaId, PERMISO_DE_LA_BARRA);
     const armado = await getCierreDeBarra(fiestaId);
@@ -1362,7 +1443,7 @@ export async function guardarCierreDeBarra(
       const stored = getStoredBarData(fresca);
       const ultimo = stored.cierre;
       if (
-        ajustes.length > 0 && ultimo?.depositoAjustado && ultimo.ajusteClave === clave &&
+        ajustes.length > 0 && ultimo?.depositoAjustado && ultimo.depositoMovidoEn && ultimo.ajusteClave === clave &&
         Date.now() - new Date(ultimo.at).getTime() < VENTANA_DOBLE_TOQUE_MS
       ) {
         duplicado = ultimo;
@@ -1392,8 +1473,12 @@ export async function guardarCierreDeBarra(
         }).catch(() => undefined);
         throw e;
       }
-      // 3) Se marca terminado.
-      const { ajustePendiente: _pendiente, ...cierreListo } = cierre;
+      // 3) Se marca terminado con la fecha en que se movió el depósito.
+      const { ajustePendiente: _pendiente, ...cierreSinPendiente } = cierre;
+      const cierreListo: CierreDeBarraGuardado = {
+        ...cierreSinPendiente,
+        depositoMovidoEn: new Date().toISOString(),
+      };
       const final = await actualizarFiesta(fiestaId, (fresca) => {
         const stored = getStoredBarData(fresca);
         if (stored.cierre?.at !== cierre.at) return fresca;
@@ -1408,6 +1493,7 @@ export async function guardarCierreDeBarra(
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo guardar el cierre de barra.' };
   }
+  });
 }
 
 const VENTANA_DOBLE_TOQUE_MS = 5 * 60 * 1000;
@@ -1450,10 +1536,23 @@ export async function getBarPedidosListos(fiestaId: string): Promise<{
   try {
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
-    const stored = getStoredBarData(fiesta);
     const firestoreOrders = await getFirestoreOrders(fiestaId).catch(() => null);
-    const orders = firestoreOrders ?? (stored.orders || []);
-    const listos = orders.filter((o) => o.status === 'listo');
+    const orders = pedidosDeLaFiesta(fiesta, firestoreOrders);
+    const listos = orders
+      .filter((o) => o.status === 'listo')
+      .map(({ id, fiestaId: fId, drinkId, drinkName, guestName, tableNumber, status, createdAt, updatedAt, source, version }) => ({
+        id,
+        fiestaId: fId,
+        drinkId,
+        drinkName,
+        guestName,
+        ...(tableNumber ? { tableNumber } : {}),
+        status,
+        createdAt,
+        updatedAt,
+        source,
+        ...(version ? { version } : {}),
+      }));
     return {
       success: true,
       eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',

@@ -22,12 +22,11 @@ const TAREAS_CRON_DESPACHADAS = [
   'posicionamiento-diario',
 ] as const;
 
-function verificarClave(request: Request): { autorizado: boolean; status?: number; error?: string } {
+function verificarClave(request: Request): { autorizado: boolean; conClave: boolean; status?: number; error?: string } {
   const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET;
   if (!cronSecret) {
-    // Orden 278, bloque 1, pendiente: hasta que la clave exista en Firebase (y el despertador la mande),
-    // esto no puede cerrar en producción o se paran todas las tareas automáticas. Sigue con el freno de concurrencia.
-    return { autorizado: true };
+    // Orden 278, bloque 1, pendiente: sin clave sólo corren las tareas que no mandan ni borran (Orden 365).
+    return { autorizado: true, conClave: false };
   }
 
   const authHeader = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')?.trim();
@@ -35,10 +34,10 @@ function verificarClave(request: Request): { autorizado: boolean; status?: numbe
   const authQuery = url.searchParams.get('key') || url.searchParams.get('secret') || url.searchParams.get('clave');
 
   if (clavesIguales(authHeader, cronSecret) || clavesIguales(authQuery, cronSecret)) {
-    return { autorizado: true };
+    return { autorizado: true, conClave: true };
   }
 
-  return { autorizado: false, status: 401, error: 'No autorizado' };
+  return { autorizado: false, conClave: false, status: 401, error: 'No autorizado' };
 }
 
 export async function GET(request: Request) {
@@ -75,7 +74,9 @@ async function handleDespacho(request: Request) {
     await marcarToqueDespertador(new Date());
   }
 
-  const resultado = await ponerAlDiaAlEntrar(new Date(), origen);
+  const resultado = await ponerAlDiaAlEntrar(new Date(), origen, {
+    soloLasQueNoMandan: !auth.conClave,
+  });
 
   return NextResponse.json({
     ok: true,

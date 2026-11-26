@@ -1,4 +1,5 @@
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import {
   puedeComprometer,
   type CampanaConPresupuesto,
@@ -40,8 +41,9 @@ export async function registrarAccionPublicidad(
   };
 
   try {
-    const previas = await getAccionesPublicidadEjecutadas();
-    await writeData(ARCHIVO_ACCIONES, [registro, ...previas].slice(0, 100));
+    await mutateGenericJsonArray<AccionPublicidadEjecutada>(ARCHIVO_ACCIONES, (previas) =>
+      [registro, ...(Array.isArray(previas) ? previas : [])].slice(0, 100)
+    );
   } catch (error) {
     console.error('Error al persistir registro de acción de publicidad:', error);
   }

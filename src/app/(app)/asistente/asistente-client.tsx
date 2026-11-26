@@ -104,7 +104,7 @@ const INTERRUPTORES_IA_EN_AJUSTES = [
   },
 ];
 
-function AsistenteBandejaInner() {
+export function AsistenteBandejaInner() {
   const { toast } = useToast();
   const [areaFiltro, setAreaFiltro] = useState<AsistenteArea | 'todas'>('todas');
   const [propuestas, setPropuestas] = useState<AsistentePropuesta[]>([]);
@@ -221,7 +221,15 @@ function AsistenteBandejaInner() {
 
   const handleVistoResumen = async () => {
     if (!resumen) return;
-    await marcarResumenVistoAction(resumen.id);
+    const res = await marcarResumenVistoAction(resumen.id);
+    if (!res?.success) {
+      toast({
+        title: 'No se pudo marcar como visto',
+        description: res?.error || 'Probá de nuevo en unos segundos.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setResumen(null);
     toast({
       title: 'Resumen visto',
@@ -771,7 +779,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos ({agentes.length})</CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos{loading ? '' : ` (${agentes.length})`}</CardTitle>
                 <CardDescription className="text-xs">
                   Prendé o pausá cada agente directamente desde acá.
                 </CardDescription>

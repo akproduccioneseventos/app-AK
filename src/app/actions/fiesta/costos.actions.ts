@@ -119,8 +119,9 @@ export async function syncAllEventCosts(
             fiesta.bebidas.categorias.filter(c => c.activada).forEach(cat => {
                 cat.items.forEach(item => {
                     const cost = item.costoUnitario || 0;
-                    const qtyPerPerson = item.cantidadNecesaria || 0;
-                    bebidasBaseCost += cost * qtyPerPerson * totalInv;
+                    // `cantidadNecesaria` ya expresa el total para todo el evento (no por invitado, Orden 364).
+                    const cantidadTotal = item.cantidadNecesaria || 0;
+                    bebidasBaseCost += cost * cantidadTotal;
                 });
             });
             // Merma de bebidas (5% extra)

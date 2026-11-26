@@ -2,13 +2,14 @@
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actions/armado-rapido';
-import { hayPresupuestoParaIA, registrarConsumoIA, anotarFalloIA } from '@/lib/ai/consumo-servidor';
+import { anotarFalloIA } from '@/lib/ai/consumo-servidor';
+import { pedirTexto } from '@/ai/cerebro';
 import {
-  generateWithGeminiFallback,
   geminiCommercialModel,
   geminiProModel,
   getEffectiveGeminiModelForAgent,
 } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
 import type { MessageData } from 'genkit';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 
@@ -68,14 +69,7 @@ export async function chatWithVirtualAssistant(
       windowMs: 60 * 60 * 1000,
     });
 
-    // 2. Control de presupuesto de IA
-    if (!(await hayPresupuestoParaIA())) {
-      return {
-        success: false,
-        error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
-      };
-    }
-
+    // 2. La puerta y el consumo de IA pasan por pedirTexto (cerebro).
     if (!esLlamadaLegacy) {
       const historialPrevio = history
         .map((m) => {
@@ -148,24 +142,36 @@ Si el usuario dice algo que no entendés, preguntá amablemente.`;
     const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
     const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
 
-    const response = await generateWithGeminiFallback({
-      model: effectiveModel,
+    const response = await pedirTexto({
+      quien: 'vendedor-virtual',
+      incluirReglas: false,
+      modelos: [effectiveModel, ...MODELOS_GEMINI.texto],
       system: systemPrompt,
       messages: [
         ...history,
         { role: 'user', content: [{ text: messageText }] }
       ]
     });
+    if (!response.ok) {
+      if (response.topeAlcanzado) {
+        return {
+          success: false,
+          error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
+        };
+      }
+      throw new Error(response.error);
+    }
 
-    const replyText = response.text?.trim() || '';
-    await registrarConsumoIA('vendedor-virtual');
+    const replyText = response.texto.trim();
 
     // 6. Verificar si la IA decidió generar el presupuesto
     if (replyText === '[GENERAR_PRESUPUESTO]') {
       // Extraer datos estructurados con JSON
       const extractionModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
-      const extractionResponse = await generateWithGeminiFallback({
-        model: extractionModel,
+      const extractionResponse = await pedirTexto({
+        quien: 'vendedor-virtual',
+        incluirReglas: false,
+        modelos: [extractionModel, ...MODELOS_GEMINI.texto],
         prompt: `Extraé los siguientes datos del historial de chat. Formato JSON estricto con las claves: "nombre" (string), "telefono" (string), "evento" (string), "invitados" (number), "fecha" (string), "permisoContacto" (boolean). Si no hay algún dato, poné null.
 "permisoContacto" es true SOLO si la persona dijo con sus propias palabras que sí acepta que la contacten. Ante la menor duda, false.
 Historial:
@@ -175,9 +181,9 @@ ${messageText}`,
         output: { format: 'json' }
       });
 
-      const data = extractionResponse.output;
-      // La segunda llamada tambien se paga: se cuenta.
-      await registrarConsumoIA('vendedor-virtual');
+      const data = extractionResponse.ok
+        ? (extractionResponse.output || (() => { try { return JSON.parse(extractionResponse.texto); } catch { return null; } })())
+        : null;
 
       if (data && data.nombre && data.telefono && data.evento) {
         const permisoConcedido =
@@ -279,13 +285,6 @@ export async function chatConAsistenteCliente(
       windowMs: 60 * 60 * 1000,
     });
 
-    if (!(await hayPresupuestoParaIA())) {
-      return {
-        success: false,
-        error: 'El asistente del portal está temporalmente ocupado. Por favor, consultanos por WhatsApp.',
-      };
-    }
-
     const { getFiestaForPortalSession } = await import('@/app/actions/fiesta/portal.actions');
     const fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
     if (!fiesta) {
@@ -299,7 +298,7 @@ export async function chatConAsistenteCliente(
     const invitadosEstimados = fiesta.configuracion?.invitadosEstimados || 0;
 
     const tareasPendientes = (fiesta.tareas || [])
-      .filter((t: any) => !t.completada && !t.hecha)
+      .filter((t: any) => !t.completada && !t.hecha && (t.asignadaA === 'Cliente' || String(t.asignadaA || '').toLowerCase() === 'cliente'))
       .slice(0, 5)
       .map((t: any) => `• ${t.titulo || t.texto}`)
       .join('\n') || 'Ninguna pendiente.';
@@ -333,18 +332,40 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
     const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
     const nivel: 'rapido' | 'profundo' = effectiveModel === geminiProModel ? 'profundo' : 'rapido';
 
-    const response = await generateWithGeminiFallback({
-      model: effectiveModel,
+    const historialRecortado = (Array.isArray(history) ? history : [])
+      .slice(-20)
+      .filter((m: any) => m && (m.role === 'user' || m.role === 'model'))
+      .map((m: any) => ({
+        role: (m.role === 'user' ? 'user' : 'model') as 'user' | 'model',
+        content: [{
+          text: (Array.isArray(m.content)
+            ? m.content.map((c: any) => String(c?.text || '')).join(' ')
+            : String((m as any).content || '')).slice(0, 1200),
+        }],
+      }))
+      .filter((m) => m.content[0].text.trim().length > 0);
+
+    const response = await pedirTexto({
+      quien: 'chat-de-la-fiesta',
+      incluirReglas: false,
+      modelos: [effectiveModel, ...MODELOS_GEMINI.texto],
       system: systemPrompt,
       messages: [
-        ...history,
+        ...historialRecortado,
         { role: 'user', content: [{ text: newMessage }] }
       ]
     });
+    if (!response.ok) {
+      if (response.topeAlcanzado) {
+        return {
+          success: false,
+          error: 'El asistente del portal está temporalmente ocupado. Por favor, consultanos por WhatsApp.',
+        };
+      }
+      throw new Error(response.error);
+    }
 
-    await registrarConsumoIA('chat-de-la-fiesta');
-
-    const respuestaTexto = response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!';
+    const respuestaTexto = response.texto.trim() || '¡A las órdenes para ayudarte con tu fiesta!';
 
     // Detección de señales importantes para alertar al dueño (Orden 101 Bloque 1)
     const senal = detectarSenalCliente(newMessage);
@@ -462,13 +483,6 @@ export async function chatConAsistenteInvitado(
       windowMs: 60 * 60 * 1000,
     });
 
-    if (!(await hayPresupuestoParaIA())) {
-      return {
-        success: false,
-        error: 'El asistente para invitados está temporalmente descansando. ¡Disfrutá de la fiesta!',
-      };
-    }
-
     const [{ getFiestaById }, { LECTURA_COMPLETA }, { hasPublicGuestAccess }] = await Promise.all([
       import('@/app/actions/fiesta/fiesta.actions'),
       import('@/lib/fiesta/lectura-completa'),
@@ -520,20 +534,29 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
         content: [{ text: (Array.isArray(m.content) ? m.content.map((c: any) => String(c?.text || '')).join('') : '').slice(0, MAX_GUEST_ASSISTANT_MESSAGE_CHARS) }],
       }));
 
-    const response = await generateWithGeminiFallback({
-      model: effectiveModel,
+    const response = await pedirTexto({
+      quien: 'chat-de-la-fiesta',
+      incluirReglas: false,
+      modelos: [effectiveModel, ...MODELOS_GEMINI.texto],
       system: systemPrompt,
       messages: [
         ...safeHistory,
         { role: 'user', content: [{ text: cleanMessage }] }
       ]
     });
-
-    await registrarConsumoIA('chat-de-la-fiesta');
+    if (!response.ok) {
+      if (response.topeAlcanzado) {
+        return {
+          success: false,
+          error: 'El asistente para invitados está temporalmente descansando. ¡Disfrutá de la fiesta!',
+        };
+      }
+      throw new Error(response.error);
+    }
 
     return {
       success: true,
-      text: response.text?.trim() || '¡Que disfrutes mucho de la fiesta!',
+      text: response.texto.trim() || '¡Que disfrutes mucho de la fiesta!',
       nivel,
     };
   } catch (error: any) {

@@ -15,6 +15,7 @@ import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-toke
 import { prepararMensajeDelPlan } from '@/lib/asistente/planes-ejecutor';
 import { randomUUID } from 'crypto';
 import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 
 export type AsistenteArea = 'ventas' | 'cobros' | 'fiestas';
 
@@ -146,9 +147,9 @@ export async function writeReglasAprendidas(reglas: ReglaAprendida[]): Promise<v
 }
 
 export async function desestimarReglaAprendida(reglaId: string): Promise<void> {
-  const reglas = await getReglasAprendidas();
-  const filtradas = reglas.filter((r) => r.id !== reglaId);
-  await writeReglasAprendidas(filtradas);
+  await mutateGenericJsonArray<ReglaAprendida>(REGLAS_FILE, (reglas) =>
+    (Array.isArray(reglas) ? reglas : []).filter((r) => r.id !== reglaId)
+  );
 }
 
 /**
@@ -460,7 +461,6 @@ export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
 
   // Guardar regla aprendida
   const tipo = propuesta.tipoPropuesta || propuesta.clave.split(':')[0];
-  const reglas = await getReglasAprendidas();
   const nuevaRegla: ReglaAprendida = {
     id: `regla-${Date.now()}`,
     tipoPropuesta: tipo,
@@ -470,8 +470,10 @@ export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
     creadaEn: new Date().toISOString(),
   };
 
-  reglas.push(nuevaRegla);
-  await writeReglasAprendidas(reglas);
+  await mutateGenericJsonArray<ReglaAprendida>(REGLAS_FILE, (reglas) => [
+    ...(Array.isArray(reglas) ? reglas : []),
+    nuevaRegla,
+  ]);
 
   // Registro en memoria de agentes
   try {
@@ -502,16 +504,33 @@ export async function tomarPropuesta(propuestaId: string, usuarioNombre: string)
   });
 }
 
+function esPropuestaDePlata(p: AsistentePropuesta): boolean {
+  const area = String(p.area || '').toLowerCase();
+  if (area === 'cobros' || area === 'finanzas' || area === 'caja' || area === 'plata') {
+    return true;
+  }
+  const ref = `${p.tipoPropuesta || ''} ${p.clave || ''} ${p.accion?.type || ''} ${p.titulo || ''}`;
+  return /(cobro|gasto|boleta|saldo|cuota|pago|factura|recibo|sena|seña)/i.test(ref);
+}
+
 /**
  * Filtra las propuestas según el usuario y el área.
  */
 export async function getPropuestasParaUsuario(
   usuarioNombre: string = 'Usuario',
   esDuenio: boolean = true,
-  filtroArea?: AsistenteArea
+  filtroArea?: AsistenteArea,
+  opciones?: { puedeVerPlata?: boolean; perfil?: string },
 ): Promise<AsistentePropuesta[]> {
   const propuestas = await getPropuestas();
   const hoy = new Date();
+  const autorizadoPlata =
+    esDuenio ||
+    Boolean(opciones?.puedeVerPlata) ||
+    (opciones?.perfil
+      ? puede({ perfil: opciones.perfil as any }, PERMISOS.CONTABILIDAD) ||
+        puede({ perfil: opciones.perfil as any }, PERMISOS.ADMINISTRACION)
+      : false);
 
   return propuestas.filter((p) => {
     // 1. Filtrar descartadas y aceptadas
@@ -535,6 +554,11 @@ export async function getPropuestasParaUsuario(
     // 4. Lógica de visibilidad por responsable ("Lo tomo yo")
     if (esDuenio) {
       return true; // El dueño ve todas
+    }
+
+    // Bloque 2 (Orden 362): propuestas de plata sin responsable sólo las ve CONTABILIDAD o ADMINISTRACION
+    if (esPropuestaDePlata(p) && !autorizadoPlata) {
+      return false;
     }
 
     // Si otra persona la tomó, no la ve este usuario

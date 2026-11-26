@@ -2,6 +2,20 @@
 
 
 
+## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)
+
+- **"Pedile a la IA" de la presentación LED pedía sólo un tope por dirección**: la presentación es pública, así que un
+  desconocido podía gastar el tope diario de IA de la empresa. Ahora sin sesión del equipo no consulta a la IA.
+- **Guardar un insumo o pasar su costo a los menús reescribía el archivo entero si la base estaba vacía**: era un atajo
+  para que pasaran las pruebas del robot, que corren con la base del emulador vacía. Una función de la app no cambia de
+  camino según cómo la prueban: se sacó; si el robot lo necesita, se siembra el emulador.
+
+```comprobar
+usa: hasAppSession en src/app/actions/presentacion-ia.ts
+no-usa: firestoreVacio en src/app/actions/insumos.ts
+no-usa: firestoreVacio en src/app/actions/menus-catering.ts
+```
+
 ## 26/11/2026 - Empezar 2027 no borra nada si una lectura falla (robot, vuelta 7)
 
 La tarea de una sola vez que borra lo anterior a 2027 leía presupuestos, fiestas, facturas y clientes. Si la lectura de
@@ -17324,3 +17338,19 @@ prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
 - El "no negociable" de Ajustes → Agentes autónomos es un texto para el dueño, no una instrucción para agentes.
 - La cédula completa en Personal sólo la recibe quien tiene permiso de sueldos (`src/app/actions/empleados.ts`). Falso positivo.
 - Lo que sí era cierto va en la orden 355.
+
+## 26/11/2026 - PR 1475 (correcciones E2E) y Órdenes 356 a 366 en `gemini/orden-346`
+
+- **Arreglos de pruebas E2E devueltas en la PR 1475:** simulador paso 1 sin mostrar `$0` escondiendo la guía, texto visible de `Barra de tragos`, heading de `/bodas`, `"Más de 4 horas"` con tilde y años dinámicos usando `aniosDeAK()`.
+- **Orden 355 bloque 10 (`limpiar_pruebas`):** creada tarea en `src/lib/automatico/limpiar-pruebas.ts` (`esNombreDePruebaAutorizado`, copia previa en `limpiar-pruebas-copia.json`, ejecución única para el dueño en `limpiar-pruebas-estado.json`, omitida en `soloLasQueNoMandan` y protegiendo presupuestos con pagos, cuotas pagas, facturas o contrato firmado).
+- **Orden 356 (Seña, barra y listas):** seña unificada desde Ajustes (`seniaDelContrato`); barra fusiona Firestore y respaldo sin cruzar pedidos entre fiestas y la barra manual usa turno y cierre seguro; blog, plantillas y listas con guarda ante lectura fallida y fechas civiles UY.
+- **Orden 357 (Cocina, personal y tareas):** cocina cuenta a los chicos igual que costos y compras; recibos leídos desde Firestore consistente; total cobrado del personal calculado sólo sobre los pagados; tareas con fallas marcan error sin decir `"al día"`.
+- **Orden 358 (IA unificada):** toda la IA en flows, acciones y librerías pasada a `pedirTexto` (cerebro con tope y registro) usando `MODELOS_GEMINI` desde `@/ai/modelos`.
+- **Orden 359 (Video de Vida, invitados e itinerario):** Video de Vida muestra `N de M`, no se marca completo con la primera foto y resetea `photosUploaded: false` al borrar todo; invitados no pisan campos ni devuelven la fiesta entera y limpian `videosParaInvitados`; cronograma en vivo conserva `completado`; evento de hoy no figura en pasadas; botones de mesa >= 40px.
+- **Orden 360 (Confirmación, fotocabina y resumen):** confirmación sin enlace no borra restricciones ni `isCeliac`; tope subido a 60 cada 15 min; fotocabina limpia `avisoDelMuro` en captura nueva, error u offline; asistente verifica éxito antes de marcar el resumen como visto.
+- **Orden 361 (Simulador, redes y documentos con turno):** simulador muestra alerta y `Reintentar` si falla el autoguardado y expone lista blanca pública en `getServiciosEmpresaPublicos`; redes revalida permiso al publicar y mide 12h desde `previewEnviadaAlDuenioAt` real; 7 documentos enteros pasan a turno atómico (`mutateGenericJsonArray`/`mutarDocumento`/`turnoDeAjustes`).
+- **Orden 362 (Asistente y agentes):** multiagente pide sí explícito antes de agendar o preparar mail y usa id determinístico en Google Calendar; propuestas de plata ocultas a perfiles sin `CONTABILIDAD`/`ADMINISTRACION`; agentes detectan `esLecturaFallida` y usan `diasHastaEnUruguay`; chat cliente limita historial a 20 turnos y filtra tareas del cliente.
+- **Orden 363 (Personal y contrato):** personal empareja por `empleadoId + rolId` y conserva llegadas, confirmaciones y sueldos en `actualizarFiesta`; contrato en papel reengancha el recibo de seña existente en `invoiceIds`; portal distingue `yaEstabaFirmado`.
+- **Orden 364 (Cuotas, cocina y bebidas):** `updateCuotaEstado` sincroniza `cuota_<id>` a `presupuesto.pagosCliente` vía `mutarPresupuesto` sin duplicar seña; Finanzas y Portal leen `normalizePresupuestoFinancials`; cocina usa `condicionesDelInvitado` completas y `pricing` no clasifica `"Panini"` como infantil; bebidas en contabilidad sin multiplicar por `totalInv`.
+- **Orden 365 (Despachador y barra):** despachador sin clave corre con `soloLasQueNoMandan: true`; `force=1` del blog requiere `conClave`; barra por nombre exige coincidencia única en la fiesta.
+- **Orden 366 (Sofía y avisos de impresión):** Sofía usa `{{MONTO_SENA}}` / Ajustes sin `"congelamos el precio"` ni `"seña del 30%"`; fotocabina y Vogue separan `avisoDeImpresion` del estado de subida al muro.

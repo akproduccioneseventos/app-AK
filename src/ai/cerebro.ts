@@ -122,7 +122,10 @@ function debeLiberarReserva(error: unknown): boolean {
 }
 
 export interface PedirTextoOpciones {
-  prompt: string;
+  prompt?: GeminiGenerateRequest['prompt'];
+  messages?: GeminiGenerateRequest['messages'];
+  output?: GeminiGenerateRequest['output'];
+  config?: GeminiGenerateRequest['config'];
   adjunto?: { url: string; contentType?: string };
   system?: string;
   quien?: FuncionConCosto;
@@ -134,11 +137,21 @@ export interface PedirTextoOpciones {
   modelos?: string[];
   maxOutputTokens?: number;
   fetchFn?: typeof fetch;
-  ejecutarModelo?: (request: GeminiGenerateRequest) => Promise<{ text?: string | null }>;
+  ejecutarModelo?: (request: GeminiGenerateRequest) => Promise<{ text?: string | null; output?: any; custom?: any; raw?: any }>;
 }
 
 export type ResultadoTextoCerebro =
-  | { ok: true; texto: string; modelo: string; topeAlcanzado: false }
+  | {
+      ok: true;
+      texto: string;
+      modelo: string;
+      output?: any;
+      custom?: any;
+      raw?: any;
+      fuentes?: unknown;
+      sources?: unknown;
+      topeAlcanzado: false;
+    }
   | { ok: false; texto: ''; error: string; topeAlcanzado: boolean };
 
 async function llamarModeloTextoPorFetch(
@@ -203,6 +216,9 @@ async function llamarModeloTextoPorFetch(
 
 async function ejecutarTextoConRespaldo({
   prompt,
+  messages,
+  output,
+  config,
   system,
   quien,
   consumoYaGestionado = false,
@@ -211,26 +227,33 @@ async function ejecutarTextoConRespaldo({
   fetchFn,
   ejecutarModelo,
 }: {
-  prompt: GeminiGenerateRequest['prompt'];
+  prompt?: GeminiGenerateRequest['prompt'];
+  messages?: GeminiGenerateRequest['messages'];
+  output?: GeminiGenerateRequest['output'];
+  config?: GeminiGenerateRequest['config'];
   system?: string;
   quien: FuncionConCosto;
   consumoYaGestionado?: boolean;
   modelos: string[];
   maxOutputTokens?: number;
   fetchFn?: typeof fetch;
-  ejecutarModelo?: (request: GeminiGenerateRequest) => Promise<{ text?: string | null }>;
+  ejecutarModelo?: (request: GeminiGenerateRequest) => Promise<{ text?: string | null; output?: any; custom?: any; raw?: any }>;
 }): Promise<ResultadoTextoCerebro> {
   let reserva: Awaited<ReturnType<typeof reservarConsumoIA>> | null = null;
 
+  const hayReservaFn = typeof reservarConsumoIA === 'function';
   if (!consumoYaGestionado) {
-    const tienePresupuesto = await hayPresupuestoParaIA();
+    const tienePresupuesto =
+      typeof hayPresupuestoParaIA === 'function' ? await hayPresupuestoParaIA() : true;
     if (!tienePresupuesto) {
       return { ok: false, topeAlcanzado: true, texto: '', error: MENSAJE_TOPE_IA };
     }
 
-    reserva = await reservarConsumoIA(quien).catch(() => null);
-    if (!reserva) {
-      return { ok: false, topeAlcanzado: true, texto: '', error: MENSAJE_TOPE_IA };
+    if (hayReservaFn) {
+      reserva = await reservarConsumoIA(quien).catch(() => null);
+      if (!reserva) {
+        return { ok: false, topeAlcanzado: true, texto: '', error: MENSAJE_TOPE_IA };
+      }
     }
   }
 
@@ -238,28 +261,55 @@ async function ejecutarTextoConRespaldo({
   let huboIntentoIncierto = false;
 
   for (const modelo of modelos) {
+    const mergedConfig =
+      config || maxOutputTokens
+        ? {
+            ...(config && typeof config === 'object' ? config : {}),
+            ...(maxOutputTokens ? { maxOutputTokens } : {}),
+          }
+        : undefined;
     const request: GeminiGenerateRequest = {
       model: modelo,
-      prompt,
+      ...(messages ? { messages } : { prompt: prompt ?? '' }),
       ...(system ? { system } : {}),
-      ...(maxOutputTokens ? { config: { maxOutputTokens } } : {}),
+      ...(output ? { output } : {}),
+      ...(mergedConfig ? { config: mergedConfig } : {}),
     };
 
     try {
       const res = ejecutarModelo
         ? await ejecutarModelo(request)
         : fetchFn
-          ? await llamarModeloTextoPorFetch(fetchFn, modelo, prompt, system, maxOutputTokens)
+          ? await llamarModeloTextoPorFetch(fetchFn, modelo, prompt ?? '', system, maxOutputTokens)
           : await generateWithGeminiFallback(request);
 
-      const texto = (res?.text || '').trim();
+      const resAny = res as { text?: string | null; output?: any; custom?: any; raw?: any; fuentes?: unknown; sources?: unknown };
+      const texto = (
+        resAny?.text ||
+        (output && resAny?.output !== undefined && resAny?.output !== null
+          ? JSON.stringify(resAny.output)
+          : '')
+      ).trim();
       if (!texto) {
         huboIntentoIncierto = true;
         lastError = new Error('Gemini devolvió una respuesta vacía.');
         continue;
       }
 
-      return { ok: true, texto, modelo, topeAlcanzado: false };
+      if (!consumoYaGestionado && !hayReservaFn && typeof registrarConsumoIA === 'function') {
+        await registrarConsumoIA(quien).catch(() => undefined);
+      }
+      return {
+        ok: true,
+        texto,
+        modelo,
+        ...(resAny?.output !== undefined ? { output: resAny.output } : {}),
+        ...(resAny?.custom !== undefined ? { custom: resAny.custom } : {}),
+        ...(resAny?.raw !== undefined ? { raw: resAny.raw } : {}),
+        ...(resAny?.fuentes !== undefined ? { fuentes: resAny.fuentes } : {}),
+        ...(resAny?.sources !== undefined ? { sources: resAny.sources } : {}),
+        topeAlcanzado: false,
+      };
     } catch (err) {
       lastError = err;
       if (!debeLiberarReserva(err)) {
@@ -297,7 +347,10 @@ async function ejecutarTextoConRespaldo({
 }
 
 export async function pedirTexto({
-  prompt,
+  prompt = '',
+  messages,
+  output,
+  config,
   adjunto,
   system,
   quien = 'cerebro',
@@ -318,7 +371,8 @@ export async function pedirTexto({
     : system;
 
   const promptFinal =
-    incluirContextoNegocio || contextoNegocio !== undefined || datosNoConfiables !== undefined
+    typeof prompt === 'string' &&
+    (incluirContextoNegocio || contextoNegocio !== undefined || datosNoConfiables !== undefined)
       ? construirPromptConReglasYNegocio({
           prompt,
           incluirReglas: false,
@@ -329,22 +383,26 @@ export async function pedirTexto({
       : prompt;
 
   const urlAdjunto = adjunto?.url?.trim();
-  const promptParaEjecutar: GeminiGenerateRequest['prompt'] = urlAdjunto
-    ? [
-        { text: promptFinal },
-        {
-          media: {
-            url: urlAdjunto,
-            ...(adjunto?.contentType ? { contentType: adjunto.contentType } : {}),
+  const promptParaEjecutar: GeminiGenerateRequest['prompt'] =
+    typeof promptFinal === 'string' && urlAdjunto
+      ? [
+          { text: promptFinal },
+          {
+            media: {
+              url: urlAdjunto,
+              ...(adjunto?.contentType ? { contentType: adjunto.contentType } : {}),
+            },
           },
-        },
-      ]
-    : promptFinal;
+        ]
+      : promptFinal;
 
   const candidatos = modelos?.length ? [...modelos] : [...MODELOS_GEMINI.texto];
 
   return ejecutarTextoConRespaldo({
     prompt: promptParaEjecutar,
+    messages,
+    output,
+    config,
     system: systemFinal,
     quien,
     consumoYaGestionado,

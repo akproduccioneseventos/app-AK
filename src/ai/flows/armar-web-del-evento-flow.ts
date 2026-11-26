@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 import { aprenderDeLoAprobado } from '@/lib/ia/aprender-de-lo-aprobado';
 import type {
   FiestaEnPlanificacion,
@@ -240,17 +242,18 @@ Devolvé un único objeto JSON con esta estructura exacta:
 
   try {
     const model = getGeminiModelForAgent('fiestas_general');
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'armar-web-evento',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
       output: { format: 'json' },
     });
+    if (!result.ok) throw new Error(result.error);
 
-    const crudo = (result.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+    const crudo = result.texto.replace(/```json/gi, '').replace(/```/g, '').trim();
     const jsonParsed = JSON.parse(crudo);
     parsedIA = ArmarWebOutputSchema.parse(jsonParsed);
-    // Solo si la IA generó exitosamente registramos consumo
-    await registrarConsumoIA('armar-web-evento');
   } catch (error) {
     usoFallbackSinIA = true;
     console.error('Error al generar web con IA fallback manual:', error);

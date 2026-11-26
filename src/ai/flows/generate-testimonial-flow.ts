@@ -1,5 +1,6 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 export interface GenerateTestimonialInput {
   clientName: string;
@@ -33,16 +34,6 @@ export async function generateTestimonialFlow(input: GenerateTestimonialInput): 
   const fallback = buildFallback(input);
   const tieneHighlights = Boolean(input.highlights && input.highlights.filter(Boolean).length > 0);
 
-  const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-  if (!canUseAI) {
-    if (tieneHighlights) return fallback;
-    return {
-      testimonial: '',
-      shortQuote: '',
-      error: 'No se pudo armar el testimonio con IA; probá más tarde',
-    };
-  }
-
   try {
     const model = getGeminiModelForAgent('marketing');
     const prompt = `Sos el redactor de testimonios de AK Producciones (Salto, Uruguay).
@@ -59,13 +50,28 @@ Devolvé SOLO un JSON válido con:
   "shortQuote": "frase corta y destacada para tarjeta web"
 }`;
 
-    const res = await generateWithGeminiFallback({ model, prompt });
-    const raw = res?.text?.trim() || '';
+    const res = await pedirTexto({
+      prompt,
+      quien: 'resumen-feedback',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
+    });
+    if (!res.ok) {
+      if (res.topeAlcanzado) {
+        if (tieneHighlights) return fallback;
+        return {
+          testimonial: '',
+          shortQuote: '',
+          error: 'No se pudo armar el testimonio con IA; probá más tarde',
+        };
+      }
+      return fallback;
+    }
+    const raw = res.texto.trim();
     const match = raw.match(/\{[\s\S]*\}/);
     if (match) {
       const parsed = JSON.parse(match[0]);
       if (parsed.testimonial && parsed.shortQuote) {
-        await registrarConsumoIA('resumen-feedback').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           testimonial: parsed.testimonial,
           shortQuote: parsed.shortQuote,

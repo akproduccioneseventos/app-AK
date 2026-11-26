@@ -157,6 +157,7 @@ export default function BarmanScreenPage() {
   };
 
   const handleQuickOrder = async (drinkId: string, version: 'con_alcohol' | 'sin_alcohol' = quickVersion) => {
+    if (updatingId !== null) return;
     setUpdatingId(drinkId);
     // Pregunta 58: reintento de una respuesta perdida = el mismo pedido, sin descontar botellas otra vez.
     const alcance = `barman:${fiestaId}`;

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { generateWithGeminiFallback } from '@/ai/genkit';
+import { pedirTexto } from '@/ai/cerebro';
 import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { getPresupuestos, savePresupuesto } from '@/app/actions/presupuestos';
@@ -381,13 +381,15 @@ Instrucciones:
 5. Como mucho 1 o 2 emojis.`;
 
     try {
-      const sintesis = await generateWithGeminiFallback({
+      const sintesis = await pedirTexto({
         prompt: promptSintesis,
+        quien: 'encargado-general',
+        incluirReglas: false,
         config: { temperature: 0.3, maxOutputTokens: 500 },
       });
       return {
         success: true,
-        response: sintesis.text?.trim() || hallazgos.join('\n'),
+        response: (sintesis.ok ? sintesis.texto.trim() : '') || hallazgos.join('\n'),
         agentType: 'central',
         agentName: 'Encargado General AK',
         especialistasConsultados: progreso,
@@ -432,7 +434,6 @@ Herramientas disponibles:
 
   while (vuelta < MAX_VUELTAS_POR_PEDIDO) {
     vuelta++;
-    await registrarConsumoIA('encargado-general').catch(() => null);
 
     const promptVuelta = `Sos el Encargado General de AK Producciones Eventos.
 El dueño te pidió: "${input.message}".
@@ -451,12 +452,18 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
 }`;
 
     try {
-      const decisionRaw = await generateWithGeminiFallback({
+      const decisionRaw = await pedirTexto({
         prompt: promptVuelta,
+        quien: 'encargado-general',
+        incluirReglas: false,
         config: { temperature: 0.2, maxOutputTokens: 600 },
       });
+      if (!decisionRaw.ok) {
+        fallo = true;
+        break;
+      }
 
-      const textoLimpio = (decisionRaw.text || '')
+      const textoLimpio = decisionRaw.texto
         .replace(/```json/gi, '')
         .replace(/```/g, '')
         .trim();
