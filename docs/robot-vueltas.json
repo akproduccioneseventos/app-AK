@@ -749,6 +749,80 @@
       ],
       "orden": 372,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T16:41",
+      "areas": [
+        "plata",
+        "automaticos",
+        "estaciones",
+        "fiesta",
+        "redes",
+        "comida",
+        "portal",
+        "asistente"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "plata",
+          "automaticos"
+        ],
+        "plata": [
+          "estaciones",
+          "fiesta"
+        ],
+        "permisos": [
+          "automaticos",
+          "redes"
+        ],
+        "promesas": [
+          "plata",
+          "comida"
+        ],
+        "automaticos": [
+          "portal",
+          "plata"
+        ],
+        "fechas-y-celular": [
+          "asistente",
+          "estaciones"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "tokens de redes en la respuesta",
+        "despachador devuelve el resultado entero",
+        "proveedor contado dos veces",
+        "comparativa total sin recargo",
+        "pasar cobros 'correctamente' con lectura caída",
+        "seña pagada dos veces",
+        "reintegro parcial como devolución total",
+        "voz del cliente sin reserva del tope",
+        "marcas de tareas que se pisan",
+        "estado de 'al entrar' con foto vieja",
+        "tope de avisos del asistente en Greenwich"
+      ],
+      "repetidos_sin_arreglar": [
+        "clima de las fiestas (orden 194)",
+        "días del diagnóstico (orden 194)"
+      ],
+      "descartados": [
+        "'Pedido mandado' al copiar: decisión anotada",
+        "resumen al contador",
+        "Poner al día",
+        "gastos y pagos del salón",
+        "webhook y conciliación de MP",
+        "respaldo automático",
+        "rutas cron con puerta",
+        "webhook de Meta",
+        "ingreso con Google",
+        "costo de IA por fiesta: diseño",
+        "auditor guarda credenciales: decisión del 17/11"
+      ],
+      "orden": 373,
+      "corregidos": []
     }
   ]
 }

@@ -80,6 +80,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       operador, IA por el tope, avisos que se repiten y fechas que se corren.
   23. **Orden 372 (`docs/ordenes/372-gemini-robot-vuelta-17-seis-especialistas.md`):** documentos de plata, "conectado" y "al día"
       de verdad, el asistente sin pisar listas, la fecha de la fiesta como día y Poner al día con el ajuste.
+  24. **Orden 373 (`docs/ordenes/373-gemini-robot-vuelta-18-seis-especialistas.md`):** tokens que no viajan al navegador, el proveedor
+      una sola vez, la seña que no se paga dos veces, la voz del cliente por el tope y las marcas de las tareas.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
