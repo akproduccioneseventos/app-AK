@@ -62,6 +62,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       antes de agendar, las propuestas de plata no las ve cualquiera y los agentes no dicen "al día" sin haber leído.
   14. **Orden 363 (`docs/ordenes/363-gemini-robot-vuelta-8-personal-y-contrato.md`):** guardar el Personal no borra las
       llegadas, el contrato engancha el recibo de seña que ya existe y la firma ya hecha no dice "registrada".
+  15. **Orden 364 (`docs/ordenes/364-gemini-robot-vuelta-9-cuotas-cocina-y-bebidas.md`):** una cuota cobrada se ve cobrada
+      en todos lados, el celíaco vegetariano llega a la cocina y las bebidas no se multiplican por los invitados.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

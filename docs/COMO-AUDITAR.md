@@ -2157,3 +2157,9 @@ estaba confirmado. Lo que sale para afuera se pregunta primero, y el sí lo da u
 Octava vuelta del robot, 26/11/2026: al reintentar el contrato en papel, la app encontraba el recibo de seña que ya había
 creado, no lo volvía a crear (bien) y tampoco lo sumaba a las facturas de la fiesta (mal). La rama "ya existía" tiene que
 dejar todo como la rama "lo creé".
+
+### 237. La misma plata, ¿se anota en un solo lugar, o en dos libros que cada pantalla lee distinto?
+
+Novena vuelta del robot, 26/11/2026: marcar una cuota como pagada la anotaba en el plan de pagos y no en los cobros del
+presupuesto. El portal del cliente decía "saldo $0" y el portal público, el asistente y el cobrador decían que debía todo.
+Toda pantalla que muestra lo cobrado o el saldo lee el mismo libro que el panel.
