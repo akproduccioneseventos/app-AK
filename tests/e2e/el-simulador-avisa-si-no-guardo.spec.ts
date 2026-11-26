@@ -66,5 +66,11 @@ test('Orden 361: el simulador avisa cuando falla el autoguardado y muestra Reint
 
   const alerta = page.getByTestId('simulador-error-guardado');
   await expect(alerta).toBeVisible({ timeout: 15_000 });
-  await expect(alerta.getByRole('button', { name: /Reintentar/i })).toBeVisible();
+  await expect(alerta).toContainText(/No pudimos guardar el cambio en el presupuesto/i);
+  const reintentar = alerta.getByRole('button', { name: /Reintentar/i });
+  await expect(reintentar).toBeVisible();
+
+  await page.unroute('**/simulador-de-presupuesto*');
+  await reintentar.click();
+  await expect(alerta).not.toBeVisible({ timeout: 20_000 });
 });
