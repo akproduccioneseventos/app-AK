@@ -2179,3 +2179,45 @@ escrito en sus instrucciones "congelamos el precio tras la seña del 30%". Lo qu
 
 Misma vuelta: en la fotocabina y en el Vogue, un fallo de impresión se guardaba en el mismo estado que la subida, y la pantalla
 decía "No se pudo publicar" o "Fallo conexión" con la foto subida. Cada falla tiene su aviso.
+
+### 241. Una palabra corta que se busca adentro de un texto, ¿puede aparecer como pedazo de otra?
+
+Duodécima vuelta del robot, 26/11/2026: la ganancia restaba de la comisión de Mercado Pago cualquier gasto con "comisión" y "mp", y
+"mp" está en "compra". Ya había pasado con "nin" en "Panini" (orden 364). Una palabra de dos o tres letras se busca entera.
+
+### 242. Una tarea que junta varias, ¿se marca "corrida" aunque una de adentro haya fallado?
+
+Misma vuelta: el asistente proactivo corre varios agentes; si uno tiraba error, sólo se anotaba en la consola y la tarea figuraba
+corrida hoy. Y el blog con el candado ocupado se marcaba hecho sin haberlo hecho nadie. La corrida se marca cuando todo salió.
+
+### 243. Una marca de "hecho" que depende de otro servicio (Meta, Google, WhatsApp), ¿se pone después de su respuesta buena?
+
+Decimotercera vuelta del robot, 26/11/2026: la app marcaba la queja como "Oculta" antes de pedirle a Meta que la oculte y sin mirar la
+respuesta. Con el acceso vencido, la queja seguía pública, la pantalla decía "Oculto" y la corrida siguiente no lo reintentaba.
+
+### 244. Una lista leída que se copia (`.map`, `.filter`) antes de devolverla, ¿conserva la marca de lectura fallida?
+
+Decimocuarta vuelta del robot, 26/11/2026: `readData` devuelve una lista vacía con una marca cuando la base no contesta, y quien la mira
+sabe que no es "no hay nada". Pero la lectura de facturas la copiaba con `.map` antes de devolverla: la copia salía sin marca, el escaneo de
+cuotas vencidas no armaba ningún aviso y la tarea figuraba al día.
+
+### 245. Lo que la app arma sola una vez (vacantes, cantidades), ¿se vuelve a armar cuando cambia lo que lo origina?
+
+Decimoquinta vuelta del robot, 26/11/2026: las vacantes de mozos, cocina y utileros se llenaban sólo la primera vez. Si el cliente aprobaba
+50 invitados más, el presupuesto cobraba seis mozos y la lista de personal seguía pidiendo cuatro.
+
+### 246. Lo que alguien escribe en un lugar privado, ¿termina en una lista que lee cualquiera?
+
+Misma vuelta: la consulta que el cliente le hacía a AK desde su portal se guardaba en el chat en vivo de la fiesta, que leen todos los
+invitados con el enlace.
+
+### 247. Cuando un servicio de afuera contesta "no sé si llegó", ¿se anota como enviado para no mandarlo dos veces?
+
+Decimosexta vuelta del robot, 26/11/2026: Meta avisa `delivery: 'uncertain'` cuando tarda (el mensaje pudo haber salido) y pide no
+reintentar. El aviso de fotos por WhatsApp lo tomaba como falla, no lo anotaba, y en la tanda siguiente el invitado lo recibía otra vez.
+
+### 248. Una ruta que entrega archivos, ¿mira qué tipo de documento es, o sólo que la persona sea "del equipo"?
+
+Decimoséptima vuelta del robot, 26/11/2026: los documentos de la fiesta (contratos, recibos de seña y de sueldo) los sube sólo quien tiene
+contabilidad, pero los bajaba cualquiera del equipo de la fiesta, incluido el operador, y el portal del cliente recibía también los recibos
+del personal.

@@ -298,6 +298,457 @@
       ],
       "orden": 366,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T10:42",
+      "areas": [
+        "portal",
+        "invitado",
+        "contrato",
+        "fiesta",
+        "asistente",
+        "redes",
+        "personal",
+        "comida",
+        "automaticos",
+        "web",
+        "plata",
+        "estaciones"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "portal",
+          "invitado"
+        ],
+        "plata": [
+          "contrato",
+          "fiesta"
+        ],
+        "permisos": [
+          "asistente",
+          "redes"
+        ],
+        "promesas": [
+          "personal",
+          "comida"
+        ],
+        "automaticos": [
+          "automaticos",
+          "web"
+        ],
+        "fechas-y-celular": [
+          "plata",
+          "estaciones"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "lista de lo que lleva el cliente se pisa",
+        "recontacto reescribe todos los prospectos",
+        "'mp' en 'compra' baja la comisión de MP",
+        "bloques pagados a medias cuentan sólo lo pagado",
+        "ingreso sin ajuste en Finanzas, comparativa y aviso de margen",
+        "parte del equipo con cuotas y comprobantes a cualquiera",
+        "caras de los invitados públicas",
+        "alergias: 'enviado a cocina' con el aviso apagado",
+        "'Resumen enviado' sin enviar",
+        "agentes caídos y tarea corrida",
+        "blog con candado ocupado marcado corrido",
+        "posicionamiento con páginas rotas sin aviso",
+        "blog sin control de plazos prometidos",
+        "fecha del pago y de la cuota en Greenwich",
+        "fiesta de hoy 'pasada' a la noche",
+        "cuota vencida desde las 21",
+        "botones de 36 px en el social del invitado"
+      ],
+      "descartados": [
+        "'Te avisaremos' de la barra: la pantalla se actualiza cada 5 segundos",
+        "recibos, empleado, menú: miran success",
+        "firma digital y cambio de fecha",
+        "multas fuera del descuento",
+        "webhook de Meta y voz",
+        "amortización y 10% del cambio de fecha: reglas del negocio",
+        "clave fija de la fiesta de muestra: datos de mentira"
+      ],
+      "orden": 367,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T11:41",
+      "areas": [
+        "contrato",
+        "personal",
+        "comida",
+        "barra",
+        "fiesta",
+        "portal",
+        "estaciones",
+        "invitado",
+        "redes",
+        "asistente"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "contrato",
+          "personal"
+        ],
+        "plata": [
+          "comida",
+          "barra"
+        ],
+        "permisos": [
+          "fiesta",
+          "portal"
+        ],
+        "promesas": [
+          "estaciones",
+          "invitado"
+        ],
+        "automaticos": [
+          "redes",
+          "asistente"
+        ],
+        "fechas-y-celular": [
+          "barra",
+          "portal"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "'Oculto' sin que Meta lo oculte",
+        "cabina IA 'en el muro' con aprobación pendiente",
+        "marca del espejo impresa aunque se apague",
+        "editar empleado borra el mail de Workspace",
+        "documentos de la fiesta que se pisan",
+        "tres acciones de invitados sin control",
+        "'barra'/'ron' por pedazos meten equipos en bebidas",
+        "repostería con cantidad 0 suma",
+        "docena contra unidad en el costo del plato",
+        "stock que no convierte se toma como cero",
+        "cuota final un día antes en el portal",
+        "botón de 32 px en las mesas del cliente"
+      ],
+      "descartados": [
+        "recibos del personal, firma digital, contrato en papel, cancelaciones",
+        "PIN vacío del portal: el cliente ya entra con su sesión, queda como está",
+        "cierre de barra y merma",
+        "respuestas públicas en redes sin precios",
+        "IA de reseñas repetida: dudoso, sin medir",
+        "dos respuestas a la vez en redes: dudoso",
+        "reacciones en memoria: dudoso",
+        "changeEventDate con doble falla: dudoso"
+      ],
+      "orden": 368,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T12:42",
+      "areas": [
+        "comida",
+        "fiesta",
+        "plata",
+        "portal",
+        "web",
+        "barra",
+        "asistente",
+        "contrato",
+        "personal",
+        "invitado",
+        "redes"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "comida",
+          "fiesta"
+        ],
+        "plata": [
+          "plata",
+          "portal"
+        ],
+        "permisos": [
+          "web",
+          "barra"
+        ],
+        "promesas": [
+          "asistente",
+          "fiesta"
+        ],
+        "automaticos": [
+          "contrato",
+          "personal"
+        ],
+        "fechas-y-celular": [
+          "invitado",
+          "redes"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "vista previa de la cancelación parcial cobra distinto",
+        "'Todo al día' con tareas fallidas",
+        "brief del DJ 'guardado' sin guardar",
+        "'Portada eliminada' sin guardar",
+        "freno del simulador por teléfono",
+        "escudo del armado rápido por nombre",
+        "calendario del invitado a medianoche",
+        "'hace N días' de reseñas en Greenwich",
+        "botón de copiar alias de 32 px",
+        "publicar un menú deshace el ajuste de márgenes",
+        "lista de compras saca al proveedor del mismo nombre",
+        "recordatorios de cuota a ciegas con la base caída",
+        "mensajes programados caídos duplican avisos"
+      ],
+      "descartados": [
+        "saldo con recargo de MP",
+        "seña con recargo",
+        "cancelación total del servidor",
+        "copiloto y agenda del simulador",
+        "acciones de la barra",
+        "lista de compras en el servidor",
+        "presupuestos por celular: decisión del dueño",
+        "ruta del asistente proactivo sin llamar: dudoso, puede tener programador afuera",
+        "aviso al cliente cortado a la mitad: dudoso",
+        "reunión a 1 hora: dudoso",
+        "cuenta regresiva del invitado bien"
+      ],
+      "orden": 369,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T13:42",
+      "areas": [
+        "barra",
+        "estaciones",
+        "personal",
+        "web",
+        "invitado",
+        "portal",
+        "fiesta",
+        "comida",
+        "contrato",
+        "automaticos"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "barra",
+          "estaciones"
+        ],
+        "plata": [
+          "personal",
+          "web"
+        ],
+        "permisos": [
+          "personal",
+          "invitado"
+        ],
+        "promesas": [
+          "web",
+          "portal"
+        ],
+        "automaticos": [
+          "fiesta",
+          "comida"
+        ],
+        "fechas-y-celular": [
+          "contrato",
+          "automaticos"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "'Enviado' al tildar en el portal",
+        "correo de recuperación sin aviso si tira",
+        "Entretenimiento borra fotos del invitado",
+        "consulta del cliente en el chat público",
+        "fecha de solicitud de adenda y cancelación en Greenwich",
+        "parte de la mañana 'en 0 días' y aviso del contador fuera de fecha",
+        "Mi día con hoy de Greenwich",
+        "'Mis XV' en cualquier fiesta",
+        "personal que no sigue a los invitados",
+        "invitadosCantidad || 100",
+        "sueldo 0 leído distinto",
+        "cuotas del simulador que suman de más"
+      ],
+      "descartados": [
+        "personal por invitados según la regla",
+        "Club Uruguay y tachado",
+        "descuento simulador/presupuesto",
+        "ajustes y apertura de barra",
+        "recibos y agenda del personal",
+        "portal del empleado",
+        "videos para invitados",
+        "cierre posfiesta",
+        "papelería con IA",
+        "cierre de barra con insumo borrado: dudoso",
+        "búsqueda de mesa por nombre: a propósito",
+        "'Te llega en PDF': texto del cliente, lo decide el dueño",
+        "tres planes de pago distintos y LED sin el 15%: lo decide el dueño"
+      ],
+      "orden": 370,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T14:41",
+      "areas": [
+        "web",
+        "redes",
+        "asistente",
+        "comida",
+        "estaciones",
+        "barra",
+        "contrato",
+        "invitado",
+        "fiesta"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "web",
+          "redes"
+        ],
+        "plata": [
+          "asistente",
+          "redes"
+        ],
+        "permisos": [
+          "comida",
+          "estaciones"
+        ],
+        "promesas": [
+          "barra",
+          "contrato"
+        ],
+        "automaticos": [
+          "estaciones",
+          "invitado"
+        ],
+        "fechas-y-celular": [
+          "web",
+          "fiesta"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "cita editada se mueve un día",
+        "entrega de fotos un día antes",
+        "cliente deja de ser 'Actual' el día de la fiesta",
+        "Vision fuera del tope",
+        "consulta de marketing contada dos veces",
+        "cualquier sesión maneja estaciones de otra fiesta",
+        "permiso del afiche para cualquier fiesta",
+        "el operador ve costos y márgenes",
+        "fotos por WhatsApp repetidas con 'uncertain'",
+        "pedido de barra sin señal rechazado sin aviso",
+        "cancelación dice error ya guardada",
+        "recordatorio no-abiertas con lectura fallida",
+        "Search Console borra settings con lectura fallida",
+        "redes guarda los valores por defecto encima",
+        "menciones de historias que se borran"
+      ],
+      "descartados": [
+        "tope de publicidad sobre lo comprometido: decisión anotada",
+        "fechas del simulador y reloj",
+        "cuenta regresiva",
+        "deudas del asistente",
+        "tokens atados a fiesta y módulo",
+        "firma digital y contrato en papel",
+        "recordatorio a confirmados con id fijo",
+        "caras en el navegador",
+        "CRM, catálogo y galería",
+        "tablet del salón el día de la fiesta: a propósito",
+        "publicación directa sin aprobación: opción del dueño"
+      ],
+      "orden": 371,
+      "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T15:41",
+      "areas": [
+        "asistente",
+        "permisos",
+        "plata",
+        "automaticos",
+        "contrato",
+        "redes",
+        "web",
+        "barra",
+        "personal",
+        "comida"
+      ],
+      "aspecto": "seis especialistas a la vez",
+      "especialistas": {
+        "guardados": [
+          "asistente",
+          "permisos"
+        ],
+        "plata": [
+          "plata",
+          "automaticos"
+        ],
+        "permisos": [
+          "plata",
+          "contrato"
+        ],
+        "promesas": [
+          "redes",
+          "automaticos"
+        ],
+        "automaticos": [
+          "web",
+          "barra"
+        ],
+        "fechas-y-celular": [
+          "personal",
+          "comida"
+        ]
+      },
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos desde el 25/11 23:42",
+      "hallazgos_confirmados": [
+        "el operador baja contratos y recibos",
+        "recibos del personal en el portal del cliente",
+        "correo del contador público",
+        "Google 'conectado' fijo",
+        "historial 'sincronizado' sin datos",
+        "'al día' con falla posterior",
+        "recontacto 'corrido' sin enviar",
+        "decisiones del asistente borradas con lectura fallida",
+        "reglas aprendidas borradas con lectura fallida",
+        "propuestas resueltas que cambian",
+        "dos cuentas con el mismo correo",
+        "fecha de la fiesta guardada con hora: 'Invalid Date'",
+        "Poner al día cobra sin el ajuste",
+        "devoluciones de botellas que no se hicieron"
+      ],
+      "repetidos_sin_arreglar": [
+        "'mp' en 'compra' (orden 367)",
+        "bloques pagados a medias (orden 367)"
+      ],
+      "descartados": [
+        "subir y borrar documentos con CONTABILIDAD",
+        "firma digital",
+        "rutas de contratos y comprobantes",
+        "acciones de plata con guarda",
+        "Mercado Pago",
+        "pagos a proveedores",
+        "publicador y bandeja",
+        "comentarios",
+        "altas de perfiles",
+        "WhatsApp 'conectado' al guardar el número: dudoso",
+        "reintegro parcial de MP: dudoso",
+        "doble descuento si se corta la respuesta: dudoso"
+      ],
+      "orden": 372,
+      "corregidos": []
     }
   ]
 }

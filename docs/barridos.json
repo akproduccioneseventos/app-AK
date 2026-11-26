@@ -960,6 +960,38 @@
     "240": {
       "fecha": "2026-11-26",
       "resultado": "Fotocabina (errorMsg) y Vogue (uploadError) mezclan el fallo de impresión con el de subida; el resto de las estaciones lo barre Gemini en la orden 366."
+    },
+    "241": {
+      "fecha": "2026-11-26",
+      "resultado": "ganancia-evento.ts: includes('mp') toma 'compra' por Mercado Pago; hoja-de-cocina.ts includes('nin') ya en la orden 364. El resto lo barre Gemini en la orden 367."
+    },
+    "242": {
+      "fecha": "2026-11-26",
+      "resultado": "motor-agentes.ts traga el error de cada agente y el asistente proactivo se marca corrido; el blog con candado ocupado también. El resto lo barre Gemini en la orden 367."
+    },
+    "243": {
+      "fecha": "2026-11-26",
+      "resultado": "comments-backfill.ts: isAutoHidden antes de hideCommentOnMeta y sin mirar el resultado (automático y manual). El resto de las marcas que dependen de afuera lo barre Gemini en la orden 368."
+    },
+    "244": {
+      "fecha": "2026-11-26",
+      "resultado": "leer-facturas.ts copia con .map y pierde la marca; el escaneo encontró dos lugares con la misma forma. El resto lo barre Gemini en la orden 369."
+    },
+    "245": {
+      "fecha": "2026-11-26",
+      "resultado": "Vacantes de personal llenadas sólo si personalAsignado está vacío (fiesta.actions.ts) y panel con item.cantidad. El resto lo barre Gemini en la orden 370."
+    },
+    "246": {
+      "fecha": "2026-11-26",
+      "resultado": "portal--faq.tsx manda la consulta del cliente al chat público con addChatMessage. El resto de los usos lo barre Gemini en la orden 370."
+    },
+    "247": {
+      "fecha": "2026-11-26",
+      "resultado": "social-gallery.ts ignora delivery 'uncertain' en el aviso de fotos por WhatsApp. El resto de los envíos lo barre Gemini en la orden 371."
+    },
+    "248": {
+      "fecha": "2026-11-26",
+      "resultado": "documentos-fiesta/[...parts]/route.ts entrega cualquier documento al equipo de la fiesta y al portal sin mirar el tipo. El resto de las rutas de archivos lo barre Gemini en la orden 372."
     }
   },
   "hallazgos": {
@@ -1454,6 +1486,30 @@
     "orden-366": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 11 (textos de la web y de las estaciones): Sofía congela precios y dice seña del 30% (pregunta 239), fallo de impresión anunciado como foto no publicada o falla de conexión (pregunta 240)."
+    },
+    "orden-367": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 12 (seis especialistas): listas del cliente y del recontacto que se pisan (210), 'mp' en 'compra' y bloques pagados a medias en la ganancia (241), ingreso sin ajuste en Finanzas, parte del equipo con cuotas a cualquiera, caras de invitados públicas, avisos que dicen 'enviado' sin enviar, tareas corridas con agentes caídos (242), fechas de cobros y cuotas en hora de Greenwich (70), botones de 36 px del invitado."
+    },
+    "orden-368": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 13 (seis especialistas): 'Oculto' sin que Meta oculte (243), cabina IA 'en el muro' con aprobación pendiente, marca del espejo que no se apaga al imprimir, editar empleado borra el mail de Workspace, documentos de la fiesta que se pisan (210), tres acciones de invitados sin control, 'barra' y 'ron' por pedazos en bebidas (241), repostería en cero que suma, docena contra unidad, stock que no convierte, cuota final un día antes (70), botón de 32 px en mesas."
+    },
+    "orden-369": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 14 (seis especialistas): la vista previa de la cancelación cobra distinto que el servidor, carteles de 'listo' sin mirar el guardado (asistente, música, muro), freno del simulador por teléfono, calendario del invitado a medianoche y días de reseñas en Greenwich (70), menús que deshacen el ajuste de márgenes y proveedores con el mismo nombre (210), recordatorios de cuota a ciegas con la base caída (244)."
+    },
+    "orden-370": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 15 (seis especialistas): 'Enviado' al tildar y correo de recuperación sin aviso en el portal, Entretenimiento que borra fotos del invitado (210), consulta del cliente en el chat público (246), fechas de solicitud, parte de la mañana y Mi día en Greenwich (70), 'Mis XV' en cualquier fiesta, personal que no sigue a los invitados (245), sueldo 0 leído distinto y cuotas que suman de más."
+    },
+    "orden-371": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 16 (seis especialistas): cita, entrega de fotos y cliente 'Actual' con fechas corridas (70), Vision fuera del tope y marketing contado dos veces, cualquier sesión maneja estaciones de otra fiesta y el operador ve costos, fotos por WhatsApp repetidas (247), pedido de barra sin señal rechazado sin aviso, cancelación que dice error ya guardada, recordatorio no-abiertas a ciegas (244), settings y redes pisados con lectura fallida, menciones que se borran (210)."
+    },
+    "orden-372": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 17 (seis especialistas): documentos de plata que baja el operador y recibos del personal en el portal (248), correo del contador público, Google 'conectado' fijo, historial 'sincronizado' sin datos, 'al día' con falla posterior, recontacto corrido sin enviar, listas del asistente pisadas con lectura fallida (244), propuestas resueltas que cambian, dos cuentas con el mismo correo, fecha de la fiesta guardada con hora (70), Poner al día sin el ajuste, devoluciones de botellas que no se hicieron."
     }
   }
 }
