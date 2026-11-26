@@ -2238,3 +2238,19 @@ frase permitida que tenga números: tiene que salir igual.
 Decimonovena vuelta del robot, 26/11/2026: la lista de compras juntaba un pedido fijo y un ingrediente de receta del mismo producto, y el
 renglón se quedaba con "pedido fijo" del primero: el stock no se descontaba y se compraba de más, según el orden de carga. Un resultado
 que cambia al cambiar el orden de los renglones está mal.
+
+### 252. La cuenta que ve el cliente antes de pedir algo, ¿usa la misma regla que el servidor cuando lo aprueba?
+
+Vigésima vuelta del robot, 26/11/2026: el portal le sumaba el 15% a cada extra siempre, y el servidor sólo lo suma cuando el evento es
+de un año posterior a la firma. El cliente veía $257.500 y el total quedaba en $250.000. Se compara la cifra de la pantalla con la que
+guarda la acción, en los dos casos de la regla.
+
+### 253. Un control de "ya se avisó", ¿ve también lo que la misma corrida acaba de preparar?
+
+Vigésima vuelta del robot, 26/11/2026: los recordatorios de cuota miraban sólo los mensajes leídos al empezar. Un cliente con dos cuotas
+vencidas recibía dos recordatorios el mismo día.
+
+### 254. Un control que compara contra un dato, ¿qué hace cuando ese dato falta?
+
+Vigésima vuelta del robot, 26/11/2026: con la verificación de ubicación prendida, si el salón no tenía coordenadas, la verificación no
+corría y la llegada se anotaba como verificada. Un control que se saltea sin dejar marca es un control apagado sin aviso.
