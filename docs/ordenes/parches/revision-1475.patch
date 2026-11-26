@@ -1,0 +1,238 @@
+diff --git a/docs/YA-RESUELTO.md b/docs/YA-RESUELTO.md
+index e8061deff..707218a8b 100644
+--- a/docs/YA-RESUELTO.md
++++ b/docs/YA-RESUELTO.md
+@@ -17304,3 +17304,17 @@ prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
+ - El "no negociable" de Ajustes → Agentes autónomos es un texto para el dueño, no una instrucción para agentes.
+ - La cédula completa en Personal sólo la recibe quien tiene permiso de sueldos (`src/app/actions/empleados.ts`). Falso positivo.
+ - Lo que sí era cierto va en la orden 355.
++
++## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)
++
++- **"Pedile a la IA" de la presentación LED pedía sólo un tope por dirección**: la presentación es pública, así que un
++  desconocido podía gastar el tope diario de IA de la empresa. Ahora sin sesión del equipo no consulta a la IA.
++- **Guardar un insumo o pasar su costo a los menús reescribía el archivo entero si la base estaba vacía**: era un atajo
++  para que pasaran las pruebas del robot, que corren con la base del emulador vacía. Una función de la app no cambia de
++  camino según cómo la prueban: se sacó; si el robot lo necesita, se siembra el emulador.
++
++```comprobar
++usa: hasAppSession en src/app/actions/presentacion-ia.ts
++no-usa: firestoreVacio en src/app/actions/insumos.ts
++no-usa: firestoreVacio en src/app/actions/menus-catering.ts
++```
+diff --git a/src/__tests__/la-ia-en-la-reunion-no-cierra-nada.test.ts b/src/__tests__/la-ia-en-la-reunion-no-cierra-nada.test.ts
+index ad435c06f..1e3bd49fc 100644
+--- a/src/__tests__/la-ia-en-la-reunion-no-cierra-nada.test.ts
++++ b/src/__tests__/la-ia-en-la-reunion-no-cierra-nada.test.ts
+@@ -10,6 +10,11 @@ jest.mock('@/ai/cerebro', () => ({
+   pedirTexto: jest.fn(),
+ }));
+ 
++const mockHasAppSession = jest.fn(async () => true);
++jest.mock('@/lib/auth/require-session', () => ({
++  hasAppSession: () => mockHasAppSession(),
++}));
++
+ jest.mock('@/lib/commercial/public-rate-limit', () => ({
+   enforcePublicRateLimit: jest.fn(async () => undefined),
+ }));
+@@ -137,4 +142,13 @@ describe('Orden 348 — La IA en la reunión interpreta cambios pero nunca guard
+       expect(ledSrc).not.toContain(simbolo);
+     }
+   });
++
++  it('sin sesión del equipo no consulta a la IA (un desconocido no gasta el tope diario)', async () => {
++    mockHasAppSession.mockResolvedValueOnce(false);
++    const { pedirTexto } = jest.requireMock('@/ai/cerebro') as { pedirTexto: jest.Mock };
++    pedirTexto.mockClear();
++    const r = await interpretarPedidoPresentacionIA({ frase: 'agregá la fuente de chocolate' });
++    expect(r.ok).toBe(false);
++    expect(pedirTexto).not.toHaveBeenCalled();
++  });
+ });
+diff --git a/src/app/(app)/asistente/asistente-client.tsx b/src/app/(app)/asistente/asistente-client.tsx
+index 661b794a2..f9e8360bb 100644
+--- a/src/app/(app)/asistente/asistente-client.tsx
++++ b/src/app/(app)/asistente/asistente-client.tsx
+@@ -660,7 +660,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
+           <div className="flex flex-wrap items-center justify-between gap-2">
+             <div>
+               <CardTitle className="text-base font-bold text-slate-900">
+-                Tareas automáticas ({tareas.length})
++                Tareas automáticas{loading ? '' : ` (${tareas.length})`}
+               </CardTitle>
+               <CardDescription className="text-xs">
+                 Todas las tareas declaradas en el sistema, con su última corrida y qué pasa si se frenan.
+@@ -771,7 +771,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
+           <CardHeader className="pb-3 border-b border-slate-100">
+             <div className="flex flex-wrap items-center justify-between gap-2">
+               <div>
+-                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos ({agentes.length})</CardTitle>
++                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos{loading ? '' : ` (${agentes.length})`}</CardTitle>
+                 <CardDescription className="text-xs">
+                   Prendé o pausá cada agente directamente desde acá.
+                 </CardDescription>
+diff --git a/src/app/(app)/empresa/insumos/page.tsx b/src/app/(app)/empresa/insumos/page.tsx
+index 7216d169d..889cf570f 100644
+--- a/src/app/(app)/empresa/insumos/page.tsx
++++ b/src/app/(app)/empresa/insumos/page.tsx
+@@ -338,7 +338,7 @@ function InventarioInsumosContent({ initialItems }: { initialItems?: ServicioEmp
+ 
+        <Card className="shadow-lg print:hidden">
+         <CardHeader>
+-          <CardTitle>Catálogo de Insumos ({filteredItems.length})</CardTitle>
++          <CardTitle>Catálogo de Insumos{isLoading ? '' : ` (${filteredItems.length})`}</CardTitle>
+           <div className="flex flex-col md:flex-row gap-2 pt-2">
+             <div className="relative flex-grow">
+                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+diff --git a/src/app/(app)/empresa/salones/page.tsx b/src/app/(app)/empresa/salones/page.tsx
+index 64a013c94..34c6dfcb4 100644
+--- a/src/app/(app)/empresa/salones/page.tsx
++++ b/src/app/(app)/empresa/salones/page.tsx
+@@ -796,7 +796,7 @@ function SalonesPageInner() {
+         <TabsContent value="todos">
+           <Card className="shadow-lg">
+             <CardHeader>
+-              <CardTitle className="font-headline text-lg">Salones Guardados ({salones.length})</CardTitle>
++              <CardTitle className="font-headline text-lg">Salones Guardados{isLoading ? '' : ` (${salones.length})`}</CardTitle>
+             </CardHeader>
+             <CardContent>
+               {isLoading ? (
+diff --git a/src/app/(app)/empresa/servicios/page.tsx b/src/app/(app)/empresa/servicios/page.tsx
+index 9b26b7d00..52911e48f 100644
+--- a/src/app/(app)/empresa/servicios/page.tsx
++++ b/src/app/(app)/empresa/servicios/page.tsx
+@@ -277,7 +277,7 @@ function CatalogoServiciosPageInner() {
+ 
+       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+         <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
+-          <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter">Listado Maestro de Servicios ({filteredItems.length})</CardTitle>
++          <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter">Listado Maestro de Servicios{isLoading ? '' : ` (${filteredItems.length})`}</CardTitle>
+           <div className="relative pt-4">
+             <Search className="absolute left-3 top-7 h-4 w-4 text-slate-400" />
+             <Input type="text" placeholder="Buscar por nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-white border-slate-200 shadow-sm text-base"/>
+diff --git a/src/app/actions/insumos.ts b/src/app/actions/insumos.ts
+index 1da8228ce..6776ae242 100644
+--- a/src/app/actions/insumos.ts
++++ b/src/app/actions/insumos.ts
+@@ -153,24 +153,10 @@ async function saveInsumoInterno(
+         (actual) => ({ ...actual, ...cambios } as ServicioEmpresa)
+       );
+       if (!guardado) {
+-        const { dbAdmin } = await import('@/lib/firebase/server');
+-        const firestoreVacio = dbAdmin
+-          ? (await dbAdmin.collection(INSUMOS_COLLECTION).limit(1).get()).empty
+-          : false;
+-        if (firestoreVacio) {
+-          await writeData(
+-            INSUMOS_FILE,
+-            inventario,
+-            (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''),
+-          );
+-          finalItemData = inventario[index];
+-        } else {
+-          limpiarCacheInsumos();
+-          return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+-        }
+-      } else {
+-        finalItemData = guardado;
++        limpiarCacheInsumos();
++        return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+       }
++      finalItemData = guardado;
+     }
+   } else {
+     if (itemIdBuscado && index === -1) {
+diff --git a/src/app/actions/menus-catering.ts b/src/app/actions/menus-catering.ts
+index 7cec0afb2..5dd5bdc24 100644
+--- a/src/app/actions/menus-catering.ts
++++ b/src/app/actions/menus-catering.ts
+@@ -453,21 +453,7 @@ export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa, operationId?
+         continue;
+       }
+       const guardado = await mutateDataItem<FullMenu>(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menu.id, (actual) => sinBuffetVirtual(cambiar(actual)) as FullMenu);
+-      if (!guardado) {
+-        const { dbAdmin } = await import('@/lib/firebase/server');
+-        const firestoreVacio = dbAdmin
+-          ? (await dbAdmin.collection(MENUS_CATERING_COLLECTION).limit(1).get()).empty
+-          : false;
+-        if (firestoreVacio) {
+-          const frescos = await readMenusFile();
+-          const i = frescos.findIndex((m) => m.id === menu.id);
+-          if (i === -1) continue;
+-          frescos[i] = cambiar(frescos[i]);
+-          await writeMenusFile(frescos);
+-          continue;
+-        }
+-        return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
+-      }
++      if (!guardado) return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
+     }
+     limpiarCacheMenusInterno();
+     return { success: true };
+diff --git a/src/app/actions/presentacion-ia.ts b/src/app/actions/presentacion-ia.ts
+index 94e41936e..1e1e6ced6 100644
+--- a/src/app/actions/presentacion-ia.ts
++++ b/src/app/actions/presentacion-ia.ts
+@@ -3,6 +3,7 @@
+ import { pedirTexto } from '@/ai/cerebro';
+ import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
++import { hasAppSession } from '@/lib/auth/require-session';
+ 
+ export interface ServicioPresentacionOption {
+   id: string;
+@@ -84,6 +85,11 @@ export async function interpretarPedidoPresentacionIA(input: {
+   frase: string;
+   servicios?: ServicioPresentacionOption[];
+ }): Promise<ResultadoPresentacionIA> {
++  // La presentación LED es pública, pero la IA la usa el equipo en la reunión: sin sesión, un desconocido podía gastar el
++  // tope diario de IA de la empresa (revisión de la entrega 346-349, 25/11/2026).
++  if (!(await hasAppSession())) {
++    return { ok: false, error: 'La IA de la reunión la usa el equipo: iniciá sesión para pedirle cambios.' };
++  }
+   await enforcePublicRateLimit({
+     scope: 'presentacion-led-ia',
+     limit: 40,
+diff --git a/src/app/experiencia/page.tsx b/src/app/experiencia/page.tsx
+index f95f2c155..4044ed691 100644
+--- a/src/app/experiencia/page.tsx
++++ b/src/app/experiencia/page.tsx
+@@ -107,8 +107,8 @@ function ExperienciaContent() {
+       .then((data) => {
+         if (activo && data) setCifras(data);
+       })
++      // no pasa nada si falla: se muestran las cifras base, que son las mismas que cuenta el servidor
+       .catch(() => {
+-        // Mantenemos cifras base locales si falla la consulta
+       });
+     return () => {
+       activo = false;
+diff --git a/src/app/presentacion-led/slides/testimonios-slide.tsx b/src/app/presentacion-led/slides/testimonios-slide.tsx
+index ff5773abb..29d8e6d8a 100644
+--- a/src/app/presentacion-led/slides/testimonios-slide.tsx
++++ b/src/app/presentacion-led/slides/testimonios-slide.tsx
+@@ -51,8 +51,8 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
+       .then((data) => {
+         if (vigente && data) setCifras(data);
+       })
++      // no pasa nada si falla: quedan las cifras base, sólo es una lectura para mostrar
+       .catch(() => {
+-        // Mantenemos cifras base si falla la consulta pública
+       });
+     return () => {
+       vigente = false;
+diff --git a/src/components/landing/StatsSection.tsx b/src/components/landing/StatsSection.tsx
+index b77a1f7d4..3e2f8deb3 100644
+--- a/src/components/landing/StatsSection.tsx
++++ b/src/components/landing/StatsSection.tsx
+@@ -78,8 +78,8 @@ export function StatsSection({ stats, cifras: cifrasIniciales }: StatsSectionPro
+       .then((res) => {
+         if (activo && res) setCifras(res);
+       })
++      // no pasa nada si falla: queda el cálculo local, sólo es una lectura para mostrar
+       .catch(() => {
+-        // Si falla la lectura pública, mantenemos el cálculo local seguro
+       });
+     return () => {
+       activo = false;

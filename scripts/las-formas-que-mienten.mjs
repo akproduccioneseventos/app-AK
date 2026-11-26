@@ -253,7 +253,8 @@ const FORMAS = [
     pregunta: 229,
     nombre: 'El título de la página con el nombre de la empresa que ya pone la plantilla',
     porque: 'Once páginas públicas salían "| AK Producciones | AK Producciones" en Google (cuarta auditoría externa, 25/11/2026).',
-    buscar: /\n  title:\s*['"`][^'"`\n]*\|\s*AK Producciones(?: Eventos)?['"`]/g,
+    // Sólo el objeto metadata escrito a mano: createEventLandingMetadata ya lo pasa como título absoluto.
+    buscar: /export const metadata[^=\n]*=\s*\{[^}]*?\n  title:\s*['"`][^'"`\n]*\|\s*AK Producciones(?: Eventos)?['"`]/g,
     comoSeArregla: 'Sacar el sufijo del title de primer nivel; openGraph y twitter lo conservan.',
   },
   {
