@@ -314,6 +314,13 @@ const FORMAS = [
     comoSeArregla: 'Marcar hecho sólo con la respuesta buena de afuera; si falla, queda pendiente y se reintenta.',
   },
   {
+    pregunta: 244,
+    nombre: 'Una copia de lo leído que pierde la marca de lectura fallida',
+    porque: 'leerFacturasSinGuardia hacía readData y enseguida .map: con la base caída, los recordatorios de cuota decían "al día" (robot, vuelta 14, 26/11/2026).',
+    buscar: /readData<[^>]+\[\]>\([^)]*\[\]\);\s*\n\s*return\s+\w+\.(?:map|filter)\(/g,
+    comoSeArregla: 'Pasar la marca a la copia (marcarLecturaFallida) o devolver la falla antes de copiar.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',
