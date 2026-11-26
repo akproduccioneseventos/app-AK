@@ -996,6 +996,14 @@
     "249": {
       "fecha": "2026-11-26",
       "resultado": "social-connections.ts devuelve la conexión con tokens en saveSocialCredentials y testInstagramConnection (3 lugares encontrados por el escaneo). El resto lo barre Gemini en la orden 373."
+    },
+    "250": {
+      "fecha": "2026-11-26",
+      "resultado": "clasificador-comentarios.ts sanitizarTextoRespuesta borra todos los números (lo encontró el escaneo). El resto lo barre Gemini en la orden 374."
+    },
+    "251": {
+      "fecha": "2026-11-26",
+      "resultado": "consolidar-compras.ts se queda con el isOrder del primer renglón. El resto de las uniones lo barre Gemini en la orden 374."
     }
   },
   "hallazgos": {
@@ -1518,6 +1526,10 @@
     "orden-373": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 18 (seis especialistas): tokens de redes en la respuesta (249) y despachador sin recortar, proveedor contado dos veces, comparativa sin recargo, pasar cobros 'correctamente' a ciegas (244), seña pagada dos veces, reintegro parcial como devolución total, voz del cliente sin reserva y fuera del control, marcas de tareas que se pisan (210), clima y diagnóstico (orden 194 sin hacer) y tope de avisos en Greenwich (70)."
+    },
+    "orden-374": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 19 (seis especialistas): baja de empleado y borrado de proveedor con lectura caída (210), llegada del personal colgada, Sincronizado del tótem sin leer, respuesta pública sin números (250), No publicar pisado por la lista vieja (22), docena sin convertir (227), pantalla vs pedido y pedido fijo que no descuenta stock (251)."
     }
   }
 }
