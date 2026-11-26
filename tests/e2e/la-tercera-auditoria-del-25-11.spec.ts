@@ -14,18 +14,21 @@ test.describe('Orden 349 - Tercera auditoría del 25/11 en celular (390 px)', ()
   test('en /simulador-ak el campo se ve y el botón enviar queda dentro de 390 px', async ({ page }) => {
     await page.goto('/simulador-ak', { waitUntil: 'domcontentloaded' });
 
-    const input = page.locator('input[placeholder*="Sofía"]');
+    const input = page.locator('input[placeholder*="Sofía"]:visible').first();
     await expect(input).toBeVisible({ timeout: 25_000 });
-    const sendBtn = page.getByRole('button', { name: 'Enviar mensaje' });
+    const sendBtn = page.getByRole('button', { name: 'Enviar mensaje' }).locator('visible=true').first();
     await expect(sendBtn).toBeVisible({ timeout: 15_000 });
 
-    const inputBox = await input.boundingBox();
-    // El botón se vuelve a pintar cuando carga Sofía: se espera a que tenga caja, no se lee una sola vez.
-    await expect.poll(async () => (await sendBtn.boundingBox()) !== null, { timeout: 10_000 }).toBe(true);
-    const btnBox = await sendBtn.boundingBox();
-    expect(inputBox?.width).toBeGreaterThan(120);
-    expect(btnBox).not.toBeNull();
-    expect((btnBox?.x ?? 0) + (btnBox?.width ?? 0)).toBeLessThanOrEqual(390);
+    // Se mide el campo y el botón en el mismo instante, adentro de la página: Sofía repinta el chat al cargar.
+    await expect.poll(async () => page.evaluate(() => {
+      const campo = document.querySelector('input[placeholder*="Sofía"]') as HTMLElement | null;
+      const boton = document.querySelector('button[aria-label="Enviar mensaje"]') as HTMLElement | null;
+      if (!campo || !boton) return 'falta';
+      const c = campo.getBoundingClientRect();
+      const b = boton.getBoundingClientRect();
+      if (c.width === 0 || b.width === 0) return 'sin caja';
+      return c.width > 120 && b.right <= 390 ? 'ok' : `campo ${Math.round(c.width)} / boton termina en ${Math.round(b.right)}`;
+    }), { timeout: 15_000 }).toBe('ok');
   });
 
   test('en /empleados a 390 px se ve el teléfono de la persona sin deslizar', async ({ page, context }, testInfo) => {
