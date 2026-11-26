@@ -245,6 +245,34 @@
       ],
       "orden": 364,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T08:41",
+      "areas": [
+        "barra",
+        "permisos"
+      ],
+      "aspecto": "permisos (quién puede hacer qué)",
+      "robot_todo": "no repetido: la app publicada no cambió en pantallas",
+      "gemini": "sin commits nuevos",
+      "hallazgos_confirmados": [
+        "despachador sin clave corre las tareas que mandan y borran",
+        "force=1 del blog sin clave",
+        "pedido del tótem asociado a cualquier invitado con el mismo nombre",
+        "pedido de otra fiesta encontrado por id"
+      ],
+      "descartados": [
+        "acciones de gestión de la barra con permiso",
+        "enlace del invitado mirado contra la fiesta",
+        "claves comparadas con clavesIguales",
+        "rutas de respaldo, contratos, comprobantes y descargas con permiso",
+        "lista de listos pública: ya en orden 356",
+        "tótem por nombre sin sesión: decisión",
+        "carta pública con stock: la usa para 'agotado'",
+        "estado del pago con id aleatorio"
+      ],
+      "orden": 365,
+      "corregidos": []
     }
   ]
 }

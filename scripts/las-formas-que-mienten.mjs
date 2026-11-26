@@ -286,6 +286,13 @@ const FORMAS = [
     comoSeArregla: 'Preguntar primero y ejecutar sólo si el mensaje siguiente es un sí solo; lo que dice el modelo no confirma.',
   },
   {
+    pregunta: 238,
+    nombre: 'Una ruta que, sin clave configurada, deja pasar a cualquiera y corre lo que manda',
+    porque: 'El despachador, sin CRON_SECRET, dejaba que cualquiera desde internet disparara los recordatorios a invitados y los avisos al cliente (robot, vuelta 10, 26/11/2026).',
+    buscar: /if\s*\(\s*!\s*\w*(?:[Ss]ecret|[Cc]lave)\w*\s*\)\s*\{?[^}]{0,300}?(?:return\s+true|autorizado:\s*true)/g,
+    comoSeArregla: 'Sin clave, correr sólo lo que no manda mensajes ni borra; lo que manda espera la clave.',
+  },
+  {
     pregunta: 202,
     nombre: 'El control que deja pasar si tarda',
     porque: 'El filtro de contactos personales contestaba "no bloquear" cuando tardaba y el número personal entraba al CRM (auditoría externa 21/11/2026).',

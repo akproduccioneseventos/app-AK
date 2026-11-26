@@ -64,6 +64,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       llegadas, el contrato engancha el recibo de seña que ya existe y la firma ya hecha no dice "registrada".
   15. **Orden 364 (`docs/ordenes/364-gemini-robot-vuelta-9-cuotas-cocina-y-bebidas.md`):** una cuota cobrada se ve cobrada
       en todos lados, el celíaco vegetariano llega a la cocina y las bebidas no se multiplican por los invitados.
+  16. **Orden 365 (`docs/ordenes/365-gemini-robot-vuelta-10-despachador-y-barra.md`):** sin clave, el despachador no manda
+      mensajes ni borra, y la barra no confunde a dos invitados con el mismo nombre.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

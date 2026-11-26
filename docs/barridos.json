@@ -948,6 +948,10 @@
     "237": {
       "fecha": "2026-11-26",
       "resultado": "Cuotas pagadas en planDePagos y saldo desde pagosCliente: portal del cliente, portal público, asistente, cobrador y Finanzas leen libros distintos. El resto de los lectores lo barre Gemini en la orden 364."
+    },
+    "238": {
+      "fecha": "2026-11-26",
+      "resultado": "cron-despachador corre sin clave todas las tareas de al-entrar-a-la-app, incluidas las que mandan; despertar sólo anota el toque. El resto de las rutas con verificación propia lo barre Gemini en la orden 365."
     }
   },
   "hallazgos": {
@@ -1434,6 +1438,10 @@
     "orden-364": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 9 (plata y comida, las cuentas): cuotas pagadas que no llegan al saldo del presupuesto (pregunta 237), celíaco que además es vegetariano fuera de la hoja de cocina, platos tomados como infantiles por tener 'nin', bebidas multiplicadas por los invitados en la contabilidad."
+    },
+    "orden-365": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 10 (barra y permisos de las rutas /api): el despachador sin clave corre las tareas que mandan mensajes y borran (pregunta 238), force=1 del blog sin clave, pedidos del tótem asociados a cualquier invitado con el mismo nombre, pedido de otra fiesta encontrado por id."
     }
   }
 }
