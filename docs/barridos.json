@@ -932,6 +932,10 @@
     "233": {
       "fecha": "2026-11-26",
       "resultado": "La marca photosUploaded del Video de Vida (se prende con la primera foto y no se apaga al borrar) en la orden 359; el resto de marcas \"true\" lo revisa Gemini en el barrido de esa orden."
+    },
+    "234": {
+      "fecha": "2026-11-26",
+      "resultado": "Posteos programados que se publican sin volver a mirar el permiso de la foto (publicador.ts); el resto de lo programado lo barre Gemini en la orden 361."
     }
   },
   "hallazgos": {
@@ -1402,6 +1406,10 @@
     "orden-360": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 5 (invitado, estaciones, botones del panel): confirmar sin enlace borraba la marca de celíaco de quien ya estaba (pregunta 210, una escritura que pisa lo guardado), tope de confirmaciones bajo para un wifi compartido, aviso de la fotocabina heredado por el siguiente invitado (error 10), \"resumen visto\" sin mirar el resultado. Barridos en la orden 360."
+    },
+    "orden-361": {
+      "fecha": "2026-11-26",
+      "resultado": "Robot vuelta 6 (web, redes, sincronización de documentos enteros): simulador que no avisa si no guardó, datos internos del servicio en la carga pública, permiso de la foto no revisado al publicar (pregunta 234), aviso al dueño marcado sin salir (pregunta 122), siete documentos leídos y reescritos sin turno (pregunta 22)."
     }
   }
 }

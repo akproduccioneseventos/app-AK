@@ -336,6 +336,7 @@ const PREGUNTAS_QUE_NO_SE_PUEDEN_ESCANEAR = {
   219: 'Agregar antes de confirmar es un comportamiento: lo cubre tests/e2e de la orden 338 (carta de tragos, cancelar no deja nada).',
   225: 'Lo guardado para volver que nadie lee cruza archivos: lo cubre tests/e2e/la-presentacion-led-no-pierde-la-propuesta.spec.ts (orden 338).',
   230: 'Un estado que nunca se cierra con el tiempo es un comportamiento: lo cubre tests/e2e/la-cuarta-auditoria-del-25-11.spec.ts (cita de ayer, orden 355).',
+  234: 'Que un permiso se mire al ejecutar y no sólo al programar es un comportamiento: lo cubre src/__tests__/redes-mira-el-permiso-al-publicar.test.ts (orden 361).',
   227: 'Comparar dos fórmulas sobre los datos es una medición, no un texto: lo cubre src/__tests__/el-costo-del-plato-no-sale-mil-veces-mas-caro.test.ts.',
   226: 'Lo de prueba en lo público es un dato, no un texto: lo cubre src/__tests__/auditoria-338-plata-y-lo-publico.test.ts (orden 338).',
   215: 'Lectura recortada que después pide lo recortado: es el camino de los datos, no un texto; lo cubre la prueba los-accesos-de-afuera-llegan de la orden 337.',
