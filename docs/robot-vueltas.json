@@ -53,6 +53,30 @@
       ],
       "orden": 357,
       "corregidos": []
+    },
+    {
+      "fecha": "2026-11-26T01:42",
+      "areas": [
+        "plata",
+        "permisos"
+      ],
+      "aspecto": "integraciones",
+      "robot_todo": "no repetido: la app no cambió desde la vuelta 2 (sólo documentos)",
+      "hallazgos_confirmados": [
+        "20 archivos llaman a la IA sin pasar por el cerebro"
+      ],
+      "descartados": [
+        "auditor que escribe en cualquier fiesta: el candado de solo lectura frena todo guardado",
+        "libro contable con archivados: el panel le pasa la lista sin archivados",
+        "proveedor que ve sus propias notas: es su registro",
+        "pedidos listos con guestId: ya pedido en la 356"
+      ],
+      "areas_limpias_esta_vuelta": [
+        "plata",
+        "permisos"
+      ],
+      "orden": 358,
+      "corregidos": []
     }
   ]
 }

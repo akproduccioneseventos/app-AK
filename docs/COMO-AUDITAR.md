@@ -2129,3 +2129,9 @@ siempre, contadas como pendientes del mes. Si nada lo cierra, la pantalla la mue
 
 Cuarta auditoría externa del 25/11/2026: el perfil decía "contraseña compartida" a quien entró con Google, y las citas
 decían "Oficina AK Producciones" cuando no hay oficina (decisión del dueño, 17/11).
+
+### 232. Una llamada a la IA, ¿pasa por el cerebro o por una puerta lateral que hace lo mismo?
+
+Tercera vuelta del robot, 26/11/2026: 20 archivos usaban `generateWithGeminiFallback` de `src/ai/genkit.ts`, que llama a la
+IA sin el tope central ni el registro. El control buscaba sólo `ai.generate(`. Cuando se cierra una puerta, se buscan también
+las funciones que la envuelven.
