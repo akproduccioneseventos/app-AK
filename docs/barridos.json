@@ -1562,6 +1562,10 @@
     "orden-376": {
       "fecha": "2026-11-26",
       "resultado": "Robot vuelta 21 (seis especialistas): mail de la reunión que sale solo (256), asistente sin permisos de contable y comercial (35), disponibilidad de decoración con fiestas ajenas (35), tareas y fotos del portal que se pisan (22), briefing 'guardado' sin guardar (160), agentes de la noche a ciegas (210), resumen de la mañana sin preventivas (255), IA de reuniones sin tope, fechas de la noche en panel, contador y firma (70), cierre de barra sin lo sin alcohol (257)."
+    },
+    "orden-377": {
+      "fecha": "2026-11-27",
+      "resultado": "Revisión 1475: insumo y activo fijo 'no persisten' en el robot; con base de prueba guardan bien (src/__tests__/el-insumo-y-el-activo-guardan.test.ts). El robot recargaba antes de que el guardado terminara; ahora espera. Gemini confirma con la puerta."
     }
   }
 }
