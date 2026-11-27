@@ -13,18 +13,25 @@ import { ARCHIVOS_QUE_GOOGLE_LEE, PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/se
  * equipo queden afuera. La lista está en `@/lib/seo/paginas-publicas`.
  */
 export default function robots(): MetadataRoute.Robots {
+  // El blog entero, no nota por nota: las que escribe la inteligencia
+  // artificial se guardan en la base y no están en la lista fija, así que
+  // sin esto quedaban prohibidas justo las nuevas.
+  const allowPublicas = [
+    ...PAGINAS_PARA_GOOGLE.map((ruta) => (ruta === '/fiestas' ? '/fiestas$' : ruta)),
+    ...ARCHIVOS_QUE_GOOGLE_LEE,
+    '/blog/',
+  ];
+
   return {
     rules: [
+      ...['Googlebot', 'Bingbot', 'OAI-SearchBot', 'PerplexityBot', 'ClaudeBot'].map((userAgent) => ({
+        userAgent,
+        allow: allowPublicas,
+        disallow: '/',
+      })),
       {
         userAgent: '*',
-        // El blog entero, no nota por nota: las que escribe la inteligencia
-        // artificial se guardan en la base y no estan en la lista fija, asi que
-        // sin esto quedaban prohibidas justo las nuevas.
-        allow: [
-          ...PAGINAS_PARA_GOOGLE.map((ruta) => (ruta === '/fiestas' ? '/fiestas$' : ruta)),
-          ...ARCHIVOS_QUE_GOOGLE_LEE,
-          '/public/blog/',
-        ],
+        allow: allowPublicas,
         disallow: '/',
       },
     ],

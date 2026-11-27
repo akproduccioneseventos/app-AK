@@ -3,11 +3,43 @@ import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
+import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
+import { AK_WHATSAPP_PARA_MOSTRAR } from '@/lib/public-contact';
+
+const WHATSAPP_LOCAL = `0${AK_WHATSAPP_PARA_MOSTRAR.replace('+598 ', '')}`;
+
+const INFANTILES_FAQS = [
+  {
+    pregunta: '¿Para qué edades organizan fiestas infantiles?',
+    respuesta:
+      'Organizamos cumpleaños infantiles desde los primeros años hasta preadolescentes, adaptando la música, la decoración y la propuesta a cada etapa.',
+  },
+  {
+    pregunta: '¿Se puede hacer en mi casa o en otro salón?',
+    respuesta:
+      'Sí. Podemos realizar la fiesta en el Salón Club Uruguay (50 a 250 personas según el montaje, Uruguay 754), en otro salón de Salto o llevar nuestros servicios directamente a tu casa.',
+  },
+  {
+    pregunta: '¿Qué comida hay para los chicos?',
+    respuesta:
+      'Armamos opciones prácticas y ricas pensadas para los chicos, y además sumamos alternativas para los adultos y familiares que acompañan.',
+  },
+  {
+    pregunta: '¿Cómo se reserva?',
+    respuesta: `Consultás por WhatsApp al ${WHATSAPP_LOCAL} o armás tu estimación en el simulador, definimos los servicios en una sola reunión y reservás toda la fiesta con una única seña.`,
+  },
+  {
+    pregunta: '¿Incluye música, fotocabina y fotografía?',
+    respuesta:
+      'Sí. Podés sumar discoteca con luces adaptadas, fotocabina con tiras impresas para que las familias se lleven su recuerdo y cobertura fotográfica del cumple.',
+  },
+];
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'fiestas-infantiles',
   title: 'Fiestas infantiles en Salto',
-  description: 'Organizamos fiestas infantiles en Salto para que mamá y papá también disfruten: salón, organización, comida, decoración, discoteca, fotocabina y fotografía en un solo lugar.',
+  description:
+    'Organizamos fiestas infantiles en Salto para que mamá y papá también disfruten: salón, organización, comida, decoración, discoteca, fotocabina y fotografía en un solo lugar.',
   image: '/media/catalogo-servicios/familia_feliz_evento.png',
   imageAlt: 'Imagen ilustrativa de una fiesta infantil en familia',
 });
@@ -18,9 +50,16 @@ export default function FiestasInfantilesLanding() {
       <LocalBusinessJsonLd url="https://akproducciones.uy/fiestas-infantiles" />
       <ServiceJsonLd
         name="Fiestas infantiles en Salto"
+        serviceType="Fiestas infantiles"
         description="Organización integral de cumpleaños infantiles en Salto: salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotocabina y fotografía."
         image="https://akproducciones.uy/media/catalogo-servicios/familia_feliz_evento.png"
         url="https://akproducciones.uy/fiestas-infantiles"
+      />
+      <FAQJsonLd
+        items={INFANTILES_FAQS.map((item) => ({
+          question: item.pregunta,
+          answer: item.respuesta,
+        }))}
       />
       <EventLandingPage
         eventType="Fiestas infantiles"
@@ -99,24 +138,8 @@ export default function FiestasInfantilesLanding() {
             esIlustrativa: true,
           },
         ]}
-        faqs={[
-          {
-            pregunta: '¿Para qué edades organizan fiestas infantiles?',
-            respuesta: 'Organizamos cumpleaños infantiles desde los primeros años hasta preadolescentes, adaptando la música, la decoración y la propuesta a cada etapa.',
-          },
-          {
-            pregunta: '¿Se puede hacer en mi casa o en otro salón?',
-            respuesta: 'Sí. Podemos realizar la fiesta en el Salón Club Uruguay, en otro salón de Salto o llevar nuestros servicios directamente a tu casa.',
-          },
-          {
-            pregunta: '¿Qué comida hay para los chicos?',
-            respuesta: 'Armamos opciones prácticas y ricas pensadas para los chicos, y además sumamos alternativas para los adultos y familiares que acompañan.',
-          },
-          {
-            pregunta: '¿Cómo se reserva?',
-            respuesta: 'Consultás por WhatsApp o armás tu estimación en el simulador, definimos los servicios en una sola reunión y reservás toda la fiesta con una única seña.',
-          },
-        ]}
+        faqs={INFANTILES_FAQS}
+        lastUpdated="27 de noviembre de 2026"
       />
     </>
   );

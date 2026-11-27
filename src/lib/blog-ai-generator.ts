@@ -129,7 +129,7 @@ async function savePostAndSocial(post: BlogPost, existingPosts?: BlogPost[]) {
     '',
     `Consejo clave: ${post.takeaway}`,
     '',
-    `Lee los consejos completos y usa el simulador de presupuestos en https://akproducciones.uy/public/blog/${post.slug}`,
+    `Lee los consejos completos y usa el simulador de presupuestos en https://akproducciones.uy/blog/${post.slug}`,
     '',
     '#akproducciones #eventos #salto #uruguay #catering #bodas',
   ].join('\n');
@@ -140,7 +140,7 @@ async function savePostAndSocial(post: BlogPost, existingPosts?: BlogPost[]) {
     isGeneralCampaign: true,
     publishDate: new Date().toISOString(),
     text: socialText,
-    link: `https://akproducciones.uy/public/blog/${post.slug}`,
+    link: `https://akproducciones.uy/blog/${post.slug}`,
     mediaUrl: post.image?.url || '',
     mediaType: 'image',
     status: 'Programado',

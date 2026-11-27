@@ -23,7 +23,6 @@ const PANTALLAS = [
   '/blog',
   '/landing',
   '/presentacion',
-  '/public/blog',
   '/landing/xv-anos',
   '/public',
   '/portal-cliente',

@@ -34,6 +34,8 @@ export interface ServiceItem {
 
 const PARTY_TYPES: Array<{
   title: string;
+  badge: string;
+  subtitle: string;
   description: string;
   imageUrl: string;
   href: string;
@@ -41,28 +43,36 @@ const PARTY_TYPES: Array<{
 }> = [
   {
     title: "Bodas",
-    description: "Ceremonia, cena y fiesta coordinadas por un mismo equipo.",
+    badge: "Fiesta completa",
+    subtitle: "Servicio integral",
+    description: "Ceremonia, comida, barra, discoteca y coordinación en un solo lugar para celebrar sin estrés.",
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.boda,
     href: "/simulador-de-presupuesto?tipo=boda",
     icon: Heart,
   },
   {
     title: "Fiestas de 15",
-    description: "Una noche personal, con pista, recuerdos y energía para celebrar.",
+    badge: "Todo resuelto",
+    subtitle: "Todo en un solo lugar",
+    description: "Una noche personal con pista, comida, tecnología interactiva y energía para disfrutar en familia.",
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.xv,
     href: "/simulador-de-presupuesto?tipo=15-anos",
     icon: Crown,
   },
   {
     title: "Cumpleaños y sociales",
-    description: "Gastronomía, barra y música pensadas según cada grupo.",
+    badge: "Fiesta completa",
+    subtitle: "Servicio integral",
+    description: "Comida, barra, ambientación y discoteca pensadas según tu grupo, con un solo equipo al mando.",
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.social,
     href: "/simulador-de-presupuesto?tipo=social",
     icon: Sparkles,
   },
   {
     title: "Eventos empresariales",
-    description: "Recepciones y encuentros con puesta técnica y operativa.",
+    badge: "Todo resuelto",
+    subtitle: "Todo en un solo lugar",
+    description: "Recepciones y encuentros de fin de año con servicio integral, comida y puesta técnica operativa.",
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.corporativo,
     href: "/simulador-de-presupuesto?tipo=corporativo",
     icon: Building2,
@@ -73,9 +83,10 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: "bodas",
     title: "Bodas Inolvidables",
-    subtitle: "Producción integral",
-    description: "Una propuesta unificada para que la pareja no tenga que coordinar proveedores por separado.",
-    features: ["Coordinación del evento", "Catering y barra", "Ambientación, música y luces"],
+    subtitle: "Servicio integral",
+    badge: "Fiesta completa",
+    description: "Todo en un solo lugar para que la pareja no tenga que coordinar proveedores por separado.",
+    features: ["Coordinación del evento", "Comida y barra", "Ambientación, discoteca y luces"],
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.boda,
     imageHint: "Boda AK Producciones",
     accentColor: "",
@@ -86,9 +97,10 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: "xv-anos",
     title: "15 Años de Vanguardia",
-    subtitle: "Una experiencia completa",
-    description: "Una producción con identidad propia, tecnología y una coordinación que cuida cada momento.",
-    features: ["Pista y luces LED", "Muro social y recuerdos", "Catering y coordinación"],
+    subtitle: "Todo en un solo lugar",
+    badge: "Todo resuelto",
+    description: "Una fiesta completa con identidad propia, tecnología y coordinación que cuida cada momento.",
+    features: ["Pista y luces LED", "Muro social y recuerdos", "Comida y coordinación"],
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.xv,
     imageHint: "Fiesta de quince años AK Producciones",
     accentColor: "",
@@ -99,8 +111,9 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: "cumpleanos",
     title: "Cumpleaños y Aniversarios",
-    subtitle: "A medida",
-    description: "Una celebración con la escala correcta: comida, barra, música y el equipo necesario para disfrutarla.",
+    subtitle: "Servicio integral a medida",
+    badge: "Fiesta completa",
+    description: "Una celebración con la escala correcta: comida, barra, discoteca y todo resuelto en un solo lugar.",
     features: ["Menú según invitados", "Barra y discoteca", "Montaje y logística"],
     imageUrl: PUBLIC_EVENT_TYPE_IMAGES.social,
     imageHint: "Evento social AK Producciones",
@@ -167,13 +180,15 @@ export function ServicesSection({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div {...reveal} className="grid gap-8 border-b border-neutral-200 pb-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div>
-            <p className="text-sm font-bold text-red-700">Producción integral AK</p>
-            <h2 className="mt-3 max-w-3xl font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
-              Una sola conversación. Todos los servicios que tu fiesta necesita.
+            <p className="text-sm font-bold tracking-wide text-red-700">
+              Servicio integral AK · Todo en un solo lugar
+            </p>
+            <h2 className="mt-3 max-w-3xl font-headline text-3xl font-black leading-tight text-slate-950 sm:text-5xl text-balance">
+              Todo en un solo lugar. Una sola conversación para tu fiesta completa.
             </h2>
           </div>
           <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Reunimos catering, barra, ambientación, mobiliario, discoteca, tecnología y coordinación. Cada propuesta se adapta a tu fecha, estilo e invitados.
+            Reunimos comida, barra, ambientación, mobiliario, discoteca, tecnología y coordinación. Cada propuesta se adapta a tu fecha, estilo e invitados.
           </p>
         </motion.div>
 
@@ -201,7 +216,7 @@ export function ServicesSection({
               >
                 <Link
                   href={party.href}
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-neutral-50 shadow-sm transition-all duration-300 hover:border-red-300 hover:bg-white hover:shadow-xl"
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/[0.03] transition-all duration-300 hover:border-red-300/90 hover:shadow-[0_20px_44px_-16px_rgba(185,28,28,0.16)]"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
                     <Image
@@ -213,13 +228,22 @@ export function ServicesSection({
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-5">
-                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100/80 text-red-700">
-                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100/80 text-red-700">
+                        <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                      </div>
+                      <span className="inline-flex items-center rounded-full border border-red-200/80 bg-red-50/90 px-2.5 py-1 text-[11px] font-bold tracking-wide text-red-800">
+                        {party.badge}
+                      </span>
                     </div>
-                    <h3 className="mt-3 font-headline text-xl font-black text-slate-950">{party.title}</h3>
+                    <p className="mt-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      {party.subtitle}
+                    </p>
+                    <h3 className="mt-1 font-headline text-xl font-black text-slate-950">{party.title}</h3>
                     <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{party.description}</p>
-                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-black text-red-700 transition-transform duration-200 group-hover:translate-x-1">
-                      Ver propuesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    <span className="mt-5 inline-flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-red-100 bg-red-50/60 px-3.5 py-2 text-sm font-black text-red-700 transition-all duration-200 group-hover:border-red-200 group-hover:bg-red-50">
+                      <span className="truncate">Armar esta propuesta</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
                     </span>
                   </div>
                 </Link>
@@ -236,7 +260,8 @@ export function ServicesSection({
             <h2 className="mt-2 font-headline text-3xl font-black text-slate-950 sm:text-4xl">Sumá una experiencia especial.</h2>
           </div>
           <Link href="/simulador-de-presupuesto" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-700 transition-colors hover:text-red-700">
-            Simular mi presupuesto <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <span className="truncate">Simular mi presupuesto</span>
+            <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
           </Link>
         </div>
 
@@ -257,10 +282,15 @@ export function ServicesSection({
                 key={service.id}
                 variants={reduceMotion ? undefined : { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } } }}
                 whileHover={reduceMotion ? undefined : { y: -6, transition: { duration: 0.25 } }}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:border-red-300 hover:shadow-xl"
+                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-black/[0.03] transition-all duration-300 hover:border-red-300 hover:shadow-xl"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-neutral-200">
                   <ServiceImage service={service} />
+                  {service.badge && (
+                    <span className="absolute left-3 top-3 rounded-full border border-white/30 bg-black/70 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                      {service.badge}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-start justify-between gap-4">
@@ -277,7 +307,7 @@ export function ServicesSection({
                       {service.features.slice(0, 3).map((feature) => (
                         <li key={feature} className="flex gap-2">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-red-700" aria-hidden="true" />
-                          {feature}
+                          <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -288,10 +318,10 @@ export function ServicesSection({
                     rel="noopener noreferrer"
                     whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                     whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-                    className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 transition-all hover:border-red-700 hover:bg-red-50 hover:text-red-700"
+                    className="mt-7 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 transition-all hover:border-red-700 hover:bg-red-50 hover:text-red-700"
                   >
-                    <MessageCircle className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                    Consultar esta propuesta
+                    <MessageCircle className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                    <span className="truncate">Consultar esta propuesta</span>
                   </motion.a>
                 </div>
               </motion.article>

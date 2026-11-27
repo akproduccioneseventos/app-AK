@@ -1,10 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { CompanyLogo } from '@/components/company-logo';
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { LandingNav } from '@/components/landing/LandingNav';
 
 interface PublicNavbarProps {
   whatsappNumber?: string;
@@ -13,58 +9,19 @@ interface PublicNavbarProps {
 }
 
 export function PublicNavbar({
-  whatsappNumber = AK_WHATSAPP_NUMBER,
-  whatsappMessage = '¡Hola AK Producciones! Quiero consultar sobre sus servicios.',
+  whatsappNumber,
+  whatsappMessage,
   className,
 }: PublicNavbarProps) {
-  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 w-full',
-        'border-b border-slate-200 bg-white/90 backdrop-blur-md',
-        'shadow-sm',
-        className
-      )}
-    >
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo + Brand */}
-        <Link href="/" className="flex items-center gap-3 group min-h-10 min-w-10">
-          <CompanyLogo size="sm" className="group-hover:scale-110 transition-transform duration-200" />
-          <span className="text-sm font-black uppercase tracking-widest text-slate-800 hidden sm:block">
-            AK Producciones
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
-          <Link href="/" className="transition hover:text-red-700">
-            Inicio
-          </Link>
-          <Link href="/public/blog" className="transition hover:text-red-700">
-            Blog
-          </Link>
-          <Link href="/simulador-de-presupuesto" className="transition hover:text-red-700">
-            Simulador
-          </Link>
-        </nav>
-
-        <a href={waHref} target="_blank" rel="noopener noreferrer">
-          <button
-            className={cn(
-              'flex min-h-10 items-center gap-2 rounded-md px-4 py-2',
-              'bg-[#25D366] hover:bg-[#1eb356]',
-              'text-white font-black text-xs uppercase tracking-widest',
-              'shadow-md shadow-green-900/20',
-              'transition-all duration-200 hover:scale-105 active:scale-95'
-            )}
-          >
-            <MessageSquare className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline">¡Consultanos!</span>
-            <span className="sm:hidden">WhatsApp</span>
-          </button>
-        </a>
-      </div>
-    </header>
+    <>
+      <LandingNav
+        solid
+        whatsappNumber={whatsappNumber}
+        whatsappMessage={whatsappMessage}
+        className={className}
+      />
+      <div className="h-16 md:h-20" aria-hidden="true" />
+    </>
   );
 }

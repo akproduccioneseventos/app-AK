@@ -13,14 +13,14 @@ import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
 import { CompartirArticulo } from '@/components/public/CompartirArticulo';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { ArticleJsonLd } from '@/components/seo/ArticleJsonLd';
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
-
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 
@@ -29,8 +29,6 @@ export async function generateStaticParams() {
   const posts = (postsFromDb && postsFromDb.length > 0) ? postsFromDb : defaultBlogPosts;
   return posts.map((post) => ({ slug: post.slug }));
 }
-
-import { ArticleJsonLd } from '@/components/seo/ArticleJsonLd';
 
 function recortarTituloSeo(titulo: string, max = 42): string {
   const limpio = titulo.trim();
@@ -49,14 +47,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: 'Blog AK Producciones' };
 
   const image = getBlogPostImage(post);
-  const url = `https://akproducciones.uy/public/blog/${slug}`;
+  const url = `https://akproducciones.uy/blog/${slug}`;
 
   return {
     metadataBase: new URL('https://akproducciones.uy'),
     title: recortarTituloSeo(post.title, 42),
     description: post.excerpt,
     alternates: {
-      canonical: `/public/blog/${slug}`,
+      canonical: `/blog/${slug}`,
     },
     openGraph: {
       title: `${post.title} | Blog AK Producciones Eventos`,
@@ -103,7 +101,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-white font-body text-slate-900">
       <ArticleJsonLd
-        url={`https://akproducciones.uy/public/blog/${post.slug}`}
+        url={`https://akproducciones.uy/blog/${post.slug}`}
         title={post.title}
         description={post.excerpt}
         image={getBlogPostImage(post)}
@@ -128,7 +126,7 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="relative z-10 mx-auto max-w-4xl px-4">
             <div className="flex items-center justify-between mb-8">
               <Link
-                href="/public/blog"
+                href="/blog"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-wider text-white/95 transition hover:bg-white/15"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -254,7 +252,7 @@ export default async function BlogPostPage({ params }: Props) {
               {/* Compartir artículo */}
               <CompartirArticulo
                 title={post.title}
-                url={`https://akproducciones.uy/public/blog/${post.slug}`}
+                url={`https://akproducciones.uy/blog/${post.slug}`}
               />
 
               {/* FAQs Accordion */}
@@ -276,7 +274,7 @@ export default async function BlogPostPage({ params }: Props) {
                   return (
                     <Link
                       key={item.slug}
-                      href={`/public/blog/${item.slug}`}
+                      href={`/blog/${item.slug}`}
                       className="group flex w-full min-w-0 gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-lg"
                     >
                       <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-950 text-white">

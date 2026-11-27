@@ -159,8 +159,8 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/blog',
-        destination: '/public/blog',
+        source: '/public/blog',
+        destination: '/blog',
         permanent: true,
       },
       // Los tableros viejos de la fiesta van directo a su centro desde el servidor, sin cargar la pantalla del equipo
@@ -172,8 +172,8 @@ const nextConfig = {
         permanent: false,
       })),
       {
-        source: '/blog/:slug',
-        destination: '/public/blog/:slug',
+        source: '/public/blog/:slug',
+        destination: '/blog/:slug',
         permanent: true,
       },
       {

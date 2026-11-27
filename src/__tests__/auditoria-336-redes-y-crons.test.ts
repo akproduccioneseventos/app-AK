@@ -663,9 +663,9 @@ describe('Orden 336 Bloque 5 (Sección H)', () => {
 
     const entries = await sitemap();
     const urls = entries.map((e) => e.url);
-    expect(urls.some((u) => u.endsWith('/public/blog/nota-publicada-ok'))).toBe(true);
-    expect(urls.some((u) => u.endsWith('/public/blog/nota-borrador-secreto'))).toBe(false);
-    expect(urls.some((u) => u.endsWith('/public/blog/nota-borrador-es'))).toBe(false);
-    expect(urls.some((u) => u.endsWith('/public/blog/nota-futura-programada'))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/blog/nota-publicada-ok'))).toBe(true);
+    expect(urls.some((u) => u.endsWith('/blog/nota-borrador-secreto'))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/blog/nota-borrador-es'))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/blog/nota-futura-programada'))).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Music, MessageSquare, Building2, MapPin, Sparkles, Phone, ArrowUpRight, ShieldCheck, Heart } from 'lucide-react';
 import { CompanyLogo } from '@/components/company-logo';
+import { SuscripcionBlogForm } from '@/components/public/SuscripcionBlogForm';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS, AK_WHATSAPP_PARA_MOSTRAR } from '@/lib/public-contact';
@@ -248,7 +249,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 </a>
               </li>
               <li>
-                <Link href="/public/blog" className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link href="/blog" className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Blog & Guías de Organización
                 </Link>
@@ -319,6 +320,11 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </div>
           </div>
 
+        </div>
+
+        {/* Suscripción al Blog */}
+        <div className="pt-8 border-t border-white/10">
+          <SuscripcionBlogForm variant="dark" />
         </div>
 
         {/* Bottom Copyright Row */}

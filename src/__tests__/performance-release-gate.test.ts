@@ -48,8 +48,8 @@ describe("performance release gate", () => {
     const publicBlogFiles = [
       "src/components/landing/BlogSection.tsx",
       "src/components/public/BlogInteractiveList.tsx",
-      "src/app/public/blog/page.tsx",
-      "src/app/public/blog/[slug]/page.tsx",
+      "src/app/blog/page.tsx",
+      "src/app/blog/[slug]/page.tsx",
     ];
 
     for (const file of publicBlogFiles) {

@@ -48,7 +48,7 @@ describe('Auditoría real de títulos, SEO y Posicionamiento', () => {
     expect(PAGINAS_PARA_GOOGLE).toContain('/quinceaneras');
     expect(PAGINAS_PARA_GOOGLE).toContain('/cumpleanos');
     expect(PAGINAS_PARA_GOOGLE).toContain('/simulador-de-presupuesto');
-    expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog');
+    expect(PAGINAS_PARA_GOOGLE).toContain('/blog');
   });
 
   it('getMetadataRealDeRuta lee los metadatos directamente de los archivos de cada página', async () => {
@@ -59,7 +59,8 @@ describe('Auditoría real de títulos, SEO y Posicionamiento', () => {
 
     // Bodas
     const bodas = await getMetadataRealDeRuta('/bodas');
-    expect(bodas.title).toContain('Casamientos');
+    expect(bodas.title).toContain('Wedding planner');
+    expect(bodas.title).toContain('organizador de bodas');
     expect(bodas.description).toContain('Salto');
 
     // Quinceañeras

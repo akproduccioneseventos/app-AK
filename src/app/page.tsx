@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
+import { NOMBRE_DE_LA_EMPRESA, tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
 import { cache, Suspense } from "react";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -47,7 +47,12 @@ import {
   BookOpen,
 } from "lucide-react";
 import { PromoWidget } from "@/components/promo/PromoWidget";
-import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
+import {
+  AK_SAME_AS_URLS,
+  AK_SOCIAL_LINKS,
+  AK_WHATSAPP_NUMBER,
+  AK_WHATSAPP_PARA_MOSTRAR,
+} from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
 import { getPublicEventTypeImage } from "@/components/landing/event-type-images";
 import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
@@ -55,19 +60,19 @@ import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
 import { getDynamicSalonPhotos, getClubUruguayHeroPhoto, type SalonPhoto } from "@/lib/salon-helper";
 import { getBlogPosts } from "@/app/actions/blog";
+import { getUltimasNotasExternas } from "@/lib/blog/ultimas-notas";
 import { getCifrasPublicasAK } from "@/app/actions/cifras-ak";
 import { aniosDeAK, FIESTAS_BASE } from "@/lib/marketing/cifras-de-ak";
 import { ponerAlDiaAlEntrar } from "@/lib/automatico/al-entrar-a-la-app";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
-const DEFAULT_INSTAGRAM_URL =
-  "https://www.instagram.com/akproduccionesfiestasyeventos/";
 const SITE_URL = "https://akproducciones.uy";
+const WHATSAPP_LOCAL = `0${AK_WHATSAPP_PARA_MOSTRAR.replace('+598 ', '')}`;
 
-const DEFAULT_SEO_TITLE = "AK Producciones Eventos";
-const DEFAULT_SEO_DESCRIPTION =
-  "Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.";
-const DEFAULT_OG_IMAGE = "/media/catalogo-servicios/quinceanera_hero.png";
+const DEFAULT_SEO_TITLE =
+  "AK Producciones: wedding planner, organizador de bodas y fiestas de 15 en Salto";
+const DEFAULT_SEO_DESCRIPTION = `Wedding planner y organizador de bodas en Salto, Uruguay. También fiestas de 15 años, cumpleaños y eventos en el Salón de Fiestas Club Uruguay. Cotizá por WhatsApp ${WHATSAPP_LOCAL}.`;
+const DEFAULT_OG_IMAGE = "/media/catalogo-servicios/salon-discoteca-ak-01.jpeg";
 const getCachedLandingSettings = cache(getLandingSettings);
 
 async function withPublicFallback<T>(
@@ -277,8 +282,20 @@ export async function generateMetadata(): Promise<Metadata> {
     defaultLandingSettings,
     2_500,
   );
-  const title = `${tituloQueSirve(settings.seo.title)} | Organización Integral de Eventos en Salto`;
-  const description = settings.seo.description || DEFAULT_SEO_DESCRIPTION;
+  const seoTitleLimpio = settings.seo.title?.trim() || "";
+  const esTituloDefault =
+    !seoTitleLimpio ||
+    seoTitleLimpio === defaultLandingSettings.seo.title ||
+    tituloQueSirve(seoTitleLimpio) === NOMBRE_DE_LA_EMPRESA;
+  const titleString = esTituloDefault
+    ? DEFAULT_SEO_TITLE
+    : `${tituloQueSirve(seoTitleLimpio)} | Organización Integral de Eventos en Salto`;
+  const title = esTituloDefault ? { absolute: DEFAULT_SEO_TITLE } : titleString;
+  const seoDescLimpia = settings.seo.description?.trim() || "";
+  const description =
+    !seoDescLimpia || seoDescLimpia === defaultLandingSettings.seo.description
+      ? DEFAULT_SEO_DESCRIPTION
+      : seoDescLimpia;
   const ogImage = settings.seo.ogImageUrl || DEFAULT_OG_IMAGE;
   return {
     metadataBase: new URL(SITE_URL),
@@ -286,7 +303,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     alternates: { canonical: "/" },
     openGraph: {
-      title,
+      title: titleString,
       description,
       type: "website",
       url: SITE_URL,
@@ -303,7 +320,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: titleString,
       description,
       images: [ogImage],
     },
@@ -676,8 +693,11 @@ function BlogSkeleton() {
 }
 
 async function AsyncBlogSection() {
-  const publishedBlogPosts = await withPublicFallback(getBlogPosts(), []);
-  return <BlogSection posts={publishedBlogPosts} />;
+  const [publishedBlogPosts, notasExternas] = await Promise.all([
+    withPublicFallback(getBlogPosts(), []),
+    withPublicFallback(getUltimasNotasExternas(3).catch(() => []), []),
+  ]);
+  return <BlogSection posts={publishedBlogPosts} notasExternas={notasExternas} />;
 }
 
 export default async function HomePage() {
@@ -725,11 +745,11 @@ export default async function HomePage() {
         "@type": "EventPlanner",
         name: "AK Producciones",
         image: defaultFotos.slice(0, 3).map((f) => f.url),
-        telephone: "+598 98 355 530",
+        telephone: AK_WHATSAPP_PARA_MOSTRAR,
         address: {
           "@type": "PostalAddress",
-          streetAddress: "Gaboto 3390",
           addressLocality: "Salto",
+          addressRegion: "Salto",
           addressCountry: "UY",
         },
         geo: {
@@ -739,8 +759,9 @@ export default async function HomePage() {
         },
         url: "https://akproducciones.uy",
         sameAs: [
-          "https://www.facebook.com/akproduccionessalto",
-          DEFAULT_INSTAGRAM_URL,
+          ...AK_SAME_AS_URLS,
+          "https://akproduccionessalto.blogspot.com/",
+          "https://akproduccionessalto.wordpress.com/",
         ],
         areaServed: [
           { "@type": "City", name: "Salto" },
@@ -864,7 +885,7 @@ export default async function HomePage() {
             headline={landingSettings.cta.headline}
             subheadline={landingSettings.cta.subheadline}
             ctaLabel={landingSettings.cta.ctaLabel}
-            instagramUrl={DEFAULT_INSTAGRAM_URL}
+            instagramUrl={AK_SOCIAL_LINKS.instagram}
             promo={promo}
           />
         }

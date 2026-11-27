@@ -106,8 +106,8 @@ describe('El blog publica solo y aparece en la web pública', () => {
     expect(mockMarcarCorrida).toHaveBeenCalledWith('generate-blog-post');
   });
 
-  it('/public/blog, /public/blog/[slug] y /sitemap.xml son dinámicos para mostrar notas nuevas al instante', () => {
-    for (const rel of ['src/app/public/blog/page.tsx', 'src/app/public/blog/[slug]/page.tsx', 'src/app/sitemap.ts']) {
+  it('/blog, /blog/[slug] y /sitemap.xml son dinámicos para mostrar notas nuevas al instante', () => {
+    for (const rel of ['src/app/blog/page.tsx', 'src/app/blog/[slug]/page.tsx', 'src/app/sitemap.ts']) {
       const code = fs.readFileSync(path.join(process.cwd(), rel), 'utf8');
       expect(code).toMatch(/export\s+const\s+dynamic\s*=\s*['"]force-dynamic['"]/);
     }

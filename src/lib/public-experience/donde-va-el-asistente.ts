@@ -29,6 +29,11 @@ export function mostrarAsistenteEn(pathname: string | null | undefined): boolean
 
   if (PAGINAS_DE_VENTA.has(ruta)) return true;
 
-  // Las de adentro del blog y las de tipo de evento cuelgan de /public o /landing.
-  return ruta.startsWith('/public/') || ruta.startsWith('/landing/');
+  // Las de adentro del blog y las de tipo de evento cuelgan de /blog, /public o /landing.
+  return (
+    ruta === '/blog' ||
+    ruta.startsWith('/blog/') ||
+    ruta.startsWith('/public/') ||
+    ruta.startsWith('/landing/')
+  );
 }

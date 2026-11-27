@@ -13,7 +13,7 @@ import { metadata as expMetadata } from '@/app/experiencia-ak/page';
 import { metadata as privacidadMetadata } from '@/app/privacidad/page';
 import { metadata as simMetadata } from '@/app/simulador-de-presupuesto/layout';
 import { metadata as simAkMetadata } from '@/app/simulador-ak/layout';
-import { metadata as blogListMetadata } from '@/app/public/blog/page';
+import { metadata as blogListMetadata } from '@/app/blog/page';
 import { metadata as enlacesMetadata } from '@/app/enlaces/page';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import { blogPosts } from '@/data/blog-posts';
@@ -140,7 +140,7 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     };
   }
 
-  if (ruta === '/public/blog') {
+  if (ruta === '/blog') {
     return {
       title: extraerTituloMetadata(blogListMetadata.title),
       description: String(blogListMetadata.description || ''),
@@ -154,8 +154,8 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     };
   }
 
-  if (ruta.startsWith('/public/blog/')) {
-    const slug = ruta.replace('/public/blog/', '');
+  if (ruta.startsWith('/blog/')) {
+    const slug = ruta.replace('/blog/', '');
     const post = blogPosts.find((p) => p.slug === slug);
     return {
       title: post?.title ? `${post.title} | Blog AK Producciones` : '',

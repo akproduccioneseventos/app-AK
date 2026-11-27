@@ -45,7 +45,7 @@ describe('Encontrarme en Google — Posicionamiento, Pinterest, Analytics y Cuen
       expect(etiquetarRutaEnCriollo('/simulador-de-presupuesto')).toBe('Simulador de Presupuesto');
       expect(etiquetarRutaEnCriollo('/club-uruguay')).toBe('Salón Club Uruguay');
       expect(etiquetarRutaEnCriollo('/catalogo')).toBe('Catálogo de Servicios');
-      expect(etiquetarRutaEnCriollo('/public/blog')).toBe('Blog y Guías');
+      expect(etiquetarRutaEnCriollo('/blog')).toBe('Blog y Guías');
     });
 
     it('2. Si no hay variables de entorno en el servidor, devuelve "hasCredentials: false" y mensaje claro sin números inventados', async () => {
@@ -95,10 +95,10 @@ describe('Encontrarme en Google — Posicionamiento, Pinterest, Analytics y Cuen
       expect(PAGINAS_PARA_GOOGLE).toContain('/bodas');
       expect(PAGINAS_PARA_GOOGLE).toContain('/quinceaneras');
       expect(PAGINAS_PARA_GOOGLE).toContain('/simulador-de-presupuesto');
-      expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog');
-      expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog/como-empezar-a-organizar-una-fiesta-sin-estres');
-      expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog/presupuesto-de-fiesta-que-debe-incluir');
-      expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog/como-elegir-el-menu-para-un-evento');
+      expect(PAGINAS_PARA_GOOGLE).toContain('/blog');
+      expect(PAGINAS_PARA_GOOGLE).toContain('/blog/como-empezar-a-organizar-una-fiesta-sin-estres');
+      expect(PAGINAS_PARA_GOOGLE).toContain('/blog/presupuesto-de-fiesta-que-debe-incluir');
+      expect(PAGINAS_PARA_GOOGLE).toContain('/blog/como-elegir-el-menu-para-un-evento');
     });
   });
 

@@ -176,6 +176,8 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
 export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
   "publica": [
     "/",
+    "/blog",
+    "/blog/:slug",
     "/bodas",
     "/club-uruguay",
     "/cumpleanos",
@@ -184,8 +186,6 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/landing/eventos",
     "/login",
     "/public/:eventType",
-    "/public/blog",
-    "/public/blog/:slug",
     "/quinceaneras",
     "/signup",
     "/simulador-de-presupuesto"

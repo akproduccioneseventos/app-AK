@@ -126,6 +126,6 @@ describe('Orden 257 — Bloque 3: El Centro de Control no anuncia notas que no s
     expect(items).toHaveLength(1);
     expect(items[0].id).toBe('blog-post-nota-publicada-por-ia');
     expect(items[0].titulo).toContain('Guía de Barra de Tragos con IA');
-    expect(items[0].enlace).toBe('/public/blog/nota-publicada-por-ia');
+    expect(items[0].enlace).toBe('/blog/nota-publicada-por-ia');
   });
 });

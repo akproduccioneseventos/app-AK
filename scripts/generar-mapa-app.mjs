@@ -47,7 +47,7 @@ function rutaDesdeArchivo(archivo) {
 const FAMILIAS = [
   ['portal-cliente', r => r.startsWith('/portal-cliente')],
   ['invitado', r => /^\/(evento|invitacion|portal-invitado|invitado|album|feedback|video-vida|post-fiesta|q|i)(\/|$)/.test(r)],
-  ['publica', r => r === '/' || /^\/(landing|bodas|quinceaneras|cumpleanos|catalogo|public|club-uruguay|experiencia-ak|simulador-de-presupuesto|login|signup)(\/|$)/.test(r)],
+  ['publica', r => r === '/' || /^\/(landing|bodas|quinceaneras|cumpleanos|catalogo|public|blog|club-uruguay|experiencia-ak|simulador-de-presupuesto|login|signup)(\/|$)/.test(r)],
   ['acceso-externo', r => /^\/(proveedor|acceso-personal|personal)(\/|$)/.test(r)],
   ['staff', () => true],
 ];

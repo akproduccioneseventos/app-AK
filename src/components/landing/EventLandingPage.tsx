@@ -91,11 +91,19 @@ function resolveServiceIcon(title: string, iconName?: string, icon?: LucideIcon)
   return Sparkles;
 }
 
+export interface EventLandingExtraSection {
+  badge?: string;
+  title: string;
+  body: string;
+  links?: Array<{ label: string; href: string }>;
+}
+
 export interface EventLandingPageProps {
   eventType: string;
   galeriaTipo: TipoFiestaLanding;
   source: LandingLeadData['fuente'];
   heroHeadline?: string;
+  heroSubtitle?: string;
   heroImage: string;
   heroImageAlt: string;
   heroIsIllustrative?: boolean;
@@ -117,6 +125,9 @@ export interface EventLandingPageProps {
   plansNote?: string;
   salonDescription?: string;
   techImageIsIllustrative?: boolean;
+  extraSection?: EventLandingExtraSection;
+  lastUpdated?: string;
+  includeFaqJsonLd?: boolean;
 }
 
 const ACCENT_THEMES = {
@@ -246,6 +257,7 @@ export function EventLandingPage({
   galeriaTipo,
   source,
   heroHeadline,
+  heroSubtitle,
   heroImage,
   heroImageAlt,
   heroIsIllustrative = false,
@@ -267,6 +279,9 @@ export function EventLandingPage({
   plansNote,
   salonDescription,
   techImageIsIllustrative = false,
+  extraSection,
+  lastUpdated,
+  includeFaqJsonLd = false,
 }: EventLandingPageProps) {
   const reduceMotion = useReducedMotion();
   const theme = ACCENT_THEMES[accent];
@@ -388,10 +403,12 @@ export function EventLandingPage({
 
   return (
     <div className="min-h-screen overflow-x-clip bg-white text-zinc-900 pb-20 lg:pb-0">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      {includeFaqJsonLd && faqs.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <LandingNav />
       <main>
         <HeroSection
@@ -409,6 +426,12 @@ export function EventLandingPage({
           useWhatsappSecondaryCta={true}
           accentGlowClass={theme.heroGlow}
         />
+
+        {heroSubtitle && (
+          <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-center text-sm font-semibold text-zinc-700">
+            {heroSubtitle}
+          </div>
+        )}
 
         {/* Compromiso y Transparencia */}
         <div className="border-b border-zinc-200 bg-zinc-900 py-3 text-white">
@@ -459,24 +482,24 @@ export function EventLandingPage({
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
+                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 shadow-sm">
                   <p className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-zinc-600">
-                    <AlertCircle className="h-4 w-4 text-zinc-500" /> Por separado
+                    <AlertCircle className="h-4 w-4 shrink-0 text-zinc-500" /> Por separado
                   </p>
-                  <ul className="mt-3 space-y-2 text-sm text-zinc-600">
+                  <ul className="mt-3 space-y-2.5 text-sm leading-relaxed text-zinc-600">
                     <li>• Varias reuniones con distintos proveedores.</li>
                     <li>• Una seña separada por cada servicio.</li>
                     <li>• Coordinar todo vos la noche de la fiesta.</li>
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-5">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/75 p-5 shadow-sm">
                   <p className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-800">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Con AK
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> Con AK (servicio integral)
                   </p>
-                  <ul className="mt-3 space-y-2 text-sm font-medium text-emerald-950">
+                  <ul className="mt-3 space-y-2.5 text-sm font-medium leading-relaxed text-emerald-950">
                     <li>• Un solo contacto y una sola reunión.</li>
-                    <li>• Una sola seña para toda la fiesta.</li>
+                    <li>• Una sola seña para toda la fiesta completa.</li>
                     <li>• Una persona responsable de principio a fin.</li>
                   </ul>
                 </div>
@@ -485,22 +508,62 @@ export function EventLandingPage({
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
                   href={simulatorHref}
-                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-white transition-colors ${theme.primaryBtn}`}
+                  className={`inline-flex min-w-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-white transition-colors ${theme.primaryBtn}`}
                 >
-                  Armar mi presupuesto <ArrowRight className="h-4 w-4" />
+                  <span className="truncate">Armar mi presupuesto</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" />
                 </Link>
                 <a
                   href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-5 py-3 text-sm font-bold text-zinc-800 transition-colors hover:bg-zinc-50"
+                  className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-5 py-3 text-sm font-bold text-zinc-800 transition-colors hover:bg-zinc-50"
                 >
-                  <MessageCircle className="h-4 w-4 text-emerald-600" /> Hablar por WhatsApp
+                  <MessageCircle className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span className="truncate">Hablar por WhatsApp</span>
                 </a>
               </div>
             </div>
           </div>
         </section>
+
+        {extraSection && (
+          <section className="border-t border-zinc-200 bg-zinc-50 py-14 sm:py-16">
+            <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+              {extraSection.badge && (
+                <p className={`text-xs font-black uppercase tracking-widest ${theme.badgeText}`}>
+                  {extraSection.badge}
+                </p>
+              )}
+              <h2 className="mt-2 font-headline text-2xl font-black text-zinc-950 sm:text-3xl">
+                {extraSection.title}
+              </h2>
+              <div className="mt-4 space-y-4 text-base leading-relaxed text-zinc-700">
+                {extraSection.body
+                  .split(/\n{2,}/)
+                  .map((paragraph) => paragraph.trim())
+                  .filter(Boolean)
+                  .map((paragraph, idx) => (
+                    <p key={idx}>{paragraph}</p>
+                  ))}
+              </div>
+              {extraSection.links && extraSection.links.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {extraSection.links.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-bold text-zinc-900 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
+                    >
+                      <span className="truncate">{item.label}</span>
+                      <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Cifras reales de AK */}
         <StatsSection />
@@ -549,10 +612,12 @@ export function EventLandingPage({
                   <motion.article
                     key={srv.title}
                     variants={cardItemVariants}
-                    className={`rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${theme.cardHover}`}
+                    className={`rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${theme.cardHover}`}
                   >
-                    <Icon className={`h-6 w-6 ${theme.iconColor}`} aria-hidden="true" />
-                    <h3 className="mt-5 text-lg font-bold text-zinc-950">{srv.title}</h3>
+                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-50 ring-1 ring-zinc-200/80">
+                      <Icon className={`h-5 w-5 shrink-0 ${theme.iconColor}`} aria-hidden="true" />
+                    </div>
+                    <h3 className="mt-4 text-lg font-black text-zinc-950">{srv.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-zinc-600">{srv.description}</p>
                   </motion.article>
                 );
@@ -560,6 +625,142 @@ export function EventLandingPage({
             </motion.div>
           </div>
         </motion.section>
+
+        {/* Neuroventas: El cerebro elige entre 3 */}
+        <section id="tres-formas-fiesta" className="border-t border-zinc-200 bg-white py-16 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className={`text-xs font-black uppercase tracking-widest ${theme.badgeText}`}>
+                Elegí cómo resolver tu evento
+              </p>
+              <h2 className="mt-2 font-headline text-3xl font-black text-zinc-950 sm:text-4xl">
+                Tres formas de vivir tu fiesta sin estrés
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-zinc-600">
+                Cada celebración es distinta. Podés sumar solo lo que te falta o resolver la fiesta completa todo en un solo lugar.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-3 lg:items-stretch">
+              <article className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-zinc-50/70 p-6 shadow-sm transition hover:border-zinc-300 hover:shadow-md sm:p-7">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-zinc-500">
+                    Opción 01
+                  </p>
+                  <h3 className="mt-2 text-xl font-black text-zinc-950">
+                    Esencial a tu medida
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-zinc-600">
+                    Elegís solo lo puntual que te falta para completar tu evento sin pagar de más por rubros que ya tenés resueltos.
+                  </p>
+                  <ul className="mt-5 space-y-2.5 text-sm text-zinc-700">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Comida, discoteca o decoración de forma independiente.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Nos adaptamos a tu salón, chacra o domicilio en Salto.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Presupuesto claro en pesos uruguayos desde el primer día.</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-7 pt-5 border-t border-zinc-200">
+                  <Link
+                    href={simulatorHref}
+                    className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-3 text-xs font-bold text-zinc-900 transition hover:bg-zinc-100"
+                  >
+                    <span className="truncate">Explorar esta opción en el simulador</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+
+              <article className="relative flex flex-col justify-between rounded-2xl border-2 border-red-600 bg-white p-6 shadow-xl ring-1 ring-red-600/10 sm:p-7">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className={`text-xs font-black uppercase tracking-widest ${theme.badgeText}`}>
+                      Opción 02
+                    </p>
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-red-700 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white">
+                      <Sparkles className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      La más elegida
+                    </span>
+                  </div>
+                  <h3 className="mt-2 text-2xl font-black text-zinc-950">
+                    Fiesta Integral AK
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-zinc-600">
+                    Servicio integral todo en un solo lugar: salón o tu espacio, comida, discoteca, decoración y coordinación completa.
+                  </p>
+                  <ul className="mt-5 space-y-2.5 text-sm font-medium text-zinc-800">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Un solo contacto, una sola reunión y una sola seña.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Salón Club Uruguay o montaje en el lugar que elijas.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                      <span>Comida con vajilla y mobiliario, discoteca, decoración y barra.</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-7 pt-5 border-t border-zinc-100">
+                  <Link
+                    href={simulatorHref}
+                    className={`inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold text-white shadow-md transition-colors ${theme.primaryBtn}`}
+                  >
+                    <span className="truncate">Explorar esta opción en el simulador</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+
+              <article className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-zinc-950 p-6 text-white shadow-sm transition hover:border-zinc-700 hover:shadow-md sm:p-7">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-amber-300">
+                    Opción 03
+                  </p>
+                  <h3 className="mt-2 text-xl font-black text-white">
+                    Experiencia Completa con Tecnología
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-zinc-300">
+                    Suma cabinas, Vogue, plataforma 360° y muro social en vivo sobre el servicio integral para una fiesta completa memorable.
+                  </p>
+                  <ul className="mt-5 space-y-2.5 text-sm text-zinc-200">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                      <span>Fotocabina impresa y descarga por QR en el momento.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                      <span>Estación Vogue, plataforma 360° y fotografía profesional.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                      <span>Muro social en vivo e invitación web para tus invitados.</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-7 pt-5 border-t border-zinc-800">
+                  <Link
+                    href={simulatorHref}
+                    className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-xs font-bold text-white transition hover:bg-white/20"
+                  >
+                    <span className="truncate">Explorar esta opción en el simulador</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
 
         {/* Cómo trabajamos en 4 pasos */}
         <section id="como-trabajamos" className="border-y border-zinc-200 bg-white py-16 sm:py-24">
@@ -700,9 +901,10 @@ export function EventLandingPage({
                   href={AK_SOCIAL_LINKS.googleReviews}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-white/15"
+                  className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-white/15"
                 >
-                  Dejá tu reseña en Google <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="truncate">Dejá tu reseña en Google</span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 </a>
               </div>
             </div>
@@ -771,6 +973,11 @@ export function EventLandingPage({
             </motion.div>
           </div>
         </motion.section>
+        {lastUpdated && (
+          <div className="border-t border-zinc-200 bg-white py-4 text-center text-xs text-zinc-500">
+            Actualizado el {lastUpdated}
+          </div>
+        )}
       </main>
       <PublicFooter variant="dark" />
 
@@ -815,17 +1022,19 @@ export function EventLandingPage({
         <div className="mx-auto flex max-w-md items-center gap-2">
           <Link
             href={simulatorHref}
-            className="flex-1 min-w-0 inline-flex items-center justify-center gap-1 rounded-lg bg-red-700 px-2.5 py-2.5 text-[11px] font-bold text-white shadow-md active:bg-red-800 truncate"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-700 px-3 py-2.5 text-xs font-bold text-white shadow-md active:bg-red-800"
           >
-            Armar mi presupuesto
+            <span className="truncate">Armar presupuesto</span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           </Link>
           <a
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 min-w-0 inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-2.5 text-[11px] font-bold text-white shadow-md active:bg-emerald-700 truncate"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2.5 text-xs font-bold text-white shadow-md active:bg-emerald-700"
           >
-            <MessageCircle className="h-3.5 w-3.5 shrink-0" /> Hablar por WhatsApp
+            <MessageCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">WhatsApp</span>
           </a>
         </div>
       </div>

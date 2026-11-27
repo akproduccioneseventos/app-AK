@@ -178,7 +178,7 @@ export function SeoPosicionamientoTab() {
             </div>
           </div>
           <a
-            href={`/public/blog/${ultimaNotaPublicada.slug}`}
+            href={`/blog/${ultimaNotaPublicada.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shrink-0 flex items-center gap-1.5 transition"

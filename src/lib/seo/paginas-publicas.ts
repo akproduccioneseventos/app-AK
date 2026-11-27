@@ -37,8 +37,8 @@ export const PAGINAS_PARA_GOOGLE = [
   '/public/fiestas',
   '/public/corporativos',
   '/public/aniversarios',
-  '/public/blog',
-  ...blogPosts.map((post) => `/public/blog/${post.slug}` as const),
+  '/blog',
+  ...blogPosts.map((post) => `/blog/${post.slug}` as const),
 ] as const;
 
 /**
@@ -82,12 +82,12 @@ const PRIORIDAD: Record<string, number> = {
   '/public/cumpleanos': 0.7,
   '/public/corporativos': 0.7,
   '/public/aniversarios': 0.7,
-  '/public/blog': 0.7,
+  '/blog': 0.7,
   // Tiene que existir y que Google la vea, pero no compite con las que venden.
   '/privacidad': 0.3,
 };
 
 export function prioridadDePagina(ruta: string): number {
-  if (ruta.startsWith('/public/blog/')) return 0.6;
+  if (ruta.startsWith('/blog/')) return 0.6;
   return PRIORIDAD[ruta] ?? 0.5;
 }

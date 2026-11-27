@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2, RefreshCw, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2, RefreshCw, CheckCircle2, Clock, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenid
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { getBlogPosts, saveBlogPost, deleteBlogPost, getEstadoBlogAdmin, type EstadoBlogAdmin } from '@/app/actions/blog';
+import { getResumenSuscriptoresBlog, enviarNotaASuscriptoresManual } from '@/app/actions/blog-suscripcion.actions';
 import { runMarketingAutomationFromAdmin } from '@/app/actions/marketing-automation';
 import { RecontactoAutomaticoCard } from '@/components/marketing/recontacto-automatico-card';
 import { GastoIaCard } from '@/components/marketing/gasto-ia-card';
@@ -47,6 +48,8 @@ export default function ContenidoPublicoSettingsPage() {
   const [estadoBlogAdmin, setEstadoBlogAdmin] = useState<EstadoBlogAdmin | null>(null);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [blogActionLoading, setBlogActionLoading] = useState(false);
+  const [suscriptoresActivos, setSuscriptoresActivos] = useState<number | null>(null);
+  const [sendingBlogSlug, setSendingBlogSlug] = useState<string | null>(null);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [automationStatus, setAutomationStatus] = useState<{
     success?: boolean;
@@ -85,16 +88,57 @@ export default function ContenidoPublicoSettingsPage() {
 
   const loadBlog = useCallback(async () => {
     try {
-      const [posts, estado] = await Promise.all([
+      const [posts, estado, resumenSuscriptores] = await Promise.all([
         getBlogPosts(),
         getEstadoBlogAdmin().catch(() => null),
+        getResumenSuscriptoresBlog().catch(() => null),
       ]);
       setBlogPosts(posts);
       if (estado) setEstadoBlogAdmin(estado);
+      if (resumenSuscriptores) setSuscriptoresActivos(resumenSuscriptores.activos);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los artículos del blog.', variant: 'destructive' });
     }
   }, [toast]);
+
+  const handleSendPostToSubscribers = async (post: BlogPost) => {
+    const totalTexto =
+      suscriptoresActivos !== null
+        ? `${suscriptoresActivos} suscriptor${suscriptoresActivos === 1 ? '' : 'es'} activos`
+        : 'tus suscriptores activos';
+    if (
+      !window.confirm(
+        `¿Querés enviar la nota "${post.title}" por mail a ${totalTexto}? Se respeta el tope semanal y no se reenvía a quien ya la recibió.`,
+      )
+    ) {
+      return;
+    }
+
+    setSendingBlogSlug(post.slug);
+    try {
+      const res = await enviarNotaASuscriptoresManual(post.slug);
+      if (res.success) {
+        toast({
+          title: 'Envío de nota finalizado',
+          description: `Enviados: ${res.enviados} · Omitidos por tope o ya recibida: ${res.omitidosPorTope} · Fallidos: ${res.fallidos}`,
+        });
+      } else {
+        toast({
+          title: 'No se pudo enviar',
+          description: res.error || 'No se pudo enviar la nota por mail.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Error al conectar con el servidor para enviar los mails.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSendingBlogSlug(null);
+    }
+  };
 
   const handleSavePost = async (post: BlogPost) => {
     setBlogActionLoading(true);
@@ -491,9 +535,13 @@ export default function ContenidoPublicoSettingsPage() {
         <CardHeader className="space-y-4">
           {/* Información de publicación del blog */}
           <div className="space-y-1.5 pb-2 border-b border-slate-100">
-            <div className="text-sm font-semibold text-slate-700 flex flex-wrap items-center gap-2">
+            <div className="text-sm font-semibold text-slate-700 flex flex-wrap items-center justify-between gap-2">
               <span>
                 Última nota publicada: {estadoBlogAdmin?.ultimaNota?.fecha || 'Sin notas aún'}. Próxima: {estadoBlogAdmin?.proximaFecha || '-'}.
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <Mail className="h-3.5 w-3.5 text-red-700" />
+                Suscriptores activos por mail: {suscriptoresActivos ?? 'Cargando...'}
               </span>
             </div>
             {estadoBlogAdmin?.ultimoFallo && (
@@ -566,10 +614,24 @@ export default function ContenidoPublicoSettingsPage() {
                 <div>
                   <h4 className="font-bold text-slate-900">{post.title}</h4>
                   <p className="text-xs text-muted-foreground">
-                    URL: /public/blog/{post.slug} | Categoría: <span className="font-semibold">{post.category}</span>
+                    URL: /blog/{post.slug} | Categoría: <span className="font-semibold">{post.category}</span>
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => handleSendPostToSubscribers(post)}
+                    variant="outline"
+                    size="sm"
+                    disabled={sendingBlogSlug === post.slug || blogActionLoading}
+                  >
+                    {sendingBlogSlug === post.slug ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Mail className="w-4 h-4 mr-2" />
+                    )}
+                    Enviar por mail
+                  </Button>
                   <Button onClick={() => setEditingPost(post)} variant="outline" size="sm">
                     Editar
                   </Button>

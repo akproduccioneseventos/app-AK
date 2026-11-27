@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Calendar, CalendarCheck, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Calendar, CalendarCheck, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { canUseNextImage } from "@/lib/next-image-url";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
@@ -37,8 +37,8 @@ const details = [
 
 export function HeroSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
-  headline = "Tu fiesta, resuelta por un solo equipo",
-  subheadline = "Comida, ambientación, discoteca, tecnología interactiva y coordinación para celebrar con tranquilidad en Salto.",
+  headline = "Tu fiesta completa, resuelta en un solo lugar",
+  subheadline = "Comida, ambientación, discoteca, tecnología interactiva y coordinación integral para celebrar con tranquilidad en Salto.",
   backgroundImageUrl = "/media/catalogo-servicios/quinceanera_hero.png",
   backgroundVideoUrl,
   promoActiva,
@@ -206,10 +206,10 @@ export function HeroSection({
                 href={promoHref}
                 target={promoHref.startsWith("http") ? "_blank" : undefined}
                 rel={promoHref.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/50 px-4 py-1.5 text-xs font-bold text-amber-200 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all hover:bg-black/70 hover:border-amber-400"
+                className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-amber-400/50 bg-black/65 px-4 py-1.5 text-xs font-bold text-amber-200 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all hover:bg-black/75 hover:border-amber-400"
               >
-                <ShieldCheck className="h-4 w-4 text-amber-400" aria-hidden="true" />
-                {promoActiva.titulo}
+                <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" aria-hidden="true" />
+                <span className="truncate">{promoActiva.titulo}</span>
               </a>
             </motion.div>
           ) : null}
@@ -219,14 +219,14 @@ export function HeroSection({
             transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.08 }}
             className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-red-400"
           >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            AK Producciones Eventos · Salto, Uruguay
+            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span>AK Producciones · Salto, Uruguay · Servicio integral</span>
           </motion.p>
 
           <motion.h1
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.65, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 font-headline text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-md"
+            className="mt-4 font-headline text-4xl font-black leading-[1.05] tracking-tight text-balance text-white sm:text-6xl lg:text-7xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]"
           >
             {headline}
           </motion.h1>
@@ -234,7 +234,7 @@ export function HeroSection({
           <motion.p
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.65, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-200 sm:text-xl font-medium"
+            className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-100 sm:text-xl font-medium drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]"
           >
             {subheadline}
           </motion.p>
@@ -242,11 +242,11 @@ export function HeroSection({
           <motion.div
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-stone-200"
+            className="mt-7 flex flex-wrap gap-x-5 gap-y-2.5 text-sm text-stone-100"
           >
             {details.map((detail) => (
               <span key={detail} className="flex items-center gap-2 font-medium">
-                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden="true" />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden="true" />
                 {detail}
               </span>
             ))}
@@ -256,18 +256,18 @@ export function HeroSection({
           <motion.div
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-black/60 p-3 sm:p-4 backdrop-blur-md shadow-2xl"
+            className="mt-6 w-full max-w-4xl rounded-2xl border border-white/25 bg-black/65 p-4 sm:p-5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] transition-all duration-300 hover:border-white/35 focus-within:border-amber-400/60 focus-within:ring-1 focus-within:ring-red-500/40 focus-within:shadow-[0_0_32px_rgba(239,68,68,0.22)]"
           >
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col text-left">
-                <label htmlFor="hero-verificador-tipo" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                <label htmlFor="hero-verificador-tipo" className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-200">
                   Tipo de evento
                 </label>
                 <select
                   id="hero-verificador-tipo"
                   value={tipoEvento}
                   onChange={(e) => setTipoEvento(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/95 px-3 text-base sm:text-sm font-semibold text-white transition-colors focus:border-amber-400/80 focus:ring-2 focus:ring-red-500/30 focus:outline-none"
                 >
                   <option value="15 Años">15 Años</option>
                   <option value="Bodas">Bodas</option>
@@ -277,7 +277,7 @@ export function HeroSection({
               </div>
 
               <div className="flex flex-col text-left">
-                <label htmlFor="hero-verificador-mes" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                <label htmlFor="hero-verificador-mes" className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-200">
                   Mes y año estimado
                 </label>
                 <input
@@ -285,12 +285,12 @@ export function HeroSection({
                   type="month"
                   value={mesEstimado}
                   onChange={(e) => setMesEstimado(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none [color-scheme:dark]"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/95 px-3 text-base sm:text-sm font-semibold text-white transition-colors focus:border-amber-400/80 focus:ring-2 focus:ring-red-500/30 focus:outline-none [color-scheme:dark]"
                 />
               </div>
 
               <div className="flex flex-col text-left">
-                <label htmlFor="hero-verificador-invitados" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                <label htmlFor="hero-verificador-invitados" className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-200">
                   Invitados aprox.
                 </label>
                 <input
@@ -301,64 +301,69 @@ export function HeroSection({
                   value={invitadosEstimados}
                   onChange={(e) => setInvitadosEstimados(e.target.value)}
                   placeholder="Ej: 100"
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/95 px-3 text-base sm:text-sm font-semibold text-white transition-colors focus:border-amber-400/80 focus:ring-2 focus:ring-red-500/30 focus:outline-none"
                 />
               </div>
 
               <div className="flex items-end">
                 <Link
                   href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(tipoEvento)}&guests=${encodeURIComponent(invitadosEstimados || '100')}&mes=${encodeURIComponent(mesEstimado)}&entry=hero-fecha`}
-                  className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3 text-xs font-black text-white shadow-lg transition-all hover:brightness-110"
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3.5 py-2.5 text-xs font-black text-white shadow-lg shadow-red-950/50 transition-all hover:brightness-110"
                 >
                   <Calendar className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>Consultar disponibilidad de fecha</span>
+                  <span className="truncate">Consultar disponibilidad de fecha</span>
                 </Link>
               </div>
             </div>
+
+            <p className="mt-3.5 flex items-center gap-2 border-t border-white/10 pt-3 text-xs font-medium text-stone-200/95">
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-amber-400" aria-hidden="true" />
+              <span>Calculá en 1 minuto en pesos uruguayos · Sin compromiso ni llamados invasivos</span>
+            </p>
           </motion.div>
 
           <motion.div
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 flex flex-col gap-3.5 sm:flex-row"
+            className="mt-7 flex flex-col gap-3.5 sm:flex-row sm:items-center"
           >
             <motion.div
               whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-              className="inline-flex"
+              className="flex w-full sm:inline-flex sm:w-auto"
             >
               <Link
                 href={simulatorHref}
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 via-red-600 to-rose-600 px-7 py-3.5 text-sm font-black text-white shadow-[0_0_25px_rgba(220,38,38,0.45)] transition-all hover:shadow-[0_0_35px_rgba(220,38,38,0.65)] hover:brightness-110"
+                className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 via-red-600 to-rose-600 px-6 sm:px-7 py-3.5 text-sm font-black text-white shadow-[0_0_25px_rgba(220,38,38,0.45)] transition-all hover:shadow-[0_0_35px_rgba(220,38,38,0.65)] hover:brightness-110"
               >
-                {simulatorLabel}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                <span className="truncate">{simulatorLabel}</span>
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
               </Link>
             </motion.div>
 
             <motion.div
               whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-              className="inline-flex"
+              className="flex w-full sm:inline-flex sm:w-auto"
             >
               {useWhatsappSecondaryCta ? (
                 <a
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-600 px-7 py-3.5 text-sm font-black text-white shadow-lg transition-all hover:bg-emerald-500"
+                  className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-600 px-6 sm:px-7 py-3.5 text-sm font-black text-white shadow-lg transition-all hover:bg-emerald-500"
                 >
-                  <MessageCircle className="h-4 w-4 text-white" aria-hidden="true" />
-                  {ctaLabel}
+                  <MessageCircle className="h-4 w-4 shrink-0 text-white" aria-hidden="true" />
+                  <span className="truncate">{ctaLabel}</span>
                 </a>
               ) : (
                 <button
                   type="button"
                   onClick={() => setShowEntrevistaModal(true)}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
+                  className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 sm:px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
                 >
-                  <CalendarCheck className="h-4 w-4 text-white" aria-hidden="true" />
-                  Coordinar una entrevista gratuita
+                  <CalendarCheck className="h-4 w-4 shrink-0 text-white" aria-hidden="true" />
+                  <span className="truncate">Coordinar una entrevista gratuita</span>
                 </button>
               )}
             </motion.div>

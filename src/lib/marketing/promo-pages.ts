@@ -20,7 +20,7 @@ export interface PromoConfig {
 export const PROMO_PAGES: Record<string, PromoConfig> = {
   'bodas': {
     metadata: {
-      title: 'Bodas y Casamientos en Salto | AK Producciones',
+      title: 'Wedding planner y organizador de bodas en Salto | AK Producciones',
       description:
         'Organización integral y producción técnica de casamientos en Salto: discoteca, ambientación, catering y salón.',
     },
@@ -28,7 +28,7 @@ export const PROMO_PAGES: Record<string, PromoConfig> = {
       headline: 'Tu Boda Soñada\nen Salto',
       subheadline:
         'Organizamos tu casamiento de principio a fin con equipamiento propio y atención personalizada.',
-      backgroundImageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
+      backgroundImageUrl: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
     },
     cta: {
       headline: 'Consultá tu fecha\npara Casamiento',
@@ -46,7 +46,7 @@ export const PROMO_PAGES: Record<string, PromoConfig> = {
       headline: 'Fiestas de 15\nInolvidables',
       subheadline:
         'Todo lo que necesitás para una fiesta de 15 única con tecnología, luces y diversión.',
-      backgroundImageUrl: '/media/catalogo-servicios/quinceanera_hero.png',
+      backgroundImageUrl: '/media/catalogo-servicios/xv-decoracion-rosa-01.jpeg',
     },
     cta: {
       headline: 'Planificá tus 15\ncon nosotros',
@@ -64,7 +64,7 @@ export const PROMO_PAGES: Record<string, PromoConfig> = {
       headline: 'Eventos & Fiestas\nen Salto',
       subheadline:
         'Soluciones integrales de sonido, iluminación, catering y salones para tu celebración.',
-      backgroundImageUrl: '/media/catalogo-servicios/social_persuasivo.png',
+      backgroundImageUrl: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
     },
     cta: {
       headline: 'Cotizá tu Evento\nsin compromiso',

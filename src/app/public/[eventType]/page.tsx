@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const catalog = getCatalogBySlug(eventType);
   if (!catalog) return { title: 'Eventos' };
 
-  const image = catalog.gallery?.[0]?.src || '/media/catalogo-servicios/quinceanera_hero.png';
+  const image = catalog.gallery?.[0]?.src || '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
   const canonicalPath = CANONICAL_PROPIO_BY_EVENT_TYPE[eventType] || `/public/${eventType}`;
   const url = `https://akproducciones.uy${canonicalPath}`;
 
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: canonicalPath,
     },
     openGraph: {
-      title: `${catalog.name} en Salto | AK Producciones Eventos`,
+      title: `${catalog.name} en Salto | AK Producciones`,
       description: catalog.hero.subheadline,
       url,
       siteName: 'AK Producciones Eventos',
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${catalog.name} en Salto | AK Producciones Eventos`,
+      title: `${catalog.name} en Salto | AK Producciones`,
       description: catalog.hero.subheadline,
       images: [image],
     },

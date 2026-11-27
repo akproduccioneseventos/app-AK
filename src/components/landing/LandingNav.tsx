@@ -8,12 +8,24 @@ import { CompanyLogo } from '@/components/company-logo';
 
 export interface LandingNavProps {
   whatsappNumber?: string;
+  whatsappMessage?: string;
+  solid?: boolean;
+  className?: string;
 }
 
-export function LandingNav(_props: LandingNavProps = {}) {
+interface NavLinkItem {
+  label: string;
+  shortLabel?: string;
+  href: string;
+  isExternal: boolean;
+  openInNewTab?: boolean;
+}
+
+export function LandingNav({ solid = false, className }: LandingNavProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const isSolidHeader = solid || isScrolled;
 
   useEffect(() => {
     setIsHydrated(true);
@@ -57,15 +69,15 @@ export function LandingNav(_props: LandingNavProps = {}) {
     setIsMenuOpen(false);
   }, []);
 
-  const navLinks = [
+  const navLinks: NavLinkItem[] = [
     { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
     // Auditoría 73 (GAL73): la galería externa abría una tarjeta de contacto, sin fotos. El dueño
     // eligió (6/10/2026) que lleve a la galería de fotos de la portada.
-    { label: 'Galería HD', href: '#landing-gallery', isExternal: false, openInNewTab: false },
+    { label: 'Galería HD', href: '#landing-gallery', shortLabel: 'Galería', isExternal: false, openInNewTab: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
-    { label: 'Blog', href: '/public/blog', isExternal: true },
-    { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
+    { label: 'Blog', href: '/blog', isExternal: true },
+    { label: 'Preguntas frecuentes', shortLabel: 'Preguntas', href: '#faq', isExternal: false },
     { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
     { label: 'Tipos de fiesta', href: '/fiestas', isExternal: true },
   ];
@@ -74,9 +86,13 @@ export function LandingNav(_props: LandingNavProps = {}) {
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        isScrolled
-          ? 'border-b border-slate-200 bg-white/95 text-slate-950 shadow-lg backdrop-blur-lg'
-          : 'bg-transparent'
+        isSolidHeader
+          ? cn(
+              'border-b border-slate-200 bg-white/95 text-slate-950 backdrop-blur-lg',
+              isScrolled ? 'shadow-lg' : 'shadow-sm'
+            )
+          : 'bg-transparent',
+        className
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,13 +100,10 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0 min-h-10 min-w-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50">
-            {/* Sin fondo blanco la barra es transparente y el logo queda oscuro
-                sobre la foto: en el celular no se veia nada arriba a la
-                izquierda, solo las rayitas del menu. */}
-            <CompanyLogo size="sm" blanco={!isScrolled} />
+            <CompanyLogo size="sm" />
             <span className={cn(
-              "hidden font-headline text-lg font-black tracking-tight sm:block",
-              isScrolled ? "text-slate-950" : "text-white",
+              "hidden whitespace-nowrap font-headline text-lg font-black tracking-tight sm:block",
+              isSolidHeader ? "text-slate-950" : "text-white",
             )}>
               AK Producciones
             </span>
@@ -98,36 +111,38 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
           {/* Desktop Nav */}
           <nav className={cn(
-            "hidden md:flex items-center gap-1 border-b transition-all duration-300",
-            isScrolled ? "border-transparent" : "border-white/10"
+            "hidden md:flex items-center gap-0.5 lg:gap-1 border-b transition-all duration-300",
+            isSolidHeader ? "border-transparent" : "border-white/10"
           )}>
             {navLinks.map((link) =>
               link.isExternal ? (
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-label={link.label}
                   target={link.openInNewTab ? '_blank' : undefined}
                   rel={link.openInNewTab ? 'noreferrer' : undefined}
                   className={cn(
-                    "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
-                    isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
+                    "whitespace-nowrap px-2.5 lg:px-3 py-2 text-[11px] font-black uppercase tracking-wider transition-colors",
+                    isSolidHeader ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
                   )}
                 >
-                  {link.label}
+                  {link.shortLabel ?? link.label}
                 </Link>
               ) : (
                 <a
                   key={link.href}
                   href={`/${link.href}`}
+                  aria-label={link.label}
                   target={link.openInNewTab ? '_blank' : undefined}
                   rel={link.openInNewTab ? 'noreferrer' : undefined}
                   onClick={(e) => handleAnchorClick(e, link.href)}
                   className={cn(
-                    "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
-                    isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
+                    "whitespace-nowrap px-2.5 lg:px-3 py-2 text-[11px] font-black uppercase tracking-wider transition-colors",
+                    isSolidHeader ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
                   )}
                 >
-                  {link.label}
+                  {link.shortLabel ?? link.label}
                 </a>
               )
             )}
@@ -138,7 +153,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
             <Link
               href="/simulador-de-presupuesto"
               className={cn(
-                'hidden sm:flex items-center gap-2 rounded-lg px-5 py-2.5 text-[10px] font-black uppercase tracking-widest',
+                'hidden sm:flex shrink-0 whitespace-nowrap items-center gap-2 rounded-lg px-4 lg:px-5 py-2.5 text-[10px] font-black uppercase tracking-widest',
                 'bg-red-700 hover:bg-red-800 text-white shadow-lg shadow-red-950/20',
                 'transition-all duration-300 hover:scale-[1.02] active:scale-95'
               )}
@@ -152,7 +167,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
               disabled={!isHydrated}
               className={cn(
                 "rounded-lg p-2.5 transition-colors md:hidden",
-                isScrolled
+                isSolidHeader
                   ? "text-slate-700 hover:bg-slate-100 hover:text-red-700"
                   : "text-zinc-200 hover:bg-white/10 hover:text-white",
               )}

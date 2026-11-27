@@ -35,8 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Mapa de fechas reales para notas del blog
   const fechasBlog = new Map<string, Date>();
   for (const post of staticBlogPosts) {
-    if (post.slug && post.publishedAt && esNotaPublicableEnSitemap(post, hoy)) {
-      fechasBlog.set(post.slug, new Date(post.publishedAt));
+    const fechaRaw = (post as any).updatedAt || post.publishedAt || (post as any).createdAt;
+    if (post.slug && fechaRaw && esNotaPublicableEnSitemap(post, hoy)) {
+      const fecha = new Date(fechaRaw);
+      if (!Number.isNaN(fecha.getTime())) {
+        fechasBlog.set(post.slug, fecha);
+      }
     }
   }
 
@@ -50,23 +54,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       continue;
     }
     notasPublicadas.push(nota);
-    if (nota.publishedAt || (nota as any).createdAt) {
-      fechasBlog.set(nota.slug, new Date(nota.publishedAt || (nota as any).createdAt));
+    const fechaRaw = (nota as any).updatedAt || nota.publishedAt || (nota as any).createdAt;
+    if (fechaRaw) {
+      const fecha = new Date(fechaRaw);
+      if (!Number.isNaN(fecha.getTime())) {
+        fechasBlog.set(nota.slug, fecha);
+      }
     }
   }
 
   const paginasBase = PAGINAS_PARA_GOOGLE.filter((ruta) => {
-    if (!ruta.startsWith('/public/blog/')) return true;
-    const slug = ruta.replace('/public/blog/', '');
+    if (!ruta.startsWith('/blog/')) return true;
+    const slug = ruta.replace('/blog/', '');
     return !slugsNoPublicables.has(slug);
   });
-  const rutasDeNotas = notasPublicadas.map((nota) => `/public/blog/${nota.slug}`);
+  const rutasDeNotas = notasPublicadas.map((nota) => `/blog/${nota.slug}`);
   const rutas = Array.from(new Set<string>([...paginasBase, ...rutasDeNotas]));
+
+  let fechaMasRecienteBlog: Date | null = null;
+  for (const ruta of rutas) {
+    if (!ruta.startsWith('/blog/')) continue;
+    const slug = ruta.replace('/blog/', '');
+    const fechaNota = fechasBlog.get(slug);
+    if (fechaNota && (!fechaMasRecienteBlog || fechaNota.getTime() > fechaMasRecienteBlog.getTime())) {
+      fechaMasRecienteBlog = fechaNota;
+    }
+  }
 
   return rutas.map((ruta) => {
     let lastModified = FECHA_SITIO_ESTABLE;
-    if (ruta.startsWith('/public/blog/')) {
-      const slug = ruta.replace('/public/blog/', '');
+    if (ruta === '/blog' && fechaMasRecienteBlog) {
+      lastModified = fechaMasRecienteBlog;
+    } else if (ruta.startsWith('/blog/')) {
+      const slug = ruta.replace('/blog/', '');
       const fechaNota = fechasBlog.get(slug);
       if (fechaNota) lastModified = fechaNota;
     }
@@ -74,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return {
       url: new URL(ruta, SITE_URL).toString(),
       lastModified,
-      changeFrequency: (ruta === '/' ? 'daily' : ruta.startsWith('/public/blog') ? 'monthly' : 'weekly') as 'daily' | 'weekly' | 'monthly',
+      changeFrequency: (ruta === '/' ? 'daily' : ruta.startsWith('/blog') ? 'monthly' : 'weekly') as 'daily' | 'weekly' | 'monthly',
       priority: prioridadDePagina(ruta),
     };
   });

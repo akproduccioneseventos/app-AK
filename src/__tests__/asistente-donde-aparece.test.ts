@@ -16,8 +16,8 @@ const DONDE_SI = [
   '/club-uruguay',
   '/experiencia-ak',
   '/simulador-de-presupuesto',
-  '/public/blog',
-  '/public/blog/como-elegir-salon',
+  '/blog',
+  '/blog/como-empezar-a-organizar-una-fiesta-sin-estres',
   '/landing/bodas',
 ];
 

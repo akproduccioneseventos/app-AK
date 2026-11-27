@@ -90,7 +90,7 @@ describe('qué puede mostrar Google', () => {
 
     const deMas = enElListado.filter((ruta) => !esperadas.includes(ruta));
     for (const ruta of deMas) {
-      expect(ruta.startsWith('/public/blog/')).toBe(true);
+      expect(ruta.startsWith('/blog/')).toBe(true);
     }
   });
 

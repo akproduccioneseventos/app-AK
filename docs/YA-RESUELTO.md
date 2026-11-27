@@ -2,6 +2,30 @@
 
 
 
+## 27/11/2026 - Orden 378 (web pública, /blog, feeds y suscripción) + diseño y neuroventas (Rama `gemini/orden-346`)
+
+- **Una sola URL de blog (`/blog` y `/blog/[slug]`), sitemap y robots**:
+  * Se movieron las pantallas reales de `src/app/public/blog/` a `src/app/blog/page.tsx` y `src/app/blog/[slug]/page.tsx` con `canonical` propio (`/blog` y `/blog/<slug>`) y se invirtieron las redirecciones 301 en `next.config.js` (`/public/blog` y `/public/blog/:slug` hacia `/blog`). Se eligió mover las rutas en vez de duplicar render para no fragmentar señales SEO ni romper el chequeo de redirecciones que tapan rutas vivas.
+  * Actualizados `src/app/sitemap.ts` (fechas `lastModified` reales por nota publicada), `src/app/robots.ts` (reglas explícitas para `Googlebot`, `Bingbot`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot` y `/blog/`), `src/lib/seo/paginas-publicas.ts`, `donde-va-el-asistente.ts` y todos los enlaces internos.
+- **Encabezado único, logo sin globo blanco y menú en una línea**:
+  * En `LandingNav.tsx` se quitó `blanco={!isScrolled}` de `<CompanyLogo />` (el filtro `brightness-0 invert` volvía el logo un círculo blanco vacío sobre la portada) y se unificó `PublicNavbar.tsx` delegando en `<LandingNav solid />` para compartir un único encabezado y logo (`alt="AK Producciones"`) con ítems `whitespace-nowrap` en escritorio.
+- **"Wedding planner / organizador de bodas", fotos reales de AK, títulos, schemas y `/club-uruguay`**:
+  * En `src/app/bodas/page.tsx` y `src/app/page.tsx` se posicionó `"Wedding planner y organizador de bodas"` en `<title>`, H1, meta description, sección explicativa con links a `/blog` y `/club-uruguay`, `ServiceJsonLd`, `FAQJsonLd` y `public/llms.txt` (manteniendo `"No cuenta con local de atención al público a la calle."` y sacando `"Gaboto 3390"` del Home JSON-LD).
+  * Reemplazadas las fotos de stock y el cartel ajeno `"MIS 15 AÑOS VALERIA"` por fotos reales de AK (`decoracion-boda-mesa-01.jpeg`, `xv-decoracion-rosa-01.jpeg`, `discoteca-salon-ak-02.jpeg`), y agregado `FAQJsonLd` + `ServiceJsonLd` en servidor para bodas, 15 años, cumpleaños, empresariales, infantiles, `/fiestas` y `/club-uruguay` (con mapa embebido en Uruguay 754 y capacidades `"50 a 250 personas según el montaje"`).
+- **Feeds externos (Blogger/WordPress), suscripción con consentimiento y mejora comercial/visual**:
+  * Creado `src/lib/blog/ultimas-notas.ts` (caché 1 h, tolerante a fallos devolviendo `[]`) y `<UltimasNotasExternas />` en portada y `/blog`.
+  * Creada suscripción propia en `src/lib/blog/suscriptores.ts`, `/api/suscribirse`, `/blog/baja` y botón manual **"Enviar por mail"** en `contenido-publico.tsx` (protegido por permisos e idempotente con tope semanal por persona; nunca envía solo).
+  * Aplicada estética editorial y neuroventas ("vender sin vender", sección "Tres formas de vivir tu fiesta sin estrés", vocabulario "comida"/"discoteca", `<Image />` LCP y ajuste móvil `390px`) en `HeroSection`, `ServicesSection`, `AkDifferenceSection`, `CTASection`, `EventLandingPage`, `/fiestas` y `/blog`.
+
+```comprobar
+no-usa: canonical: '/public/blog', en src/app/public/blog/page.tsx
+no-usa: ruta.startsWith('/public/blog/') en src/app/sitemap.ts
+usa: Wedding planner y organizador de bodas en Salto en src/app/bodas/page.tsx
+usa: akproduccionessalto.wordpress.com/feed en src/lib/blog/ultimas-notas.ts
+prueba: tests/e2e/la-web-y-el-blog-del-27-11.spec.ts
+prueba: src/__tests__/las-ultimas-notas-no-rompen.test.ts
+```
+
 ## 27/11/2026 - Orden 377 (robot insumos/activos + Touchpix) y publicación automática del blog (Rama `gemini/orden-346`)
 
 - **Guardado de insumos y activos fijos en `/empresa/insumos/[id]/editar` y `/empresa/activos-fijos/[id]/editar`**:
@@ -21,7 +45,7 @@ prueba: src/__tests__/el-insumo-y-el-activo-guardan.test.ts
 prueba: src/__tests__/el-blog-publica-solo.test.ts
 prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
 prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
-usa: force-dynamic en src/app/public/blog/page.tsx
+usa: force-dynamic en src/app/blog/page.tsx
 ```
 
 ## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)

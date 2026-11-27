@@ -110,7 +110,7 @@ describe('Orden 96: Ningún botón lleva a algo oculto', () => {
 
     it('los enlaces a Club Uruguay y Blog usan rutas directas y no anclas flotantes sin destino', () => {
       expect(footer).toContain('href="/club-uruguay"');
-      expect(footer).toContain('href="/public/blog"');
+      expect(footer).toContain('href="/blog"');
       expect(footer).not.toContain('href="#landing-salon"');
       expect(footer).not.toContain('href="#landing-blog-video"');
     });

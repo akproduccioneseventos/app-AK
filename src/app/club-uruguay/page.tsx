@@ -26,8 +26,10 @@ import {
   getDynamicSalonPhotos,
   type SalonPhoto,
 } from '@/lib/salon-helper';
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { AK_WHATSAPP_NUMBER, AK_WHATSAPP_PARA_MOSTRAR } from '@/lib/public-contact';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
+import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
 import {
   ClubUruguayClosingActions,
   ClubUruguayHeroActions,
@@ -59,6 +61,38 @@ export const metadata: Metadata = {
 };
 
 const WHATSAPP = AK_WHATSAPP_NUMBER;
+const WHATSAPP_LOCAL = `0${AK_WHATSAPP_PARA_MOSTRAR.replace('+598 ', '')}`;
+
+const CLUB_URUGUAY_FAQS = [
+  {
+    question: '¿Cómo se coordina una visita para conocer el salón?',
+    answer: `Nos escribís por WhatsApp al ${WHATSAPP_LOCAL} y coordinamos un día y horario para recorrer las instalaciones en Uruguay 754 con el equipo de AK Producciones. El clic inicia la consulta; coordinamos la cita con vos según disponibilidad.`,
+  },
+  {
+    question: '¿A qué aplica la bonificación del 50% en el alquiler?',
+    answer:
+      'Aplica sobre el costo de alquiler del espacio de Club Uruguay cuando se contrata la producción integral de la fiesta con AK Producciones. No modifica los costos de servicios individuales (comida, discoteca o barras).',
+  },
+  {
+    question: '¿Puedo elegir qué servicios contratar con AK?',
+    answer:
+      'Sí. Podés armar una propuesta a medida desde el simulador de presupuesto, eligiendo la combinación de gastronomía, sonido, decoración, tecnología interactiva y fotografía que se ajuste a tu plan.',
+  },
+  {
+    question: '¿Qué aforo real tienen los dos espacios?',
+    answer:
+      'La capacidad es de 50 a 250 personas según el montaje, Uruguay 754: hasta ~250 personas en el salón principal y hasta ~50 en el espacio íntimo, sujetas a la distribución de mesas, pista de baile y livings. Son espacios independientes, no un aforo acumulativo de 300 invitados.',
+  },
+  {
+    question: '¿Se pueden hacer bodas, fiestas de 15 años y cumpleaños en el Club Uruguay?',
+    answer:
+      'Sí. En Club Uruguay (50 a 250 personas según el montaje, Uruguay 754) organizamos bodas, fiestas de 15 años, cumpleaños sociales, celebraciones familiares y eventos empresariales con coordinación integral de AK Producciones.',
+  },
+  {
+    question: '¿Cómo se pide presupuesto para una fiesta en Club Uruguay?',
+    answer: `Podés estimar tu presupuesto en el simulador online eligiendo Salón Club Uruguay o escribirnos por WhatsApp al ${WHATSAPP_LOCAL} para recibir una propuesta detallada en pesos uruguayos.`,
+  },
+];
 
 async function getSalonesWithoutBlockingSale() {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -137,6 +171,14 @@ export default async function ClubUruguayPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(salonJsonLd) }}
       />
+      <ServiceJsonLd
+        name="Salón de Fiestas Club Uruguay en Salto"
+        serviceType="Salón de fiestas y eventos"
+        description="Salón de Fiestas Club Uruguay en Salto: capacidad de 50 a 250 personas según el montaje, Uruguay 754, con organización integral de AK Producciones para bodas, 15 años, cumpleaños y eventos."
+        image="https://akproducciones.uy/media/catalogo-servicios/salon-discoteca-ak-01.jpeg"
+        url="https://akproducciones.uy/club-uruguay"
+      />
+      <FAQJsonLd items={CLUB_URUGUAY_FAQS} />
       <LandingNav />
 
       <main>
@@ -306,6 +348,16 @@ export default async function ClubUruguayPage() {
                 <p>{salonDescription}</p>
               </div>
             )}
+
+            <div className="mt-8 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 shadow-sm">
+              <iframe
+                src="https://maps.google.com/maps?q=Uruguay+754,+Salto,+Uruguay&z=16&output=embed"
+                title="Mapa de ubicación Club Uruguay, Uruguay 754, Salto"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-72 w-full border-0 sm:h-96"
+              />
+            </div>
           </div>
         </section>
 
@@ -452,45 +504,20 @@ export default async function ClubUruguayPage() {
             </div>
 
             <div className="mt-12 space-y-4">
-              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
-                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
-                  <span>¿Cómo se coordina una visita para conocer el salón?</span>
-                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
-                </summary>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
-                  Nos escribís por WhatsApp y coordinamos un día y horario para recorrer las instalaciones con el equipo de AK Producciones. El clic inicia la consulta; coordinamos la cita con vos según disponibilidad.
-                </p>
-              </details>
-
-              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
-                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
-                  <span>¿A qué aplica la bonificación del 50% en el alquiler?</span>
-                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
-                </summary>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
-                  Aplica sobre el costo de alquiler del espacio de Club Uruguay cuando se contrata la producción integral de la fiesta con AK Producciones. No modifica los costos de servicios individuales (comida, discoteca o barras).
-                </p>
-              </details>
-
-              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
-                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
-                  <span>¿Puedo elegir qué servicios contratar con AK?</span>
-                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
-                </summary>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
-                  Sí. Podés armar una propuesta a medida desde el simulador de presupuesto, eligiendo la combinación de gastronomía, sonido, decoración, tecnología interactiva y fotografía que se ajuste a tu plan.
-                </p>
-              </details>
-
-              <details className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm">
-                <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
-                  <span>¿Qué aforo real tienen los dos espacios?</span>
-                  <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
-                </summary>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-600">
-                  Las capacidades informadas son de hasta ~250 personas en el salón principal y hasta ~50 en el espacio íntimo, sujetas a la distribución de mesas, pista de baile y livings. Son espacios independientes, no un aforo acumulativo de 300 invitados.
-                </p>
-              </details>
+              {CLUB_URUGUAY_FAQS.map((faq) => (
+                <details
+                  key={faq.question}
+                  className="group rounded-2xl border border-zinc-200 bg-zinc-50 p-6 transition open:bg-white open:shadow-sm"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between font-headline text-lg font-black text-zinc-900">
+                    <span>{faq.question}</span>
+                    <span className="ml-4 text-red-600 transition group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
@@ -507,7 +534,7 @@ export default async function ClubUruguayPage() {
                   Coordiná tu visita o calculá tu presupuesto
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-300">
-                  Escribinos para recorrer las instalaciones en Uruguay 754 o simulá los números de tu fiesta con el catálogo vigente de AK Producciones.
+                  Escribinos para recorrer las instalaciones en Uruguay 754 (50 a 250 personas según el montaje) o simulá los números de tu fiesta con el catálogo vigente de AK Producciones.
                 </p>
               </div>
 
@@ -517,6 +544,9 @@ export default async function ClubUruguayPage() {
             </div>
           </div>
         </section>
+        <div className="border-t border-white/10 bg-zinc-950 py-4 text-center text-xs text-zinc-400">
+          Actualizado el 27 de noviembre de 2026
+        </div>
       </main>
 
       <PublicFooter variant="dark" />

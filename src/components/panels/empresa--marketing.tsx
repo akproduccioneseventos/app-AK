@@ -66,7 +66,7 @@ const marketingTools: MarketingSection[] = [
     description: 'Artículos de posicionamiento web (SEO) y notas semanales automáticas.',
     icon: BookOpen,
     color: 'text-blue-600 bg-blue-100',
-    href: '/public/blog',
+    href: '/blog',
     badge: 'SEO',
   },
   {

@@ -89,7 +89,7 @@ describe('Orden 355 - Cuarta auditoría del 25/11', () => {
       '/simulador-de-presupuesto': 'src/app/simulador-de-presupuesto/layout.tsx',
       '/simulador-ak': 'src/app/simulador-ak/layout.tsx',
       '/privacidad': 'src/app/privacidad/page.tsx',
-      '/public/blog': 'src/app/public/blog/page.tsx',
+      '/blog': 'src/app/blog/page.tsx',
     };
 
     for (const [ruta, archivo] of Object.entries(archivosPorRuta)) {

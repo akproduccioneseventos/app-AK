@@ -1,7 +1,7 @@
 export const PUBLIC_EVENT_TYPE_IMAGES = {
-  boda: "/media/catalogo-servicios/boda_persuasiva.png",
+  boda: "/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg",
   xv: "/media/catalogo-servicios/xv-pista-iluminada-01.jpeg",
-  social: "/media/catalogo-servicios/social_persuasivo.png",
+  social: "/media/catalogo-servicios/discoteca-salon-ak-02.jpeg",
   corporativo: "/media/catalogo-servicios/corporativo_persuasivo.png",
 } as const;
 

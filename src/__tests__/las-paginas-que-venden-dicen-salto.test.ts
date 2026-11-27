@@ -49,11 +49,11 @@ describe('las paginas que venden', () => {
 describe('las notas del blog', () => {
   it('todas las escritas estan en la lista que ve Google', () => {
     for (const post of blogPosts) {
-      expect(PAGINAS_PARA_GOOGLE).toContain(`/public/blog/${post.slug}`);
+      expect(PAGINAS_PARA_GOOGLE).toContain(`/blog/${post.slug}`);
     }
   });
 
   it('la nota de Salto esta incluida', () => {
-    expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog/ideas-para-fiesta-de-xv-en-salto');
+    expect(PAGINAS_PARA_GOOGLE).toContain('/blog/ideas-para-fiesta-de-xv-en-salto');
   });
 });

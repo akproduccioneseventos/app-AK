@@ -3,11 +3,43 @@ import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
+import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
+import { AK_WHATSAPP_PARA_MOSTRAR } from '@/lib/public-contact';
+
+const WHATSAPP_LOCAL = `0${AK_WHATSAPP_PARA_MOSTRAR.replace('+598 ', '')}`;
+
+const EMPRESARIALES_FAQS = [
+  {
+    pregunta: '¿Hacen cenas de fin de año?',
+    respuesta:
+      'Sí. Ofrecemos salón, comida con vajilla y mobiliario, decoración, discoteca, fotografía, barra de tragos y cabinas para cenas y fiestas de fin de año de empresas en Salto.',
+  },
+  {
+    pregunta: '¿Se adaptan a la marca de la empresa?',
+    respuesta:
+      'Sí. Podemos adaptar los colores de la ambientación, los marcos de la fotocabina o plataforma 360 y los detalles visuales del evento a la identidad de tu empresa.',
+  },
+  {
+    pregunta: '¿Cuánto antes hay que avisar?',
+    respuesta:
+      'Recomendamos consultar apenas tengan definida una fecha tentativa para asegurar disponibilidad de salón y servicios, especialmente hacia fin de año.',
+  },
+  {
+    pregunta: '¿Presupuestan para un grupo grande?',
+    respuesta:
+      'Sí. Preparamos presupuestos detallados por escrito en pesos uruguayos adaptados a grupos chicos, medianos o grandes, según los servicios elegidos.',
+  },
+  {
+    pregunta: '¿Se puede realizar en el Salón Club Uruguay o en la sede de la empresa?',
+    respuesta: `Sí. Trabajamos en el Salón Club Uruguay (50 a 250 personas según el montaje, Uruguay 754) o en el espacio que elija tu empresa en Salto. Podés consultar disponibilidad por WhatsApp al ${WHATSAPP_LOCAL}.`,
+  },
+];
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'fiestas-empresariales',
   title: 'Eventos y fiestas de empresa en Salto',
-  description: 'Salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos y cabinas para eventos de empresa en Salto.',
+  description:
+    'Salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos y cabinas para eventos de empresa en Salto.',
   image: '/media/catalogo-servicios/corporativo_persuasivo.png',
   imageAlt: 'Imagen ilustrativa de un evento empresarial',
 });
@@ -18,9 +50,16 @@ export default function FiestasEmpresarialesLanding() {
       <LocalBusinessJsonLd url="https://akproducciones.uy/fiestas-empresariales" />
       <ServiceJsonLd
         name="Eventos y fiestas de empresa en Salto"
+        serviceType="Eventos y fiestas empresariales"
         description="Servicios para eventos empresariales y cenas de fin de año en Salto: salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos, fotocabina, Vogue y plataforma 360."
         image="https://akproducciones.uy/media/catalogo-servicios/corporativo_persuasivo.png"
         url="https://akproducciones.uy/fiestas-empresariales"
+      />
+      <FAQJsonLd
+        items={EMPRESARIALES_FAQS.map((item) => ({
+          question: item.pregunta,
+          answer: item.respuesta,
+        }))}
       />
       <EventLandingPage
         eventType="Fiestas empresariales"
@@ -99,24 +138,8 @@ export default function FiestasEmpresarialesLanding() {
             esIlustrativa: true,
           },
         ]}
-        faqs={[
-          {
-            pregunta: '¿Hacen cenas de fin de año?',
-            respuesta: 'Sí. Ofrecemos salón, comida con vajilla y mobiliario, decoración, discoteca, fotografía, barra de tragos y cabinas para cenas y fiestas de fin de año de empresas en Salto.',
-          },
-          {
-            pregunta: '¿Se adaptan a la marca de la empresa?',
-            respuesta: 'Sí. Podemos adaptar los colores de la ambientación, los marcos de la fotocabina o plataforma 360 y los detalles visuales del evento a la identidad de tu empresa.',
-          },
-          {
-            pregunta: '¿Cuánto antes hay que avisar?',
-            respuesta: 'Recomendamos consultar apenas tengan definida una fecha tentativa para asegurar disponibilidad de salón y servicios, especialmente hacia fin de año.',
-          },
-          {
-            pregunta: '¿Presupuestan para un grupo grande?',
-            respuesta: 'Sí. Preparamos presupuestos detallados por escrito en pesos uruguayos adaptados a grupos chicos, medianos o grandes, según los servicios elegidos.',
-          },
-        ]}
+        faqs={EMPRESARIALES_FAQS}
+        lastUpdated="27 de noviembre de 2026"
       />
     </>
   );

@@ -34,7 +34,7 @@ describe('El blog muestra todas las notas ordenadas', () => {
   });
 
   it('la página pública del blog usa esta función', () => {
-    const pagina = fs.readFileSync(path.join(process.cwd(), 'src/app/public/blog/page.tsx'), 'utf8');
+    const pagina = fs.readFileSync(path.join(process.cwd(), 'src/app/blog/page.tsx'), 'utf8');
     expect(pagina).toContain('notasDelBlogParaMostrar(');
     expect(pagina).not.toMatch(/postsFromDb\.length > 0 \? postsFromDb/);
   });

@@ -1,10 +1,13 @@
 import React from 'react';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export interface ServiceJsonLdProps {
   name: string;
   description: string;
   image: string;
   url: string;
+  serviceType?: string;
+  alternateName?: string[];
 }
 
 /**
@@ -22,17 +25,25 @@ export interface ServiceJsonLdProps {
  * servicios. Por eso se cotiza. **Si alguna vez hace falta declarar un precio, tiene que
  * salir de un dato real de la app, en pesos, y nunca de un valor por defecto.**
  */
-export function ServiceJsonLd({ name, description, image, url }: ServiceJsonLdProps) {
-  const schemaData = {
+export function ServiceJsonLd({
+  name,
+  description,
+  image,
+  url,
+  serviceType = 'Event Planning',
+  alternateName,
+}: ServiceJsonLdProps) {
+  const schemaData: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "serviceType": "Event Planning",
+    "serviceType": serviceType,
     "name": name,
+    ...(alternateName && alternateName.length > 0 ? { "alternateName": alternateName } : {}),
     "provider": {
-      "@type": "LocalBusiness",
+      "@type": "EventPlanner",
       "name": "AK Producciones Eventos",
-      "image": "https://akproducciones.uy/media/catalogo-servicios/quinceanera_hero.png",
-      "@id": "https://akproducciones.uy/#localbusiness",
+      "telephone": `+${AK_WHATSAPP_NUMBER}`,
+      "url": "https://akproducciones.uy/",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Salto",

@@ -44,7 +44,7 @@ export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionami
   await requireAppSession();
 
   // 1. Conteo de páginas y sitemap
-  const paginasVenta = PAGINAS_PARA_GOOGLE.filter((p) => !p.startsWith('/public/blog/'));
+  const paginasVenta = PAGINAS_PARA_GOOGLE.filter((p) => !p.startsWith('/blog/'));
   const todasLasNotas = [...blogPosts];
 
   // Ordenar notas por fecha para obtener la última

@@ -7,13 +7,16 @@ import { motion } from "framer-motion";
 import { blogPosts } from "@/data/blog-posts";
 import { getBlogIcon } from "@/lib/blog-icons";
 import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from "@/lib/blog-display";
+import { UltimasNotasExternas } from "@/components/public/UltimasNotasExternas";
+import type { NotaExternaBlog } from "@/lib/blog/ultimas-notas";
 import type { BlogPost } from "@/types/blog";
 
 interface BlogSectionProps {
   posts?: BlogPost[];
+  notasExternas?: NotaExternaBlog[];
 }
 
-export function BlogSection({ posts }: BlogSectionProps) {
+export function BlogSection({ posts, notasExternas }: BlogSectionProps) {
   const postsToShow = (posts?.length ? posts : blogPosts).slice(0, 3);
   const containerVariants = {
     hidden: {},
@@ -25,7 +28,12 @@ export function BlogSection({ posts }: BlogSectionProps) {
   };
 
   return (
-    <section id="blog" className="overflow-hidden border-y border-slate-200 bg-white py-24 text-slate-950">
+    <section
+      id="blog"
+      className={`overflow-hidden border-y border-slate-200 bg-white pt-24 text-slate-950 ${
+        notasExternas && notasExternas.length > 0 ? "pb-0" : "pb-24"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
@@ -41,7 +49,7 @@ export function BlogSection({ posts }: BlogSectionProps) {
             </p>
           </div>
           <Link
-            href="/public/blog"
+            href="/blog"
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:scale-[1.02] hover:border-slate-400 hover:bg-slate-50 active:scale-95"
           >
             Ver todos los artículos
@@ -61,7 +69,7 @@ export function BlogSection({ posts }: BlogSectionProps) {
             return (
               <motion.div key={post.slug} variants={cardVariants} className="h-full">
                 <Link
-                  href={`/public/blog/${post.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
@@ -102,6 +110,11 @@ export function BlogSection({ posts }: BlogSectionProps) {
           })}
         </motion.div>
       </div>
+      {notasExternas && notasExternas.length > 0 && (
+        <div className="mt-16">
+          <UltimasNotasExternas notas={notasExternas} />
+        </div>
+      )}
     </section>
   );
 }

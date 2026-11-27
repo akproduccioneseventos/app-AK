@@ -25,6 +25,10 @@ const PUBLIC_ROUTES = new Set([
   // Contador público de clics de /enlaces (enlace de la biografía en redes).
   // No expone datos internos: sólo registra el clic del botón tocado y redirige.
   'enlaces/clic/route.ts',
+  // Suscripción pública a novedades del blog (exige casilla de consentimiento y rate limit)
+  // y baja mediante token aleatorio (no expone correos de terceros).
+  'suscribirse/route.ts',
+  'suscribirse/baja/route.ts',
 ]);
 
 function listRoutes(directory: string): string[] {

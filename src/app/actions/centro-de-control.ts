@@ -280,7 +280,7 @@ export async function getCentroDeControlDatos(): Promise<CentroDeControlDatos> {
         titulo: `Nota de blog: ${post.title}`,
         descripcion: `Publicó la nota "${post.title}" en el blog corporativo.`,
         fecha: post.publishedAt ? `${post.publishedAt}T12:00:00.000Z` : new Date().toISOString(),
-        enlace: `/public/blog/${post.slug}`,
+        enlace: `/blog/${post.slug}`,
       });
     }
   } catch (error) {
