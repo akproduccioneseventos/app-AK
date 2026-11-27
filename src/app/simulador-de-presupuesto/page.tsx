@@ -42,7 +42,11 @@ import {
     ChevronDown,
     Timer,
     HelpCircle,
+    Images,
 } from 'lucide-react';
+import { getFotosDelServicio } from '@/app/actions/galeria';
+import type { GaleriaFoto } from '@/types/galeria';
+import { GaleriaLightboxModal } from '@/app/presentacion-led/components/galeria-lightbox-modal';
 import { useToast } from '@/hooks/use-toast';
 // Protegido con bot-shield en servidor contra solicitudes automáticas
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -187,7 +191,7 @@ async function withFallbackTimeout<T>(
 
 const DURATION_OPTIONS = [
     { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
-    { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
+    { value: 5, title: 'Más de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
 
 const STEP_LABELS = ['Datos', 'Menú', 'Paquete', 'Edición'] as const;
@@ -447,6 +451,12 @@ function SimuladorContent() {
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFaqOpen, setIsFaqOpen] = useState(false);
+    const [fotosPorServicio, setFotosPorServicio] = useState<Record<string, GaleriaFoto[]>>({});
+    const [serviceGalleryModal, setServiceGalleryModal] = useState<{ open: boolean; titulo: string; fotos: GaleriaFoto[] }>({
+        open: false,
+        titulo: '',
+        fotos: [],
+    });
     const [fieldErrors, setFieldErrors] = useState<{
         nombre?: boolean;
         contacto?: boolean;
@@ -1702,6 +1712,46 @@ function SimuladorContent() {
         }
         return groups;
     }, [stats.detallados]);
+
+    useEffect(() => {
+        if (step !== 5) return;
+        let activo = true;
+        const visibles = new Map<string, string>();
+        for (const s of stats.detallados) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        for (const s of tierMissingData.missingServices) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        for (const s of filteredSearchServices) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        if (visibles.size === 0) return;
+
+        Promise.all(
+            Array.from(visibles.entries()).map(async ([id, nombre]) => {
+                try {
+                    const fotos = await getFotosDelServicio(id, nombre);
+                    return [id, fotos] as const;
+                } catch {
+                    return [id, [] as GaleriaFoto[]] as const;
+                }
+            }),
+        ).then((pares) => {
+            if (!activo) return;
+            setFotosPorServicio((prev) => {
+                const siguiente = { ...prev };
+                for (const [id, fotos] of pares) {
+                    siguiente[id] = fotos;
+                }
+                return siguiente;
+            });
+        });
+
+        return () => {
+            activo = false;
+        };
+    }, [step, stats.detallados, tierMissingData.missingServices, filteredSearchServices, fotosPorServicio]);
 
     useEffect(() => {
         if (!selectedPaqueteId) return;
@@ -3276,6 +3326,25 @@ function SimuladorContent() {
                                                                         </>
                                                                     )}
                                                                 </div>
+                                                                {(fotosPorServicio[item.id]?.length ?? 0) > 0 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        data-testid={`sim-ver-fotos-${item.id}`}
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            setServiceGalleryModal({
+                                                                                open: true,
+                                                                                titulo: getNombreVisibleDeServicio(item),
+                                                                                fotos: fotosPorServicio[item.id] || [],
+                                                                            });
+                                                                        }}
+                                                                        className="mt-1.5 inline-flex items-center gap-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100"
+                                                                    >
+                                                                        <Images className="h-3 w-3" />
+                                                                        Ver fotos ({fotosPorServicio[item.id].length})
+                                                                    </button>
+                                                                )}
                                                             </div>
 
                                                             {isServiceRemovable(item) && (
@@ -3396,6 +3465,25 @@ function SimuladorContent() {
                                                                 <span className="block font-black text-xs text-white truncate">{getNombreVisibleDeServicio(service)}</span>
                                                                 {mostrarPrecios && (
                                                                     <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                )}
+                                                                {(fotosPorServicio[service.id]?.length ?? 0) > 0 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        data-testid={`sim-ver-fotos-${service.id}`}
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            setServiceGalleryModal({
+                                                                                open: true,
+                                                                                titulo: getNombreVisibleDeServicio(service),
+                                                                                fotos: fotosPorServicio[service.id] || [],
+                                                                            });
+                                                                        }}
+                                                                        className="mt-1 inline-flex items-center gap-1 rounded-md border border-white/25 bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-white/20"
+                                                                    >
+                                                                        <Images className="h-3 w-3" />
+                                                                        Ver fotos ({fotosPorServicio[service.id].length})
+                                                                    </button>
                                                                 )}
                                                             </div>
                                                             <Button
@@ -3565,17 +3653,19 @@ function SimuladorContent() {
                                 {step < 4 && <ArrowRight className="ml-3 w-5 h-5"/>}
                             </Button>
                         </motion.div>
-                        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
-                            {stats.totalFinal <= 0 ? (
-                                <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
-                            ) : (
-                                <>
-                                    <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
-                                    <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
-                                    {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
-                                </>
-                            )}
-                        </div>
+                        {(stats.totalFinal > 0 || step >= 3) && (
+                            <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
+                                {stats.totalFinal <= 0 ? (
+                                    <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
+                                ) : (
+                                    <>
+                                        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
+                                        <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
+                                        {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </CardFooter>
             </Card>
@@ -3801,6 +3891,12 @@ function SimuladorContent() {
                     </div>
                 );
             })()}
+            <GaleriaLightboxModal
+                isOpen={serviceGalleryModal.open}
+                onClose={() => setServiceGalleryModal((prev) => ({ ...prev, open: false }))}
+                fotos={serviceGalleryModal.fotos}
+                categoriaLabel={serviceGalleryModal.titulo || 'Galería'}
+            />
         </div>
     );
 }

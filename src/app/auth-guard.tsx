@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense, type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { clearSessionCookie, getSessionStatus } from '@/app/actions/session';
 import { getSession, setSession, clearSession } from '@/lib/auth';
 import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
@@ -59,11 +60,14 @@ function AuthGuardInner({ children }: AuthGuardProps) {
   const searchParams = useSearchParams();
   const searchString = searchParams?.toString() ?? '';
   const [isVerified, setIsVerified] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [retryTick, setRetryTick] = useState(0);
   const isPublic = isPublicRoute(pathname, searchString);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     let active = true;
+    setConnectionError(null);
 
     if (isPublic) {
       setIsVerified(true);
@@ -84,15 +88,21 @@ function AuthGuardInner({ children }: AuthGuardProps) {
 
     async function verifyAccess() {
       if (!getSession()) {
-        const isValid = await getSessionStatus();
-        if (!active) return;
-        if (isValid) {
-          setSession();
-          setIsVerified(true);
-          return;
+        try {
+          const isValid = await getSessionStatus();
+          if (!active) return;
+          if (isValid) {
+            setSession();
+            setIsVerified(true);
+            return;
+          }
+          const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
+          router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
+        } catch (err) {
+          if (!active) return;
+          console.error('[AuthGuard] Failed to verify session on server:', err);
+          setConnectionError('Error de conexión: no se pudo verificar tu sesión ni cargar esta pantalla. Intentá nuevamente.');
         }
-        const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
-        router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
         return;
       }
 
@@ -110,9 +120,7 @@ function AuthGuardInner({ children }: AuthGuardProps) {
       } catch (err) {
         if (!active) return;
         console.error('[AuthGuard] Failed to verify session on server:', err);
-        clearSession();
-        const fullPath = searchString ? `${pathname}?${searchString}` : pathname;
-        router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
+        setConnectionError('Error de conexión: no se pudo verificar tu sesión ni cargar esta pantalla. Intentá nuevamente.');
       }
     }
 
@@ -121,7 +129,24 @@ function AuthGuardInner({ children }: AuthGuardProps) {
     return () => {
       active = false;
     };
-  }, [isPublic, pathname, searchString, router]);
+  }, [isPublic, pathname, searchString, router, retryTick]);
+
+  if (!isPublic && connectionError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6" role="alert">
+        <div className="max-w-md rounded-2xl border border-destructive/30 bg-card p-6 text-center shadow-sm space-y-4">
+          <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
+          <div className="space-y-1">
+            <p className="font-semibold text-destructive">No se pudo conectar con el servidor</p>
+            <p className="text-sm text-muted-foreground">{connectionError}</p>
+          </div>
+          <Button type="button" onClick={() => setRetryTick((prev) => prev + 1)}>
+            Reintentar
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isPublic && !isVerified) {
     return (

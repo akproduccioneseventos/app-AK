@@ -386,12 +386,12 @@ export default function CatalogoPlatosPage() {
                                       </div>
                                       <div className="flex items-center gap-1 shrink-0">
                                         <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)} title="Editar precio del plato">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)} aria-label={`Editar precio de ${plato.name}`} title="Editar precio del plato">
                                             <Edit className="w-4 h-4" />
                                         </Button>
                                          <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={processingId === plato.id || processingId === plato.menuId} title="Opciones">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={processingId === plato.id || processingId === plato.menuId} aria-label={`Opciones de ${plato.name}`} title="Opciones">
                                                     {(processingId === plato.id || processingId === plato.menuId) ? <Loader2 className="w-4 h-4 animate-spin"/> : <MoreVertical className="w-4 h-4" />}
                                                 </Button>
                                             </DropdownMenuTrigger>

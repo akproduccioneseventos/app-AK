@@ -4,6 +4,9 @@ import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
 import { metadata as bodasMetadata } from '@/app/bodas/page';
 import { metadata as quinceMetadata } from '@/app/quinceaneras/page';
 import { metadata as cumpleMetadata } from '@/app/cumpleanos/page';
+import { metadata as fiestasMetadata } from '@/app/fiestas/page';
+import { metadata as empresarialesMetadata } from '@/app/fiestas-empresariales/page';
+import { metadata as infantilesMetadata } from '@/app/fiestas-infantiles/page';
 import { metadata as clubMetadata } from '@/app/club-uruguay/page';
 import { metadata as catalogoMetadata } from '@/app/catalogo/layout';
 import { metadata as expMetadata } from '@/app/experiencia-ak/page';
@@ -16,6 +19,17 @@ import { getCatalogBySlug } from '@/data/event-catalogs';
 import { blogPosts } from '@/data/blog-posts';
 import { CAMPAIGN_LANDING_MAP } from '@/lib/marketing/campaign-landings';
 import { PROMO_PAGES } from '@/lib/marketing/promo-pages';
+
+function extraerTituloMetadata(title: unknown): string {
+  if (!title) return '';
+  if (typeof title === 'string') return title;
+  if (typeof title === 'object') {
+    const t = title as { absolute?: unknown; default?: unknown };
+    if (typeof t.absolute === 'string') return t.absolute;
+    if (typeof t.default === 'string') return t.default;
+  }
+  return '';
+}
 
 /**
  * Lee los títulos y descripciones de las páginas públicas donde viven de verdad,
@@ -44,77 +58,98 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
 
   if (ruta === '/bodas') {
     return {
-      title: String(bodasMetadata.title || ''),
+      title: extraerTituloMetadata(bodasMetadata.title),
       description: String(bodasMetadata.description || ''),
     };
   }
 
   if (ruta === '/quinceaneras') {
     return {
-      title: String(quinceMetadata.title || ''),
+      title: extraerTituloMetadata(quinceMetadata.title),
       description: String(quinceMetadata.description || ''),
     };
   }
 
   if (ruta === '/cumpleanos') {
     return {
-      title: String(cumpleMetadata.title || ''),
+      title: extraerTituloMetadata(cumpleMetadata.title),
       description: String(cumpleMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas') {
+    return {
+      title: extraerTituloMetadata(fiestasMetadata.title),
+      description: String(fiestasMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas-empresariales') {
+    return {
+      title: extraerTituloMetadata(empresarialesMetadata.title),
+      description: String(empresarialesMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/fiestas-infantiles') {
+    return {
+      title: extraerTituloMetadata(infantilesMetadata.title),
+      description: String(infantilesMetadata.description || ''),
     };
   }
 
   if (ruta === '/club-uruguay') {
     return {
-      title: String(clubMetadata.title || ''),
+      title: extraerTituloMetadata(clubMetadata.title),
       description: String(clubMetadata.description || ''),
     };
   }
 
   if (ruta === '/catalogo') {
     return {
-      title: String(catalogoMetadata.title || ''),
+      title: extraerTituloMetadata(catalogoMetadata.title),
       description: String(catalogoMetadata.description || ''),
     };
   }
 
   if (ruta === '/experiencia-ak') {
     return {
-      title: String(expMetadata.title || ''),
+      title: extraerTituloMetadata(expMetadata.title),
       description: String(expMetadata.description || ''),
     };
   }
 
   if (ruta === '/privacidad') {
     return {
-      title: String(privacidadMetadata.title || ''),
+      title: extraerTituloMetadata(privacidadMetadata.title),
       description: String(privacidadMetadata.description || ''),
     };
   }
 
   if (ruta === '/simulador-de-presupuesto') {
     return {
-      title: String(simMetadata.title || ''),
+      title: extraerTituloMetadata(simMetadata.title),
       description: String(simMetadata.description || ''),
     };
   }
 
   if (ruta === '/simulador-ak') {
     return {
-      title: String(simAkMetadata.title || ''),
+      title: extraerTituloMetadata(simAkMetadata.title),
       description: String(simAkMetadata.description || ''),
     };
   }
 
   if (ruta === '/public/blog') {
     return {
-      title: String(blogListMetadata.title || ''),
+      title: extraerTituloMetadata(blogListMetadata.title),
       description: String(blogListMetadata.description || ''),
     };
   }
 
   if (ruta === '/enlaces') {
     return {
-      title: String(enlacesMetadata.title || ''),
+      title: extraerTituloMetadata(enlacesMetadata.title),
       description: String(enlacesMetadata.description || ''),
     };
   }

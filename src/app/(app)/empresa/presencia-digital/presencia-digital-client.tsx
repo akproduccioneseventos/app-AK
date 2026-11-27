@@ -2417,6 +2417,68 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               </div>
             )}
           </div>
+
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-amber-400" />
+                Enlaces para tus anuncios
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Copiá el enlace de cada tipo de fiesta según dónde lo vas a publicar para saber en el CRM de qué canal llegó cada consulta. Sólo lectura.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { label: 'Bodas', path: '/bodas' },
+                { label: '15 años', path: '/quinceaneras' },
+                { label: 'Cumpleaños', path: '/cumpleanos' },
+                { label: 'Fiestas empresariales', path: '/fiestas-empresariales' },
+                { label: 'Fiestas infantiles', path: '/fiestas-infantiles' },
+                { label: 'Tipos de fiesta (ficha de Google)', path: '/fiestas' },
+              ].map((pagina) => (
+                <div key={pagina.path} className="rounded-xl border border-slate-800 bg-slate-950/70 p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-white">{pagina.label}</span>
+                    <span className="text-[11px] font-mono text-slate-400">{pagina.path}</span>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                    {[
+                      { canal: 'Instagram / Facebook', param: 'meta' },
+                      { canal: 'Google', param: 'google' },
+                      { canal: 'WhatsApp', param: 'wa' },
+                    ].map(({ canal, param }) => {
+                      const url = `https://akproducciones.uy${pagina.path}?o=${param}`;
+                      return (
+                        <div key={param} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800/80 bg-slate-900/80 px-2.5 py-2">
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-semibold text-slate-300">{canal}</p>
+                            <p className="truncate text-[11px] font-mono text-sky-300">{url}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(url);
+                                toast({ title: 'Enlace copiado', description: url });
+                              } catch {
+                                toast({ variant: 'destructive', title: 'No se pudo copiar', description: url });
+                              }
+                            }}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-slate-700 transition"
+                          >
+                            <Copy className="w-3 h-3" />
+                            Copiar
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

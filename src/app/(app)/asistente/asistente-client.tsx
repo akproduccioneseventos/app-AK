@@ -231,20 +231,29 @@ function AsistenteBandejaInner() {
 
   const handleGuardarMeta = async () => {
     setGuardandoMeta(true);
-    const res = await guardarMetaMesAction(metaInput);
-    if (res.success) {
-      toast({
-        title: 'Meta guardada',
-        description: 'Meta del mes guardada con éxito.',
-      });
-    } else {
+    try {
+      const res = await guardarMetaMesAction(metaInput);
+      if (res.success) {
+        toast({
+          title: 'Meta guardada',
+          description: 'Meta del mes guardada con éxito.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Error al guardar meta.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al guardar meta.',
         variant: 'destructive',
       });
+    } finally {
+      setGuardandoMeta(false);
     }
-    setGuardandoMeta(false);
   };
 
   const badgeColorArea = (area: AsistenteArea) => {
@@ -372,7 +381,7 @@ function AsistenteBandejaInner() {
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
             >
-              Guardar meta
+              Guardar
             </Button>
           </div>
         </CardContent>
@@ -388,7 +397,7 @@ function AsistenteBandejaInner() {
             </Badge>
           </h3>
           <Button variant="ghost" size="sm" onClick={cargarDatos} className="text-xs text-slate-500">
-            Actualizar
+            Refrescar
           </Button>
         </div>
 
@@ -651,7 +660,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900">
-                Tareas automáticas ({tareas.length})
+                Tareas automáticas{loading ? '' : ` (${tareas.length})`}
               </CardTitle>
               <CardDescription className="text-xs">
                 Todas las tareas declaradas en el sistema, con su última corrida y qué pasa si se frenan.
@@ -762,7 +771,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos ({agentes.length})</CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos{loading ? '' : ` (${agentes.length})`}</CardTitle>
                 <CardDescription className="text-xs">
                   Prendé o pausá cada agente directamente desde acá.
                 </CardDescription>

@@ -6,7 +6,9 @@ import { SlideLayout } from '../components/slide-layout';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { sharedTestimonials } from '@/data/event-catalogs/shared';
 import { getTestimonials } from '@/app/actions/feedback';
+import { getCifrasPublicasAK } from '@/app/actions/cifras-ak';
 import { testimoniosParaMostrar } from '@/lib/testimonios/para-mostrar';
+import { aniosDeAK, FIESTAS_BASE, type CifrasDeAK } from '@/lib/marketing/cifras-de-ak';
 
 const SOURCE_ICON: Record<string, string> = {
   instagram: '📸',
@@ -30,6 +32,10 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
   const [testimonios, setTestimonios] = useState(() =>
     testimoniosParaMostrar([], sharedTestimonials),
   );
+  const [cifras, setCifras] = useState<CifrasDeAK>(() => ({
+    anios: aniosDeAK(),
+    fiestasRealizadas: FIESTAS_BASE,
+  }));
 
   useEffect(() => {
     let vigente = true;
@@ -40,6 +46,13 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
       })
       .catch((err) => {
         console.warn('[TestimoniosSlide] Error al obtener testimonios:', err);
+      });
+    getCifrasPublicasAK()
+      .then((data) => {
+        if (vigente && data) setCifras(data);
+      })
+      // no pasa nada si falla: quedan las cifras base, sólo es una lectura para mostrar
+      .catch(() => {
       });
     return () => {
       vigente = false;
@@ -65,7 +78,7 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
             Lo que dicen 💬
           </h1>
           <p className="text-white/60 text-lg mt-2 max-w-2xl mx-auto">
-            Más de 200 fiestas nos eligieron para sus momentos más especiales.
+            +{cifras.fiestasRealizadas} fiestas realizadas en {cifras.anios} años de trayectoria acompañando momentos especiales.
           </p>
         </motion.div>
 

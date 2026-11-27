@@ -194,6 +194,36 @@ export function PublicFooter({ className }: PublicFooterProps) {
                   Plataforma 360° & Fotocabina QR
                 </a>
               </li>
+              <li>
+                <Link href="/bodas" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
+                  Bodas
+                </Link>
+              </li>
+              <li>
+                <Link href="/quinceaneras" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
+                  15 años
+                </Link>
+              </li>
+              <li>
+                <Link href="/cumpleanos" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
+                  Cumpleaños
+                </Link>
+              </li>
+              <li>
+                <Link href="/fiestas-empresariales" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
+                  Fiestas empresariales
+                </Link>
+              </li>
+              <li>
+                <Link href="/fiestas-infantiles" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
+                  Fiestas infantiles
+                </Link>
+              </li>
             </ul>
           </div>
 

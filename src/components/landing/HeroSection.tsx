@@ -24,6 +24,9 @@ interface HeroSectionProps {
   showEventTypes?: boolean;
   backgroundImageAlt?: string;
   tipoEventoInicial?: string;
+  useWhatsappSecondaryCta?: boolean;
+  isIllustrativeImage?: boolean;
+  accentGlowClass?: string;
 }
 
 const details = [
@@ -45,6 +48,9 @@ export function HeroSection({
   simulatorLabel = "Simular mi presupuesto",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
   tipoEventoInicial = "15 Años",
+  useWhatsappSecondaryCta = false,
+  isIllustrativeImage = false,
+  accentGlowClass,
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -175,7 +181,9 @@ export function HeroSection({
              * continua, asi que su tamano medido cambia solo con el paso del
              * tiempo. No le saques el data-testid.
              */
-            className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/20 blur-[130px]"
+            className={accentGlowClass
+              ? `pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full blur-[130px] ${accentGlowClass}`
+              : "pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/20 blur-[130px]"}
             animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -333,18 +341,36 @@ export function HeroSection({
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
               className="inline-flex"
             >
-              <button
-                type="button"
-                onClick={() => setShowEntrevistaModal(true)}
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
-              >
-                <CalendarCheck className="h-4 w-4 text-white" aria-hidden="true" />
-                Coordinar una entrevista gratuita
-              </button>
+              {useWhatsappSecondaryCta ? (
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-600 px-7 py-3.5 text-sm font-black text-white shadow-lg transition-all hover:bg-emerald-500"
+                >
+                  <MessageCircle className="h-4 w-4 text-white" aria-hidden="true" />
+                  {ctaLabel}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowEntrevistaModal(true)}
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
+                >
+                  <CalendarCheck className="h-4 w-4 text-white" aria-hidden="true" />
+                  Coordinar una entrevista gratuita
+                </button>
+              )}
             </motion.div>
           </motion.div>
         </div>
       </div>
+
+      {isIllustrativeImage && (
+        <span className="pointer-events-none absolute bottom-4 right-4 z-10 rounded-full border border-white/20 bg-black/70 px-3 py-1 text-[11px] font-semibold text-stone-200 backdrop-blur-sm">
+          Imagen ilustrativa
+        </span>
+      )}
 
       <EntrevistaGratuitaModal
         isOpen={showEntrevistaModal}

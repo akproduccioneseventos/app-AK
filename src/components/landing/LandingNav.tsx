@@ -67,6 +67,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
     { label: 'Blog', href: '/public/blog', isExternal: true },
     { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
     { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
+    { label: 'Tipos de fiesta', href: '/fiestas', isExternal: true },
   ];
 
   return (

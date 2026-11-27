@@ -1,13 +1,12 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { BajaLaApp } from '@/components/BajaLaApp';
 
 const SITE_URL = 'https://akproducciones.uy';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'AK Producciones en Salto | Enlaces, Presupuesto y Contacto',
+  title: { absolute: 'AK Producciones en Salto | Enlaces, Presupuesto y Contacto' },
   description:
     'Armá tu presupuesto de fiesta al instante, mirá nuestras celebraciones en Salto y escribinos directo por WhatsApp.',
   alternates: { canonical: '/enlaces' },
@@ -33,19 +32,19 @@ export default function EnlacesPage() {
         </div>
 
         <div className="w-full flex flex-col space-y-4">
-          <Link
+          <a
             href="/api/enlaces/clic?d=presupuesto"
             className="w-full py-4 px-6 bg-white text-black font-semibold rounded-2xl text-center shadow-lg hover:bg-neutral-200 transition"
           >
             Armá tu presupuesto
-          </Link>
+          </a>
 
-          <Link
+          <a
             href="/api/enlaces/clic?d=fiestas"
             className="w-full py-4 px-6 bg-neutral-900 border border-neutral-800 text-white font-semibold rounded-2xl text-center shadow-lg hover:bg-neutral-800 transition"
           >
             Mirá nuestras fiestas
-          </Link>
+          </a>
 
           <a
             href={`/api/enlaces/clic?d=whatsapp`}
@@ -54,12 +53,12 @@ export default function EnlacesPage() {
             Escribinos por WhatsApp
           </a>
 
-          <Link
+          <a
             href="/api/enlaces/clic?d=redes"
             className="w-full py-4 px-6 bg-neutral-900 border border-neutral-800 text-white font-semibold rounded-2xl text-center shadow-lg hover:bg-neutral-800 transition"
           >
             Instagram / Facebook
-          </Link>
+          </a>
 
           <div className="w-full rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 text-center">
             <p className="mb-2 text-xs font-semibold text-neutral-300">Bajá la app de AK</p>

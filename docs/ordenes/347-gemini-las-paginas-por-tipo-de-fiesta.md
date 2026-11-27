@@ -163,6 +163,7 @@ etc. (bloque 4).
   con `$`.
 
 ```comprobar
+# Bloque 6
 usa: StatsSection en src/components/landing/EventLandingPage.tsx
 usa: TechnologyExperienceSection en src/components/landing/EventLandingPage.tsx
 usa: fiestas-infantiles en public/llms.txt

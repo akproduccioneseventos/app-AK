@@ -17,6 +17,9 @@ const PAGINAS_DE_VENTA: readonly string[] = [
   '/bodas',
   '/quinceaneras',
   '/cumpleanos',
+  '/fiestas-empresariales',
+  '/fiestas-infantiles',
+  '/15-anos',
   '/catalogo',
   '/club-uruguay',
   '/experiencia',
@@ -50,7 +53,7 @@ const PARAMS_SEGUROS = new Set([
  * a una lista de prohibidas.
  */
 export function sePuedeMedir(pathname: string): boolean {
-  if (pathname === '/') return true;
+  if (pathname === '/' || pathname === '/fiestas') return true;
   return PAGINAS_DE_VENTA.some((prefijo) => {
     if (prefijo === '/') return false; // ya manejado arriba
     return pathname === prefijo || pathname.startsWith(prefijo + '/') || pathname.startsWith(prefijo + '?');

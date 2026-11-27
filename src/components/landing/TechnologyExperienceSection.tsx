@@ -13,6 +13,10 @@ import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 
 interface TechnologyExperienceSectionProps {
   whatsappNumber?: string;
+  simulatorHref?: string;
+  whatsappMessage?: string;
+  featureCards?: ReadonlyArray<{ title: string; description: string }>;
+  isIllustrativeImage?: boolean;
 }
 
 const TECH_FEATURES = [
@@ -38,11 +42,17 @@ const TECH_FEATURES = [
 
 export default function TechnologyExperienceSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
+  simulatorHref = "/simulador-de-presupuesto",
+  whatsappMessage = "Hola, me interesa conocer la tecnología para clientes e invitados de AK Producciones.",
+  featureCards,
+  isIllustrativeImage = false,
 }: TechnologyExperienceSectionProps) {
   const reduceMotion = useReducedMotion();
-  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    "Hola, me interesa conocer la tecnología para clientes e invitados de AK Producciones.",
-  )}`;
+  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const cards = TECH_FEATURES.map((base, idx) => ({
+    ...base,
+    ...(featureCards?.[idx] ?? {}),
+  }));
   const reveal = reduceMotion
     ? {}
     : {
@@ -84,7 +94,7 @@ export default function TechnologyExperienceSection({
             <div className="mt-8 flex flex-col gap-3.5 sm:flex-row">
               <motion.div whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link
-                  href="/simulador-de-presupuesto"
+                  href={simulatorHref}
                   className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-red-700 px-7 text-sm font-black text-white shadow-md shadow-red-950/20 transition-colors hover:bg-red-800"
                 >
                   Armar presupuesto
@@ -113,12 +123,17 @@ export default function TechnologyExperienceSection({
           >
             <Image
               src="/media/catalogo-servicios/tecnologia_fiesta.png"
-              alt="Tecnología interactiva durante una fiesta de AK Producciones"
+              alt={isIllustrativeImage ? "Imagen ilustrativa de tecnología interactiva para fiestas" : "Tecnología interactiva durante una fiesta de AK Producciones"}
               fill
               sizes="(min-width: 1024px) 55vw, 100vw"
               className="object-cover transition-transform duration-700 hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            {isIllustrativeImage && (
+              <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/70 px-3 py-1 text-[11px] font-semibold text-white">
+                Imagen ilustrativa
+              </span>
+            )}
             <figcaption className="absolute inset-x-0 bottom-0 p-6 text-sm font-bold text-white sm:p-8 sm:text-base">
               Invitación QR, participación en vivo y portal del evento conectados.
             </figcaption>
@@ -135,7 +150,7 @@ export default function TechnologyExperienceSection({
           }}
           className="mt-14 grid gap-4 sm:grid-cols-3"
         >
-          {TECH_FEATURES.map((feature) => {
+          {cards.map((feature) => {
             const Icon = feature.icon;
             return (
               <motion.article

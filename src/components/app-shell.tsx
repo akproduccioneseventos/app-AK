@@ -30,15 +30,27 @@ import { inicializarAjustesRemotos } from '@/lib/firebase/ajustes-remotos';
 import { getPerformanceInstance } from '@/lib/firebase/performance';
 
 
-const getPageTitle = (pathname: string): string => {
+const getPageTitle = (pathname: string, tabParam?: string | null): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
+  if (pathname === '/mi-dia') {
+    if (tabParam === 'alertas') return 'Centro de Alertas';
+    if (tabParam === 'centro') return 'Centro de Control';
+    return 'Mi Día';
+  }
   if (pathname === '/admin') return 'Menú Principal';
+  if (pathname === '/asistente') return 'Asistente IA';
+  if (pathname === '/calendario') return 'Calendario General';
+  if (pathname === '/recursos-multi-evento') return 'Personal en Dos Fiestas';
 
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
+  if (pathname === '/presupuestos/nuevo/crear') return 'Crear Presupuesto';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Presupuesto`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'estado-de-cuenta') return 'Estado de Cuenta';
+  if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'recibo-contrato') return 'Recibo y Contrato';
 
   if (pathname === '/invoices') return 'Gestión de Facturas';
   if (pathname === '/invoices/new') return 'Nueva Factura';
@@ -68,6 +80,10 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'activos-fijos' && pathSegments[2] === 'editar') return `Editar Activo`;
   if (pathname === '/empresa/redes-sociales') return 'Planificador de Contenido';
   if (pathname === '/empresa/redes-sociales/ia-marketing') return 'Asesor de Marketing IA';
+  if (pathname === '/empresa/presencia-digital') return 'Marketing y Redes';
+  if (pathname === '/empresa/galeria') return 'Galería Pública';
+  if (pathname === '/empresa/landing-editor') return 'Editor de Portada';
+  if (pathname === '/empresa/presentacion-led/configuracion') return 'Presentación LED';
   if (pathname === '/empresa/menus') return 'Planificador Gastronómico Maestro';
   if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
   if (pathname === '/empresa/menus/reporte') return 'Reporte Gastronómico Maestro';
@@ -116,6 +132,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/readiness') return 'Readiness Score & Riesgos';
   if (pathname === '/fiestas/nueva/centro') return 'Centro de Fiesta';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+  if (pathname === '/fiestas/nueva/datos') return 'Datos de la Fiesta';
+  if (pathname === '/fiestas/nueva/comida') return 'Comida y Bebidas';
+  if (pathname === '/fiestas/nueva/show') return 'Show y Ambientación';
+  if (pathname === '/fiestas/nueva/operacion') return 'Operación de la Fiesta';
+  if (pathname === '/fiestas/nueva/plata-y-papeles') return 'Plata y Papeles';
+  if (pathSegments[0] === 'fiestas' && pathSegments[2] === 'centro') return 'Centro de Fiesta';
 
   if (pathname === '/multiagente') return 'Multiagente AK';
   if (pathname === '/playbooks') return 'Playbooks Inteligentes';
@@ -125,6 +147,8 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
   if (pathname === '/contabilidad/crm/agenda') return 'Agenda de Prospectos (CRM)';
+  if (pathname === '/contabilidad/crm/outbox') return 'WhatsApp del Día';
+  if (pathname === '/contabilidad/fiestas-historicas') return 'Fiestas Históricas';
 
 
   if (pathname === '/settings') return 'Configuración General';
@@ -265,7 +289,7 @@ const getPageIcon = (pathname: string): React.ComponentType<React.SVGProps<SVGSV
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const pageTitle = getPageTitle(pathname);
+  const pageTitle = getPageTitle(pathname, searchParams.get('tab'));
   const PageIcon = getPageIcon(pathname);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
 
@@ -333,6 +357,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     isInvoiceViewPage ||
     isMuroSocialIsolatedView;
 
+  useEffect(() => {
+    if (typeof document === 'undefined' || isSpecialRender) return;
+    document.title =
+      pageTitle && pageTitle !== 'AK Producciones'
+        ? `${pageTitle} | AK Producciones`
+        : 'AK Producciones | Organización Integral de Fiestas y Eventos en Salto';
+  }, [pageTitle, isSpecialRender]);
+
   // Simplified logic for when to render the shell
   if (isSpecialRender) {
     if (isMuroSocialIsolatedView) {
@@ -381,7 +413,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Button>
               </Link>
               <Link href="/pagos-rapidos" className="md:hidden">
-                <Button variant="outline" size="icon" className="h-10 w-10 rounded-full border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <Button variant="outline" size="icon" aria-label="Ingreso o egreso rápido" title="Ingreso/Egreso Rápido" className="h-10 w-10 rounded-full border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-sm hover:shadow-md transition-all duration-300">
                   <CircleDollarSign className="h-4 w-4" />
                 </Button>
               </Link>

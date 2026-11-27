@@ -123,6 +123,7 @@ export default function LandingEditorPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
   const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
   const [uploadingServiceImageId, setUploadingServiceImageId] = useState<string | null>(null);
@@ -163,18 +164,34 @@ export default function LandingEditorPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const updateSettings = (updater: React.SetStateAction<LandingSettings>) => {
+    setSettings(updater);
+    setLastSaved(null);
+    setSaveError(null);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
+    setLastSaved(null);
+    setSaveError(null);
     try {
       const result = await saveLandingSettings(settings);
       if (result.success) {
         toast({ title: '✅ Guardado', description: 'La landing page se actualizó correctamente.' });
         setLastSaved(new Date().toLocaleString('es-UY'));
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || 'No se pudieron registrar los cambios.');
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      const rawMessage = typeof e?.message === 'string' && e.message.trim()
+        ? e.message.trim()
+        : 'No se pudieron registrar los cambios.';
+      const safeMessage = /guardad[oa]|actualizad[oa]|sincronizad[oa]/i.test(rawMessage)
+        ? 'No se pudieron registrar los cambios.'
+        : rawMessage;
+      setLastSaved(null);
+      setSaveError(safeMessage);
+      toast({ title: 'Error', description: safeMessage, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -221,37 +238,37 @@ export default function LandingEditorPage() {
   };
 
   const updateHero = (field: keyof LandingSettings['hero'], value: string) => {
-    setSettings(s => ({ ...s, hero: { ...s.hero, [field]: value } }));
+    updateSettings(s => ({ ...s, hero: { ...s.hero, [field]: value } }));
   };
 
   const updateCta = (field: keyof LandingSettings['cta'], value: string) => {
-    setSettings(s => ({ ...s, cta: { ...s.cta, [field]: value } }));
+    updateSettings(s => ({ ...s, cta: { ...s.cta, [field]: value } }));
   };
 
   const updateColors = (field: keyof LandingSettings['colors'], value: string) => {
-    setSettings(s => ({ ...s, colors: { ...s.colors, [field]: value } }));
+    updateSettings(s => ({ ...s, colors: { ...s.colors, [field]: value } }));
   };
 
   const updateSeo = (field: keyof LandingSettings['seo'], value: string) => {
-    setSettings(s => ({ ...s, seo: { ...s.seo, [field]: value } }));
+    updateSettings(s => ({ ...s, seo: { ...s.seo, [field]: value } }));
   };
 
   const updateStat = (index: number, field: keyof LandingStatItem, value: string) => {
-    setSettings(s => ({
+    updateSettings(s => ({
       ...s,
       stats: s.stats.map((stat, i) => i === index ? { ...stat, [field]: value } : stat),
     }));
   };
 
   const addStat = () => {
-    setSettings(s => ({
+    updateSettings(s => ({
       ...s,
       stats: [...s.stats, { value: '0', label: 'Nuevo stat', icon: '⭐' }],
     }));
   };
 
   const removeStat = (index: number) => {
-    setSettings(s => ({ ...s, stats: s.stats.filter((_, i) => i !== index) }));
+    updateSettings(s => ({ ...s, stats: s.stats.filter((_, i) => i !== index) }));
   };
 
   const allServiceOptions = useMemo(() => {
@@ -394,18 +411,18 @@ export default function LandingEditorPage() {
       description: 'Descripción del servicio.',
       imageUrl: '',
     };
-    setSettings(s => ({ ...s, services: [...(s.services || []), newService] }));
+    updateSettings(s => ({ ...s, services: [...(s.services || []), newService] }));
   };
 
   const updateService = (id: string, field: keyof LandingServiceItem, value: string) => {
-    setSettings(s => ({
+    updateSettings(s => ({
       ...s,
       services: (s.services || []).map(service => service.id === id ? { ...service, [field]: value } : service),
     }));
   };
 
   const removeService = (id: string) => {
-    setSettings(s => ({ ...s, services: (s.services || []).filter(service => service.id !== id) }));
+    updateSettings(s => ({ ...s, services: (s.services || []).filter(service => service.id !== id) }));
   };
 
   const handleUploadServiceImage = async (serviceId: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -471,6 +488,15 @@ export default function LandingEditorPage() {
         </div>
       </header>
 
+      {saveError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+        >
+          {saveError}
+        </div>
+      )}
+
       <Tabs defaultValue="hero" className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:grid-cols-8 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200 gap-1">
           <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center justify-center gap-1 min-w-0">
@@ -514,7 +540,7 @@ export default function LandingEditorPage() {
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Número de WhatsApp Global</Label>
                   <Input
                     value={settings.whatsappNumber}
-                    onChange={e => setSettings(s => ({ ...s, whatsappNumber: e.target.value }))}
+                    onChange={e => updateSettings(s => ({ ...s, whatsappNumber: e.target.value }))}
                     placeholder="59898355530"
                     className="rounded-xl"
                   />
@@ -1115,7 +1141,7 @@ export default function LandingEditorPage() {
                         }`}
                         onClick={() => {
                           setPreviousSettings(settings);
-                          setSettings(s => ({
+                          updateSettings(s => ({
                             ...s,
                             themeModel: key,
                             colors: { ...preset.colors },
@@ -1155,7 +1181,7 @@ export default function LandingEditorPage() {
                       size="sm"
                       className="text-xs text-slate-600 hover:text-slate-900"
                       onClick={() => {
-                        setSettings(previousSettings);
+                        updateSettings(previousSettings);
                         setPreviousSettings(null);
                         toast({ title: 'Modelo anterior restaurado' });
                       }}
@@ -1320,7 +1346,7 @@ export default function LandingEditorPage() {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                      onClick={() => setSettings(s => ({ ...s, faqs: (s.faqs || []).filter(f => f.id !== faq.id) }))}
+                      onClick={() => updateSettings(s => ({ ...s, faqs: (s.faqs || []).filter(f => f.id !== faq.id) }))}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -1329,7 +1355,7 @@ export default function LandingEditorPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta</Label>
                     <Input
                       value={faq.question}
-                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, question: e.target.value } : f) }))}
+                      onChange={e => updateSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, question: e.target.value } : f) }))}
                       className="rounded-xl"
                       placeholder="¿Cuánto cuesta...?"
                     />
@@ -1338,7 +1364,7 @@ export default function LandingEditorPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Respuesta</Label>
                     <Textarea
                       value={faq.answer}
-                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, answer: e.target.value } : f) }))}
+                      onChange={e => updateSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, answer: e.target.value } : f) }))}
                       rows={3}
                       className="rounded-xl"
                       placeholder="La respuesta..."
@@ -1353,7 +1379,7 @@ export default function LandingEditorPage() {
                 className="w-full rounded-xl border-dashed"
                 onClick={() => {
                   const newFaq: LandingFaqItem = { id: `faq_${Date.now()}`, question: '', answer: '' };
-                  setSettings(s => ({ ...s, faqs: [...(s.faqs || []), newFaq] }));
+                  updateSettings(s => ({ ...s, faqs: [...(s.faqs || []), newFaq] }));
                 }}
               >
                 <Plus className="w-4 h-4 mr-2" /> Agregar pregunta
@@ -1370,7 +1396,13 @@ export default function LandingEditorPage() {
       {/* Floating Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex items-center justify-between gap-4 z-50 shadow-xl print:hidden">
         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
-          {lastSaved ? `Último guardado: ${lastSaved}` : 'Cambios sin guardar'}
+          {saveError ? (
+            <span className="text-red-600">{saveError}</span>
+          ) : lastSaved ? (
+            `Último guardado: ${lastSaved}`
+          ) : (
+            'Cambios sin guardar'
+          )}
         </div>
         <div className="flex gap-2 ml-auto">
           <Button asChild variant="outline" size="sm" className="rounded-xl"><Link href="/landing" target="_blank">

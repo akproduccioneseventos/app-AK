@@ -1028,38 +1028,45 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 export async function getCrmKpiData() {
     const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
-    const [leads, presupuestos, stages] = await Promise.all([
-        getCrmLeads(),
-        readData<any[]>('presupuestos.json', []).catch(() => []),
-        getCrmStages(),
-    ]);
+    try {
+      const [leads, presupuestos, stages] = await Promise.all([
+          getCrmLeads(),
+          readData<any[]>('presupuestos.json', []),
+          getCrmStages(),
+      ]);
 
-    // Las etapas ganadora y perdedora se deducen de la configuracion, no se
-    // escriben a mano: el embudo se puede personalizar y con codigos fijos los
-    // numeros salian mal sin avisar.
-    const ganadoras = idsDeEtapaGanadora(stages);
-    const perdedoras = idsDeEtapaPerdida(stages);
-    const terminadas = new Set([...ganadoras, ...perdedoras]);
+      // Las etapas ganadora y perdedora se deducen de la configuracion, no se
+      // escriben a mano: el embudo se puede personalizar y con codigos fijos los
+      // numeros salian mal sin avisar.
+      const ganadoras = idsDeEtapaGanadora(stages);
+      const perdedoras = idsDeEtapaPerdida(stages);
+      const terminadas = new Set([...ganadoras, ...perdedoras]);
 
-    const activeLeads = leads.filter(l => !terminadas.has(l.currentStageId ?? ''));
-    const pipelineValue = (presupuestos || [])
-        .filter(p => !(p as { archived?: boolean }).archived && activeLeads.some(l => l.presupuestoId === p.id))
-        .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
+      const activeLeads = leads.filter(l => !terminadas.has(l.currentStageId ?? ''));
+      const pipelineValue = (presupuestos || [])
+          .filter(p => !(p as { archived?: boolean }).archived && activeLeads.some(l => l.presupuestoId === p.id))
+          .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
-    const wonCount = leads.filter(l => ganadoras.has(l.currentStageId ?? '')).length;
-    const lostCount = leads.filter(l => perdedoras.has(l.currentStageId ?? '')).length;
-    const totalFinished = wonCount + lostCount;
+      const wonCount = leads.filter(l => ganadoras.has(l.currentStageId ?? '')).length;
+      const lostCount = leads.filter(l => perdedoras.has(l.currentStageId ?? '')).length;
+      const totalFinished = wonCount + lostCount;
 
-    return {
-        success: true,
-        data: {
-            activeLeads: activeLeads.length,
-            pipelineValue,
-            conversionRate: totalFinished > 0 ? (wonCount / totalFinished) * 100 : 0,
-            wonLeads: wonCount,
-            lostLeads: lostCount
-        }
-    };
+      return {
+          success: true,
+          data: {
+              activeLeads: activeLeads.length,
+              pipelineValue,
+              conversionRate: totalFinished > 0 ? (wonCount / totalFinished) * 100 : 0,
+              wonLeads: wonCount,
+              lostLeads: lostCount
+          }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message || 'No se pudieron cargar las métricas del CRM.',
+      };
+    }
 }
 
 export async function getCrmBoardData(): Promise<{
@@ -1193,7 +1200,7 @@ export interface LandingLeadData {
   fechaEstimada?: string;
   invitados?: number;
   mensaje?: string;
-  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
+  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos' | 'landing-empresas' | 'landing-infantiles';
   acquisition?: CommercialAttribution;
   marketingConsent?: boolean;
 }
@@ -1241,9 +1248,13 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
         ? 'landing_bodas'
         : (data.fuente === 'landing-xv' || data.fuente === 'landing-quince')
           ? 'landing_xv'
-          : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
-            ? 'landing_eventos'
-            : data.fuente;
+          : data.fuente === 'landing-empresas'
+            ? 'landing_empresas'
+            : data.fuente === 'landing-infantiles'
+              ? 'landing_infantiles'
+              : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
+                ? 'landing_eventos'
+                : data.fuente;
     /**
      * DE DONDE VINO Y QUE PAGINA VISITO SON DOS COSAS DISTINTAS.
      *

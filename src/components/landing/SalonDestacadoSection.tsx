@@ -40,13 +40,20 @@ function SalonMedia({ src, alt, sizes, className }: { src: string; alt: string; 
 interface SalonDestacadoSectionProps {
   photos: SalonPhoto[];
   capacity?: number;
+  simulatorHref?: string;
+  description?: string;
 }
 
 export function getVisibleSalonPhotos(photos: SalonPhoto[]) {
   return photos.slice(0, 3);
 }
 
-export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectionProps) {
+export function SalonDestacadoSection({
+  photos,
+  capacity,
+  simulatorHref = '/simulador-de-presupuesto?salon=club',
+  description = 'Un espacio emblemático en el centro de Salto, preparado por AK Producciones con catering, música, ambientación, personal y tecnología coordinados en una sola propuesta.',
+}: SalonDestacadoSectionProps) {
   const reduceMotion = useReducedMotion();
   const visiblePhotos = getVisibleSalonPhotos(photos);
   if (visiblePhotos.length === 0) return null;
@@ -72,7 +79,7 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
               Club Uruguay
             </h2>
             <p className="mt-5 text-base sm:text-lg font-medium leading-relaxed text-slate-600">
-              Un espacio emblemático en el centro de Salto, preparado por AK Producciones con catering, música, ambientación, personal y tecnología coordinados en una sola propuesta.
+              {description}
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -101,7 +108,7 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
               </motion.div>
               <motion.div whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link
-                  href="/simulador-de-presupuesto?salon=club"
+                  href={simulatorHref}
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 font-bold text-slate-900 transition-colors hover:border-slate-400 hover:bg-slate-100"
                 >
                   <CalendarDays className="h-4 w-4 text-red-700" aria-hidden="true" /> Simular mi presupuesto

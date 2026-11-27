@@ -21,6 +21,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta, getDatosFiestasParaAlertas } from '@/app/actions/alertas.actions';
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification } from '@/app/actions/notifications';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
@@ -58,8 +59,11 @@ function tipoBadge(tipo: AlertaAutomatica['tipo']) {
   }
 }
 
-function formatFecha(iso: string) {
-  return new Date(iso).toLocaleString('es-UY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+function formatFecha(iso?: string) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString('es-UY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -76,15 +80,17 @@ export default function AlertasPage() {
   const [filtroFiesta, setFiltroFiesta] = useState<string>('todas');
   // Arranca en "sin leer": es lo que hay que mirar al abrir la pantalla.
   const [soloSinLeer, setSoloSinLeer] = useState(true);
+  const notifIdsRef = useRef<Set<string>>(new Set());
   const { toast } = useToast();
 
   const fetchAlertas = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, fiestasInfo, kpiRes] = await Promise.all([
+      const [data, fiestasInfo, kpiRes, notifs] = await Promise.all([
         getAlertasGlobalesConLeidas(),
         getDatosFiestasParaAlertas(),
         getDashboardKpiData().catch(() => null),
+        getNotifications().catch(() => []),
       ]);
       const idsYa = new Set(data.map((a) => a.id));
       const extrasPanel = (kpiRes?.success && kpiRes.data?.alerts ? kpiRes.data.alerts : [])
@@ -97,14 +103,41 @@ export default function AlertasPage() {
           titulo: a.title,
           mensaje: a.description,
           tipo: a.severity === 'high' ? 'urgente' : a.severity === 'medium' ? 'atencion' : 'recordatorio',
+          fechaGenerada: new Date().toISOString(),
           fiestaId: '__sin_fiesta__',
           fiestaName: 'Plata y agenda',
           fiestaNombre: 'Plata y agenda',
+          accionUrl: a.href || '/admin',
           enlace: a.href || '/admin',
           rutaDestino: a.href || '/admin',
           leida: false,
         } as unknown as AlertaAutomatica));
-      setAlertas([...data, ...extrasPanel]);
+      const idsConPanel = new Set([...idsYa, ...extrasPanel.map((a) => a.id)]);
+      const notifIds = new Set<string>();
+      const extrasNotifs = (Array.isArray(notifs) ? notifs : [])
+        .filter((n) => n?.id && !idsConPanel.has(n.id))
+        .map((n) => {
+          notifIds.add(n.id);
+          const tipoStr = String(n.tipo || '');
+          return {
+            id: n.id,
+            reglaId: 'notificacion',
+            reglaNombre: 'Notificación',
+            categoria: 'Notificaciones',
+            titulo: 'Notificación',
+            mensaje: n.mensaje,
+            tipo: tipoStr === 'urgente' || tipoStr === 'alerta' ? 'urgente' : tipoStr === 'atencion' || tipoStr === 'aviso' ? 'atencion' : tipoStr === 'recordatorio' ? 'recordatorio' : 'info',
+            fechaGenerada: n.fecha || new Date().toISOString(),
+            fiestaId: '__notificaciones__',
+            fiestaName: 'Notificaciones del sistema',
+            fiestaNombre: 'Notificaciones del sistema',
+            accionUrl: n.href || undefined,
+            enlace: n.href || undefined,
+            leida: Boolean(n.leida),
+          } as unknown as AlertaAutomatica;
+        });
+      notifIdsRef.current = notifIds;
+      setAlertas([...data, ...extrasPanel, ...extrasNotifs]);
       setDatosFiestas(fiestasInfo);
       if ((data as any)?.lecturaIncompleta) {
         toast({
@@ -184,9 +217,12 @@ export default function AlertasPage() {
 
   const handleMarcarLeida = useCallback(async (alertaId: string) => {
     try {
-      const result = await marcarAlertaLeida(alertaId);
+      const result = notifIdsRef.current.has(alertaId)
+        ? await markNotificationAsRead(alertaId)
+        : await marcarAlertaLeida(alertaId);
       if (result.success) {
         setAlertas(prev => prev.map(a => a.id === alertaId ? { ...a, leida: true } : a));
+        window.dispatchEvent(new Event('ak-notifications-updated'));
       } else {
         toast({ title: 'Error', description: 'No se pudo marcar como leída.', variant: 'destructive' });
       }
@@ -202,10 +238,14 @@ export default function AlertasPage() {
     const previous = alertasRef.current; // snapshot BEFORE removal
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
     try {
-      const result = await descartarAlerta(alertaId);
+      const result = notifIdsRef.current.has(alertaId)
+        ? await deleteNotification(alertaId)
+        : await descartarAlerta(alertaId);
       if (!result.success) {
         setAlertas(previous); // restore from snapshot
         toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
+      } else {
+        window.dispatchEvent(new Event('ak-notifications-updated'));
       }
     } catch {
       setAlertas(previous); // restore from snapshot
@@ -216,9 +256,13 @@ export default function AlertasPage() {
   const handleMarcarTodasLeidas = useCallback(async () => {
     setIsMarkingAll(true);
     try {
-      const result = await marcarTodasLeidas();
-      if (result.success) {
+      const [result, resultNotif] = await Promise.all([
+        marcarTodasLeidas(),
+        markAllNotificationsAsRead().catch(() => ({ success: false })),
+      ]);
+      if (result.success || resultNotif.success) {
         await fetchAlertas();
+        window.dispatchEvent(new Event('ak-notifications-updated'));
         toast({ title: 'Listo', description: 'Todas las alertas marcadas como leídas.' });
       } else {
         toast({ title: 'Error', description: 'No se pudieron marcar todas como leídas.', variant: 'destructive' });
@@ -316,7 +360,11 @@ export default function AlertasPage() {
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-foreground">{urgentes}</p>
+              {isLoading ? (
+                <p className="text-2xl font-black text-muted-foreground">…</p>
+              ) : (
+                <p className="text-2xl font-black text-foreground" data-testid="centro-alertas-urgentes">{urgentes}</p>
+              )}
               <p className="text-xs font-bold text-red-500 uppercase tracking-wide">Urgentes</p>
             </div>
           </CardContent>
@@ -327,7 +375,11 @@ export default function AlertasPage() {
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-foreground">{atenciones}</p>
+              {isLoading ? (
+                <p className="text-2xl font-black text-muted-foreground">…</p>
+              ) : (
+                <p className="text-2xl font-black text-foreground">{atenciones}</p>
+              )}
               <p className="text-xs font-bold text-amber-500 uppercase tracking-wide">Atención</p>
             </div>
           </CardContent>
@@ -338,7 +390,11 @@ export default function AlertasPage() {
               <Info className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-foreground">{infos}</p>
+              {isLoading ? (
+                <p className="text-2xl font-black text-muted-foreground">…</p>
+              ) : (
+                <p className="text-2xl font-black text-foreground">{infos}</p>
+              )}
               <p className="text-xs font-bold text-primary uppercase tracking-wide">Info / Recordatorio</p>
             </div>
           </CardContent>

@@ -5,6 +5,7 @@ import { mutarDocumento } from '@/lib/generic-json-store';
 import type { GaleriaData, GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { filtrarFotosDelServicio, normalizarTextoServicio } from '@/lib/galeria/fotos-por-servicio';
 
 const GALERIA_FILE = 'galeria-publica.json';
 
@@ -24,6 +25,27 @@ export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
   });
   try { const { syncDecorationCatalog } = await import('@/lib/decoracion/catalog-service'); await syncDecorationCatalog(); }
   catch (error) { console.warn('[decoracion] Cola pendiente de actualizar.', error); }
+
+  if (foto.clasificadaPor !== 'persona' && (!foto.servicioId || !foto.tipoFiesta)) {
+    try {
+      const { clasificarFotoDeGaleria } = await import('@/lib/galeria/clasificar-foto');
+      const res = await clasificarFotoDeGaleria(foto);
+      if (res.actualizada && Object.keys(res.cambios).length > 0) {
+        await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+          const fotos = (actual?.fotos || []).map((f) => {
+            if (f.id !== foto.id || f.clasificadaPor === 'persona') return f;
+            return { ...f, ...res.cambios };
+          });
+          return {
+            fotos,
+            videos: actual?.videos || [],
+          };
+        });
+      }
+    } catch {
+      // No bloqueante: la foto igual quedó guardada aunque la IA falle o tarde.
+    }
+  }
 }
 
 export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
@@ -169,6 +191,38 @@ export async function getGaleriaFotosByServicio(servicio: string): Promise<Galer
     return data.fotos.filter((foto) => !foto.categoria && !foto.servicio);
   }
   return data.fotos.filter((foto) => foto.categoria === servicio || foto.servicio === servicio);
+}
+
+/**
+ * Lectura pública de fotos de un servicio específico: busca primero por `servicioId`
+ * del catálogo y, si no hay coincidencias, cae al campo de texto `servicio`
+ * ignorando mayúsculas y tildes.
+ */
+export async function getFotosDelServicio(
+  servicioId: string,
+  servicioNombre?: string,
+): Promise<GaleriaFoto[]> {
+  const data = await getGaleriaItems();
+  const fotos = data?.fotos || [];
+  const idBuscado = (servicioId || '').trim();
+
+  const directas = filtrarFotosDelServicio(fotos, idBuscado, servicioNombre);
+  if (directas.length > 0 || normalizarTextoServicio(servicioNombre) || !idBuscado) {
+    return directas;
+  }
+
+  try {
+    const { getServiciosEmpresaPublicos } = await import('@/app/actions/servicios-empresa');
+    const servicios = await getServiciosEmpresaPublicos();
+    const encontrado = servicios.find((s) => s.id === idBuscado);
+    if (encontrado?.nombre) {
+      return filtrarFotosDelServicio(fotos, idBuscado, encontrado.nombre);
+    }
+  } catch {
+    // Si falla la lectura del catálogo, seguimos con lo que tenemos.
+  }
+
+  return [];
 }
 
 export async function updateGaleriaFoto(

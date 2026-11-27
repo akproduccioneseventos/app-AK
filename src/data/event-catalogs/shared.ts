@@ -11,6 +11,7 @@ import type {
   PromotionData,
 } from '@/types/public-landing';
 import testimonialsRaw from '@/data/testimonials.json';
+import { aniosDeAK } from '@/lib/marketing/cifras-de-ak';
 
 export const sharedServices: ServiceItem[] = [
   {
@@ -115,7 +116,7 @@ export const sharedWhyUs: WhyUsItem[] = [
   {
     id: 'experiencia',
     icon: '🏆',
-    title: '+7 años de experiencia',
+    title: `+${aniosDeAK()} años de experiencia`,
     description: 'Hemos organizado cientos de eventos, desde íntimas celebraciones familiares hasta grandes fiestas de 500 personas.',
   },
   {

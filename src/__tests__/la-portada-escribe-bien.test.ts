@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import { DEFAULT_STATS } from '@/components/landing/StatsSection';
+import { aniosDeAK, FIESTAS_BASE } from '@/lib/marketing/cifras-de-ak';
 
 describe('Orden 176 - Bloque 5: La portada escribe bien', () => {
-  it('DEFAULT_STATS mantiene las cifras oficiales del dueño: +200 eventos y +7 años', () => {
+  it('DEFAULT_STATS mantiene las cifras oficiales del dueño calculadas automáticamente', () => {
     const eventos = DEFAULT_STATS.find((s) => s.label.toLowerCase().includes('evento'));
     const anios = DEFAULT_STATS.find((s) => s.label.toLowerCase().includes('año') || s.label.toLowerCase().includes('ano') || s.label.toLowerCase().includes('experiencia'));
-    expect(eventos?.value).toBe('+200');
-    expect(anios?.value).toBe('+7');
+    expect(eventos?.value).toBe(`+${FIESTAS_BASE}`);
+    expect(anios?.value).toBe(`+${aniosDeAK()}`);
   });
 
   it('no contiene errores ortográficos en salon-helper.ts, public-footer.tsx, galeria-publica.json (títulos) y ak-channel.ts', () => {

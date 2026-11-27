@@ -67,6 +67,7 @@ function ReportesContabilidadContent() {
   const [reportData, setReportData] = useState<ProfitAndLossData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lecturaError, setLecturaError] = useState<string | null>(null);
   const [emailContador, setEmailContador] = useState<string | null>(null);
   const [isSendingContador, setIsSendingContador] = useState(false);
   // El período del reporte que se ve: el resumen al contador se recalcula en el servidor con él.
@@ -76,9 +77,12 @@ function ReportesContabilidadContent() {
     getEmailContador()
       .then((email) => {
         setEmailContador(email || null);
+        setLecturaError(null);
       })
-      // no pasa nada si falla: sin el mail, el botón avisa que falta cargarlo y no manda nada.
-      .catch((e) => console.warn('[page] Paso secundario sin completar:', e));
+      .catch((e) => {
+        console.warn('[page] Error cargando configuración del reporte:', e);
+        setLecturaError('No se pudo conectar con el servidor para cargar la configuración del reporte. Reintentá más tarde.');
+      });
   }, []);
 
   const handleGenerateReport = useCallback(async (customStart?: Date, customEnd?: Date) => {
@@ -211,6 +215,16 @@ function ReportesContabilidadContent() {
           </Button>
         </div>
       </div>
+
+      {lecturaError && (
+        <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
+          <div>
+            <p className="font-semibold text-destructive">Error de lectura</p>
+            <p className="text-muted-foreground">{lecturaError}</p>
+          </div>
+        </div>
+      )}
 
       <Card className="shadow-lg print:hidden">
         <CardHeader>

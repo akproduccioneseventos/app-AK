@@ -248,7 +248,7 @@ function NuevoServicioContent() {
                             <div className="space-y-1"><Label htmlFor={`tramo-desde-${index}`}>Desde</Label><Input id={`tramo-desde-${index}`} type="number" value={tramo.desde} onChange={e => handleTramoChange(index, 'desde', e.target.value)} className="w-20"/></div>
                             <div className="space-y-1"><Label htmlFor={`tramo-hasta-${index}`}>Hasta</Label><Input id={`tramo-hasta-${index}`} type="number" value={tramo.hasta} onChange={e => handleTramoChange(index, 'hasta', e.target.value)} className="w-20"/></div>
                             <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${index}`}>Precio</Label><Input id={`tramo-precio-${index}`} type="number" value={tramo.precio} onChange={e => handleTramoChange(index, 'precio', e.target.value)}/></div>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1}><Trash2 className="w-4 h-4"/></Button>
+                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1} aria-label={`Borrar tramo ${index + 1}`} title="Borrar tramo"><Trash2 className="w-4 h-4"/></Button>
                         </div>
                     ))}
                     <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>

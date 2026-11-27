@@ -111,8 +111,9 @@ export default function EditarInsumoPage() {
     try {
       const result = await saveInsumo(itemDataToSave);
       if (result.success && result.servicio) {
+        setItem(result.servicio);
+        setFormData({ ...result.servicio });
         toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
-        router.push(backUrl);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el ítem.");
       }

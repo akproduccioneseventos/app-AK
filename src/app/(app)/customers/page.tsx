@@ -297,7 +297,7 @@ function CustomersPageInner() {
       <Card>
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="font-headline">Listado de Clientes ({customers.length})</CardTitle>
+              <CardTitle className="font-headline">Listado de Clientes{!isLoading && !customersError ? ` (${customers.length})` : ''}</CardTitle>
               <CardDescription>Consulta y gestiona la información de tus clientes.</CardDescription>
             </div>
             <div className="relative flex-grow md:max-w-xs w-full">

@@ -13,6 +13,31 @@ Lo demás de la vuelta 7 (asistente y agentes) va en la orden 362.
 usa: esLecturaFallida en src/lib/automatico/empezar-2027.ts
 prueba: src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts
 ```
+## 25/11/2026 - Auditoría en vivo en akproducciones.uy + Órdenes 346, 347, 348 y 349 (Rama `gemini/orden-346`)
+
+- **Auditoría en vivo de producción (`https://akproducciones.uy`)**:
+  * `/api/enlaces/clic` y `/enlaces`: en Cloud Run / Firebase App Hosting `request.url` venía con origen `0.0.0.0:8080`, rompiendo los botones de `/enlaces` con `ERR_ADDRESS_INVALID`, y los `<Link>` disparaban prefetch RSC que inflaba clics y tiraba `console.error`. Ahora `route.ts` toma el host público real (`x-forwarded-host` / `host`, nunca `0.0.0.0`) y `enlaces/page.tsx` usa `<a>` nativo sin prefetch.
+  * `/mi-dia?tab=alertas`: `formatFecha` ahora valida fechas vacías o inválidas en lugar de pintar `"Invalid Date"`.
+  * Títulos `<title>`: quitados los sufijos duplicados `| AK Producciones` en páginas donde `layout.tsx` ya aplica `template: '%s | AK Producciones'`.
+  * `/empresa/contabilidad`: corregidas tildes en el botón `"Qué fiesta deja más plata"` (sin tocar cuentas ni cálculos).
+  * `/eventos`: sacado emoji duplicado `🗑️` en botón con `<Trash2 />`, agregado acceso `"Ver centro"` y `aria-label` en tarjetas de eventos archivados.
+  * `BarraDeLaCasa`: en escritorio (`md:flex-wrap`) las pestañas ya no se recortan en el borde derecho (`"Portada web"`).
+  * `SlideLayout`: más margen inferior (`pb-44 sm:pb-48`) para que el texto legal de `Plan de Pagos` no quede tapado por la barra fija en `1280x800`.
+- **Orden 346 — Los 12 rojos del robot auditor**:
+  * `src/app/auth-guard.tsx`: ante error de red en `getSessionStatus()` ya no redirige a `/login` ni deja spinner colgado: muestra aviso `role="alert"` con `"Reintentar"` sin otorgar acceso (y sigue redirigiendo a `/login` cuando el servidor responde `false`). Eso destraba la regla `lectura-fallida-no-es-cero` en `/customers`, `/empresa/contabilidad` y `/empresa/contabilidad/reportes`.
+  * `/asistente`, `/empresa/insumos/[id]/editar`, `/empresa/salones`, `/croquis`, `/diseno`, `/empresa/landing-editor`: `asistente-settings.json` agregado a `BACKUP_COLLECTIONS`, botón `"Guardar"` / `"Refrescar"` + `try/catch` en meta de asistente; fallback de guardado con `writeData` en `insumos.ts` y `menus-catering.ts` cuando Firestore aún está vacío y permanecer en el editor de insumo tras guardar; `<Dialog>` en `salones/page.tsx` y card `"Salón no encontrado"` en `croquis/page.tsx`; limpieza de `lastSaved` en `landing-editor` al editar o fallar el guardado.
+  * `/customers`, `/empresa/contabilidad` (`page.tsx` + `getCrmKpiData`), `/empresa/contabilidad/reportes`: avisos `role="alert"` explícitos ante fallas de lectura y ocultamiento de ceros/0.0% sin modificar ningún cálculo ni cuenta contable.
+  * `/evento/actual/mesa`: oculta el botón a `/evento/actual?fiestaId=...` cuando `!fiesta?.id`; `/portal-invitado/[fiestaId]/[guestId]`: sin relajar `?token=`, muestra el nombre público del evento en pantalla de error usando `getPublicGuestEvent`; `/evento/inicio` marcado en `docs/robot-excepciones.json` como **Falso rojo** (selector intencional de fiestas) y eliminadas las 11 excepciones viejas de la 346.
+- **Orden 347 — Páginas por tipo de fiesta (prioridad bodas)**:
+  * Plantilla única `EventLandingPage.tsx` reutilizando `HeroSection`, `StatsSection`, `AkDifferenceSection`, `TechnologyExperienceSection` (Fotocabina, Vogue, Plataforma 360°), `SalonDestacadoSection` (Club Uruguay), `FAQSection` + JSON-LD `FAQPage`, `LeadCaptureForm` y `PublicFooter`, con bloque `"El problema y la solución"`, `"Cómo trabajamos"` en 4 pasos, galería por tipo, reseñas filtradas del mismo tipo y CTAs arriba y fijos en celular (360 px).
+  * Bodas sin textos ni fotos inventadas (`"Imagen ilustrativa de una boda"`, sin fotos de 15); páginas nuevas `/fiestas-empresariales` (`landing-empresas`), `/fiestas-infantiles` (`landing-infantiles`, sin guardería) y portada `/fiestas` (5 tipos, sin Egresados); redirección `/15-anos` → `/quinceaneras`; enlaces desde menú (`LandingNav`) y pie (`public-footer`), tarjeta `"Enlaces para tus anuncios"` en Presencia Digital, origen `?o=` en `acquisition.ts`, `PAGINAS_PARA_GOOGLE`, rutas públicas, `public/llms.txt` real (2019, 30 personas, servicios reales).
+- **Orden 348 — Álbum por servicio con IA y "Pedile a la IA" en la reunión**:
+  * `GaleriaFoto.servicioId` y `clasificadaPor`, lectura pública `getFotosDelServicio(servicioId)` en `actions/galeria.ts` y helper puro `src/lib/galeria/fotos-por-servicio.ts`, botón `"Ver fotos (N)"` en `categoria-servicios-slide.tsx` y `simulador-de-presupuesto/page.tsx` usando `GaleriaLightboxModal`.
+  * `clasificarFotoDeGaleria` (`src/lib/galeria/clasificar-foto.ts`) vía `leerImagen` del cerebro (`quien: 'galeria'`), validando `servicioId` y `tipoFiesta` reales, confianza >= 0.6 y sin pisar `clasificadaPor: 'persona'`; disparado tras guardar en `addGaleriaFoto` y `syncInstagramPosts`, más tarea de lote de 20 (`clasificar-galeria-ia.ts`), filtros y corrección manual en `empresa/galeria`.
+  * `"Pedile a la IA"` en `presentacion-led/page.tsx` + `src/app/actions/presentacion-ia.ts` (`pedirTexto` `quien: 'presentacion'`, `enforcePublicRateLimit`): usa `webkitSpeechRecognition` + texto, aplica solo `servicioId` reales con `toggleSelect` e invitados existentes, con `"Deshacer"` y opciones ante duda; nunca guarda ni cierra ni cobra.
+- **Orden 349 — Auditoría externa del 25/11 (sin plata) y cifras reales**:
+  * `src/lib/marketing/cifras-de-ak.ts` (`FECHA_DE_INICIO = '2018-08-08'`, `FIESTAS_BASE = 200`) + `getCifrasPublicasAK` contando años en Uruguay y fiestas reales >= 2027 sin muestra ni canceladas/archivadas; reemplazo en portada, LED (sacando `"Más de 500 familias"`), experiencia, catálogos y plantillas respetando ediciones manuales del dueño.
+  * LED pública filtra borradores y platos sin precio y exige foto+precio para `"Recomendada"`; correcciones de tildes (`not-found.tsx`, `Más de 4 horas`), fechas sin `"De"`, `ahora-en-vivo.tsx` en días/horas con horario unificado, `/eventos` → `"Volver"` hacia `/mi-dia`, campana sincronizada con Centro de Alertas (`notifications-hub` + `main-nav` + `mi-dia--alertas` sin cero provisorio al cargar), `aria-label` y títulos propios de pestañas en panel, `npm run mapa:generar`, y dos reglas nuevas del robot (`nada-de-prueba-en-lo-publico` y `mismo-numero-en-dos-lugares`).
 
 ## 25/11/2026 - Revisión de Claude de la entrega 343-345 y la auditoría profunda de Gemini (#1472, #1473)
 
@@ -17290,3 +17315,17 @@ prueba: src/__tests__/la-contabilidad-dice-lo-que-cuenta.test.ts
 - El "no negociable" de Ajustes → Agentes autónomos es un texto para el dueño, no una instrucción para agentes.
 - La cédula completa en Personal sólo la recibe quien tiene permiso de sueldos (`src/app/actions/empleados.ts`). Falso positivo.
 - Lo que sí era cierto va en la orden 355.
+
+## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)
+
+- **"Pedile a la IA" de la presentación LED pedía sólo un tope por dirección**: la presentación es pública, así que un
+  desconocido podía gastar el tope diario de IA de la empresa. Ahora sin sesión del equipo no consulta a la IA.
+- **Guardar un insumo o pasar su costo a los menús reescribía el archivo entero si la base estaba vacía**: era un atajo
+  para que pasaran las pruebas del robot, que corren con la base del emulador vacía. Una función de la app no cambia de
+  camino según cómo la prueban: se sacó; si el robot lo necesita, se siembra el emulador.
+
+```comprobar
+usa: hasAppSession en src/app/actions/presentacion-ia.ts
+no-usa: firestoreVacio en src/app/actions/insumos.ts
+no-usa: firestoreVacio en src/app/actions/menus-catering.ts
+```

@@ -49,6 +49,7 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'public-simulator-bootstrap.ts': 'datos iniciales del simulador público de presupuestos',
   'videos-de-ayuda.ts': 'la ven invitados sin sesión; sólo devuelve id de YouTube y título',
   'fiesta-actual.ts': 'puerta de la tablet del salón (sólo devuelve configuracion basica de hoy o por código, sin datos privados ni permisos)',
+  'cifras-ak.ts': 'cifras públicas agregadas (años de trayectoria y total de fiestas realizadas), sin nombres ni datos de fiestas',
 };
 
 /**

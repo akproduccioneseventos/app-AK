@@ -1,3 +1,4 @@
+import { aniosDeAK } from '@/lib/marketing/cifras-de-ak';
 import type {
   TipoEvento,
   ObjetivoMarketing,
@@ -42,7 +43,7 @@ export const BASE_TEMPLATES: Partial<Record<TemplateKey, ContenidoCanales>> = {
     ig_corto:
       'Tu fiesta de XV merece ser perfecta. En AK Producciones organizamos todo: salón, música, decoración y más. Vos venís como invitada. 💫\nPedí tu simulador de presupuesto 👇\n{{LINK_SIMULADOR}}\n#XVAños #FiestasXV #AKProducciones',
     ig_largo:
-      '✨ XV años únicos, sin estrés.\n\nSabemos que organizar una fiesta puede ser agotador. Por eso en AK Producciones nos encargamos de absolutamente todo: salón, gastronomía, decoración, música, iluminación y mucho más.\n\nVos llegás como invitada y nosotros hacemos el resto.\n\n🌟 Todo en un solo lugar\n🌟 Atención personalizada\n🌟 +7 años de experiencia\n\n📲 Consultá fechas disponibles y pedí tu presupuesto en segundos:\n{{LINK_SIMULADOR}}\n\n#XVAños #FiestasDeXV #QuinceAños #AKProducciones #SalonDeEventos #OrganizaciónDeEventos',
+      `✨ XV años únicos, sin estrés.\n\nSabemos que organizar una fiesta puede ser agotador. Por eso en AK Producciones nos encargamos de absolutamente todo: salón, gastronomía, decoración, música, iluminación y mucho más.\n\nVos llegás como invitada y nosotros hacemos el resto.\n\n🌟 Todo en un solo lugar\n🌟 Atención personalizada\n🌟 +${aniosDeAK()} años de experiencia\n\n📲 Consultá fechas disponibles y pedí tu presupuesto en segundos:\n{{LINK_SIMULADOR}}\n\n#XVAños #FiestasDeXV #QuinceAños #AKProducciones #SalonDeEventos #OrganizaciónDeEventos`,
     historias:
       '¿Soñás con tus XV perfectos? 💜 // Nosotros organizamos TODO: salón + música + deco + gastronomía 🎉 // Pedí tu presupuesto AHORA ➡️ {{LINK_SIMULADOR}}',
     tiktok:
