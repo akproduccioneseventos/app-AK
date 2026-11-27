@@ -82,6 +82,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       fechas de la noche en plata y el cierre de barra con lo sin alcohol.
   28. **Orden 377 (`docs/ordenes/377-gemini-dos-guardados-que-no-quedan.md`), PRIMERO Y SOLA:** arrancá de la rama
       `claude/app-debug-stabilize-m70e6z`; arreglá los dos guardados y corré la puerta entera hasta verde.
+  29. **Orden 378 (`docs/ordenes/378-gemini-la-web-y-el-blog-del-27-11.md`), junto con la 377:** el blog en `/blog`,
+      sitemap, logo, "wedding planner y organizador de bodas", datos para Google, portadas de AK y últimas notas.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
