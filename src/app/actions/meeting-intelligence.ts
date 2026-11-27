@@ -421,7 +421,10 @@ export async function sendReunionSummaryToClient(
         item.id === reunionId ? { ...item, resumenEnviadoAlClienteAt: sentAt } : item,
       ),
     };
-    await saveFiesta(updatedFiesta);
+    const marca = await saveFiesta(updatedFiesta);
+    if (!marca?.success) {
+      warnings.push('El mail salió, pero no se pudo anotar que ya se mandó: si lo volvés a mandar, le llega de nuevo.');
+    }
     return { success: true, sentAt, warnings };
   } catch (error) {
     return {

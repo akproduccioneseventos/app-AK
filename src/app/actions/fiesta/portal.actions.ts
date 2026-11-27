@@ -2577,6 +2577,7 @@ export async function enviarConsultaPrivadaPortal(
 
   if (!yaEstaba) {
     try {
+      // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
       await createNotification({
         mensaje: `❓ Consulta privada del cliente en el portal: "${limpio.slice(0, 60)}${limpio.length > 60 ? '...' : ''}"`,
         href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -2632,6 +2633,7 @@ export async function agregarIdeaDecoracionCliente(
   });
 
   if (res.success) {
+    // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
     await createNotification({
       mensaje: `🎨 El cliente agregó una foto de ideas para la decoración.`,
       href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,

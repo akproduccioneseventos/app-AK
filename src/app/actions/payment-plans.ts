@@ -149,15 +149,19 @@ export async function updateCuotaEstado(
     const pagoIdFijo = `cuota_${cuotaId}`;
     const fechaPagoIso = buildMontevideoPaymentTimestamp(updates.fechaPago ?? cuotaProyectada.fechaPago);
 
-    let pagosPreviosBackup: PagoCliente[] | null = null;
+    // Lo que este guardado le hizo a pagosCliente, para deshacer SÓLO eso si falla la fiesta.
+    // Volver a poner la lista entera vieja borraba un cobro que otro anotó en el medio (pregunta 22).
+    let cambioEnPagos: { tipo: 'agregado' } | { tipo: 'quitado'; pago: PagoCliente } | null = null;
     if (fiestaPrevia.presupuestoId) {
       const mut = await mutarPresupuesto(fiestaPrevia.presupuestoId, (presupuesto) => {
         const pagos = Array.isArray(presupuesto.pagosCliente) ? [...presupuesto.pagosCliente] : [];
-        pagosPreviosBackup = JSON.parse(JSON.stringify(pagos));
+        cambioEnPagos = null;
 
         if (cuotaProyectada.estado === 'pendiente') {
-          const filtrados = pagos.filter((p) => p.id !== pagoIdFijo);
-          return filtrados.length === pagos.length ? null : { ...presupuesto, pagosCliente: filtrados };
+          const quitado = pagos.find((p) => p.id === pagoIdFijo);
+          if (!quitado) return null;
+          cambioEnPagos = { tipo: 'quitado', pago: quitado };
+          return { ...presupuesto, pagosCliente: pagos.filter((p) => p.id !== pagoIdFijo) };
         }
 
         if ((cuotaProyectada.estado === 'pagado' || cuotaProyectada.estado === 'parcial') && paidAmountProyectado > 0) {
@@ -175,6 +179,7 @@ export async function updateCuotaEstado(
             referencia: cuotaProyectada.descripcion || `Cuota ${cuotaId}`,
             estadoPago: 'confirmado',
           };
+          cambioEnPagos = { tipo: 'agregado' };
           return { ...presupuesto, pagosCliente: [...pagos, nuevoPago] };
         }
         return null;
@@ -198,11 +203,17 @@ export async function updateCuotaEstado(
       return { ...fiesta, planDePagos: { ...plan, cuotas: updatedCuotas, updatedAt: new Date().toISOString() } };
     });
     if (!guardado.success) {
-      if (fiestaPrevia.presupuestoId && pagosPreviosBackup !== null) {
-        await mutarPresupuesto(fiestaPrevia.presupuestoId, (presupuesto) => ({
-          ...presupuesto,
-          pagosCliente: pagosPreviosBackup!,
-        })).catch(() => undefined);
+      const deshacer = cambioEnPagos as { tipo: 'agregado' } | { tipo: 'quitado'; pago: PagoCliente } | null;
+      if (fiestaPrevia.presupuestoId && deshacer) {
+        await mutarPresupuesto(fiestaPrevia.presupuestoId, (presupuesto) => {
+          const pagos = Array.isArray(presupuesto.pagosCliente) ? presupuesto.pagosCliente : [];
+          if (deshacer.tipo === 'agregado') {
+            const sinEste = pagos.filter((p) => p.id !== pagoIdFijo);
+            return sinEste.length === pagos.length ? null : { ...presupuesto, pagosCliente: sinEste };
+          }
+          if (pagos.some((p) => p.id === pagoIdFijo)) return null;
+          return { ...presupuesto, pagosCliente: [...pagos, deshacer.pago] };
+        }).catch((e) => console.error('[plan de pagos] no se pudo deshacer el cobro en el presupuesto', e));
       }
       return { success: false, error: guardado.error || 'No se pudo guardar la cuota.' };
     }

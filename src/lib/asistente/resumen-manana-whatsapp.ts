@@ -52,9 +52,9 @@ export async function enviarResumenMananaWhatsApp(
     {},
     (actual) => {
       if (actual.fecha === momento.fecha && actual.estado !== 'error') return null;
-      const preventivas = (parte as any).items || [];
-      const itemsPrincipales = parte.itemsPrincipales || [];
-      const actuales = [...preventivas, ...itemsPrincipales];
+      // itemsPrincipales trae primero las preventivas (mozos, anticipador) que suma la ruta; items es el parte entero.
+      const juntos = [...(parte.itemsPrincipales || []), ...((parte as any).items || [])];
+      const actuales = juntos.filter((it, i) => juntos.findIndex((o) => o.id === it.id) === i);
       const idsPospuestos = new Set(actual.pospuestosIds || []);
       const itemsPrioritarios = actuales.filter((item) => idsPospuestos.has(item.id));
       const itemsRestantes = actuales.filter((item) => !idsPospuestos.has(item.id));

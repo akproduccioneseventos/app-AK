@@ -157,6 +157,7 @@ export async function correrRecontactoAutomatico(
 
     try {
       const { createNotification } = await import('@/lib/notifications/create-notification');
+      // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
       await createNotification({
         titulo: 'Recontacto automático sin envíos',
         mensaje: `Había ${candidatos.length} ${candidatos.length === 1 ? 'prospecto elegible' : 'prospectos elegibles'} para recontactar por WhatsApp, pero no se pudo enviar ninguno. Motivo: ${primerError || 'credenciales faltantes/vencidas o error de envío'}.`,

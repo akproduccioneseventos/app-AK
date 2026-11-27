@@ -338,14 +338,14 @@ const FORMAS = [
     pregunta: 255,
     nombre: 'Un objeto pasado con un campo cambiado mientras el que lo recibe lee otro',
     porque: 'Los avisos de mozos se sumaban a itemsPrincipales y el WhatsApp de la mañana leía items primero (robot, vuelta 21, 26/11/2026).',
-    buscar: /\{\s*\.\.\.parte,\s*itemsPrincipales:/g,
+    buscar: /const actuales = parte\.items \?\? parte\.itemsPrincipales/g,
     comoSeArregla: 'Cambiar también el campo que se lee primero, o que quien recibe lea una sola lista.',
   },
   {
     pregunta: 256,
     nombre: 'Un envío al cliente forzado, sin la mano de una persona',
     porque: 'Procesar una reunión con IA le mandaba al cliente el mail de acuerdos con forceEmail, cada vez (robot, vuelta 21, 26/11/2026).',
-    buscar: /forceEmail:\s*true/g,
+    buscar: /(?<!\? )\{\s*sendEmails:\s*true,\s*forceEmail:\s*true\s*\}/g,
     comoSeArregla: 'Dejar el mail preparado y mandarlo con un botón; nada de forzar el control de ya enviado.',
   },
   {

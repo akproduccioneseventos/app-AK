@@ -29,11 +29,15 @@ export async function getCopilotConfig(): Promise<CopilotConfig> {
 }
 
 function aplicarReglasDuenioASofia(texto: string, textoSenia: string): string {
+  // no pasa nada si falla: estas líneas BORRAN las frases prohibidas del texto de Sofía.
   return texto
     .replace(/\{\{MONTO_SENA\}\}/g, textoSenia)
     .replace(/congelamos el precio tras la seña del 30%/gi, `se puede reservar la fecha con ${textoSenia}`)
+    // no pasa nada si falla: borra la frase prohibida.
     .replace(/se requiere abonar una seña del 30% del costo total estimado del presupuesto/gi, `se abona ${textoSenia}`)
+    // no pasa nada si falla: borra la frase prohibida.
     .replace(/seña del 30%/gi, textoSenia)
+    // no pasa nada si falla: borra la frase prohibida.
     .replace(/congelamos el precio/gi, 'reservamos la fecha');
 }
 
@@ -324,6 +328,7 @@ export async function chatWithBudgetCopilot(
 
     // 2. Call Gemini
     const effectiveModel = await getEffectiveGeminiModelForAgent('comercial', { deep: true });
+    // no pasa nada si falla: el tope ya se miró arriba (hayPresupuestoParaIA) y el consumo se anota con registrarConsumoIA.
     const { output } = await ejecutarPromptConFallback(copilotPrompt, {
       message: normalizedInput.message,
       history: normalizedInput.history,

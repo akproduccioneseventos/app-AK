@@ -200,11 +200,12 @@ export async function saveLifeStoryVideoPhoto(
       const completas = lectura.estado !== 'error'
         ? subidasCount >= totalEsperado
         : Boolean(fiesta.videoVida.photosUploaded);
-      await guardarAjustesVideoVida(fiestaId, {
+      const marca = await guardarAjustesVideoVida(fiestaId, {
         ...fiesta.videoVida,
         uploadedCount: subidasCount,
         photosUploaded: completas,
       });
+      if (!marca.success) console.error('[video de vida] no se pudo guardar el conteo de fotos:', marca.error);
     }
 
     return { success: true, url: publicUrl };
@@ -298,11 +299,12 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
     if (!files.length) {
       const fiestaActual = await getFiestaById(fiestaId).catch(() => null);
       if (fiestaActual?.videoVida && (fiestaActual.videoVida.photosUploaded || (fiestaActual.videoVida.uploadedCount ?? 0) > 0)) {
-        await guardarAjustesVideoVida(fiestaId, {
+        const enCero = await guardarAjustesVideoVida(fiestaId, {
           ...fiestaActual.videoVida,
           uploadedCount: 0,
           photosUploaded: false,
-        }).catch(() => undefined);
+        }).catch((e) => ({ success: false as const, error: String(e) }));
+        if (!enCero.success) console.error('[video de vida] no se pudo poner el conteo en cero:', enCero.error);
       }
       return { success: true };
     }
@@ -330,11 +332,12 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
 
     const fiestaActual = await getFiestaById(fiestaId).catch(() => null);
     if (fiestaActual?.videoVida && (fiestaActual.videoVida.photosUploaded || (fiestaActual.videoVida.uploadedCount ?? 0) > 0)) {
-      await guardarAjustesVideoVida(fiestaId, {
+      const enCero = await guardarAjustesVideoVida(fiestaId, {
         ...fiestaActual.videoVida,
         uploadedCount: 0,
         photosUploaded: false,
-      }).catch(() => undefined);
+      }).catch((e) => ({ success: false as const, error: String(e) }));
+      if (!enCero.success) console.error('[video de vida] no se pudo poner el conteo en cero:', enCero.error);
     }
 
     return { success: true };

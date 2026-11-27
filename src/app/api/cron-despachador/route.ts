@@ -25,6 +25,7 @@ const TAREAS_CRON_DESPACHADAS = [
 
 function verificarClave(request: Request): { autorizado: boolean; conClave: boolean; status?: number; error?: string } {
   const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET;
+  // no pasa nada si falla: sin clave sólo corren las tareas que no mandan ni borran (conClave: false).
   if (!cronSecret) {
     // Orden 278, bloque 1, pendiente: sin clave sólo corren las tareas que no mandan ni borran (Orden 365).
     return { autorizado: true, conClave: false };

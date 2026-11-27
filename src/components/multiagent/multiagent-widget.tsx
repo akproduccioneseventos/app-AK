@@ -67,7 +67,7 @@ function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
   if (!voices || voices.length === 0) return null;
 
   // 1. es-UY (Uruguay)
-  const uy = voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY') || v.lang.toLowerCase().includes('uy'));
+  const uy = voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY'));
   if (uy) return uy;
 
   // 2. es-AR (Argentina / Rioplatense - presente en casi todos los navegadores)

@@ -57,7 +57,8 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
     const SocialDayButton = (dayProps: DayButtonProps) => {
         const [open, setOpen] = useState(false);
         const date = dayProps.day.date;
-        const dayString = hoyEnUruguay(date);
+        // La celda es la medianoche LOCAL del día que muestra el calendario: su día es el de la fecha local, no el de Uruguay.
+        const dayString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         const postsForDay = postsByDay[dayString];
 
         if (!postsForDay) {

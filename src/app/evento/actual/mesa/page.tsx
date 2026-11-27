@@ -74,8 +74,10 @@ function MesaLookupContent() {
         </CardHeader>
         <CardContent className="text-center space-y-4 py-6">
           <p className="text-muted-foreground">{error}</p>
-          {fiesta?.id && (
+          {fiesta?.id ? (
             <Button asChild variant="outline"><Link href={`/evento/actual?fiestaId=${fiesta.id}`}>Volver a la Página del Evento</Link></Button>
+          ) : (
+            <Button asChild variant="outline"><Link href="/entrar">Entrar con mi celular o el código de la fiesta</Link></Button>
           )}
         </CardContent>
       </Card>
