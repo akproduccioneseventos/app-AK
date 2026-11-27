@@ -48,8 +48,12 @@ test('el catalogo muestra, para cada plato elegido, la foto que le asigna la app
     expect(srcs.length).toBeGreaterThan(0);
     for (const src of srcs) expect(src, `${p.name} muestra su foto`).toBe(esperada);
     // Y que el navegador la pudo cargar de verdad (no una direccion rota).
-    const cargo = await imagenes.first().evaluate((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0);
-    expect(cargo, `${p.name}: la imagen carga`).toBe(true);
+    // Se espera la carga (la foto puede venir diferida): una dirección rota igual queda en false a los 15 s.
+    await imagenes.first().scrollIntoViewIfNeeded();
+    await expect.poll(
+      () => imagenes.first().evaluate((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0),
+      { message: `${p.name}: la imagen carga`, timeout: 15_000 },
+    ).toBe(true);
   }
 
   // La mesa bufet nunca muestra la pizarra vacia.
