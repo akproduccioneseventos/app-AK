@@ -6,7 +6,7 @@ import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'fiestas-empresariales',
-  title: 'Eventos y fiestas de empresa en Salto | AK Producciones',
+  title: 'Eventos y fiestas de empresa en Salto',
   description: 'Salón, organización, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos y cabinas para eventos de empresa en Salto.',
   image: '/media/catalogo-servicios/corporativo_persuasivo.png',
   imageAlt: 'Imagen ilustrativa de un evento empresarial',

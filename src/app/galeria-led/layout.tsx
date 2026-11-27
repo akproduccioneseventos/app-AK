@@ -4,7 +4,7 @@ import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Galería y Pantallas LED en Salto | AK Producciones Eventos',
+  title: 'Galería y Pantallas LED en Salto',
   description:
     'Mirá las pantallas LED, iluminación interactiva y montajes visuales de fiestas producidas por AK Producciones en Salto, Uruguay.',
   alternates: {

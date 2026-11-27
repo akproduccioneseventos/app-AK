@@ -25,6 +25,7 @@ import {
   dispararTareasVencidasDeFondo,
 } from '@/app/actions/tareas-automaticas.actions';
 import {
+  ETIQUETA_ESTADO_TAREA,
   resumirTareasAutomaticas,
   tieneFalloPosteriorAlExito,
   type EstadoDeTarea,
@@ -125,7 +126,7 @@ export default function TareasAutomaticasPage() {
   };
 
   const resumen = resumirTareasAutomaticas(tareas);
-  const { total, alDia, atrasadas, nunca, noDisponibles, conFalloReciente } = resumen;
+  const { total, alDia, atrasadas, nunca, noDisponibles, falloUltimo, conFalloReciente } = resumen;
 
   return (
     <div className="container max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
@@ -238,7 +239,7 @@ export default function TareasAutomaticasPage() {
       )}
 
       {/* Métricas resumen */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <Card className="border-slate-200 shadow-sm bg-white">
           <CardHeader className="p-4 pb-1">
             <CardDescription className="text-xs font-semibold text-slate-500">TOTAL TAREAS</CardDescription>
@@ -256,6 +257,17 @@ export default function TareasAutomaticasPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0 text-xs text-emerald-600 font-medium">Corrieron en tiempo y forma</CardContent>
+        </Card>
+
+        <Card className="border-rose-300 bg-rose-50/60 shadow-sm">
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-rose-800">FALLÓ LA ÚLTIMA VEZ</CardDescription>
+            <CardTitle className="text-2xl font-bold text-rose-800 flex items-center gap-2" data-testid="contador-fallo-ultimo">
+              <XCircle className="h-5 w-5 text-rose-600" />
+              {falloUltimo}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-rose-700 font-medium">Falló después del último éxito</CardContent>
         </Card>
 
         <Card className="border-slate-300 bg-slate-100/70 shadow-sm">
@@ -376,10 +388,11 @@ export default function TareasAutomaticasPage() {
             tareas.map((tarea) => {
               const isRunning = runningId === tarea.id;
             const esNoDisponible = tarea.estado === 'no-disponible' || Boolean(tarea.faltaConexion);
-            const esNunca = !esNoDisponible && tarea.estado === 'nunca';
-            const esAtrasada = !esNoDisponible && tarea.estado === 'atrasada';
-            const esAlDia = !esNoDisponible && tarea.estado === 'al-dia';
             const falloPosterior = tarea.falloPosteriorAlExito ?? tieneFalloPosteriorAlExito(tarea);
+            const esFalloUltimo = !esNoDisponible && (tarea.estado === 'fallo_ultimo' || falloPosterior);
+            const esNunca = !esNoDisponible && !esFalloUltimo && tarea.estado === 'nunca';
+            const esAtrasada = !esNoDisponible && !esFalloUltimo && tarea.estado === 'atrasada';
+            const esAlDia = !esNoDisponible && !esFalloUltimo && tarea.estado === 'al-dia';
 
             return (
               <div
@@ -387,11 +400,13 @@ export default function TareasAutomaticasPage() {
                 className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                   esNoDisponible
                     ? 'bg-slate-50/80'
-                    : esNunca
-                      ? 'bg-rose-50/20'
-                      : esAtrasada
-                        ? 'bg-rose-50/25 border-l-4 border-l-rose-500'
-                        : 'hover:bg-slate-50/50'
+                    : esFalloUltimo
+                      ? 'bg-rose-50/35 border-l-4 border-l-rose-600'
+                      : esNunca
+                        ? 'bg-rose-50/20'
+                        : esAtrasada
+                          ? 'bg-rose-50/25 border-l-4 border-l-rose-500'
+                          : 'hover:bg-slate-50/50'
                 }`}
               >
                 <div className="space-y-2 max-w-2xl">
@@ -406,22 +421,28 @@ export default function TareasAutomaticasPage() {
                     {esAlDia && (
                       <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100 gap-1 font-semibold text-xs">
                         <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                        Al día
+                        {ETIQUETA_ESTADO_TAREA['al-dia']}
+                      </Badge>
+                    )}
+                    {esFalloUltimo && (
+                      <Badge className="bg-rose-100 text-rose-900 border-rose-300 hover:bg-rose-100 gap-1 font-bold text-xs">
+                        <XCircle className="h-3 w-3 text-rose-600" />
+                        {ETIQUETA_ESTADO_TAREA.fallo_ultimo}
                       </Badge>
                     )}
                     {esAtrasada && (
                       <Badge className="bg-rose-100 text-rose-900 border-rose-300 hover:bg-rose-100 gap-1 font-bold text-xs">
                         <AlertTriangle className="h-3 w-3 text-rose-600" />
-                        Atrasada
+                        {ETIQUETA_ESTADO_TAREA.atrasada}
                       </Badge>
                     )}
                     {esNunca && (
                       <Badge className="bg-rose-100 text-rose-900 border-rose-300 hover:bg-rose-100 gap-1 font-bold text-xs">
                         <XCircle className="h-3 w-3 text-rose-600" />
-                        Nunca corrió
+                        {ETIQUETA_ESTADO_TAREA.nunca}
                       </Badge>
                     )}
-                    {falloPosterior && (
+                    {falloPosterior && !esFalloUltimo && (
                       <Badge className="bg-rose-100 text-rose-900 border-rose-300 gap-1 font-bold text-xs">
                         <XCircle className="h-3 w-3 text-rose-600" />
                         Último intento falló
@@ -443,7 +464,7 @@ export default function TareasAutomaticasPage() {
                     <div className="flex items-center gap-1.5">
                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                       <span className="text-slate-500">Última corrida buena:</span>
-                      <span className={esNunca ? 'text-rose-600 font-bold' : esAtrasada ? 'text-rose-700 font-bold' : 'text-slate-700 font-semibold'}>
+                      <span className={esNunca || esFalloUltimo ? 'text-rose-600 font-bold' : esAtrasada ? 'text-rose-700 font-bold' : 'text-slate-700 font-semibold'}>
                         {formatearFecha(tarea.ultimaCorrida)}
                       </span>
                       {tarea.horasDesdeLaUltima !== null && (
@@ -490,11 +511,11 @@ export default function TareasAutomaticasPage() {
                 <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0">
                   <Button
                     size="sm"
-                    variant={esNunca || esAtrasada ? 'default' : 'outline'}
+                    variant={esNunca || esAtrasada || esFalloUltimo ? 'default' : 'outline'}
                     disabled={isRunning || loading}
                     onClick={() => handleEjecutar(tarea.id, tarea.nombre)}
                     className={`gap-2 font-medium ${
-                      esNunca
+                      esNunca || esFalloUltimo
                         ? 'bg-rose-600 hover:bg-rose-700 text-white'
                         : esAtrasada
                         ? 'bg-amber-600 hover:bg-amber-700 text-white'

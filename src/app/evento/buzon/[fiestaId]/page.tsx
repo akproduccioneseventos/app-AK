@@ -26,6 +26,7 @@ import { createPlayableVideoUrl, renderUploadedVideoWithFrame } from '@/lib/buzo
 import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { isUsableRecordedVideo, stopRecorderStream } from '@/lib/buzon/recorded-video';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 // This kiosk stays dark even when the surrounding site uses its light theme.
 const BUZON_THEME = 'dark [--primary:0_72%_45%] [&_.text-primary]:text-red-400 [&_.text-destructive]:text-red-400';
@@ -1262,15 +1263,18 @@ export default function GuestBuzonPage() {
             {fiesta.eventName || 'Fiesta'}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setVoiceEnabled(prev => !prev)}
+        <div className="flex items-center gap-2">
+          <BotonComoFunciona clave="buzon" variant="dark" />
+          <button
+            type="button"
+            onClick={() => setVoiceEnabled(prev => !prev)}
           aria-label={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
           title={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-zinc-300"
         >
           {voiceEnabled ? <Volume2 className="w-4 h-4 text-amber-400" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
         </button>
+        </div>
       </header>
 
       {/* CELEBRATION */}

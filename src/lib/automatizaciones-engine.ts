@@ -253,8 +253,13 @@ function evaluarCondicion(
       return !(m?.cancionEntrada || m?.cancionVals || (m?.cancionesTortaBrindis ?? []).length > 0 || m?.playlistFiesta);
     }
 
-    case 'video_vida_incompleto':
+    case 'video_vida_incompleto': {
+      const target = fiesta.videoVida?.photoCount || 50;
+      if (typeof fiesta.videoVida?.uploadedCount === 'number') {
+        return fiesta.videoVida.uploadedCount < target;
+      }
       return !(fiesta.videoVida?.photosUploaded === true);
+    }
 
     case 'saldo_pendiente':
       return cuotas.some(c => c.estado === 'pendiente' || c.estado === 'vencido' || c.estado === 'parcial');

@@ -3,6 +3,7 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
+import { esLecturaFallida, marcarLecturaFallida } from '@/lib/marca-de-lectura';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -26,11 +27,12 @@ export async function getScheduledMessages(internalToken?: symbol): Promise<Sche
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return [];
   }
-  return readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+  const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+  return esLecturaFallida(messages) ? marcarLecturaFallida(messages) : messages;
 }
 
 export async function saveScheduledMessage(
-  message: Omit<ScheduledMessage, 'id' | 'createdAt'>,
+  message: Omit<ScheduledMessage, 'id' | 'createdAt'> & { id?: string },
   internalToken?: symbol,
   opciones?: { idEstable?: string },
 ): Promise<{ success: boolean; message?: ScheduledMessage; error?: string; yaExistia?: boolean }> {
@@ -54,7 +56,7 @@ export async function saveScheduledMessage(
     // Con `idEstable` el mismo aviso (p. ej. fiesta + invitado + momento + día) se guarda UNA
     // vez aunque la tarea corra dos veces o en dos servidores: la base rechaza crear un id que
     // ya existe (Codex, auditoría 81).
-    const idEstable = opciones?.idEstable?.replace(/[^\w-]/g, '_');
+    const idEstable = (opciones?.idEstable || message.id)?.replace(/[^\w-]/g, '_');
     const newMessage: ScheduledMessage = {
       ...message,
       id: idEstable || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -63,6 +65,12 @@ export async function saveScheduledMessage(
 
     if (idEstable) {
       const existentes = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      if (esLecturaFallida(existentes)) {
+        return {
+          success: false,
+          error: 'No pudimos verificar los mensajes programados. No se preparó el aviso para evitar duplicados.',
+        };
+      }
       const previo = existentes.find((m) => m.id === idEstable);
       if (previo) return { success: true, message: previo, yaExistia: true };
     }
@@ -77,14 +85,25 @@ export async function saveScheduledMessage(
       }
     } else {
       let yaExistia = false;
+      let lecturaFallida = false;
       await scheduledMessagesMutex.runExclusive(async () => {
         const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+        if (esLecturaFallida(messages)) {
+          lecturaFallida = true;
+          return;
+        }
         if (idEstable && messages.some((m) => m.id === idEstable)) {
           yaExistia = true;
           return;
         }
         await writeData(SCHEDULED_MESSAGES_FILE, [...messages, newMessage]);
       });
+      if (lecturaFallida) {
+        return {
+          success: false,
+          error: 'No pudimos verificar los mensajes programados. No se preparó el aviso para evitar duplicados.',
+        };
+      }
       if (yaExistia) return { success: true, message: newMessage, yaExistia: true };
     }
 

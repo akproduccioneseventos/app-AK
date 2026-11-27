@@ -6,6 +6,8 @@ import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } f
 import { aplicarInsumoEnMenus } from './menus-catering';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
+import { AsyncMutex } from '@/lib/mutex';
 
 /**
  * Quién toca los insumos (Codex, auditoría 66, 5/10/2026). Antes alcanzaba cualquier sesión, y el
@@ -19,9 +21,7 @@ async function requirePermisoAlguno(...permisos: Permiso[]): Promise<void> {
   }
   throw new Error('Tu perfil no tiene acceso a los insumos.');
 }
-const PARA_LEER = [PERMISOS.INSUMOS, PERMISOS.ORGANIZACION] as const;
-import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
-import { AsyncMutex } from '@/lib/mutex';
+const PARA_LEER = [PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION] as const;
 
 const INSUMOS_FILE = 'insumos.json';
 const INSUMOS_COLLECTION = 'insumos';
@@ -38,16 +38,53 @@ export async function invalidateInsumosCache() {
   limpiarCacheInsumos();
 }
 
+async function puedeVerCostosInsumos(): Promise<boolean> {
+  for (const permiso of [PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD]) {
+    if ((await requirePermiso(permiso)).ok) return true;
+  }
+  return false;
+}
+
+function sinCostosInsumo(insumo: ServicioEmpresa): ServicioEmpresa {
+  const {
+    valorUnitarioEstimado: _costo,
+    precioVenta: _pv,
+    precioPorPersona: _ppp,
+    precioBase: _pb,
+    tramosDePrecio: _tp,
+    mantenimiento,
+    ...resto
+  } = insumo as ServicioEmpresa & { costoUnitario?: unknown };
+  delete (resto as Record<string, unknown>).costoUnitario;
+  if (mantenimiento) {
+    const historialLimpio = Array.isArray(mantenimiento.historial)
+      ? mantenimiento.historial.map(({ costo: _c, ...h }) => h)
+      : undefined;
+    return {
+      ...resto,
+      mantenimiento: {
+        ...mantenimiento,
+        ...(historialLimpio ? { historial: historialLimpio } : {}),
+      },
+    };
+  }
+  return resto;
+}
+
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
-    // Cada insumo trae lo que cuesta y cuanto queda en deposito. Es del equipo.
+    // Cada insumo trae lo que cuesta y cuanto queda en deposito. Quien no tiene INSUMOS ni
+    // CONTABILIDAD (p. ej. el operador) recibe nombres y cantidades sin costos (Orden 371 B3.3).
     await requirePermisoAlguno(...PARA_LEER);
-    return leerInsumosCrudos();
+    const insumos = await leerInsumosCrudos();
+    return (await puedeVerCostosInsumos()) ? insumos : insumos.map(sinCostosInsumo);
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
   await requirePermisoAlguno(...PARA_LEER);
   const insumos = await leerInsumosCrudos();
-  return insumos.find(s => s.id === id) || null;
+  const encontrado = insumos.find(s => s.id === id) || null;
+  if (!encontrado) return null;
+  return (await puedeVerCostosInsumos()) ? encontrado : sinCostosInsumo(encontrado);
 }
 
 /**

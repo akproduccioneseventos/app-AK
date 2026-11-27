@@ -4,6 +4,7 @@ import { idDelIntento } from '@/lib/intento-en-servidor';
 import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+import { hoyEnUruguay } from '@/lib/utils';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -200,7 +201,7 @@ export async function updateFiestaDate(
       ...fiesta,
       configuracion: {
         ...fiesta.configuracion,
-        fechaEvento: originalDate.toISOString(),
+        fechaEvento: hoyEnUruguay(originalDate),
       },
     };
     const result = await saveFiesta(updatedFiesta);
@@ -332,7 +333,7 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
     // Registrar en el historial del CRM si está vinculado a un prospecto
     if (newAppointment.leadId) {
       const { scheduleCrmMeeting } = await import('@/app/actions/crm');
-      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'Oficina AK'})`).catch((err) => {
+      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'A coordinar'})`).catch((err) => {
         console.warn('[agenda] CRM meeting schedule failed:', err);
       });
     }

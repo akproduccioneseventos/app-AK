@@ -19,6 +19,7 @@ import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
 import { BreadcrumbJsonLd } from '@/components/seo/BreadcrumbJsonLd';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function formatCurrency(amount?: number) {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -34,20 +35,27 @@ export async function generateStaticParams() {
   return catalogList.map((catalog) => ({ eventType: catalog.slug }));
 }
 
+const CANONICAL_PROPIO_BY_EVENT_TYPE: Record<string, string> = {
+  bodas: '/bodas',
+  'xv-anos': '/quinceaneras',
+  cumpleanos: '/cumpleanos',
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { eventType } = await params;
   const catalog = getCatalogBySlug(eventType);
-  if (!catalog) return { title: 'AK Producciones Eventos' };
+  if (!catalog) return { title: 'Eventos' };
 
   const image = catalog.gallery?.[0]?.src || '/media/catalogo-servicios/quinceanera_hero.png';
-  const url = `https://akproducciones.uy/public/${eventType}`;
+  const canonicalPath = CANONICAL_PROPIO_BY_EVENT_TYPE[eventType] || `/public/${eventType}`;
+  const url = `https://akproducciones.uy${canonicalPath}`;
 
   return {
     metadataBase: new URL('https://akproducciones.uy'),
-    title: `${catalog.name} en Salto | AK Producciones Eventos`,
+    title: `${catalog.name} en Salto`,
     description: `${catalog.hero.subheadline} Organización integral en Salto con comida, discoteca, tecnología y salones.`,
     alternates: {
-      canonical: `/public/${eventType}`,
+      canonical: canonicalPath,
     },
     openGraph: {
       title: `${catalog.name} en Salto | AK Producciones Eventos`,
@@ -106,6 +114,9 @@ export default async function EventTypePage({ params }: Props) {
           <Link href="/" className="hover:text-amber-400 transition-colors">Inicio</Link>
           <span className="text-zinc-600">/</span>
           <span className="text-zinc-200 font-semibold">{catalog.name}</span>
+          <div className="ml-auto">
+            <BotonComoFunciona clave="paginas-por-tipo" variant="dark" />
+          </div>
         </div>
       </nav>
 

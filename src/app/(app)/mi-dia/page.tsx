@@ -8,6 +8,8 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+import { diasHastaEnUruguay, hoyEnUruguay } from '@/lib/utils';
 import Link from 'next/link';
 import {
   Bot,
@@ -65,7 +67,7 @@ export default async function MiDiaPage() {
   }
 
   const hoy = new Date();
-  const hoyStr = hoy.toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay(hoy);
 
   const accionesHoy: AccionItem[] = [];
   const accionesProximas: AccionItem[] = [];
@@ -103,9 +105,10 @@ export default async function MiDiaPage() {
     if (Array.isArray(fiesta.reuniones)) {
       for (const reunion of fiesta.reuniones) {
         if (reunion.fecha) {
-          const esHoy = reunion.fecha.split('T')[0] === hoyStr;
-          const fechaReunion = new Date(reunion.fecha);
-          if (esHoy || fechaReunion >= hoy) {
+          const diaReunion = diaCalendario(reunion.fecha);
+          const esHoy = diaReunion === hoyStr;
+          const esFutura = diaReunion ? diaReunion > hoyStr : new Date(reunion.fecha) >= hoy;
+          if (esHoy || esFutura) {
             const item: AccionItem = {
               id: `reunion_${fiesta.id}_${reunion.id || reunion.fecha}`,
               tipo: 'reunion',
@@ -154,7 +157,7 @@ export default async function MiDiaPage() {
 
     // Mensaje de WhatsApp preparado si hay teléfono
     if (telefonoCliente && fiesta.configuracion?.fechaEvento) {
-      const diasRestantes = Math.ceil((new Date(fiesta.configuracion.fechaEvento).getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+      const diasRestantes = diasHastaEnUruguay(fiesta.configuracion.fechaEvento, hoy);
       if (diasRestantes >= 0 && diasRestantes <= 14) {
         const textoWA = `¡Hola ${nombreCliente}! Te escribo desde AK Producciones para coordinar los últimos detalles de ${nombreFiesta}. ¿Cómo vienen con los preparativos?`;
         accionesHoy.push({

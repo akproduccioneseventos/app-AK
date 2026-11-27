@@ -35,6 +35,7 @@ import type { CatalogoFoto } from '@/types/catalogo';
 import type { GaleriaFoto } from '@/types/galeria';
 import type { PresentacionLedSettings } from '@/types/contenido-publico';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 // Slide components
 import { PortadaSlide } from './slides/portada-slide';
@@ -1055,6 +1056,7 @@ export default function PresentacionLedPage() {
           >
             🏛️ Salón Club Uruguay
           </Button>
+          <BotonComoFunciona clave="reunion-led" variant="dark" />
           {isOnline && (
             <Button
               type="button"
@@ -1080,6 +1082,7 @@ export default function PresentacionLedPage() {
             onClick={toggleFullscreen}
             className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
             title={isFullscreen ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)'}
+            aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
           >
             {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
           </button>
@@ -1351,20 +1354,28 @@ export default function PresentacionLedPage() {
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
+          <div className="flex items-center gap-0.5 mx-2 sm:mx-4">
             {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
               const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
+              const isCurrent = currentSlide === slideIdx;
               return (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => goToSlide(slideIdx)}
-                  className={cn(
-                    'h-2 rounded-full transition-all duration-300',
-                    currentSlide === slideIdx
-                      ? 'w-6 sm:w-8 bg-white'
-                      : 'w-2 bg-white/30 hover:bg-white/60',
-                  )}
-                />
+                  aria-label={`Ir a la diapositiva ${slideIdx + 1}`}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  className="inline-flex min-h-6 items-center justify-center px-1 py-2"
+                >
+                  <span
+                    className={cn(
+                      'h-2 rounded-full transition-all duration-300',
+                      isCurrent
+                        ? 'w-6 sm:w-8 bg-white'
+                        : 'w-2 bg-white/30 hover:bg-white/60',
+                    )}
+                  />
+                </button>
               );
             })}
           </div>

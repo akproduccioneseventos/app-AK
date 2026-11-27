@@ -19,3 +19,16 @@ export const calculateSalaryBreakdown = (totalPayment: number, rol?: Rol): Salar
   const aguinaldo = aCentesimos(totalPayment - sueldoBase - salarioVacacional);
   return { base: sueldoBase, vacacional: salarioVacacional, aguinaldo };
 };
+
+export function esReciboCobrado(estado?: string): boolean {
+  return estado === 'pagado' || estado === 'firmado_subido';
+}
+
+export function totalCobradoDelPersonal(
+  recibos: Array<{ empleadoId: string; monto?: number; estado?: string }>,
+  empleadoId: string,
+): number {
+  return recibos
+    .filter((r) => r.empleadoId === empleadoId && esReciboCobrado(r.estado))
+    .reduce((sum, r) => sum + (Number(r.monto) || 0), 0);
+}

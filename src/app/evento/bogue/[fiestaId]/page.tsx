@@ -79,6 +79,7 @@ import {
   METADATOS_MODOS_CAPTURA,
 } from '@/lib/entretenimiento/modos-captura';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function VoguePage() {
   usePantallaPrendida();
@@ -206,6 +207,7 @@ export default function VoguePage() {
   // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
   // del QR quedaba girando como si todavia estuviera subiendo.
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [avisoDeImpresion, setAvisoDeImpresion] = useState<string | null>(null);
 
   const marcosDisponibles = useMemo(() => {
     const habilitados = fiesta?.station?.marcosHabilitados;
@@ -409,6 +411,7 @@ export default function VoguePage() {
     setUploadedPostUrl(null);
     setQrCodeUrl('');
     setUploadError(null);
+    setAvisoDeImpresion(null);
     setQueuedOffline(false);
     setGifUrl(null);
     setIsUploading(false);
@@ -801,6 +804,7 @@ export default function VoguePage() {
 
     setIsUploading(true);
     setUploadError(null);
+    setAvisoDeImpresion(null);
     setQueuedOffline(false);
     setProgressMsg('Subiendo al muro social de la fiesta...');
 
@@ -926,6 +930,7 @@ export default function VoguePage() {
         });
         setQrCodeUrl('');
         setUploadError(null);
+    setAvisoDeImpresion(null);
         setQueuedOffline(true);
         setProgressMsg('Guardada sin señal: se sube sola cuando vuelva');
         setLocalStatus('done');
@@ -1194,6 +1199,9 @@ export default function VoguePage() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Boomerang</h2>
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estación crea un loop con la cámara web.</p>
+                  <div className="pt-1 flex justify-center">
+                    <BotonComoFunciona clave="vogue" variant="dark" />
+                  </div>
                 </div>
 
                 {/* Selector táctil de fondo virtual */}
@@ -1379,9 +1387,10 @@ export default function VoguePage() {
                   onClick={() => {
                     if (isPrinting) return;
                     setIsPrinting(true);
+                    setAvisoDeImpresion(null);
                     const res = imprimirRecuerdo(finalStripUrl);
                     if (!res.ok) {
-                      setUploadError(res.aviso || 'Error al imprimir');
+                      setAvisoDeImpresion(res.aviso || 'No se pudo imprimir. Probá de nuevo o pedile ayuda al equipo');
                     }
                     setTimeout(() => setIsPrinting(false), 2000);
                   }}
@@ -1488,6 +1497,11 @@ export default function VoguePage() {
               {uploadError && (
                 <p className="text-xs text-rose-400 text-center font-medium bg-rose-500/10 p-2 rounded-md">
                   {uploadError}
+                </p>
+              )}
+              {avisoDeImpresion && (
+                <p data-testid="aviso-impresion" className="text-xs text-rose-300 text-center font-semibold bg-rose-500/15 p-2 rounded-md" role="alert">
+                  {avisoDeImpresion}
                 </p>
               )}
 

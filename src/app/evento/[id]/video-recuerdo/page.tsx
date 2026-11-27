@@ -6,6 +6,7 @@ import { ShieldAlert } from 'lucide-react';
 import type { RecapPhotoItem } from '@/lib/recap/recap-engine';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -88,6 +89,7 @@ export default async function VideoRecuerdoPage({ params, searchParams }: Props)
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-white text-center space-y-4">
         <h1 className="text-3xl font-dancing_script">Recuerdos de {event.configuracion.nombreEvento}</h1>
+        <BotonComoFunciona clave="video-recuerdo" variant="dark" />
         <p className="text-slate-400 max-w-sm">
           Todavía se están procesando las fotos, o no hay suficientes recuerdos aprobados
           para armar el video. Volvé a entrar más tarde y va a estar listo.

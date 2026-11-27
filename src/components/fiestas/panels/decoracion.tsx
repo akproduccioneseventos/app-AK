@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { useSearchParams } from 'next/navigation';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
-import { addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule, generarVisualizacionSalonAi } from '@/app/actions/fiesta/decoracion.actions';
+import { mutarDecoracion, addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule, generarVisualizacionSalonAi } from '@/app/actions/fiesta/decoracion.actions';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -484,7 +484,7 @@ function DecoracionYDisenoEventoContent() {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateDecoracionFiestaActual(fiestaId, data);
+      const result = await mutarDecoracion(fiestaId, data);
       if (result.success && result.updatedData) {
         loadDecoracionData(false);
       } else {

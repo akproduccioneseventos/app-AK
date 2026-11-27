@@ -38,14 +38,16 @@ export function createEventLandingMetadata({
 }: EventLandingSeoInput): Metadata {
   const path = CANONICAL_BY_SLUG[slug] || `/${slug}`;
   const url = new URL(path, SITE_URL).toString();
+  const cleanTitle = title.replace(/\s*\|\s*AK Producciones(?:\s+Eventos)?$/i, '').trim();
+  const ogTitle = `${cleanTitle} | AK Producciones`;
 
   return {
     metadataBase: new URL(SITE_URL),
-    title: title.includes('AK Producciones') ? { absolute: title } : title,
+    title: cleanTitle,
     description,
     alternates: { canonical: path },
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       type: 'website',
       url,

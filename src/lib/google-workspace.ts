@@ -645,6 +645,17 @@ function toCalendarApiEvent(input: GoogleWorkspaceEventInput) {
   };
 }
 
+function buildDeterministicCalendarEventId(input: GoogleWorkspaceEventInput): string {
+  const crypto = require('crypto') as typeof import('crypto');
+  const raw = [
+    String(input.summary || '').trim().toLowerCase(),
+    String(input.startIso || '').trim(),
+    ...(Array.isArray(input.attendees) ? input.attendees.map((a) => String(a || '').trim().toLowerCase()).sort() : []),
+  ].join('|');
+  // Base32hex-safe lowercase hex characters ('0'-'9', 'a'-'f') accepted by Google Calendar event id.
+  return `akreunion${crypto.createHash('sha256').update(raw).digest('hex').slice(0, 24)}`;
+}
+
 export async function upsertGoogleCalendarEvent(
   account: GoogleWorkspaceAccount,
   input: GoogleWorkspaceEventInput,
@@ -653,7 +664,11 @@ export async function upsertGoogleCalendarEvent(
   await exigirQueNoSalgaAfuera();
   const calendarId = encodeURIComponent(account.calendarId || 'primary');
   const sendUpdates = process.env.GOOGLE_WORKSPACE_SEND_UPDATES || 'all';
-  const eventBody = toCalendarApiEvent(input);
+  const eventId = existingEventId || buildDeterministicCalendarEventId(input);
+  const eventBody = {
+    ...toCalendarApiEvent(input),
+    ...(!existingEventId ? { id: eventId } : {}),
+  };
   const url = existingEventId
     ? `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events/${encodeURIComponent(existingEventId)}?sendUpdates=${sendUpdates}`
     : `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events?sendUpdates=${sendUpdates}`;
@@ -666,6 +681,24 @@ export async function upsertGoogleCalendarEvent(
     },
     body: JSON.stringify(eventBody),
   });
+
+  if (!existingEventId && response.status === 409) {
+    const patchRes = await fetch(
+      `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events/${encodeURIComponent(eventId)}?sendUpdates=${sendUpdates}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${account.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toCalendarApiEvent(input)),
+      },
+    );
+    if (!patchRes.ok) {
+      throw new Error(await patchRes.text());
+    }
+    return (await patchRes.json()) as { id: string; htmlLink?: string };
+  }
 
   if (!response.ok) {
     throw new Error(await response.text());

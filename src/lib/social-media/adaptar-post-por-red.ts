@@ -9,7 +9,7 @@ export interface AdaptedPlatformVersion {
 
 export function sanitizarTextoPublicacion(texto: string): string {
   return String(texto || '')
-    .replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|dolares|pesos|uyu)?/gi, '')
+    .replace(/(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)\s*\d+([.,]\d+)?|\d+([.,]\d+)?\s*(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)|\b\d{1,3}(?:\.\d{3})+(?:[.,]\d+)?\b/gi, '')
     .replace(/garant[íi]a\w*/gi, '')
     .replace(/garantiz\w*/gi, 'asegurar')
     .replace(/\b24\/7\b/gi, '')

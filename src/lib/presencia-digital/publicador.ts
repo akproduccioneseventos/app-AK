@@ -56,7 +56,7 @@ async function mutarPosteo(
 ): Promise<SocialPost | null> {
   // Con base, SOLO la transacción: si falla, no se reescribe la lista entera (pisaría lo que otro
   // guardó). El modo de archivos locales no tiene transacción y se cuida con el turno.
-  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true' && typeof mutateDataItem === 'function') {
     return mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, postId, cambiar);
   }
   {
@@ -204,8 +204,11 @@ async function publicarSinReclamo(
           updatedAt: new Date().toISOString(),
           lastError: undefined,
         };
-        posts[postIndex] = updatedPost;
-        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+        const saved = await mutarPosteo(postId, () => updatedPost);
+        if (!saved) {
+          posts[postIndex] = updatedPost;
+          await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+        }
         return {
           success: true,
           publishedTo: unifiedRes.publishedTo || selectedPlatforms,
@@ -438,8 +441,11 @@ async function publicarSinReclamo(
         status: 'Listo para copiar',
         updatedAt: new Date().toISOString(),
       };
-      posts[postIndex] = manualPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => manualPost);
+      if (!saved) {
+        posts[postIndex] = manualPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
       return {
         success: true,
         readyForManualCopy: true,
@@ -465,8 +471,11 @@ async function publicarSinReclamo(
         updatedAt: new Date().toISOString(),
       };
 
-      posts[postIndex] = updatedFailedPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => updatedFailedPost);
+      if (!saved) {
+        posts[postIndex] = updatedFailedPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
 
       return {
         success: false,
@@ -487,8 +496,11 @@ async function publicarSinReclamo(
         updatedAt: new Date().toISOString(),
       };
 
-      posts[postIndex] = updatedProcessingPost;
-      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      const saved = await mutarPosteo(postId, () => updatedProcessingPost);
+      if (!saved) {
+        posts[postIndex] = updatedProcessingPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      }
 
       return {
         success: true,
@@ -509,8 +521,11 @@ async function publicarSinReclamo(
       ...(tiktokPublishId ? { publishId: tiktokPublishId } : {}),
     };
 
-    posts[postIndex] = updatedPost;
-    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    const saved = await mutarPosteo(postId, () => updatedPost);
+    if (!saved) {
+      posts[postIndex] = updatedPost;
+      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    }
 
     return {
       success: true,
@@ -739,7 +754,7 @@ export async function procesarBorradoresPublicarSolo(
   const posts = await readData<SocialPost[]>(POSTS_FILE, []);
   const ahoraTime = ahora.getTime();
   const doceHorasMs = 12 * 60 * 60 * 1000;
-  let huboCambios = false;
+  const cambiosPorId = new Map<string, Partial<SocialPost>>();
 
   for (let i = 0; i < posts.length; i++) {
     const post = posts[i];
@@ -757,10 +772,11 @@ export async function procesarBorradoresPublicarSolo(
     }
 
     if (statusNorm === 'programado' && esBorradorSinMediaRequerida(post)) {
+      const updatedAt = ahora.toISOString();
       post.status = 'Borrador';
-      post.updatedAt = ahora.toISOString();
+      post.updatedAt = updatedAt;
       resultado.descartados.push(post.id);
-      huboCambios = true;
+      cambiosPorId.set(post.id, { status: 'Borrador', updatedAt });
       continue;
     }
 
@@ -773,18 +789,23 @@ export async function procesarBorradoresPublicarSolo(
       continue;
     }
 
-    const createdTime = new Date(post.createdAt).getTime();
-    const edadMs = Number.isNaN(createdTime) ? doceHorasMs : (ahoraTime - createdTime);
+    if (!(post as any).previewEnviadaAlDuenioAt) {
+      const enviado = await enviarPreviewBorradorAlDuenio(post).catch(() => false);
+      if (enviado) {
+        const previewAt = ahora.toISOString();
+        (post as any).previewEnviadaAlDuenioAt = previewAt;
+        cambiosPorId.set(post.id, { previewEnviadaAlDuenioAt: previewAt } as Partial<SocialPost>);
+      }
+      resultado.esperando.push(post.id);
+      continue;
+    }
 
-    // Si tiene menos de 12 horas, sigue en borrador
+    const avisoTime = new Date((post as any).previewEnviadaAlDuenioAt).getTime();
+    const edadMs = Number.isNaN(avisoTime) ? 0 : (ahoraTime - avisoTime);
+
+    // Si tiene menos de 12 horas desde que salio el aviso al dueño, sigue en borrador
     if (edadMs < doceHorasMs) {
       resultado.esperando.push(post.id);
-
-      if (!(post as any).previewEnviadaAlDuenioAt) {
-        await enviarPreviewBorradorAlDuenio(post).catch(() => false);
-        (post as any).previewEnviadaAlDuenioAt = ahora.toISOString();
-        huboCambios = true;
-      }
       continue;
     }
 
@@ -797,15 +818,31 @@ export async function procesarBorradoresPublicarSolo(
 
     // Pasa a estado Programado en el mejor horario respetando ritmo máximo 1 por día
     const fechaProgramada = calcularFechaProximaPublicacionSinSaturar(posts, post.platform, ahora);
+    const updatedAt = ahora.toISOString();
     post.status = 'Programado';
     post.publishDate = fechaProgramada;
-    post.updatedAt = ahora.toISOString();
+    post.updatedAt = updatedAt;
     resultado.promocionados.push(post.id);
-    huboCambios = true;
+    cambiosPorId.set(post.id, { status: 'Programado', publishDate: fechaProgramada, updatedAt });
   }
 
-  if (huboCambios) {
-    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
+  // Cada posteo se actualiza dentro de su turno releyendo el estado fresco: si alguien tocó
+  // "No publicar" mientras corría la revisión, NO se vuelve a pasar a Programado ni se pisa.
+  for (const [postId, patch] of cambiosPorId.entries()) {
+    await mutarPosteo(postId, (actual) => {
+      const actualStatus = String(actual.status || '').toLowerCase().trim();
+      const marcadoNoPublicar =
+        ['descartado', 'cancelado', 'no publicar'].includes(actualStatus) ||
+        (actual as { noPublicar?: boolean }).noPublicar === true ||
+        (actual as { descartado?: boolean }).descartado === true;
+      if (marcadoNoPublicar) {
+        return actual;
+      }
+      if (patch.status === 'Programado' && actualStatus !== 'borrador') {
+        return actual;
+      }
+      return { ...actual, ...patch };
+    });
   }
 
   return resultado;
@@ -844,6 +881,31 @@ export async function procesarPosteosProgramados(
   const fallados: Array<{ id: string; error: string }> = [];
 
   for (const post of aProcesar) {
+    const requierePermiso = Boolean(post.eventId) || (!post.isGeneralCampaign && post.mediaType !== 'video');
+    const tienePermiso = requierePermiso ? await validarPermisoPromocionalPosteo(post) : true;
+    if (!tienePermiso) {
+      await mutarPosteo(post.id, (actual) => ({
+        ...actual,
+        status: 'Rechazado por permiso' as any,
+        lastError: 'Permiso promocional retirado o no autorizado.',
+        updatedAt: ahora.toISOString(),
+      })).catch(() => null);
+      try {
+        const { createNotification } = await import('@/lib/notifications/create-notification');
+        await createNotification({
+          titulo: 'Publicación frenada: foto sin permiso promocional',
+          mensaje: `El posteo "${(post.text || post.id).slice(0, 60)}" no salió porque la foto no tiene permiso promocional vigente.`,
+          tipo: 'alerta',
+          href: '/empresa/redes-sociales',
+        });
+      } catch {}
+      fallados.push({
+        id: post.id,
+        error: 'Rechazado por permiso: la foto ya no tiene consentimiento promocional vigente.',
+      });
+      continue;
+    }
+
     // Se RECLAMA el posteo antes de publicar (escritura atómica). Dos corridas a la vez
     // (despertador y visita) leían "Programado" las dos y publicaban lo mismo dos veces.
     const ganado = await reclamarPosteo(post.id, ahora);
@@ -871,7 +933,7 @@ export async function procesarPosteosProgramados(
   }
 
     return {
-    ok: true,
+    ok: fallados.length === 0,
     totalPendientes: programadosVencidos.length,
     procesados: aProcesar.length,
     publicados,

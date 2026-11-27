@@ -383,6 +383,7 @@ export async function loginUser(
         perfil: 'dueno',
         modules: ['all'],
         versionDeSesion: 1,
+        metodo: 'clave',
       });
     } catch (cookieError) {
       return {
@@ -456,6 +457,7 @@ export async function loginUser(
             perfil: 'dueno',
         modules: ['all'],
         versionDeSesion: 1,
+        metodo: 'clave',
       });
 
           return {
@@ -589,6 +591,7 @@ export async function loginUser(
       // nadie quede afuera de lo que ya usaba.
       perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
       modules: user.modules,
+      metodo: 'clave',
       ...(typeof userDoc?.versionDeSesion === 'number' ? { versionDeSesion: userDoc.versionDeSesion } : {}),
     });
 
@@ -944,7 +947,8 @@ export async function createUser(data: {
   perfil?: Perfil;
   modules: string[];
 }): Promise<{ success: boolean; id?: string; error?: string }> {
-  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+  const db = dbAdmin;
+  if (!db) return { success: false, error: 'Base de datos no disponible.' };
 
   const auth = await verifySession();
   // Usuarios, perfiles, claves y accesos los maneja sólo el dueño: el auditor prueba todo menos esto (17/11/2026).
@@ -953,49 +957,50 @@ export async function createUser(data: {
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
   if (auth.user?.perfil === 'auditor') return { success: false, error: 'Un auditor no puede crear usuarios.' };
 
-  try {
-    const email = data.email.trim().toLowerCase();
-
-    // Check uniqueness
-    const existing = await dbAdmin
-      .collection('users')
-      .where('email', '==', email)
-      .limit(1)
-      .get();
-
-    if (!existing.empty) {
-      return { success: false, error: 'Ya existe un usuario con ese correo.' };
-    }
-
-    if (data.password.length < 8) {
-      return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
-    }
-
-    const docRef = await dbAdmin.collection('users').add({
-      email,
-      passwordHash: hashValue(data.password),
-      role: data.role,
-      perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
-      modules: data.modules,
-      securityQuestions: {},
-      mustChangePassword: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-
-    return { success: true, id: docRef.id };
-  } catch (err) {
-    console.error('[auth] createUser error:', err);
-    return { success: false, error: 'Error al crear el usuario.' };
+  const email = data.email.trim().toLowerCase();
+  if (data.password.length < 8) {
+    return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
   }
+
+  return await conCandadoDeUsuarios(async () => {
+    try {
+      // Check uniqueness
+      const existing = await db
+        .collection('users')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
+
+      if (!existing.empty) {
+        return { success: false, error: 'Ya existe un usuario con ese correo.' };
+      }
+
+      const docRef = await db.collection('users').add({
+        email,
+        passwordHash: hashValue(data.password),
+        role: data.role,
+        perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
+        modules: data.modules,
+        securityQuestions: {},
+        mustChangePassword: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      return { success: true, id: docRef.id };
+    } catch (err) {
+      console.error('[auth] createUser error:', err);
+      return { success: false, error: 'Error al crear el usuario.' };
+    }
+  });
 }
 
 // Orden 252, punto 4: el turno en memoria cuida un solo servidor. Con dos servidores, dos bajas a la
 // vez contaban "quedan 2 dueños" cada una y dejaban cero. El candado con nombre vive en la base y
 // serializa la cuenta y el cambio entre servidores; si no se puede tomar, no se cambia nada.
-async function conCandadoDeUsuarios(
-  fn: () => Promise<{ success: boolean; error?: string }>,
-): Promise<{ success: boolean; error?: string }> {
+async function conCandadoDeUsuarios<T extends { success: boolean; error?: string }>(
+  fn: () => Promise<T>,
+): Promise<T | { success: false; error: string }> {
   return usersMutex.runExclusive(async () => {
     const { tomarCandado, soltarCandado } = await import('@/lib/automatico/candado-con-nombre');
     const dueno = await tomarCandado('usuarios-y-duenios', 60_000);
@@ -1290,15 +1295,17 @@ export async function abrirAccesoAuditor(input: { email: string } | string): Pro
     invalidateUserSessionCache(userId);
 
     try {
-      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
-      historial.push({
-        id: crypto.randomUUID(),
-        email,
-        abiertoEl: ahora,
-        cerradoEl: null,
-        activo: true,
-      });
-      await writeData('auditores-historial.json', historial);
+      const { mutateGenericJsonArray } = await import('@/lib/generic-json-store');
+      await mutateGenericJsonArray<HistorialAuditorItem>('auditores-historial.json', (historial) => [
+        ...(Array.isArray(historial) ? historial : []),
+        {
+          id: crypto.randomUUID(),
+          email,
+          abiertoEl: ahora,
+          cerradoEl: null,
+          activo: true,
+        },
+      ]);
     } catch (histError) {
       console.warn('[auth] No se pudo guardar en auditores-historial.json:', histError);
     }
@@ -1363,16 +1370,18 @@ export async function cerrarAccesoAuditor(emailAuditor?: string): Promise<{
     }
 
     try {
-      const historial = await readData<HistorialAuditorItem[]>('auditores-historial.json', []);
-      for (const item of historial) {
-        if (!emailAuditor || item.email.toLowerCase() === emailAuditor.toLowerCase()) {
-          if (item.activo || !item.cerradoEl) {
-            item.activo = false;
-            item.cerradoEl = ahora;
+      const { mutateGenericJsonArray } = await import('@/lib/generic-json-store');
+      await mutateGenericJsonArray<HistorialAuditorItem>('auditores-historial.json', (lista) => {
+        const historial = Array.isArray(lista) ? lista : [];
+        return historial.map((item) => {
+          if (!emailAuditor || item.email.toLowerCase() === emailAuditor.toLowerCase()) {
+            if (item.activo || !item.cerradoEl) {
+              return { ...item, activo: false, cerradoEl: ahora };
+            }
           }
-        }
-      }
-      await writeData('auditores-historial.json', historial);
+          return item;
+        });
+      });
     } catch (histError) {
       console.warn('[auth] No se pudo actualizar auditores-historial.json:', histError);
     }

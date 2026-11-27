@@ -17,9 +17,8 @@ import { verifyPortalSession } from '@/lib/security/portal-session';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
-
-/** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
-const DEFAULT_DEPOSIT_AMOUNT = 20000;
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { seniaDelContrato } from '@/lib/fiesta/sena-del-contrato';
 
 /** Returns a pre-signing summary for the given event so the UI can show it. */
 export async function getContractSigningSummary(fiestaId: string): Promise<{
@@ -48,8 +47,13 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
+    const budgetDisplaySettings =
+      typeof getBudgetDisplaySettings === 'function'
+        ? await getBudgetDisplaySettings().catch(() => null)
+        : null;
+    const porDefecto = budgetDisplaySettings?.bookingDepositAmount;
     let totalEstimado = 0;
-    let senia = DEFAULT_DEPOSIT_AMOUNT;
+    let senia = seniaDelContrato(null, porDefecto);
 
     if (fiesta.presupuestoId) {
       // El portal ya está verificado: se lee SU presupuesto con el enlace de ese presupuesto. Sin el
@@ -63,12 +67,7 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
         // Lo que se le va a cobrar de verdad, con el ajuste anual si corresponde (pregunta 36): antes
         // el cliente veía antes de firmar un saldo $15.000 menor que el real.
         totalEstimado = getBudgetCollectibleTotal(presupuesto);
-        if (presupuesto.senia && presupuesto.senia > 0) {
-          senia = presupuesto.senia;
-        } else if (totalEstimado > 0) {
-          // Default: 20% of total if no explicit seña
-          senia = Math.round(totalEstimado * 0.2);
-        }
+        senia = seniaDelContrato(presupuesto, porDefecto);
       }
     }
 
@@ -141,13 +140,12 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
             timestamp: new Date().toISOString(),
         };
 
-        const updatedFiesta = {
-            ...fiesta,
-            othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
-        };
-        // El archivo ya esta subido y ocupando lugar: si la ficha no se guarda, el
-        // documento no aparece en ningun lado. Eso se avisa, no se calla.
-        const guardado = await saveFiesta(updatedFiesta);
+        // Se agrega sobre la lista actual dentro de la transacción: una adenda o documento
+        // cargado mientras subía el archivo nunca desaparece.
+        const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+            ...actual,
+            othersDocumentos: [...(actual.othersDocumentos || []), newDoc],
+        }));
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'El archivo se subio pero no se pudo guardar en el evento.' };
         }
@@ -187,13 +185,12 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
             });
         }
 
-        const updatedFiesta = {
-            ...fiesta,
-            othersDocumentos: (fiesta.othersDocumentos || []).filter(d => d.id !== docId)
-        };
-        // El archivo ya se borro: si la ficha no se guarda, el evento queda
-        // apuntando a un documento que no existe.
-        const guardado = await saveFiesta(updatedFiesta);
+        // Se filtra sobre la lista actual dentro de la transacción para no pisar documentos
+        // agregados o borrados en paralelo mientras se limpiaba Storage.
+        const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+            ...actual,
+            othersDocumentos: (actual.othersDocumentos || []).filter(d => d.id !== docId),
+        }));
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'El archivo se borro pero el evento no se pudo guardar.' };
         }
@@ -223,7 +220,7 @@ export async function signContractDigitally(
     acceptedPlanPagos?: boolean,
     /** Huella (sha256) del texto que el cliente tenía en pantalla al tocar "Firmar". */
     huellaVista?: string,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; yaEstabaFirmado?: boolean; error?: string }> {
     if (!(await verifyPortalSession(fiestaId))) {
       return { success: false, error: 'Sesión del portal no autorizada.' };
     }
@@ -273,7 +270,7 @@ export async function signContractDigitally(
         if (!guardado.success) return { success: false, error: guardado.error || 'No se pudo registrar la firma.' };
         if (error) return { success: false, error };
         if (!guardado.updatedFiesta && !firmadaAhora) return { success: false, error: 'Evento no encontrado.' };
-        if (!firmadaAhora) return { success: true };
+        if (!firmadaAhora) return { success: true, yaEstabaFirmado: true };
 
         createNotification({
             titulo: 'El cliente firmó el contrato en su portal',
@@ -319,8 +316,9 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado");
 
-        const newFilename = `contrato_fisico_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const storagePath = `contracts/signed-physical/${fiestaId}/${newFilename}`;
+        const extMatch = (file.name || '').match(/\.[a-zA-Z0-9]{1,8}$/);
+        const ext = extMatch ? extMatch[0].toLowerCase() : '.pdf';
+        const storagePath = `contracts/signed-physical/${fiestaId}/contrato_fisico${ext}`;
 
         const bytes = await file.arrayBuffer();
         await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/pdf', false);
@@ -369,10 +367,11 @@ async function dejarLaFiestaContratada(
         // Lectura interna dentro de una accion ya guardada: firmar el contrato no
         // exige el permiso de contabilidad, y esto solo mira si ya hay recibo de sena.
         const existingInvoices = await leerFacturasSinGuardia();
-        const hasDeposit = existingInvoices.some(invoice =>
+        const existingDeposit = existingInvoices.find(invoice =>
             isDepositReceiptInvoice(invoice)
             && (eventInvoiceIds.has(invoice.id) || invoice.sourceFiestaId === fiesta.id)
         );
+        const hasDeposit = Boolean(existingDeposit);
         let motivoReciboPendiente: string | undefined;
 
         if (!hasDeposit) {
@@ -409,6 +408,9 @@ async function dejarLaFiestaContratada(
                 };
             }
         } else {
+            if (existingDeposit && !eventInvoiceIds.has(existingDeposit.id)) {
+                updatedFiesta.invoiceIds = [...(updatedFiesta.invoiceIds || []), existingDeposit.id];
+            }
             delete updatedFiesta.reciboSenaPendiente;
         }
 

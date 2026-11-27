@@ -17,6 +17,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
   'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica/pdf', icon: Music2 },
@@ -190,6 +191,9 @@ export default function PortalPersonalPage() {
                 <KeyRound className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>
                 <p className="text-lg text-muted-foreground">{portalTitle}</p>
+                <div className="mt-3 flex justify-center">
+                  <BotonComoFunciona clave="acceso-personal" />
+                </div>
             </header>
 
             {/* Attendance Confirmation Status */}

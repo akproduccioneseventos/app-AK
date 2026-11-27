@@ -6,6 +6,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { AsyncMutex } from '@/lib/mutex';
 import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -15,6 +16,7 @@ import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-toke
 import { prepararMensajeDelPlan } from '@/lib/asistente/planes-ejecutor';
 import { randomUUID } from 'crypto';
 import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 
 export type AsistenteArea = 'ventas' | 'cobros' | 'fiestas';
 
@@ -110,9 +112,35 @@ async function mutarPropuestas(
   }
   return propuestasMutex.runExclusive(async () => {
     const lista = await readData<AsistentePropuesta[]>(PROPUESTAS_FILE, []);
+    if (esLecturaFallida(lista)) {
+      throw new Error('No se pudieron leer las propuestas para modificarlas.');
+    }
     const nueva = cambiar(Array.isArray(lista) ? lista : []);
     if (!nueva) return null;
     await writeData(PROPUESTAS_FILE, nueva);
+    return nueva;
+  });
+}
+
+async function mutarReglasAprendidas(
+  cambiar: (reglas: ReglaAprendida[]) => ReglaAprendida[] | null,
+): Promise<ReglaAprendida[] | null> {
+  if (!SIN_BASE()) {
+    return mutateGenericJsonArray<ReglaAprendida>(REGLAS_FILE, (reglas) => {
+      if (esLecturaFallida(reglas)) {
+        throw new Error('No se pudieron leer las reglas aprendidas para modificarlas.');
+      }
+      return cambiar(Array.isArray(reglas) ? JSON.parse(JSON.stringify(reglas)) : []);
+    });
+  }
+  return propuestasMutex.runExclusive(async () => {
+    const reglas = await readData<ReglaAprendida[]>(REGLAS_FILE, []);
+    if (esLecturaFallida(reglas)) {
+      throw new Error('No se pudieron leer las reglas aprendidas para modificarlas.');
+    }
+    const nueva = cambiar(Array.isArray(reglas) ? reglas : []);
+    if (!nueva) return null;
+    await writeData(REGLAS_FILE, nueva);
     return nueva;
   });
 }
@@ -134,21 +162,30 @@ async function cambiarPropuesta(
 }
 
 export async function getReglasAprendidas(): Promise<ReglaAprendida[]> {
-  try {
-    return await readData<ReglaAprendida[]>(REGLAS_FILE, []);
-  } catch {
-    return [];
+  const reglas = await readData<ReglaAprendida[]>(REGLAS_FILE, []);
+  if (esLecturaFallida(reglas)) {
+    throw new Error('No se pudieron leer las reglas aprendidas del asistente.');
   }
+  return Array.isArray(reglas) ? reglas : [];
 }
 
 export async function writeReglasAprendidas(reglas: ReglaAprendida[]): Promise<void> {
   await writeData(REGLAS_FILE, reglas);
 }
 
-export async function desestimarReglaAprendida(reglaId: string): Promise<void> {
-  const reglas = await getReglasAprendidas();
-  const filtradas = reglas.filter((r) => r.id !== reglaId);
-  await writeReglasAprendidas(filtradas);
+export async function desestimarReglaAprendida(
+  reglaId: string,
+): Promise<{ ok: boolean; updated: boolean; error?: string }> {
+  let encontrada = false;
+  await mutarReglasAprendidas((reglas) => {
+    encontrada = reglas.some((r) => r.id === reglaId);
+    if (!encontrada) return null;
+    return reglas.filter((r) => r.id !== reglaId);
+  });
+  if (!encontrada) {
+    return { ok: false, updated: false, error: 'Regla aprendida no encontrada.' };
+  }
+  return { ok: true, updated: true };
 }
 
 /**
@@ -435,32 +472,51 @@ export async function aprobarPlanMultipaso(
 /**
  * Pospone una propuesta: "Ahora no" (se esconde 3 días).
  */
-export async function posponerPropuesta(propuestaId: string): Promise<void> {
+export async function posponerPropuesta(
+  propuestaId: string,
+): Promise<{ ok: boolean; updated: boolean; error?: string }> {
   const hoy = new Date();
   const en3Dias = new Date(hoy.getTime() + 3 * 24 * 60 * 60 * 1000);
-  await cambiarPropuesta(propuestaId, (p) => {
+  let errorMotivo: string | undefined;
+  const actualizada = await cambiarPropuesta(propuestaId, (p) => {
+    if (p.estado === 'aceptada' || p.estado === 'descartada') {
+      errorMotivo = 'Esa propuesta ya se resolvió.';
+      return false;
+    }
     p.estado = 'pospuesta';
     p.pospuestaHasta = en3Dias.toISOString();
     p.updatedAt = hoy.toISOString();
     return true;
   });
+  if (!actualizada) {
+    return { ok: false, updated: false, error: errorMotivo || 'Propuesta no encontrada.' };
+  }
+  return { ok: true, updated: true };
 }
 
 /**
  * "No me avises más de esto": guarda la regla aprendida y descarta la propuesta.
  */
-export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
+export async function descartarNoAvisarMas(
+  propuestaId: string,
+): Promise<{ ok: boolean; updated: boolean; error?: string }> {
+  let errorMotivo: string | undefined;
   const propuesta = await cambiarPropuesta(propuestaId, (p) => {
+    if (p.estado === 'aceptada' || p.estado === 'descartada') {
+      errorMotivo = 'Esa propuesta ya se resolvió.';
+      return false;
+    }
     p.estado = 'descartada';
     p.noAvisarMas = true;
     p.updatedAt = new Date().toISOString();
     return true;
   });
-  if (!propuesta) return;
+  if (!propuesta) {
+    return { ok: false, updated: false, error: errorMotivo || 'Propuesta no encontrada.' };
+  }
 
   // Guardar regla aprendida
   const tipo = propuesta.tipoPropuesta || propuesta.clave.split(':')[0];
-  const reglas = await getReglasAprendidas();
   const nuevaRegla: ReglaAprendida = {
     id: `regla-${Date.now()}`,
     tipoPropuesta: tipo,
@@ -470,8 +526,10 @@ export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
     creadaEn: new Date().toISOString(),
   };
 
-  reglas.push(nuevaRegla);
-  await writeReglasAprendidas(reglas);
+  await mutarReglasAprendidas((reglas) => [
+    ...(Array.isArray(reglas) ? reglas : []),
+    nuevaRegla,
+  ]);
 
   // Registro en memoria de agentes
   try {
@@ -488,18 +546,40 @@ export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
   } catch (err) {
     console.warn('[PropuestasService] Error al guardar regla en memoria:', err);
   }
+  return { ok: true, updated: true };
 }
 
 /**
  * "Lo tomo yo": asigna la propuesta al usuario actual y la oculta de los demás.
  */
-export async function tomarPropuesta(propuestaId: string, usuarioNombre: string): Promise<void> {
-  await cambiarPropuesta(propuestaId, (p) => {
+export async function tomarPropuesta(
+  propuestaId: string,
+  usuarioNombre: string,
+): Promise<{ ok: boolean; updated: boolean; error?: string }> {
+  let errorMotivo: string | undefined;
+  const actualizada = await cambiarPropuesta(propuestaId, (p) => {
+    if (p.estado === 'aceptada' || p.estado === 'descartada') {
+      errorMotivo = 'Esa propuesta ya se resolvió.';
+      return false;
+    }
     p.tomadaPor = usuarioNombre;
     p.tomadaEn = new Date().toISOString();
     p.updatedAt = new Date().toISOString();
     return true;
   });
+  if (!actualizada) {
+    return { ok: false, updated: false, error: errorMotivo || 'Propuesta no encontrada.' };
+  }
+  return { ok: true, updated: true };
+}
+
+function esPropuestaDePlata(p: AsistentePropuesta): boolean {
+  const area = String(p.area || '').toLowerCase();
+  if (area === 'cobros' || area === 'finanzas' || area === 'caja' || area === 'plata') {
+    return true;
+  }
+  const ref = `${p.tipoPropuesta || ''} ${p.clave || ''} ${p.accion?.type || ''} ${p.titulo || ''}`;
+  return /(cobro|gasto|boleta|saldo|cuota|pago|factura|recibo|sena|seña)/i.test(ref);
 }
 
 /**
@@ -508,10 +588,18 @@ export async function tomarPropuesta(propuestaId: string, usuarioNombre: string)
 export async function getPropuestasParaUsuario(
   usuarioNombre: string = 'Usuario',
   esDuenio: boolean = true,
-  filtroArea?: AsistenteArea
+  filtroArea?: AsistenteArea,
+  opciones?: { puedeVerPlata?: boolean; perfil?: string },
 ): Promise<AsistentePropuesta[]> {
   const propuestas = await getPropuestas();
   const hoy = new Date();
+  const autorizadoPlata =
+    esDuenio ||
+    Boolean(opciones?.puedeVerPlata) ||
+    (opciones?.perfil
+      ? puede({ perfil: opciones.perfil as any }, PERMISOS.CONTABILIDAD) ||
+        puede({ perfil: opciones.perfil as any }, PERMISOS.ADMINISTRACION)
+      : false);
 
   return propuestas.filter((p) => {
     // 1. Filtrar descartadas y aceptadas
@@ -535,6 +623,11 @@ export async function getPropuestasParaUsuario(
     // 4. Lógica de visibilidad por responsable ("Lo tomo yo")
     if (esDuenio) {
       return true; // El dueño ve todas
+    }
+
+    // Bloque 2 (Orden 362): propuestas de plata sin responsable sólo las ve CONTABILIDAD o ADMINISTRACION
+    if (esPropuestaDePlata(p) && !autorizadoPlata) {
+      return false;
     }
 
     // Si otra persona la tomó, no la ve este usuario

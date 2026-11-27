@@ -1,9 +1,7 @@
-import {
-  geminiCommercialModel,
-  generateWithGeminiFallback,
-  isRecoverableGeminiModelError,
-} from '@/ai/genkit';
-import { reservarConsumoIA, anotarFalloIA } from '@/lib/ai/consumo-servidor';
+import { geminiCommercialModel } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
+import { anotarFalloIA } from '@/lib/ai/consumo-servidor';
 import {
   enlaceAlSimuladorDelProspecto,
   extraerDatosPresupuestoProspecto,
@@ -172,17 +170,6 @@ export async function analizarMensajeEntranteParaCRM(params: {
     return fallbackResultado;
   }
 
-  let reserva: Awaited<ReturnType<typeof reservarConsumoIA>> = null;
-  try {
-    reserva = await reservarConsumoIA('extraccion-prospecto-whatsapp');
-  } catch {
-    reserva = null;
-  }
-
-  if (!reserva) {
-    return fallbackResultado;
-  }
-
   const historialTexto = (params.historial || [])
     .slice(-6)
     .map((m) => `${m.direccion === 'entrante' ? 'Prospecto' : 'Equipo'}: ${m.texto}`)
@@ -220,16 +207,21 @@ REGLAS OBLIGATORIAS:
 Devolvé ÚNICAMENTE JSON válido con esas 8 claves.`;
 
   try {
-    const aiRes = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
+    const aiRes = await pedirTexto({
       prompt,
+      quien: 'extraccion-prospecto-whatsapp',
+      incluirReglas: false,
+      modelos: [geminiCommercialModel, ...MODELOS_GEMINI.texto],
       output: { format: 'json' },
     });
+    if (!aiRes.ok) {
+      return fallbackResultado;
+    }
 
-    const parsed = (aiRes?.output && typeof aiRes.output === 'object')
+    const parsed = (aiRes.output && typeof aiRes.output === 'object')
       ? (aiRes.output as Record<string, unknown>)
       : (() => {
-          const raw = (aiRes?.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+          const raw = (aiRes.texto || '').replace(/```json/gi, '').replace(/```/g, '').trim();
           const match = raw.match(/\{[\s\S]*\}/);
           return match ? (JSON.parse(match[0]) as Record<string, unknown>) : null;
         })();
@@ -280,9 +272,6 @@ Devolvé ÚNICAMENTE JSON válido con esas 8 claves.`;
       usandoIA: true,
     };
   } catch (err) {
-    if (isRecoverableGeminiModelError(err)) {
-      await reserva.liberar().catch((e) => console.warn('[ia-prospecto] Paso secundario sin completar:', e));
-    }
     await anotarFalloIA('ia-crm-prospecto', err instanceof Error ? err.message : String(err)).catch((e) => console.warn('[ia-prospecto] Paso secundario sin completar:', e));
     return fallbackResultado;
   }

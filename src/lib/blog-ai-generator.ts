@@ -2,7 +2,9 @@ import 'server-only';
 import { hoyEnUruguay } from '@/lib/utils';
 
 import { z } from 'zod';
-import { generateWithGeminiFallback, geminiProModel, getEffectiveGeminiModelForAgent } from '@/ai/genkit';
+import { geminiProModel, getEffectiveGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { fotoDeLaNota } from '@/lib/blog/foto-de-la-nota';
@@ -175,16 +177,18 @@ export async function generarNotaDeConsejo(options?: { offset?: number; fecha?: 
   let fuentesInvestigacion: string[] = [];
   try {
     const modelInvestigacion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
-    const researchResult = await generateWithGeminiFallback({
-      model: modelInvestigacion,
+    const researchResult = await pedirTexto({
       prompt: `Investigá qué recomiendan páginas de organización de eventos sobre: "${selectedTopic}". Mencioná recomendaciones prácticas y las fuentes consultadas.`,
+      quien: 'nota-del-blog',
+      incluirReglas: false,
+      modelos: [modelInvestigacion, ...MODELOS_GEMINI.profundo],
       config: {
         googleSearchRetrieval: {},
       },
     });
 
-    notasInvestigacion = researchResult.text || '';
-    const groundingMetadata = (researchResult as any).custom?.candidates?.[0]?.groundingMetadata || (researchResult as any).raw?.candidates?.[0]?.groundingMetadata;
+    notasInvestigacion = researchResult.ok ? researchResult.texto : '';
+    const groundingMetadata = researchResult.ok ? (researchResult.custom?.candidates?.[0]?.groundingMetadata || researchResult.raw?.candidates?.[0]?.groundingMetadata) : undefined;
     const webSearchSources = groundingMetadata?.groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [];
     if (webSearchSources.length > 0) {
       fuentesInvestigacion = Array.from(new Set(webSearchSources)) as string[];
@@ -214,17 +218,19 @@ ${DATOS_DE_AK_PARA_EL_BLOG}
 Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no lo afirmes.`;
 
   const modelGeneracion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
-  const result = await generateWithGeminiFallback({
-    model: modelGeneracion,
+  const result = await pedirTexto({
     prompt,
+    quien: 'nota-del-blog',
+    incluirReglas: false,
+    modelos: [modelGeneracion, ...MODELOS_GEMINI.profundo],
     output: {
       schema: blogPostSchema,
     },
   });
 
-  const generated = result.output;
+  const generated = result.ok ? (result.output as z.infer<typeof blogPostSchema> | undefined) : undefined;
   if (!generated) {
-    throw new Error('La generacion de IA no devolvio contenido estructurado.');
+    throw new Error((!result.ok && result.error) || 'La generacion de IA no devolvio contenido estructurado.');
   }
 
   const serialized = JSON.stringify(generated);
@@ -280,16 +286,19 @@ export async function generarNotaDeTendencias(options?: { offset?: number; fecha
 
   try {
     const modelInvestigacion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
-    const researchResult = await generateWithGeminiFallback({
-      model: modelInvestigacion,
+    const researchResult = await pedirTexto({
       prompt: `Investigá tendencias y novedades mundiales publicadas en los últimos 30 días sobre bodas, fiestas de 15 años y eventos (decoración, música, comida, catering y tecnología en eventos). Mencioná las novedades encontradas y detallá cada fuente consultada con su enlace web.`,
+      quien: 'nota-del-blog',
+      incluirReglas: false,
+      modelos: [modelInvestigacion, ...MODELOS_GEMINI.profundo],
       config: {
         googleSearchRetrieval: {},
       },
     });
+    if (!researchResult.ok) throw new Error(researchResult.error);
 
-    notasInvestigacion = researchResult.text || '';
-    const groundingMetadata = (researchResult as any).custom?.candidates?.[0]?.groundingMetadata || (researchResult as any).raw?.candidates?.[0]?.groundingMetadata;
+    notasInvestigacion = researchResult.texto || '';
+    const groundingMetadata = researchResult.custom?.candidates?.[0]?.groundingMetadata || researchResult.raw?.candidates?.[0]?.groundingMetadata;
     const webSearchSources = groundingMetadata?.groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [];
     const directSources: string[] = (researchResult as any).fuentes || (researchResult as any).sources || [];
     const urlsInText: string[] = notasInvestigacion.match(/https?:\/\/[^\s\)\],]+/g) || [];
@@ -331,17 +340,19 @@ Datos oficiales de AK Producciones:
 ${DATOS_DE_AK_PARA_EL_BLOG}`;
 
   const modelGeneracion = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
-  const result = await generateWithGeminiFallback({
-    model: modelGeneracion,
+  const result = await pedirTexto({
     prompt,
+    quien: 'nota-del-blog',
+    incluirReglas: false,
+    modelos: [modelGeneracion, ...MODELOS_GEMINI.profundo],
     output: {
       schema: blogPostSchema,
     },
   });
 
-  const generated = result.output;
+  const generated = result.ok ? (result.output as z.infer<typeof blogPostSchema> | undefined) : undefined;
   if (!generated) {
-    throw new Error('La generacion de IA no devolvio contenido estructurado.');
+    throw new Error((!result.ok && result.error) || 'La generacion de IA no devolvio contenido estructurado.');
   }
 
   const slug = safeSlug(generated.slug || generated.title);

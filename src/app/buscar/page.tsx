@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Search, ArrowRight, BookOpen, Sparkles, Home } from 'lucide-react';
 import { buscarEnElSitio, type ResultadoBusqueda } from '@/lib/buscador/buscar-sitio';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function BuscarPage() {
   const [consulta, setConsulta] = useState('');
@@ -31,6 +32,9 @@ export default function BuscarPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             ¿Qué estás buscando?
           </h1>
+          <div className="flex justify-center">
+            <BotonComoFunciona clave="buscar-en-la-web" variant="dark" />
+          </div>
           <p className="text-sm text-zinc-400 max-w-md mx-auto">
             Buscá servicios para tu fiesta, ideas en nuestro blog o información de presupuestos.
           </p>

@@ -12,6 +12,9 @@ import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
 import { CompartirArticulo } from '@/components/public/CompartirArticulo';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -29,20 +32,28 @@ export async function generateStaticParams() {
 
 import { ArticleJsonLd } from '@/components/seo/ArticleJsonLd';
 
+function recortarTituloSeo(titulo: string, max = 42): string {
+  const limpio = titulo.trim();
+  if (limpio.length <= max) return limpio;
+  const recorte = limpio.slice(0, max - 1);
+  const ultimoEspacio = recorte.lastIndexOf(' ');
+  return `${(ultimoEspacio > 18 ? recorte.slice(0, ultimoEspacio) : recorte).trim()}…`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   let post = await getBlogPostBySlug(slug);
   if (!post) {
     post = defaultBlogPosts.find((p) => p.slug === slug) || null;
   }
-  if (!post) return { title: { absolute: 'Blog AK Producciones Eventos' } };
+  if (!post) return { title: 'Blog AK Producciones' };
 
   const image = getBlogPostImage(post);
   const url = `https://akproducciones.uy/public/blog/${slug}`;
 
   return {
     metadataBase: new URL('https://akproducciones.uy'),
-    title: { absolute: `${post.title} | Blog AK Producciones Eventos` },
+    title: recortarTituloSeo(post.title, 42),
     description: post.excerpt,
     alternates: {
       canonical: `/public/blog/${slug}`,
@@ -147,6 +158,9 @@ export default async function BlogPostPage({ params }: Props) {
                   {post.readTime}
                 </div>
                 <h1 className="text-4xl font-black leading-tight sm:text-5xl">{post.title}</h1>
+                <div>
+                  <BotonComoFunciona clave="blog-consejos" variant="dark" />
+                </div>
                 <p className="text-lg leading-8 text-white/85">{post.excerpt}</p>
               </div>
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-red-300 shadow-xl backdrop-blur-sm">

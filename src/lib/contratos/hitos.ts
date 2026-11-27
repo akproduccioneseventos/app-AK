@@ -5,6 +5,8 @@
  * salía impreso con `{{HITO_30}}`, `{{HITO_50}}` y `{{FECHA_SALDO_TOTAL}}` escritos en el papel (auditoría del
  * 18/11/2026, A18-02). Ahora las dos pantallas usan ésta.
  */
+import { parseUruguayDate } from '@/lib/utils';
+
 const MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'setiembre', 'octubre', 'noviembre', 'diciembre'];
 
 export function formatFechaEnEspanol(d: Date): string {
@@ -17,13 +19,13 @@ export function calcularHitosDeContrato(fechaEventoStr?: string, fechaFirmaStr?:
   let fechaSaldoTotal = '';
 
   if (!fechaEventoStr) return { hito30, hito50, fechaSaldoTotal };
-  const eventoDate = new Date(fechaEventoStr);
+  const eventoDate = parseUruguayDate(fechaEventoStr);
   if (isNaN(eventoDate.getTime())) return { hito30, hito50, fechaSaldoTotal };
 
   const dSaldo = new Date(eventoDate.getFullYear(), eventoDate.getMonth(), eventoDate.getDate() - 30, 12, 0, 0);
   fechaSaldoTotal = formatFechaEnEspanol(dSaldo);
 
-  const firmaDate = fechaFirmaStr ? new Date(fechaFirmaStr) : new Date();
+  const firmaDate = fechaFirmaStr ? parseUruguayDate(fechaFirmaStr) : new Date();
   if (!isNaN(firmaDate.getTime())) {
     const diffDias = Math.round((eventoDate.getTime() - firmaDate.getTime()) / (24 * 60 * 60 * 1000));
     if (diffDias > 0) {

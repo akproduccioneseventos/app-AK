@@ -188,13 +188,23 @@ export async function saveLifeStoryVideoPhoto(
       };
     }
 
-    // La marca de "ya subieron fotos" tiene que ir en la fiesta de la foto.
-    // Antes se pedia "la fiesta actual", asi que si habia otra fiesta agendada
-    // mas adelante la marca terminaba en el evento equivocado.
+    // La marca de "ya subieron fotos" solo se prende al completar todas las fotos
+    // esperadas (Orden 359). Mientras tanto se guarda el conteo real en `uploadedCount`.
     const fiesta = await getFiestaById(fiestaId);
-    if (fiesta && fiesta.videoVida && !fiesta.videoVida.photosUploaded) {
-      // no-mira-el-resultado: la foto ya se subio a Storage; si falla la marca, el panel igual ve las fotos
-      await guardarAjustesVideoVida(fiestaId, { ...fiesta.videoVida, photosUploaded: true });
+    if (fiesta && fiesta.videoVida) {
+      const totalEsperado = fiesta.videoVida.photoCount || TOPE_DE_FOTOS;
+      const lectura = await getLifeStoryVideoPhotos(fiestaId).catch(() => lecturaConError());
+      const subidasCount = lectura.estado !== 'error'
+        ? lectura.urls.length
+        : ((fiesta.videoVida.uploadedCount ?? 0) + 1);
+      const completas = lectura.estado !== 'error'
+        ? subidasCount >= totalEsperado
+        : Boolean(fiesta.videoVida.photosUploaded);
+      await guardarAjustesVideoVida(fiestaId, {
+        ...fiesta.videoVida,
+        uploadedCount: subidasCount,
+        photosUploaded: completas,
+      });
     }
 
     return { success: true, url: publicUrl };
@@ -286,6 +296,14 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
     const [files] = await bucket.getFiles({ prefix });
     if (!files.length) {
+      const fiestaActual = await getFiestaById(fiestaId).catch(() => null);
+      if (fiestaActual?.videoVida && (fiestaActual.videoVida.photosUploaded || (fiestaActual.videoVida.uploadedCount ?? 0) > 0)) {
+        await guardarAjustesVideoVida(fiestaId, {
+          ...fiestaActual.videoVida,
+          uploadedCount: 0,
+          photosUploaded: false,
+        }).catch(() => undefined);
+      }
       return { success: true };
     }
 
@@ -308,6 +326,15 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
         success: false,
         error: `Se borraron ${borradas} de ${files.length}; ${fallidas} quedaron en el servidor, probá de nuevo.`,
       };
+    }
+
+    const fiestaActual = await getFiestaById(fiestaId).catch(() => null);
+    if (fiestaActual?.videoVida && (fiestaActual.videoVida.photosUploaded || (fiestaActual.videoVida.uploadedCount ?? 0) > 0)) {
+      await guardarAjustesVideoVida(fiestaId, {
+        ...fiestaActual.videoVida,
+        uploadedCount: 0,
+        photosUploaded: false,
+      }).catch(() => undefined);
     }
 
     return { success: true };

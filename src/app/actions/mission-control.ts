@@ -1,6 +1,7 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import type { MissionControlData, EtapaTimeline, EstadoEtapa, ChecklistItemEtapa } from '@/types/mission-control';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -187,14 +188,14 @@ export async function updateMissionControl(fiestaId: string, data: MissionContro
 export async function updateEtapaEstado(fiestaId: string, etapaId: string, estado: EstadoEtapa): Promise<{ success: boolean; error?: string }> {
   await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
-    const result = await getMissionControl(fiestaId);
-    if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
+    const initial = await getMissionControl(fiestaId);
+    if (!initial.success || !initial.data) return { success: false, error: initial.error ?? 'No encontrado' };
 
-    const data = result.data;
-    data.etapas = data.etapas.map(e => e.id === etapaId ? { ...e, estado } : e);
-    data.ultimaActualizacion = new Date().toISOString();
-
-    await writeData(getPath(fiestaId), data);
+    await mutarDocumento<MissionControlData>(getPath(fiestaId), initial.data, (data) => ({
+      ...data,
+      etapas: (data.etapas || []).map((e) => (e.id === etapaId ? { ...e, estado } : e)),
+      ultimaActualizacion: new Date().toISOString(),
+    }));
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -209,27 +210,27 @@ export async function toggleChecklistItem(
 ): Promise<{ success: boolean; error?: string }> {
   await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
-    const result = await getMissionControl(fiestaId);
-    if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
+    const initial = await getMissionControl(fiestaId);
+    if (!initial.success || !initial.data) return { success: false, error: initial.error ?? 'No encontrado' };
 
-    const data = result.data;
-    data.etapas = data.etapas.map(e => {
-      if (e.id !== etapaId) return e;
-      const checklist: ChecklistItemEtapa[] = e.checklist.map(item => {
-        if (item.id !== itemId) return item;
-        const nowCompleted = !item.completado;
-        return {
-          ...item,
-          completado: nowCompleted,
-          completadoPor: nowCompleted ? (completadoPor ?? item.completadoPor) : undefined,
-          completadoEn: nowCompleted ? new Date().toISOString() : undefined,
-        };
-      });
-      return { ...e, checklist };
-    });
-    data.ultimaActualizacion = new Date().toISOString();
-
-    await writeData(getPath(fiestaId), data);
+    await mutarDocumento<MissionControlData>(getPath(fiestaId), initial.data, (data) => ({
+      ...data,
+      etapas: (data.etapas || []).map((e) => {
+        if (e.id !== etapaId) return e;
+        const checklist: ChecklistItemEtapa[] = e.checklist.map((item) => {
+          if (item.id !== itemId) return item;
+          const nowCompleted = !item.completado;
+          return {
+            ...item,
+            completado: nowCompleted,
+            completadoPor: nowCompleted ? (completadoPor ?? item.completadoPor) : undefined,
+            completadoEn: nowCompleted ? new Date().toISOString() : undefined,
+          };
+        });
+        return { ...e, checklist };
+      }),
+      ultimaActualizacion: new Date().toISOString(),
+    }));
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -239,14 +240,14 @@ export async function toggleChecklistItem(
 export async function addNotaEtapa(fiestaId: string, etapaId: string, nota: string): Promise<{ success: boolean; error?: string }> {
   await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
-    const result = await getMissionControl(fiestaId);
-    if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
+    const initial = await getMissionControl(fiestaId);
+    if (!initial.success || !initial.data) return { success: false, error: initial.error ?? 'No encontrado' };
 
-    const data = result.data;
-    data.etapas = data.etapas.map(e => e.id === etapaId ? { ...e, notas: nota } : e);
-    data.ultimaActualizacion = new Date().toISOString();
-
-    await writeData(getPath(fiestaId), data);
+    await mutarDocumento<MissionControlData>(getPath(fiestaId), initial.data, (data) => ({
+      ...data,
+      etapas: (data.etapas || []).map((e) => (e.id === etapaId ? { ...e, notas: nota } : e)),
+      ultimaActualizacion: new Date().toISOString(),
+    }));
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -256,19 +257,22 @@ export async function addNotaEtapa(fiestaId: string, etapaId: string, nota: stri
 export async function addEtapa(fiestaId: string, etapa: Omit<EtapaTimeline, 'id' | 'orden'>): Promise<{ success: boolean; data?: EtapaTimeline; error?: string }> {
   await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
-    const result = await getMissionControl(fiestaId);
-    if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
+    const initial = await getMissionControl(fiestaId);
+    if (!initial.success || !initial.data) return { success: false, error: initial.error ?? 'No encontrado' };
 
-    const data = result.data;
-    const newEtapa: EtapaTimeline = {
-      ...etapa,
-      id: `etapa-${Date.now()}`,
-      orden: data.etapas.length + 1,
-    };
-    data.etapas = [...data.etapas, newEtapa];
-    data.ultimaActualizacion = new Date().toISOString();
-
-    await writeData(getPath(fiestaId), data);
+    let newEtapa: EtapaTimeline | undefined;
+    await mutarDocumento<MissionControlData>(getPath(fiestaId), initial.data, (data) => {
+      newEtapa = {
+        ...etapa,
+        id: `etapa-${Date.now()}`,
+        orden: (data.etapas || []).length + 1,
+      };
+      return {
+        ...data,
+        etapas: [...(data.etapas || []), newEtapa],
+        ultimaActualizacion: new Date().toISOString(),
+      };
+    });
     return { success: true, data: newEtapa };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -282,14 +286,14 @@ export async function updateEtapa(
 ): Promise<{ success: boolean; error?: string }> {
   await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
-    const result = await getMissionControl(fiestaId);
-    if (!result.success || !result.data) return { success: false, error: result.error ?? 'No encontrado' };
+    const initial = await getMissionControl(fiestaId);
+    if (!initial.success || !initial.data) return { success: false, error: initial.error ?? 'No encontrado' };
 
-    const data = result.data;
-    data.etapas = data.etapas.map(e => e.id === etapaId ? { ...e, ...updates } : e);
-    data.ultimaActualizacion = new Date().toISOString();
-
-    await writeData(getPath(fiestaId), data);
+    await mutarDocumento<MissionControlData>(getPath(fiestaId), initial.data, (data) => ({
+      ...data,
+      etapas: (data.etapas || []).map((e) => (e.id === etapaId ? { ...e, ...updates } : e)),
+      ultimaActualizacion: new Date().toISOString(),
+    }));
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };

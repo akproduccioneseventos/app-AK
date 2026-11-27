@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getFiestaForPortalSession, saveMenuSeleccion, verificarSesionPortalCliente } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, MenuSeleccionPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -91,6 +92,7 @@ export default function MenuPortalPage() {
             <p className="text-sm font-black text-slate-900">🍽️ Selección de Menú</p>
             <p className="text-xs text-slate-500">{fiesta.configuracion?.nombreEvento}</p>
           </div>
+          <BotonComoFunciona clave="cliente-menu" variant="compact" />
         </div>
       </header>
 

@@ -194,7 +194,7 @@ export interface PersonalAsignadoDetalleStorage {
   rolId: string;
   eventSalary: number;
   checkInTimestamp?: string;
-  checkInUbicacion?: { lat: number; lng: number; distanciaMetros: number };
+  checkInUbicacion?: { lat: number; lng: number; distanciaMetros: number; ubicacionVerificada?: boolean };
   asistenciaConfirmada?: boolean;
   fechaConfirmacionAsistencia?: string;
   motivoRechazoAsistencia?: string;
@@ -621,6 +621,7 @@ export interface InvitacionDigitalConfig {
 
 export interface InvitacionDigitalData {
   name?: string;
+  horaEvento?: string;
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo';
   musicaFondoUrl?: string;
@@ -1255,6 +1256,7 @@ export interface GestionCostosData {
 export interface VideoVidaData {
   galleryEnabled: boolean;
   photosUploaded: boolean;
+  uploadedCount?: number;
   songSuggestion?: string;
   customText?: string;
   photoCount?: number;

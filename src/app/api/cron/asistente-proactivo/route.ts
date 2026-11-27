@@ -76,7 +76,29 @@ export async function GET(request: Request) {
   // 1. EJECUTAR AGENTES AUTÓNOMOS (Ventas, Cobros, Fiestas, etc.)
   try {
     const registrosAgentes = await ejecutarAgentesAutonomos(ahora);
-    for (const reg of registrosAgentes) {
+    const listaRegistros = Array.isArray(registrosAgentes) ? registrosAgentes : [];
+    const agentesFallidos = Array.isArray((registrosAgentes as any)?.agentesFallidos)
+      ? ((registrosAgentes as any).agentesFallidos as string[])
+      : [];
+    const erroresAgentes = Array.isArray((registrosAgentes as any)?.errores)
+      ? ((registrosAgentes as any).errores as string[])
+      : [];
+
+    if (erroresAgentes.length > 0) {
+      for (const errMsg of erroresAgentes) {
+        fallos.push(`Error en agente autónomo: ${errMsg}`);
+      }
+    } else if (agentesFallidos.length > 0) {
+      fallos.push(`Agentes autónomos fallidos: ${agentesFallidos.join(', ')}`);
+    }
+
+    for (const reg of listaRegistros) {
+      if (reg.estado === 'error' || reg.lecturaFallida === true || reg.ok === false) {
+        if (erroresAgentes.length === 0 && agentesFallidos.length === 0) {
+          fallos.push(`Error en agente ${reg.agenteNombre || reg.agenteId}: ${reg.error || reg.hallazgos?.[0] || 'error de ejecución'}`);
+        }
+        continue;
+      }
       if (reg.hallazgos && reg.hallazgos.length > 0) {
         for (const [hallazgoIndex, hallazgo] of reg.hallazgos.entries()) {
           const propuestaFaltante = (reg.agenteId === 'vigilante_fiestas' || reg.agenteId === 'anticipador')

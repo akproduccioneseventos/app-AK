@@ -43,6 +43,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE, DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { buildWhatsAppLink, isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import type { Presupuesto } from '@/types/presupuesto';
 
 const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
@@ -996,6 +997,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
           </div>
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+          <BotonComoFunciona clave="simulador" />
           {onClose ? (
             <Button
               type="button"
@@ -1052,7 +1054,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
   // Chat window element
   function ChatWindow() {
     return (
-      <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
 
         {/* MESSAGES LIST */}
         <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin">
@@ -1574,7 +1576,7 @@ ${generatedId ? `*Link:* ${origin}/presupuestos/${generatedId}/ver?cliente=1&tok
             size="icon"
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
-            className="h-10 w-10 shrink-0 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+            className="h-10 !w-10 shrink-0 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
             aria-label="Enviar mensaje"
             title="Enviar mensaje"
           >

@@ -12,6 +12,7 @@ import type { Salon } from '@/types/salon';
 import { getAjustesLlegadaPersonal } from '@/app/actions/settings';
 import { calcularDistanciaMetros, extraerCoordenadasDeUrl } from '@/lib/geo/distancia';
 import { accesoVencido } from '@/lib/auth/vigencia-acceso';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 
 /**
  * El acceso del enlace, sólo si sigue vigente (Codex, auditoría 66, PERS01, 5/10/2026).
@@ -173,15 +174,15 @@ export async function registrarLlegadaPersonal(
   let distanciaCalculada: number | undefined;
 
   // Si está activada la verificación de ubicación en Ajustes
-  if (ajustes.llegadaConUbicacion) {
-    let salonCoords: { lat: number; lng: number } | null = null;
+  let salonCoords: { lat: number; lng: number } | null = null;
 
-    if (fiesta.configuracion?.googleMapsUrl) {
-      salonCoords = extraerCoordenadasDeUrl(fiesta.configuracion.googleMapsUrl);
-    }
+  if (fiesta.configuracion?.googleMapsUrl) {
+    salonCoords = extraerCoordenadasDeUrl(fiesta.configuracion.googleMapsUrl);
+  }
 
-    if (!salonCoords && fiesta.configuracion?.nombreLugar) {
-      const salones = await readData<Salon[]>('salones.json', []);
+  if (!salonCoords && fiesta.configuracion?.nombreLugar) {
+    const salones = await readData<Salon[]>('salones.json', []);
+    if (!esLecturaFallida(salones) && Array.isArray(salones)) {
       const salon = salones.find(
         (s) =>
           s.nombre.toLowerCase().trim() === fiesta.configuracion.nombreLugar.toLowerCase().trim() ||
@@ -193,7 +194,9 @@ export async function registrarLlegadaPersonal(
         salonCoords = extraerCoordenadasDeUrl(salon.googleMapsUrl);
       }
     }
+  }
 
+  if (ajustes.llegadaConUbicacion) {
     // Si el salón tiene coordenadas, validamos distancia
     if (salonCoords) {
       // NaN o Infinity daban distancia NaN, la comparación con el radio daba falso y se
@@ -215,6 +218,9 @@ export async function registrarLlegadaPersonal(
           distanciaMetros: distanciaCalculada,
         };
       }
+    } else {
+      // Si el salón no tiene coordenadas / no coincide nombre / salones.json falla, se anota igual con ubicacionVerificada: false
+      distanciaCalculada = 0;
     }
   }
 
@@ -231,16 +237,19 @@ export async function registrarLlegadaPersonal(
         updated = true;
         const persistido = p.checkInTimestamp || nowIso;
         checkInTimestamp = persistido;
+        const ubicacionVerificada = salonCoords ? true : (ajustes.llegadaConUbicacion ? false : undefined);
         return {
           ...p,
           checkInTimestamp: persistido,
-          checkInUbicacion: ubicacion
-            ? {
-                lat: ubicacion.lat,
-                lng: ubicacion.lng,
-                distanciaMetros: distanciaCalculada ?? 0,
-              }
-            : p.checkInUbicacion,
+          checkInUbicacion:
+            ubicacion || ubicacionVerificada === false
+              ? {
+                  lat: ubicacion?.lat ?? 0,
+                  lng: ubicacion?.lng ?? 0,
+                  distanciaMetros: distanciaCalculada ?? 0,
+                  ubicacionVerificada,
+                }
+              : p.checkInUbicacion,
         };
       }
       return p;

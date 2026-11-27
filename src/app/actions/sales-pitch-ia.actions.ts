@@ -1,6 +1,7 @@
 'use server';
 
 import { generateSalesPitchFlow } from '@/ai/flows/generate-sales-pitch-flow';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 export async function generateSalesPitchAction(
@@ -12,6 +13,13 @@ export async function generateSalesPitchAction(
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   await requireAppSession();
   try {
+    if (!(await hayPresupuestoParaIA())) {
+      return {
+        success: false,
+        error: 'Se alcanzó el tope mensual de uso de IA. Probá de nuevo cuando se renueve el límite.',
+      };
+    }
+
     const message = await generateSalesPitchFlow({
       clienteNombre,
       eventoTipo,

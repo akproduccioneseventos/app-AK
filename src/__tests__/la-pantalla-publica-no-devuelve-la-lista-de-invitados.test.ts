@@ -27,11 +27,9 @@ const CODIGO = fs.readFileSync(
   'utf-8',
 );
 
-/** Las cinco que se pueden llamar desde internet sin haber entrado. */
+/** Las acciones que se pueden llamar desde internet sin haber entrado. */
 const PUBLICAS = [
-  'updateGuestRsvp',
   'handleRsvpSubmission',
-  'updateGuestDetails',
   'checkInGuest',
   'submitPublicRsvp',
 ];

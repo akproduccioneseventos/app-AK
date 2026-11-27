@@ -12,6 +12,7 @@ import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function ConfettiEffect() {
   const pieces = Array.from({ length: 60 });
@@ -283,6 +284,9 @@ export default function TotemBienvenidaPage() {
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-md">
               ¡Bienvenidos! Acercá el QR de tu invitación
             </h1>
+            <div className="pt-1 flex justify-center">
+              <BotonComoFunciona clave="bienvenida-salon" variant="dark" />
+            </div>
           </div>
 
           {/* Flecha animada apuntando a la cámara */}

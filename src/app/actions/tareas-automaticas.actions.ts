@@ -60,12 +60,14 @@ export async function dispararTareasVencidasDeFondo(): Promise<{
         // justo lo que dice arriba que nunca pasa solo. Hoy no se nota porque ese
         // recontacto viene apagado; el dia que el dueno lo prenda, saldrian
         // mensajes con solo abrir la aplicacion.
-        const res = await runMarketingAutomation({ includeRecontacto: false });
-        if ((res as any)?.seoError || (res as any)?.seoSucceeded === false || !res?.success) {
+        const res = await runMarketingAutomation({ includeInstagram: false, includeRecontacto: false });
+        if ((res as any)?.seoError || (res as any)?.seoSucceeded === false || (!res?.skipped && !res?.success)) {
           throw new Error((res as any)?.seoError || res?.error || 'No se pudo publicar la nota del blog.');
         }
-        await marcarCorrida(tarea.id);
-        ejecutadas.push(tarea.id);
+        if (!res?.skipped && res?.ranSeo !== false) {
+          await marcarCorrida(tarea.id);
+          ejecutadas.push(tarea.id);
+        }
       } catch (err: any) {
         errores.push(`${tarea.id}: ${err.message}`);
       }
@@ -107,11 +109,13 @@ export async function ejecutarTareaManual(id: string): Promise<{ success: boolea
       // El boton dice "nota del blog" y hace la nota del blog. Sin esto tambien
       // saldrian los mensajes de recontacto a los prospectos, que no es lo que el
       // operador aprieta ni lo que la pantalla le anuncia.
-      const res = await runMarketingAutomation({ includeRecontacto: false });
+      const res = await runMarketingAutomation({ force: true, includeInstagram: false, includeRecontacto: false });
       if ((res as any)?.seoError || (res as any)?.seoSucceeded === false || !res?.success) {
         throw new Error((res as any)?.seoError || res?.error || 'No se pudo publicar la nota del blog.');
       }
-      await marcarCorrida(id);
+      if (!res?.skipped && res?.ranSeo !== false) {
+        await marcarCorrida(id);
+      }
       return { success: true };
     }
 

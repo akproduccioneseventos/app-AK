@@ -32,8 +32,29 @@ import {
 } from '@/lib/ai/consumo-servidor';
 import { transcribirAudioWhatsApp } from '@/lib/asistente/whatsapp-media';
 
-function buscarLlamadasDirectasIA(_archivo: string, contenido: string): boolean {
-  return contenido.includes('generativelanguage.googleapis.com') || contenido.includes('ai.generate(');
+function buscarLlamadasDirectasIA(archivo: string, contenido: string): boolean {
+  const normalizado = archivo.replace(/\\/g, '/');
+  if (
+    normalizado.endsWith('src/ai/cerebro.ts') ||
+    normalizado.endsWith('src/ai/genkit.ts')
+  ) {
+    return false;
+  }
+  if (
+    normalizado.endsWith('src/lib/social-fiesta/content-safety-ai.ts') &&
+    contenido.includes('reservarConsumoIA') &&
+    !contenido.includes('generativelanguage.googleapis.com') &&
+    !contenido.includes('ai.generate(') &&
+    !contenido.includes('generateWithGeminiFallback(')
+  ) {
+    return false;
+  }
+  return (
+    contenido.includes('generativelanguage.googleapis.com') ||
+    contenido.includes('vision.googleapis') ||
+    contenido.includes('ai.generate(') ||
+    contenido.includes('generateWithGeminiFallback(')
+  );
 }
 
 const leer = (rel: string) => fs.readFileSync(path.join(process.cwd(), rel), 'utf8');
@@ -65,7 +86,13 @@ describe('Orden 342: toda la IA pasa por el cerebro', () => {
         const rutaCompleta = path.join(dir, entrada.name);
         const rutaRelativa = path.relative(process.cwd(), rutaCompleta).replace(/\\/g, '/');
 
-        if (rutaRelativa.startsWith('src/ai/') || rutaRelativa.startsWith('src/__tests__/') || rutaRelativa.includes('node_modules')) {
+        if (
+          rutaRelativa === 'src/ai/cerebro.ts' ||
+          rutaRelativa === 'src/ai/genkit.ts' ||
+          rutaRelativa.startsWith('src/ai/direcciones-google') ||
+          rutaRelativa.startsWith('src/__tests__/') ||
+          rutaRelativa.includes('node_modules')
+        ) {
           continue;
         }
 
@@ -331,5 +358,39 @@ describe('Orden 342: toda la IA pasa por el cerebro', () => {
       if (prevGoogleKey === undefined) delete process.env.GOOGLE_API_KEY;
       else process.env.GOOGLE_API_KEY = prevGoogleKey;
     }
+  });
+
+  it('h) bloquea imports de @/ai/direcciones-google fuera de src/ai/ y src/lib/asistente/voz-en-vivo.ts', () => {
+    const srcDir = path.join(process.cwd(), 'src');
+    const violaciones: string[] = [];
+
+    function recorrerDir(dir: string) {
+      const entradas = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entrada of entradas) {
+        const rutaCompleta = path.join(dir, entrada.name);
+        const rutaRelativa = path.relative(process.cwd(), rutaCompleta).replace(/\\/g, '/');
+
+        if (
+          rutaRelativa.startsWith('src/ai/') ||
+          rutaRelativa === 'src/lib/asistente/voz-en-vivo.ts' ||
+          rutaRelativa.startsWith('src/__tests__/') ||
+          rutaRelativa.includes('node_modules')
+        ) {
+          continue;
+        }
+
+        if (entrada.isDirectory()) {
+          recorrerDir(rutaCompleta);
+        } else if (entrada.isFile() && /\.(ts|tsx|js|jsx)$/.test(entrada.name)) {
+          const contenido = fs.readFileSync(rutaCompleta, 'utf8');
+          if (contenido.includes('direcciones-google')) {
+            violaciones.push(rutaRelativa);
+          }
+        }
+      }
+    }
+
+    recorrerDir(srcDir);
+    expect(violaciones).toEqual([]);
   });
 });

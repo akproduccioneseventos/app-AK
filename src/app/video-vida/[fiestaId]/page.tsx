@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PublicFooter } from '@/components/public-footer';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { fotosPorRecuadro, MENSAJE_LECTURA_FALLIDA } from '@/lib/video-vida/lectura-fotos';
 
 interface PhotoSlot {
@@ -208,7 +209,8 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
                 <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-4xl font-bold tracking-tight font-headline">{fiesta.configuracion.nombreEvento}</h1>
                 <p className="text-lg text-muted-foreground mt-1">Carga de Fotos para el Video de Vida</p>
-                <div className="mt-3 flex justify-center">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  <BotonComoFunciona clave="video-vida" />
                   <VideoDeAyuda lugar="video-de-vida" />
                 </div>
                 {fiesta.videoVida?.customText && <p className="mt-4 text-accent-foreground bg-accent/20 p-3 rounded-md max-w-2xl mx-auto">{fiesta.videoVida.customText}</p>}

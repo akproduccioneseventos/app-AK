@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import { CAMPAIGN_LANDING_MAP, CAMPAIGN_LANDINGS } from '@/lib/marketing/campaign-landings';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { PROMO_PAGES, type PromoConfig } from '@/lib/marketing/promo-pages';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 // Las paginas de promocion viven en src/lib/marketing/promo-pages.ts, en un solo
 // lugar. Estaban copiadas aca tambien, y la pantalla de posicionamiento leia la
@@ -65,6 +66,9 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
   return (
     <div className="min-h-screen bg-white">
       <LandingNav />
+      <div className="mx-auto flex max-w-7xl justify-end px-4 pt-20 sm:px-6 lg:px-8">
+        <BotonComoFunciona clave="paginas-por-tipo" />
+      </div>
       <HeroSection
         whatsappNumber={whatsappNumber}
         headline={config.hero.headline}

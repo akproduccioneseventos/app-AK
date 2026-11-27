@@ -53,6 +53,7 @@ const CADA_CUANTO = {
   muestra_auditor: 60 * 60 * 1000,
   clasificar_galeria_ia: 6 * 60 * 60 * 1000,
   empezar_2027: 24 * 60 * 60 * 1000,
+  limpiar_pruebas: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -72,6 +73,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   muestra_auditor: 'fiesta-muestra-auditor',
   clasificar_galeria_ia: 'clasificar-galeria-ia',
   empezar_2027: 'empezar-2027',
+  limpiar_pruebas: 'limpiar-pruebas',
 };
 
 interface EstadoDeTareas {
@@ -114,15 +116,38 @@ function enHorarioRecordatoriosUruguay(ahora: Date): boolean {
 export function esFalla(valor: unknown): { fallo: boolean; motivo?: string } {
   if (!valor || typeof valor !== 'object') return { fallo: false };
   const v = valor as Record<string, any>;
+  if (v.lecturaFallida === true || v.estado === 'error') return { fallo: true, motivo: v.error || v.motivo || 'Lectura fallida desde la base' };
   if (v.success === false) return { fallo: true, motivo: v.error || 'success: false' };
   if (v.ok === false) return { fallo: true, motivo: v.error || (Array.isArray(v.errores) && v.errores.length > 0 ? v.errores.join(', ') : 'ok: false') };
   if (v.corrio === false) return { fallo: true, motivo: v.motivo || 'corrio: false' };
   if (v.error && typeof v.error === 'string' && v.error.trim().length > 0) return { fallo: true, motivo: v.error };
+  if (Array.isArray(v.agentesFallidos) && v.agentesFallidos.length > 0) {
+    return {
+      fallo: true,
+      motivo: Array.isArray(v.errores) && v.errores.length > 0
+        ? v.errores.join(', ')
+        : `Agentes fallidos: ${v.agentesFallidos.join(', ')}`,
+    };
+  }
   if (Array.isArray(v.errores) && v.errores.length > 0) return { fallo: true, motivo: v.errores.join(', ') };
+  if (Array.isArray(v.fallados) && v.fallados.length > 0) return { fallo: true, motivo: v.fallados.map((f: any) => f?.error || f?.id || 'fallo').join(', ') };
   if (typeof v.reservasFallidas === 'number' && v.reservasFallidas > 0) return { fallo: true, motivo: `${v.reservasFallidas} reservas fallidas` };
   if (Array.isArray(v.reservasFallidas) && v.reservasFallidas.length > 0) return { fallo: true, motivo: `${v.reservasFallidas.length} reservas fallidas` };
   if (v.seoError && typeof v.seoError === 'string' && v.seoError.trim().length > 0) return { fallo: true, motivo: v.seoError };
   if (v.seoSucceeded === false) return { fallo: true, motivo: v.seoError || 'seoSucceeded: false' };
+  if (Array.isArray(valor)) {
+    const elementosFallidos = valor
+      .map((item) => ({ item, check: esFalla(item) }))
+      .filter((entry) => entry.check.fallo);
+    if (elementosFallidos.length > 0) {
+      return {
+        fallo: true,
+        motivo: elementosFallidos
+          .map((entry) => entry.check.motivo || (entry.item as any)?.agenteId || 'fallo')
+          .join(', '),
+      };
+    }
+  }
   return { fallo: false };
 }
 
@@ -159,6 +184,7 @@ export async function todasSalieron(partes: Record<string, () => Promise<unknown
 export async function ponerAlDiaAlEntrar(
   ahora: Date = new Date(),
   origen: OrigenDisparo = 'app',
+  opciones?: { soloLasQueNoMandan?: boolean },
 ): Promise<ResultadoAlEntrar> {
   const lockAdquirido = await intentarAdquirirLock(origen);
   if (!lockAdquirido) {
@@ -232,15 +258,23 @@ export async function ponerAlDiaAlEntrar(
           }
 
           const cantPostsAntes = posts?.length ?? 0;
-          const tocabaPublicar = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
+          const tocabaPorAntiguedad = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
 
           const { runMarketingAutomation } = await import('@/lib/marketing-automation');
-          const res = await runMarketingAutomation({ includeRecontacto: false });
+          const res = await runMarketingAutomation({
+            includeInstagram: false,
+            includeRecontacto: false,
+            ...(tocabaPorAntiguedad || cantPostsAntes === 0 ? { force: true } : {}),
+          });
           if ((res as any)?.seoError || (res as any)?.seoSucceeded === false) {
             throw new Error((res as any)?.seoError || (res as any)?.motivo || (res as any)?.error || 'No se pudo publicar la nota del blog.');
           }
+          if ((res as any)?.skipped === true) {
+            return res;
+          }
 
-          if (tocabaPublicar) {
+          const debeVerificarNotaNueva = tocabaPorAntiguedad || (res as any)?.ranSeo === true;
+          if (debeVerificarNotaNueva) {
             const postsDespues = await readDataBlog<any[]>('blog-posts.json', []);
             const fechasDespues = (postsDespues || [])
               .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))
@@ -374,9 +408,34 @@ export async function ponerAlDiaAlEntrar(
           return correrMigracionEmpezar2027({ ahora });
         },
       },
+      {
+        nombre: 'limpiar_pruebas',
+        correr: async () => {
+          const { correrLimpiezaDePruebas } = await import('@/lib/automatico/limpiar-pruebas');
+          return correrLimpiezaDePruebas({ ahora });
+        },
+      },
     ];
 
+    const soloLasQueNoMandan = Boolean(opciones?.soloLasQueNoMandan);
+    const TAREAS_QUE_MANDAN_O_BORRAN = new Set<NombreDeTarea>([
+      'avisos_cliente',
+      'recordatorio_invitados',
+      'recordar_invitacion',
+      'empezar_2027',
+      'limpiar_pruebas',
+    ]);
+
+    if (!soloLasQueNoMandan) {
+      const { correrSincronizacionCuotasPagosUnaVez } = await import('@/lib/automatico/sincronizar-cuotas-pagos');
+      await correrSincronizacionCuotasPagosUnaVez().catch(() => null);
+    }
+
     for (const tarea of tareas) {
+      if (soloLasQueNoMandan && TAREAS_QUE_MANDAN_O_BORRAN.has(tarea.nombre)) {
+        resultado.omitidas.push(tarea.nombre);
+        continue;
+      }
       if (
         (tarea.nombre === 'recordatorio_invitados' || tarea.nombre === 'recordar_invitacion') &&
         !enHorarioRecordatoriosUruguay(ahora)
@@ -384,7 +443,7 @@ export async function ponerAlDiaAlEntrar(
         resultado.omitidas.push(tarea.nombre);
         continue;
       }
-      if (tarea.nombre === 'empezar_2027') {
+      if (tarea.nombre === 'empezar_2027' || tarea.nombre === 'limpiar_pruebas') {
         const { verifySession } = await import('@/lib/auth/session-token');
         const { esSesionDeAuditor, esSesionDeSoloLectura } = await import('@/lib/auth/solo-lectura');
         const { perfilDe } = await import('@/lib/auth/perfiles');
@@ -416,6 +475,10 @@ export async function ponerAlDiaAlEntrar(
         if (check.fallo) {
           throw new Error(check.motivo || 'No se pudo completar la tarea.');
         }
+        if (res && typeof res === 'object' && (res as any).skipped === true) {
+          resultado.omitidas.push(tarea.nombre);
+          continue;
+        }
         ultimaCorrida[tarea.nombre] = ahora.toISOString();
         delete ultimoFallo[tarea.nombre];
         resultado.corrio.push(tarea.nombre);
@@ -430,11 +493,30 @@ export async function ponerAlDiaAlEntrar(
     }
 
     if (resultado.corrio.length > 0 || resultado.fallaron.length > 0) {
-      await writeData(
+      const { mutarDocumentoConTransaccion } = await import('@/lib/generic-json-store');
+      const corridasNuevas = new Set<string>(resultado.corrio);
+      const fallosNuevos = new Map<string, { fecha: string; error: string }>();
+      for (const fallo of resultado.fallaron) {
+        if (ultimoFallo[fallo.tarea]) {
+          fallosNuevos.set(fallo.tarea, ultimoFallo[fallo.tarea]!);
+        }
+      }
+      await mutarDocumentoConTransaccion<{ ultimaCorrida?: typeof ultimaCorrida; ultimoFallo?: typeof ultimoFallo }>(
         ESTADO_FILE,
-        { ultimaCorrida, ultimoFallo },
-        undefined,
-        { skipAutoBackup: true },
+        {},
+        (actual) => {
+          const baseCorrida = { ...(actual?.ultimaCorrida ?? {}) };
+          const baseFallo = { ...(actual?.ultimoFallo ?? {}) };
+          for (const nombre of corridasNuevas) {
+            const k = nombre as NombreDeTarea;
+            if (ultimaCorrida[k]) baseCorrida[k] = ultimaCorrida[k];
+            delete baseFallo[k];
+          }
+          for (const [nombre, detalle] of fallosNuevos) {
+            baseFallo[nombre as NombreDeTarea] = detalle;
+          }
+          return { ultimaCorrida: baseCorrida, ultimoFallo: baseFallo };
+        },
       );
     }
 

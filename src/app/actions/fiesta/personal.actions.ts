@@ -2,7 +2,8 @@
 
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { syncFiestaToGoogleWorkspace } from '../google-workspace';
-import { getFiestaById, getFiestas, saveFiesta, updateFiestaPartial } from './fiesta.actions';
+import { getFiestaById, getFiestas, updateFiestaPartial } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
@@ -32,13 +33,18 @@ export async function updatePersonal(
       }
     }
 
+    const clavePersonal = (p: Partial<PersonalAsignadoDetalleStorage>) =>
+      `${(p.empleadoId || '').trim()}::${(p.rolId || '').trim()}`;
+
     // Lectura completa: el sueldo guardado se conserva aunque a este perfil no se le muestre.
     const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!currentData) throw new Error("Fiesta no encontrada");
     const currentPersonal = currentData.personalAsignado || [];
     personal = personal.map((p) => {
       if (tieneSueldos) return p;
-      const previo = currentPersonal.find((prev: any) => prev.empleadoId === p.empleadoId);
+      const previo =
+        currentPersonal.find((prev: any) => prev.empleadoId === p.empleadoId && (prev.rolId || '') === (p.rolId || '')) ??
+        currentPersonal.find((prev: any) => prev.empleadoId === p.empleadoId);
       return { ...p, eventSalary: previo ? previo.eventSalary : 0 };
     });
 
@@ -105,8 +111,30 @@ export async function updatePersonal(
         }
       }
 
-      // La lectura y el guardado quedan dentro del mismo bloqueo por empleado.
-      result = await updateFiestaPartial(fiestaId, { personalAsignado: personal });
+      // La lectura fresca, la conservación de llegadas/confirmaciones/sueldos y el guardado
+      // quedan dentro del turno atómico de actualizarFiesta (Orden 363).
+      result = await actualizarFiesta(fiestaId, (actualFiesta) => {
+        const guardados = actualFiesta.personalAsignado || [];
+        const porPersonaYRol = new Map<string, PersonalAsignadoDetalleStorage>();
+        for (const item of guardados) {
+          porPersonaYRol.set(clavePersonal(item), item);
+        }
+        const fusionados = personal.map((p) => {
+          const base =
+            porPersonaYRol.get(clavePersonal(p)) ??
+            guardados.find((g) => g.empleadoId === p.empleadoId && !g.rolId);
+          return {
+            ...p,
+            eventSalary: tieneSueldos ? p.eventSalary : (base ? base.eventSalary : 0),
+            ...(base?.checkInTimestamp !== undefined ? { checkInTimestamp: base.checkInTimestamp } : {}),
+            ...(base?.checkInUbicacion !== undefined ? { checkInUbicacion: base.checkInUbicacion } : {}),
+            ...(base?.asistenciaConfirmada !== undefined ? { asistenciaConfirmada: base.asistenciaConfirmada } : {}),
+            ...(base?.fechaConfirmacionAsistencia !== undefined ? { fechaConfirmacionAsistencia: base.fechaConfirmacionAsistencia } : {}),
+            ...(base?.motivoRechazoAsistencia !== undefined ? { motivoRechazoAsistencia: base.motivoRechazoAsistencia } : {}),
+          };
+        });
+        return { ...actualFiesta, personalAsignado: fusionados };
+      });
     } finally {
       await releaseAgendaLocks();
     }

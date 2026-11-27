@@ -1,11 +1,11 @@
 import 'server-only';
 
 import {
-  generateWithGeminiFallback,
   getEffectiveGeminiModelForAgent,
   getGeminiGenerationConfigForAgent,
-  getGeminiModelForAgent,
 } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';
 
 const MARKETING_SYSTEM_PROMPT = `Sos el Agente de Marketing de AK Producciones Eventos (Salto, Uruguay).
@@ -93,23 +93,21 @@ export async function chatWithMarketingAgent(
     promptParts.push({ media: { url: input.attachmentDataUri } });
   }
 
-  const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
-  if (!(await hayPresupuestoParaIA().catch(() => false))) {
-    throw new Error('Se alcanzó el tope mensual de IA.');
-  }
-
   const model = await getEffectiveGeminiModelForAgent('marketing', { deep: true });
-  const { text } = await generateWithGeminiFallback({
-    model,
+  const res = await pedirTexto({
+    quien: 'agente-marketing',
+    incluirReglas: false,
+    modelos: [model, ...MODELOS_GEMINI.texto],
     system: MARKETING_SYSTEM_PROMPT,
     prompt: promptParts,
     config: getGeminiGenerationConfigForAgent('marketing', { deep: true }),
   });
-
-  await registrarConsumoIA('agente-marketing').catch(() => undefined);
+  if (!res.ok) {
+    throw new Error(res.topeAlcanzado ? 'Se alcanzó el tope mensual de IA.' : (res.error || 'No se pudo generar el contenido.'));
+  }
 
   return {
-    content: text ?? 'No se pudo generar el contenido. Intentá de nuevo.',
+    content: res.texto || 'No se pudo generar el contenido. Intentá de nuevo.',
     platform: input.platform,
     tipo: input.contentType,
   };

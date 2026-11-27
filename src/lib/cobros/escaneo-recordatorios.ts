@@ -31,6 +31,7 @@ export interface MensajeYaProgramado {
 export interface AvisoAEnviar {
   trigger: TipoDeAviso;
   invoice: Invoice;
+  invoices?: Invoice[];
   balance: number;
 }
 
@@ -92,6 +93,7 @@ export function calcularAvisosPendientes(
   const ahora = opciones.ahora ?? new Date();
   const hoy = aMedianoche(ahora);
   const avisos: AvisoAEnviar[] = [];
+  const reservadosEnLaCorrida = new Map<string, AvisoAEnviar>();
 
   for (const inv of invoices) {
     if (inv.status === 'Paid') continue;
@@ -107,7 +109,17 @@ export function calcularAvisosPendientes(
 
     if (yaSeLeAviso(mensajesYaProgramados, inv.customer.id, trigger, ahora)) continue;
 
-    avisos.push({ trigger, invoice: inv, balance });
+    const clave = `${inv.customer.id}::${trigger}`;
+    const previo = reservadosEnLaCorrida.get(clave);
+    if (previo) {
+      previo.balance += balance;
+      previo.invoices = [...(previo.invoices ?? [previo.invoice]), inv];
+      continue;
+    }
+
+    const aviso: AvisoAEnviar = { trigger, invoice: inv, invoices: [inv], balance };
+    reservadosEnLaCorrida.set(clave, aviso);
+    avisos.push(aviso);
   }
 
   return avisos;

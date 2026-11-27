@@ -1,5 +1,8 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { Presupuesto } from '@/types/presupuesto';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
+import { resolverIngresoRentabilidad } from '@/lib/costos/ingreso-rentabilidad';
+import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 import { mismoTipoDeEvento } from '@/types/armado-rapido';
 
 export interface ParametrosComparativa {
@@ -25,6 +28,29 @@ function normalizarTexto(texto?: string): string {
     .trim();
 }
 
+function gestionCostosConIngresoResuelto(
+  fiesta: FiestaEnPlanificacion,
+  presupuestosPorId?: ReadonlyMap<string, Presupuesto>,
+) {
+  const presupuesto = fiesta.presupuestoId ? presupuestosPorId?.get(fiesta.presupuestoId) : undefined;
+  const normalizado = presupuesto
+    ? normalizePresupuestoFinancials(presupuesto, { preserveStoredTotal: true })
+    : undefined;
+  const resuelto = resolverIngresoRentabilidad({
+    presupuestoId: fiesta.presupuestoId,
+    presupuesto: normalizado,
+    ingresosGuardados: fiesta.gestionCostos?.ingresosTotalesEstimados,
+  });
+  if (resuelto.hayPresupuesto && resuelto.ingreso !== null) {
+    return {
+      costosItems: [],
+      ...fiesta.gestionCostos,
+      ingresosTotalesEstimados: resuelto.ingreso,
+    };
+  }
+  return fiesta.gestionCostos;
+}
+
 /**
  * Calcula un aviso preventivo si en fiestas parecidas anteriores los costos
  * reales terminaron superando lo estimado.
@@ -34,6 +60,7 @@ function normalizarTexto(texto?: string): string {
 export function calcularAvisoMargenHistorico(
   fiestasHistoricas: FiestaEnPlanificacion[],
   params: ParametrosComparativa,
+  presupuestosPorId?: ReadonlyMap<string, Presupuesto>,
 ): AvisoMargenHistorico | null {
   const tipoBuscado = normalizarTexto(params.tipoEvento);
   const invitadosBuscados = Number(params.invitados) || 0;
@@ -42,7 +69,12 @@ export function calcularAvisoMargenHistorico(
 
   // Filtrar fiestas parecidas que tengan gastos reales cargados
   const parecidas = fiestasHistoricas.filter((fiesta) => {
-    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado);
+    const ganancia = calcularGananciaDeEvento(
+      gestionCostosConIngresoResuelto(fiesta, presupuestosPorId),
+      fiesta.pagosProveedores,
+      undefined,
+      fiesta.personalAsignado,
+    );
     if (!ganancia.hayGastoCargado || ganancia.costoEstimado <= 0) return false;
 
     // Coincidencia de tipo si se especificó
@@ -92,7 +124,12 @@ export function calcularAvisoMargenHistorico(
   let sumaReal = 0;
 
   for (const fiesta of muestra) {
-    const ganancia = calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, undefined, fiesta.personalAsignado);
+    const ganancia = calcularGananciaDeEvento(
+      gestionCostosConIngresoResuelto(fiesta, presupuestosPorId),
+      fiesta.pagosProveedores,
+      undefined,
+      fiesta.personalAsignado,
+    );
     sumaEstimada += ganancia.costoEstimado;
     sumaReal += ganancia.costoReal;
   }

@@ -1,6 +1,7 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { DECO_PREBUILT_TEMPLATES } from '@/lib/deco-prebuilt-templates';
 import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -33,22 +34,28 @@ export async function saveDecoCanvasTemplate(
 ): Promise<{ success: boolean; template?: DecoCanvasTemplate; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
-    const templates = await getUserDecoCanvasTemplates();
-    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la plantilla ya esta con ese id.
     const idDeLaPantalla = idDelIntento('deco_tpl', opciones?.idIntento);
-    const yaGuardada = idDeLaPantalla ? templates.find((t) => t.id === idDeLaPantalla) : undefined;
-    if (yaGuardada) return { success: true, template: yaGuardada };
-    const template: DecoCanvasTemplate = {
-      id: idDeLaPantalla ?? `deco_tpl_${crypto.randomUUID()}`,
-      nombre,
-      elementos,
-      fondoColor,
-      fondoImagenUrl,
-      creadoEn: new Date().toISOString(),
-      miniatura,
-    };
-    await writeData(TEMPLATES_FILE, [template, ...templates]);
-    return { success: true, template };
+    let resultado: DecoCanvasTemplate | undefined;
+    await mutateGenericJsonArray<DecoCanvasTemplate>(TEMPLATES_FILE, (actuales) => {
+      const templates = Array.isArray(actuales) ? actuales : [];
+      const yaGuardada = idDeLaPantalla ? templates.find((t) => t.id === idDeLaPantalla) : undefined;
+      if (yaGuardada) {
+        resultado = yaGuardada;
+        return null;
+      }
+      const template: DecoCanvasTemplate = {
+        id: idDeLaPantalla ?? `deco_tpl_${crypto.randomUUID()}`,
+        nombre,
+        elementos,
+        fondoColor,
+        fondoImagenUrl,
+        creadoEn: new Date().toISOString(),
+        miniatura,
+      };
+      resultado = template;
+      return [template, ...templates];
+    });
+    return { success: true, template: resultado };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };
   }
@@ -64,8 +71,16 @@ export async function deleteDecoCanvasTemplate(id: string): Promise<{ success: b
     if (id.startsWith(PRESET_ID_PREFIX)) {
       return { success: false, error: 'Las plantillas pre-armadas no se pueden eliminar.' };
     }
-    const templates = await getUserDecoCanvasTemplates();
-    await writeData(TEMPLATES_FILE, templates.filter(t => t.id !== id));
+    let encontrada = false;
+    await mutateGenericJsonArray<DecoCanvasTemplate>(TEMPLATES_FILE, (actuales) => {
+      const templates = Array.isArray(actuales) ? actuales : [];
+      if (!templates.some((t) => t.id === id)) return null;
+      encontrada = true;
+      return templates.filter((t) => t.id !== id);
+    });
+    if (!encontrada) {
+      return { success: false, error: 'Plantilla no encontrada.' };
+    }
     return { success: true };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };

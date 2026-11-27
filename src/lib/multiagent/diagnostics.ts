@@ -1,4 +1,6 @@
 import type { AkAgentType } from '@/types/multiagent';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requirePermiso } from '@/lib/auth/require-session';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
@@ -6,6 +8,7 @@ import { getNotifications } from '@/app/actions/notifications';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 import { getCommercialFollowups } from '@/app/actions/commercial-intelligence';
 import { getPostEventOpportunities } from '@/app/actions/post-event-intelligence';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 export type AkAgentDiagnosticPriority = 'alta' | 'media' | 'normal';
 
@@ -37,11 +40,7 @@ function toDate(value?: string | Date | null): Date | null {
 }
 
 function daysUntil(date: Date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(date);
 }
 
 function daysSince(date: Date) {
@@ -94,7 +93,16 @@ function sortItems(items: AkAgentDiagnosticItem[]) {
   return [...items].sort((a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority]);
 }
 
-export async function buildMultiAgentTeamBriefing(input?: { fiestaId?: string }): Promise<AkAgentTeamBriefing> {
+export async function buildMultiAgentTeamBriefing(input?: {
+  fiestaId?: string;
+  incluirContabilidad?: boolean;
+}): Promise<AkAgentTeamBriefing> {
+  let incluirContabilidad = input?.incluirContabilidad;
+  if (incluirContabilidad === undefined) {
+    const contable = await requirePermiso(PERMISOS.CONTABILIDAD).catch(() => ({ ok: false as const }));
+    incluirContabilidad = contable.ok;
+  }
+
   const [fiestas, presupuestos, leads, notifications, commercialResult, postEventResult] = await Promise.all([
     getAllFiestas().catch(() => []),
     getPresupuestos().catch(() => []),
@@ -169,32 +177,34 @@ export async function buildMultiAgentTeamBriefing(input?: { fiestaId?: string })
       }
     }
 
-    const overduePayments = overduePaymentCount(fiesta);
-    if (overduePayments > 0) {
-      add(items, {
-        id: `contable_overdue_${fiestaId}`,
-        agentType: 'contable',
-        fiestaId,
-        title: `${name}: cuotas vencidas`,
-        detail: `Hay ${overduePayments} cuota(s) del plan de pagos para revisar.`,
-        priority: 'alta',
-        href: eventHref(fiestaId, '/fiestas/nueva/gestion-documental'),
-        learningHint: `Contable debe revisar cuotas vencidas de ${name}.`,
-      });
-    }
+    if (incluirContabilidad) {
+      const overduePayments = overduePaymentCount(fiesta);
+      if (overduePayments > 0) {
+        add(items, {
+          id: `contable_overdue_${fiestaId}`,
+          agentType: 'contable',
+          fiestaId,
+          title: `${name}: cuotas vencidas`,
+          detail: `Hay ${overduePayments} cuota(s) del plan de pagos para revisar.`,
+          priority: 'alta',
+          href: eventHref(fiestaId, '/fiestas/nueva/gestion-documental'),
+          learningHint: `Contable debe revisar cuotas vencidas de ${name}.`,
+        });
+      }
 
-    const pendingPayments = pendingClientPayments(fiesta);
-    if (pendingPayments > 0) {
-      add(items, {
-        id: `contable_payment_notice_${fiestaId}`,
-        agentType: 'contable',
-        fiestaId,
-        title: `${name}: comprobantes pendientes`,
-        detail: `Hay ${pendingPayments} comprobante(s) enviados por cliente esperando revisión.`,
-        priority: 'alta',
-        href: eventHref(fiestaId, '/fiestas/nueva/gestion-documental'),
-        learningHint: `Contable debe aprobar o rechazar comprobantes pendientes de ${name}.`,
-      });
+      const pendingPayments = pendingClientPayments(fiesta);
+      if (pendingPayments > 0) {
+        add(items, {
+          id: `contable_payment_notice_${fiestaId}`,
+          agentType: 'contable',
+          fiestaId,
+          title: `${name}: comprobantes pendientes`,
+          detail: `Hay ${pendingPayments} comprobante(s) enviados por cliente esperando revisión.`,
+          priority: 'alta',
+          href: eventHref(fiestaId, '/fiestas/nueva/gestion-documental'),
+          learningHint: `Contable debe aprobar o rechazar comprobantes pendientes de ${name}.`,
+        });
+      }
     }
 
     if (eventDate && d !== null && d < 0 && d >= -45 && !fiesta?.postEventoCompletado) {

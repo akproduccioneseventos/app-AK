@@ -51,6 +51,7 @@ export function agregarTurno(
     fiestaId?: string;
     userMessage: string;
     assistantMessage: string;
+    pendingAction?: AkAgentChatSession['pendingAction'];
   },
   timestamp = nowIso(),
 ): { state: ChatState; session: AkAgentChatSession } {
@@ -109,6 +110,7 @@ export function agregarTurno(
     agentName: input.agentName,
     pathname: input.pathname ?? baseSession.pathname,
     fiestaId: input.fiestaId ?? baseSession.fiestaId,
+    ...(input.pendingAction !== undefined ? { pendingAction: input.pendingAction } : {}),
     messages,
     updatedAt: timestamp,
   };
@@ -126,6 +128,12 @@ export function agregarTurno(
   };
 }
 
+export async function getMultiAgentChatSession(sessionId?: string): Promise<AkAgentChatSession | null> {
+  if (!sessionId) return null;
+  const state = await readChatState();
+  return state.sessions.find((s) => s.id === sessionId) ?? null;
+}
+
 export async function appendMultiAgentChatTurn(input: {
   sessionId?: string;
   agentType: AkAgentType;
@@ -134,6 +142,7 @@ export async function appendMultiAgentChatTurn(input: {
   fiestaId?: string;
   userMessage: string;
   assistantMessage: string;
+  pendingAction?: AkAgentChatSession['pendingAction'];
 }): Promise<AkAgentChatSession> {
   let sessionResult: AkAgentChatSession | undefined;
 

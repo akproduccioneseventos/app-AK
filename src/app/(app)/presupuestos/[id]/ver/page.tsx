@@ -559,7 +559,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       setPresupuesto(result.presupuesto!);
       setNewPagoMonto('');
       setNewPagoReferencia('');
-      setNewPagoFecha(new Date().toISOString().split('T')[0]);
+      setNewPagoFecha(hoyEnUruguay());
       setIsAddingPago(false);
       toast({ title: 'Pago registrado', description: `${formatCurrency(monto)} guardado correctamente.` });
     } catch (e: any) {

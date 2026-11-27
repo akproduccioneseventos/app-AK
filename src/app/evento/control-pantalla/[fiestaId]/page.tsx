@@ -64,6 +64,7 @@ import type { TriviaGame } from '@/lib/games/game-engine';
 import { AvisoDeDatos } from '@/components/privacidad/AvisoDeDatos';
 import type { ActiveGameData, ScreenPlaylistItem } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const FRASES_RAPIDAS = [
   '¡A la pista!',
@@ -434,16 +435,19 @@ export default function ControlPantallaPage() {
             </span>
             <h1 className="text-xl font-black truncate text-white">{fiestaNombre}</h1>
           </div>
-          <button
-            onClick={() => {
-              refrescarEstado(false);
-              refrescarFotos();
-            }}
-            className="p-3 text-slate-400 hover:text-white rounded-xl active:scale-95"
-            aria-label="Actualizar"
-          >
-            <RefreshCw className={`w-5 h-5 ${accionEnCurso ? 'animate-spin' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="control-pantalla" variant="dark" />
+            <button
+              onClick={() => {
+                refrescarEstado(false);
+                refrescarFotos();
+              }}
+              className="p-3 text-slate-400 hover:text-white rounded-xl active:scale-95"
+              aria-label="Actualizar"
+            >
+              <RefreshCw className={`w-5 h-5 ${accionEnCurso ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </header>
 
         {/* Cartel grande de falla si no llegó a la pantalla */}

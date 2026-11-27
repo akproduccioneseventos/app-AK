@@ -9,6 +9,7 @@ import { getPublicSocialEvent } from '@/app/actions/social-gallery';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import * as THREE from 'three';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function readGuestAccessFromClient(fiestaId: string): { guestId: string; token: string } {
   if (typeof window === 'undefined') return { guestId: '', token: '' };
@@ -220,6 +221,7 @@ export default function EventoRealidadAumentadaPage() {
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           Realidad Aumentada MindAR
         </span>
+        <BotonComoFunciona clave="realidad-aumentada" variant="dark" />
 
         <button
           onClick={() => setIsAudioMuted(!isAudioMuted)}

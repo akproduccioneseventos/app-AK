@@ -1,6 +1,7 @@
 'use server';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { generateWithGeminiFallback, geminiModel } from '@/ai/genkit';
+import { geminiModel } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 import { getFiestaById as getFiestaPublica } from '@/app/actions/fiesta/fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
@@ -334,10 +335,6 @@ export async function generarTriviaConIa(
 ): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-    if (!canUseAI) {
-      return { success: false, error: 'Tope de IA agotado para este período.' };
-    }
 
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
@@ -367,16 +364,21 @@ Respondé ÚNICAMENTE un array JSON con 5 objetos con el formato:
   }
 ]`;
 
-      const response = await generateWithGeminiFallback({
-        model: geminiModel,
+      const response = await pedirTexto({
         prompt,
+        quien: 'trivia-ia',
+        incluirReglas: false,
+        modelos: [geminiModel, ...MODELOS_GEMINI.texto],
       });
-
-      await registrarConsumoIA('trivia-ia');
-
-      const jsonMatch = response.text?.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        preguntas = sanitizeGeneratedTriviaQuestions(JSON.parse(jsonMatch[0]));
+      if (!response.ok) {
+        if (response.topeAlcanzado) {
+          return { success: false, error: 'Tope de IA agotado para este período.' };
+        }
+      } else {
+        const jsonMatch = response.texto.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          preguntas = sanitizeGeneratedTriviaQuestions(JSON.parse(jsonMatch[0]));
+        }
       }
     } catch {
       // Fallback a preguntas de cultura general de fiestas

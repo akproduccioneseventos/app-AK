@@ -2,7 +2,7 @@ import { applyAutomaticStaffByGuests } from '@/lib/commercial/live-budget-editor
 import { aniosDeAK, FIESTAS_BASE } from '@/lib/marketing/cifras-de-ak';
 import type { BlogPost } from '@/types/blog';
 
-const REGEX_PROMESAS = /garant|congel|cuotas fijas|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b/i;
+const REGEX_PROMESAS = /garant|congel|cuotas fijas|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b|24\s*horas|24\s*hs|en el d[ií]a|\bplazos?\b/i;
 
 /**
  * Devuelve la coincidencia encontrada si el texto tiene promesas no verificables,

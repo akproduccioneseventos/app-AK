@@ -3,15 +3,13 @@ import { generarResumenCompetenciaIA } from '../lib/presencia-digital/competenci
 import { darOrdenPorVozOTexto } from '../app/actions/centro-de-control';
 import * as genericJsonStore from '@/lib/generic-json-store';
 import * as consumoServidor from '@/lib/ai/consumo-servidor';
-import * as genkitAi from '@/ai/genkit';
+import * as cerebroAi from '@/ai/cerebro';
 import * as presupuestosActions from '@/app/actions/presupuestos';
 
 jest.mock('@/lib/generic-json-store');
 jest.mock('@/lib/ai/consumo-servidor');
-jest.mock('@/ai/genkit', () => ({
-  ...jest.requireActual('@/ai/genkit'),
-  generateWithGeminiFallback: jest.fn(),
-  geminiCommercialModel: 'googleai/gemini-flash-latest',
+jest.mock('@/ai/cerebro', () => ({
+  pedirTexto: jest.fn(),
 }));
 jest.mock('@/lib/auth/require-session', () => ({
   ...jest.requireActual('@/lib/auth/require-session'),
@@ -40,19 +38,18 @@ describe('Auditoría 21-11 IA y Bloques', () => {
     expect(clave).toBe('2026-11');
   });
 
-  test('b) generarResumenCompetenciaIA() llama a generateWithGeminiFallback cuando hay cuentas y devuelve No hay análisis esta semana cuando falla', async () => {
+  test('b) generarResumenCompetenciaIA() llama a pedirTexto cuando hay cuentas y devuelve No hay análisis esta semana cuando falla', async () => {
     jest.spyOn(genericJsonStore, 'readGenericJsonFile').mockResolvedValue([
       { username: 'test_competencia', activo: true, seguidores: 100, publicacionesCount: 5 }
     ]);
-    jest.spyOn(consumoServidor, 'reservarConsumoIA').mockResolvedValue({ async liberar() {} });
-    (genkitAi.generateWithGeminiFallback as jest.Mock).mockResolvedValueOnce({ text: 'Análisis IA de competencia' });
+    (cerebroAi.pedirTexto as jest.Mock).mockResolvedValueOnce({ ok: true, texto: 'Análisis IA de competencia' });
 
     const res = await generarResumenCompetenciaIA();
-    expect(genkitAi.generateWithGeminiFallback).toHaveBeenCalled();
+    expect(cerebroAi.pedirTexto).toHaveBeenCalled();
     expect(res).toBe('Análisis IA de competencia');
 
     // Caso fallo
-    (genkitAi.generateWithGeminiFallback as jest.Mock).mockRejectedValueOnce(new Error('AI error'));
+    (cerebroAi.pedirTexto as jest.Mock).mockResolvedValueOnce({ ok: false, texto: '', motivo: 'error' });
     const resFail = await generarResumenCompetenciaIA();
     expect(resFail).toBe('No hay análisis esta semana');
   });

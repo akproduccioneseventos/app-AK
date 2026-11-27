@@ -78,6 +78,6 @@ test.describe('Orden 245: La portada vende con confianza', () => {
     await page.goto('/cumpleanos', { waitUntil: 'domcontentloaded' });
     const content = await page.textContent('body');
     expect(content?.toLowerCase()).not.toContain('barra libre');
-    await expect(page.locator('body')).toContainText('Barra de Tragos');
+    await expect(page.locator('body')).toContainText(/Barra de tragos/i);
   });
 });

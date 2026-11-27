@@ -197,7 +197,7 @@ function InvoicesListPageContent() {
             <Card>
                 <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 sm:p-6">
                     <div>
-                        <CardTitle className="font-headline text-xl sm:text-2xl">Listado de Facturas ({filteredInvoices.length})</CardTitle>
+                        <CardTitle className="font-headline text-xl sm:text-2xl">Listado de Facturas{!isLoading && !error ? ` (${filteredInvoices.length})` : ''}</CardTitle>
                         <CardDescription>Consulta, gestiona y crea nuevas facturas.</CardDescription>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">

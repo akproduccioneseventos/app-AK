@@ -128,7 +128,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https:",
               "media-src 'self' data: blob: https:",
               "connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com",
-              "frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site",
+              "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",

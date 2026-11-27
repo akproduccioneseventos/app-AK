@@ -4,13 +4,16 @@ import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
-export const metadata: Metadata = createEventLandingMetadata({
-  slug: 'quinceaneras',
-  title: 'Fiesta de 15 años en Salto | AK Producciones',
-  description: 'Organizamos tu fiesta de 15 años en Salto en un solo lugar: salón, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos, fotocabina, Vogue y plataforma 360.',
-  image: '/media/catalogo-servicios/quinceanera_persuasiva.png',
-  imageAlt: 'Fiesta de 15 años en Salto organizada por AK Producciones',
-});
+export const metadata: Metadata = {
+  ...createEventLandingMetadata({
+    slug: 'quinceaneras',
+    title: 'Fiesta de 15 años en Salto',
+    description: 'Organizamos tu fiesta de 15 años en Salto en un solo lugar: salón, comida con vajilla y mobiliario, decoración, discoteca, fotografía, filmación, barra de tragos, fotocabina, Vogue y plataforma 360.',
+    image: '/media/catalogo-servicios/quinceanera_persuasiva.png',
+    imageAlt: 'Fiesta de 15 años en Salto organizada por AK Producciones',
+  }),
+  alternates: { canonical: '/quinceaneras' },
+};
 
 export default function QuinceanerasLanding() {
   return (

@@ -55,11 +55,14 @@ export type AnnualAdjustmentProjection = {
 export function getYearFromDate(value?: string | Date | null): number | null {
   if (!value) return null;
   if (typeof value === 'string') {
-    const dateOnly = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/);
-    if (dateOnly) {
-      const year = Number(dateOnly[1]);
-      const month = Number(dateOnly[2]);
-      const day = Number(dateOnly[3]);
+    const trimmed = value.trim();
+    // Si viene solo fecha (YYYY-MM-DD) o medianoche UTC exacta (YYYY-MM-DDT00:00:00.000Z),
+    // representa el dia calendario escrito y conserva ese año en cualquier zona horaria.
+    const dateOrUtcMidnight = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T00:00:00(?:\.000)?Z?$)/i);
+    if (dateOrUtcMidnight) {
+      const year = Number(dateOrUtcMidnight[1]);
+      const month = Number(dateOrUtcMidnight[2]);
+      const day = Number(dateOrUtcMidnight[3]);
       const parsed = new Date(Date.UTC(year, month - 1, day));
       return parsed.getUTCFullYear() === year
         && parsed.getUTCMonth() === month - 1
@@ -67,10 +70,26 @@ export function getYearFromDate(value?: string | Date | null): number | null {
         ? year
         : null;
     }
+    const parsed = new Date(trimmed);
+    if (!Number.isNaN(parsed.getTime())) {
+      const uyYear = Number(
+        new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'America/Montevideo',
+          year: 'numeric',
+        }).format(parsed),
+      );
+      if (!Number.isNaN(uyYear)) return uyYear;
+    }
+    return null;
   }
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return date.getFullYear();
+  return Number(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Montevideo',
+      year: 'numeric',
+    }).format(date),
+  );
 }
 
 export function buildAnnualAdjustmentProjection(input: {

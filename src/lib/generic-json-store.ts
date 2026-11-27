@@ -54,6 +54,13 @@ export async function syncGenericJsonFile(filePath: string, data: any): Promise<
   await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _value: data, _syncedAt: new Date().toISOString() });
 }
 
+function debeUsarDataService(): boolean {
+  return (
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)
+  );
+}
+
 /**
  * CAMBIAR UNA LISTA GUARDADA COMO UN SOLO DOCUMENTO, SIN PISAR A OTRO.
  *
@@ -70,30 +77,54 @@ export async function mutateGenericJsonArray<T>(
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeArrayFilePath(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (debeUsarDataService()) {
+    const dataService = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T[]>(normalizedPath, []);
-      const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
+      let actual: T[];
+      if (typeof dataService.readDataConDetalle === 'function') {
+        const lectura = await dataService.readDataConDetalle<T[]>(normalizedPath, []);
+        if (lectura.huboFalla) {
+          throw new Error(lectura.motivo || `No se pudo leer ${normalizedPath} para modificarlo.`);
+        }
+        actual = Array.isArray(lectura.valor) ? lectura.valor : [];
+      } else {
+        const raw = await dataService.readData<T[]>(normalizedPath, []);
+        actual = Array.isArray(raw) ? raw : [];
+      }
+      const nueva = cambiar(actual);
       if (!nueva) return null;
-      await writeData(normalizedPath, nueva);
+      await dataService.writeData(normalizedPath, nueva);
       return nueva;
     });
   }
 
   const db = await getDbAdmin();
+  const firebaseSync = await import('./firebase-sync').catch(() => null);
+  const tieneColeccionPropia = Boolean(
+    firebaseSync?.esArchivoConColeccionPropia?.(normalizedPath) &&
+    typeof (db as any)?.collection?.(normalizedPath)?.get === 'function',
+  );
+  const semillaColeccion: T[] | null = tieneColeccionPropia && typeof firebaseSync?.readFromFirestore === 'function'
+    ? await firebaseSync.readFromFirestore(normalizedPath).then((v) => (Array.isArray(v) ? (v as T[]) : null)).catch(() => null)
+    : null;
+
   const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
   let resultado: T[] | null = null;
   await db.runTransaction(async (transaction) => {
     resultado = null;
     const snapshot = await transaction.get(ref);
-    const actual = snapshot.exists ? unwrapGenericDocument(snapshot.data()) : [];
+    const actual = snapshot.exists
+      ? unwrapGenericDocument(snapshot.data())
+      : (semillaColeccion ?? []);
     const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
     if (!nueva) return;
     transaction.set(ref, { _filePath: normalizedPath, _arrayData: nueva, _syncedAt: new Date().toISOString() });
     resultado = nueva;
   });
+  if (resultado !== null && tieneColeccionPropia && typeof firebaseSync?.syncToFirestore === 'function') {
+    await firebaseSync.syncToFirestore(normalizedPath, resultado);
+  }
   return resultado;
 }
 
@@ -177,8 +208,13 @@ export async function mutarDocumentoConTransaccion<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
-  await exigirQueSePuedaGuardar();
+  if (typeof exigirQueSePuedaGuardar === 'function') {
+    await exigirQueSePuedaGuardar();
+  }
   const normalizedPath = filePath.replace(/\\/g, '/');
+  if (!normalizedPath.includes('/') && isSafeTopLevelJsonFile(normalizedPath)) {
+    return mutarDocumento<T>(normalizedPath, vacio, cambiar);
+  }
   const partes = normalizedPath.split('/');
   if (partes.length !== 2 || !partes[1].endsWith('.json')) {
     throw new Error(
@@ -186,14 +222,26 @@ export async function mutarDocumentoConTransaccion<T>(
     );
   }
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true' ||
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)
+  ) {
+    const dataService = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T>(normalizedPath, vacio);
+      let actual: T = vacio;
+      if (typeof dataService.readDataConDetalle === 'function') {
+        const lectura = await dataService.readDataConDetalle<T>(normalizedPath, vacio);
+        if (lectura.huboFalla) {
+          throw new Error(lectura.motivo || `No se pudo leer ${normalizedPath} para modificarlo.`);
+        }
+        actual = lectura.valor ?? vacio;
+      } else {
+        actual = await dataService.readData<T>(normalizedPath, vacio);
+      }
       const nuevo = await cambiar(actual ?? vacio);
       if (nuevo === null) return null;
-      await writeData(normalizedPath, nuevo);
+      await dataService.writeData(normalizedPath, nuevo);
       return nuevo;
     });
   }
@@ -254,7 +302,9 @@ export async function mutarDocumento<T>(
   vacio: T,
   cambiar: (actual: T) => Promise<T | null> | T | null,
 ): Promise<T | null> {
-  await exigirQueSePuedaGuardar();
+  if (typeof exigirQueSePuedaGuardar === 'function') {
+    await exigirQueSePuedaGuardar();
+  }
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (normalizedPath.includes('/')) {
     return mutarDocumentoConTransaccion<T>(normalizedPath, vacio, cambiar);
@@ -266,14 +316,23 @@ export async function mutarDocumento<T>(
     );
   }
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
-    const { readData, writeData } = await import('./data-service');
+  if (debeUsarDataService()) {
+    const dataService = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {
-      const actual = await readData<T>(normalizedPath, vacio);
+      let actual: T = vacio;
+      if (typeof dataService.readDataConDetalle === 'function') {
+        const lectura = await dataService.readDataConDetalle<T>(normalizedPath, vacio);
+        if (lectura.huboFalla) {
+          throw new Error(lectura.motivo || `No se pudo leer ${normalizedPath} para modificarlo.`);
+        }
+        actual = lectura.valor ?? vacio;
+      } else {
+        actual = await dataService.readData<T>(normalizedPath, vacio);
+      }
       const nuevo = await cambiar(actual ?? vacio);
       if (nuevo === null) return null;
-      await writeData(normalizedPath, nuevo);
+      await dataService.writeData(normalizedPath, nuevo);
       return nuevo;
     });
   }

@@ -47,6 +47,7 @@ import { canUseNextImage } from '@/lib/next-image-url';
 import { ConciergeWidget } from '@/components/concierge/ConciergeWidget';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const STATION_ICONS: Record<EntertainmentModuleId, typeof Camera> = {
   fotocabina: Camera,
@@ -213,6 +214,7 @@ export default function EventoHubPage() {
               <span className="hidden sm:inline">AK Producciones</span>
             </Link>
             <div className="flex items-center gap-2">
+              <BotonComoFunciona clave="hub" variant="dark" />
               <VideoDeAyuda lugar="hub-de-la-fiesta" />
               <button
                 type="button"

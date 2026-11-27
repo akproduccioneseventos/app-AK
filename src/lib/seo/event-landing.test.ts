@@ -4,12 +4,13 @@ describe('createEventLandingMetadata', () => {
   it('builds canonical and Open Graph metadata for a prospect landing', () => {
     const metadata = createEventLandingMetadata({
       slug: 'bodas',
-      title: 'Bodas | AK Producciones',
+      title: 'Bodas',
       description: 'Produccion integral de bodas en Uruguay.',
       image: '/media/catalogo-servicios/boda_persuasiva.png',
       imageAlt: 'Boda producida por AK Producciones',
     });
 
+    expect(metadata.title).toBe('Bodas');
     expect(metadata.alternates).toEqual({ canonical: '/bodas' });
     expect(metadata.openGraph).toMatchObject({
       title: 'Bodas | AK Producciones',

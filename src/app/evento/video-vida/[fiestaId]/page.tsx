@@ -20,6 +20,7 @@ import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 /**
  * Convierte una falla tecnica en algo que el invitado pueda entender.
@@ -290,6 +291,9 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
                 <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-4xl font-bold tracking-tight font-headline">{fiesta.configuracion.nombreEvento}</h1>
                 <p className="text-lg text-muted-foreground mt-1">Carga de Fotos para el Video de Vida</p>
+                <div className="mt-3 flex justify-center">
+                  <BotonComoFunciona clave="video-vida" />
+                </div>
                 {fiesta.videoVida?.customText && <p className="mt-4 text-accent-foreground bg-accent/20 p-3 rounded-md max-w-2xl mx-auto">{fiesta.videoVida.customText}</p>}
                 {fiesta.videoVida?.songSuggestion && <p className="mt-2 text-sm text-muted-foreground">Canción elegida: <strong>{fiesta.videoVida.songSuggestion}</strong></p>}
             </header>

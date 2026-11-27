@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { KioskSetup, type KioskRole } from '@/components/kiosk/kiosk-setup';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const ROLES_VALIDOS: readonly KioskRole[] = [
   'barra',
@@ -49,6 +50,9 @@ function InicioDeLasEstacionesContent() {
 export default function InicioDeLasEstacionesPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <div className="fixed top-3 right-3 z-50">
+        <BotonComoFunciona clave="recepcion" variant="dark" />
+      </div>
       <InicioDeLasEstacionesContent />
     </Suspense>
   );

@@ -11,7 +11,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
  */
 
 export const metadata: Metadata = {
-  title: 'Privacidad | AK Producciones',
+  title: 'Privacidad',
   description:
     'Qué datos usa AK Producciones cuando visitás la web o pedís un presupuesto, y qué no hacemos con ellos.',
   alternates: { canonical: 'https://akproducciones.uy/privacidad' },

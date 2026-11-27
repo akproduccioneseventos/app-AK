@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import {
   Loader2, ArrowLeft, AlertTriangle, CheckCircle2, XCircle, HelpCircle,
   Users, Accessibility, Utensils, Music, Clock, Search, Filter,
@@ -164,9 +165,12 @@ export default function ConfirmarInvitadosPortalPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
-        <div>
-          <h1 className="text-2xl font-black text-slate-900">👥 Estado de Confirmaciones</h1>
-          <p className="text-slate-500 text-sm mt-1">Seguimiento de {totalPersonas} personas en {invitados.length} invitaciones</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900">👥 Estado de Confirmaciones</h1>
+            <p className="text-slate-500 text-sm mt-1">Seguimiento de {totalPersonas} personas en {invitados.length} invitaciones</p>
+          </div>
+          <BotonComoFunciona clave="cliente-invitados" variant="compact" />
         </div>
 
         {/* Summary cards */}

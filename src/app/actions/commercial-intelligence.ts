@@ -7,9 +7,7 @@ import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getNotifications } from '@/app/actions/notifications';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import {
   commercialFollowupInputSchema,
   serializeUntrustedPromptData,

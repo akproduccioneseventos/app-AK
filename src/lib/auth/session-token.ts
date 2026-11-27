@@ -58,6 +58,7 @@ export interface SessionUserData {
   perfil?: string;
   modules?: string[];
   versionDeSesion?: number;
+  metodo?: 'google' | 'clave';
 }
 
 export function hasPrivateSessionSecret() {

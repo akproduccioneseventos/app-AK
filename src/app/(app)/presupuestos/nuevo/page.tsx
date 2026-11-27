@@ -377,7 +377,7 @@ function PresupuestoDashboardContent() {
               <CardContent>
                 <Tabs defaultValue="todos">
                   <TabsList className="mb-4">
-                    <TabsTrigger value="todos">Todos ({filteredPresupuestos.length})</TabsTrigger>
+                    <TabsTrigger value="todos">Todos{!isLoading ? ` (${filteredPresupuestos.length})` : ''}</TabsTrigger>
                     <TabsTrigger value="Borrador">Borrador</TabsTrigger>
                     <TabsTrigger value="Enviado">Enviado</TabsTrigger>
                     <TabsTrigger value="Aceptado">Aceptado</TabsTrigger>

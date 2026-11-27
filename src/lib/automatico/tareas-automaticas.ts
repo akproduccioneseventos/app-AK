@@ -1,4 +1,5 @@
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
 /**
  * Las cosas que la app promete hacer SOLA, y cuando paso cada una por ultima vez.
@@ -39,6 +40,7 @@ const CRON_ID_A_NOMBRE_ENTRAR: Record<string, string> = {
 };
 
 import {
+  ETIQUETA_ESTADO_TAREA,
   resumirTareasAutomaticas,
   tieneFalloPosteriorAlExito,
   type EstadoDeTarea,
@@ -49,6 +51,7 @@ import {
 } from '@/lib/automatico/resumen-tareas';
 
 export {
+  ETIQUETA_ESTADO_TAREA,
   resumirTareasAutomaticas,
   tieneFalloPosteriorAlExito,
   type EstadoDeTarea,
@@ -69,7 +72,7 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     id: 'generate-blog-post',
     nombre: 'Escribir las notas del blog',
     siNoCorre: 'No se publica ninguna nota nueva, y la web deja de sumar paginas por las que la gente la encuentra.',
-    cadaHoras: 24, // 1 vez por día (orden 309: alterna consejo y tendencia)
+    cadaHoras: 48, // 1 nota cada 2 días (alineado con SEO_INTERVAL_MS y al-entrar-a-la-app)
   },
   {
     id: 'metricas-de-redes',
@@ -143,25 +146,28 @@ export async function marcarCorrida(
   origen: OrigenDisparo = 'despertador',
 ): Promise<void> {
   try {
-    const marcas = await readData<Marcas>(ARCHIVO, {});
-    marcas[id] = {
-      fecha: ahora.toISOString(),
-      origen,
-    };
-    await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<Marcas>(ARCHIVO, {}, (marcas) => {
+      const actual = marcas || {};
+      return {
+        ...actual,
+        [id]: {
+          fecha: ahora.toISOString(),
+          origen,
+        },
+      };
+    });
 
-    // Limpia el fallo si existía
-    try {
-      const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
+    await mutarDocumentoConTransaccion<any>(ESTADO_AL_ENTRAR_FILE, {}, (estadoAlEntrar) => {
+      const estado = estadoAlEntrar || {};
+      const ultimoFallo = { ...(estado.ultimoFallo || {}) };
       const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
-      if (estadoAlEntrar?.ultimoFallo && (estadoAlEntrar.ultimoFallo[nombreEntrar] || estadoAlEntrar.ultimoFallo[id])) {
-        delete estadoAlEntrar.ultimoFallo[nombreEntrar];
-        delete estadoAlEntrar.ultimoFallo[id];
-        await writeData(ESTADO_AL_ENTRAR_FILE, estadoAlEntrar, undefined, { skipAutoBackup: true });
+      if (ultimoFallo[nombreEntrar] || ultimoFallo[id]) {
+        delete ultimoFallo[nombreEntrar];
+        delete ultimoFallo[id];
+        return { ...estado, ultimoFallo };
       }
-    } catch {
-      // Ignorar error al limpiar fallo
-    }
+      return estado;
+    }).catch(() => {});
   } catch {
     // Que falle la marca no puede tumbar la tarea que si corrio.
   }
@@ -174,11 +180,13 @@ export async function marcarFallo(
   ahora: Date = new Date(),
 ): Promise<void> {
   try {
-    const estadoAlEntrar = await readData<any>(ESTADO_AL_ENTRAR_FILE, {}).catch(() => ({}));
-    const ultimoFallo = { ...(estadoAlEntrar?.ultimoFallo || {}) };
-    const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
-    ultimoFallo[nombreEntrar] = { fecha: ahora.toISOString(), error };
-    await writeData(ESTADO_AL_ENTRAR_FILE, { ...estadoAlEntrar, ultimoFallo }, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<any>(ESTADO_AL_ENTRAR_FILE, {}, (estadoAlEntrar) => {
+      const estado = estadoAlEntrar || {};
+      const ultimoFallo = { ...(estado.ultimoFallo || {}) };
+      const nombreEntrar = CRON_ID_A_NOMBRE_ENTRAR[id] || id;
+      ultimoFallo[nombreEntrar] = { fecha: ahora.toISOString(), error };
+      return { ...estado, ultimoFallo };
+    });
   } catch {
     // Que falle registrar el error no debe propagar excepción
   }
@@ -256,6 +264,7 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
     );
 
     if (!marca) {
+      const estadoSinMarca: EstadoTarea = falloPosteriorAlExito ? 'fallo_ultimo' : 'nunca';
       return {
         ...tarea,
         ultimaCorrida: null,
@@ -264,19 +273,22 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
         faltaConexion,
         falloPosteriorAlExito,
         disparadoPor: null,
-        estado: 'nunca' as const,
+        estado: estadoSinMarca,
         horasDesdeLaUltima: null,
       };
     }
 
     const horas = (ahora.getTime() - new Date(marca).getTime()) / 3_600_000;
     // Si le falta la conexión requerida no está al día ni funcionando: queda no disponible.
-    // Si tiene conexión, se le da el doble del intervalo antes de marcarla atrasada.
+    // Si falló después del último éxito, tampoco está al día: queda en 'fallo_ultimo'.
+    // Si tiene conexión y no falló al final, se le da el doble del intervalo antes de marcarla atrasada.
     const estado: EstadoTarea = faltaConexion
       ? 'no-disponible'
-      : horas > tarea.cadaHoras * 2
-        ? 'atrasada'
-        : 'al-dia';
+      : falloPosteriorAlExito
+        ? 'fallo_ultimo'
+        : horas > tarea.cadaHoras * 2
+          ? 'atrasada'
+          : 'al-dia';
 
     return {
       ...tarea,
@@ -297,12 +309,13 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
 /** Deja constancia de que el despertador externo/Google toco la puerta del despachador. */
 export async function marcarToqueDespertador(ahora: Date = new Date()): Promise<void> {
   try {
-    const marcas = await readData<Marcas>(ARCHIVO, {});
-    marcas['__despertador_toque__'] = {
-      fecha: ahora.toISOString(),
-      origen: 'despertador',
-    };
-    await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+    await mutarDocumentoConTransaccion<Marcas>(ARCHIVO, {}, (actual) => ({
+      ...(actual || {}),
+      __despertador_toque__: {
+        fecha: ahora.toISOString(),
+        origen: 'despertador',
+      },
+    }));
   } catch {
     // Si falla el guardado de la marca, no frena la ejecucion.
   }

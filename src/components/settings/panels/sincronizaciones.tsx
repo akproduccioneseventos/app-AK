@@ -71,7 +71,15 @@ export default function SincronizacionesPage() {
     try {
       setSincronizandoHistorial(true);
       const res = await sincronizarHistorialRedesAction({ forceFull: true });
-      if (res.success) {
+      const erroresRed = (res.detallesPorRed || [])
+        .filter((d) => Boolean(d.error))
+        .map((d) => `${d.red}: ${d.error}`)
+        .join(' | ');
+      const huboErrorSinDatos =
+        !res.success ||
+        ((res.totalLeidas || 0) === 0 && (res.totalImportadas || 0) === 0 && erroresRed.length > 0);
+
+      if (!huboErrorSinDatos) {
         setResultadoInstagram({
           probado: true,
           success: true,
@@ -87,7 +95,7 @@ export default function SincronizacionesPage() {
           success: false,
           estado: 'fallando',
           motivo: 'No se pudo completar la sincronización del historial.',
-          detalle: res.mensaje,
+          detalle: erroresRed || res.error || res.mensaje,
         });
       }
     } catch (err: any) {

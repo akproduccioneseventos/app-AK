@@ -1,9 +1,10 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType, AjustesLlegadaPersonal } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType, AjustesLlegadaPersonal, TutorialesSettings } from '@/types/settings';
 import type { CuentaBancaria } from '@/types/fiesta';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings, defaultAjustesLlegadaPersonal } from '@/types/settings';
+import { esClaveTemaTutorial, validarEnlaceYoutubeTutorial } from '@/lib/tutoriales/temas';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
@@ -146,8 +147,8 @@ async function leerCompanyInfo(): Promise<CompanyInfo> {
  * AK y no las necesita ninguna pantalla publica.
  */
 export async function getCompanyInfoPublica(): Promise<CompanyInfo> {
-  const info = await leerCompanyInfo();
-  return { ...info, cuentasBancariasPortal: [] };
+  const { emailContador: _emailContador, ...infoSinEmailContador } = await leerCompanyInfo();
+  return { ...infoSinEmailContador, cuentasBancariasPortal: [] };
 }
 
 async function saveCompanyInfoInterno(
@@ -415,10 +416,12 @@ export async function saveWhatsAppSettings(
 ): Promise<{ success: boolean; settings?: WhatsAppSettings; error?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-    const currentSettings = await getWhatsAppSettings();
-    const settingsToSave: WhatsAppSettings = { ...currentSettings, ...settings };
-    await writeData(WHATSAPP_SETTINGS_FILE, settingsToSave);
-    return { success: true, settings: settingsToSave };
+    return await turnoDeAjustes.runExclusive(async () => {
+      const currentSettings = await getWhatsAppSettings();
+      const settingsToSave: WhatsAppSettings = { ...currentSettings, ...settings };
+      await writeData(WHATSAPP_SETTINGS_FILE, settingsToSave);
+      return { success: true, settings: settingsToSave };
+    });
   } catch (error: any) {
     return { success: false, error: error.message || "Error desconocido al guardar la configuración de WhatsApp." };
   }
@@ -699,11 +702,144 @@ export async function saveAjustesLlegadaPersonal(
   settings: Partial<AjustesLlegadaPersonal>
 ): Promise<AjustesLlegadaPersonal> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  const current = await getAjustesLlegadaPersonal();
-  const updated: AjustesLlegadaPersonal = {
-    ...current,
-    ...settings,
-  };
-  await writeData(AJUSTES_LLEGADA_FILE, updated);
-  return updated;
+  return turnoDeAjustes.runExclusive(async () => {
+    const current = await getAjustesLlegadaPersonal();
+    const updated: AjustesLlegadaPersonal = {
+      ...current,
+      ...settings,
+    };
+    await writeData(AJUSTES_LLEGADA_FILE, updated);
+    return updated;
+  });
+}
+
+export interface SalonSinUbicacion {
+  salonNombre: string;
+  eventoNombre: string;
+  fechaEvento: string;
+}
+
+export async function getSalonesSinUbicacionProximasFiestas(): Promise<SalonSinUbicacion[]> {
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+  try {
+    const [{ leerFiestasCrudas }, { hoyEnUruguay }, { extraerCoordenadasDeUrl }, { esLecturaFallida }] = await Promise.all([
+      import('@/lib/fiesta/leer-fiestas'),
+      import('@/lib/utils'),
+      import('@/lib/geo/distancia'),
+      import('@/lib/marca-de-lectura'),
+    ]);
+    const [fiestasRaw, salonesRaw] = await Promise.all([
+      leerFiestasCrudas(false),
+      readData<Array<{ id?: string; nombre?: string; lat?: number; lng?: number; googleMapsUrl?: string }>>('salones.json', []),
+    ]);
+    if (esLecturaFallida(fiestasRaw) || !Array.isArray(fiestasRaw)) return [];
+    const salones = !esLecturaFallida(salonesRaw) && Array.isArray(salonesRaw) ? salonesRaw : [];
+    const hoy = hoyEnUruguay();
+    const vistos = new Set<string>();
+    const resultado: SalonSinUbicacion[] = [];
+
+    for (const f of fiestasRaw) {
+      const fecha = String(f?.configuracion?.fechaEvento ?? '').slice(0, 10);
+      if (!fecha || fecha < hoy) continue;
+      if ((f as { estado?: string })?.estado === 'Cancelada') continue;
+      const mapsUrl = f?.configuracion?.googleMapsUrl;
+      if (mapsUrl && extraerCoordenadasDeUrl(mapsUrl)) continue;
+      const nombreLugar = String(f?.configuracion?.nombreLugar ?? '').trim();
+      if (!nombreLugar) continue;
+      const salon = salones.find(
+        (s) =>
+          (s?.nombre && s.nombre.toLowerCase().trim() === nombreLugar.toLowerCase())
+          || s?.id === nombreLugar,
+      );
+      const tieneCoordsSalon =
+        Boolean(salon && salon.lat != null && salon.lng != null)
+        || Boolean(salon?.googleMapsUrl && extraerCoordenadasDeUrl(salon.googleMapsUrl));
+      if (tieneCoordsSalon) continue;
+      const clave = `${nombreLugar.toLowerCase()}::${fecha}`;
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      resultado.push({
+        salonNombre: nombreLugar,
+        eventoNombre: String(f?.configuracion?.nombreEvento || 'Fiesta'),
+        fechaEvento: fecha,
+      });
+    }
+    return resultado.sort((a, b) => a.fechaEvento.localeCompare(b.fechaEvento));
+  } catch {
+    return [];
+  }
+}
+
+const TUTORIALES_SETTINGS_FILE = 'tutoriales-settings.json';
+
+/**
+ * PUBLICA A PROPOSITO: la leen pantallas externas sin sesion (simulador,
+ * portal del cliente, invitaciones, estaciones) para mostrar el boton
+ * "¿Cómo funciona?" cuando hay un enlace de YouTube cargado.
+ */
+export async function getTutorialesSettings(): Promise<TutorialesSettings> {
+  try {
+    const raw = await readData<TutorialesSettings>(TUTORIALES_SETTINGS_FILE, {});
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    const clean: TutorialesSettings = {};
+    for (const [clave, valor] of Object.entries(raw)) {
+      if (!esClaveTemaTutorial(clave) || !valor || typeof valor !== 'object') continue;
+      const fromUrl = valor.youtubeUrl ? validarEnlaceYoutubeTutorial(valor.youtubeUrl) : null;
+      const videoId =
+        fromUrl?.ok && fromUrl.videoId
+          ? fromUrl.videoId
+          : typeof valor.videoId === 'string' && /^[A-Za-z0-9_-]{3,32}$/.test(valor.videoId.trim())
+            ? valor.videoId.trim()
+            : undefined;
+      if (videoId) {
+        clean[clave] = {
+          ...(valor.youtubeUrl ? { youtubeUrl: valor.youtubeUrl.trim() } : {}),
+          videoId,
+        };
+      }
+    }
+    return clean;
+  } catch {
+    return {};
+  }
+}
+
+export async function saveTutorialesSettings(
+  settings: TutorialesSettings,
+): Promise<{ success: boolean; settings?: TutorialesSettings; error?: string }> {
+  try {
+    await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
+    if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+      return { success: false, error: 'Datos de tutoriales inválidos.' };
+    }
+
+    const sanitized: TutorialesSettings = {};
+    for (const [clave, entry] of Object.entries(settings)) {
+      if (!esClaveTemaTutorial(clave)) {
+        return { success: false, error: `Clave de tutorial no permitida: ${clave}` };
+      }
+      if (!entry || typeof entry !== 'object') continue;
+      const urlInput = (entry.youtubeUrl || '').trim();
+      if (!urlInput) continue;
+
+      const parsed = validarEnlaceYoutubeTutorial(urlInput);
+      if (!parsed.ok || !parsed.videoId) {
+        return { success: false, error: parsed.error || 'Pegá un enlace de YouTube' };
+      }
+      sanitized[clave] = {
+        youtubeUrl: parsed.youtubeUrl,
+        videoId: parsed.videoId,
+      };
+    }
+
+    await writeData(TUTORIALES_SETTINGS_FILE, sanitized);
+    return { success: true, settings: sanitized };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error?.message || 'No se pudieron guardar los tutoriales en video.',
+    };
+  }
 }

@@ -235,6 +235,7 @@ function prepareConfigDocs(): { docId: string; sourceFile: string; data: any }[]
     { docId: 'carga-operativa-master-template', file: 'carga-operativa-master-template.json' },
     { docId: 'carga-operativa-templates', file: 'carga-operativa-templates.json' },
     { docId: 'meeting-checklist-template', file: 'meeting-checklist-template.json' },
+    { docId: 'tutoriales-settings', file: 'tutoriales-settings.json' },
   ];
 
   for (const { docId, file } of configFiles) {

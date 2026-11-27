@@ -144,8 +144,29 @@ function MusicaContent() {
     }));
   };
 
+  const [briefSaveError, setBriefSaveError] = useState<string | null>(null);
+
+  const persistirBrief = async (briefObj: { texto: string; generadoEn: string }) => {
+    if (!fiestaId) return true;
+    const payloadMusica = { ...musicaData, briefDj: briefObj };
+    const saveRes = await updateMusicaFiestaActual(fiestaId, payloadMusica);
+    if (!saveRes?.success) {
+      const errMsg = saveRes?.error || 'El briefing se armó, pero no se pudo guardar en la fiesta.';
+      setBriefSaveError(errMsg);
+      toast({
+        title: 'Briefing generado, pero no se pudo guardar',
+        description: errMsg,
+        variant: 'destructive',
+      });
+      return false;
+    }
+    setBriefSaveError(null);
+    return true;
+  };
+
   const handleGenerateDjBrief = async () => {
     setIsGeneratingDj(true);
+    setBriefSaveError(null);
     try {
       const res = await generateDjProfileAction(
         eventoTipo,
@@ -157,9 +178,8 @@ function MusicaContent() {
         const briefObj = { texto: res.data, generadoEn: new Date().toISOString() };
         setDjBrief(res.data);
         setMusicaData(prev => ({ ...prev, briefDj: briefObj }));
-        if (fiestaId) {
-          await updateMusicaFiestaActual(fiestaId, { ...musicaData, briefDj: briefObj });
-        }
+        const guardadoOk = await persistirBrief(briefObj);
+        if (!guardadoOk) return;
         toast({ title: 'Briefing Generado', description: 'El reporte del DJ Assistant está guardado en la fiesta.' });
       } else {
         throw new Error(res.error || 'Error al generar briefing');
@@ -412,6 +432,20 @@ function MusicaContent() {
               {djBrief && (
                 <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 space-y-3">
                   <Label className="text-indigo-800 font-bold">Briefing Propuesto:</Label>
+                  {briefSaveError && (
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 flex flex-wrap items-center justify-between gap-2 text-xs text-destructive">
+                      <span>{briefSaveError}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-destructive/40 text-destructive hover:bg-destructive/10"
+                        onClick={() => persistirBrief({ texto: djBrief, generadoEn: new Date().toISOString() })}
+                      >
+                        Reintentar guardar
+                      </Button>
+                    </div>
+                  )}
                   <Textarea
                     value={djBrief}
                     onChange={(e) => setDjBrief(e.target.value)}

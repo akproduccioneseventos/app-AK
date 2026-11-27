@@ -6,7 +6,7 @@ import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';
 import { blogPosts } from '@/data/blog-posts';
 import { getMetadataRealDeRuta } from '@/lib/seo/auditoria-metadatos';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, updateDataPartial } from '@/lib/data-service';
 import type { SocialPost } from '@/types/social-media';
 
 export interface ResumenSeoPosicionamiento {
@@ -137,9 +137,7 @@ export async function guardarGoogleSiteVerificationAction(codigo: string): Promi
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const SETTINGS_FILE = 'settings.json';
-    const settings: any = await readData<any>(SETTINGS_FILE, {}).catch(() => ({}));
-    settings.googleSiteVerification = codigo.trim();
-    await writeData(SETTINGS_FILE, settings);
+    await updateDataPartial(SETTINGS_FILE, { googleSiteVerification: codigo.trim() });
     return {
       success: true,
       mensaje: 'Código de verificación de Google Search Console guardado correctamente.',

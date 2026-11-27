@@ -21,5 +21,7 @@ it('la palabra adentro de otra no confirma', () => {
 it('el asistente usa esa comprobación para reunión y mail', () => {
   const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/actions/multiagent.ts'), 'utf8');
   expect(fuente).not.toMatch(/includes\('si'\)/);
-  expect((fuente.match(/esUnSi\(input\.message\)/g) || []).length).toBe(2);
+  // Orden 362 unificó agendar_reunion y preparar_mail bajo un único chequeo con esConfirmacionSola
+  expect(fuente).toContain('accionPendiente && esConfirmacionSola(input.message)');
+  expect(fuente).toContain("'agendar_reunion' | 'preparar_mail'");
 });

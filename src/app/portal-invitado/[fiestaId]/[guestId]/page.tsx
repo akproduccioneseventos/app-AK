@@ -2,6 +2,7 @@
 
 import InvitadoPage from '@/app/invitacion/[fiestaId]/invitado/[guestId]/page';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function PortalInvitadoPage() {
   return (
@@ -12,7 +13,8 @@ export default function PortalInvitadoPage() {
       >
         Mis fotos
       </a>
-      <div className="fixed top-3 right-3 z-40">
+      <div className="fixed top-3 right-3 z-40 flex items-center gap-2">
+        <BotonComoFunciona clave="portal-invitado" variant="compact" />
         <VideoDeAyuda lugar="portal-invitado" />
       </div>
       <InvitadoPage />

@@ -268,6 +268,7 @@ async function writeRecoveredAdminSession(userId: string) {
     email: process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim() || DEFAULT_RECOVERY_EMAIL,
     role: 'admin',
     userId,
+    metodo: 'clave',
   });
 }
 
@@ -519,6 +520,7 @@ export async function loginWithPassword(
       email: process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim() || 'admin@akproducciones.com',
       role: 'admin',
       userId: 'password-admin',
+      metodo: 'clave',
     });
     return { success: true };
   } catch (err) {
@@ -940,6 +942,7 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
       perfil,
       modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
       versionDeSesion: typeof storedUser?.versionDeSesion === 'number' ? storedUser.versionDeSesion : 1,
+      metodo: 'google',
     });
     await clearLoginProtection();
     return { success: true };
@@ -991,6 +994,7 @@ export async function resetPasswordWithGoogleIdToken(
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
       role: 'admin',
       userId: decodedToken?.uid ?? 'google-uid',
+      metodo: 'google',
     });
     return { success: true };
   } catch (err) {

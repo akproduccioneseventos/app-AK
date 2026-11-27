@@ -44,6 +44,7 @@ export const BodaMinimalistaTemplate: React.FC<TemplateProps> = ({
   ].filter(Boolean).join(' & ');
 
   const fechaEvento = fiesta.configuracion?.fechaEvento || '';
+  const horaEvento = invitacionData.horaEvento || invitacionData.detallesEvento?.celebracion?.hora || fiesta.configuracion?.horaInicio || (fiesta.configuracion as { horaEvento?: string } | undefined)?.horaEvento || '';
   const lugar = invitacionData.detallesEvento?.celebracion?.nombreLugar || fiesta.configuracion?.nombreLugar || 'Salón Principal';
   const direccion = invitacionData.detallesEvento?.celebracion?.direccionLugar || fiesta.configuracion?.direccionLugar || '';
   const itinerarioItems = (fiesta.programa || []).map((c) => ({
@@ -116,6 +117,7 @@ export const BodaMinimalistaTemplate: React.FC<TemplateProps> = ({
             <AddToCalendarButton
               eventName={novios}
               startDate={fechaEvento || new Date().toISOString()}
+              horaEvento={horaEvento}
               location={lugar}
               primaryColor="#18181b"
             />

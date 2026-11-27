@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getEmployeeWorkspacePortal } from '@/app/actions/google-workspace';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat('es-UY', {
@@ -58,7 +59,8 @@ export default async function PersonalWorkspacePage(
                 Aca ve sus fiestas contratadas, rol, lugar, pago y acceso rapido a Google Calendar.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <BotonComoFunciona clave="acceso-personal" variant="dark" />
               <Badge className={connected ? 'bg-emerald-600' : 'bg-amber-500'}>
                 {connected ? 'Google conectado' : 'Google pendiente'}
               </Badge>

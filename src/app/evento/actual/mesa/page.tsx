@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Home, User, Ticket, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ function MesaLookupContent() {
   useEffect(() => {
     async function fetchData() {
       if (!guestId) {
-        setError("No se proporcionó ID de invitado.");
+        setError("Abrí este enlace desde tu invitación o pedile el QR a la recepción.");
         setIsLoading(false);
         return;
       }
@@ -105,6 +106,9 @@ function MesaLookupContent() {
           {fiesta.configuracion.nombreEvento}
         </CardTitle>
         <CardDescription className="text-md">¡Bienvenido/a, {invitado.nombre}!</CardDescription>
+        <div className="pt-2 flex justify-center">
+          <BotonComoFunciona clave="mi-mesa" variant="compact" />
+        </div>
       </CardHeader>
       <CardContent className="text-center space-y-6 py-8">
         {invitado.tableNumber ? (

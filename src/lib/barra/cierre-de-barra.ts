@@ -26,10 +26,13 @@ export interface FilaDelCierre {
 }
 
 /** Los insumos que usa la carta de tragos de la fiesta, sin repetir. */
-export function insumosDeLaBarra(tragos: Pick<Trago, 'recetaIngredientes'>[]): string[] {
+export function insumosDeLaBarra(tragos: Pick<Trago, 'recetaIngredientes' | 'recetaIngredientesSinAlcohol'>[]): string[] {
   const ids = new Set<string>();
   for (const trago of tragos) {
     for (const ingrediente of trago.recetaIngredientes || []) {
+      if (ingrediente?.insumoId) ids.add(ingrediente.insumoId);
+    }
+    for (const ingrediente of trago.recetaIngredientesSinAlcohol || []) {
       if (ingrediente?.insumoId) ids.add(ingrediente.insumoId);
     }
   }

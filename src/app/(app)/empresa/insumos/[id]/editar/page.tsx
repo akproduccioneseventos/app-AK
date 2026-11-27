@@ -192,7 +192,7 @@ export default function EditarInsumoPage() {
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              Guardar Cambios
+              {isSaving ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>

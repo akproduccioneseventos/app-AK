@@ -17,6 +17,8 @@ import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-sess
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { detalleDePaquetes } from '@/lib/simulador/detalle-de-paquetes';
 import { anotarFalloIA } from '@/lib/ai/consumo-servidor';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { seniaDelContrato } from '@/lib/fiesta/senia-valor';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
@@ -26,12 +28,35 @@ export async function getCopilotConfig(): Promise<CopilotConfig> {
   return leerCopilotConfig();
 }
 
+function aplicarReglasDuenioASofia(texto: string, textoSenia: string): string {
+  return texto
+    .replace(/\{\{MONTO_SENA\}\}/g, textoSenia)
+    .replace(/congelamos el precio tras la seña del 30%/gi, `se puede reservar la fecha con ${textoSenia}`)
+    .replace(/se requiere abonar una seña del 30% del costo total estimado del presupuesto/gi, `se abona ${textoSenia}`)
+    .replace(/seña del 30%/gi, textoSenia)
+    .replace(/congelamos el precio/gi, 'reservamos la fecha');
+}
+
 /** Sin comprobar sesion: son los textos con los que le contesta al prospecto. */
 async function leerCopilotConfig(): Promise<CopilotConfig> {
-  const config = await readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG);
+  const [config, budgetSettings] = await Promise.all([
+    readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG),
+    getBudgetDisplaySettings().catch(() => null),
+  ]);
+  const montoSenia = budgetSettings ? seniaDelContrato(undefined, budgetSettings.bookingDepositAmount) : 0;
+  const textoSenia = montoSenia > 0
+    ? `una seña de $${montoSenia.toLocaleString('es-UY')}`
+    : 'una seña';
+
+  const rawPrompt = config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad;
+  const rawFaqs = config?.faqs || DEFAULT_COPILOT_CONFIG.faqs;
+
   return {
-    promptPersonalidad: config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad,
-    faqs: config?.faqs || DEFAULT_COPILOT_CONFIG.faqs,
+    promptPersonalidad: aplicarReglasDuenioASofia(rawPrompt, textoSenia),
+    faqs: rawFaqs.map((faq) => ({
+      pregunta: aplicarReglasDuenioASofia(faq.pregunta, textoSenia),
+      respuesta: aplicarReglasDuenioASofia(faq.respuesta, textoSenia),
+    })),
   };
 }
 

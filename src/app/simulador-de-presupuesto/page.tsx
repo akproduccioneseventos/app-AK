@@ -6,6 +6,7 @@ import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -467,6 +468,8 @@ function SimuladorContent() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [errorLoading, setErrorLoading] = useState(false);
+    const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
+    const [isRetryingAutoSave, setIsRetryingAutoSave] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -1103,10 +1106,24 @@ function SimuladorContent() {
                 return;
             }
 
+            let guardadoOk = false;
             try {
                 await saveProgress(true);
-            } catch (error: any) {
-                console.warn("Save progress non-blocking fallback:", error);
+                guardadoOk = true;
+            } catch {
+                try {
+                    await saveProgress(true);
+                    guardadoOk = true;
+                } catch (error: any) {
+                    console.warn("Save progress non-blocking fallback:", error);
+                }
+            }
+            if (!guardadoOk) {
+                toast({
+                    title: "No pudimos guardar tus datos; igual podés seguir",
+                    description: "Al terminar el simulador intentaremos registrar tu presupuesto de nuevo.",
+                    variant: "destructive",
+                });
             }
             setStep(2);
             return;
@@ -1767,51 +1784,50 @@ function SimuladorContent() {
         );
     }, [removablePackageServices]);
 
-    useEffect(() => {
+    const syncBudgetChanges = useCallback(async () => {
         if (!generatedPresupuestoId || !config) return;
+        const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+        const data = {
+            submissionId: submissionIdRef.current,
+            clienteNombre,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: stats.subtotalVenta,
+            costoEstimado: stats.totalFinal,
+            descuentoGeneral: stats.discountPercentage,
+            ajusteAnualActivo: stats.annualProjection.applies,
+            ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
+            serviciosIncluidos: stats.detallados.map(s => s.id),
+            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            excludedPackageServiceIds,
+            paqueteId: selectedPaqueteId,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
+            items: simulatorDetailsToBudgetItems(stats.detallados),
+        };
 
-        const timer = setTimeout(async () => {
-            const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
-            const data = {
-                submissionId: submissionIdRef.current,
-                clienteNombre,
-                clienteContacto: normalizeUruguayPhone(clienteContacto),
-                eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
-                adultos,
-                ninos: ninosYAdolescentes,
-                subtotal: stats.subtotalVenta,
-                costoEstimado: stats.totalFinal,
-                descuentoGeneral: stats.discountPercentage,
-                ajusteAnualActivo: stats.annualProjection.applies,
-                ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
-                serviciosIncluidos: stats.detallados.map(s => s.id),
-                selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
-                excludedPackageServiceIds,
-                paqueteId: selectedPaqueteId,
-                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
-                includeClubUruguay: salonChoice === 'club',
-                items: simulatorDetailsToBudgetItems(stats.detallados),
-            };
-
-            try {
-                // Este es el prospecto que llega desde Google: si no queda guardado,
-                // se perdio una venta y nadie se entera.
-                const guardado = await safeGenerateBudgetAndLeadFromSimulator(data, {
-                    source: 'simulator_common',
-                    eventoTipo,
-                    acquisition,
-                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
-                });
-                if (!guardado?.success) {
-                    console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
-                }
-            } catch (e: any) {
-                if (e.message === 'SERVER_ACTION_RELOAD') return;
-                console.error("Failed to auto-sync budget changes:", e);
+        try {
+            // Este es el prospecto que llega desde Google: si no queda guardado,
+            // se perdio una venta y nadie se entera.
+            const guardado = await safeGenerateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
+                acquisition,
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
+            });
+            if (!guardado?.success) {
+                console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
+                setAutoSaveError(guardado?.error || 'No pudimos guardar el cambio en el presupuesto. Tocá Reintentar para no perder tus cambios.');
+            } else {
+                setAutoSaveError(null);
             }
-        }, 1000);
-
-        return () => clearTimeout(timer);
+        } catch (e: any) {
+            if (e.message === 'SERVER_ACTION_RELOAD') return;
+            console.error("Failed to auto-sync budget changes:", e);
+            setAutoSaveError('No pudimos guardar el cambio en el presupuesto. Tocá Reintentar para volver a intentar.');
+        }
     }, [
         generatedPresupuestoId,
         config,
@@ -1828,6 +1844,16 @@ function SimuladorContent() {
         stats,
         acquisition,
     ]);
+
+    useEffect(() => {
+        if (!generatedPresupuestoId || !config) return;
+
+        const timer = setTimeout(() => {
+            void syncBudgetChanges();
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [generatedPresupuestoId, config, syncBudgetChanges]);
 
     if (errorLoading) {
         return (
@@ -1926,6 +1952,9 @@ function SimuladorContent() {
                             <h1 className="mt-1.5 text-3xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                                 Tu presupuesto en 2 minutos.
                             </h1>
+                            <div className="mt-4">
+                                <BotonComoFunciona clave="simulador" variant="dark" />
+                            </div>
 
                             <div ref={heroCtaRef} className="mt-6 sm:mt-8">
                                 <motion.div
@@ -2059,9 +2088,17 @@ function SimuladorContent() {
                                 </h2>
                             </motion.div>
                             <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-                                {fotosDestacadas.slice(0, 6).map((foto) => {
+                                {fotosDestacadas.slice(0, 6).map((foto, index) => {
                                     const imgUrl = safeImageUrl(foto.url);
                                     if (!imgUrl) return null;
+                                    const categoriaLimpia = (foto.categoriaServicio || foto.titulo || '')
+                                        .replace(/^instagram:\s*/i, '')
+                                        .trim();
+                                    const categoriaVisible = categoriaLimpia
+                                        ? categoriaLimpia.charAt(0).toUpperCase() + categoriaLimpia.slice(1)
+                                        : '';
+                                    const altFoto = foto.descripcion?.trim()
+                                        || `${categoriaVisible || 'Fiesta'} de AK Producciones, foto ${index + 1}`;
                                     return (
                                         <div
                                             key={foto.id}
@@ -2071,14 +2108,14 @@ function SimuladorContent() {
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img
                                                     src={imgUrl}
-                                                    alt={foto.titulo || foto.servicioNombre || 'Fiesta real AK Producciones'}
+                                                    alt={altFoto}
                                                     className="h-full w-full object-cover"
                                                 />
                                             </div>
-                                            {(foto.titulo || foto.tipoFiesta) && (
+                                            {(categoriaVisible || foto.tipoFiesta) && (
                                                 <div className="p-3">
-                                                    {foto.titulo && (
-                                                        <p className="truncate text-xs font-black text-slate-900">{foto.titulo}</p>
+                                                    {categoriaVisible && (
+                                                        <p className="truncate text-xs font-black text-slate-900">{categoriaVisible}</p>
                                                     )}
                                                     {foto.tipoFiesta && (
                                                         <p className="text-[11px] font-semibold text-slate-500">{foto.tipoFiesta}</p>
@@ -2288,6 +2325,31 @@ function SimuladorContent() {
                             )}
 
                              {/* Non-invasive Auto-Save & Contact Banner */}
+                             {autoSaveError && (
+                                 <div
+                                     role="alert"
+                                     data-testid="simulador-error-guardado"
+                                     className="w-full max-w-2xl mx-auto rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-left text-xs font-bold text-rose-900 flex flex-wrap items-center justify-between gap-3 shadow-md"
+                                 >
+                                     <span>{autoSaveError}</span>
+                                     <Button
+                                         type="button"
+                                         size="sm"
+                                         variant="destructive"
+                                         disabled={isRetryingAutoSave}
+                                         onClick={async () => {
+                                             setIsRetryingAutoSave(true);
+                                             try {
+                                                 await syncBudgetChanges();
+                                             } finally {
+                                                 setIsRetryingAutoSave(false);
+                                             }
+                                         }}
+                                     >
+                                         {isRetryingAutoSave ? 'Reintentando...' : 'Reintentar'}
+                                     </Button>
+                                 </div>
+                             )}
                              <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
                                  <div className="flex items-center gap-3.5">
                                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shrink-0 shadow-inner">
@@ -2755,7 +2817,10 @@ function SimuladorContent() {
                     <div className="flex justify-between items-center mb-2 sm:mb-4">
                       <div className="w-8 hidden sm:block" />
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
-                      <VideoDeAyuda lugar="simulador" />
+                      <div className="flex items-center gap-2">
+                        <BotonComoFunciona clave="simulador" variant="compact" />
+                        <VideoDeAyuda lugar="simulador" />
+                      </div>
                     </div>
                     <CardTitle className="text-xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-1 text-xs sm:text-sm font-bold text-slate-500">
@@ -2850,7 +2915,12 @@ function SimuladorContent() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Cantidad de invitados</span>
+                                        <BotonComoFunciona clave="invitados-y-precio" variant="compact" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <Label>Adultos</Label>
                                         <Input type="number" min={1} step={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Math.floor(Number(e.target.value) || 0))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
@@ -2859,6 +2929,7 @@ function SimuladorContent() {
                                     <div className="space-y-2">
                                         <Label>Niños y adolescentes</Label>
                                         <Input type="number" min={0} step={1} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Math.floor(Number(e.target.value) || 0)))} className="h-12 rounded-md bg-white text-slate-900" />
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -3191,6 +3262,32 @@ function SimuladorContent() {
                                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-black text-amber-900 flex items-center justify-between gap-2">
                                     <span>Diferencia aplicada: {priceDeltaFeedback}</span>
                                     <span className="font-bold text-slate-700">Total: {formatCurrency(stats.totalFinal)}</span>
+                                </div>
+                            )}
+
+                            {autoSaveError && (
+                                <div
+                                    role="alert"
+                                    data-testid="simulador-error-guardado"
+                                    className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-900 flex flex-wrap items-center justify-between gap-3"
+                                >
+                                    <span>{autoSaveError}</span>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        disabled={isRetryingAutoSave}
+                                        onClick={async () => {
+                                            setIsRetryingAutoSave(true);
+                                            try {
+                                                await syncBudgetChanges();
+                                            } finally {
+                                                setIsRetryingAutoSave(false);
+                                            }
+                                        }}
+                                    >
+                                        {isRetryingAutoSave ? 'Reintentando...' : 'Reintentar'}
+                                    </Button>
                                 </div>
                             )}
 
@@ -3653,19 +3750,17 @@ function SimuladorContent() {
                                 {step < 4 && <ArrowRight className="ml-3 w-5 h-5"/>}
                             </Button>
                         </motion.div>
-                        {(stats.totalFinal > 0 || step >= 3) && (
-                            <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
-                                {stats.totalFinal <= 0 ? (
-                                    <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
-                                ) : (
-                                    <>
-                                        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
-                                        <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
-                                        {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
-                                    </>
-                                )}
-                            </div>
-                        )}
+                        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
+                            {stats.totalFinal <= 0 ? (
+                                <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
+                            ) : (
+                                <>
+                                    <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
+                                    <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
+                                    {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </CardFooter>
             </Card>

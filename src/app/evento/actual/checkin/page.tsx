@@ -8,6 +8,7 @@ import type { Invitado } from '@/types/invitado';
 import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 /**
  * Convierte una falla tecnica en algo que el invitado pueda entender.
@@ -40,7 +41,7 @@ function CheckInContent() {
   useEffect(() => {
     async function performCheckIn() {
       if (!guestId || !fiestaId) {
-        setError("Faltan datos para el check-in (ID de fiesta o invitado).");
+        setError("Abrí este enlace desde tu invitación o pedile el QR a la recepción.");
         setIsLoading(false);
         return;
       }
@@ -89,6 +90,9 @@ function CheckInContent() {
         <CardTitle className="text-3xl font-bold font-headline text-green-600">
           {wasAlreadyCheckedIn ? "Ya Registrado" : "¡Check-in Exitoso!"}
         </CardTitle>
+        <div className="pt-2 flex justify-center">
+          <BotonComoFunciona clave="recepcion" variant="compact" />
+        </div>
       </CardHeader>
       <CardContent className="text-center space-y-2 pb-8">
         <p className="text-2xl font-semibold">{invitado.nombre}</p>

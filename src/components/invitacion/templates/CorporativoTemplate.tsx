@@ -39,6 +39,7 @@ export const CorporativoTemplate: React.FC<TemplateProps> = ({
 
   const eventoNombre = invitacionData.cabecera?.protagonista1 || fiesta.configuracion?.nombreEvento || 'Evento Corporativo';
   const fechaEvento = fiesta.configuracion?.fechaEvento || '';
+  const horaEvento = invitacionData.horaEvento || invitacionData.detallesEvento?.celebracion?.hora || fiesta.configuracion?.horaInicio || (fiesta.configuracion as { horaEvento?: string } | undefined)?.horaEvento || '';
   const lugar = invitacionData.detallesEvento?.celebracion?.nombreLugar || fiesta.configuracion?.nombreLugar || 'Centro de Convenciones';
   const direccion = invitacionData.detallesEvento?.celebracion?.direccionLugar || fiesta.configuracion?.direccionLugar || '';
   const itinerarioItems = (fiesta.programa || []).map((c) => ({
@@ -106,6 +107,7 @@ export const CorporativoTemplate: React.FC<TemplateProps> = ({
             <AddToCalendarButton
               eventName={eventoNombre}
               startDate={fechaEvento || new Date().toISOString()}
+              horaEvento={horaEvento}
               location={lugar}
               primaryColor="#2563eb"
             />

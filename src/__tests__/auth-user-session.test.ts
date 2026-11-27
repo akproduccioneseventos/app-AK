@@ -71,6 +71,7 @@ describe('email user login session', () => {
       // cuenta no tiene perfil guardado, asi que se deduce del rol viejo.
       perfil: 'secretaria',
       modules: ['crm', 'fiestas'],
+      metodo: 'clave',
     });
   });
 

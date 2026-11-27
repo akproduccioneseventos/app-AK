@@ -27,6 +27,7 @@ import {
   type SalonPhoto,
 } from '@/lib/salon-helper';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import {
   ClubUruguayClosingActions,
   ClubUruguayHeroActions,
@@ -35,7 +36,7 @@ import {
 } from '@/components/club-uruguay/ClubUruguayInteractive';
 
 export const metadata: Metadata = {
-  title: 'Club Uruguay Salto | Salón de Fiestas y Eventos',
+  title: 'Club Uruguay Salto · Salón de Fiestas',
   description:
     'Conocé el salón Club Uruguay en Uruguay 754, Salto. Opciones informadas para 50 y 250 personas, montajes reales y organización integral con AK Producciones.',
   alternates: {
@@ -161,6 +162,9 @@ export default async function ClubUruguayPage() {
               <h1 className="font-headline text-5xl font-black leading-[1.03] tracking-tight sm:text-7xl lg:text-8xl">
                 Club Uruguay Salto
               </h1>
+              <div className="mt-4">
+                <BotonComoFunciona clave="club-uruguay" variant="dark" />
+              </div>
 
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-200 sm:text-xl">
                 Espacio con historia en el centro de Salto, con organización integral de AK Producciones.

@@ -307,6 +307,8 @@ export function construirDatosRobot(): {
   menus: Array<FullMenu & { estado?: 'borrador' | 'publicado'; publicado?: boolean; esBorrador?: boolean }>;
   servicios: Array<ServicioEmpresa & { estado?: 'borrador' | 'publicado'; publicado?: boolean; esBorrador?: boolean }>;
   empleados: Empleado[];
+  insumos: ServicioEmpresa[];
+  activosFijos: ServicioEmpresa[];
 } {
   const fecha20Dias = fechaEnDias(20);
   const fecha30Dias = fechaEnDias(30);
@@ -652,6 +654,30 @@ export function construirDatosRobot(): {
     menus: [menuPublicado, menuBorrador],
     servicios: [servicioPublicado, servicioBorrador],
     empleados: [empleado1],
+    insumos: [
+      {
+        id: 'ing-harina',
+        nombre: 'Harina (ROBOT)',
+        tipoItem: 'Insumo/Ingrediente',
+        categoria: 'Insumos varios',
+        valorUnitarioEstimado: 180,
+        cantidadDisponible: 50,
+        unidad: 'Kg',
+        proveedor: 'CALSAL',
+      },
+    ],
+    activosFijos: [
+      {
+        id: 'lc_psitio',
+        nombre: 'PLATOS DE SITIO (ROBOT)',
+        tipoItem: 'Activo Fijo',
+        categoria: 'Vajilla (Activo)',
+        cantidadDisponible: 200,
+        valorUnitarioEstimado: 150,
+        unidad: 'Unidad',
+        calculationMethod: 'porPersona',
+      },
+    ],
   };
 }
 
@@ -696,6 +722,8 @@ export async function sembrarRobot(): Promise<{
     escribirColeccion('menus_catering', datos.menus),
     escribirColeccion('servicios', datos.servicios),
     escribirColeccion('empleados', datos.empleados),
+    escribirColeccion('insumos', datos.insumos),
+    escribirColeccion('activos_fijos', datos.activosFijos),
     // El servidor busca en `users` al dueño de la cookie del robot (`ponerSesionDelEquipo`,
     // userId "admin"); sin él, cada acción contestaba "Tu sesión se cerró" y el robot veía
     // 500 en todas las pantallas del equipo (25/11/2026).

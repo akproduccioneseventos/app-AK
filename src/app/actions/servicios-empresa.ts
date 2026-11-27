@@ -69,18 +69,33 @@ async function leerServiciosEmpresaGuardados(): Promise<ServicioEmpresa[]> {
 }
 
 /**
- * Los servicios como se muestran al prospecto y al cliente: nombre, categoria,
- * foto y **precio de venta**. Sin el costo, sin el margen y sin el proveedor.
+ * Los servicios como se muestran al prospecto y al cliente: solo campos publicos
+ * (lista blanca explicita, Orden 361) para no exponer mantenimiento, stock,
+ * costos internos ni proveedor.
  */
 export async function getServiciosEmpresaPublicos(): Promise<ServicioEmpresa[]> {
   const servicios = await leerServiciosEmpresa();
   return servicios
     .filter((s) => s.estadoPublicacion !== 'borrador')
     .map((s) => ({
-      ...s,
+      id: s.id,
+      nombre: s.nombre,
+      tipoItem: s.tipoItem,
+      categoria: s.categoria,
+      subcategoria: s.subcategoria,
+      unidad: s.unidad,
+      porEvento: s.porEvento,
+      calculationMethod: s.calculationMethod,
+      precioVenta: s.precioVenta,
+      precioPorPersona: s.precioPorPersona,
+      precioBase: s.precioBase,
+      invitadosPorUnidad: s.invitadosPorUnidad,
+      tramosDePrecio: s.tramosDePrecio,
+      cantidad: s.cantidad,
+      imageUrl: s.imageUrl,
+      isFeatured: s.isFeatured,
+      estadoPublicacion: s.estadoPublicacion,
       valorUnitarioEstimado: 0,
-      proveedor: undefined,
-      notas: undefined,
     }));
 }
 

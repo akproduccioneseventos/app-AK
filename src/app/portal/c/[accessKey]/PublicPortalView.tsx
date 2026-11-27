@@ -69,7 +69,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientGuestCountChangeRequest, updatePortalGuestRsvp } from '@/app/actions/fiesta/portal.actions';
+import { updateClientChecklist, updateClientChecklistItem, updateClientNotes, submitClientPayment, submitClientGuestCountChangeRequest, updatePortalGuestRsvp } from '@/app/actions/fiesta/portal.actions';
+import { useToast } from '@/hooks/use-toast';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
@@ -265,7 +266,7 @@ export default function PublicPortalView({
     fiesta.decoracion?.paletaColores?.primary ||
     '#7c3aed';
 
-  // Interactive Checklist state
+  const { toast } = useToast();
   const [checklist, setChecklist] = useState<ClientTarea[]>(fiesta.clientChecklist ?? []);
   const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null);
 
@@ -427,12 +428,28 @@ export default function PublicPortalView({
     const newChecklist = checklist.map(t =>
       t.id === taskId ? { ...t, completada: !t.completada } : t
     );
+    const targetItem = newChecklist.find(t => t.id === taskId);
+    if (!targetItem) return;
+
     setChecklist(newChecklist);
     setTogglingTaskId(taskId);
     try {
-      await updateClientChecklist(fiesta.id, newChecklist);
+      const res = await updateClientChecklistItem(fiesta.id, taskId, targetItem.completada);
+      if (!res.success) {
+        setChecklist(previous);
+        toast({
+          title: 'Error al actualizar tarea',
+          description: res.error || 'No se pudo guardar el cambio. Probá de nuevo.',
+          variant: 'destructive',
+        });
+      }
     } catch {
       setChecklist(previous);
+      toast({
+        title: 'Error de conexión',
+        description: 'No se pudo guardar el cambio.',
+        variant: 'destructive',
+      });
     } finally {
       setTogglingTaskId(null);
     }

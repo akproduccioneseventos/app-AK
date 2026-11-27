@@ -98,7 +98,7 @@ export async function getNotifications(): Promise<Notificacion[]> {
 export async function createNotification(
   data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>,
   internalToken?: symbol
-): Promise<{ success: boolean; notification?: Notificacion; error?: string; isDuplicate?: boolean }> {
+): Promise<{ success: boolean; notification?: Notificacion; error?: string; isDuplicate?: boolean; enviado?: boolean; motivo?: string }> {
   if (
     internalToken !== NOTIFICATION_INTERNAL_TOKEN &&
     internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN &&
@@ -116,7 +116,7 @@ export async function createNotification(
     const userId = (data as any).userId || 'admin';
     const habilitado = await debeEnviarAvisoInterno(categoria, 'app', userId);
     if (!habilitado) {
-      return { success: true, notification: undefined, isDuplicate: false };
+      return { success: true, notification: undefined, isDuplicate: false, enviado: false, motivo: 'apagado' };
     }
   } catch {
     // Si falla la consulta de preferencias, continuar con el flujo normal

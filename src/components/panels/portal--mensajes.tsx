@@ -14,6 +14,7 @@ import {
   getMensajesCliente,
   type MensajePortalCliente,
 } from '@/app/actions/fiesta/portal.actions';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function PortalClienteMensajesPage() {
   const params = useParams<{ id: string }>();
@@ -125,13 +126,16 @@ export default function PortalClienteMensajesPage() {
           </Button>
         </div>
 
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-3">
-            <MessageSquare className="w-7 h-7 text-purple-400" /> Mensajes con el Equipo
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Escribinos cualquier duda o consulta sobre tu fiesta. El equipo te responde acá mismo.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-3">
+              <MessageSquare className="w-7 h-7 text-purple-400" /> Mensajes con el Equipo
+            </h1>
+            <p className="text-sm text-slate-400 mt-1">
+              Escribinos cualquier duda o consulta sobre tu fiesta. El equipo te responde acá mismo.
+            </p>
+          </div>
+          <BotonComoFunciona clave="cliente-mensajes" variant="dark" />
         </div>
 
         {/* Hilo de mensajes */}

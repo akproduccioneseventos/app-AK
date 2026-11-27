@@ -8,7 +8,7 @@ import { generateGeminiImage, type GeminiImageReference } from '@/lib/ai/gemini-
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { verifyPortalSession } from '@/lib/security/portal-session';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -31,44 +31,111 @@ import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
  */
 const visualizacionesMutex = new AsyncMutex();
 
-export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
-  // SIN cuenta del equipo a proposito: el CLIENTE arma su tablero de decoracion
-  // desde su portal. El guardado de abajo ya pide sesion del equipo O la clave del
-  // cliente de esta fiesta.
-  try {
-    const decoracionInicializada: DecoracionData = { ...(decoracion ?? {}) };
-    const result = await updateFiestaPartial(fiestaId, { decoracion: decoracionInicializada }, { allowPortal: true });
-    if (!result.success) throw new Error(result.error || 'No se pudo guardar la decoración.');
+export type DecoracionCambio =
+  | Partial<DecoracionData>
+  | {
+      moodboardAdd?: MoodboardItem;
+      moodboardRemoveId?: string;
+      moodboardToggleLikeId?: string;
+      opinionCliente?: DecoracionData['opinionCliente'];
+    }
+  | ((actual: DecoracionData) => DecoracionData);
 
-    /**
-     * LOS GASTOS DE DECORACION SE SINCRONIZAN SIEMPRE, TAMBIEN CUANDO NO QUEDA NADA.
-     *
-     * **Antes solo se sincronizaba si habia elementos.** Al sacar toda la decoracion,
-     * los gastos de la decoracion vieja **quedaban cargados igual**: el costo del
-     * evento seguia contando adornos que ya no estaban, y la ganancia salia mal.
-     *
-     * Y no se mira "por las dudas": si la sincronizacion falla, se avisa. Antes se
-     * tiraba el resultado a la basura, asi que un error ahi no lo veia nadie.
-     */
-    // Desde el portal del cliente no se recalculan gastos: los costos son del equipo (orden 183) y el
-    // cliente no tiene por qué tocarlos. Se recalculan la próxima vez que guarda alguien del equipo.
-    const equipo = await usuarioDelEquipo();
-    const puedeRecalcular = Boolean(equipo)
-      && [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION].some((p) => puede(equipo, p));
-    if (!puedeRecalcular) return { success: true, updatedData: decoracionInicializada };
-    const sincronizado = await sincronizarGastosDeco(fiestaId, decoracionInicializada.itemsDecoracion || []);
-    if (!sincronizado.success) {
+export async function mutarDecoracion(
+  fiestaId: string,
+  cambio: DecoracionCambio,
+): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
+  // SIN cuenta del equipo a proposito cuando llega desde el portal del cliente:
+  // `actualizarFiesta(..., { allowPortal: true })` exige sesion del equipo O clave del cliente de esta fiesta.
+  try {
+    let decoracionResultado: DecoracionData = {};
+    let itemsModificados: DecoItem[] | null = null;
+    const res = await actualizarFiesta(fiestaId, (fiestaActual) => {
+      const actual = fiestaActual.decoracion || {};
+      let siguiente: DecoracionData;
+      if (typeof cambio === 'function') {
+        siguiente = cambio(actual);
+        if (cambio !== undefined && siguiente.itemsDecoracion !== actual.itemsDecoracion) {
+          itemsModificados = siguiente.itemsDecoracion || [];
+        }
+      } else {
+        const c = cambio as Record<string, any>;
+        siguiente = { ...actual };
+        const clavesEspeciales = new Set([
+          'moodboardAdd',
+          'moodboardRemoveId',
+          'moodboardToggleLikeId',
+          'opinionCliente',
+        ]);
+        for (const k of Object.keys(c)) {
+          if (!clavesEspeciales.has(k) && c[k] !== undefined) {
+            (siguiente as any)[k] = c[k];
+          }
+        }
+        if (c.moodboardAdd) {
+          const itemAdd: MoodboardItem = c.moodboardAdd;
+          const base = siguiente.moodboardItems || [];
+          siguiente.moodboardItems = base.some((i) => i.id === itemAdd.id)
+            ? base
+            : [...base, itemAdd];
+        }
+        if (c.moodboardRemoveId) {
+          siguiente.moodboardItems = (siguiente.moodboardItems || []).filter(
+            (i) => i.id !== c.moodboardRemoveId,
+          );
+        }
+        if (c.moodboardToggleLikeId) {
+          siguiente.moodboardItems = (siguiente.moodboardItems || []).map((i) =>
+            i.id === c.moodboardToggleLikeId ? { ...i, likedByClient: !i.likedByClient } : i,
+          );
+        }
+        if (c.opinionCliente) {
+          siguiente.opinionCliente = {
+            ...(actual.opinionCliente || {}),
+            ...c.opinionCliente,
+          };
+        }
+        if (Object.prototype.hasOwnProperty.call(c, 'itemsDecoracion') && c.itemsDecoracion !== undefined) {
+          itemsModificados = siguiente.itemsDecoracion || [];
+        }
+      }
+      decoracionResultado = siguiente;
       return {
-        success: false,
-        error: sincronizado.error || 'La decoracion se guardo, pero los gastos no se pudieron actualizar.',
-        updatedData: decoracionInicializada,
+        ...fiestaActual,
+        decoracion: siguiente,
       };
+    });
+
+    if (!res.success) {
+      return { success: false, error: res.error || 'No se pudo actualizar la decoración.' };
     }
 
-    return { success: true, updatedData: decoracionInicializada };
+    if (itemsModificados !== null) {
+      // Desde el portal del cliente no se recalculan gastos: los costos son del equipo (orden 183) y el
+      // cliente no tiene por qué tocarlos. Se recalculan la próxima vez que guarda alguien del equipo.
+      const equipo = await usuarioDelEquipo();
+      const puedeRecalcular = Boolean(equipo)
+        && [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION].some((p) => puede(equipo, p));
+      if (puedeRecalcular) {
+        const sincronizado = await sincronizarGastosDeco(fiestaId, itemsModificados);
+        if (!sincronizado.success) {
+          return {
+            success: false,
+            error: sincronizado.error || 'La decoracion se guardo, pero los gastos no se pudieron actualizar.',
+            updatedData: decoracionResultado,
+          };
+        }
+      }
+    }
+
+    return { success: true, updatedData: decoracionResultado };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: e.message || 'Error al mutar decoración.' };
   }
+}
+
+export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
+  return mutarDecoracion(fiestaId, { ...(decoracion ?? {}) });
 }
 
 export async function addMoodboardItem(fiestaId: string, url: string, description?: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; error?: string }> {
@@ -93,8 +160,7 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
             timestamp: new Date().toISOString()
         };
 
-        const updatedDecoracion = { ...decoracion, moodboardItems: [...items, newItem] };
-        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await mutarDecoracion(fiestaId, { moodboardAdd: newItem });
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'No se pudo guardar la imagen en el moodboard.' };
         }
@@ -107,14 +173,7 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
 export async function deleteMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) throw new Error("Fiesta no encontrada");
-
-        const decoracion = fiesta.decoracion || {};
-        const items = (decoracion.moodboardItems || []).filter(i => i.id !== itemId);
-
-        const updatedDecoracion = { ...decoracion, moodboardItems: items };
-        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await mutarDecoracion(fiestaId, { moodboardRemoveId: itemId });
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'No se pudo eliminar la imagen del moodboard.' };
         }
@@ -127,16 +186,7 @@ export async function deleteMoodboardItem(fiestaId: string, itemId: string): Pro
 export async function toggleLikeMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) throw new Error("Fiesta no encontrada");
-
-        const decoracion = fiesta.decoracion || {};
-        const items = (decoracion.moodboardItems || []).map(i =>
-            i.id === itemId ? { ...i, likedByClient: !i.likedByClient } : i
-        );
-
-        const updatedDecoracion = { ...decoracion, moodboardItems: items };
-        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await mutarDecoracion(fiestaId, { moodboardToggleLikeId: itemId });
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'No se pudo actualizar la reacción en el moodboard.' };
         }
@@ -207,20 +257,13 @@ export async function enviarOpinionDecoracion(
   comentario?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
-
-    const decoracion = fiesta.decoracion || {};
-    const updatedDecoracion: DecoracionData = {
-      ...decoracion,
+    const res = await mutarDecoracion(fiestaId, {
       opinionCliente: {
         leGusta,
         comentario: comentario?.trim() || undefined,
         fecha: new Date().toISOString(),
       },
-    };
-
-    const res = await updateDecoracion(fiestaId, updatedDecoracion);
+    });
     if (!res.success) throw new Error(res.error);
 
     return { success: true };
@@ -441,12 +484,19 @@ export async function generarFotoDelSalonDesdeElPortal(
 export async function getDisponibilidadElementosDecoracion(
   fechaEvento: string,
   fiestaActualId?: string
-): Promise<Array<{ nombreItem: string; fiestaNombre: string; fiestaId: string }>> {
+): Promise<Array<{ nombreItem: string; fiestaNombre: string; fiestaId?: string }>> {
   await requireAppSession();
   if (!fechaEvento) return [];
+  let puedeVerDetalle = false;
+  try {
+    await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
+    puedeVerDetalle = true;
+  } catch {
+    puedeVerDetalle = false;
+  }
   try {
     const rawFiestas = await leerFiestasCrudas();
-    const result: Array<{ nombreItem: string; fiestaNombre: string; fiestaId: string }> = [];
+    const result: Array<{ nombreItem: string; fiestaNombre: string; fiestaId?: string }> = [];
 
     const targetDate = fechaEvento.split('T')[0];
 
@@ -456,11 +506,18 @@ export async function getDisponibilidadElementosDecoracion(
       if (fDate === targetDate) {
         const items = f.decoracion?.itemsDecoracion || [];
         for (const it of items) {
-          result.push({
-            nombreItem: it.nombre,
-            fiestaNombre: f.configuracion?.nombreEvento || 'Otra fiesta',
-            fiestaId: f.id,
-          });
+          result.push(
+            puedeVerDetalle
+              ? {
+                  nombreItem: it.nombre,
+                  fiestaNombre: f.configuracion?.nombreEvento || 'Otra fiesta',
+                  fiestaId: f.id,
+                }
+              : {
+                  nombreItem: it.nombre,
+                  fiestaNombre: 'Otra fiesta',
+                },
+          );
         }
       }
     }

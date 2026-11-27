@@ -4,6 +4,11 @@
  */
 const marcarCorrida = jest.fn(async () => {});
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: (...a: any[]) => (marcarCorrida as any)(...a) }));
+jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: jest.fn(async () => null) }));
+jest.mock('@/lib/data-service', () => ({
+  readData: jest.fn(async (_f: string, fallback: unknown) => fallback),
+  writeData: jest.fn(async () => undefined),
+}));
 
 import { ejecutarRevisionPosicionamiento } from '@/lib/automatico/posicionamiento-diario';
 import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';

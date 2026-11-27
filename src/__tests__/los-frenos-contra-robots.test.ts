@@ -38,8 +38,8 @@ describe('los frenos contra robots', () => {
     const fuente = leer(archivo);
 
     expect(fuente).toContain('enforcePublicRateLimit');
-    expect(fuente).toContain('hayPresupuestoParaIA');
-    expect(fuente).toContain('registrarConsumoIA');
+    const pasaPorCerebro = fuente.includes('pedirTexto');
+    expect(pasaPorCerebro || (fuente.includes('hayPresupuestoParaIA') && fuente.includes('registrarConsumoIA'))).toBe(true);
   });
 
   it('el freno del simulador NO cuenta por lo que escribe el visitante', () => {

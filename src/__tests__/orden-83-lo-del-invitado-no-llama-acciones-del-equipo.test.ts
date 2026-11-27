@@ -91,7 +91,7 @@ describe('Orden 83 — Lo que atiende al invitado no llama a acciones del equipo
         clienteContacto: '099123456',
         clienteEmail: 'cliente@test.com',
         fechaHora: fechaIso,
-        tipoReunion: 'Presencial en Oficina',
+        tipoReunion: 'Presencial a coordinar',
         // El prospecto sale del presupuesto, no de un leadId que mande el navegador (auditoria 80).
         presupuestoId: 'pres_orden83',
       });
@@ -110,7 +110,7 @@ describe('Orden 83 — Lo que atiende al invitado no llama a acciones del equipo
         expect.arrayContaining([
           expect.objectContaining({
             type: 'meeting_scheduled',
-            description: expect.stringContaining('Reunión en Oficina AK'),
+            description: expect.stringContaining('Reunión comercial'),
           }),
         ])
       );

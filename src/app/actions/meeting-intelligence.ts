@@ -5,6 +5,7 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import type { FaqItem, FiestaEnPlanificacion, Reunion, Tarea } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 import { syncReunionToGoogleWorkspace } from './google-workspace-extended';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const MAX_AUDIO_UPLOAD_BYTES = 45 * 1024 * 1024;
@@ -24,6 +25,7 @@ type MeetingReunion = Reunion & {
   resumenOrganizador?: string;
   preguntasCliente?: string[];
   lastIntelligenceSyncAt?: string;
+  resumenEnviadoAlClienteAt?: string;
   updatedAt?: string;
   aiSummary?: {
     generatedAt: string;
@@ -276,15 +278,22 @@ export async function processReunionIntelligence(formData: FormData) {
 
     let analysis: MeetingIntelligenceOutput;
     try {
-      analysis = await analyzeMeetingTranscript({
-        eventContext: buildEventContext(fiesta),
-        meetingTitle: reunion.titulo,
-        meetingNotes: reunion.notas || '',
-        currentChecklist: JSON.stringify((reunion.checklist || []).map((item) => ({ id: item.id, titulo: item.text, completado: item.completed })), null, 2),
-        currentFaqs: JSON.stringify((fiesta.faqPortal || []).map((item) => ({ pregunta: item.pregunta, respuesta: item.respuesta })), null, 2),
-        transcript,
-        audioDataUri: uploadResult.audioDataUri,
-      });
+      const puedeIA = await hayPresupuestoParaIA();
+      if (!puedeIA) {
+        analysis = fallbackMeetingAnalysis(transcript);
+        warnings.push('Se alcanzó el tope mensual de IA: se guardó un resumen básico sin llamar a Gemini.');
+      } else {
+        analysis = await analyzeMeetingTranscript({
+          eventContext: buildEventContext(fiesta),
+          meetingTitle: reunion.titulo,
+          meetingNotes: reunion.notas || '',
+          currentChecklist: JSON.stringify((reunion.checklist || []).map((item) => ({ id: item.id, titulo: item.text, completado: item.completed })), null, 2),
+          currentFaqs: JSON.stringify((fiesta.faqPortal || []).map((item) => ({ pregunta: item.pregunta, respuesta: item.respuesta })), null, 2),
+          transcript,
+          audioDataUri: uploadResult.audioDataUri,
+        });
+        await registrarConsumoIA('chat-de-la-fiesta').catch(() => undefined);
+      }
     } catch (error) {
       console.error('Error analyzing meeting transcript:', error);
       analysis = fallbackMeetingAnalysis(transcript);
@@ -340,17 +349,84 @@ export async function processReunionIntelligence(formData: FormData) {
     }
 
     try {
-      const syncResult: any = await syncReunionToGoogleWorkspace(fiestaId, updatedReunion, { sendEmails: true, forceEmail: true });
+      const syncResult: any = await syncReunionToGoogleWorkspace(fiestaId, updatedReunion, { sendEmails: false });
       if (Array.isArray(syncResult?.warnings)) warnings.push(...syncResult.warnings);
       if (!syncResult?.success && syncResult?.error) warnings.push(syncResult.error);
     } catch (error) {
       console.error('Error syncing meeting intelligence to Google Workspace:', error);
-      warnings.push('La reunion se guardo, pero Google Calendar/Gmail no se sincronizo en este intento.');
+      warnings.push('La reunion se guardo, pero Google Calendar no se sincronizo en este intento.');
     }
 
     return { success: true, reunion: updatedReunion, detectedTasks, learnedFaqs, warnings };
   } catch (error) {
     console.error('Error processing meeting intelligence:', error);
     return { success: false, error: error instanceof Error ? error.message : 'No se pudo procesar la reunion.' };
+  }
+}
+
+export async function sendReunionSummaryToClient(
+  fiestaId: string,
+  reunionId: string,
+  confirmarReenvio = false,
+): Promise<{
+  success: boolean;
+  sentAt?: string;
+  requiresConfirm?: boolean;
+  alreadySentAt?: string;
+  warnings?: string[];
+  error?: string;
+}> {
+  await requireAppSession();
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'No se encontró la fiesta.' };
+    const reuniones = Array.isArray(fiesta.reuniones) ? (fiesta.reuniones as MeetingReunion[]) : [];
+    const reunion = reuniones.find((item) => item.id === reunionId);
+    if (!reunion) return { success: false, error: 'No se encontró la reunión.' };
+
+    if (reunion.resumenEnviadoAlClienteAt && !confirmarReenvio) {
+      return {
+        success: false,
+        requiresConfirm: true,
+        alreadySentAt: reunion.resumenEnviadoAlClienteAt,
+      };
+    }
+
+    const syncResult: any = await syncReunionToGoogleWorkspace(
+      fiestaId,
+      reunion,
+      confirmarReenvio ? { forceEmail: true, sendEmails: true } : { sendEmails: true },
+    );
+    if (!syncResult?.success) {
+      return {
+        success: false,
+        error: syncResult?.error || 'No se pudo enviar el correo al cliente.',
+        warnings: syncResult?.warnings,
+      };
+    }
+
+    const warnings: string[] = Array.isArray(syncResult?.warnings) ? syncResult.warnings : [];
+    if (!syncResult?.emailSent) {
+      return {
+        success: false,
+        error: warnings[0] || 'El cliente no tiene correo cargado o Gmail no está conectado.',
+        warnings,
+      };
+    }
+
+    const sentAt = syncResult.emailSentAt || new Date().toISOString();
+    const updatedFiesta: FiestaEnPlanificacion = {
+      ...fiesta,
+      reuniones: reuniones.map((item) =>
+        item.id === reunionId ? { ...item, resumenEnviadoAlClienteAt: sentAt } : item,
+      ),
+    };
+    await saveFiesta(updatedFiesta);
+    return { success: true, sentAt, warnings };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'No se pudo enviar el resumen al cliente.',
+    };
   }
 }

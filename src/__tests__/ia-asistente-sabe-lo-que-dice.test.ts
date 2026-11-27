@@ -35,13 +35,16 @@ let iaResponde: (args: any) => Promise<{ text: string }>;
 const llamadasIA: any[] = [];
 
 jest.mock('@/ai/genkit', () => ({
-  generateWithGeminiFallback: jest.fn(async (args: any) => {
-    llamadasIA.push(args);
-    return iaResponde(args);
-  }),
   getGeminiModelForAgent: () => 'googleai/modelo-de-prueba',
   getEffectiveGeminiModelForAgent: jest.fn(async () => 'googleai/modelo-de-prueba'),
   getGeminiGenerationConfigForAgent: () => ({ maxOutputTokens: 4096 }),
+}));
+jest.mock('@/ai/cerebro', () => ({
+  pedirTexto: jest.fn(async (args: any) => {
+    llamadasIA.push(args);
+    const r = await iaResponde(args);
+    return { ok: true, texto: r.text };
+  }),
 }));
 jest.mock('@/ai/flows/marketing-agent-flow', () => ({ chatWithMarketingAgent: jest.fn() }));
 jest.mock('@/lib/auth/session-token', () => ({

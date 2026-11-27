@@ -2,11 +2,12 @@ import 'server-only';
 
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import {
-  generateWithGeminiFallback,
   getEffectiveGeminiModelForAgent,
   getGeminiGenerationConfigForAgent,
   getGeminiModelForAgent,
 } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentLearning, AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -531,7 +532,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
   // Si la lectura falló, lo primero que lee el usuario es eso (no queda enterrado en el medio).
   const avisar = (respuesta: string) => conAvisoDeLectura(respuesta, context.sinLeer, context.falloTotal);
 
-  const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
   const tienePresupuesto = await hayPresupuestoParaIA().catch(() => false);
   if (!tienePresupuesto) {
     return {
@@ -554,7 +555,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
         eventType:         fiestaTipo(context.fiesta),
         attachmentDataUri: input.imageDataUri,
       });
-      await registrarConsumoIA('multiagente').catch(() => null);
+      // chatWithMarketingAgent ya pasa por pedirTexto({ quien: 'agente-marketing' }); no duplicar registro.
 
       await saveAgentLearning({
         agentType: 'marketing',
@@ -595,13 +596,18 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       `\nMENSAJE DE ALEXANDER:\n${input.message}`,
     ].filter(Boolean).join('\n');
 
-    const { text } = await generateWithGeminiFallback({
-      model,
+    const aiRes = await pedirTexto({
+      quien: 'multiagente',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
       system: buildSystemPrompt(agentType),
       prompt,
       config: generationConfig,
     });
-    await registrarConsumoIA('multiagente').catch(() => null);
+    if (!aiRes.ok) {
+      throw new Error(aiRes.error || 'No se pudo obtener respuesta de la IA.');
+    }
+    const text = aiRes.texto;
 
     let finalResponse = '';
     let action: any = { type: 'none' };

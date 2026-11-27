@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 
 /**
  * Distingue a quien llega desde un anuncio de quien escribe al numero personal.
@@ -80,19 +81,19 @@ export async function recordarQueVinoDeLaPublicidad(
   const numero = soloNumeros(telefono);
   if (!numero) return;
 
-  const registro = await readData<Registro>(ARCHIVO, {});
   const ahoraMs = ahora.getTime();
+  await mutarDocumento<Registro>(ARCHIVO, {}, (registro) => {
+    const vigentes = (registro?.conversaciones || [])
+      .filter((c) => c.telefono !== numero && estaVigente(c.desde, ahoraMs));
 
-  const vigentes = (registro.conversaciones || [])
-    .filter((c) => c.telefono !== numero && estaVigente(c.desde, ahoraMs));
+    vigentes.push({
+      telefono: numero,
+      desde: ahora.toISOString(),
+      anuncio: referencia?.headline || referencia?.source_id,
+    });
 
-  vigentes.push({
-    telefono: numero,
-    desde: ahora.toISOString(),
-    anuncio: referencia?.headline || referencia?.source_id,
+    return { conversaciones: vigentes };
   });
-
-  await writeData(ARCHIVO, { conversaciones: vigentes }, undefined, { skipAutoBackup: true });
 }
 
 /**

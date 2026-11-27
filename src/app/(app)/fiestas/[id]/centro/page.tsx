@@ -184,6 +184,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
     nombre: empleados.find((e: any) => e.id === asignado.empleadoId)?.nombre ?? 'Sin asignar',
     rol: roles.find((r: any) => r.id === asignado.rolId)?.nombre ?? 'Sin rol',
     llegada: asignado.checkInTimestamp,
+    ubicacionVerificada: asignado.checkInUbicacion?.ubicacionVerificada,
   }));
 
   const pendientes = (fiesta.tareas ?? []).filter((t) => !t.completada);

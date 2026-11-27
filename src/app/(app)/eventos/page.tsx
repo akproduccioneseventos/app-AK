@@ -36,6 +36,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents, esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
+import { esFiestaProxima } from '@/lib/fiesta/esFiestaProxima';
 import { getMisPermisos, esSesionDelAuditor } from '@/app/actions/sesion';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -181,13 +182,7 @@ export default function GestorFiestasPage() {
   );
 
   const activePlanningCount = React.useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return dedupedFiestasActivas.filter(fiesta => {
-      if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-      return !eventDate || eventDate >= today || fiesta.estado === 'Contratada';
-    }).length;
+    return dedupedFiestasActivas.filter(fiesta => esFiestaProxima(fiesta)).length;
   }, [dedupedFiestasActivas]);
 
   const fiestasDemo = React.useMemo(() => {
@@ -201,7 +196,7 @@ export default function GestorFiestasPage() {
       if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
       const nombre = fiesta.configuracion.nombreEvento || '';
       const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const eventDate = fiesta.configuracion.fechaEvento ? parseEventDate(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       const isFutureOrNoDate = !eventDate || eventDate >= today;
       return matchesSearch && (isFutureOrNoDate || isContracted);
@@ -213,7 +208,7 @@ export default function GestorFiestasPage() {
     today.setHours(0, 0, 0, 0);
     return sortPastEvents(dedupedFiestasActivas.filter(fiesta => {
       if (esFiestaDemo(fiesta) || esFiestaSuspendida(fiesta)) return false;
-      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const eventDate = fiesta.configuracion.fechaEvento ? parseEventDate(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       return eventDate && eventDate < today && !isContracted;
     }));
@@ -231,10 +226,12 @@ export default function GestorFiestasPage() {
     filteredFiestasActivas.forEach(fiesta => {
       const fecha = fiesta.configuracion.fechaEvento;
       if (!fecha) return;
-      // Use Date parsing to safely extract YYYY-MM-DD, handling timezones
-      const dateObj = new Date(fecha);
-      if (isNaN(dateObj.getTime())) return;
-      const dateKey = dateObj.toISOString().substring(0, 10); // YYYY-MM-DD
+      const dateObj = parseEventDate(fecha);
+      if (!dateObj || isNaN(dateObj.getTime())) return;
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const dateKey = `${y}-${m}-${d}`;
       if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
       dateGroups[dateKey].push(fiesta);
     });
@@ -606,7 +603,7 @@ export default function GestorFiestasPage() {
           </CardHeader>
           <CardContent>
             <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
-              {error ? "No se pudo leer la lista" : kpiData.fiestasPasadas}
+              {error ? "No se pudo leer la lista" : isLoading ? "…" : kpiData.fiestasPasadas}
             </div>
             <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
           </CardContent>
@@ -619,7 +616,7 @@ export default function GestorFiestasPage() {
           </CardHeader>
           <CardContent>
             <div className={cn("font-bold", error ? "text-sm text-destructive" : "text-2xl")}>
-              {error ? "No se pudo leer la lista" : activePlanningCount}
+              {error ? "No se pudo leer la lista" : isLoading ? "…" : activePlanningCount}
             </div>
             <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
           </CardContent>

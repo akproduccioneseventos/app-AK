@@ -24,8 +24,9 @@ import {
   rejectClientServiceChangeRequest,
   approveClientGuestCountChangeRequest,
   rejectClientGuestCountChangeRequest,
+  updateTeamPackingListChanges,
+  type ClientPackingListChange,
 } from '@/app/actions/fiesta/portal.actions';
-import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
@@ -138,6 +139,7 @@ function ClientPortalConfigContent() {
 
   // clienteDebeLlevar state
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(defaultClienteDebeLlevar);
+  const savedDebeLlevarRef = useRef<ClienteDebeLlevarItem[]>(defaultClienteDebeLlevar);
   const [isSavingLlevar, setIsSavingLlevar] = useState(false);
   const [newLlevarTexto, setNewLlevarTexto] = useState('');
   const [processingRequestId, setProcessingRequestId] = useState<string | null>(null);
@@ -286,9 +288,11 @@ function ClientPortalConfigContent() {
         setBebidasItems(defaultBebidaItems);
       }
       // Load clienteDebeLlevar
-      setDebeLlevarItems(fiestaData.clienteDebeLlevar && fiestaData.clienteDebeLlevar.length > 0
+      const loadedDebeLlevar = fiestaData.clienteDebeLlevar && fiestaData.clienteDebeLlevar.length > 0
         ? fiestaData.clienteDebeLlevar
-        : defaultClienteDebeLlevar);
+        : defaultClienteDebeLlevar;
+      setDebeLlevarItems(loadedDebeLlevar);
+      savedDebeLlevarRef.current = loadedDebeLlevar;
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -469,24 +473,64 @@ function ClientPortalConfigContent() {
     if (!fiestaId) return;
     setIsSaving(true);
     setIsSavingLlevar(true);
+    const prevSaved = savedDebeLlevarRef.current;
     try {
       const settingsToSave: ClientPortalSettings = {
         ...portalSettings,
         calculadoraBebidas: { ...portalSettings.calculadoraBebidas, items: bebidasItems },
       };
+
+      const prevById = new Map(prevSaved.map(item => [item.id, item]));
+      const currById = new Map(debeLlevarItems.map(item => [item.id, item]));
+      const packingChanges: ClientPackingListChange[] = [];
+
+      for (const prevItem of prevSaved) {
+        if (!currById.has(prevItem.id)) {
+          packingChanges.push({ op: 'remove', itemId: prevItem.id });
+        }
+      }
+      for (const currItem of debeLlevarItems) {
+        const prevItem = prevById.get(currItem.id);
+        if (!prevItem) {
+          packingChanges.push({ op: 'add', item: currItem });
+        } else if (
+          prevItem.texto !== currItem.texto ||
+          (prevItem.notas || '') !== (currItem.notas || '') ||
+          Boolean(prevItem.obligatorio) !== Boolean(currItem.obligatorio)
+        ) {
+          packingChanges.push({
+            op: 'update',
+            itemId: currItem.id,
+            patch: {
+              texto: currItem.texto,
+              notas: currItem.notas,
+              obligatorio: currItem.obligatorio,
+            },
+          });
+        }
+      }
+
       const [settingsResult, llevarResult] = await Promise.all([
         updatePortalSettingsFiestaActual(fiestaId, settingsToSave),
-        updateClienteDebeLlevar(fiestaId, debeLlevarItems),
+        updateTeamPackingListChanges(fiestaId, packingChanges),
       ]);
       if (settingsResult.success && llevarResult.success) {
         setPortalSettings(settingsToSave);
+        if (llevarResult.items) {
+          setDebeLlevarItems(llevarResult.items);
+          savedDebeLlevarRef.current = llevarResult.items;
+        }
       } else {
+        if (!llevarResult.success) {
+          setDebeLlevarItems(prevSaved);
+        }
         const errorMsg = (!settingsResult.success ? settingsResult.error : undefined)
           ?? (!llevarResult.success ? llevarResult.error : undefined)
           ?? 'Error al guardar';
         throw new Error(errorMsg);
       }
     } catch (e: any) {
+      setDebeLlevarItems(prevSaved);
       toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);

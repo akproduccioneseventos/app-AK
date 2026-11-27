@@ -11,7 +11,7 @@ import type {
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 import { readData, writeData } from '@/lib/data-service';
 import { mutarComentarios, aplicarParches, parcheEntre } from '@/lib/social-media/guardar-comentarios';
-import { generateWithGeminiFallback } from '@/ai/genkit';
+import { pedirTexto } from '@/ai/cerebro';
 import { enlaceAlSimuladorDelProspecto } from '@/lib/whatsapp/datos-prospecto';
 import {
   getGoogleBusinessReviews,
@@ -31,7 +31,7 @@ export {
   sanitizarTextoRespuesta,
   alertarDuenioPorComentarioNegativo,
 };
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 
 const COMMENTS_FILE = 'social-comments.json';
 const CONNECTIONS_FILE = 'social-connections.json';
@@ -192,7 +192,7 @@ export function armarMensajePrivadoPalabraClave(comentario: SocialComment): stri
 }
 
 export function limpiarNumerosDePrecio(texto: string): string {
-  return texto.replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|pesos|uyu)?/gi, '').trim();
+  return texto.replace(/(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)\s*\d+([.,]\d+)?|\d+([.,]\d+)?\s*(?:\$|u\$s|usd|pesos|uyu|dólares|dolares)|\b\d{1,3}(?:\.\d{3})+(?:[.,]\d+)?\b/gi, '').trim();
 }
 
 export async function armarRespuestaAPregunta(
@@ -220,15 +220,16 @@ REGLAS ESTRICTAS:
 5. NUNCA menciones atención o servicio "24/7" ni "24 horas".
 6. NO nombres personal ni menciones agasajados o clientes específicos.`;
 
-    // Con respaldos de modelo (antes: fetch directo a gemini-1.5-flash, ya retirado). Si la IA falla
-    // se mantiene el mismo texto neutro de siempre: nunca se publica algo inventado.
-    const respuesta = await generateWithGeminiFallback({ prompt });
-    const textoIA = (respuesta.text || '').trim();
+    const respuesta = await pedirTexto({
+      prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
+    });
+    const textoIA = respuesta.ok ? respuesta.texto.trim() : '';
     if (!textoIA) {
       return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
     }
 
-    await registrarConsumoIA('clasificacion-comentarios');
     return sanitizarTextoRespuesta(textoIA);
   } catch {
     return '¡Hola! Para consultar disponibilidad y coordinar, escribinos por WhatsApp.';
@@ -1000,14 +1001,96 @@ REGLAS:
 2. NO uses "garantía", "garantizar", "24/7" ni promesas de plazos.
 3. Invitá a conversar en privado para entender qué pasó y resolverlo.`;
 
-    const res = await generateWithGeminiFallback({ prompt });
-    const texto = (res.text || '').trim();
+    const res = await pedirTexto({
+      prompt,
+      quien: 'clasificacion-comentarios',
+      incluirReglas: false,
+    });
+    const texto = res.ok ? res.texto.trim() : '';
     if (!texto) return sanitizarTextoRespuesta(fallback);
-    await registrarConsumoIA('clasificacion-comentarios').catch((e) => console.warn('[comments-backfill] Paso secundario sin completar:', e));
     return sanitizarTextoRespuesta(texto);
   } catch {
     return sanitizarTextoRespuesta(fallback);
   }
+}
+
+type SocialCommentConOcultamiento = SocialComment & {
+  ocultarPendiente?: boolean;
+  ocultarPendienteMotivo?: string;
+  ocultarPendienteIntentos?: number;
+  alertaOcultamientoFallidoAt?: string;
+};
+
+async function intentarOcultarEnMeta(
+  inc: SocialCommentConOcultamiento,
+  conns: SocialConnection[],
+  motivoOcultamiento: string,
+  nowIso: string,
+): Promise<{ ok: boolean; motivoError?: string }> {
+  const fbConn = conns.find((c) => c.platform === 'Facebook');
+  const igConn = conns.find((c) => c.platform === 'Instagram');
+  const metaToken =
+    inc.network === 'Facebook'
+      ? fbConn?.pageAccessToken || fbConn?.accessToken
+      : inc.network === 'Instagram'
+        ? igConn?.pageAccessToken || igConn?.accessToken
+        : undefined;
+
+  if (inc.network !== 'Facebook' && inc.network !== 'Instagram') {
+    const motivoError = `${inc.network} no permite ocultar comentarios desde la app.`;
+    inc.ocultarPendiente = true;
+    inc.ocultarPendienteMotivo = motivoError;
+    inc.ocultarPendienteIntentos = (inc.ocultarPendienteIntentos || 0) + 1;
+    return { ok: false, motivoError };
+  }
+
+  if (!metaToken) {
+    const motivoError = `Falta el token de ${inc.network} para ocultar el comentario.`;
+    inc.ocultarPendiente = true;
+    inc.ocultarPendienteMotivo = motivoError;
+    inc.ocultarPendienteIntentos = (inc.ocultarPendienteIntentos || 0) + 1;
+    if (inc.ocultarPendienteIntentos >= 2 && !inc.alertaOcultamientoFallidoAt) {
+      await alertarDuenioPorComentarioNegativo({
+        text: `No se pudo ocultar automáticamente en ${inc.network} (${motivoError}): ${inc.text}`,
+        authorName: inc.authorName,
+        permalink: inc.permalink,
+        postUrl: inc.postUrl,
+        sentimentReason: inc.sentimentReason || motivoError,
+        network: inc.network,
+      }).catch((err) => console.warn('[syncComments] Error alertando fallo al ocultar:', err));
+      inc.alertaOcultamientoFallidoAt = nowIso;
+    }
+    return { ok: false, motivoError };
+  }
+
+  const ocultado = await hideCommentOnMeta(inc.networkCommentId, metaToken);
+  if (ocultado) {
+    inc.isAutoHidden = true;
+    inc.autoHiddenReason = motivoOcultamiento;
+    inc.autoHiddenAt = nowIso;
+    inc.ocultoAt = nowIso;
+    delete inc.ocultarPendiente;
+    delete inc.ocultarPendienteMotivo;
+    delete inc.ocultarPendienteIntentos;
+    return { ok: true };
+  }
+
+  const motivoError = `Meta rechazó o no respondió al intentar ocultar el comentario en ${inc.network}.`;
+  inc.ocultarPendiente = true;
+  inc.ocultarPendienteMotivo = motivoError;
+  inc.ocultarPendienteIntentos = (inc.ocultarPendienteIntentos || 0) + 1;
+  if (inc.ocultarPendienteIntentos >= 2 && !inc.alertaOcultamientoFallidoAt) {
+    await alertarDuenioPorComentarioNegativo({
+      text: `No se pudo ocultar automáticamente en ${inc.network} (${motivoError}): ${inc.text}`,
+      authorName: inc.authorName,
+      permalink: inc.permalink,
+      postUrl: inc.postUrl,
+      sentimentReason: inc.sentimentReason || motivoError,
+      network: inc.network,
+    }).catch((err) => console.warn('[syncComments] Error alertando fallo al ocultar:', err));
+    inc.alertaOcultamientoFallidoAt = nowIso;
+  }
+  return { ok: false, motivoError };
 }
 
 /**
@@ -1125,24 +1208,12 @@ export async function procesarComentarioRedes(
     const ocultarHabilitado = ajustes.ocultar !== false && ajustes.porRed?.[inc.network]?.ocultar !== false;
     const debeOcultar = esInsultoOSpam || Boolean(inc.autoHideRecommended);
     if (debeOcultar && ocultarHabilitado && !inc.isAutoHidden && !inc.isManuallyRestored) {
-      inc.isAutoHidden = true;
-      inc.autoHiddenReason =
+      const motivoOcultamiento =
         inc.sentimentReason ||
         (esNegativoOQueja
           ? 'Ocultado preventivamente por queja o comentario negativo'
           : 'Ocultado automáticamente por moderación');
-      inc.autoHiddenAt = nowIso;
-      inc.ocultoAt = nowIso;
-
-      const metaToken =
-        inc.network === 'Facebook'
-          ? fbConn?.pageAccessToken
-          : inc.network === 'Instagram'
-            ? igConn?.pageAccessToken
-            : undefined;
-      if (metaToken) {
-        await hideCommentOnMeta(inc.networkCommentId, metaToken);
-      }
+      await intentarOcultarEnMeta(inc as SocialCommentConOcultamiento, conns, motivoOcultamiento, nowIso);
     }
 
     if (esNegativoOQueja && !inc.alertaDuenioEnviadaAt) {
@@ -1350,6 +1421,23 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
     }
   }
 
+  // Reintentar ocultamientos que quedaron pendientes porque Meta falló o faltaba token
+  const reintentosOcultamientoOk = new Map<string, SocialCommentConOcultamiento>();
+  for (const c of existingMap.values()) {
+    const ext = c as SocialCommentConOcultamiento;
+    if (!ext.ocultarPendiente || c.isAutoHidden || c.isManuallyRestored || c.isDeleted) continue;
+    const motivo =
+      c.autoHiddenReason ||
+      c.sentimentReason ||
+      ext.ocultarPendienteMotivo ||
+      'Reintento de ocultamiento por moderación';
+    const resOcultar = await intentarOcultarEnMeta(ext, connections, motivo, new Date().toISOString());
+    if (resOcultar.ok) {
+      totalAutoHidden++;
+      reintentosOcultamientoOk.set(c.id, ext);
+    }
+  }
+
   const pendientesDeClasificar = Math.max(0, sinRevisar.length - totalClasificados);
 
   const parches = Array.from(existingMap.values())
@@ -1359,8 +1447,26 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
       parche: parcheEntre(antesDeSincronizar.get(completo.id) ?? {}, completo),
     }))
     .filter((p) => !antesDeSincronizar.has(p.id) || Object.keys(p.parche).length > 0);
-  if (parches.length > 0) {
-    const guardado = await mutarComentarios((lista) => aplicarParches(lista, parches));
+  if (parches.length > 0 || reintentosOcultamientoOk.size > 0) {
+    const guardado = await mutarComentarios((lista) => {
+      const conParches = parches.length > 0 ? aplicarParches(lista, parches) : [...lista];
+      if (reintentosOcultamientoOk.size === 0) return conParches;
+      return conParches.map((item) => {
+        const reintentado = reintentosOcultamientoOk.get(item.id);
+        if (!reintentado || item.isManuallyRestored || item.isDeleted) return item;
+        const actualizado: SocialCommentConOcultamiento = {
+          ...item,
+          isAutoHidden: true,
+          autoHiddenReason: reintentado.autoHiddenReason,
+          autoHiddenAt: reintentado.autoHiddenAt,
+          ocultoAt: reintentado.ocultoAt,
+        };
+        delete actualizado.ocultarPendiente;
+        delete actualizado.ocultarPendienteMotivo;
+        delete actualizado.ocultarPendienteIntentos;
+        return actualizado;
+      });
+    });
     if (!guardado) throw new Error('No se pudieron guardar los comentarios sincronizados.');
   }
 
@@ -1439,26 +1545,54 @@ export async function hideCommentInternal(commentId: string): Promise<{ success:
 
   const target = comments[idx];
   const connections = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+  const ocultadoEn = new Date().toISOString();
+  const copiaTarget: SocialCommentConOcultamiento = { ...target };
 
-  if (target.network === 'Facebook') {
-    const conn = connections.find((c) => c.platform === 'Facebook');
-    if (conn?.pageAccessToken) {
-      await hideCommentOnMeta(target.networkCommentId, conn.pageAccessToken);
-    }
-  } else if (target.network === 'Instagram') {
-    const conn = connections.find((c) => c.platform === 'Instagram');
-    if (conn?.pageAccessToken) {
-      await hideCommentOnMeta(target.networkCommentId, conn.pageAccessToken);
-    }
+  const resOcultar = await intentarOcultarEnMeta(
+    copiaTarget,
+    connections,
+    'Ocultado manualmente por el dueño',
+    ocultadoEn,
+  );
+
+  if (!resOcultar.ok) {
+    await mutarComentarios((lista) => {
+      const actual = lista.find((c) => c.id === commentId);
+      if (!actual) return null;
+      return lista.map((c) =>
+        c.id === commentId
+          ? {
+              ...c,
+              ocultarPendiente: true,
+              ocultarPendienteMotivo: copiaTarget.ocultarPendienteMotivo,
+              ocultarPendienteIntentos: copiaTarget.ocultarPendienteIntentos,
+              ...(copiaTarget.alertaOcultamientoFallidoAt
+                ? { alertaOcultamientoFallidoAt: copiaTarget.alertaOcultamientoFallidoAt }
+                : {}),
+            }
+          : c,
+      );
+    });
+    return { success: false, error: resOcultar.motivoError || 'No se pudo ocultar el comentario en la red.' };
   }
 
-  const ocultadoEn = new Date().toISOString();
   const guardado = await mutarComentarios((lista) => {
     const actual = lista.find((c) => c.id === commentId);
     if (!actual) return null;
-    return lista.map((c) => (c.id === commentId
-      ? { ...c, isAutoHidden: true, autoHiddenReason: 'Ocultado manualmente por el dueño', autoHiddenAt: ocultadoEn, ocultoAt: ocultadoEn }
-      : c));
+    return lista.map((c) => {
+      if (c.id !== commentId) return c;
+      const actualizado: SocialCommentConOcultamiento = {
+        ...c,
+        isAutoHidden: true,
+        autoHiddenReason: 'Ocultado manualmente por el dueño',
+        autoHiddenAt: ocultadoEn,
+        ocultoAt: ocultadoEn,
+      };
+      delete actualizado.ocultarPendiente;
+      delete actualizado.ocultarPendienteMotivo;
+      delete actualizado.ocultarPendienteIntentos;
+      return actualizado;
+    });
   });
   if (!guardado) return { success: false, error: 'Comentario no encontrado.' };
   return { success: true };

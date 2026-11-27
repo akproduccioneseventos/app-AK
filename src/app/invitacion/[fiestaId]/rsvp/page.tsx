@@ -23,6 +23,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
 import { qrParaDescargarEntero } from '@/lib/qr/qr-para-descargar-entero';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -484,6 +485,9 @@ function RsvpFormContent() {
         <div className="text-center mb-8">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-400 mb-2">Confirmación de asistencia</p>
           <h1 className="text-3xl font-bold text-slate-900">{eventName}</h1>
+          <div className="mt-3 flex justify-center">
+            <BotonComoFunciona clave="confirmar-asistencia" />
+          </div>
         </div>
 
         <Card className="ak-public-card overflow-hidden">

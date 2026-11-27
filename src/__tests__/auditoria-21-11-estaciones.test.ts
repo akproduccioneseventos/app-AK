@@ -78,11 +78,11 @@ jest.mock('@/lib/caras/agrupar-caras', () => {
 
 const mockGetPublicSocialEvent = jest.fn();
 const mockGetPublicSocialPosts = jest.fn();
-const mockGetCarasDeFiesta = jest.fn();
+const mockBuscarmeEnLaGaleria = jest.fn();
 jest.mock('@/app/actions/social-gallery', () => ({
   getPublicSocialEvent: (...args: any[]) => mockGetPublicSocialEvent(...args),
   getPublicSocialPosts: (...args: any[]) => mockGetPublicSocialPosts(...args),
-  getCarasDeFiesta: (...args: any[]) => mockGetCarasDeFiesta(...args),
+  buscarmeEnLaGaleria: (...args: any[]) => mockBuscarmeEnLaGaleria(...args),
   registrarCaraInvitado: jest.fn(),
   borrarCaraInvitado: jest.fn(),
   obtenerMisFotosInvitado: jest.fn(async () => ({ success: false, posts: [] })),
@@ -193,7 +193,7 @@ describe('Orden 333 — Bloque 4: Estaciones de la fiesta', () => {
     mockGetPublicSocialEvent.mockResolvedValue({
       id: 'fiesta_est_1',
       configuracion: { nombreEvento: 'XV de Camila', fechaEvento: '2026-11-21' },
-      socialGallerySettings: { enabled: true },
+      socialGallerySettings: { enabled: true, carasPreparadas: true },
     });
     mockGetPublicSocialPosts.mockResolvedValue([
       {
@@ -207,9 +207,12 @@ describe('Orden 333 — Bloque 4: Estaciones de la fiesta', () => {
         sourceModule: 'fotocabina',
       },
     ]);
-    mockGetCarasDeFiesta.mockResolvedValue([
-      { id: 'cara_1', postId: 'post_1', vector: new Array(128).fill(0.01) },
-    ]);
+    mockBuscarmeEnLaGaleria.mockResolvedValue({
+      success: true,
+      seguras: ['post_brillo'],
+      dudosas: [],
+      fotoIds: ['post_brillo'],
+    });
     mockAsegurarModelosFaciales.mockResolvedValue(false);
     mockExtraerDescriptorFacial.mockResolvedValue(null);
 

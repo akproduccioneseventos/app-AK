@@ -8,6 +8,7 @@ import { saveSocialSettingsByClient, getSocialPostsByClient, moderateSocialPostB
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -409,7 +410,8 @@ export default function ClientMuroSocialPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="cliente-fotos-video" variant="compact" />
             <a href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank" rel="noopener noreferrer" title="Ver Pantalla de Proyección">
               <Button size="sm" className="rounded-lg gap-1.5 text-xs font-bold">
                 <Tv className="w-4 h-4" /> Pantalla <ExternalLink className="w-3 h-3" />

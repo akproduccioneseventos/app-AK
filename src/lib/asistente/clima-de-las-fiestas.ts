@@ -3,6 +3,8 @@
  * Comprueba el pronóstico para los próximos 7 días y advierte de lluvias o vientos fuertes.
  */
 
+import { diasHastaEnUruguay, formatUruguayDateString, hoyEnUruguay } from '@/lib/utils';
+
 export interface PronosticoClimaFiesta {
   fecha: string;
   probabilidadLluviaMax: number; // Porcentaje 0-100
@@ -64,7 +66,7 @@ export async function evaluarClimaParaFecha(
   lng?: number
 ): Promise<PronosticoClimaFiesta | null> {
   const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
-  const fechaIso = fechaObj.toISOString().split('T')[0];
+  const fechaIso = formatUruguayDateString(fechaObj);
 
   const latitude = lat ?? COORDENADAS_SALTO_DEFAULT.lat;
   const longitude = lng ?? COORDENADAS_SALTO_DEFAULT.lng;
@@ -121,43 +123,42 @@ export async function detectarAlertasClimaFiestas(
   salonesMap: Record<string, { lat?: number; lng?: number }> = {}
 ): Promise<PropuestaClimaFiesta[]> {
   const propuestas: PropuestaClimaFiesta[] = [];
-  const hoy = new Date();
-  const limite7Dias = new Date();
-  limite7Dias.setDate(hoy.getDate() + 7);
+  const ahora = new Date();
 
   for (const fiesta of fiestas) {
     const rawFecha = fiesta.fecha || fiesta.fechaEvento;
     if (!rawFecha) continue;
 
-    const fechaFiesta = new Date(rawFecha);
-    if (isNaN(fechaFiesta.getTime())) continue;
+    const fechaStr = rawFecha.includes('T')
+      ? hoyEnUruguay(new Date(rawFecha))
+      : rawFecha.slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) continue;
 
-    // Verificar si está en los próximos 7 días
-    if (fechaFiesta >= hoy && fechaFiesta <= limite7Dias) {
-      const fechaStr = fechaFiesta.toISOString().split('T')[0];
-      const salonCoord = fiesta.salonId ? salonesMap[fiesta.salonId] : undefined;
-      const pronostico = await evaluarClimaParaFecha(fechaFiesta, salonCoord?.lat, salonCoord?.lng);
+    const dias = diasHastaEnUruguay(fechaStr, ahora);
+    if (dias === null || dias < 0 || dias > 7) continue;
 
-      if (pronostico && pronostico.alertaGeneral) {
-        const nombreCliente = fiesta.clienteNombre || 'Cliente';
-        const salonDesc = fiesta.salonNombre ? ` en ${fiesta.salonNombre}` : '';
-        propuestas.push({
-          clave: `clima-fiesta:${fiesta.id}:${fechaStr}`,
-          area: 'fiestas',
-          titulo: `Alerta de clima: fiesta de ${nombreCliente}${salonDesc}`,
-          descripcion: `Pronóstico de ${pronostico.motivo} para el día ${fechaStr}.`,
-          porQueImporta: 'Permite coordinar con anticipación carpas, gazebos o relocalizar estaciones al interior.',
-          quePropone: `Pronóstico de lluvia para la fiesta de ${nombreCliente}: ¿prever carpa o cambiar el armado?`,
-          fiestaId: fiesta.id,
-          clienteNombre: nombreCliente,
-          fechaFiesta: fechaStr,
-          nivelRiesgo: 'pregunta',
-          datos: {
-            probabilidadLluvia: pronostico.probabilidadLluviaMax,
-            vientoKmH: pronostico.vientoMaxKmH,
-          },
-        });
-      }
+    const salonCoord = fiesta.salonId ? salonesMap[fiesta.salonId] : undefined;
+    const pronostico = await evaluarClimaParaFecha(fechaStr, salonCoord?.lat, salonCoord?.lng);
+
+    if (pronostico && pronostico.alertaGeneral) {
+      const nombreCliente = fiesta.clienteNombre || 'Cliente';
+      const salonDesc = fiesta.salonNombre ? ` en ${fiesta.salonNombre}` : '';
+      propuestas.push({
+        clave: `clima-fiesta:${fiesta.id}:${fechaStr}`,
+        area: 'fiestas',
+        titulo: `Alerta de clima: fiesta de ${nombreCliente}${salonDesc}`,
+        descripcion: `Pronóstico de ${pronostico.motivo} para el día ${fechaStr}.`,
+        porQueImporta: 'Permite coordinar con anticipación carpas, gazebos o relocalizar estaciones al interior.',
+        quePropone: `Pronóstico de lluvia para la fiesta de ${nombreCliente}: ¿prever carpa o cambiar el armado?`,
+        fiestaId: fiesta.id,
+        clienteNombre: nombreCliente,
+        fechaFiesta: fechaStr,
+        nivelRiesgo: 'pregunta',
+        datos: {
+          probabilidadLluvia: pronostico.probabilidadLluviaMax,
+          vientoKmH: pronostico.vientoMaxKmH,
+        },
+      });
     }
   }
 

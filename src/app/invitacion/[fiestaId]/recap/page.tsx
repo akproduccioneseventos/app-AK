@@ -8,6 +8,7 @@ import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { buildMorningRecap, isRecapAvailable } from '@/lib/recap/recap-engine';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 interface MorningRecapPageProps {
   params: Promise<{ fiestaId: string }>;
@@ -78,12 +79,15 @@ export default async function MorningRecapPage({ params, searchParams }: Morning
             <ArrowLeft className="h-4 w-4" /> Volver a mi portal
           </Link>
 
-          <Link
-            href={videoRecuerdoHref}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-stone-900 text-white rounded-xl text-xs font-bold hover:bg-stone-800 transition"
-          >
-            <Video className="w-4 h-4 text-amber-400" /> Ver Video Recuerdo
-          </Link>
+          <div className="flex items-center gap-2">
+            <BotonComoFunciona clave="video-recuerdo" variant="compact" />
+            <Link
+              href={videoRecuerdoHref}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-stone-900 text-white rounded-xl text-xs font-bold hover:bg-stone-800 transition"
+            >
+              <Video className="w-4 h-4 text-amber-400" /> Ver Video Recuerdo
+            </Link>
+          </div>
         </div>
 
         <header className="mt-6 border-y-4 border-double border-stone-800 py-8 text-center">

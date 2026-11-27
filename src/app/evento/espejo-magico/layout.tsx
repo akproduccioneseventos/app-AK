@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Espejo Mágico | AK Producciones',
+  title: 'Espejo Mágico',
   description: 'Tomate fotos con filtros y stickers divertidos.',
 };
 

@@ -18,6 +18,7 @@ import { buildSmartQrTargets } from '@/lib/experience-ak/ultimate-event-system';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type PageProps = {
   params: Promise<{
@@ -51,7 +52,10 @@ export default async function SmartQrPage(props: PageProps) {
         <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl shadow-slate-950/12">
           <div className="grid lg:grid-cols-[1fr_360px]">
             <div className="p-6 sm:p-8">
-              <Badge className="bg-red-600 text-white">QR unico inteligente</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="bg-red-600 text-white">QR unico inteligente</Badge>
+                <BotonComoFunciona clave="hub" variant="compact" />
+              </div>
               <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">
                 {fiesta.configuracion?.nombreEvento || 'Fiesta AK'}
               </h1>

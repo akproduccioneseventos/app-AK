@@ -36,6 +36,27 @@ async function isStationEnabled(fiestaId: string, moduleId: string) {
   return Boolean(fiesta && getEntertainmentStationConfig(fiesta, moduleId).enabled);
 }
 
+async function tienePermisoEnEstaEstacion(
+  fiestaId: string,
+  moduleId: string,
+  accessToken?: string,
+): Promise<boolean> {
+  if (await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken)) {
+    return true;
+  }
+  if (!accessToken) {
+    try {
+      const { requireEventPermission } = await import('@/lib/auth/event-access');
+      const { PERMISOS } = await import('@/lib/auth/perfiles');
+      await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
 export interface EntertainmentSession {
   fiestaId: string;
   moduleId: string;
@@ -148,7 +169,7 @@ export async function getEntertainmentSession(
 ): Promise<EntertainmentSession | null> {
   try {
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) return null;
-    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) return null;
+    if (!(await tienePermisoEnEstaEstacion(fiestaId, moduleId, accessToken))) return null;
     if (!(await isStationEnabled(fiestaId, moduleId))) return null;
     if (sinBaseDisponible()) return null;
     const db = await getDb();
@@ -210,7 +231,7 @@ export async function updateEntertainmentSessionStatus(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
+    if (!(await tienePermisoEnEstaEstacion(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     if (!(await isStationEnabled(fiestaId, moduleId))) {
@@ -322,7 +343,7 @@ export async function completeEntertainmentSessionCycle(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
+    if (!(await tienePermisoEnEstaEstacion(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     if (!(await isStationEnabled(fiestaId, moduleId))) {

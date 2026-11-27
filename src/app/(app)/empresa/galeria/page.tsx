@@ -804,7 +804,7 @@ export default function GaleriaAdminPage() {
           }`}
         >
           <Camera className="w-4 h-4 inline mr-1" />
-          Fotos ({fotos.length})
+          Fotos{!isLoading ? ` (${fotos.length})` : ''}
         </button>
         <button
           onClick={() => setTab('videos')}
@@ -815,7 +815,7 @@ export default function GaleriaAdminPage() {
           }`}
         >
           <Video className="w-4 h-4 inline mr-1" />
-          Videos ({videos.length})
+          Videos{!isLoading ? ` (${videos.length})` : ''}
         </button>
       </div>
 

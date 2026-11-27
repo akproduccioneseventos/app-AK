@@ -65,6 +65,16 @@ export const CONFIG_VARIANTES_BUFET = [
 
 export const SUFIJO_VARIANTE_BUFET = '_virtual_buffet';
 
+export function esMesaBuffetBase(nombre?: string | null): boolean {
+  const limpio = String(nombre || '')
+    .trim()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+  return limpio === 'MESA BUFET' || limpio === 'MESA BUFFET';
+}
+
 export function agregarVariantesBufet(menus: FullMenu[]): FullMenu[] {
   return menus.map((menu) => {
     if (menu.id !== 'menu_principales_maestro') return menu;

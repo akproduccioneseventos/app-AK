@@ -1,4 +1,5 @@
 import { readData } from '@/lib/data-service';
+import { esLecturaFallida, marcarLecturaFallida } from '@/lib/marca-de-lectura';
 import type { Invoice } from '@/types/invoice';
 
 const INVOICES_FILE = 'invoices.json';
@@ -20,5 +21,6 @@ const INVOICES_FILE = 'invoices.json';
  */
 export async function leerFacturasSinGuardia(): Promise<Invoice[]> {
   const invoices = await readData<Invoice[]>(INVOICES_FILE, []);
-  return invoices.map((inv) => ({ ...inv, payments: inv.payments || [] }));
+  const copia = invoices.map((inv) => ({ ...inv, payments: inv.payments || [] }));
+  return esLecturaFallida(invoices) ? marcarLecturaFallida(copia) : copia;
 }

@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { PublicFooter } from '@/components/public-footer';
 import { aniosDeAK, FIESTAS_BASE, type CifrasDeAK } from '@/lib/marketing/cifras-de-ak';
 import { getCifrasPublicasAK } from '@/app/actions/cifras-ak';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const WHATSAPP_URL = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=Hola%20AK%2C%20estuve%20viendo%20la%20experiencia%20interactiva%20y%20quiero%20hacerles%20una%20consulta`;
 
@@ -126,6 +127,7 @@ function ExperienciaContent() {
           </Link>
 
           <div className="flex items-center gap-3">
+            <BotonComoFunciona clave="experiencia" variant="dark" />
             <Badge variant="outline" className="border-amber-500/40 text-amber-300 text-xs hidden sm:inline-flex">
               Demostración de muestra
             </Badge>

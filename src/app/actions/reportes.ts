@@ -14,6 +14,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { getCompanyInfo } from './settings';
 import { mandarResumenAlContador, type ResultadoMandarAlContador } from '@/lib/contabilidad/mandar-resumen-al-contador';
+import { resolverSueldoDelRol } from '@/lib/fiesta/sueldo-del-rol';
 
 interface DateRange {
   from: Date;
@@ -84,7 +85,7 @@ function calcularCostosPendientesDeFiesta(
   const otros = fiesta.gestionCostos?.others || {};
   const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
     const rol = roles.find(r => r.id === pa.rolId);
-    const sueldo = montoCosto(pa.eventSalary || pa.sueldo || rol?.sueldoPorEvento || 0);
+    const sueldo = montoCosto(resolverSueldoDelRol(pa, rol));
     const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
     return sum + sueldo + aportes;
   }, 0);
@@ -429,7 +430,7 @@ export async function mandarAlContador(
 }
 
 export async function getEmailContador(): Promise<string | undefined> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   const company = await getCompanyInfo().catch(() => null);
   return company?.emailContador;
 }
