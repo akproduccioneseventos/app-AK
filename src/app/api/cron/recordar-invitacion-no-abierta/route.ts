@@ -19,14 +19,22 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await correrTareaRecordarInvitacionNoAbierta();
-    if (resultado.corrio && (!resultado.reservasFallidas || resultado.reservasFallidas === 0)) {
+    const ok = Boolean(
+      resultado.corrio &&
+      !resultado.lecturaFallida &&
+      (!resultado.reservasFallidas || resultado.reservasFallidas === 0),
+    );
+    if (ok) {
       await marcarCorrida('recordar-invitacion-no-abierta');
     }
 
-    return NextResponse.json(respuestaDeLaTarea(puerta, {
-      ok: Boolean(resultado.corrio && (!resultado.reservasFallidas || resultado.reservasFallidas === 0)),
-      ...resultado,
-    }));
+    return NextResponse.json(
+      respuestaDeLaTarea(puerta, {
+        ok,
+        ...resultado,
+      }),
+      { status: resultado.lecturaFallida ? 500 : 200 },
+    );
   } catch (error: any) {
     console.error('[cron-recordar-invitacion-no-abierta] Error:', error);
     return NextResponse.json(

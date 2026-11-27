@@ -76,15 +76,17 @@ import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
-import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { progresoVideoVida } from '@/lib/video-vida/tope-de-fotos';
 import { AsistenteDelCliente } from '@/components/portal/AsistenteDelCliente';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -92,7 +94,7 @@ const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }
   pendiente: { label: 'Pendiente', color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
   enviado:   { label: 'Enviado',   color: 'text-blue-700 dark:text-blue-400',   bg: 'bg-blue-500/10 border-blue-500/20'   },
   revisado:  { label: 'En revisión', color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
-  listo:     { label: 'Listo ✓',   color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  listo:     { label: 'Lo tengo listo', color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -315,11 +317,16 @@ function PortalClientePageInner() {
       // la clave nueva ya quedo guardada, que es lo que vino a hacer.
       const correo = correoRecuperacion.trim();
       if (correo) {
-        const guardado = await guardarCorreoDeRecuperacion(fiestaId, correo).catch(() => null);
-        if (guardado && !guardado.success) {
+        let guardado: { success: boolean; error?: string } | null = null;
+        try {
+          guardado = await guardarCorreoDeRecuperacion(fiestaId, correo);
+        } catch {
+          guardado = null;
+        }
+        if (!guardado || !guardado.success) {
           toast({
             title: 'Guardamos tu clave, pero no el correo',
-            description: guardado.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
+            description: guardado?.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
           });
         }
       }
@@ -363,17 +370,31 @@ function PortalClientePageInner() {
   };
 
   const handleToggleLlevar = async (itemId: string) => {
-    const updated = debeLlevarItems.map(item =>
+    const prevItems = debeLlevarItems;
+    const target = prevItems.find(item => item.id === itemId);
+    if (!target) return;
+    const nextCompletado = !target.completado;
+    const nextEstado: ClienteDebeLlevarItem['estado'] = nextCompletado ? 'listo' : 'pendiente';
+    const updated = prevItems.map(item =>
       item.id === itemId
-        ? { ...item, completado: !item.completado, estado: (!item.completado ? 'enviado' : 'pendiente') as ClienteDebeLlevarItem['estado'] }
+        ? { ...item, completado: nextCompletado, estado: nextEstado }
         : item
     );
     setDebeLlevarItems(updated);
     setIsSavingLlevar(true);
     try {
-      const result = await updateClientPackingList(fiestaId, updated);
+      const result = await updateClientPackingList(fiestaId, {
+        op: 'toggle',
+        itemId,
+        completado: nextCompletado,
+        estado: nextEstado,
+      });
       if (!result.success) throw new Error(result.error);
+      if (result.items) {
+        setDebeLlevarItems(result.items);
+      }
     } catch {
+      setDebeLlevarItems(prevItems);
       toast({ title: 'Error al guardar', description: 'No se pudo guardar el estado. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
     } finally {
       setIsSavingLlevar(false);
@@ -603,12 +624,13 @@ function PortalClientePageInner() {
   const showMensajes   = simplicityMode ? false : (portalSettings?.notasCliente?.visible ?? true);
   const showVideosInvitados = portalSettings?.videosParaInvitadosActivo === true;
 
-  // ── Financials ───────────────────────────────────────────────
+  // ── Financials (desde presupuesto normalizado en el servidor, un solo libro: pagosCliente) ───────
   const cuotas      = plan?.cuotas ?? [];
-  const paymentSummary = getPaymentPlanSummary(cuotas);
-  const totalCost   = paymentSummary.total;
-  const totalPaid   = paymentSummary.paid;
-  const balance     = paymentSummary.balance;
+  const resumenPres = (fiesta as any)?.resumenPresupuesto;
+  const totalCost   = Number(resumenPres?.total ?? fiesta.gestionCostos?.ingresosTotalesEstimados ?? config.presupuestoEstimado ?? 0);
+  const totalPaid   = Number(resumenPres?.paid ?? 0);
+  const balance     = resumenPres ? Number(resumenPres.balance ?? 0) : Math.max(0, totalCost - totalPaid);
+  void normalizePresupuestoFinancials;
 
   // ── RSVP ────────────────────────────────────────────────────
   const confirmed = invitados.filter(i => i.rsvp === 'Confirmado');
@@ -639,6 +661,7 @@ function PortalClientePageInner() {
             <p className="text-xs text-muted-foreground">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <BotonComoFunciona clave="portal-cliente" variant="compact" />
             <VideoDeAyuda lugar="portal-cliente" />
             <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
               Portal VIP
@@ -724,7 +747,10 @@ function PortalClientePageInner() {
               <span className="text-3xl shrink-0">✨</span>
               <div className="text-left">
                 <p className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1">¡Evento Concluido!</p>
-                <h3 className="text-base font-black text-foreground">Muro de Recuerdos & Descargas</h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-black text-foreground">Muro de Recuerdos & Descargas</h3>
+                  <BotonComoFunciona clave="cliente-fotos-video" variant="compact" />
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   Ya podés acceder a todas las fotos y videos compartidos por tus invitados, así como a las dedicatorias y audios.
                 </p>
@@ -1000,7 +1026,7 @@ function PortalClientePageInner() {
           if (showMusica && (fiesta.modulosContratados?.discoteca ?? true) && (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo')) {
             pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica` });
           }
-          if (showVideoVida && (fiesta.modulosContratados?.videoVida ?? true) && !fiesta.videoVida?.photosUploaded) {
+          if (showVideoVida && (fiesta.modulosContratados?.videoVida ?? true) && !progresoVideoVida(fiesta.videoVida).completo) {
             pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: `/portal-cliente/${fiestaId}/fotos-video` });
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
@@ -1037,8 +1063,11 @@ function PortalClientePageInner() {
             >
               <Card className="rounded-xl border border-amber-500/20 bg-amber-500/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base font-black text-amber-700 dark:text-amber-400">
-                    <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                  <CardTitle className="flex items-center justify-between gap-2 text-base font-black text-amber-700 dark:text-amber-400">
+                    <span className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                    </span>
+                    <BotonComoFunciona clave="cliente-pendientes" variant="compact" />
                   </CardTitle>
                   <CardDescription className="text-muted-foreground text-xs">
                     Completá estos pasos para que tu evento esté 100% listo.
@@ -1083,11 +1112,14 @@ function PortalClientePageInner() {
         <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
           {/* ── Resumen del Evento ──────────────────────── */}
           <AccordionItem value="resumen" id="resumen" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <CalendarDays className="w-5 h-5 text-primary" /> Resumen del Evento
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <CalendarDays className="w-5 h-5 text-primary" /> Resumen del Evento
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="cliente-resumen" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5">
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-3">
@@ -1123,21 +1155,24 @@ function PortalClientePageInner() {
 
           {/* ── Lo que tenés que llevar ───────────── */}
           <AccordionItem value="llevar" id="llevar" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <PackageCheck className="w-5 h-5 text-primary" /> Lo que tenés que llevar
-                {debeLlevarItems.filter(i => i.completado).length > 0 && (
-                  <Badge className="ml-1 bg-primary/10 text-primary border-0 text-xs">
-                    {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
-                  </Badge>
-                )}
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <PackageCheck className="w-5 h-5 text-primary" /> Lo que tenés que llevar
+                  {debeLlevarItems.filter(i => i.completado).length > 0 && (
+                    <Badge className="ml-1 bg-primary/10 text-primary border-0 text-xs">
+                      {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
+                    </Badge>
+                  )}
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="cliente-lo-que-llevas" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-2.5">
                 <p className="text-xs text-muted-foreground pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
                 {debeLlevarItems.map(item => {
-                  const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'enviado' : 'pendiente')];
+                  const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'listo' : 'pendiente')] ?? ESTADO_CONFIG.pendiente;
                   return (
                     <button
                       key={item.id}
@@ -1178,11 +1213,14 @@ function PortalClientePageInner() {
           {/* ── Menú y Cronograma ────────────────────────── */}
           {(showCatering || showTimeline) && (
             <AccordionItem value="catering" id="catering" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-                <span className="flex items-center gap-2 text-base font-black text-foreground">
-                  <UtensilsCrossed className="w-5 h-5 text-amber-500" /> Menú e Itinerario
-                </span>
-              </AccordionTrigger>
+              <div className="flex items-center justify-between gap-2 pr-4">
+                <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                  <span className="flex items-center gap-2 text-base font-black text-foreground">
+                    <UtensilsCrossed className="w-5 h-5 text-amber-500" /> Menú e Itinerario
+                  </span>
+                </AccordionTrigger>
+                <BotonComoFunciona clave="cliente-menu" variant="compact" />
+              </div>
               <AccordionContent className="px-5 pb-5">
                 <div className="grid sm:grid-cols-2 gap-6">
                   {showCatering && (
@@ -1230,33 +1268,45 @@ function PortalClientePageInner() {
           )}
 
           {/* ── Video de Vida ────────────────────────────── */}
+          {(() => {
+            const videoProgreso = progresoVideoVida(fiesta.videoVida);
+            return (
           <AccordionItem
             data-testid="portal-video-vida"
             value="video-vida"
             id="video-vida"
             className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
           >
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-              <span className="flex items-center gap-2 text-base font-black text-foreground">
-                <span className="text-xl">🎬</span> Video de Vida
-                {fiesta.videoVida?.photosUploaded
-                  ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
-                  : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
-                }
-              </span>
-            </AccordionTrigger>
+            <div className="flex items-center justify-between gap-2 pr-4">
+              <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <span className="text-xl">🎬</span> Video de Vida
+                  {videoProgreso.completo
+                    ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
+                    : videoProgreso.subidas > 0
+                      ? <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">{videoProgreso.subidas} de {videoProgreso.total} fotos</Badge>
+                      : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
+                  }
+                </span>
+              </AccordionTrigger>
+              <BotonComoFunciona clave="video-vida" variant="compact" />
+            </div>
             <AccordionContent className="px-5 pb-5 space-y-3">
               <p className="text-sm text-muted-foreground">
                 El video de vida es uno de los momentos más especiales de tu fiesta.
                 Necesitamos tus fotos y canciones favoritas para crearlo.
               </p>
-              {fiesta.videoVida?.photosUploaded ? (
+              {videoProgreso.completo ? (
                 <div className="flex items-center gap-2 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-sm text-emerald-700 dark:text-emerald-400">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
+                  <span className="font-semibold">¡Fotos recibidas! ({videoProgreso.subidas} de {videoProgreso.total}) Tu organizador está trabajando en el video.</span>
+                </div>
+              ) : videoProgreso.subidas > 0 ? (
+                <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
+                  <span className="font-semibold">{videoProgreso.subidas} de {videoProgreso.total} fotos subidas. Podés seguir cargando las que faltan.</span>
                 </div>
               ) : null}
-              {!fiesta.videoVida?.photosUploaded && (
+              {!videoProgreso.completo && (
                 <Link
                   href={`/portal-cliente/${fiestaId}?tab=fotos-video`}
                   className="flex items-center justify-between p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-sm hover:bg-amber-500/15 transition-colors"
@@ -1282,18 +1332,23 @@ function PortalClientePageInner() {
               )}
             </AccordionContent>
           </AccordionItem>
+            );
+          })()}
 
           {/* ── Decoración ───────────────────────────────── */}
           {showDecoration && (
             <AccordionItem value="decoracion" id="decoracion" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
-                <span className="flex items-center gap-2 text-base font-black text-foreground">
-                  <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
-                  {fiesta.decoracion?.tema && (
-                    <span className="ml-1 text-xs font-normal text-muted-foreground">Tema: {fiesta.decoracion.tema}</span>
-                  )}
-                </span>
-              </AccordionTrigger>
+              <div className="flex items-center justify-between gap-2 pr-4">
+                <AccordionTrigger className="flex-1 px-5 py-4 hover:no-underline hover:bg-muted/40">
+                  <span className="flex items-center gap-2 text-base font-black text-foreground">
+                    <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
+                    {fiesta.decoracion?.tema && (
+                      <span className="ml-1 text-xs font-normal text-muted-foreground">Tema: {fiesta.decoracion.tema}</span>
+                    )}
+                  </span>
+                </AccordionTrigger>
+                <BotonComoFunciona clave="decoracion" variant="compact" />
+              </div>
               <AccordionContent className="px-5 pb-5 space-y-4">
                 {fiesta.decoracion?.paletaColores && (
                   <div className="space-y-2">
@@ -1372,13 +1427,14 @@ function PortalClientePageInner() {
               transition={{ duration: DURACION.entrar, ease: SUAVE }}
               className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
             >
-              <div className="px-5 py-4 border-b border-border">
+              <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <Users className="w-5 h-5 text-primary" /> Invitados
                   <span className="ml-1 text-xs font-normal text-muted-foreground">
                     {personas.confirmados} personas confirmadas · {personas.sinResponder} sin responder
                   </span>
                 </span>
+                <BotonComoFunciona clave="cliente-invitados" variant="compact" />
               </div>
               <div className="px-5 py-5 space-y-5">
                 {/* RSVP Tracker */}
@@ -1416,17 +1472,17 @@ function PortalClientePageInner() {
                           {editingId === inv.id ? (
                             <div className="flex items-center gap-2 shrink-0">
                               <Input
-                                className="h-7 w-20 text-xs rounded-lg"
+                                className="h-10 w-24 text-sm rounded-lg"
                                 placeholder="N° mesa"
                                 value={editingTable}
                                 onChange={e => setEditingTable(e.target.value)}
                                 autoFocus
                                 onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
                               />
-                              <Button size="sm" className="h-7 px-2 text-xs rounded-lg" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
+                              <Button size="sm" className="h-10 px-3 text-xs rounded-lg" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
                                 {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs rounded-lg" onClick={() => setEditingId(null)}>✕</Button>
+                              <Button size="sm" variant="ghost" className="h-10 px-3 text-xs rounded-lg" onClick={() => setEditingId(null)}>✕</Button>
                             </div>
                           ) : (
                             <button
@@ -1459,10 +1515,11 @@ function PortalClientePageInner() {
               transition={{ duration: DURACION.entrar, ease: SUAVE }}
               className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
             >
-              <div className="px-5 py-4 border-b border-border">
+              <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Estado Financiero
                 </span>
+                <BotonComoFunciona clave="cliente-pagos" variant="compact" />
               </div>
               <div className="px-5 py-5 space-y-6">
                 <div className="grid grid-cols-3 gap-3">
@@ -1532,9 +1589,12 @@ function PortalClientePageInner() {
           className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm"
           data-testid="seccion-faq-contrato"
         >
-          <div className="mb-4">
-            <h2 className="text-lg font-black text-foreground">Preguntas Frecuentes del Servicio</h2>
-            <p className="text-xs text-muted-foreground">Términos claros y transparentes de nuestro contrato y organización.</p>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-black text-foreground">Preguntas Frecuentes del Servicio</h2>
+              <p className="text-xs text-muted-foreground">Términos claros y transparentes de nuestro contrato y organización.</p>
+            </div>
+            <BotonComoFunciona clave="cliente-mensajes" variant="compact" />
           </div>
           <Accordion type="single" collapsible className="w-full">
             {PREGUNTAS_FRECUENTES_DEL_CONTRATO.map((faq, idx) => (

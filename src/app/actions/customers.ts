@@ -11,6 +11,7 @@ import * as logger from '@/lib/logger';
 import { verifySession } from '@/lib/auth/session-token';
 import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { sanitizeActionError } from '@/lib/utils';
 
 /** Quien puede VER fichas de clientes (teléfono, documento, dirección). */
 const VER_CLIENTES = [PERMISOS.CRM, PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION] as const;
@@ -46,13 +47,21 @@ export async function getCustomersConDetalle(): Promise<{
   huboFalla: boolean;
   motivo?: string;
 }> {
-  await requirePermisoAlguno(...VER_CLIENTES);
-  const { valor, huboFalla, motivo } = await readDataConDetalle<Customer[]>(CUSTOMERS_FILE, []);
-  return {
-    customers: Array.isArray(valor) ? valor : [],
-    huboFalla,
-    motivo,
-  };
+  try {
+    await requirePermisoAlguno(...VER_CLIENTES);
+    const { valor, huboFalla, motivo } = await readDataConDetalle<Customer[]>(CUSTOMERS_FILE, []);
+    return {
+      customers: Array.isArray(valor) ? valor : [],
+      huboFalla,
+      motivo,
+    };
+  } catch (error) {
+    return {
+      customers: [],
+      huboFalla: true,
+      motivo: sanitizeActionError(error) || 'No se pudo leer la base de clientes.',
+    };
+  }
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {

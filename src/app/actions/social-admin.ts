@@ -1,6 +1,7 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, updateDataPartial } from '@/lib/data-service';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { getFiestas, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -70,21 +71,20 @@ const defaultSocialGlobalSettings: SocialGlobalSettings = {
 
 export async function getSocialGlobalSettings(): Promise<SocialGlobalSettings> {
   await requireAppSession();
-  try {
-    const data = await readData<Partial<SocialGlobalSettings>>(SOCIAL_GLOBAL_SETTINGS_FILE, {});
-    return {
-      adFrequency: data.adFrequency ?? defaultSocialGlobalSettings.adFrequency,
-      ads: data.ads ? data.ads.map(ad => ({ ...ad })) : [...defaultSocialGlobalSettings.ads]
-    };
-  } catch {
-    return { ...defaultSocialGlobalSettings };
+  const data = await readData<Partial<SocialGlobalSettings>>(SOCIAL_GLOBAL_SETTINGS_FILE, {});
+  if (esLecturaFallida(data)) {
+    throw new Error('No se pudo leer la configuración global de redes sociales.');
   }
+  return {
+    adFrequency: data.adFrequency ?? defaultSocialGlobalSettings.adFrequency,
+    ads: data.ads ? data.ads.map(ad => ({ ...ad })) : [...defaultSocialGlobalSettings.ads]
+  };
 }
 
 export async function saveSocialGlobalSettings(settings: SocialGlobalSettings): Promise<{ success: boolean; error?: string }> {
   try {
     await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
-    await writeData(SOCIAL_GLOBAL_SETTINGS_FILE, settings);
+    await updateDataPartial(SOCIAL_GLOBAL_SETTINGS_FILE, settings);
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message || 'Error al guardar la configuración global.' };

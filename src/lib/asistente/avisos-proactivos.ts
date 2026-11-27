@@ -1,6 +1,7 @@
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings, getHoraUruguay } from '@/lib/asistente/avisar-al-duenio';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export interface OpcionesAvisoProactivo {
   destinatario: { id?: string; role?: string; permissions?: string[] };
@@ -38,7 +39,7 @@ export async function enviarAvisoProactivoSegunPerfil(opciones: OpcionesAvisoPro
     return { enviado: false, motivo: 'perfil_sin_permiso_de_cobros' };
   }
 
-  const hoyStr = fecha.toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay(fecha);
   const userId = opciones.destinatario.id || 'general';
 
   let topeAlcanzado = false;

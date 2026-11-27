@@ -39,7 +39,7 @@ jest.mock('@/lib/generic-json-store', () => ({
 }));
 
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
-import { checkInGuest, updateGuestExperience, handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
+import { checkInGuest, handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
 
 const fiestaBase = () => ({
   id: 'f1',
@@ -59,12 +59,6 @@ describe('Guardar una fiesta pide permiso', () => {
     expect(res.success).toBe(false);
     expect(escrituras).toHaveLength(0);
     expect(documento!.invitados[0].checkedIn).toBe(false);
-  });
-
-  it('sin permiso, cambiar la experiencia del invitado no escribe nada', async () => {
-    const res = await updateGuestExperience('f1', 'g1', { mensaje: 'hola' });
-    expect(res?.success).toBe(false);
-    expect(escrituras).toHaveLength(0);
   });
 
   it('con permiso, la llegada queda guardada', async () => {

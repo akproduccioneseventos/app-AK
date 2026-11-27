@@ -1,4 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getGuestCountForItem } from '@/lib/calculations';
+import { condicionesDelInvitado } from '@/lib/catering/condiciones-del-invitado';
 
 /**
  * La hoja que se imprime y se pega en la cocina la noche del evento.
@@ -52,11 +54,9 @@ export interface HojaDeCocina {
 
 const ORDEN: MomentoDelServicio[] = ['Entrada', 'Plato Principal', 'Menú Infantil', 'Postre', 'Otros'];
 
-function momentoDe(categoria: string, nombre: string): MomentoDelServicio {
+function momentoDe(categoria: string, nombre: string, esParaChicos: boolean): MomentoDelServicio {
+  if (esParaChicos) return 'Menú Infantil';
   const c = `${categoria} ${nombre}`.toLowerCase();
-  if (c.includes('infantil') || c.includes('adolescente') || c.includes('niñ') || c.includes('nin')) {
-    return 'Menú Infantil';
-  }
   if (c.includes('entrada')) return 'Entrada';
   if (c.includes('postre') || c.includes('torta')) return 'Postre';
   if (c.includes('principal')) return 'Plato Principal';
@@ -78,11 +78,14 @@ export function armarHojaDeCocina(
   const avisos: string[] = [];
 
   const platos: PlatoDeLaNoche[] = platosDelPresupuesto.map((p) => {
-    const momento = momentoDe(p.categoria || '', p.nombre);
-    // La misma regla que usa la lista de compras, para que los numeros coincidan.
+    const descriptor = { nombreServicio: p.nombre, categoriaServicio: p.categoria };
+    // Usamos el mismo motor que costos/lista de compras con pesos fijos (10 adultos, 1 chico)
+    // para clasificar sin duplicar palabras clave ni caer en falsos positivos de subcadenas.
+    const muestra = getGuestCountForItem(descriptor, 10, 0, 1);
     const paraQuien: PlatoDeLaNoche['paraQuien'] =
-      momento === 'Menú Infantil' ? 'chicos' : momento === 'Plato Principal' ? 'adultos' : 'todos';
-    const porciones = paraQuien === 'chicos' ? chicos : paraQuien === 'adultos' ? adultos : total;
+      muestra === 1 ? 'chicos' : muestra === 10 ? 'adultos' : 'todos';
+    const momento = momentoDe(p.categoria || '', p.nombre, paraQuien === 'chicos');
+    const porciones = getGuestCountForItem(descriptor, adultos, 0, chicos);
     return { nombre: p.nombre, momento, porciones, paraQuien, alergenos: p.alergenos };
   });
 
@@ -90,23 +93,19 @@ export function armarHojaDeCocina(
 
   const invitados = fiesta.invitados ?? [];
   const confirmados = invitados.filter((g) => g.rsvp === 'Confirmado');
-  // Un celíaco marcado sólo con el interruptor (isCeliac) o con una alergia escrita a mano también
-  // cuenta: la cocina no puede dejarlos afuera por no tener la restricción elegida de la lista.
-  const restriccionDe = (g: (typeof confirmados)[number]): string | null => {
-    if (g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna') return String(g.dietaryRestriction);
-    if (g.isCeliac) return 'Celiaco';
-    if (g.alergiasEspecificas && g.alergiasEspecificas.trim()) return 'Otro';
-    return null;
-  };
-
   const porRestriccion = new Map<string, { personas: number; detalles: string[] }>();
   for (const g of confirmados) {
-    const clave = restriccionDe(g);
-    if (!clave) continue;
-    const actual = porRestriccion.get(clave) || { personas: 0, detalles: [] };
-    actual.personas += g.partySize || 1;
-    if (g.alergiasEspecificas) actual.detalles.push(g.alergiasEspecificas);
-    porRestriccion.set(clave, actual);
+    const condiciones = condicionesDelInvitado(g);
+    const claves: string[] = [...condiciones];
+    if (claves.length === 0 && g.alergiasEspecificas && g.alergiasEspecificas.trim()) {
+      claves.push('Otro');
+    }
+    for (const clave of claves) {
+      const actual = porRestriccion.get(clave) || { personas: 0, detalles: [] };
+      actual.personas += g.partySize || 1;
+      if (g.alergiasEspecificas) actual.detalles.push(g.alergiasEspecificas);
+      porRestriccion.set(clave, actual);
+    }
   }
 
   const especiales: PlatoEspecial[] = [...porRestriccion.entries()]

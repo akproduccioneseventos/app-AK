@@ -1,6 +1,7 @@
 ﻿import { PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/seo/paginas-publicas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export interface ReporteSaludWeb {
   paginasRevisadas: number;
@@ -74,6 +75,40 @@ export async function ejecutarRevisionPosicionamiento(
     fecha: ahora.toISOString(),
     detalles,
   };
+
+  if (reporte.estado === 'atencion') {
+    const rotas = detalles.filter((d) => d.estado !== 'ok');
+    try {
+      const hoyUy = hoyEnUruguay(ahora);
+      const { readData, writeData } = await import('@/lib/data-service');
+      const estadoAviso = await readData<{ ultimaFechaAviso?: string }>(
+        'automatico/posicionamiento-aviso.json',
+        {},
+      ).catch(() => ({} as { ultimaFechaAviso?: string }));
+
+      if (estadoAviso?.ultimaFechaAviso !== hoyUy) {
+        const { createNotification } = await import('@/lib/notifications/create-notification');
+        const listado = rotas.map((r) => `${r.ruta} (${r.mensaje})`).join(', ');
+        // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
+        await createNotification({
+          titulo: `Salud web: ${rotas.length} ${rotas.length === 1 ? 'página rota' : 'páginas rotas'}`,
+          mensaje: `Revisá estas páginas públicas que fallaron: ${listado}`,
+          tipo: 'alerta',
+          rolDestino: 'admin',
+          href: '/settings/tareas-automaticas',
+          icono: 'AlertTriangle',
+        });
+        await writeData(
+          'automatico/posicionamiento-aviso.json',
+          { ultimaFechaAviso: hoyUy, actualizadoAt: ahora.toISOString() },
+          undefined,
+          { skipAutoBackup: true },
+        ).catch(() => null);
+      }
+    } catch {
+      // Aviso secundario al dueño: nunca frena ni oculta el reporte de salud web.
+    }
+  }
 
   // Registrar marca oficial de corrida
   // no pasa nada si falla: la revisión ya se hizo; sin la marca, sólo se repite antes.

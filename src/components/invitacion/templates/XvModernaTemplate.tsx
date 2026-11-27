@@ -44,6 +44,7 @@ export const XvModernaTemplate: React.FC<TemplateProps> = ({
 
   const protagonista = invitacionData.cabecera?.protagonista1 || fiesta.configuracion?.nombreAgasajado || 'Mis 15 Años';
   const fechaEvento = fiesta.configuracion?.fechaEvento || '';
+  const horaEvento = invitacionData.horaEvento || invitacionData.detallesEvento?.celebracion?.hora || fiesta.configuracion?.horaInicio || (fiesta.configuracion as { horaEvento?: string } | undefined)?.horaEvento || '';
   const lugar = invitacionData.detallesEvento?.celebracion?.nombreLugar || fiesta.configuracion?.nombreLugar || 'Salón de Eventos';
   const direccion = invitacionData.detallesEvento?.celebracion?.direccionLugar || fiesta.configuracion?.direccionLugar || '';
   const itinerarioItems = (fiesta.programa || []).map((c) => ({
@@ -130,6 +131,7 @@ export const XvModernaTemplate: React.FC<TemplateProps> = ({
             <AddToCalendarButton
               eventName={protagonista}
               startDate={fechaEvento || new Date().toISOString()}
+              horaEvento={horaEvento}
               location={lugar}
               primaryColor={primaryColor}
             />

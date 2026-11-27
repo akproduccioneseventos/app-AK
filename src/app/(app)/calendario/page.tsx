@@ -57,7 +57,7 @@ import { buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmail
 import type { CalendarEvent } from '@/app/actions/agenda';
 import type { CrmAppointment } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn, getUruguayParts, hoyEnUruguay } from '@/lib/utils';
 import {
   DndContext,
   DragOverlay,
@@ -74,6 +74,14 @@ import {
 // ──────────────────────────────────────────────────────────────────────────────
 // Status config
 // ──────────────────────────────────────────────────────────────────────────────
+
+function mostrarLugarCita(lugar?: string): string {
+  const limpio = (lugar || '').trim();
+  if (!limpio || /oficina ak/i.test(limpio)) {
+    return 'A coordinar';
+  }
+  return limpio;
+}
 
 const STATUS_CONFIG = {
   confirmed: {
@@ -278,7 +286,9 @@ function EventDetailSheet({
             <CalendarDays className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-medium">Fecha</p>
-              <p className="text-muted-foreground capitalize">{formattedDate}</p>
+              <p className="text-muted-foreground">
+                {formattedDate ? formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1) : ''}
+              </p>
             </div>
           </div>
 
@@ -371,7 +381,7 @@ export default function CalendarioInteractivoPage() {
   const [citaTipo, setCitaTipo] = useState('Fiesta de 15');
   const [citaFecha, setCitaFecha] = useState('');
   const [citaHora, setCitaHora] = useState('18:00');
-  const [citaLugar, setCitaLugar] = useState('Oficina AK Salto');
+  const [citaLugar, setCitaLugar] = useState('A coordinar');
   const [citaNotas, setCitaNotas] = useState('');
   const [isSubmittingCita, setIsSubmittingCita] = useState(false);
   // Cuando está cargada, el formulario de cita edita esa cita en vez de crear una.
@@ -398,14 +408,18 @@ export default function CalendarioInteractivoPage() {
   const abrirEdicionDeCita = (appt: CrmAppointment) => {
     const fecha = new Date(appt.fechaHora);
     const valida = !Number.isNaN(fecha.getTime());
+    const parts = valida ? getUruguayParts(fecha) : null;
+    const horaUY = parts
+      ? `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
+      : '18:00';
     setCitaEnEdicion(appt);
     setCitaNombre(appt.clienteNombre || '');
     setCitaTelefono(appt.clienteContacto || '');
     setCitaEmail(appt.clienteEmail || '');
     setCitaTipo(appt.eventoTipo || 'Fiesta de 15');
-    setCitaFecha(valida ? fecha.toISOString().slice(0, 10) : '');
-    setCitaHora(valida ? fecha.toTimeString().slice(0, 5) : '18:00');
-    setCitaLugar(appt.lugar || 'Oficina AK Salto');
+    setCitaFecha(valida ? hoyEnUruguay(fecha) : '');
+    setCitaHora(horaUY);
+    setCitaLugar(mostrarLugarCita(appt.lugar));
     setCitaNotas(appt.notas || '');
     setIsCitaModalOpen(true);
   };
@@ -437,7 +451,8 @@ export default function CalendarioInteractivoPage() {
     }
     setIsSubmittingCita(true);
     try {
-      const fullDateTime = new Date(`${citaFecha}T${citaHora}`).toISOString();
+      const horaNormalizada = citaHora && citaHora.length === 5 ? `${citaHora}:00` : (citaHora || '18:00:00');
+      const fullDateTime = new Date(`${citaFecha}T${horaNormalizada}-03:00`).toISOString();
 
       if (citaEnEdicion) {
         const res = await updateAppointment(citaEnEdicion.id, {
@@ -575,6 +590,15 @@ export default function CalendarioInteractivoPage() {
 
   const confirmedCount = useMemo(() => events.filter(e => e.status === 'confirmed').length, [events]);
   const pendingCount = useMemo(() => events.filter(e => e.status === 'pending').length, [events]);
+  const pastUnclosedApptsCount = useMemo(
+    () =>
+      appointments.filter(a => {
+        if (a.estado !== 'Agendada') return false;
+        const ts = new Date(a.fechaHora).getTime();
+        return !Number.isNaN(ts) && ts < Date.now();
+      }).length,
+    [appointments]
+  );
 
   return (
     <div className="space-y-4">
@@ -607,6 +631,9 @@ export default function CalendarioInteractivoPage() {
         ))}
         <span className="ml-auto flex items-center gap-2 text-muted-foreground">
           <span>{confirmedCount} confirmados</span>·<span>{pendingCount} pendientes</span>
+          {pastUnclosedApptsCount > 0 && (
+            <>·<span className="text-amber-600 font-semibold">{pastUnclosedApptsCount} citas pasadas sin cerrar</span></>
+          )}
         </span>
       </div>
 
@@ -707,6 +734,8 @@ export default function CalendarioInteractivoPage() {
                 const fechaStr = dateObj.toLocaleDateString('es-UY', { weekday: 'short', day: '2-digit', month: 'short' });
                 const horaStr = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
                 const initial = appt.clienteNombre ? appt.clienteNombre.charAt(0).toUpperCase() : 'C';
+                const esPasadaSinCerrar =
+                  appt.estado === 'Agendada' && !Number.isNaN(dateObj.getTime()) && dateObj.getTime() < Date.now();
 
                 return (
                   <div key={appt.id} className="group relative rounded-2xl border border-white/15 bg-white/5 p-5 shadow-xl backdrop-blur-xl transition-all hover:border-emerald-400/50 hover:bg-white/10 flex flex-col justify-between">
@@ -722,13 +751,14 @@ export default function CalendarioInteractivoPage() {
                           </div>
                         </div>
                         <span className={cn(
-                          'text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest border',
+                          'text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest border text-right',
                           appt.estado === 'Confirmada' ? 'bg-green-500/20 text-green-300 border-green-500/40' :
                           appt.estado === 'Realizada' ? 'bg-slate-500/20 text-slate-300 border-slate-500/40' :
-                          appt.estado === 'Cancelada' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
+                          appt.estado === 'No asistió' || appt.estado === 'Cancelada' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
+                          esPasadaSinCerrar ? 'bg-orange-500/20 text-orange-200 border-orange-500/50' :
                           'bg-amber-500/20 text-amber-300 border-amber-500/40'
                         )}>
-                          {appt.estado}
+                          {esPasadaSinCerrar ? 'Pasada — ¿se hizo?' : appt.estado}
                         </span>
                       </div>
 
@@ -742,12 +772,10 @@ export default function CalendarioInteractivoPage() {
                             {horaStr} hs
                           </span>
                         </div>
-                        {appt.lugar && (
-                          <div className="flex items-center gap-2 text-slate-300">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400 flex-none" />
-                            <span className="truncate">{appt.lugar}</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 text-slate-300">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 flex-none" />
+                          <span className="truncate">{mostrarLugarCita(appt.lugar)}</span>
+                        </div>
                         {appt.notas && (
                           <p className="text-[11px] text-slate-400 italic pt-1 border-t border-white/5">
                             "{appt.notas}"
@@ -769,7 +797,44 @@ export default function CalendarioInteractivoPage() {
                         </a>
                       </div>
 
-                      {appt.estado === 'Agendada' && (
+                      {appt.estado === 'Agendada' && esPasadaSinCerrar && (
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                            onClick={async () => {
+                              const res = await updateAppointmentStatus(appt.id, 'Realizada');
+                              if (!res?.success) {
+                                toast({ title: 'Error', description: res?.error || 'No se pudo cerrar la cita.', variant: 'destructive' });
+                                return;
+                              }
+                              toast({ title: 'Cita marcada como realizada' });
+                              fetchEvents();
+                            }}
+                          >
+                            Se hizo
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                            onClick={async () => {
+                              const res = await updateAppointmentStatus(appt.id, 'No asistió');
+                              if (!res?.success) {
+                                toast({ title: 'Error', description: res?.error || 'No se pudo cerrar la cita.', variant: 'destructive' });
+                                return;
+                              }
+                              toast({ title: 'Cita marcada como no asistió' });
+                              fetchEvents();
+                            }}
+                          >
+                            No vino
+                          </Button>
+                        </div>
+                      )}
+
+                      {appt.estado === 'Agendada' && !esPasadaSinCerrar && (
                         <Button variant="ghost" size="sm" className="w-full h-8 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10" onClick={async () => {
                           const res = await updateAppointmentStatus(appt.id, 'Confirmada');
                           if (!res?.success) {
@@ -856,7 +921,7 @@ export default function CalendarioInteractivoPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="cita-lugar" className="text-slate-200 font-bold text-xs">Lugar / Medio</Label>
-                <Input id="cita-lugar" value={citaLugar} onChange={e => setCitaLugar(e.target.value)} placeholder="Oficina AK Salto" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
+                <Input id="cita-lugar" value={citaLugar} onChange={e => setCitaLugar(e.target.value)} placeholder="A coordinar" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
               </div>
             </div>
 

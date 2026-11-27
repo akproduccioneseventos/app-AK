@@ -17,6 +17,7 @@ import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
 import { getRecibosFirmadosByEmpleado, saveReciboFirmado } from '@/app/actions/recibos-personal';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { esReciboCobrado, totalCobradoDelPersonal } from '@/lib/personal/desglose-recibo';
 import type { Empleado, ReciboFirmado } from '@/types/empleado';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Rol } from '@/types/rol';
@@ -157,18 +158,20 @@ export default function EmpleadoHistorialPage() {
     Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase);
   const estaCobrado = (row: HistorialRow) => {
     const estado = editableByFiesta[row.fiestaId]?.estado || 'pendiente';
-    return estado === 'pagado' || estado === 'firmado_subido';
+    return esReciboCobrado(estado);
   };
 
   const totalCobrado = useMemo(
     () =>
-      filteredRows
-        .filter((row) => {
-          const estado = editableByFiesta[row.fiestaId]?.estado || 'pendiente';
-          return estado === 'pagado' || estado === 'firmado_subido';
-        })
-        .reduce((sum, row) => sum + Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase), 0),
-    [editableByFiesta, filteredRows]
+      totalCobradoDelPersonal(
+        filteredRows.map((row) => ({
+          empleadoId,
+          monto: Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase),
+          estado: editableByFiesta[row.fiestaId]?.estado || 'pendiente',
+        })),
+        empleadoId,
+      ),
+    [editableByFiesta, empleadoId, filteredRows]
   );
   const totalPendiente = useMemo(
     () =>

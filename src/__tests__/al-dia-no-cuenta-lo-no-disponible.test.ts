@@ -151,12 +151,14 @@ describe('Bloque 4: Al día no cuenta lo no disponible y muestra alertas de desp
     });
 
     const alDiaText = host.querySelector('[data-testid="contador-al-dia"]')?.textContent ?? '';
+    const falloUltimoText = host.querySelector('[data-testid="contador-fallo-ultimo"]')?.textContent ?? '';
     const noDispText = host.querySelector('[data-testid="contador-no-disponible"]')?.textContent ?? '';
     const avisoDespertador = host.querySelector('[data-testid="aviso-despertador-inactivo"]');
     const avisoFallos = host.querySelector('[data-testid="aviso-fallos-recientes"]');
 
-    // La tarea sin WhatsApp suma en NO DISPONIBLE (1) y NO en AL DÍA (sólo 1: generate-blog-post)
-    expect(alDiaText).toContain('1');
+    // La tarea sin WhatsApp suma en NO DISPONIBLE (1) y la tarea con fallo posterior suma en FALLÓ LA ÚLTIMA VEZ (1), no en AL DÍA (Orden 372 B2.3)
+    expect(alDiaText).toContain('0');
+    expect(falloUltimoText).toContain('1');
     expect(noDispText).toContain('1');
 
     // Aviso visible arriba y en rojo cuando el despertador está sin ejecutar

@@ -4,12 +4,18 @@ export type CommercialSource =
   | 'landing_bodas'
   | 'landing_xv'
   | 'landing_eventos'
+  | 'landing_empresas'
+  | 'landing_infantiles'
   | 'guest_portal'
   | 'campaign'
   | 'instagram'
   | 'facebook'
   | 'youtube'
   | 'whatsapp'
+  | 'google'
+  | 'pinterest'
+  | 'meta'
+  | 'tufiesta'
   | 'portal_led';
 
 export type CommercialSimulatorMode = 'assistant' | 'visual';
@@ -35,14 +41,27 @@ const VALID_SOURCES = new Set<CommercialSource>([
   'landing_bodas',
   'landing_xv',
   'landing_eventos',
+  'landing_empresas',
+  'landing_infantiles',
   'guest_portal',
   'campaign',
   'instagram',
   'facebook',
   'youtube',
   'whatsapp',
+  'google',
+  'pinterest',
+  'meta',
+  'tufiesta',
   'portal_led',
 ]);
+
+const ORIGIN_ALIASES: Record<string, CommercialSource> = {
+  ig: 'instagram',
+  wa: 'whatsapp',
+  fb: 'facebook',
+  yt: 'youtube',
+};
 
 function cleanValue(value: string | null | undefined, maxLength: number): string | undefined {
   const cleaned = value?.trim().replace(/[^\p{L}\p{N}\-_.:/ ]/gu, '').slice(0, maxLength);
@@ -50,8 +69,10 @@ function cleanValue(value: string | null | undefined, maxLength: number): string
 }
 
 function normalizeSource(value: string | null | undefined, fallback: CommercialSource): CommercialSource {
-  const normalized = value?.trim().toLowerCase().replace(/-/g, '_') as CommercialSource | undefined;
-  return normalized && VALID_SOURCES.has(normalized) ? normalized : fallback;
+  const raw = value?.trim().toLowerCase().replace(/-/g, '_');
+  if (!raw) return fallback;
+  const aliased = ORIGIN_ALIASES[raw] ?? (raw as CommercialSource);
+  return VALID_SOURCES.has(aliased) ? aliased : fallback;
 }
 
 function firstRecordValue(value: string | string[] | undefined): string | undefined {
@@ -93,7 +114,7 @@ export function commercialAttributionFromSearchParams(
   fallbackSource: CommercialSource = 'direct'
 ): CommercialAttribution {
   return sanitizeCommercialAttribution({
-    source: normalizeSource(params.get('source') || params.get('utm_source'), fallbackSource),
+    source: normalizeSource(params.get('source') || params.get('utm_source') || params.get('o'), fallbackSource),
     campaign: params.get('campaign') || params.get('utm_campaign') || undefined,
     refFiestaId: params.get('refFiesta') || undefined,
     refGuestId: params.get('refGuest') || undefined,
@@ -157,12 +178,18 @@ export function describeCommercialSource(attribution?: Partial<CommercialAttribu
     landing_bodas: 'Landing de bodas',
     landing_xv: 'Landing de XV anos',
     landing_eventos: 'Landing de eventos',
+    landing_empresas: 'Landing de empresas',
+    landing_infantiles: 'Landing de infantiles',
     guest_portal: 'Experiencia de invitado',
     campaign: 'Campana publicitaria',
     instagram: 'Instagram',
     facebook: 'Facebook',
     youtube: 'YouTube',
     whatsapp: 'WhatsApp',
+    google: 'Google',
+    pinterest: 'Pinterest',
+    meta: 'Meta (Instagram / Facebook)',
+    tufiesta: 'TuFiesta',
     portal_led: 'Portal LED',
   };
   return labels[source];

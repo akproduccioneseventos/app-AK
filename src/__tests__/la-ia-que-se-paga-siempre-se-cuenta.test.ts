@@ -25,17 +25,28 @@ function leer(relativo: string): string {
   return fs.readFileSync(path.join(process.cwd(), relativo), 'utf8');
 }
 
+function leerConNucleo(relativo: string): string {
+  const fuente = leer(relativo);
+  if (relativo === 'src/app/actions/commercial-intelligence.ts') {
+    return `${fuente}\n${leer('src/lib/commercial/commercial-followup.ts')}`;
+  }
+  if (relativo === 'src/app/actions/post-event-intelligence.ts') {
+    return `${fuente}\n${leer('src/lib/post-event/post-event-core.ts')}`;
+  }
+  return fuente;
+}
+
 describe('la inteligencia artificial que se paga siempre se cuenta', () => {
   it.each(ACCIONES_QUE_GASTAN)('%s anota lo que gasta', relativo => {
-    const fuente = leer(relativo);
-
-    expect(fuente).toContain('registrarConsumoIA');
+    const fuente = leerConNucleo(relativo);
+    const pasaPorCerebro = fuente.includes('pedirTexto');
+    expect(pasaPorCerebro || fuente.includes('registrarConsumoIA')).toBe(true);
   });
 
   it.each(ACCIONES_QUE_GASTAN)('%s respeta el tope del mes', relativo => {
-    const fuente = leer(relativo);
-
-    expect(fuente).toContain('hayPresupuestoParaIA');
+    const fuente = leerConNucleo(relativo);
+    const pasaPorCerebro = fuente.includes('pedirTexto');
+    expect(pasaPorCerebro || fuente.includes('hayPresupuestoParaIA')).toBe(true);
   });
 
   it('los dos generadores nuevos tienen un costo estimado cargado', () => {

@@ -43,6 +43,7 @@ import {
   withZonaDigitalDefaults,
 } from '@/lib/zona-digital-adolescentes';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const featureIcon: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   muro_social: ImageIcon,
@@ -188,10 +189,11 @@ export default function ZonaDigitalPublicPage() {
   return (
     <main className={cn('min-h-screen overflow-hidden px-4 py-5 sm:px-6', getBackgroundClass(settings.backgroundStyle))}>
       <div className="relative mx-auto max-w-6xl space-y-5">
-        <div className="flex justify-start">
+        <div className="flex flex-wrap items-center justify-between gap-2">
            <Button asChild variant="outline" className="rounded-full bg-white/10 text-white border-white/20 hover:bg-white/20">
               <Link href={`/evento/hub/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`}>← Volver al Hub</Link>
            </Button>
+           <BotonComoFunciona clave="subir-fotos-videos" variant="dark" />
         </div>
         <section className="ak-live-panel p-5 sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

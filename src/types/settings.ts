@@ -340,3 +340,17 @@ export const defaultAjustesLlegadaPersonal: AjustesLlegadaPersonal = {
   llegadaConUbicacion: false,
   radioMetros: 300,
 };
+
+export type GrupoTutorial =
+  | 'Prospecto'
+  | 'Cliente'
+  | 'Invitado'
+  | 'Proveedor y personal'
+  | 'Equipo en el salón';
+
+export interface TutorialVideoConfig {
+  youtubeUrl?: string;
+  videoId?: string;
+}
+
+export type TutorialesSettings = Record<string, TutorialVideoConfig>;

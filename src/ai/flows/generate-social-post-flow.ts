@@ -1,6 +1,7 @@
 import type { GenerateSocialPostInput, GenerateSocialPostOutput } from '@/ai/types/generate-social-post-types';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 function normalizeHashtag(tag: string) {
   const clean = tag.trim().replace(/^#/, '').replace(/[^\p{L}\p{N}_]/gu, '');
@@ -38,11 +39,6 @@ function buildFallbackPost(input: GenerateSocialPostInput): GenerateSocialPostOu
 export async function generateSocialPost(input: GenerateSocialPostInput): Promise<GenerateSocialPostOutput> {
   const fallback = buildFallbackPost(input);
 
-  const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-  if (!canUseAI) {
-    return fallback;
-  }
-
   try {
     const model = getGeminiModelForAgent('marketing');
     const prompt = `Sos el Community Manager de AK Producciones (Salto, Uruguay).
@@ -62,18 +58,22 @@ Reglas:
   "hashtags": arreglo de hashtags (strings con #).
   "callToAction": una invitación sutil a contactar a AK.`;
 
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'material-post-evento',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
     });
+    if (!result.ok) {
+      return fallback;
+    }
 
-    const rawText = result.text.trim();
+    const rawText = result.texto.trim();
     // Parse JSON from text if returned with fences
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.caption) {
-        await registrarConsumoIA('material-post-evento').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           caption: parsed.caption,
           shortCaption: parsed.shortCaption || fallback.shortCaption,
@@ -84,7 +84,6 @@ Reglas:
     }
 
     if (rawText.length > 30) {
-      await registrarConsumoIA('material-post-evento').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
       return {
         caption: rawText,
         shortCaption: fallback.shortCaption,

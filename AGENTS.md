@@ -282,3 +282,12 @@ Aplicar en todos los chats y tareas, salvo que el usuario pida expresamente otra
 6. Cerrar los agentes al terminar para no ocupar cupos. Reutilizar evidencia asociada al mismo SHA.
 7. Si multiagente no esta disponible, seguir el flujo de bajo consumo sin inventar resultados.
 8. La delegacion ahorra tiempo y tokens, pero nunca reemplaza la validacion final del modelo principal.
+
+## Reglas operativas permanentes (decisiones del dueno, 26/11/2026)
+
+- **GitHub Actions siempre bloqueado (sin tarjeta):** el dueno decidio **no poner tarjeta** en GitHub. Las ejecuciones en la nube (`ci.yml`) van a quedar siempre bloqueadas por facturacion. Ninguna IA debe pedir tarjeta ni esperar checks de GitHub Actions para avanzar o fusionar; la validacion obligatoria corre en el entorno local o de Claude (`npm run "publicar?"`, `typecheck`, `lint`, `check:acentos`, `test:rules`, `build`, Jest y Playwright).
+- **Quien hace la PR y quien fusiona:** Gemini (Antigravity) trabaja en rama limpia, corre los controles y deja la **PR lista sin fusionar** (`no mergea nunca`). **Claude es quien revisa y fusiona (mergea)** despues de verificar plata, seguridad, permisos y controles completos.
+- **Velocidad de produccion (sin demorar horas):**
+  1. Dividir tandas grandes en **subagentes economicos en paralelo** con archivos estrictamente separados (sin solaparse). Cada subagente corre solo su prueba puntual antes de devolver.
+  2. Correr pruebas pesadas (`npx jest` entero, `npm run build`, `test:rules`, Playwright E2E, `graphify:update`) **una sola vez al final** sobre el conjunto integrado, siempre **de a una en serie** en la maquina de 8 GB RAM para evitar frenos por memoria.
+  3. Reutilizar resultados del mismo commit y no repetir verificaciones pesadas sobre cambios que no tocan codigo.

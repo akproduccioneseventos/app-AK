@@ -30,6 +30,7 @@ import type { BlockedSocialGuest } from '@/lib/social-fiesta/moderacion-bloqueos
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import NextImage from 'next/image';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function isVideoPost(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
@@ -292,20 +293,21 @@ function SwipeModerationInner() {
             </p>
           )}
         </div>
-        {role === 'staff' ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleCreateFamilyLink}
-            disabled={generatingLink}
-            className="rounded-full border-amber-400/30 bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 text-[11px] font-bold px-3 h-8 shrink-0"
-          >
-            {generatingLink ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1" />}
-            Familiar
-          </Button>
-        ) : (
-          <div className="w-9 shrink-0" />
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          <BotonComoFunciona clave="moderacion" variant="dark" />
+          {role === 'staff' ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCreateFamilyLink}
+              disabled={generatingLink}
+              className="rounded-full border-amber-400/30 bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 text-[11px] font-bold px-3 h-8 shrink-0"
+            >
+              {generatingLink ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1" />}
+              Familiar
+            </Button>
+          ) : null}
+        </div>
       </header>
 
       {/* GENERATED FAMILY MODERATOR LINK BANNER (STAFF ONLY) */}

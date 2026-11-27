@@ -68,6 +68,9 @@ const NOMBRES_FUNCION: Record<FuncionConCosto, string> = {
   papeleria: 'Papelería del evento',
   sofia: 'Sofía (simulador)',
   cerebro: 'Consultas generales',
+  galeria: 'Clasificación de galería',
+  presentacion: 'Asistente en presentación',
+  'revision-fotos': 'Moderación automática de fotos',
 };
 
 export function GastoIaCard({ initialResumen = null }: { initialResumen?: ResumenDeGasto | null }) {

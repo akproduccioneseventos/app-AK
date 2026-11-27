@@ -57,6 +57,11 @@ export interface AkAgentChatSession {
   title: string;
   pathname?: string;
   fiestaId?: string;
+  pendingAction?: {
+    type: 'agendar_reunion' | 'preparar_mail';
+    data: any;
+    requestedAt: string;
+  } | null;
   messages: AkAgentChatMessage[];
   createdAt: string;
   updatedAt: string;

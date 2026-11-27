@@ -1454,10 +1454,29 @@ function MuroSocialContent() {
                   size="sm"
                   className="text-xs text-destructive hover:text-destructive"
                   onClick={async () => {
-                    const updated = { ...settingsRef.current, mobileControlCoverUrl: undefined };
+                    const prev = settingsRef.current;
+                    const updated = { ...prev, mobileControlCoverUrl: undefined };
                     setSettings(updated);
-                    await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
-                    toast({ title: 'Portada eliminada' });
+                    try {
+                      const result = await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
+                      if (!result?.success) {
+                        setSettings(prev);
+                        toast({
+                          title: 'Error al quitar la portada',
+                          description: result?.error || 'No se pudo guardar el cambio.',
+                          variant: 'destructive',
+                        });
+                        return;
+                      }
+                      toast({ title: 'Portada eliminada' });
+                    } catch (e: any) {
+                      setSettings(prev);
+                      toast({
+                        title: 'Error al quitar la portada',
+                        description: e?.message || 'No se pudo guardar el cambio.',
+                        variant: 'destructive',
+                      });
+                    }
                   }}
                 >
                   Quitar portada

@@ -16,6 +16,7 @@ import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
 import { getCustomersConDetalle, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { diasHastaEnUruguay, parseUruguayDate } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,11 +35,9 @@ import { Separator } from '@/components/ui/separator';
 const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     try {
-        const date = new Date(dateString);
-        // This ensures we read the date as if it's in UTC to avoid timezone shifts from the server string
-        const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-        return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'numeric', year: '2-digit' });
-    } catch(e) {
+        const date = parseUruguayDate(dateString);
+        return date.toLocaleDateString('es-UY', { timeZone: 'America/Montevideo', day: '2-digit', month: 'numeric', year: '2-digit' });
+    } catch {
         return "Fecha inválida";
     }
 }
@@ -176,8 +175,11 @@ function CustomersPageInner() {
         );
       }
 
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
+      const esFiestaProximaOHoy = (fecha?: string) => {
+          if (!fecha) return false;
+          const dias = diasHastaEnUruguay(fecha);
+          return !Number.isNaN(dias) && dias >= 0;
+      };
 
       const customersWithData = safeCustomersData.map(customer => {
           const customerFiestas = safefiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
@@ -186,28 +188,18 @@ function CustomersPageInner() {
           let displayDate = customer.partyDate;
 
           if (customerFiestas.length > 0) {
-              const hasUpcomingEvent = customerFiestas.some(f => {
-                  if (!f.configuracion.fechaEvento) return false;
-                  const eventDate = new Date(f.configuracion.fechaEvento);
-                  eventDate.setHours(0, 0, 0, 0);
-                  return eventDate.getTime() >= now.getTime();
-              });
+              const hasUpcomingEvent = customerFiestas.some(f => esFiestaProximaOHoy(f.configuracion.fechaEvento));
 
               if (hasUpcomingEvent) {
                   calculatedStatus = 'Actual';
                   const upcomingEvents = customerFiestas
-                      .filter(f => {
-                          if (!f.configuracion.fechaEvento) return false;
-                          const eventDate = new Date(f.configuracion.fechaEvento);
-                          eventDate.setHours(0, 0, 0, 0);
-                          return eventDate.getTime() >= now.getTime();
-                      })
-                      .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
+                      .filter(f => esFiestaProximaOHoy(f.configuracion.fechaEvento))
+                      .sort((a, b) => parseUruguayDate(a.configuracion.fechaEvento!).getTime() - parseUruguayDate(b.configuracion.fechaEvento!).getTime());
                   displayDate = upcomingEvents[0]?.configuracion.fechaEvento;
               } else {
                   calculatedStatus = 'Antiguo';
                   const pastEvents = customerFiestas
-                      .sort((a,b) => new Date(b.configuracion.fechaEvento!).getTime() - new Date(a.configuracion.fechaEvento!).getTime());
+                      .sort((a, b) => parseUruguayDate(b.configuracion.fechaEvento!).getTime() - parseUruguayDate(a.configuracion.fechaEvento!).getTime());
                   displayDate = pastEvents[0]?.configuracion.fechaEvento;
               }
           }
@@ -220,8 +212,8 @@ function CustomersPageInner() {
       });
 
       const sortedData = customersWithData.sort((a, b) => {
-          const dateA = a.partyDate ? new Date(a.partyDate).getTime() : -Infinity;
-          const dateB = b.partyDate ? new Date(b.partyDate).getTime() : -Infinity;
+          const dateA = a.partyDate ? parseUruguayDate(a.partyDate).getTime() : -Infinity;
+          const dateB = b.partyDate ? parseUruguayDate(b.partyDate).getTime() : -Infinity;
 
           if(a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
           if(a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
@@ -297,7 +289,7 @@ function CustomersPageInner() {
       <Card>
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="font-headline">Listado de Clientes ({customers.length})</CardTitle>
+              <CardTitle className="font-headline">Listado de Clientes{!isLoading && !customersError ? ` (${customers.length})` : ''}</CardTitle>
               <CardDescription>Consulta y gestiona la información de tus clientes.</CardDescription>
             </div>
             <div className="relative flex-grow md:max-w-xs w-full">

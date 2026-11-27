@@ -119,6 +119,7 @@ export async function deleteProveedor(id: string): Promise<{ success: boolean; e
 }
 
 async function deleteProveedorInterno(id: string): Promise<{ success: boolean; error?: string }> {
+  const { esLecturaFallida } = await import('@/lib/marca-de-lectura');
 
   // Borrarlo de una deja a sus insumos apuntando a un proveedor que ya no existe:
   // en la lista de compras esos productos quedan sin a quien pedirselos, y nadie
@@ -127,6 +128,9 @@ async function deleteProveedorInterno(id: string): Promise<{ success: boolean; e
   try {
     const { getInsumos } = await import('./insumos');
     const insumos = await getInsumos();
+    if (esLecturaFallida(insumos)) {
+      return { success: false, error: 'No se pudo comprobar si el proveedor tiene insumos asociados. Probá de nuevo.' };
+    }
     const enUso = insumos.filter((insumo: { proveedor?: string }) => insumo.proveedor === id);
     if (enUso.length > 0) {
       const nombres = enUso
@@ -148,6 +152,9 @@ async function deleteProveedorInterno(id: string): Promise<{ success: boolean; e
   try {
     const proveedor = await getProveedorById(id);
     const insumos = await getInsumos();
+    if (esLecturaFallida(insumos)) {
+      return { success: false, error: 'No se pudo comprobar si el proveedor tiene insumos asociados. Probá de nuevo.' };
+    }
     const insumosEnUso = insumos.filter((ins: { proveedorId?: string; proveedor?: string }) => {
       const coincideNombre = typeof ins.proveedor === 'string' && ins.proveedor.trim() !== ''
         && [proveedor?.nombreEmpresa, proveedor?.nombre].some(nombre =>

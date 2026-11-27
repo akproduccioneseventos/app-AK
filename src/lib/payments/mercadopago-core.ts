@@ -52,6 +52,8 @@ export type MercadoPagoBudgetReconciliation = {
   changed: boolean;
   requiresReview: boolean;
   reviewReason?: string;
+  refundedAmount: number;
+  netAmount: number;
 };
 
 export function resolveMercadoPagoCheckoutAmount(input: {
@@ -223,6 +225,8 @@ export function reconcileMercadoPagoBudget(input: {
     changed,
     requiresReview,
     reviewReason,
+    refundedAmount: hasRefund ? refundedAmount : 0,
+    netAmount,
   };
 }
 

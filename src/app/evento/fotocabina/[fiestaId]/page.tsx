@@ -78,6 +78,7 @@ import {
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara, reflejarCarasEnHorizontal, FILTROS_DISPONIBLES, iniciarNuevoIntentoRuleta } from '@/lib/entretenimiento/filtros-cara';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -206,6 +207,7 @@ export default function FotocabinaPage() {
   const [avisoDelMuro, setAvisoDelMuro] = useState<string | null>(null);
   const [guardadaEnEsteEquipo, setGuardadaEnEsteEquipo] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [avisoDeImpresion, setAvisoDeImpresion] = useState<string | null>(null);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
   const sesionCaptureIdRef = useRef<string | undefined>(undefined);
@@ -858,6 +860,7 @@ export default function FotocabinaPage() {
     if (!capturedImage) return;
     setIsPrinting(true);
     setYaSeImprimio(true);
+    setAvisoDeImpresion(null);
     try {
       let imagenAImprimir = capturedImage;
       if (lienzoDibujoRef.current?.hasDrawing() && canvasRef.current) {
@@ -867,7 +870,7 @@ export default function FotocabinaPage() {
       }
       const resultado = imprimirRecuerdo(imagenAImprimir, copiasImpresion, tamanoPapel, disenoImpresion);
       if (!resultado.ok) {
-        setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+        setAvisoDeImpresion(resultado.aviso || 'No se pudo imprimir. Probá de nuevo o pedile ayuda al equipo');
         return;
       }
       speak('Tu recuerdo se esta imprimiendo');
@@ -884,8 +887,8 @@ export default function FotocabinaPage() {
           }
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       }
-    } catch (err) {
-      setErrorMsg('No se pudo mandar a imprimir. Avisá al operador.');
+    } catch {
+      setAvisoDeImpresion('No se pudo imprimir. Probá de nuevo o pedile ayuda al equipo');
     } finally {
       setIsPrinting(false);
     }
@@ -984,6 +987,9 @@ export default function FotocabinaPage() {
     if (lienzoDibujoRef.current?.hasDrawing()) {
       lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
     }
+    setAvisoDelMuro(null);
+    setErrorMsg(null);
+    setAvisoDeImpresion(null);
     setLocalStatus('processing');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; no debe frenar ni abortar el guardado local
     void updateEntertainmentSessionStatus(
@@ -1065,6 +1071,7 @@ export default function FotocabinaPage() {
 
         if (!isLiveSession()) return;
         setQrCodeUrl('');
+        setAvisoDelMuro(null);
         setGuardadaEnEsteEquipo(true);
         setLocalStatus('done');
         speak("¡Excelente! Tu foto quedó guardada y se subirá apenas vuelva la señal.");
@@ -1178,6 +1185,7 @@ export default function FotocabinaPage() {
 
           if (!isLiveSession()) return;
           speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
+          setAvisoDelMuro(null);
           setGuardadaEnEsteEquipo(true);
           setLocalStatus('done');
           setShowSuccess(true);
@@ -1196,6 +1204,7 @@ export default function FotocabinaPage() {
 
       if (!isLiveSession()) return;
       setQrCodeUrl('');
+      setAvisoDelMuro(null);
       setErrorMsg(errMessage || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -1246,6 +1255,9 @@ export default function FotocabinaPage() {
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
+    setAvisoDelMuro(null);
+    setErrorMsg(null);
+    setAvisoDeImpresion(null);
     setGuardadaEnEsteEquipo(false);
     // La tanda se rehace entera: si se dejan las fotos viejas, la proxima
     // vuelve con cuatro o cinco pegadas.
@@ -1518,6 +1530,9 @@ export default function FotocabinaPage() {
                   <p className="text-sm text-zinc-300">
                     Prepara tu pose. La foto se captura con la camara web de esta pantalla.
                   </p>
+                  <div className="pt-1 flex justify-center">
+                    <BotonComoFunciona clave="fotocabina" variant="dark" />
+                  </div>
                 </div>
 
                 <div className="pt-2">
@@ -1890,6 +1905,9 @@ export default function FotocabinaPage() {
                 {!qrCodeUrl && errorMsg && (
                   <p className="text-xs font-bold text-rose-400" role="alert">{errorMsg}</p>
                 )}
+                {avisoDeImpresion && (
+                  <p data-testid="aviso-impresion" className="rounded-xl bg-rose-500/15 px-3 py-2 text-xs font-bold text-rose-300" role="alert">{avisoDeImpresion}</p>
+                )}
                 {avisoDelMuro && (
                   <p data-testid="aviso-foto-pendiente" className="rounded-xl bg-amber-500/15 px-3 py-2 text-sm font-bold text-amber-300">{avisoDelMuro}</p>
                 )}
@@ -1897,7 +1915,7 @@ export default function FotocabinaPage() {
 
               {qrCodeUrl && (fiesta?.station.deliveryChannels?.includes('qr') ?? true) && (
                 <div className="bg-white p-4 rounded-xl shadow-2xl relative">
-                  <QrRecuerdo qrCodeUrl={qrCodeUrl} size={180} />
+                  <QrRecuerdo qrCodeUrl={qrCodeUrl} avisoModeracion={avisoDelMuro} size={180} />
                 </div>
               )}
 

@@ -76,10 +76,12 @@ Plata, cobros y permisos: se lista y Claude lo revisa.
   aviso y "Reintentar".
 
 ```comprobar
-usa: mutateGenericJsonArray en src/lib/whatsapp/vino-de-la-publicidad.ts
+usa: mutarDocumento en src/lib/whatsapp/vino-de-la-publicidad.ts
 usa: mutateGenericJsonArray en src/lib/marketing/meta-ads-acciones.ts
-usa: mutateGenericJsonArray en src/app/actions/mission-control.ts
-usa: mutateGenericJsonArray en src/lib/notifications/preferencias-avisos.ts
+usa: mutarDocumento en src/app/actions/mission-control.ts
+usa: mutarDocumento en src/lib/notifications/preferencias-avisos.ts
+usa: syncBudgetChanges en src/app/simulador-de-presupuesto/page.tsx
+usa: validarPermisoPromocionalPosteo en src/lib/presencia-digital/publicador.ts
 prueba: src/__tests__/redes-mira-el-permiso-al-publicar.test.ts
 prueba: src/__tests__/los-documentos-enteros-tienen-turno.test.ts
 prueba: src/__tests__/el-simulador-no-manda-datos-internos.test.ts

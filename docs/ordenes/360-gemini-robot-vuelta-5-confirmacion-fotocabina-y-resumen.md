@@ -65,6 +65,7 @@ Comida, plata y permisos: se lista y Claude lo revisa.
 usa: isCeliac: existing.isCeliac en src/app/actions/fiesta/invitados.actions.ts
 no-usa: limit: 12, en src/app/actions/fiesta/invitados.actions.ts
 usa: setAvisoDelMuro(null) en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: !res?.success en src/app/(app)/asistente/asistente-client.tsx
 prueba: src/__tests__/confirmar-sin-enlace-no-borra-al-celiaco.test.ts
 prueba: tests/e2e/la-fotocabina-no-hereda-el-aviso.spec.ts
 prueba: src/__tests__/el-resumen-visto-se-guarda.test.ts

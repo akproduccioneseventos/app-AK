@@ -6,6 +6,7 @@ import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +43,11 @@ import {
     ChevronDown,
     Timer,
     HelpCircle,
+    Images,
 } from 'lucide-react';
+import { getFotosDelServicio } from '@/app/actions/galeria';
+import type { GaleriaFoto } from '@/types/galeria';
+import { GaleriaLightboxModal } from '@/app/presentacion-led/components/galeria-lightbox-modal';
 import { useToast } from '@/hooks/use-toast';
 // Protegido con bot-shield en servidor contra solicitudes automáticas
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -187,7 +192,7 @@ async function withFallbackTimeout<T>(
 
 const DURATION_OPTIONS = [
     { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
-    { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
+    { value: 5, title: 'Más de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
 
 const STEP_LABELS = ['Datos', 'Menú', 'Paquete', 'Edición'] as const;
@@ -447,6 +452,12 @@ function SimuladorContent() {
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFaqOpen, setIsFaqOpen] = useState(false);
+    const [fotosPorServicio, setFotosPorServicio] = useState<Record<string, GaleriaFoto[]>>({});
+    const [serviceGalleryModal, setServiceGalleryModal] = useState<{ open: boolean; titulo: string; fotos: GaleriaFoto[] }>({
+        open: false,
+        titulo: '',
+        fotos: [],
+    });
     const [fieldErrors, setFieldErrors] = useState<{
         nombre?: boolean;
         contacto?: boolean;
@@ -457,6 +468,8 @@ function SimuladorContent() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [errorLoading, setErrorLoading] = useState(false);
+    const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
+    const [isRetryingAutoSave, setIsRetryingAutoSave] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -1093,10 +1106,24 @@ function SimuladorContent() {
                 return;
             }
 
+            let guardadoOk = false;
             try {
                 await saveProgress(true);
-            } catch (error: any) {
-                console.warn("Save progress non-blocking fallback:", error);
+                guardadoOk = true;
+            } catch {
+                try {
+                    await saveProgress(true);
+                    guardadoOk = true;
+                } catch (error: any) {
+                    console.warn("Save progress non-blocking fallback:", error);
+                }
+            }
+            if (!guardadoOk) {
+                toast({
+                    title: "No pudimos guardar tus datos; igual podés seguir",
+                    description: "Al terminar el simulador intentaremos registrar tu presupuesto de nuevo.",
+                    variant: "destructive",
+                });
             }
             setStep(2);
             return;
@@ -1704,6 +1731,46 @@ function SimuladorContent() {
     }, [stats.detallados]);
 
     useEffect(() => {
+        if (step !== 5) return;
+        let activo = true;
+        const visibles = new Map<string, string>();
+        for (const s of stats.detallados) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        for (const s of tierMissingData.missingServices) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        for (const s of filteredSearchServices) {
+            if (!(s.id in fotosPorServicio)) visibles.set(s.id, s.nombre);
+        }
+        if (visibles.size === 0) return;
+
+        Promise.all(
+            Array.from(visibles.entries()).map(async ([id, nombre]) => {
+                try {
+                    const fotos = await getFotosDelServicio(id, nombre);
+                    return [id, fotos] as const;
+                } catch {
+                    return [id, [] as GaleriaFoto[]] as const;
+                }
+            }),
+        ).then((pares) => {
+            if (!activo) return;
+            setFotosPorServicio((prev) => {
+                const siguiente = { ...prev };
+                for (const [id, fotos] of pares) {
+                    siguiente[id] = fotos;
+                }
+                return siguiente;
+            });
+        });
+
+        return () => {
+            activo = false;
+        };
+    }, [step, stats.detallados, tierMissingData.missingServices, filteredSearchServices, fotosPorServicio]);
+
+    useEffect(() => {
         if (!selectedPaqueteId) return;
         if (!sortedPaquetes.some((p) => p.id === selectedPaqueteId)) {
             setSelectedPaqueteId('');
@@ -1717,51 +1784,50 @@ function SimuladorContent() {
         );
     }, [removablePackageServices]);
 
-    useEffect(() => {
+    const syncBudgetChanges = useCallback(async () => {
         if (!generatedPresupuestoId || !config) return;
+        const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+        const data = {
+            submissionId: submissionIdRef.current,
+            clienteNombre,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: stats.subtotalVenta,
+            costoEstimado: stats.totalFinal,
+            descuentoGeneral: stats.discountPercentage,
+            ajusteAnualActivo: stats.annualProjection.applies,
+            ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
+            serviciosIncluidos: stats.detallados.map(s => s.id),
+            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            excludedPackageServiceIds,
+            paqueteId: selectedPaqueteId,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
+            items: simulatorDetailsToBudgetItems(stats.detallados),
+        };
 
-        const timer = setTimeout(async () => {
-            const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
-            const data = {
-                submissionId: submissionIdRef.current,
-                clienteNombre,
-                clienteContacto: normalizeUruguayPhone(clienteContacto),
-                eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
-                adultos,
-                ninos: ninosYAdolescentes,
-                subtotal: stats.subtotalVenta,
-                costoEstimado: stats.totalFinal,
-                descuentoGeneral: stats.discountPercentage,
-                ajusteAnualActivo: stats.annualProjection.applies,
-                ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
-                serviciosIncluidos: stats.detallados.map(s => s.id),
-                selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
-                excludedPackageServiceIds,
-                paqueteId: selectedPaqueteId,
-                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
-                includeClubUruguay: salonChoice === 'club',
-                items: simulatorDetailsToBudgetItems(stats.detallados),
-            };
-
-            try {
-                // Este es el prospecto que llega desde Google: si no queda guardado,
-                // se perdio una venta y nadie se entera.
-                const guardado = await safeGenerateBudgetAndLeadFromSimulator(data, {
-                    source: 'simulator_common',
-                    eventoTipo,
-                    acquisition,
-                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
-                });
-                if (!guardado?.success) {
-                    console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
-                }
-            } catch (e: any) {
-                if (e.message === 'SERVER_ACTION_RELOAD') return;
-                console.error("Failed to auto-sync budget changes:", e);
+        try {
+            // Este es el prospecto que llega desde Google: si no queda guardado,
+            // se perdio una venta y nadie se entera.
+            const guardado = await safeGenerateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
+                acquisition,
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
+            });
+            if (!guardado?.success) {
+                console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
+                setAutoSaveError(guardado?.error || 'No pudimos guardar el cambio en el presupuesto. Tocá Reintentar para no perder tus cambios.');
+            } else {
+                setAutoSaveError(null);
             }
-        }, 1000);
-
-        return () => clearTimeout(timer);
+        } catch (e: any) {
+            if (e.message === 'SERVER_ACTION_RELOAD') return;
+            console.error("Failed to auto-sync budget changes:", e);
+            setAutoSaveError('No pudimos guardar el cambio en el presupuesto. Tocá Reintentar para volver a intentar.');
+        }
     }, [
         generatedPresupuestoId,
         config,
@@ -1778,6 +1844,16 @@ function SimuladorContent() {
         stats,
         acquisition,
     ]);
+
+    useEffect(() => {
+        if (!generatedPresupuestoId || !config) return;
+
+        const timer = setTimeout(() => {
+            void syncBudgetChanges();
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [generatedPresupuestoId, config, syncBudgetChanges]);
 
     if (errorLoading) {
         return (
@@ -1876,6 +1952,9 @@ function SimuladorContent() {
                             <h1 className="mt-1.5 text-3xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
                                 Tu presupuesto en 2 minutos.
                             </h1>
+                            <div className="mt-4">
+                                <BotonComoFunciona clave="simulador" variant="dark" />
+                            </div>
 
                             <div ref={heroCtaRef} className="mt-6 sm:mt-8">
                                 <motion.div
@@ -2009,9 +2088,17 @@ function SimuladorContent() {
                                 </h2>
                             </motion.div>
                             <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-                                {fotosDestacadas.slice(0, 6).map((foto) => {
+                                {fotosDestacadas.slice(0, 6).map((foto, index) => {
                                     const imgUrl = safeImageUrl(foto.url);
                                     if (!imgUrl) return null;
+                                    const categoriaLimpia = (foto.categoriaServicio || foto.titulo || '')
+                                        .replace(/^instagram:\s*/i, '')
+                                        .trim();
+                                    const categoriaVisible = categoriaLimpia
+                                        ? categoriaLimpia.charAt(0).toUpperCase() + categoriaLimpia.slice(1)
+                                        : '';
+                                    const altFoto = foto.descripcion?.trim()
+                                        || `${categoriaVisible || 'Fiesta'} de AK Producciones, foto ${index + 1}`;
                                     return (
                                         <div
                                             key={foto.id}
@@ -2021,14 +2108,14 @@ function SimuladorContent() {
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img
                                                     src={imgUrl}
-                                                    alt={foto.titulo || foto.servicioNombre || 'Fiesta real AK Producciones'}
+                                                    alt={altFoto}
                                                     className="h-full w-full object-cover"
                                                 />
                                             </div>
-                                            {(foto.titulo || foto.tipoFiesta) && (
+                                            {(categoriaVisible || foto.tipoFiesta) && (
                                                 <div className="p-3">
-                                                    {foto.titulo && (
-                                                        <p className="truncate text-xs font-black text-slate-900">{foto.titulo}</p>
+                                                    {categoriaVisible && (
+                                                        <p className="truncate text-xs font-black text-slate-900">{categoriaVisible}</p>
                                                     )}
                                                     {foto.tipoFiesta && (
                                                         <p className="text-[11px] font-semibold text-slate-500">{foto.tipoFiesta}</p>
@@ -2238,6 +2325,31 @@ function SimuladorContent() {
                             )}
 
                              {/* Non-invasive Auto-Save & Contact Banner */}
+                             {autoSaveError && (
+                                 <div
+                                     role="alert"
+                                     data-testid="simulador-error-guardado"
+                                     className="w-full max-w-2xl mx-auto rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-left text-xs font-bold text-rose-900 flex flex-wrap items-center justify-between gap-3 shadow-md"
+                                 >
+                                     <span>{autoSaveError}</span>
+                                     <Button
+                                         type="button"
+                                         size="sm"
+                                         variant="destructive"
+                                         disabled={isRetryingAutoSave}
+                                         onClick={async () => {
+                                             setIsRetryingAutoSave(true);
+                                             try {
+                                                 await syncBudgetChanges();
+                                             } finally {
+                                                 setIsRetryingAutoSave(false);
+                                             }
+                                         }}
+                                     >
+                                         {isRetryingAutoSave ? 'Reintentando...' : 'Reintentar'}
+                                     </Button>
+                                 </div>
+                             )}
                              <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
                                  <div className="flex items-center gap-3.5">
                                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shrink-0 shadow-inner">
@@ -2705,7 +2817,10 @@ function SimuladorContent() {
                     <div className="flex justify-between items-center mb-2 sm:mb-4">
                       <div className="w-8 hidden sm:block" />
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
-                      <VideoDeAyuda lugar="simulador" />
+                      <div className="flex items-center gap-2">
+                        <BotonComoFunciona clave="simulador" variant="compact" />
+                        <VideoDeAyuda lugar="simulador" />
+                      </div>
                     </div>
                     <CardTitle className="text-xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-1 text-xs sm:text-sm font-bold text-slate-500">
@@ -2800,7 +2915,12 @@ function SimuladorContent() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Cantidad de invitados</span>
+                                        <BotonComoFunciona clave="invitados-y-precio" variant="compact" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <Label>Adultos</Label>
                                         <Input type="number" min={1} step={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Math.floor(Number(e.target.value) || 0))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
@@ -2809,6 +2929,7 @@ function SimuladorContent() {
                                     <div className="space-y-2">
                                         <Label>Niños y adolescentes</Label>
                                         <Input type="number" min={0} step={1} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Math.floor(Number(e.target.value) || 0)))} className="h-12 rounded-md bg-white text-slate-900" />
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -3144,6 +3265,32 @@ function SimuladorContent() {
                                 </div>
                             )}
 
+                            {autoSaveError && (
+                                <div
+                                    role="alert"
+                                    data-testid="simulador-error-guardado"
+                                    className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-900 flex flex-wrap items-center justify-between gap-3"
+                                >
+                                    <span>{autoSaveError}</span>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        disabled={isRetryingAutoSave}
+                                        onClick={async () => {
+                                            setIsRetryingAutoSave(true);
+                                            try {
+                                                await syncBudgetChanges();
+                                            } finally {
+                                                setIsRetryingAutoSave(false);
+                                            }
+                                        }}
+                                    >
+                                        {isRetryingAutoSave ? 'Reintentando...' : 'Reintentar'}
+                                    </Button>
+                                </div>
+                            )}
+
                             <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
                                     <CalendarDays className="w-[18px] h-[18px] text-slate-500"/> Información General del Evento
@@ -3276,6 +3423,25 @@ function SimuladorContent() {
                                                                         </>
                                                                     )}
                                                                 </div>
+                                                                {(fotosPorServicio[item.id]?.length ?? 0) > 0 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        data-testid={`sim-ver-fotos-${item.id}`}
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            setServiceGalleryModal({
+                                                                                open: true,
+                                                                                titulo: getNombreVisibleDeServicio(item),
+                                                                                fotos: fotosPorServicio[item.id] || [],
+                                                                            });
+                                                                        }}
+                                                                        className="mt-1.5 inline-flex items-center gap-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100"
+                                                                    >
+                                                                        <Images className="h-3 w-3" />
+                                                                        Ver fotos ({fotosPorServicio[item.id].length})
+                                                                    </button>
+                                                                )}
                                                             </div>
 
                                                             {isServiceRemovable(item) && (
@@ -3396,6 +3562,25 @@ function SimuladorContent() {
                                                                 <span className="block font-black text-xs text-white truncate">{getNombreVisibleDeServicio(service)}</span>
                                                                 {mostrarPrecios && (
                                                                     <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                )}
+                                                                {(fotosPorServicio[service.id]?.length ?? 0) > 0 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        data-testid={`sim-ver-fotos-${service.id}`}
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            setServiceGalleryModal({
+                                                                                open: true,
+                                                                                titulo: getNombreVisibleDeServicio(service),
+                                                                                fotos: fotosPorServicio[service.id] || [],
+                                                                            });
+                                                                        }}
+                                                                        className="mt-1 inline-flex items-center gap-1 rounded-md border border-white/25 bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-white/20"
+                                                                    >
+                                                                        <Images className="h-3 w-3" />
+                                                                        Ver fotos ({fotosPorServicio[service.id].length})
+                                                                    </button>
                                                                 )}
                                                             </div>
                                                             <Button
@@ -3801,6 +3986,12 @@ function SimuladorContent() {
                     </div>
                 );
             })()}
+            <GaleriaLightboxModal
+                isOpen={serviceGalleryModal.open}
+                onClose={() => setServiceGalleryModal((prev) => ({ ...prev, open: false }))}
+                fotos={serviceGalleryModal.fotos}
+                categoriaLabel={serviceGalleryModal.titulo || 'Galería'}
+            />
         </div>
     );
 }

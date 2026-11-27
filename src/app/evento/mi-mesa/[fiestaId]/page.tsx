@@ -9,6 +9,7 @@ import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { CompanyLogo } from '@/components/company-logo';
 import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -256,6 +257,9 @@ export default function MiMesaPage() {
           <div className="text-white">
             <p className="text-xs font-bold uppercase tracking-[0.3em] opacity-50 mb-1">{config.tipoCelebracion}</p>
             <h1 className="text-2xl font-black">{config.nombreEvento}</h1>
+            <div className="mt-2 flex justify-center">
+              <BotonComoFunciona clave="mi-mesa" variant="dark" />
+            </div>
           </div>
         </div>
 

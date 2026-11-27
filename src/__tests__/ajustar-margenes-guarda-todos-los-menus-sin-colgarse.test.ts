@@ -22,7 +22,14 @@ jest.mock('@/lib/data-service', () => ({
     return true;
   }),
   deleteDataItem: jest.fn(),
-  mutateDataItem: jest.fn(),
+  mutateDataItem: jest.fn(async (_f: string, _c: string, id: string, mutar: (a: any) => any) => {
+    const actual = menus.find((m) => m.id === id);
+    if (!actual) return null;
+    const siguiente = mutar(copia(actual));
+    guardados.push(id);
+    menus = menus.map((m) => (m.id === id ? copia(siguiente) : m));
+    return copia(siguiente);
+  }),
 }));
 
 import { adjustAllDishMargins } from '@/app/actions/menus-catering';

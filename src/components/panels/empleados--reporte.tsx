@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, Loader2, AlertTriangle, Info, Eye, Download, Mail, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Empleado } from '@/types/empleado';
+import type { Empleado, ReciboFirmado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
+import { getRecibosFirmados } from '@/app/actions/recibos-personal';
+import { esReciboCobrado, totalCobradoDelPersonal } from '@/lib/personal/desglose-recibo';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -74,6 +76,7 @@ export default function ReporteEmpleadosPage() {
   const [allItems, setAllItems] = useState<Empleado[]>([]);
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
   const [allFiestas, setAllFiestas] = useState<FiestaEnPlanificacion[]>([]);
+  const [allRecibos, setAllRecibos] = useState<ReciboFirmado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string | null>(null);
@@ -82,14 +85,16 @@ export default function ReporteEmpleadosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [empleadosData, rolesData, fiestasData] = await Promise.all([
+      const [empleadosData, rolesData, fiestasData, recibosData] = await Promise.all([
         getEmpleados(),
         getRoles(),
         getAllFiestas(),
+        getRecibosFirmados(),
       ]);
       setAllItems(Array.isArray(empleadosData) ? empleadosData : []);
       setAllRoles(Array.isArray(rolesData) ? rolesData : []);
       setAllFiestas(Array.isArray(fiestasData) ? fiestasData : []);
+      setAllRecibos(Array.isArray(recibosData) ? recibosData : []);
     } catch (err: any) {
       setError("No se pudo cargar la información del reporte de personal.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -115,7 +120,10 @@ export default function ReporteEmpleadosPage() {
 
         return asignaciones.map((asignacion) => {
           const rol = allRoles.find((r) => r.id === asignacion.rolId);
-          const montoCobrado = Number(asignacion.eventSalary || 0);
+          const recibo = allRecibos.find(
+            (r) => r.empleadoId === empleado.id && r.fiestaId === fiesta.id,
+          );
+          const montoCobrado = recibo && esReciboCobrado(recibo.estado) ? Number(recibo.monto || 0) : 0;
           const aportesPatronales = (montoCobrado * Number(rol?.porcentajeAportesPatronales || 0)) / 100;
           const fecha = fiesta.configuracion?.fechaEvento || '';
 
@@ -133,7 +141,10 @@ export default function ReporteEmpleadosPage() {
         });
       }).sort((a, b) => b.timestamp - a.timestamp);
 
-      const totalCobrado = historial.reduce((sum, item) => sum + item.montoCobrado, 0);
+      const recibosDelEmpleado = allRecibos.filter((r) => r.empleadoId === empleado.id);
+      const totalCobrado = recibosDelEmpleado.length > 0
+        ? totalCobradoDelPersonal(recibosDelEmpleado, empleado.id)
+        : 0;
       const totalConAportes = historial.reduce((sum, item) => sum + item.totalConAportes, 0);
 
       return {
@@ -145,7 +156,7 @@ export default function ReporteEmpleadosPage() {
         ultimoEvento: historial[0]?.fecha || '',
       };
     });
-  }, [allFiestas, allItems, allRoles]);
+  }, [allFiestas, allItems, allRecibos, allRoles]);
 
   const selectedResumen = useMemo(
     () => resumenes.find((item) => item.empleado.id === selectedEmpleadoId) || null,

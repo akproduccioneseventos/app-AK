@@ -19,7 +19,7 @@ export interface ConfiguracionAgente {
   objetivos?: string[];
   accionesSolo?: string[];
   ultimaEjecucion?: string;
-  estadoUltimaEjecucion?: 'exito' | 'sin_novedades' | 'alerta';
+  estadoUltimaEjecucion?: 'exito' | 'sin_novedades' | 'alerta' | 'error';
 }
 
 export interface RegistroEjecucionAgente {
@@ -29,7 +29,10 @@ export interface RegistroEjecucionAgente {
   ejecutadoEn: string;
   hallazgos: string[];
   accionesPreparadas: string[];
-  estado: 'exito' | 'sin_novedades' | 'alerta';
+  estado: 'exito' | 'sin_novedades' | 'alerta' | 'error';
+  lecturaFallida?: boolean;
+  ok?: boolean;
+  error?: string;
 }
 
 export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [

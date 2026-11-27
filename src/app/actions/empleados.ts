@@ -69,20 +69,53 @@ export async function saveEmpleado(
   let uploadedContractUrl: string | undefined;
 
   if (empleadoData instanceof FormData) {
-    empleadoToSave.id = empleadoData.get('id') as string | undefined;
-    empleadoToSave.nombre = empleadoData.get('nombre') as string;
-    empleadoToSave.cedula = empleadoData.get('cedula') as string | undefined;
-    empleadoToSave.fechaNacimiento = empleadoData.get('fechaNacimiento') as string | undefined;
-    empleadoToSave.telefono = empleadoData.get('telefono') as string | undefined;
-    empleadoToSave.email = empleadoData.get('email') as string | undefined;
-    empleadoToSave.googleWorkspaceEmail = empleadoData.get('googleWorkspaceEmail') as string | undefined;
-    empleadoToSave.googleCalendarId = empleadoData.get('googleCalendarId') as string | undefined;
-    empleadoToSave.portalNotas = empleadoData.get('portalNotas') as string | undefined;
-    const rolIdsStr = empleadoData.get('rolIds') as string | null;
-    empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',') : [];
+    if (empleadoData.has('id')) {
+      const idVal = String(empleadoData.get('id') ?? '').trim();
+      if (idVal) {
+        empleadoToSave.id = idVal;
+      }
+    }
+    if (empleadoData.has('nombre')) {
+      empleadoToSave.nombre = String(empleadoData.get('nombre') ?? '');
+    }
+    if (empleadoData.has('cedula')) {
+      empleadoToSave.cedula = String(empleadoData.get('cedula') ?? '');
+    }
+    if (empleadoData.has('fechaNacimiento')) {
+      empleadoToSave.fechaNacimiento = String(empleadoData.get('fechaNacimiento') ?? '');
+    }
+    if (empleadoData.has('telefono')) {
+      empleadoToSave.telefono = String(empleadoData.get('telefono') ?? '');
+    }
+    if (empleadoData.has('email')) {
+      empleadoToSave.email = String(empleadoData.get('email') ?? '');
+    }
+    if (empleadoData.has('googleWorkspaceEmail')) {
+      empleadoToSave.googleWorkspaceEmail = String(empleadoData.get('googleWorkspaceEmail') ?? '');
+    }
+    if (empleadoData.has('googleCalendarId')) {
+      empleadoToSave.googleCalendarId = String(empleadoData.get('googleCalendarId') ?? '');
+    }
+    if (empleadoData.has('portalNotas')) {
+      empleadoToSave.portalNotas = String(empleadoData.get('portalNotas') ?? '');
+    }
+    if (empleadoData.has('rolIds')) {
+      const rolIdsStr = empleadoData.get('rolIds') as string | null;
+      empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',').filter(Boolean) : [];
+    }
     contractFile = empleadoData.get('contract') as File | null;
-    empleadoToSave.contractFileName = empleadoData.get('existingContract') as string || undefined;
-    empleadoToSave.photoUrl = empleadoData.get('photoUrl') as string | undefined || undefined;
+    if (empleadoData.has('existingContract')) {
+      const existingContract = String(empleadoData.get('existingContract') ?? '').trim();
+      if (existingContract) {
+        empleadoToSave.contractFileName = existingContract;
+      }
+    }
+    if (empleadoData.has('photoUrl')) {
+      const photoUrl = String(empleadoData.get('photoUrl') ?? '').trim();
+      if (photoUrl) {
+        empleadoToSave.photoUrl = photoUrl;
+      }
+    }
 
   } else {
     empleadoToSave = { ...empleadoData };
@@ -209,26 +242,24 @@ export async function saveEmpleado(
  * es el historial de pagos, que se guarda aparte.
  */
 async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string[]> {
-  try {
-    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
-    const fiestas = await getAllFiestas();
-    // El día de HOY en Uruguay: a la noche, para el servidor ya es mañana y la fiesta de esta
-    // noche quedaba afuera, así que se podía borrar a alguien que trabaja hoy (pregunta 13).
-    const { hoyEnUruguay } = await import('@/lib/utils');
-    const hoy = hoyEnUruguay();
-
-    return fiestas
-      .filter((fiesta: any) => {
-        const fecha = String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10);
-        if (!fecha || fecha < hoy) return false;
-        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
-      })
-      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
-  } catch {
-    // Si no se puede leer la agenda, no se inventa una respuesta: se deja pasar
-    // el borrado como antes en vez de bloquearlo por un problema de lectura.
-    return [];
+  const { getAllFiestas } = await import('./fiesta/fiesta.actions');
+  const { esLecturaFallida } = await import('@/lib/marca-de-lectura');
+  const fiestas = await getAllFiestas();
+  if (esLecturaFallida(fiestas)) {
+    throw new Error('Lectura fallida de fiestas');
   }
+  // El día de HOY en Uruguay: a la noche, para el servidor ya es mañana y la fiesta de esta
+  // noche quedaba afuera, así que se podía borrar a alguien que trabaja hoy (pregunta 13).
+  const { hoyEnUruguay } = await import('@/lib/utils');
+  const hoy = hoyEnUruguay();
+
+  return fiestas
+    .filter((fiesta: any) => {
+      const fecha = String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10);
+      if (!fecha || fecha < hoy) return false;
+      return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
+    })
+    .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
 }
 
 export async function verificarAgendaEmpleado(
@@ -296,7 +327,16 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   // fiesta sin esa persona y sin que nadie se entere: la noche del evento falta
   // un mozo y en la lista figura un asignado que ya no existe. En vez de sacarlo
   // en silencio, se avisa cual es la fiesta para que se resuelva el reemplazo.
-  const comprometido = await fiestasFuturasConEsteEmpleado(id);
+  // Si no se pudo leer la agenda, NO se borra a ciegas.
+  let comprometido: string[];
+  try {
+    comprometido = await fiestasFuturasConEsteEmpleado(id);
+  } catch {
+    return {
+      success: false,
+      error: 'No se pudo comprobar si trabaja en una fiesta. Probá de nuevo.',
+    };
+  }
   if (comprometido.length > 0) {
     const listado = comprometido.slice(0, 3).join(', ');
     const resto = comprometido.length > 3 ? ` y ${comprometido.length - 3} más` : '';
@@ -307,7 +347,15 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   }
 
   // Volver a verificar inmediatamente antes de deleteDataItem
-  const comprometidoFinal = await fiestasFuturasConEsteEmpleado(id);
+  let comprometidoFinal: string[];
+  try {
+    comprometidoFinal = await fiestasFuturasConEsteEmpleado(id);
+  } catch {
+    return {
+      success: false,
+      error: 'No se pudo comprobar si trabaja en una fiesta. Probá de nuevo.',
+    };
+  }
   if (comprometidoFinal.length > 0) {
     const listado = comprometidoFinal.slice(0, 3).join(', ');
     const resto = comprometidoFinal.length > 3 ? ` y ${comprometidoFinal.length - 3} más` : '';

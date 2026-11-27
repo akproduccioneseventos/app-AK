@@ -155,8 +155,10 @@ describe('Orden 336 Bloque 3 — Sección D y E + Escaneo 214', () => {
 
     test('Lista de Compras maneja platos sin ingredients y respeta invitadosAdultos: 0', () => {
       const code = readProjectFile('src/components/panels/catering--lista-compras.tsx');
-      expect(code).toContain('presupuestoData?.invitadosAdultos ?? (Number(fiestaData.configuracion.invitadosEstimados) || 0)');
-      expect(code).toContain('(catalogDish.ingredients || []).forEach');
+      // Orden 357 desglosa niños/adolescentes del estimado cuando no vienen adultos discriminados
+      expect(code).toContain('presupuestoData?.invitadosAdultos');
+      expect(code).toContain('Math.max(0, (Number(fiestaData.configuracion.invitadosEstimados) || 0) - ninos)');
+      expect(code).toContain('catalogDish.ingredients || []');
     });
 
     test('Recibos diferencia dos roles del mismo empleado con rolId y excluye demo/suspendidas de multi-fiesta', () => {

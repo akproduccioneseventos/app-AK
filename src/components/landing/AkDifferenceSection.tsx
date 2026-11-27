@@ -22,7 +22,23 @@ const benefits = [
   },
 ];
 
-export function AkDifferenceSection() {
+interface AkDifferenceSectionProps {
+  imageSrc?: string;
+  imageAlt?: string;
+  isIllustrativeImage?: boolean;
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+}
+
+export function AkDifferenceSection({
+  imageSrc = '/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg',
+  imageAlt = 'Equipo de organización AK Producciones',
+  isIllustrativeImage = false,
+  eyebrow = '✨ El Valor de la Tranquilidad',
+  title = 'Vos disfrutás la fiesta. Nosotros coordinamos los detalles.',
+  subtitle = 'El verdadero lujo es llegar al día de tu evento sin estrés. Olvidate de perseguir proveedores o comparar presupuestos incompletos.',
+}: AkDifferenceSectionProps = {}) {
   const containerVariants = {
     hidden: {},
     visible: {
@@ -44,13 +60,13 @@ export function AkDifferenceSection() {
         <div className="space-y-8">
           <div>
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-red-400 mb-4 backdrop-blur">
-              ✨ El Valor de la Tranquilidad
+              {eyebrow}
             </span>
             <h2 className="font-headline text-4xl sm:text-5xl font-black text-white leading-tight">
-              Vos disfrutás la fiesta. Nosotros coordinamos los detalles.
+              {title}
             </h2>
             <p className="mt-5 max-w-xl text-zinc-400 text-lg leading-relaxed font-medium">
-              El verdadero lujo es llegar al día de tu evento sin estrés. Olvidate de perseguir proveedores o comparar presupuestos incompletos.
+              {subtitle}
             </p>
           </div>
 
@@ -86,13 +102,18 @@ export function AkDifferenceSection() {
         <div className="space-y-6">
           <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-zinc-900 shadow-2xl aspect-[4/3] w-full">
             <Image
-              src="/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg"
-              alt="Equipo de organización AK Producciones"
+              src={imageSrc}
+              alt={imageAlt}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 45vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-900/30 to-transparent" />
+            {isIllustrativeImage && (
+              <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/70 px-3 py-1 text-[11px] font-semibold text-zinc-200">
+                Imagen ilustrativa
+              </span>
+            )}
             <div className="absolute inset-x-0 bottom-0 p-8">
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-red-400 drop-shadow-md">Trabajo en equipo</span>
               <p className="mt-2 text-2xl sm:text-3xl font-black text-white leading-tight drop-shadow-lg">Personas reales cuidando cada detalle</p>

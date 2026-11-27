@@ -16,7 +16,8 @@ import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Salon } from '@/types/salon';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getFiestaById, updateConfiguracionFiestaActual, syncFiestaFromBudget, updateFiestaPresupuestoId } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateConfiguracionFiestaActual, syncFiestaFromBudget, updateFiestaPresupuestoId, createFiestaVacia } from '@/app/actions/fiesta-actual';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { getSalones } from '@/app/actions/salones';
@@ -68,13 +69,14 @@ function ConfiguracionEventoContent() {
   const [linkedPresupuestoId, setLinkedPresupuestoId] = useState<string | undefined>(undefined);
   const [isSyncingPresupuesto, setIsSyncingPresupuesto] = useState(false);
   const [invitadosContratados, setInvitadosContratados] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(fiestaId));
+  const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(Boolean(fiestaId));
 
   const loadInitialData = useCallback(async () => {
     if (!fiestaId) {
-      toast({title: "Error", description: "No se encontró el ID de evento", variant: "destructive"});
-      router.replace('/eventos');
+      setIsLoading(false);
+      setIsLoadingCustomers(false);
       return;
     }
     setIsLoading(true);
@@ -280,6 +282,52 @@ function ConfiguracionEventoContent() {
 
     saveNow();
   };
+
+  const handleCrearFiesta = async () => {
+    setIsCreatingFiesta(true);
+    try {
+      const idIntento = await obtenerIntento('evento-nuevo', {});
+      const result = await createFiestaVacia(undefined, undefined, { idIntento });
+      if (result.success && result.newFiestaId) {
+        terminarIntento('evento-nuevo');
+        router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
+        return;
+      }
+      throw new Error(result.error || 'No se pudo crear la fiesta.');
+    } catch (err: any) {
+      toast({
+        title: 'Error al crear la fiesta',
+        description: err?.message || 'No se pudo crear la fiesta.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreatingFiesta(false);
+    }
+  };
+
+  if (!fiestaId) {
+    return (
+      <div className="max-w-lg mx-auto py-16 px-4">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl">Para planificar, elegí una fiesta</CardTitle>
+            <CardDescription>
+              Elegí un evento del listado o creá una fiesta nueva para configurar sus datos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button asChild variant="outline">
+              <Link href="/eventos">Ir a Fiestas</Link>
+            </Button>
+            <Button onClick={handleCrearFiesta} disabled={isCreatingFiesta}>
+              {isCreatingFiesta && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Crear fiesta
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando configuración...</p></div>;

@@ -17,6 +17,9 @@ jest.mock('next/headers', () => ({
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: async () => ({ success: true, user: { email: 'dueno@ak.uy', role: 'admin', perfil: 'dueno' } }),
 }));
+jest.mock('@/lib/security/portal-session', () => ({
+  verifyPortalSession: async () => true,
+}));
 jest.mock('@/lib/auth/event-access', () => ({
   requireEventPermission: async () => undefined,
 }));
@@ -42,7 +45,9 @@ import { deleteTaskTemplate } from '@/app/actions/task-templates';
 import { deleteDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
 import { deleteMarketingTemplate } from '@/app/actions/marketing';
 import { resetAllPresupuestos } from '@/app/actions/presupuestos';
-import { updateGuestRsvp } from '@/app/actions/fiesta/invitados.actions';
+import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
+import { mutarDecoracion } from '@/app/actions/fiesta/decoracion.actions';
+import { eliminarIdeaDecoracionCliente } from '@/app/actions/fiesta/portal.actions';
 
 const conEmuladores = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 const FIESTA_ID = `prueba-293-${Date.now()}`;
@@ -152,8 +157,8 @@ describe('ida y vuelta contra la base: las once del auditor', () => {
     if (crudo.exists) expect(crudo.data()?.menuAsignadoId).toBeUndefined();
   });
 
-  it('updateGuestRsvp: Celiaco -> Ninguna deja isCeliac en falso', async () => {
-    const r = await updateGuestRsvp(FIESTA_ID, 'inv_293', { rsvp: 'Confirmado', dietaryRestriction: 'Ninguna' });
+  it('updateInvitado: Celiaco -> Ninguna deja isCeliac en falso', async () => {
+    const r = await updateInvitado(FIESTA_ID, { id: 'inv_293', nombre: 'Invitado 293', rsvp: 'Confirmado', dietaryRestriction: 'Ninguna' } as any);
     expect(r.success).toBe(true);
     const f = await readData<any>(`fiestas/${FIESTA_ID}.json`, null);
     const inv = f.invitados.find((i: any) => i.id === 'inv_293');
@@ -199,5 +204,36 @@ describe('ida y vuelta contra la base: las once del auditor', () => {
     const lead = leads.find((l) => l.id === 'lead_293');
     expect(lead).toBeDefined();
     expect(lead.presupuestoId).toBeUndefined();
+  });
+
+  it('mutarDecoracion y eliminarIdeaDecoracionCliente: ida y vuelta real contra Firestore', async () => {
+    await writeData(`fiestas/${FIESTA_ID}.json`, {
+      id: FIESTA_ID,
+      estado: 'En Planificacion',
+      configuracion: { nombreEvento: 'Deco Firestore 376', fechaEvento: '2026-12-20' },
+      decoracion: {
+        estiloDecoracion: 'inicial',
+        moodboardItems: [],
+        fotosIdeasCliente: ['https://cdn.test/idea-1.jpg', 'https://cdn.test/idea-2.jpg'],
+      },
+    }, undefined, { skipAutoBackup: true });
+
+    const decoRes = await mutarDecoracion(FIESTA_ID, {
+      moodboardAdd: {
+        id: 'mood-293',
+        url: 'https://cdn.test/mood-293.jpg',
+        uploadedBy: 'Organizador',
+        likedByClient: false,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    expect(decoRes.success).toBe(true);
+
+    const elimRes = await eliminarIdeaDecoracionCliente(FIESTA_ID, 'https://cdn.test/idea-1.jpg');
+    expect(elimRes.success).toBe(true);
+
+    const fiestaEnBase = await readData<any>(`fiestas/${FIESTA_ID}.json`, null);
+    expect(fiestaEnBase?.decoracion?.moodboardItems?.some((m: any) => m.id === 'mood-293')).toBe(true);
+    expect(fiestaEnBase?.decoracion?.fotosIdeasCliente).toEqual(['https://cdn.test/idea-2.jpg']);
   });
 });

@@ -11,18 +11,7 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
 **Actualizado el 25/11/2026.** El dueño no te va a pasar mensajes: lo que tenés que hacer está acá.
 
 - **Ya entregadas:** 343, 344 y 345 (tus propuestas 1472 y 1473). Claude las está revisando y juntando: no las rehagas.
-- **DEVUELTA (26/11): tu propuesta 1475 (346 a 349) no pasó la verificación.** Compila y Jest da verde, pero fallan 9
-  pruebas de navegador en lo que tocaste: `catering-maestro-simulador-fotos`, `el-simulador-respeta-el-tipo-de-fiesta`
-  ("$0" en el pie del paso 1), `el-simulador-vende-antes-del-precio`, `la-portada-vende-con-confianza` (/cumpleanos dice
-  "barra libre"), `la-web-de-venta-se-mueve` (quieto pero visible), `layout-baseline`, `orden-331-y-332` (redirecciones del
-  planificador), `prospecto-simulador` (no llega a ver un precio). Corrélas sueltas con
-  `node scripts/run-playwright-production.mjs tests/e2e/<archivo>`; si la prueba pide algo que tu cambio sacó a propósito
-  por una orden, adaptá la prueba y decilo; si no, arreglá la app.
-  **Además aplicá el parche de Claude** `docs/ordenes/parches/revision-1475.patch` (`git apply`): la IA de la reunión pide
-  sesión, se saca el atajo que reescribía insumos y menús enteros con la base vacía (si el robot lo necesita, sembrá el
-  emulador), contadores sin "(0)" mientras cargan y el comentario de las cifras públicas.
-  **Seguí en la misma rama `gemini/orden-346`** traída de la principal; faltan también de la 349 la prueba
-  `tests/e2e/la-tercera-auditoria-del-25-11.spec.ts` y "Encargado general" en `src/components/multiagent/multiagent-widget.tsx`.
+- **Entregada (26/11): tu propuesta 1475 (órdenes 346 a 376).** Claude la revisó y le sumó arreglos; falta sólo la orden 377.
 - **AHORA, UNA sola propuesta con todas estas órdenes, rama nueva `gemini/orden-346` desde la principal recién actualizada:**
   1. **Orden 346 (`docs/ordenes/346-gemini-los-rojos-del-robot.md`):** las doce pantallas que el robot marca en rojo
      (guardados que no vuelven al recargar, lecturas fallidas sin aviso, enlaces con la fiesta vacía). Cada una que
@@ -91,6 +80,10 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
   27. **Orden 376 (`docs/ordenes/376-gemini-robot-vuelta-21-seis-especialistas.md`):** el mail de la reunión con botón, el
       asistente con permisos, listas del portal de a un renglón, agentes de la noche, el resumen de la mañana, la IA por el tope,
       fechas de la noche en plata y el cierre de barra con lo sin alcohol.
+  28. **Orden 377 (`docs/ordenes/377-gemini-dos-guardados-que-no-quedan.md`), PRIMERO Y SOLA:** arrancá de la rama
+      `claude/app-debug-stabilize-m70e6z`; arreglá los dos guardados y corré la puerta entera hasta verde.
+  29. **Orden 378 (`docs/ordenes/378-gemini-la-web-y-el-blog-del-27-11.md`), junto con la 377:** el blog en `/blog`,
+      sitemap, logo, "wedding planner y organizador de bodas", datos para Google, portadas de AK y últimas notas.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.

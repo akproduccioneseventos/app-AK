@@ -1,6 +1,6 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { getBudgetPaymentSummary, normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 
 /**
  * PONER AL DÍA LO QUE QUEDÓ ATRASADO EN LA APP (pedido del dueño, 9/10/2026).
@@ -69,7 +69,8 @@ export function armarPonerAlDia(
     if (!fecha || fecha >= hoy) continue;
     if (!conFiesta.has(p.id) && p.estado !== 'Aceptado') continue;
     // El mismo saldo que Cobrar y el estado de cuenta: con el ajuste anual (auditoría externa 21/11/2026, AK-03).
-    const r = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
+    const normalizado = normalizePresupuestoFinancials(p, { preserveStoredTotal: true });
+    const r = getBudgetPaymentSummary(normalizado, { includeAnnualAdjustment: true });
     if (r.balance <= 0) continue;
     cobros.push({ presupuestoId: p.id, cliente: p.clienteNombre || '—', fecha, total: r.total, cobrado: r.paid, saldo: r.balance });
   }

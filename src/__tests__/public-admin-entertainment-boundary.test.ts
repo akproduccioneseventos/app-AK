@@ -18,7 +18,8 @@ describe('public and operator boundaries', () => {
 
     expect(reset).toContain('hasEntertainmentControlAccess');
     expect(reset).not.toContain('hasEntertainmentGuestAccess');
-    expect(complete).toContain('hasEntertainmentGuestAccess');
+    expect(complete).toContain('tienePermisoEnEstaEstacion');
+    expect(source).toContain('hasEntertainmentGuestAccess');
     expect(complete).toContain("session.status !== 'done'");
     expect(complete).toContain('db.runTransaction');
   });

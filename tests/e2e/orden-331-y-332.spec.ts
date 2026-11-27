@@ -85,7 +85,7 @@ test.describe('Orden 331 — Un solo simulador, planificador agrupado y puerta d
     expect(urlPlata.pathname).toBe('/fiestas/nueva/plata-y-papeles');
     expect(urlPlata.searchParams.get('tab')).toBe('plan-pagos');
     expect(urlPlata.searchParams.get('fiestaId')).toBe(fiestaId);
-    await expect(page.getByRole('heading', { name: 'Plata y papeles' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Plata y papeles', exact: true })).toBeVisible();
   });
 
   test('redirige /evento/fotocabina a /evento/inicio?rol=fotocabina y mantiene directo /evento/fotocabina/<id>', async ({ context, page, baseURL }) => {

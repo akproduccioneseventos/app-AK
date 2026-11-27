@@ -54,8 +54,14 @@ function HojaDeCocinaContenido() {
 
       const presupuesto = fiesta.presupuestoId ? await getPresupuestoById(fiesta.presupuestoId) : null;
 
-      const adultos = presupuesto?.invitadosAdultos ?? (Number(fiesta.configuracion?.invitadosEstimados) || 0);
-      const chicos = (presupuesto?.invitadosNinos || 0) + (presupuesto?.invitadosAdolescentes || 0);
+      const chicos =
+        presupuesto
+          ? (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0)
+          : (fiesta.configuracion?.invitadosNinos || 0) + (fiesta.configuracion?.invitadosAdolescentes || 0);
+      const adultos =
+        presupuesto?.invitadosAdultos ??
+        fiesta.configuracion?.invitadosAdultos ??
+        Math.max(0, (Number(fiesta.configuracion?.invitadosEstimados) || 0) - chicos);
 
       const platos: Array<{ nombre: string; categoria?: string; alergenos?: string[] }> = (presupuesto?.itemsPresupuestados || [])
         .filter((item) =>

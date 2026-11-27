@@ -24,6 +24,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PublicFooter } from '@/components/public-footer';
+import { aniosDeAK, FIESTAS_BASE, type CifrasDeAK } from '@/lib/marketing/cifras-de-ak';
+import { getCifrasPublicasAK } from '@/app/actions/cifras-ak';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const WHATSAPP_URL = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=Hola%20AK%2C%20estuve%20viendo%20la%20experiencia%20interactiva%20y%20quiero%20hacerles%20una%20consulta`;
 
@@ -94,6 +97,25 @@ function ExperienciaContent() {
   // Estados de simulación paso 5
   const [fotoTomada, setFotoTomada] = useState(false);
 
+  const [cifras, setCifras] = useState<CifrasDeAK>(() => ({
+    anios: aniosDeAK(),
+    fiestasRealizadas: FIESTAS_BASE,
+  }));
+
+  useEffect(() => {
+    let activo = true;
+    getCifrasPublicasAK()
+      .then((data) => {
+        if (activo && data) setCifras(data);
+      })
+      // no pasa nada si falla: se muestran las cifras base, que son las mismas que cuenta el servidor
+      .catch(() => {
+      });
+    return () => {
+      activo = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-black">
       {/* Barra superior institucional */}
@@ -105,6 +127,7 @@ function ExperienciaContent() {
           </Link>
 
           <div className="flex items-center gap-3">
+            <BotonComoFunciona clave="experiencia" variant="dark" />
             <Badge variant="outline" className="border-amber-500/40 text-amber-300 text-xs hidden sm:inline-flex">
               Demostración de muestra
             </Badge>
@@ -121,7 +144,7 @@ function ExperienciaContent() {
       {/* Cabecera principal */}
       <section className="py-10 px-4 max-w-4xl mx-auto text-center">
         <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3 px-3 py-1">
-          +7 años de experiencia · +200 eventos realizados
+          +{cifras.anios} años de experiencia · +{cifras.fiestasRealizadas} eventos realizados
         </Badge>
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
           Viví la experiencia <span className="text-amber-400">AK Producciones</span>

@@ -7,11 +7,13 @@
  */
 const mockWriteData = jest.fn();
 const mockReadData = jest.fn();
+const mockUpdateDataPartial = jest.fn();
 const mockVerifySession = jest.fn();
 
 jest.mock('@/lib/data-service', () => ({
   readData: (...a: unknown[]) => mockReadData(...a),
   writeData: (...a: unknown[]) => mockWriteData(...a),
+  updateDataPartial: (...a: unknown[]) => mockUpdateDataPartial(...a),
 }));
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: (...a: unknown[]) => mockVerifySession(...a),
@@ -87,17 +89,19 @@ async function rechazada(fn: Accion[1], args: unknown[]): Promise<boolean> {
   }
 }
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockReadData.mockResolvedValue({});
-  mockWriteData.mockResolvedValue(undefined);
-});
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockReadData.mockResolvedValue({});
+    mockWriteData.mockResolvedValue(undefined);
+    mockUpdateDataPartial.mockResolvedValue({ success: true });
+  });
 
 describe('la configuracion general pide permiso, no solo sesion', () => {
   test.each(todas)('%s: el personal con sesion es rechazado y no escribe', async (_n, fn, args) => {
     mockVerifySession.mockResolvedValue(sesion('personal'));
     expect(await rechazada(fn, args)).toBe(true);
     expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockUpdateDataPartial).not.toHaveBeenCalled();
   });
 
   test.each(todas)('%s: el operador sin acceso no escribe cuando no le corresponde', async (nombre, fn, args) => {
@@ -106,6 +110,7 @@ describe('la configuracion general pide permiso, no solo sesion', () => {
     if (puedeOrganizacion) return;
     expect(await rechazada(fn, args)).toBe(true);
     expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockUpdateDataPartial).not.toHaveBeenCalled();
   });
 
   test('administracion: el dueno guarda los ajustes de WhatsApp', async () => {
@@ -133,7 +138,7 @@ describe('la configuracion general pide permiso, no solo sesion', () => {
     mockVerifySession.mockResolvedValue(sesion('secretaria'));
     const r = await socialAdmin.saveSocialGlobalSettings({} as any);
     expect(r.success).toBe(true);
-    expect(mockWriteData).toHaveBeenCalled();
+    expect(mockUpdateDataPartial).toHaveBeenCalled();
   });
 
   test('organizacion: el operador guarda la invitacion de una fiesta', async () => {

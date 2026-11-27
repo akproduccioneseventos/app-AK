@@ -15,6 +15,7 @@ import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { cn } from '@/lib/utils';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_MS = 2500;
 
@@ -84,11 +85,7 @@ export default function TotemPublicPage() {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     setOrigin(currentOrigin);
     try {
-      const [fiestaData, socialPosts] = await withPublicRequestTimeout(Promise.all([
-        getPublicSocialEvent(fiestaId),
-        // Si falla la lectura de fotos se conservan las que ya se muestran (no se vacía el tótem).
-        getPublicSocialPosts(fiestaId).catch(() => null),
-      ]));
+      const fiestaData = await withPublicRequestTimeout(getPublicSocialEvent(fiestaId));
       if (!fiestaData) {
         setLoadError('No encontramos la configuración de este tótem.');
         return;
@@ -97,13 +94,19 @@ export default function TotemPublicPage() {
         || fallbackTotem(fiestaData, totemId, currentOrigin);
       setFiesta(fiestaData);
       setTotem(selected);
-      if (socialPosts) {
-        setPosts(
-          socialPosts
-            .filter(esAprobadoParaMostrar)
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 18)
-        );
+
+      if (selected.syncedWithSocialWall !== false) {
+        const socialPosts = await getPublicSocialPosts(fiestaId).catch(() => null);
+        if (socialPosts) {
+          setPosts(
+            socialPosts
+              .filter(esAprobadoParaMostrar)
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+              .slice(0, 18)
+          );
+        }
+      } else {
+        setPosts([]);
       }
       setLoadError(null);
     } catch (error) {
@@ -335,6 +338,9 @@ export default function TotemPublicPage() {
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white break-words">
                 {totem.honoreeName || totem.title}
               </h1>
+              <div>
+                <BotonComoFunciona clave="totem" variant="dark" />
+              </div>
               <p className="text-base sm:text-xl font-semibold text-white/80 leading-relaxed max-w-xl">
                 {totem.subtitle}
               </p>

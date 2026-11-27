@@ -378,6 +378,8 @@ export async function syncReunionToGoogleWorkspace(
   }
 
   const emailKey = `meeting_${reunion.id}`;
+  let emailSent = false;
+  let emailSentAt: string | undefined = clientEmailLog[emailKey];
   if (options.sendEmails && clientEmail && companyAccount && (!clientEmailLog[emailKey] || options.forceEmail)) {
     const html = buildMeetingEmailHtml({ fiesta, reunion, clientName, calendarTemplateUrl });
     const emailResult = await sendCompanyEmail({
@@ -387,11 +389,13 @@ export async function syncReunionToGoogleWorkspace(
     });
     warnings.push(...(emailResult.warnings || []));
     if (emailResult.success) {
+      emailSent = true;
+      emailSentAt = new Date().toISOString();
       record = {
         ...record,
         lastEmailAtByClient: {
           ...clientEmailLog,
-          [emailKey]: new Date().toISOString(),
+          [emailKey]: emailSentAt,
         },
       };
     }
@@ -405,7 +409,7 @@ export async function syncReunionToGoogleWorkspace(
   };
   await writeSyncRecords(upsertRecord(records, record));
 
-  return { success: true, warnings };
+  return { success: true, warnings, emailSent, emailSentAt };
 }
 
 /**

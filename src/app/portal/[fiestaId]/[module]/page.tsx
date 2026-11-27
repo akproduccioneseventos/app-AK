@@ -8,6 +8,7 @@ import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { QuienEsQuienCarasPanel } from '@/components/portal/QuienEsQuienCarasPanel';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type Props = {
   params: Promise<{
@@ -58,13 +59,16 @@ export default async function LegacyPortalModuleRedirectPage(props: Props) {
                 {fiesta.configuracion?.nombreEvento || 'Tu fiesta'}
               </p>
             </div>
-            <Link
-              href={`/portal-cliente/${encodeURIComponent(params.fiestaId)}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Volver al portal
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <BotonComoFunciona clave="buscarme" />
+              <Link
+                href={`/portal-cliente/${encodeURIComponent(params.fiestaId)}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Volver al portal
+              </Link>
+            </div>
           </div>
 
           <QuienEsQuienCarasPanel fiestaId={params.fiestaId} />

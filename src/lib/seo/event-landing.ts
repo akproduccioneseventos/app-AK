@@ -3,7 +3,15 @@
 const SITE_URL = 'https://akproducciones.uy';
 
 export interface EventLandingSeoInput {
-  slug: 'bodas' | 'xv-anos' | 'eventos' | 'quinceaneras' | 'cumpleanos';
+  slug:
+    | 'bodas'
+    | 'xv-anos'
+    | 'eventos'
+    | 'quinceaneras'
+    | 'cumpleanos'
+    | 'fiestas-empresariales'
+    | 'fiestas-infantiles'
+    | 'fiestas';
   title: string;
   description: string;
   image: string;
@@ -16,6 +24,9 @@ const CANONICAL_BY_SLUG: Record<string, string> = {
   quinceaneras: '/quinceaneras',
   eventos: '/cumpleanos',
   cumpleanos: '/cumpleanos',
+  'fiestas-empresariales': '/fiestas-empresariales',
+  'fiestas-infantiles': '/fiestas-infantiles',
+  fiestas: '/fiestas',
 };
 
 export function createEventLandingMetadata({
@@ -27,14 +38,16 @@ export function createEventLandingMetadata({
 }: EventLandingSeoInput): Metadata {
   const path = CANONICAL_BY_SLUG[slug] || `/${slug}`;
   const url = new URL(path, SITE_URL).toString();
+  const cleanTitle = title.replace(/\s*\|\s*AK Producciones(?:\s+Eventos)?$/i, '').trim();
+  const ogTitle = `${cleanTitle} | AK Producciones`;
 
   return {
     metadataBase: new URL(SITE_URL),
-    title,
+    title: cleanTitle,
     description,
     alternates: { canonical: path },
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       type: 'website',
       url,

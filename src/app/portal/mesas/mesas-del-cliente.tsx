@@ -439,7 +439,7 @@ function AsignacionMesasContent() {
                                                     </Select>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-right pr-6"><Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteGuest(guest.id)}><Trash2 className="w-4 h-4"/></Button></TableCell>
+                                            <TableCell className="text-right pr-6"><Button variant="ghost" size="icon" className="h-10 w-10 text-destructive" onClick={() => handleDeleteGuest(guest.id)}><Trash2 className="w-4 h-4"/></Button></TableCell>
                                         </TableRow>
                                     ))}
                                     {filteredInvitados.length === 0 && (

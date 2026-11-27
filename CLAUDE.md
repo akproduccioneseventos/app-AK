@@ -1351,6 +1351,16 @@ siguiente volvió a correr las 203 pruebas (85 minutos). El dueño: *"acordate d
 **Qué se hace distinto, y ya está enganchado:** la puerta guarda su propia lista en el avance (`archivosQueFallaron` en
 `scripts/se-puede-publicar.mjs`) y repite sólo esos archivos (`la-puerta-guarda-su-lista-de-fallas.test.ts`).
 
+### 62. Relanzar la puerta con un tope de dos horas y que arranque de cero
+
+**Pasó el 27 de noviembre de 2026.** Lancé la puerta con un tope de 2 horas; se cortó en la tanda 7 de 8 de
+navegador y al relanzarla arrancó de cero. El dueño: *"habías quedado en que no arrancara de nuevo; te volviste a
+equivocar"*.
+
+**Qué se hace distinto:** antes de relanzar, mirar que el avance de la puerta siga guardado para el mismo commit; si
+no, correr sueltas sólo las tandas que faltaban (`node scripts/run-playwright-production.mjs <archivos>`). Y la puerta
+larga no se lanza con un tope menor al que necesita: con navegador completo lleva más de dos horas.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1586,6 +1596,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Suscripción al blog y publicidad por mail (27 de noviembre de 2026).** El blog de la app es aparte de Blogger y
+  WordPress: la web sólo los enlaza. Los suscriptores reciben solos una bienvenida y un mail por mes con las notas nuevas
+  (excepción que eligió el dueño, con interruptor), entran al CRM como prospectos, y desde la configuración del CRM se
+  manda publicidad por mail con un botón. Orden 378, bloque 8.
 - **El robot va y viene hasta cero errores (25 de noviembre de 2026).** Palabras suyas: *"el robot va a trabajar yendo y
   viniendo hasta que venga sin errores; si encuentra los mismos errores no cuentan; no podés parar hasta que sea así; vos le
   das las indicaciones todo el tiempo"*. Una vuelta por hora **en la sesión de trabajo** (tarea "Robot AK hasta cero

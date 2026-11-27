@@ -77,7 +77,7 @@ export function SimulatorMeetingScheduler({
         clienteContacto: clienteContacto || '',
         clienteEmail: clienteEmail || '',
         fechaHora: selectedSlot.datetimeIso,
-        tipoReunion: 'Presencial en Oficina',
+        tipoReunion: 'Presencial a coordinar',
       });
 
       if (res.success && res.appointment) {
@@ -128,7 +128,7 @@ export function SimulatorMeetingScheduler({
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <MapPin className="h-4 w-4 text-slate-400" />
-              <span>Oficina AK Producciones · Salto, Uruguay</span>
+              <span>Lugar a coordinar · Salto, Uruguay</span>
             </div>
           </div>
           <p className="text-xs text-slate-600">

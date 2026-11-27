@@ -17,6 +17,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -756,24 +762,29 @@ function SalonesPageInner() {
       </CardDescription>
 
       {/* Form */}
-      {showForm && (
-        <SalonForm
-          editing={editing}
-          form={form}
-          isSaving={isSaving}
-          isUploadingFoto={isUploadingFoto}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          onUploadFoto={handleUploadFoto}
-          onDeleteFoto={handleDeleteFoto}
-        />
-      )}
+      <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleCancel(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Editar Salón' : 'Agregar Nuevo Salón'}</DialogTitle>
+          </DialogHeader>
+          <SalonForm
+            editing={editing}
+            form={form}
+            isSaving={isSaving}
+            isUploadingFoto={isUploadingFoto}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            onUploadFoto={handleUploadFoto}
+            onDeleteFoto={handleDeleteFoto}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Tabs: All salones / Club Uruguay */}
       <Tabs defaultValue="todos">
         <TabsList>
-          <TabsTrigger value="todos">Todos los Salones ({salones.length})</TabsTrigger>
+          <TabsTrigger value="todos">Todos los Salones{!isLoading ? ` (${salones.length})` : ''}</TabsTrigger>
           {clubUruguaySalones.length > 0 && (
             <TabsTrigger value="club-uruguay" className="text-amber-700">
               <Star className="w-3.5 h-3.5 mr-1.5" />
@@ -785,7 +796,7 @@ function SalonesPageInner() {
         <TabsContent value="todos">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-headline text-lg">Salones Guardados ({salones.length})</CardTitle>
+              <CardTitle className="font-headline text-lg">Salones Guardados{!isLoading ? ` (${salones.length})` : ''}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (

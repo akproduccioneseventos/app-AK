@@ -1,3 +1,5 @@
+import { hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
+
 export type PaymentInstallment = {
   amount: number;
   paidAmount?: number | null;
@@ -30,9 +32,14 @@ function money(value: unknown) {
 function isOverdue(installment: PaymentInstallment, now = new Date()) {
   if (installment.status === 'pagado') return false;
   if (!installment.dueDate) return installment.status === 'vencido';
-  const due = new Date(installment.dueDate);
-  if (Number.isNaN(due.getTime())) return installment.status === 'vencido';
-  return due.getTime() < now.getTime();
+  const raw = String(installment.dueDate).trim();
+  const soloDia = raw.match(/^(\d{4}-\d{2}-\d{2})$/);
+  if (!soloDia && Number.isNaN(new Date(raw).getTime())) {
+    return installment.status === 'vencido';
+  }
+  const dueDay = hoyEnUruguay(parseUruguayDate(soloDia ? soloDia[1] : raw));
+  const todayUy = hoyEnUruguay(now);
+  return dueDay < todayUy;
 }
 
 export function getPaymentSummary(installments: PaymentInstallment[], now = new Date()): PaymentSummary {

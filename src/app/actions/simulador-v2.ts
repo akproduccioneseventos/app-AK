@@ -132,22 +132,18 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
   // freno: un robot podia llenar el CRM de presupuestos falsos hasta volverlo
   // inservible. El formulario de la portada si tenia freno; este no.
   //
-  // Cuatro por hora y por telefono, igual que el otro.
-  const telefonoDelFreno = String((state as { telefono?: string })?.telefono || '').trim();
-  if (telefonoDelFreno) {
-    try {
-      await enforcePublicRateLimit({
-        scope: 'simulador-v2-lead',
-        identity: telefonoDelFreno,
-        limit: 4,
-        windowMs: 60 * 60 * 1000,
-      });
-    } catch (error: unknown) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Espera un momento antes de volver a enviar.',
-      };
-    }
+  // Cuatro por hora y por conexión (sin identity del visitante para que no se saltee cambiando o vaciando el teléfono).
+  try {
+    await enforcePublicRateLimit({
+      scope: 'simulador-v2-lead',
+      limit: 4,
+      windowMs: 60 * 60 * 1000,
+    });
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Espera un momento antes de volver a enviar.',
+    };
   }
 
   try {

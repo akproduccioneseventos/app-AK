@@ -27,6 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { calculateSalaryBreakdown } from '@/lib/personal/desglose-recibo';
+import { resolverSueldoDelRol } from '@/lib/fiesta/sueldo-del-rol';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
 import { esFiestaSuspendida } from '@/lib/fiesta/revisar-fiestas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -118,12 +119,13 @@ function RecibosDePagoContent() {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
         if (!empleado) return null;
         const rol = rolesData.find(r => r.id === assigned.rolId);
-        const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
+        const eventSalary = resolverSueldoDelRol(assigned, rol);
+        const contribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         return {
           empleado,
           rol,
           rolId: assigned.rolId,
-          eventSalary: assigned.eventSalary,
+          eventSalary,
           employerContribution: contribution
         };
       }).filter((item): item is NonNullable<typeof item> => item !== null) as FullStaffDetail[];
@@ -213,14 +215,15 @@ function RecibosDePagoContent() {
           const empleado = allEmpleados.find(e => e.id === assigned.empleadoId);
           if (!empleado) return null;
           const rol = allRoles.find(r => r.id === assigned.rolId);
-          const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
+          const eventSalary = resolverSueldoDelRol(assigned, rol);
+          const contribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
           return {
             fiesta: fiestaItem,
             detail: {
               empleado,
               rol,
               rolId: assigned.rolId,
-              eventSalary: assigned.eventSalary,
+              eventSalary,
               employerContribution: contribution,
             },
           };
@@ -256,7 +259,8 @@ function RecibosDePagoContent() {
     }
 
     const pagesHtml = entries.map((receiptEntry, index) => {
-      const breakdown = calculateSalaryBreakdown(receiptEntry.detail.eventSalary, receiptEntry.detail.rol);
+      const eventSalary = resolverSueldoDelRol({ eventSalary: receiptEntry.detail.eventSalary }, receiptEntry.detail.rol);
+      const breakdown = calculateSalaryBreakdown(eventSalary, receiptEntry.detail.rol);
       const concepts = [
         `<tr><td>Sueldo Base Evento</td><td style="text-align:right;">${formatCurrency(breakdown.base)}</td></tr>`,
         recibosConfig.showVacacional
@@ -296,7 +300,7 @@ function RecibosDePagoContent() {
             <tfoot>
               <tr>
                 <td>PAGO TOTAL</td>
-                <td style="text-align:right;">${formatCurrency(receiptEntry.detail.eventSalary)}</td>
+                <td style="text-align:right;">${formatCurrency(eventSalary)}</td>
               </tr>
             </tfoot>
           </table>
@@ -535,7 +539,8 @@ function RecibosDePagoContent() {
         ) : (
           <div className="space-y-8 print:space-y-4">
             {assignedStaffDetails.map(detail => {
-              const breakdown = calculateSalaryBreakdown(detail.eventSalary, detail.rol);
+              const eventSalary = resolverSueldoDelRol({ eventSalary: detail.eventSalary }, detail.rol);
+              const breakdown = calculateSalaryBreakdown(eventSalary, detail.rol);
               return (
               <div key={`${detail.empleado.id}-${detail.rolId}`} className="p-4 border rounded-lg bg-white print:border-gray-400 print:shadow-none print:break-inside-avoid print:mb-2">
                 <div className="flex justify-between items-start">

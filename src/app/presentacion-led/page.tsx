@@ -15,18 +15,27 @@ import {
   Users,
   X,
   SlidersHorizontal,
+  Sparkles,
+  Mic,
+  MicOff,
+  Send,
+  Undo2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import { getCompanyInfoPublica, getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
+import { getGaleriaItems } from '@/app/actions/galeria';
 import { getPresentacionLedSettings } from '@/app/actions/contenido-publico';
+import { interpretarPedidoPresentacionIA } from '@/app/actions/presentacion-ia';
 import { DEFAULT_PRESENTACION_LED_SETTINGS } from '@/lib/public-content-defaults';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { CatalogoFoto } from '@/types/catalogo';
+import type { GaleriaFoto } from '@/types/galeria';
 import type { PresentacionLedSettings } from '@/types/contenido-publico';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 // Slide components
 import { PortadaSlide } from './slides/portada-slide';
@@ -162,6 +171,7 @@ export default function PresentacionLedPage() {
   const router = useRouter();
   const [data, setData] = useState<PageData>(DEFAULT_PAGE_DATA);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
+  const [galeriaFotos, setGaleriaFotos] = useState<GaleriaFoto[]>([]);
   const [bookingDepositAmount, setBookingDepositAmount] = useState<number>(DEFAULT_BOOKING_DEPOSIT_AMOUNT);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -179,7 +189,19 @@ export default function PresentacionLedPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryCategoria, setGalleryCategoria] = useState('');
+  const [serviceGalleryFotos, setServiceGalleryFotos] = useState<GaleriaFoto[] | null>(null);
   const [showBudgetPanel, setShowBudgetPanel] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [iaOpen, setIaOpen] = useState(false);
+  const [iaFrase, setIaFrase] = useState('');
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaError, setIaError] = useState<string | null>(null);
+  const [iaOpciones, setIaOpciones] = useState<Array<{ id: string; nombre: string }>>([]);
+  const [iaPendingAccion, setIaPendingAccion] = useState<'agregar' | 'sacar'>('agregar');
+  const [iaFeedback, setIaFeedback] = useState<{ texto: string; deshacer: () => void } | null>(null);
+  const [iaListening, setIaListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const speechRecognitionRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const hydratedRef = useRef(false);
@@ -255,13 +277,14 @@ export default function PresentacionLedPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
+      const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, galeriaData, ledSettings] = await Promise.all([
         getServiciosEmpresaPublicos(),
         getCompanyInfoPublica(),
         getInvoiceTemplateSettings(),
         getBudgetDisplaySettings(),
         getMenusPublicos().catch(() => [] as FullMenu[]),
         getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
+        getGaleriaItems().catch(() => ({ fotos: [], videos: [] })),
         getPresentacionLedSettings(),
       ]);
       setData({
@@ -273,6 +296,7 @@ export default function PresentacionLedPage() {
         menus,
       });
       setCatalogoFotos(catalogoData);
+      setGaleriaFotos(Array.isArray(galeriaData?.fotos) ? galeriaData.fotos : []);
       setPresentacionSettings(ledSettings);
       const deposit = Number(budgetSettings?.bookingDepositAmount);
       setBookingDepositAmount(
@@ -325,19 +349,21 @@ export default function PresentacionLedPage() {
   const adultMenuOptions = useMemo<FullMenu[]>(() => {
     if (!data) return [];
     const seen = new Set<string>();
-    return data.menus.flatMap(menu => menu.items
-      .filter(item => item.type === 'Plato Principal' && !seen.has(item.id))
-      .map(item => {
-        seen.add(item.id);
-        return {
-          id: item.id,
-          name: item.name,
-          description: item.notes || '',
-          imageUrl: item.imageUrl,
-          featured: item.isFeatured || menu.featured,
-          items: [item],
-        };
-      }));
+    return data.menus
+      .filter((menu) => menu.estadoPublicacion !== 'borrador')
+      .flatMap(menu => menu.items
+        .filter(item => item.type === 'Plato Principal' && Number(item.suggestedSellingPrice) > 0 && !seen.has(item.id))
+        .map(item => {
+          seen.add(item.id);
+          return {
+            id: item.id,
+            name: item.name,
+            description: item.notes || '',
+            imageUrl: item.imageUrl,
+            featured: item.isFeatured || menu.featured,
+            items: [item],
+          };
+        }));
   }, [data]);
   const selectedMenu = useMemo(
     () => adultMenuOptions.find((menu) => menu.id === selectedMenuId) ?? null,
@@ -348,8 +374,13 @@ export default function PresentacionLedPage() {
     const seen = new Set<string>();
     const result: MenuItem[] = [];
     for (const menu of data.menus) {
+      if (menu.estadoPublicacion === 'borrador') continue;
       for (const item of menu.items) {
-        if ((item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil') && !seen.has(item.id)) {
+        if (
+          (item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil') &&
+          Number(item.suggestedSellingPrice) > 0 &&
+          !seen.has(item.id)
+        ) {
           seen.add(item.id);
           result.push(item);
         }
@@ -365,8 +396,9 @@ export default function PresentacionLedPage() {
     const seen = new Set<string>();
     const result: MenuItem[] = [];
     for (const menu of data.menus) {
+      if (menu.estadoPublicacion === 'borrador') continue;
       for (const item of menu.items) {
-        if (item.type === 'Entrada' && !seen.has(item.id)) {
+        if (item.type === 'Entrada' && Number(item.suggestedSellingPrice) > 0 && !seen.has(item.id)) {
           seen.add(item.id);
           result.push(item);
         }
@@ -556,7 +588,14 @@ export default function PresentacionLedPage() {
 
   // Gallery handler — opens inline lightbox instead of navigating away
   const handleOpenGallery = useCallback((categoria: string) => {
+    setServiceGalleryFotos(null);
     setGalleryCategoria(categoria);
+    setGalleryOpen(true);
+  }, []);
+
+  const handleOpenServiceFotos = useCallback((servicioNombre: string, fotos: GaleriaFoto[]) => {
+    setGalleryCategoria(servicioNombre);
+    setServiceGalleryFotos(fotos);
     setGalleryOpen(true);
   }, []);
 
@@ -645,6 +684,150 @@ export default function PresentacionLedPage() {
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
     );
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsOnline(navigator.onLine !== false);
+    const hasSpeech = Boolean((window as any).webkitSpeechRecognition || (window as any).SpeechRecognition);
+    setSpeechSupported(hasSpeech);
+    const onOnline = () => setIsOnline(true);
+    const onOffline = () => {
+      setIsOnline(false);
+      setIaOpen(false);
+    };
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+      if (speechRecognitionRef.current) {
+        try { speechRecognitionRef.current.stop(); } catch {}
+      }
+    };
+  }, []);
+
+  const aplicarServicioDesdeIA = useCallback((accion: 'agregar' | 'sacar', servicioId: string) => {
+    const srv = (data?.servicios || []).find((s) => s.id === servicioId);
+    if (!srv) {
+      setIaError('Ese servicio no está en el catálogo.');
+      return;
+    }
+
+    if (accion === 'agregar') {
+      const yaEstaba = selectedServices.includes(srv.id);
+      if (!yaEstaba) {
+        toggleSelect(srv.id);
+      }
+      setIaFeedback({
+        texto: `Agregado: ${srv.nombre}`,
+        deshacer: () => {
+          if (!yaEstaba) {
+            toggleSelect(srv.id);
+          }
+          setIaFeedback(null);
+        },
+      });
+    } else {
+      const estaba = selectedServices.includes(srv.id);
+      if (estaba) {
+        toggleSelect(srv.id);
+      }
+      setIaFeedback({
+        texto: `Quitado: ${srv.nombre}`,
+        deshacer: () => {
+          if (estaba) {
+            toggleSelect(srv.id);
+          }
+          setIaFeedback(null);
+        },
+      });
+    }
+    setIaOpciones([]);
+    setIaError(null);
+    setIaFrase('');
+  }, [data?.servicios, selectedServices, toggleSelect]);
+
+  const handleEnviarPedidoIA = useCallback(async (fraseDirecta?: string) => {
+    const texto = (fraseDirecta ?? iaFrase).trim();
+    if (!texto || iaLoading) return;
+    setIaLoading(true);
+    setIaError(null);
+    setIaOpciones([]);
+    try {
+      const res = await interpretarPedidoPresentacionIA({
+        frase: texto,
+        servicios: (data?.servicios || []).map((s) => ({
+          id: s.id,
+          nombre: s.nombre,
+          categoria: s.categoria,
+        })),
+      });
+      if (!res.ok) {
+        setIaError(res.error || 'No pude interpretar ese pedido.');
+        return;
+      }
+      if (res.accion === 'invitados' && res.cantidad && res.cantidad > 0) {
+        const anterior = clientData.invitadosAdultos;
+        setClientData((prev) => ({ ...prev, invitadosAdultos: String(res.cantidad) }));
+        setIaFeedback({
+          texto: `Invitados: ${res.cantidad}`,
+          deshacer: () => {
+            setClientData((prev) => ({ ...prev, invitadosAdultos: anterior }));
+            setIaFeedback(null);
+          },
+        });
+        setIaFrase('');
+        return;
+      }
+      if ((res.accion === 'agregar' || res.accion === 'sacar') && res.servicioId) {
+        aplicarServicioDesdeIA(res.accion, res.servicioId);
+        return;
+      }
+      if ((res.accion === 'agregar' || res.accion === 'sacar') && res.opciones && res.opciones.length > 0) {
+        setIaPendingAccion(res.accion);
+        setIaOpciones(res.opciones);
+        return;
+      }
+      setIaError('No encontré un servicio exacto para ese pedido. Probá con otro nombre.');
+    } catch {
+      setIaError('No se pudo consultar a la IA. Podés marcar los servicios manualmente sin problema.');
+    } finally {
+      setIaLoading(false);
+    }
+  }, [iaFrase, iaLoading, data?.servicios, clientData.invitadosAdultos, aplicarServicioDesdeIA]);
+
+  const handleToggleMicIA = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const SpeechRec = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    if (!SpeechRec) return;
+
+    if (iaListening && speechRecognitionRef.current) {
+      try { speechRecognitionRef.current.stop(); } catch {}
+      setIaListening(false);
+      return;
+    }
+
+    try {
+      const rec = new SpeechRec();
+      rec.lang = 'es-UY';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (event: any) => {
+        const transcript = event?.results?.[0]?.[0]?.transcript || '';
+        if (transcript.trim()) {
+          setIaFrase(transcript.trim());
+          void handleEnviarPedidoIA(transcript.trim());
+        }
+      };
+      rec.onerror = () => setIaListening(false);
+      rec.onend = () => setIaListening(false);
+      speechRecognitionRef.current = rec;
+      setIaListening(true);
+      rec.start();
+    } catch {
+      setIaListening(false);
+    }
+  }, [iaListening, handleEnviarPedidoIA]);
 
   const toggleEntrada = useCallback((id: string) => {
     setSelectedEntradasIds(prev =>
@@ -777,6 +960,10 @@ export default function PresentacionLedPage() {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+        return;
+      }
       if (e.key === 'ArrowRight') { goNext(); }
       if (e.key === ' ') { e.preventDefault(); goNext(); }
       if (e.key === 'ArrowLeft') { goPrev(); }
@@ -869,6 +1056,19 @@ export default function PresentacionLedPage() {
           >
             🏛️ Salón Club Uruguay
           </Button>
+          <BotonComoFunciona clave="reunion-led" variant="dark" />
+          {isOnline && (
+            <Button
+              type="button"
+              variant="ghost"
+              data-testid="btn-pedile-a-la-ia"
+              onClick={() => setIaOpen((v) => !v)}
+              className="text-indigo-200 hover:text-white hover:bg-indigo-500/20 border border-indigo-400/30 bg-indigo-500/15 h-9 px-3 text-xs rounded-lg font-bold gap-1.5"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Pedile a la IA
+            </Button>
+          )}
           <Button
             variant="ghost"
             asChild
@@ -882,6 +1082,7 @@ export default function PresentacionLedPage() {
             onClick={toggleFullscreen}
             className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
             title={isFullscreen ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)'}
+            aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
           >
             {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
           </button>
@@ -988,9 +1189,11 @@ export default function PresentacionLedPage() {
               categoriaIndex={categoriaIndex}
               totalCategorias={categoriaSlidesCount}
               catalogoFotos={catalogoFotos}
+              galeriaFotos={galeriaFotos}
               tipoFiesta={clientData.tipoFiesta}
               ledFotoMap={presentacionSettings?.ledFotosServicios || {}}
               onOpenGallery={handleOpenGallery}
+              onOpenServiceFotos={handleOpenServiceFotos}
             />
           )}
           {isRegalosSlide && (
@@ -1151,20 +1354,28 @@ export default function PresentacionLedPage() {
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
+          <div className="flex items-center gap-0.5 mx-2 sm:mx-4">
             {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
               const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
+              const isCurrent = currentSlide === slideIdx;
               return (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => goToSlide(slideIdx)}
-                  className={cn(
-                    'h-2 rounded-full transition-all duration-300',
-                    currentSlide === slideIdx
-                      ? 'w-6 sm:w-8 bg-white'
-                      : 'w-2 bg-white/30 hover:bg-white/60',
-                  )}
-                />
+                  aria-label={`Ir a la diapositiva ${slideIdx + 1}`}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  className="inline-flex min-h-6 items-center justify-center px-1 py-2"
+                >
+                  <span
+                    className={cn(
+                      'h-2 rounded-full transition-all duration-300',
+                      isCurrent
+                        ? 'w-6 sm:w-8 bg-white'
+                        : 'w-2 bg-white/30 hover:bg-white/60',
+                    )}
+                  />
+                </button>
               );
             })}
           </div>
@@ -1190,11 +1401,117 @@ export default function PresentacionLedPage() {
         </div>
       </footer>
 
+      {/* ── Pedile a la IA (panel en la reunión) ── */}
+      {isOnline && iaOpen && (
+        <div
+          data-testid="panel-pedile-a-la-ia"
+          className="fixed top-16 right-4 z-40 w-[min(92vw,24rem)] rounded-2xl border border-indigo-400/30 bg-slate-900/95 p-4 text-white shadow-2xl backdrop-blur-xl"
+        >
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-indigo-300">
+              <Sparkles className="h-3.5 w-3.5" />
+              Pedile a la IA
+            </span>
+            <button
+              type="button"
+              onClick={() => setIaOpen(false)}
+              className="text-white/50 hover:text-white"
+              aria-label="Cerrar asistente"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleEnviarPedidoIA();
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              type="text"
+              data-testid="input-pedile-a-la-ia"
+              value={iaFrase}
+              onChange={(e) => setIaFrase(e.target.value)}
+              placeholder="Ej: agregá la fuente de chocolate..."
+              className="flex-1 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs text-white placeholder:text-white/40 focus:border-indigo-400 focus:outline-none"
+            />
+            {speechSupported && (
+              <button
+                type="button"
+                data-testid="btn-mic-pedile-a-la-ia"
+                onClick={handleToggleMicIA}
+                className={cn(
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-colors',
+                  iaListening
+                    ? 'border-rose-400 bg-rose-500/30 text-rose-200'
+                    : 'border-white/20 bg-white/10 text-white/70 hover:text-white',
+                )}
+                aria-label={iaListening ? 'Detener dictado' : 'Hablar pedido'}
+              >
+                {iaListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+            )}
+            <button
+              type="submit"
+              data-testid="btn-enviar-pedile-ia"
+              disabled={iaLoading || !iaFrase.trim()}
+              className="flex h-8 shrink-0 items-center gap-1 rounded-xl bg-indigo-500 px-3 text-xs font-bold text-white hover:bg-indigo-600 disabled:opacity-40"
+            >
+              {iaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            </button>
+          </form>
+          {iaError && (
+            <p className="mt-2 text-xs text-rose-300">{iaError}</p>
+          )}
+          {iaOpciones.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-[11px] text-white/70">¿Cuál de estas opciones querías {iaPendingAccion === 'sacar' ? 'sacar' : 'agregar'}?</p>
+              <div className="flex flex-wrap gap-1.5">
+                {iaOpciones.map((op) => (
+                  <button
+                    key={op.id}
+                    type="button"
+                    onClick={() => aplicarServicioDesdeIA(iaPendingAccion, op.id)}
+                    className="rounded-lg border border-indigo-400/40 bg-indigo-500/20 px-2.5 py-1 text-xs font-semibold text-indigo-100 hover:bg-indigo-500/40"
+                  >
+                    {op.nombre}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Feedback inmediato de Pedile a la IA con Deshacer ── */}
+      {iaFeedback && (
+        <div
+          data-testid="banner-pedile-ia"
+          className="fixed top-16 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-emerald-400/40 bg-slate-900/95 px-4 py-2 text-xs font-bold text-white shadow-2xl backdrop-blur-xl"
+        >
+          <span className="text-emerald-300">{iaFeedback.texto}</span>
+          <span className="text-white/30">·</span>
+          <button
+            type="button"
+            data-testid="btn-deshacer-pedile-ia"
+            onClick={iaFeedback.deshacer}
+            className="flex items-center gap-1 text-amber-300 hover:text-amber-200 underline"
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            Deshacer
+          </button>
+        </div>
+      )}
+
       {/* ── Gallery Lightbox Modal ── */}
       <GaleriaLightboxModal
         isOpen={galleryOpen}
-        onClose={() => setGalleryOpen(false)}
-        fotos={galleryFotos}
+        onClose={() => {
+          setGalleryOpen(false);
+          setServiceGalleryFotos(null);
+        }}
+        fotos={serviceGalleryFotos ?? galleryFotos}
         categoriaLabel={galleryCategoria || 'Galería'}
       />
     </div>

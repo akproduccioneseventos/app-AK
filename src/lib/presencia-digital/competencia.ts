@@ -1,8 +1,9 @@
 import 'server-only';
 
 import { mutarDocumento, mutateGenericJsonArray, readGenericJsonFile } from '@/lib/generic-json-store';
-import { geminiCommercialModel, generateWithGeminiFallback } from '@/ai/genkit';
-import { reservarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { geminiCommercialModel } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 export interface CompetenciaCuenta {
   username: string;
@@ -150,27 +151,14 @@ export async function generarResumenCompetenciaIA(): Promise<string> {
     return 'No hay datos suficientes de la competencia para generar un resumen.';
   }
 
-  const reserva = await reservarConsumoIA('decisiones');
-  if (!reserva) {
-    return 'No hay análisis esta semana';
-  }
-
-  try {
-    const prompt = `Analizá los siguientes datos de cuentas de la competencia en Instagram y redactá exactamente 3 líneas basadas solo en los datos guardados:
+  const prompt = `Analizá los siguientes datos de cuentas de la competencia en Instagram y redactá exactamente 3 líneas basadas solo en los datos guardados:
 ${JSON.stringify(cuentas, null, 2)}`;
 
-    const resp = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
-      prompt,
-    });
-    const resText = resp?.text?.trim();
-    if (!resText) {
-      await reserva.liberar().catch(() => undefined);
-      return 'No hay análisis esta semana';
-    }
-    return resText;
-  } catch (err: any) {
-    await reserva.liberar().catch(() => undefined);
-    return 'No hay análisis esta semana';
-  }
+  const res = await pedirTexto({
+    prompt,
+    quien: 'decisiones',
+    incluirReglas: false,
+    modelos: [geminiCommercialModel, ...MODELOS_GEMINI.texto],
+  });
+  return res.ok && res.texto ? res.texto : 'No hay análisis esta semana';
 }

@@ -46,6 +46,7 @@ import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { MensajesParaVosSection } from '@/components/album/MensajesParaVosSection';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'touchpix' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
@@ -346,6 +347,7 @@ export default function PublicAlbumPage() {
           )}
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <BotonComoFunciona clave="album" variant="dark" />
             <div className="inline-flex rounded-full bg-zinc-900 p-1 border border-white/10">
               <button
                 onClick={() => setViewMode('libro')}

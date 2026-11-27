@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download, History } from 'lucide-react';
+import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download, History, Copy } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
@@ -25,6 +25,7 @@ import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
+import { parseUruguayDate } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +42,12 @@ import { Separator } from '@/components/ui/separator';
 
 const formatEventDate = (fechaEvento?: string) => {
   if (!fechaEvento) return 'Sin fecha';
-  return new Date(fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  return parseUruguayDate(fechaEvento).toLocaleDateString('es-UY', {
+    timeZone: 'America/Montevideo',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 };
 
@@ -84,9 +89,12 @@ function EmpleadosPageInner() {
   // terminaba más. Se filtra por año.
   const [filtroAnioHistorial, setFiltroAnioHistorial] = useState<string>('todos');
   const [puedeBorrar, setPuedeBorrar] = useState(false);
+  const [blockedSummaryText, setBlockedSummaryText] = useState<string | null>(null);
 
   const anioDeFiesta = (fiesta: FiestaEnPlanificacion) => {
-    const fecha = new Date(fiesta.configuracion?.fechaEvento || '');
+    const raw = fiesta.configuracion?.fechaEvento;
+    if (!raw) return null;
+    const fecha = parseUruguayDate(raw);
     return Number.isNaN(fecha.getTime()) ? null : String(fecha.getFullYear());
   };
 
@@ -175,6 +183,7 @@ function EmpleadosPageInner() {
   };
 
   const openPartiesReport = async (empleado: Empleado) => {
+    setBlockedSummaryText(null);
     setPartiesDialog({
       open: true,
       empleado,
@@ -188,8 +197,8 @@ function EmpleadosPageInner() {
       // De la más nueva a la más vieja: antes había que bajar hasta el final de
       // la tabla para ver el último evento en el que trabajó.
       const ordenadas = [...fiestas].sort((a, b) => {
-        const fa = new Date(a.configuracion?.fechaEvento || 0).getTime() || 0;
-        const fb = new Date(b.configuracion?.fechaEvento || 0).getTime() || 0;
+        const fa = a.configuracion?.fechaEvento ? parseUruguayDate(a.configuracion.fechaEvento).getTime() : 0;
+        const fb = b.configuracion?.fechaEvento ? parseUruguayDate(b.configuracion.fechaEvento).getTime() : 0;
         return fb - fa;
       });
       setFiltroAnioHistorial('todos');
@@ -225,9 +234,19 @@ function EmpleadosPageInner() {
     const message = `¡Hola ${empleado.nombre}! 👋\n\nAcá tenés el resumen de tus próximos eventos confirmados con AK Producciones:\n\n${lines.join('\n\n') || 'Sin eventos próximos registrados.'}\n\n¡Cualquier duda, avisanos! 🎉`;
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const win = window.open(url, '_blank');
+    if (!win) {
+      setBlockedSummaryText(message);
+      toast({
+        title: 'El navegador bloqueó la ventana de WhatsApp',
+        description: 'Copiá el texto del resumen desde el cuadro para enviarlo manualmente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setBlockedSummaryText(null);
     setPartiesDialog(prev => ({ ...prev, open: false }));
-    toast({ title: '✅ Resumen enviado', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
+    toast({ title: 'Resumen listo: tocá enviar en WhatsApp', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
   };
 
   const getPartiesRows = (fiestas: FiestaEnPlanificacion[], empleadoId?: string) => {
@@ -411,7 +430,7 @@ function EmpleadosPageInner() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
+          <CardTitle className="font-headline">Listado de Empleados{!isLoading && !error ? ` (${empleados.length})` : ''}</CardTitle>
           <CardDescription>Consulta y gestiona la información de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -427,7 +446,58 @@ function EmpleadosPageInner() {
               <p className="text-sm">{error}</p>
             </div>
           ) : empleados.length > 0 ? (
-            <div className="overflow-x-auto">
+            <>
+              <div className="sm:hidden space-y-3">
+                {empleados.map((empleado) => (
+                  <div key={empleado.id} className="rounded-xl border p-4 space-y-2.5 bg-card shadow-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
+                          {empleado.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={empleado.photoUrl} alt={empleado.nombre} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-slate-400 text-xs font-bold">{empleado.nombre.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm truncate">{empleado.nombre}</p>
+                          <p className="text-xs text-muted-foreground">CI: {empleado.cedula || '—'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <span>{empleado.telefono || 'Sin teléfono'}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {(empleado.rolIds && empleado.rolIds.length > 0) ? empleado.rolIds.map(rolId => {
+                        const rol = roles.find(r => r.id === rolId);
+                        return rol ? <Badge key={rolId} variant="secondary">{rol.nombre}</Badge> : null;
+                      }) : <span className="text-xs text-muted-foreground">Sin Rol</span>}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1 pt-1 border-t">
+                      <Button asChild variant="ghost" size="sm" className="min-h-10 px-2.5 text-indigo-600">
+                        <Link href={`/empleados/${empleado.id}/historial`}>
+                          <History className="w-4 h-4 mr-1" /> Historial
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="min-h-10 px-2.5 text-blue-600" onClick={() => openPartiesReport(empleado)}>
+                        <CalendarDays className="w-4 h-4 mr-1" /> Fiestas
+                      </Button>
+                      <Button variant="ghost" size="sm" className="min-h-10 px-2.5 text-green-600" onClick={() => openWhatsApp(empleado)}>
+                        <MessageCircle className="w-4 h-4 mr-1" /> WhatsApp
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="min-h-10 px-2.5">
+                        <Link href={`/empleados/${empleado.id}/editar`}>
+                          <Edit className="w-4 h-4 mr-1" /> Editar
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden sm:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -534,7 +604,8 @@ function EmpleadosPageInner() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+              </div>
+            </>
           ) : (
             <div className="py-10 text-center">
               <Users className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
@@ -591,7 +662,13 @@ function EmpleadosPageInner() {
       </Dialog>
 
       {/* Parties Report Dialog */}
-      <Dialog open={partiesDialog.open} onOpenChange={open => setPartiesDialog(prev => ({ ...prev, open }))}>
+      <Dialog
+        open={partiesDialog.open}
+        onOpenChange={open => {
+          if (!open) setBlockedSummaryText(null);
+          setPartiesDialog(prev => ({ ...prev, open }));
+        }}
+      >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -711,6 +788,30 @@ function EmpleadosPageInner() {
                       Enviar
                     </Button>
                   </div>
+                  {blockedSummaryText && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2 text-xs text-amber-900">
+                      <p className="font-medium">
+                        El navegador bloqueó la ventana emergente de WhatsApp. Copiá el texto y pegalo en el chat:
+                      </p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(blockedSummaryText);
+                            toast({ title: 'Texto copiado', description: 'Pegalo en WhatsApp para enviarlo.' });
+                          } catch {
+                            toast({ title: 'No se pudo copiar automáticamente', description: 'Copialo manualmente del recuadro.', variant: 'destructive' });
+                          }
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5 mr-1.5" />
+                        Copiar texto
+                      </Button>
+                      <Textarea readOnly rows={4} value={blockedSummaryText} className="bg-white text-xs" />
+                    </div>
+                  )}
                 </div>
               </div>
             </>

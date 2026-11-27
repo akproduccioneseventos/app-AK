@@ -99,7 +99,7 @@ describe('El motor de costos: la cuenta real', () => {
     expect(guardado.gestion.others.totalPersonalCost).toBe(12000);
   });
 
-  it('las bebidas se cargan con la merma del 5% y queda la línea que lo explica', async () => {
+  it('las bebidas se cargan por su cantidad total del evento con merma del 5% y su línea explicativa', async () => {
     datos.fiesta.bebidas = {
       categorias: [
         { activada: true, items: [{ costoUnitario: 100, cantidadNecesaria: 2 }] },
@@ -107,10 +107,10 @@ describe('El motor de costos: la cuenta real', () => {
     };
 
     expect((await correrElMotor()).success).toBe(true);
-    // 100 x 2 x 100 invitados = 20.000, más 5% = 21.000
-    expect(guardado.gestion.others.totalBebidasCost).toBe(21000);
+    // Orden 364: cantidadNecesaria ya es la cantidad total del evento (100 x 2 = 200, más 5% = 210)
+    expect(guardado.gestion.others.totalBebidasCost).toBe(210);
     const merma = guardado.gestion.costosItems.find((i: any) => i.id === 'auto_merma_bebidas');
-    expect(merma.montoEstimado).toBe(1000);
+    expect(merma.montoEstimado).toBe(10);
   });
 
   it('una categoría de bebidas apagada no se cobra', async () => {

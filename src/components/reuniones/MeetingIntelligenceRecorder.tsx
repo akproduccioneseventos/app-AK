@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AlertCircle, BrainCircuit, CheckCircle2, Download, FileAudio, Loader2, Mic, Save, Square, Wand2 } from 'lucide-react';
-import { processReunionIntelligence } from '@/app/actions/meeting-intelligence';
+import { AlertCircle, BrainCircuit, CheckCircle2, Download, FileAudio, Loader2, Mail, Mic, Save, Square, Wand2 } from 'lucide-react';
+import { processReunionIntelligence, sendReunionSummaryToClient } from '@/app/actions/meeting-intelligence';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ type MeetingReunion = Reunion & {
   resumenOrganizador?: string;
   preguntasCliente?: string[];
   lastIntelligenceSyncAt?: string;
+  resumenEnviadoAlClienteAt?: string;
   aiSummary?: {
     transcript?: string;
     tareasCliente?: string[];
@@ -49,6 +50,8 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
   const [liveTranscript, setLiveTranscript] = useState('');
   const [speechSupported, setSpeechSupported] = useState<boolean | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [sentToClientAt, setSentToClientAt] = useState<string | undefined>(reunion.resumenEnviadoAlClienteAt);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -256,6 +259,47 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
   const organizerTasks = reunion.aiSummary?.tareasOrganizador || [];
   const learnedFaqs = reunion.preguntasCliente || reunion.aiSummary?.preguntasCliente || [];
 
+  const handleSendSummaryEmail = async () => {
+    const fechaPrev = sentToClientAt || reunion.resumenEnviadoAlClienteAt;
+    let confirmarReenvio = false;
+    if (fechaPrev) {
+      // no pasa nada si falla: fechaPrev es un instante con hora y se muestra en el navegador de Uruguay.
+      const fechaTexto = new Date(fechaPrev).toLocaleDateString('es-UY');
+      if (!window.confirm(`Ya se le mandó el ${fechaTexto}. ¿Querés enviarlo de nuevo?`)) {
+        return;
+      }
+      confirmarReenvio = true;
+    }
+    setIsSendingEmail(true);
+    try {
+      const res = await sendReunionSummaryToClient(fiestaId, reunion.id, confirmarReenvio);
+      if (res.requiresConfirm && res.alreadySentAt) {
+        const fechaTexto = new Date(res.alreadySentAt).toLocaleDateString('es-UY');
+        if (!window.confirm(`Ya se le mandó el ${fechaTexto}. ¿Querés enviarlo de nuevo?`)) {
+          return;
+        }
+        const retry = await sendReunionSummaryToClient(fiestaId, reunion.id, true);
+        if (!retry.success) throw new Error(retry.error || 'No se pudo enviar el correo.');
+        setSentToClientAt(retry.sentAt || new Date().toISOString());
+        toast({ title: 'Resumen enviado al cliente' });
+        await onProcessed();
+        return;
+      }
+      if (!res.success) throw new Error(res.error || 'No se pudo enviar el correo.');
+      setSentToClientAt(res.sentAt || new Date().toISOString());
+      toast({ title: 'Resumen enviado al cliente' });
+      await onProcessed();
+    } catch (error: any) {
+      toast({
+        title: 'No se pudo enviar el resumen',
+        description: error?.message || 'Verificá el correo del cliente y la conexión con Gmail.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   return (
     <Card className="border-slate-200 bg-white shadow-sm">
       <CardHeader className="pb-3">
@@ -292,6 +336,20 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
               {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
               Procesar
             </Button>
+            {(reunion.resumenCliente || reunion.acuerdos) && (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={handleSendSummaryEmail}
+                disabled={isProcessing || isRecording || isSendingEmail}
+              >
+                {isSendingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+                {sentToClientAt
+                  ? `Ya se le mandó el ${new Date(sentToClientAt).toLocaleDateString('es-UY')}`
+                  : 'Mandar resumen al cliente'}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -380,7 +438,7 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
 
         <div className="flex items-center gap-2 text-[11px] text-slate-500">
           <Save className="h-3.5 w-3.5" />
-          Al procesar, el agente actualiza resumen, tareas, checklist, FAQ del portal y Google/Gmail si esta conectado.
+          Al procesar, el agente actualiza resumen, tareas, checklist, FAQ del portal y calendario; el mail al cliente se manda recién al tocar el botón.
         </div>
       </CardContent>
     </Card>

@@ -79,13 +79,14 @@ function OrdenDeEventoContenido() {
         ? await getPresupuestoById(fiestaData.presupuestoId).catch(() => null)
         : null;
 
-      const adultos =
-        presupuesto?.invitadosAdultos ||
-        Number(fiestaData.configuracion?.invitadosEstimados) ||
-        0;
       const chicos =
-        (presupuesto?.invitadosNinos || 0) +
-        (presupuesto?.invitadosAdolescentes || 0);
+        presupuesto
+          ? (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0)
+          : (fiestaData.configuracion?.invitadosNinos || 0) + (fiestaData.configuracion?.invitadosAdolescentes || 0);
+      const adultos =
+        presupuesto?.invitadosAdultos ??
+        fiestaData.configuracion?.invitadosAdultos ??
+        Math.max(0, (Number(fiestaData.configuracion?.invitadosEstimados) || 0) - chicos);
 
       const platos = (presupuesto?.itemsPresupuestados || [])
         .filter(

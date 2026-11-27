@@ -1,6 +1,7 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import type { BlogPost } from '@/types/blog';
@@ -23,22 +24,20 @@ export async function saveBlogPost(
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
-    const posts = await getBlogPosts();
-    const idx = posts.findIndex(p => p.slug === post.slug);
-
-    if (idx >= 0) {
-      posts[idx] = {
-        ...post,
-        publishedAt: post.publishedAt || new Date().toISOString().split('T')[0]
-      };
-    } else {
-      posts.unshift({
-        ...post,
-        publishedAt: post.publishedAt || new Date().toISOString().split('T')[0]
-      });
-    }
-
-    await writeData(BLOG_FILE, posts);
+    const postNormalizado: BlogPost = {
+      ...post,
+      publishedAt: post.publishedAt || new Date().toISOString().split('T')[0],
+    };
+    await mutateGenericJsonArray<BlogPost>(BLOG_FILE, (posts) => {
+      const lista = [...(Array.isArray(posts) ? posts : [])];
+      const idx = lista.findIndex((p) => p.slug === postNormalizado.slug);
+      if (idx >= 0) {
+        lista[idx] = postNormalizado;
+      } else {
+        lista.unshift(postNormalizado);
+      }
+      return lista;
+    });
     return { success: true };
   } catch (error: any) {
     console.error('[blog-actions] Error saving blog post:', error);
@@ -51,9 +50,16 @@ export async function deleteBlogPost(
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
-    const posts = await getBlogPosts();
-    const filtered = posts.filter(p => p.slug !== slug);
-    await writeData(BLOG_FILE, filtered);
+    let encontrado = false;
+    await mutateGenericJsonArray<BlogPost>(BLOG_FILE, (posts) => {
+      const lista = Array.isArray(posts) ? posts : [];
+      if (!lista.some((p) => p.slug === slug)) return null;
+      encontrado = true;
+      return lista.filter((p) => p.slug !== slug);
+    });
+    if (!encontrado) {
+      return { success: false, error: 'Artículo no encontrado.' };
+    }
     return { success: true };
   } catch (error: any) {
     console.error('[blog-actions] Error deleting blog post:', error);
@@ -99,6 +105,8 @@ export interface EstadoBlogAdmin {
 }
 
 export async function getEstadoBlogAdmin(): Promise<EstadoBlogAdmin> {
+  const sesion = await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
+  void sesion;
   const posts = await getBlogPosts();
   let ultimaNota: EstadoBlogAdmin['ultimaNota'] = null;
   let diasSinNota = 0;

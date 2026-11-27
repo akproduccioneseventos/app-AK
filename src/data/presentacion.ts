@@ -1,4 +1,5 @@
 // Presentation Mode data — used by /presentacion (LED showroom kiosk)
+import { FIESTAS_BASE } from '@/lib/marketing/cifras-de-ak';
 
 export interface EventType {
   id: string;
@@ -103,7 +104,7 @@ export const SERVICES: Service[] = [
     description:
       'DJ profesional con equipo de sonido de alta calidad e iluminación show para mantener la pista encendida toda la noche.',
     specs: [
-      'DJ profesional con +200 fiestas realizadas',
+      `DJ profesional con +${FIESTAS_BASE} fiestas realizadas`,
       'Equipo de sonido profesional',
       'Luces show: cabezas móviles, strobo, laser',
       'Pantalla LED y visuales (a confirmar)',

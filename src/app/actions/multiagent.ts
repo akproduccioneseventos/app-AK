@@ -1,18 +1,27 @@
 'use server';
 
-import { requirePermiso } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 
+const PERMISOS_MULTIAGENTE = [
+  PERMISOS.ADMINISTRACION,
+  PERMISOS.CONTABILIDAD,
+  PERMISOS.CRM,
+  PERMISOS.ORGANIZACION,
+  PERMISOS.INSUMOS,
+  PERMISOS.NOCHE,
+] as const;
+
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
-import { esUnSi } from '@/lib/multiagent/confirmacion';
-import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
+import { esConfirmacionSola } from '@/lib/multiagent/confirmacion';
+import { validarAccesoAlAgente } from '@/lib/multiagent/validar-acceso-agente';
+import { appendMultiAgentChatTurn, getMultiAgentChatSession, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { verifySession } from '@/lib/auth/session-token';
-import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 
@@ -37,6 +46,18 @@ export async function sendMultiAgentMessage(
       agentName: 'Multiagente AK',
       action: { type: 'none' },
       error: 'No autorizado',
+    };
+  }
+
+  const permisoAgente = validarAccesoAlAgente(session.user, options?.agentType);
+  if (!permisoAgente.ok) {
+    return {
+      success: false,
+      response: 'Tu perfil no tiene acceso a ese asistente.',
+      agentType: options?.agentType ?? 'central',
+      agentName: 'Multiagente AK',
+      action: { type: 'none' },
+      error: 'Tu perfil no tiene acceso a ese asistente.',
     };
   }
 
@@ -115,13 +136,49 @@ export async function sendPersistentMultiAgentMessage(input: {
     };
   }
 
-  const result = await sendMultiAgentMessage(input.message, input.history ?? [], {
-    requestId: input.requestId,
-    pathname: input.pathname,
-    fiestaId: input.fiestaId,
-    agentType: input.agentType,
-    imageDataUri: input.imageDataUri,
-  });
+  const accesoAgente = validarAccesoAlAgente(sesion.user, input.agentType);
+  if (!accesoAgente.ok) {
+    return {
+      success: false,
+      response: 'Tu perfil no tiene acceso a ese asistente.',
+      agentType: input.agentType ?? 'central',
+      agentName: 'AK',
+      error: 'Tu perfil no tiene acceso a ese asistente.',
+    };
+  }
+
+  const sesionExistente = input.sessionId
+    ? await getMultiAgentChatSession(input.sessionId).catch(() => null)
+    : null;
+  const accionPendiente = sesionExistente?.pendingAction ?? null;
+
+  let result: AkMultiAgentOutput;
+  let pendingActionNext: { type: 'agendar_reunion' | 'preparar_mail'; data: any; requestedAt: string } | null | undefined = undefined;
+
+  if (accionPendiente && esConfirmacionSola(input.message)) {
+    const res = await ejecutarAccionSecretario({
+      accion: accionPendiente.type,
+      datos: accionPendiente.data,
+      confirmado: true,
+    });
+    pendingActionNext = null;
+    result = {
+      success: res.success,
+      response: res.mensaje || res.error || 'Listo.',
+      agentType: input.agentType ?? 'central',
+      agentName: 'Secretario AK',
+      action: { type: accionPendiente.type, data: accionPendiente.data } as any,
+      error: res.error,
+    };
+  } else {
+    result = await sendMultiAgentMessage(input.message, input.history ?? [], {
+      requestId: input.requestId,
+      pathname: input.pathname,
+      fiestaId: input.fiestaId,
+      agentType: input.agentType,
+      imageDataUri: input.imageDataUri,
+    });
+  }
 
   // Ejecutar acciones reales detectadas por la IA
   if (result.success && result.action && result.action.type !== 'none') {
@@ -343,17 +400,25 @@ export async function sendPersistentMultiAgentMessage(input: {
         }
       } else if (action.type === 'agendar_reunion') {
         const data = action.data as any;
-        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
-        const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
+        if (pendingActionNext !== null) {
+          const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: false });
+          if (res.esperandoConfirmacion) {
+            pendingActionNext = { type: 'agendar_reunion', data, requestedAt: new Date().toISOString() };
+          }
+          result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
+        }
       } else if (action.type === 'ver_mi_semana') {
         const res = await ejecutarAccionSecretario({ accion: 'ver_mi_semana', datos: action.data });
         result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       } else if (action.type === 'preparar_mail') {
         const data = action.data as any;
-        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
-        const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
+        if (pendingActionNext !== null) {
+          const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: false });
+          if (res.esperandoConfirmacion) {
+            pendingActionNext = { type: 'preparar_mail', data, requestedAt: new Date().toISOString() };
+          }
+          result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
+        }
       } else if (action.type === 'buscar_en_la_web') {
         const res = await ejecutarAccionSecretario({ accion: 'buscar_en_la_web', datos: action.data });
         result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
@@ -381,6 +446,7 @@ export async function sendPersistentMultiAgentMessage(input: {
       fiestaId: input.fiestaId,
       userMessage: input.message,
       assistantMessage: result.response,
+      ...(pendingActionNext !== undefined ? { pendingAction: pendingActionNext } : {}),
     });
     sessionId = session.id;
     savedChat = true;
@@ -431,9 +497,7 @@ export async function getChatsMultiagente(input?: {
   fiestaId?: string;
   limit?: number;
 }): Promise<AkAgentChatSession[]> {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return listMultiAgentChatSessions(input);
 }
 
@@ -445,9 +509,7 @@ export async function guardarAprendizajeAgente(input: {
   module?: string;
   tags?: string[];
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return saveAgentLearning({
     agentType: input.agentType,
     title: input.title,
@@ -461,17 +523,14 @@ export async function guardarAprendizajeAgente(input: {
 }
 
 export async function getMemoriasMultiagente() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   return listAgentMemoryProfiles();
 }
 
 export async function getMultiAgentTeamBriefing() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
-  const briefing = await buildMultiAgentTeamBriefing();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
+  const contable = await requirePermiso(PERMISOS.CONTABILIDAD);
+  const briefing = await buildMultiAgentTeamBriefing({ incluirContabilidad: contable.ok });
   return { success: true, data: briefing };
 }
 
@@ -485,10 +544,9 @@ async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[
 }
 
 export async function runMultiAgentTeamReview() {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
-  const briefing = await buildMultiAgentTeamBriefing();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
+  const contable = await requirePermiso(PERMISOS.CONTABILIDAD);
+  const briefing = await buildMultiAgentTeamBriefing({ incluirContabilidad: contable.ok });
   const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
   let saved = 0;
   let failed = 0;
@@ -639,9 +697,7 @@ export async function enviarAprendizajeAFiestasGeneral(input: {
   title: string;
   content: string;
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   const title = input.title.trim();
   const content = input.content.trim();
   if (!title || !content) return { success: false, error: 'Falta título o contenido.' };
@@ -675,9 +731,7 @@ export async function cerrarFiestaConRetroalimentacion(input: {
   fiestaId: string;
   notasFinales?: string;
 }) {
-  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
-  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_MULTIAGENTE);
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 

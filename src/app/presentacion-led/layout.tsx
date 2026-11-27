@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Presentación de Tecnología | AK Producciones Eventos',
+  title: 'Presentación de Tecnología',
   description: 'Conocé nuestra tecnología y despliegue visual en presentaciones en vivo.',
   alternates: { canonical: '/presentacion-led' },
 };

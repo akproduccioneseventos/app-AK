@@ -10,6 +10,7 @@ import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type ScanResult =
   | { status: 'idle' }
@@ -230,7 +231,10 @@ function AccessControlContent() {
           <ScanLine className="w-5 h-5 text-primary" />
           <span className="font-bold text-sm">Control de Acceso</span>
         </div>
-        <span className="text-xs text-slate-400 truncate max-w-[160px]">{eventName}</span>
+        <div className="flex items-center gap-2">
+          <BotonComoFunciona clave="staff-cronograma" variant="dark" />
+          <span className="text-xs text-slate-400 truncate max-w-[160px]">{eventName}</span>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-start p-4 gap-4">

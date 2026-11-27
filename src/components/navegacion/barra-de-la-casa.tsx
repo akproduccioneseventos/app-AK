@@ -127,10 +127,10 @@ export function BarraDeLaCasa({ casaId, className }: BarraDeLaCasaProps) {
           </span>
         </div>
 
-        {/* Barra desplazable horizontalmente de pestañas */}
+        {/* Barra desplazable horizontalmente en celular y con wrap en escritorio para no recortar la última pestaña */}
         <div
           role="tablist"
-          className="flex-1 overflow-x-auto scrollbar-hide py-2 flex items-center gap-1.5 scroll-smooth"
+          className="flex-1 overflow-x-auto md:overflow-visible scrollbar-hide py-2 flex items-center md:flex-wrap gap-1.5 scroll-smooth"
         >
           {casa.pestanas.map((p, idx) => {
             const activa = idx === pestanaActivaIndex;

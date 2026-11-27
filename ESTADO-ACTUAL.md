@@ -1,16 +1,12 @@
-# Estado actual — 24 de noviembre de 2026
+# Estado actual — 27 de noviembre de 2026
 
 ## Publicado
-- #1462 a #1465, #1471, y las entregas 336 a 342 de Gemini juntas con los arreglos de Claude.
+- #1474 (336–342 + robot sembrado) y #1476 (343–345, auditoría profunda 24/11, Club Uruguay $19.990 y Orden 350 en `main`).
+- `origin/main` trajo órdenes 367 a 376 (vueltas 12–21 de seis especialistas), ya incorporadas en `gemini/orden-346`.
 
-## En revisión (sin fusionar)
-- **PR #1472 (`gemini/orden-343`)**: abierta y pendiente de revisión/fusión (Órdenes 343, 344 y 345).
-
-## Rama actual (`gemini/auditoria-profunda-24-11`) — Auditoría profunda 0 errores
-- Suma 8 arreglos sobre finanzas, contratos, migración 2027 y seguridad del portal (Pilares 3 y 4 con 0 hallazgos P0/P1):
-  - `getFiestaByAccessKey` y `cambiarClavePortal` con rate limit, sesión de portal, chequeo `enabled` y comparación en tiempo constante.
-  - `empezar-2027` respeta archivados/rechazados/`Facturado`/firmados y pasa por `normalizePresupuestoFinancials`.
-  - `cancelServicesOrParty` (`cancelAll`) apaga `ajusteAnualActivo`/`ajusteAnualPorcentaje` y usa `presupuesto.fechaFirmaContrato`.
-  - `changeEventDate` guarda `totalConDescuento = nuevoTotal` exacto; `estadoDelContrato` y `updatePresupuesto` protegen firmas, `Facturado` y `preserveTotal`.
-  - `ver/page.tsx` y `PublicPortalView.tsx` pasan el porcentaje de ajuste anual desde Ajustes.
-- Pruebas de regresión agregadas en `src/__tests__/auditoria-profunda-24-11-plata-y-portal.test.ts`.
+## Rama actual (`gemini/orden-346`) — PR #1475 abierta (sin fusionar)
+- **Incorporada revisión de Claude (`origin/claude/app-debug-stabilize-m70e6z`)** y completada **Orden 377**:
+  * Robot insumos/activos: sembrado de `ing-harina` y `lc_psitio` en `tests/robot/sembrar.ts`, texto `"Guardando..."` en ambos editores, permanencia en `activos-fijos/[id]/editar`, prueba aislada `src/__tests__/el-insumo-y-el-activo-guardan.test.ts`.
+  * E2E: `el-simulador-respeta-el-tipo-de-fiesta.spec.ts` en verde; Touchpix conserva `"con efecto local, la IA no respondió"` también en espera de aprobación y `89-ia-no-frena-la-fila.spec.ts` limpia rutas al cerrar contexto.
+- **Arreglo publicación automática del blog (`src/__tests__/el-blog-publica-solo.test.ts`):** `/public/blog`, `/public/blog/[slug]` y `/sitemap.xml` en `force-dynamic`, aislamiento de `includeInstagram: false` en cron/al-entrar/acciones de blog, `seoSucceeded` sin falsos negativos, alineación a 48h sin pisar `ultimaCorrida.blog` cuando no publicó nota.
+- **Estado PR #1475 (`gemini/orden-346`):** órdenes **346–350, 355–377** + arreglo de blog automático listos y verificados. **Gemini no mergea:** lista para que **Claude** revise y fusione.

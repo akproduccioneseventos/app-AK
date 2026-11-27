@@ -67,7 +67,7 @@ function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
   if (!voices || voices.length === 0) return null;
 
   // 1. es-UY (Uruguay)
-  const uy = voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY') || v.lang.toLowerCase().includes('uy'));
+  const uy = voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY'));
   if (uy) return uy;
 
   // 2. es-AR (Argentina / Rioplatense - presente en casi todos los navegadores)
@@ -122,7 +122,7 @@ const FAB_SIZE = 60;
 const DOCK_MARGIN = 16;
 
 const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
-  central:        { label: 'Encargado General AK',       icon: Bot,          badge: 'App completa',    short: 'General',   emoji: '🤵', description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
+  central:        { label: 'Encargado general',          icon: Bot,          badge: 'App completa',    short: 'General',   emoji: '🤵', description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
   fiestas_general:{ label: 'Supervisor de Fiestas',      icon: Brain,        badge: 'Todas las fiestas',short: 'Eventos',   emoji: '🕵️‍♂️', description: 'Control de eventos y planificacion', color: 'from-violet-800 to-indigo-900' },
   fiesta:         { label: 'Agente de esta Fiesta',      icon: PartyPopper,  badge: 'Fiesta actual',   short: 'Fiesta',    emoji: '🥳', description: 'Control de la fiesta abierta', color: 'from-pink-800 to-rose-900' },
   secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'Agenda',    emoji: '👩‍💼', description: 'Agenda, llamadas y recordatorios', color: 'from-rose-700 to-violet-900' },
@@ -797,7 +797,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         <Card
           data-testid="panel-asistente"
           className={cn(
-            'absolute flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] max-w-[420px] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
+            'absolute flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] sm:w-[460px] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
             cardAlign,
           )}
           style={panelVertical}
@@ -946,7 +946,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                   >
                     {message.role === 'assistant' && message.agentName && (
                       <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-indigo-500">
-                        {message.agentName}
+                        {!fiestaId && message.agentType === 'fiesta' ? 'Encargado general' : message.agentName}
                       </p>
                     )}
                     <p className="whitespace-pre-wrap">{message.content}</p>

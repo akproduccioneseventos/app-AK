@@ -162,6 +162,7 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
       galleryEnabled: fiesta.videoVida.galleryEnabled,
       photoCount: fiesta.videoVida.photoCount,
       photosUploaded: (fiesta.videoVida as any).photosUploaded,
+      uploadedCount: (fiesta.videoVida as any).uploadedCount,
     } : {},
     fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
       notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,

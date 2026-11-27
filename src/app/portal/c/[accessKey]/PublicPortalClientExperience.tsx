@@ -57,6 +57,8 @@ import {
   getPortalPaymentSummary,
 } from '@/lib/client-portal/client-portal-summary';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
+import { buildAnnualAdjustmentProjection, getYearFromDate } from '@/lib/budget/formal-budget';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva, textoDeEstadoDeFiestaParaPortal } from '@/lib/portal/cuenta-regresiva';
@@ -64,6 +66,8 @@ import { hoyEnUruguay } from '@/lib/utils';
 import { parseEventDate, parseEventDateTimeUruguay } from '@/lib/public-experience/event-date';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+import { calcularExtraServicioPortal } from '@/lib/portal/extra-servicio-portal';
 // Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
 
 type PublicPortalClientExperienceProps = {
@@ -738,44 +742,80 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [actionSuccessData, setActionSuccessData] = useState<{ fileName: string; refundAmount?: number; pendingDue?: number; penaltyAmount?: number; newBalance?: number } | null>(null);
 
   const getCancellationImpact = () => {
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
-      : new Date().getFullYear();
+    const signingYear = getYearFromDate(
+      fiesta.contratoDatos?.fechaFirmaContrato ??
+      (presupuesto as { fechaFirmaContrato?: string } | null | undefined)?.fechaFirmaContrato
+    ) ?? new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, currentYear - signingYear);
     const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto?.ajusteAnualPorcentaje ?? 15;
-    const esAjusteSimple = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual === 'simple';
-    const factorAjuste = esAjusteSimple
-      ? 1 + (porcentajeAjuste / 100) * yearsDiff
-      : Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+    const tipoAjusteAnual = (presupuesto as { tipoAjusteAnual?: 'acumulativo' | 'simple' } | null | undefined)?.tipoAjusteAnual;
 
     const originalTotal = paymentSummary.total;
     const paid = paymentSummary.paid;
 
+    const proyeccion = buildAnnualAdjustmentProjection({
+      baseTotal: originalTotal > 0 ? originalTotal : 1000,
+      eventDate: `${currentYear}-01-01`,
+      currentYear: signingYear,
+      adjustmentPct: porcentajeAjuste,
+      tipoAjusteAnual,
+    });
+    const factorAjuste = proyeccion.adjustedTotal / (originalTotal > 0 ? originalTotal : 1000);
+
     if (cancellationMode === 'all') {
-      const adjustedTotal = originalTotal * factorAjuste;
+      const adjustedTotal = originalTotal > 0 ? proyeccion.adjustedTotal : 0;
       const penalty = Math.round(adjustedTotal * 0.3);
-      const newTotal = penalty;
+      const newTotal = totalTrasCancelar(
+        [{ idServicioCatalogo: 'multa_cancelacion_total', costoTotalItem: penalty }],
+        presupuesto?.descuentoTipo,
+        presupuesto?.descuentoValor,
+      );
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
       return { adjustedTotal, penalty, newTotal, refund, owed, factorAjuste, yearsDiff };
     } else {
-      // Partial cancellation
+      // Cancelación parcial: misma cuenta exacta que el servidor (totalTrasCancelar + ajuste anual)
+      const selectedSet = new Set(selectedServicesToCancel);
       let cancelledOriginalSum = 0;
-      const cancelledItems = lineItems.filter((item: any) => selectedServicesToCancel.includes(item.idServicioCatalogo));
-      for (const item of cancelledItems) {
-        cancelledOriginalSum += item.costoTotalItem || 0;
+      let penalty = 0;
+      const remainingItems: any[] = [];
+
+      for (const item of lineItems) {
+        if (selectedSet.has(item.idServicioCatalogo)) {
+          const originalCost = item.costoTotalItem || 0;
+          const adjustedCost = buildAnnualAdjustmentProjection({
+            baseTotal: originalCost,
+            eventDate: `${currentYear}-01-01`,
+            currentYear: signingYear,
+            adjustmentPct: porcentajeAjuste,
+            tipoAjusteAnual,
+          }).adjustedTotal;
+          cancelledOriginalSum += originalCost;
+          penalty += Math.round(adjustedCost * 0.3);
+        } else {
+          remainingItems.push(item);
+        }
       }
 
-      const adjustedCancelled = cancelledOriginalSum * factorAjuste;
-      const penalty = Math.round(adjustedCancelled * 0.3);
-      const newTotal = (originalTotal - cancelledOriginalSum) + penalty;
+      if (penalty > 0) {
+        remainingItems.push({
+          idServicioCatalogo: 'multa_cancelacion_preview',
+          costoTotalItem: penalty,
+        });
+      }
+
+      const newTotal = totalTrasCancelar(
+        remainingItems,
+        presupuesto?.descuentoTipo,
+        presupuesto?.descuentoValor,
+      );
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
       return {
-        adjustedTotal: adjustedCancelled,
+        adjustedTotal: cancelledOriginalSum * factorAjuste,
         penalty,
         newTotal,
         refund,
@@ -909,8 +949,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   });
   const selectedService = catalogServices.find(service => service.id === selectedServiceId);
   const selectedServiceBasePrice = getCatalogServiceBasePrice(selectedService, currentGuestCount) * Math.max(1, serviceQuantity);
-  const selectedServiceAdditional = Math.round(selectedServiceBasePrice * (1 + annualAdjustmentPercent / 100));
-  const selectedServiceNewTotal = totalPresupuesto + selectedServiceAdditional;
+  const { additional: selectedServiceAdditional, newTotal: selectedServiceNewTotal } = calcularExtraServicioPortal({
+    presupuesto,
+    basePrice: selectedServiceBasePrice,
+    currentTotal: totalPresupuesto,
+    fechaFirmaContrato: fiesta?.contratoDatos?.fechaFirmaContrato,
+    eventoFecha: config.fechaEvento,
+    annualAdjustmentPercent,
+  });
 
   const handlePaymentFile = (file?: File) => {
     if (!file) return;
@@ -1092,6 +1138,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="space-y-3">
               <p className="text-sm font-semibold text-white/80">{config.tipoCelebracion || 'Evento'}</p>
               <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">{eventName}</h1>
+              <div>
+                <BotonComoFunciona clave="portal-cliente" variant="dark" />
+              </div>
               <p className="max-w-2xl text-base leading-7 text-white/90">
                 {portalExperience.welcomeMessage || portalExperience.organizerMessage || 'Toda la información importante del evento en un solo lugar.'}
               </p>
@@ -1418,7 +1467,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     </div>
                   </div>
                   <div className="space-y-2 text-sm text-slate-600">
-                    {fiesta?.videoVida?.galleryEnabled && <p className="rounded-lg bg-slate-50 p-3">Video de vida activo. Fotos cargadas: {fiesta?.videoVida?.photoCount ?? 0}.</p>}
+                    {fiesta?.videoVida?.galleryEnabled && (() => {
+                      const subidas = typeof fiesta.videoVida?.uploadedCount === 'number'
+                        ? fiesta.videoVida.uploadedCount
+                        : (typeof fiesta.videoVida?.photosUploaded === 'number'
+                          ? fiesta.videoVida.photosUploaded
+                          : (fiesta.videoVida?.photosUploaded ? (fiesta.videoVida?.photoCount ?? 0) : 0));
+                      const total = fiesta.videoVida?.photoCount ?? 50;
+                      return (
+                        <p className="rounded-lg bg-slate-50 p-3">
+                          Video de vida activo. Fotos cargadas: {subidas} de {total}.
+                        </p>
+                      );
+                    })()}
                     {fiesta?.fotografiaYFilmacion?.notasGenerales && <p className="rounded-lg bg-slate-50 p-3">{fiesta.fotografiaYFilmacion.notasGenerales}</p>}
                     {fiesta?.socialGallerySettings?.enabled ? (
                       <Button variant="outline" asChild>
@@ -1665,12 +1726,24 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   Podés solicitar la reprogramación de fecha del evento o la cancelación de uno o más servicios contratados de forma directa. Estas acciones requieren verificación de tu PIN/Contraseña y generarán el documento de adenda correspondiente para firma manual.
                 </p>
                 <div className="flex flex-wrap gap-2 text-sm">
-                  <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
-                    Cancelar servicios o fiesta
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => { setCambioFechaModalOpen(true); setNewProposedDate(''); setDateAvailabilityResult(null); }}>
-                    Cambiar fecha del evento
-                  </Button>
+                  {(
+                    (Array.isArray((presupuesto as { ajustesAplicados?: string[] } | null | undefined)?.ajustesAplicados)
+                      && (presupuesto as { ajustesAplicados?: string[] }).ajustesAplicados?.includes('cancelacion-total'))
+                    || fiesta?.estado === 'Cancelada'
+                  ) ? (
+                    <p className="text-xs font-semibold text-rose-700">
+                      Este evento fue cancelado; no se puede reprogramar la fecha.
+                    </p>
+                  ) : (
+                    <>
+                      <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
+                        Cancelar servicios o fiesta
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-xs border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => { setCambioFechaModalOpen(true); setNewProposedDate(''); setDateAvailabilityResult(null); }}>
+                        Cambiar fecha del evento
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
 

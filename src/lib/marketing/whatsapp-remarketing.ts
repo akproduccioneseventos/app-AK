@@ -41,18 +41,17 @@ Si señás tu fecha esta semana, te incluimos un beneficio exclusivo para tu eve
 ¿Te gustaría que te llamemos o te pasemos más fotos del salón?`;
 
   try {
-    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
-    if (!(await hayPresupuestoParaIA())) {
-      return defaultMessage;
-    }
-
-    const { generateWithGeminiFallback, geminiMarketingModel } = await import('@/ai/genkit');
+    const { pedirTexto } = await import('@/ai/cerebro');
+    const { geminiMarketingModel } = await import('@/ai/genkit');
+    const { MODELOS_GEMINI } = await import('@/ai/modelos');
     const dias = createdAt
       ? Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24))
       : 2;
 
-    const response = await generateWithGeminiFallback({
-      model: geminiMarketingModel,
+    const response = await pedirTexto({
+      quien: 'remarketing',
+      incluirReglas: false,
+      modelos: [geminiMarketingModel, ...MODELOS_GEMINI.texto],
       prompt: `Sos un asesor de ventas amable de AK Producciones, una empresa de fiestas de Uruguay.
 Tu objetivo es reactivar el interés de un cliente que cotizó un evento hace unos días pero no señó.
 Reglas:
@@ -67,9 +66,8 @@ Reglas:
 - NADA DE PROMETER DESCUENTOS ESPECÍFICOS O COSAS QUE NO SEAN EL "BENEFICIO EXCLUSIVO". NO INVENTES DATOS. NO INVENTES NOMBRES.`,
     });
 
-    if (response.text) {
-      await registrarConsumoIA('remarketing');
-      return response.text.trim();
+    if (response.ok && response.texto) {
+      return response.texto.trim();
     }
   } catch (error) {
     console.error('[buildRemarketingMessage] Falló la generación por IA, usando fallback estático.', error);

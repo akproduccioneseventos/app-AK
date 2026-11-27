@@ -2,7 +2,7 @@
 
 import { verifySession, type SessionUserData } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { perfilDe, esPerfilValido, PERMISOS_POR_PERFIL, type Permiso } from '@/lib/auth/perfiles';
+import { perfilDe, esPerfilValido, NOMBRE_DEL_PERFIL, PERMISOS_POR_PERFIL, type Permiso } from '@/lib/auth/perfiles';
 
 /**
  * Devuelve la lista de permisos del usuario actual con sesión.
@@ -65,4 +65,34 @@ export async function esSesionDelAuditor(): Promise<boolean> {
   await requireAppSession().catch(() => null);
   const { esSesionDeAuditor } = await import('@/lib/auth/solo-lectura');
   return esSesionDeAuditor();
+}
+
+export interface MiPerfilDeSesion {
+  email: string;
+  rol: string;
+  metodo: 'google' | 'clave' | null;
+}
+
+/**
+ * Devuelve los datos reales de la sesión del equipo sin inventar el método de ingreso.
+ */
+export async function getMiPerfilDeSesion(): Promise<MiPerfilDeSesion | null> {
+  try {
+    const session = await verifySession();
+    if (!session.success || !session.user) {
+      return null;
+    }
+    const perfil = perfilDe(session.user);
+    const rol = perfil === 'auditor' ? 'Auditor' : (NOMBRE_DEL_PERFIL[perfil] || 'Equipo');
+    const metodo = session.user.metodo === 'google' || session.user.metodo === 'clave'
+      ? session.user.metodo
+      : null;
+    return {
+      email: session.user.email || '',
+      rol,
+      metodo,
+    };
+  } catch {
+    return null;
+  }
 }

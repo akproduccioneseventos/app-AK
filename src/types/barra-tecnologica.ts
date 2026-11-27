@@ -67,6 +67,8 @@ export interface CierreDeBarraGuardado {
   ajusteClave?: string;
   /** Verdadero entre que se reservo el cierre y que el deposito termino de moverse. */
   ajustePendiente?: boolean;
+  /** Marca de cuándo se terminó de mover el depósito en este cierre. */
+  depositoMovidoEn?: string;
 }
 
 export interface AperturaDeBarraGuardada {

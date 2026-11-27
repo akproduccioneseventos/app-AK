@@ -67,6 +67,7 @@ import {
   recortarFiestaPorPerfil,
 } from '@/lib/fiesta/recortar-para-afuera';
 import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
+import { resolveBudgetGuestTotal } from '@/lib/budget/financial-guardrails';
 import { marcarItemLectura, marcaDe, huellaDe, sacarMarcas, CLAVE_DE_LA_MARCA } from '@/lib/marca-de-lectura';
 import { codigoDeFiesta, normalizarCodigoFiesta } from '@/lib/fiesta/codigo-fiesta';
 
@@ -869,10 +870,33 @@ export async function updateInvitacionSlug(fiestaId: string, slug: string): Prom
 
 // --- HELPERS DE SINCRONIZACIÓN ---
 
-/** Returns true if the item's service name or category contains any of the given keywords (case-insensitive). */
+/** Returns true if the item's service name or category matches any of the given whole keywords (case- and accent-insensitive). */
 function itemMatchesKeywords(item: ItemPresupuestado, keywords: string[]): boolean {
-    const haystack = `${item.nombreServicio} ${item.categoriaServicio || ''} ${item.subcategoria || ''}`.toLowerCase();
-    return keywords.some(k => haystack.includes(k.toLowerCase()));
+    const normalizar = (texto: string) =>
+        texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const haystack = normalizar(`${item.nombreServicio} ${item.categoriaServicio || ''} ${item.subcategoria || ''}`);
+    return keywords.some(k => {
+        const termino = normalizar(k).trim();
+        if (!termino) return false;
+        const escaped = termino.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`\\b${escaped}(?:s|es)?\\b`, 'i').test(haystack);
+    });
+}
+
+function esCategoriaEquipoOMobiliario(item: ItemPresupuestado): boolean {
+    const cat = `${item.categoriaServicio || ''} ${item.subcategoria || ''}`
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    return /\b(equipo|equipamiento|iluminacion|sonido|audio|mobiliario|discoteca|vajilla|manteleria|infraestructura|activo)\b/.test(cat);
+}
+
+function esBarraDeDj(item: ItemPresupuestado): boolean {
+    const nombre = (item.nombreServicio || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    return /\bbarra\s+dj\b/.test(nombre);
 }
 
 /**
@@ -1278,11 +1302,12 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
             empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio corporativo premium', contacto: '098 355 530' },
         };
     } else {
-        // XV años / General default
+        const isXv = /xv|quince|\b15\b/i.test(eventoTipo || '');
+        const tituloPorTipo = isXv ? ['Mis', 'XV'].join(' ') : '';
         return {
             titulo: 'CARTA DE TRAGOS',
-            protagonistaNombre: clienteNombre || 'La Agasajada',
-            numeroPrincipal: 'Mis XV',
+            protagonistaNombre: clienteNombre || (isXv ? 'La Agasajada' : 'Festejado'),
+            numeroPrincipal: tituloPorTipo,
             fontFamily: 'Playfair Display',
             titleSize: 'medium',
             protagonistaFotoUrl: '',
@@ -1321,7 +1346,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const roles = await leerRolesInterno();
     const updatedFiesta = { ...fiesta };
 
-    const guests = presupuesto.invitadosCantidad || 100;
+    const guests = resolveBudgetGuestTotal(presupuesto);
     const items = normalizeBudgetItemsForSync(presupuesto.itemsPresupuestados);
 
     // 1. ACTIVACIÓN DE MÓDULOS
@@ -1371,15 +1396,52 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // Regla: Especialistas según presupuesto
     if (modulos.musica) addVacantes('DJ', 1);
     if (hasItem('asado')) addVacantes('Asador', 1);
-    if (hasItem('barra') || hasItem('trago')) {
+    if (items.some(i => i.categoriaServicio === 'Servicio de bebidas' || (!esCategoriaEquipoOMobiliario(i) && !esBarraDeDj(i) && itemMatchesKeywords(i, ['barra', 'trago'])))) {
         const barra = barmanPorInvitados(guests);
         addVacantes('Barman', barra.cantidad, barra.sueldo);
     }
 
-    // Solo actualizar si no hay personal asignado manualmente aún para no borrar trabajo
-    if (!updatedFiesta.personalAsignado || updatedFiesta.personalAsignado.length === 0) {
-        updatedFiesta.personalAsignado = personalReq;
+    // Recalcular solo las vacantes sin empleado asignado (!empleadoId), sin tocar a las personas ya asignadas.
+    const personalActual = updatedFiesta.personalAsignado || [];
+    const asignados = personalActual.filter(p => Boolean(p.empleadoId && p.empleadoId.trim() !== ''));
+    const vacantesActuales = personalActual.filter(p => !p.empleadoId || p.empleadoId.trim() === '');
+
+    const requeridosPorRol = new Map<string, PersonalAsignadoDetalleStorage[]>();
+    for (const req of personalReq) {
+        const lista = requeridosPorRol.get(req.rolId) || [];
+        lista.push(req);
+        requeridosPorRol.set(req.rolId, lista);
     }
+
+    const asignadosPorRol = new Map<string, number>();
+    for (const asig of asignados) {
+        asignadosPorRol.set(asig.rolId, (asignadosPorRol.get(asig.rolId) || 0) + 1);
+    }
+
+    const vacantesActualesPorRol = new Map<string, PersonalAsignadoDetalleStorage[]>();
+    for (const vac of vacantesActuales) {
+        const lista = vacantesActualesPorRol.get(vac.rolId) || [];
+        lista.push(vac);
+        vacantesActualesPorRol.set(vac.rolId, lista);
+    }
+
+    const nuevasVacantes: PersonalAsignadoDetalleStorage[] = [];
+    for (const [rolId, reqs] of requeridosPorRol.entries()) {
+        const yaAsignados = asignadosPorRol.get(rolId) || 0;
+        const vacantesNecesarias = Math.max(0, reqs.length - yaAsignados);
+        const existentesRol = vacantesActualesPorRol.get(rolId) || [];
+        for (let i = 0; i < vacantesNecesarias; i++) {
+            const baseReq = reqs[yaAsignados + i] ?? reqs[i];
+            const existente = existentesRol[i];
+            nuevasVacantes.push(
+                existente
+                    ? { ...existente, empleadoId: '', eventSalary: baseReq.eventSalary }
+                    : baseReq
+            );
+        }
+    }
+
+    updatedFiesta.personalAsignado = [...asignados, ...nuevasVacantes];
 
     // 3. ACTUALIZAR CONFIGURACIÓN DE PORTAL
     updatedFiesta.clientPortalSettings = mergeClientPortalSettingsForSync(updatedFiesta.clientPortalSettings);
@@ -1412,7 +1474,11 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 7. SINCRONIZAR BEBIDAS — activar categorías y agregar ítems del presupuesto
     const bebidaItems = items.filter(i =>
         i.categoriaServicio === 'Servicio de bebidas' ||
-        itemMatchesKeywords(i, ['barra', 'trago', 'cerveza', 'vino', 'espumante', 'champagne', 'licor', 'fernet', 'whisky', 'ron', 'vodka', 'jugo', 'gaseosa', 'refresco', 'agua'])
+        (
+            !esCategoriaEquipoOMobiliario(i) &&
+            !esBarraDeDj(i) &&
+            itemMatchesKeywords(i, ['barra', 'trago', 'cerveza', 'vino', 'espumante', 'champagne', 'licor', 'fernet', 'whisky', 'ron', 'vodka', 'jugo', 'gaseosa', 'refresco', 'agua'])
+        )
     );
     if (bebidaItems.length > 0) {
         updatedFiesta.bebidas = syncBebidasFromItems(updatedFiesta.bebidas || defaultBebidasData, bebidaItems);
@@ -1421,7 +1487,10 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 8. SINCRONIZAR REPOSTERÍA — activar categorías y agregar ítems del presupuesto
     const reposteriaItems = items.filter(i =>
         i.categoriaServicio === 'Servicio de repostería' ||
-        itemMatchesKeywords(i, ['torta', 'repostería', 'reposteria', 'dulce', 'candy', 'pastel', 'cake', 'chocolate', 'fuente', 'helado'])
+        (
+            !esCategoriaEquipoOMobiliario(i) &&
+            itemMatchesKeywords(i, ['torta', 'repostería', 'reposteria', 'dulce', 'candy', 'pastel', 'cake', 'chocolate', 'fuente', 'helado'])
+        )
     );
     if (reposteriaItems.length > 0) {
         updatedFiesta.reposteria = syncReposteriaFromItems(updatedFiesta.reposteria || defaultReposteriaData, reposteriaItems);
@@ -1430,7 +1499,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 9. SINCRONIZAR DECORACIÓN — agregar ítems decorativos del presupuesto
     const decorItems = items.filter(i =>
         i.categoriaServicio === 'Servicio de decoración' ||
-        itemMatchesKeywords(i, ['decorac', 'ambientac', 'globo', 'flor', 'centro de mesa', 'backdrop'])
+        itemMatchesKeywords(i, ['decoración', 'decoracion', 'decoraciones', 'ambientación', 'ambientacion', 'ambientaciones', 'globo', 'flor', 'centro de mesa', 'centros de mesa', 'backdrop'])
     );
     if (decorItems.length > 0) {
         updatedFiesta.decoracion = syncDecoracionFromItems(updatedFiesta.decoracion || defaultDecoracion, decorItems);
@@ -1881,14 +1950,100 @@ export async function updateGuestExperienceSettings(fiestaId: string, settings: 
   return await saveFiesta({ ...f, guestExperienceSettings: settings });
 }
 
-export async function updateClienteDebeLlevar(fiestaId: string, items: ClienteDebeLlevarItem[]) {
+export type CambioClienteDebeLlevar =
+  | { tipo: 'toggle'; itemId: string; completado?: boolean; llevado?: boolean; estado?: ClienteDebeLlevarItem['estado'] }
+  | { tipo: 'add'; item: ClienteDebeLlevarItem }
+  | { tipo: 'remove'; itemId: string }
+  | { tipo: 'patch'; itemId: string; cambios: Partial<Omit<ClienteDebeLlevarItem, 'id'>> }
+  | { op: 'toggle'; itemId: string; completado?: boolean; llevado?: boolean; estado?: ClienteDebeLlevarItem['estado'] }
+  | { op: 'add'; item: ClienteDebeLlevarItem }
+  | { op: 'remove'; itemId: string }
+  | { op: 'update'; itemId: string; patch: Partial<Omit<ClienteDebeLlevarItem, 'id'>> }
+  | { itemId: string; llevado?: boolean; completado?: boolean; estado?: ClienteDebeLlevarItem['estado'] };
+
+export type ResultadoClienteDebeLlevar = {
+  success: boolean;
+  items?: ClienteDebeLlevarItem[];
+  error?: string;
+};
+
+function aplicarUnCambioDebeLlevar(
+  lista: ClienteDebeLlevarItem[],
+  cambio: CambioClienteDebeLlevar,
+): ClienteDebeLlevarItem[] {
+  const accion = 'tipo' in cambio ? cambio.tipo : 'op' in cambio ? cambio.op : 'toggle';
+  if (accion === 'add' && 'item' in cambio) {
+    const existe = lista.some(i => i.id === cambio.item.id);
+    if (existe) {
+      return lista.map(i => (i.id === cambio.item.id ? { ...i, ...cambio.item } : i));
+    }
+    return [...lista, cambio.item];
+  }
+  if (accion === 'remove' && 'itemId' in cambio) {
+    return lista.filter(i => i.id !== cambio.itemId);
+  }
+  if ((accion === 'patch' || accion === 'update') && 'itemId' in cambio) {
+    const patch = 'cambios' in cambio ? cambio.cambios : 'patch' in cambio ? cambio.patch : {};
+    return lista.map(i => (i.id === cambio.itemId ? { ...i, ...patch } : i));
+  }
+  if ('itemId' in cambio) {
+    const toggleCambio = cambio as { itemId: string; llevado?: boolean; completado?: boolean; estado?: ClienteDebeLlevarItem['estado'] };
+    return lista.map(i => {
+      if (i.id !== toggleCambio.itemId) return i;
+      const completado = toggleCambio.llevado ?? toggleCambio.completado ?? !i.completado;
+      const estado = toggleCambio.estado ?? (completado ? (i.estado === 'revisado' ? 'revisado' : 'listo') : 'pendiente');
+      return { ...i, completado, estado };
+    });
+  }
+  return lista;
+}
+
+function esCambioDebeLlevar(valor: unknown): valor is CambioClienteDebeLlevar {
+  return Boolean(valor && typeof valor === 'object' && ('tipo' in valor || 'op' in valor || 'itemId' in valor));
+}
+
+export async function updateClienteDebeLlevar(
+  fiestaId: string,
+  cambio: CambioClienteDebeLlevar | CambioClienteDebeLlevar[] | ClienteDebeLlevarItem[],
+): Promise<ResultadoClienteDebeLlevar> {
   // SIN cuenta del equipo a proposito: esto lo toca EL CLIENTE desde su portal.
-  // El guardado de abajo (`saveFiesta`) ya pide sesion del equipo O la clave del
+  // El guardado de abajo (`actualizarFiesta`) ya pide sesion del equipo O la clave del
   // cliente de esta fiesta. Pedir cuenta aca dejaba al cliente afuera de su propio
   // portal.
-  const f = await getFiestaById(fiestaId);
-  if (!f) return { success: false, error: 'Evento no encontrado.' };
-  return await saveFiesta({ ...f, clienteDebeLlevar: items });
+  const { actualizarFiesta: libActualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+  const resultado = await libActualizarFiesta(fiestaId, (actual) => {
+    const base = [...(actual.clienteDebeLlevar || [])];
+    let siguiente: ClienteDebeLlevarItem[];
+
+    if (Array.isArray(cambio)) {
+      if (cambio.length > 0 && esCambioDebeLlevar(cambio[0])) {
+        siguiente = (cambio as CambioClienteDebeLlevar[]).reduce(
+          (acc, c) => aplicarUnCambioDebeLlevar(acc, c),
+          base,
+        );
+      } else {
+        // Compatibilidad con pantallas que aún envían la lista completa: mezcla por ID sin perder ítems concurrentes.
+        const entrantes = cambio as ClienteDebeLlevarItem[];
+        const porId = new Map(entrantes.map(it => [it.id, it]));
+        siguiente = base.map(it => porId.get(it.id) ?? it);
+        for (const it of entrantes) {
+          if (!siguiente.some(s => s.id === it.id)) siguiente.push(it);
+        }
+      }
+    } else {
+      siguiente = aplicarUnCambioDebeLlevar(base, cambio);
+    }
+
+    return { ...actual, clienteDebeLlevar: siguiente };
+  });
+
+  if (!resultado.success) {
+    return { success: false, error: resultado.error || 'No se pudo actualizar la lista.' };
+  }
+  return {
+    success: true,
+    items: resultado.updatedFiesta?.clienteDebeLlevar || [],
+  };
 }
 
 export async function updateGuestExperienceStats(

@@ -24,7 +24,8 @@ import {
     PauseCircle, PlayCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateModulosContratadosFiestaActual, createFiestaVacia } from '@/app/actions/fiesta-actual';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { suspenderFiestaAction, reactivarFiestaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { esFiestaSuspendida, calcularLiquidacionSuspension } from '@/lib/fiesta/revisar-fiestas';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -326,7 +327,8 @@ function PlannerDashboardContent() {
   const [consultasCliente, setConsultasCliente] = useState<any[]>([]);
   const [resumenConsultas, setResumenConsultas] = useState<string>('');
   const [modulosContratados, setModulosContratados] = useState<ModulosContratados>(defaultModulosContratados);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(fiestaId));
+  const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAllModules, setShowAllModules] = useState(false);
@@ -342,7 +344,10 @@ function PlannerDashboardContent() {
   };
 
   useEffect(() => {
-    if (!fiestaId) { router.replace('/eventos'); return; }
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     const loadFiesta = async () => {
       setIsLoading(true);
       try {
@@ -465,6 +470,57 @@ function PlannerDashboardContent() {
 
   const progress = useMemo(() => fiesta ? calcFiestaProgress(fiesta) : null, [fiesta]);
   const prepScore = useMemo(() => fiesta ? calculateFiestaPreparationScore(fiesta) : null, [fiesta]);
+
+  const handleCrearFiestaSinElegir = async () => {
+    setIsCreatingFiesta(true);
+    try {
+      const idIntento = await obtenerIntento('evento-nuevo', {});
+      const result = await createFiestaVacia(undefined, undefined, { idIntento });
+      if (result.success && result.newFiestaId) {
+        terminarIntento('evento-nuevo');
+        router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
+        return;
+      }
+      throw new Error(result.error || 'No se pudo crear la fiesta.');
+    } catch (err: any) {
+      toast({
+        title: 'Error al crear la fiesta',
+        description: err?.message || 'No se pudo crear la fiesta.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreatingFiesta(false);
+    }
+  };
+
+  if (!fiestaId) {
+    return (
+      <div className="max-w-lg mx-auto py-16 px-4">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <PartyPopper className="w-5 h-5 text-primary" />
+              Para planificar, elegí una fiesta
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Abrí una fiesta que ya esté cargada en el listado o creá una nueva para empezar a planificarla.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <Link href="/eventos">Ir a Fiestas</Link>
+              </Button>
+              <Button onClick={handleCrearFiestaSinElegir} disabled={isCreatingFiesta}>
+                {isCreatingFiesta && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Crear fiesta
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;

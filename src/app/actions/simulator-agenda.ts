@@ -50,7 +50,7 @@ export async function bookAppointmentFromSimulator(data: {
   clienteContacto: string;
   clienteEmail?: string;
   fechaHora: string; // ISO 8601 string
-  tipoReunion?: 'Presencial en Oficina' | 'Videollamada Google Meet';
+  tipoReunion?: 'Presencial a coordinar' | 'Videollamada Google Meet';
   presupuestoId?: string;
 }): Promise<{
   success: boolean;
@@ -121,7 +121,7 @@ export async function bookAppointmentFromSimulator(data: {
       clienteEmail: data.clienteEmail || '',
       fechaHora: data.fechaHora,
       estado: 'Agendada',
-      lugar: data.tipoReunion === 'Videollamada Google Meet' ? 'Videollamada Google Meet' : 'Oficina AK Producciones',
+      lugar: data.tipoReunion === 'Videollamada Google Meet' ? 'Videollamada Google Meet' : 'Reunión presencial a coordinar',
       notas: `Agendado automáticamente desde el Simulador de Presupuesto.${data.presupuestoId ? ` Presupuesto ID: ${data.presupuestoId}` : ''}`,
       leadId,
       presupuestoId: data.presupuestoId,
@@ -156,7 +156,7 @@ export async function bookAppointmentFromSimulator(data: {
       if (newAppointment.leadId) {
         const { scheduleCrmMeetingInternal } = await import('@/lib/crm/crm-meeting');
         // no-mira-el-resultado: la cita en la agenda ya se guardo; el registro en CRM es opcional y no bloquea al cliente
-        await scheduleCrmMeetingInternal(newAppointment.leadId, newAppointment.fechaHora, `Reunión en Oficina AK (${newAppointment.lugar})`);
+        await scheduleCrmMeetingInternal(newAppointment.leadId, newAppointment.fechaHora, `Reunión comercial (${newAppointment.lugar})`);
       }
     } catch (e) {
       // El enlace con el prospecto es opcional: la cita ya quedo guardada.
@@ -170,7 +170,7 @@ export async function bookAppointmentFromSimulator(data: {
       `Reunión con AK Producciones - ${nombre}`
     )}&dates=${startTimeIso}/${endTimeIso}&details=${encodeURIComponent(
       `Entrevista para coordinar tu fiesta y revisar el presupuesto con el equipo de AK Producciones.`
-    )}&location=${encodeURIComponent('Oficina AK Producciones, Salto, Uruguay')}`;
+    )}&location=${encodeURIComponent('Lugar a coordinar por WhatsApp')}`;
 
     const fechaLegible = requestedDate.toLocaleDateString('es-UY', { timeZone: 'America/Montevideo', weekday: 'long', day: 'numeric', month: 'long' });
     const horaLegible = requestedDate.toLocaleTimeString('es-UY', { timeZone: 'America/Montevideo', hour: '2-digit', minute: '2-digit' });

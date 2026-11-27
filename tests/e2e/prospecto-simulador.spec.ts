@@ -48,7 +48,7 @@ test.describe('recorrido del prospecto', () => {
     await page.locator('#simulator-phone').fill(TELEFONO);
 
     // Duración y salón: dos decisiones que cambian el precio.
-    await page.getByText('Mas de 4 horas').first().click();
+    await page.getByText('Más de 4 horas').first().click();
     await page.getByText('Tengo salón o locación propia').first().click();
 
     // Cantidad de gente.

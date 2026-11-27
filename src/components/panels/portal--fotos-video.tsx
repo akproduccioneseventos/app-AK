@@ -9,6 +9,7 @@ import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -184,9 +185,12 @@ export default function FotosVideoPortalPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900">📸 Recuerdos & Entregables</h1>
-          <p className="text-slate-500 text-sm mt-1">Accedé a todo el material digital de tu fiesta</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900">📸 Recuerdos & Entregables</h1>
+            <p className="text-slate-500 text-sm mt-1">Accedé a todo el material digital de tu fiesta</p>
+          </div>
+          <BotonComoFunciona clave="cliente-fotos-video" variant="compact" />
         </div>
 
         {/* --- DOCK DE DESCARGA DIRECTA / DRIVE FALLBACK --- */}

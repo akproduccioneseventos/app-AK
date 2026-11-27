@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, History, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, History, Wallet } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getCrmKpiData } from '@/app/actions/crm';
@@ -79,20 +79,36 @@ export default function ContabilidadHubPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [crmKpiData, setCrmKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
-        const [dashboardResult, crmResult] = await Promise.all([
-          getDashboardKpiData(),
-          getCrmKpiData()
-        ]);
-        if (dashboardResult.success) {
-            setKpiData(dashboardResult.data);
+        setLoadError(null);
+        try {
+          const [dashboardRes, crmRes] = await Promise.allSettled([
+            getDashboardKpiData(),
+            getCrmKpiData()
+          ]);
+          const dashboardOk = dashboardRes.status === 'fulfilled' && dashboardRes.value?.success;
+          const crmOk = crmRes.status === 'fulfilled' && crmRes.value?.success;
+          if (dashboardOk) {
+            setKpiData(dashboardRes.value.data);
+          }
+          if (crmOk && crmRes.value.data) {
+            setCrmKpiData(crmRes.value.data);
+          }
+          if (!dashboardOk || !crmOk) {
+            const msg =
+              (dashboardRes.status === 'fulfilled' && !dashboardRes.value?.success && dashboardRes.value?.error) ||
+              (crmRes.status === 'fulfilled' && !crmRes.value?.success && crmRes.value?.error) ||
+              'No se pudieron cargar los indicadores contables. Intentá nuevamente.';
+            setLoadError(msg);
+          }
+        } catch (error: any) {
+          setLoadError(error?.message || 'No se pudieron cargar los indicadores contables. Intentá nuevamente.');
+        } finally {
+          setIsLoading(false);
         }
-        if(crmResult.success) {
-            crmResult.data && setCrmKpiData(crmResult.data);
-        }
-        setIsLoading(false);
     }, []);
 
     useEffect(() => {
@@ -122,7 +138,7 @@ export default function ContabilidadHubPage() {
               no la encuentra nadie, que es lo que ya paso con otras dos. */}
           <Button asChild className="rounded-xl font-bold">
             <Link href="/comparativa-ganancias">
-              <TrendingUp className="w-4 h-4 mr-2" />Que fiesta deja mas plata
+              <TrendingUp className="w-4 h-4 mr-2" />Qué fiesta deja más plata
             </Link>
           </Button>
           <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
@@ -132,21 +148,40 @@ export default function ContabilidadHubPage() {
         Tu centro de control para todas las operaciones financieras y de ventas.
       </CardDescription>
 
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas comprometidas" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados."/>
-        <KpiCard title="Valor en Propuestas" value={formatCurrency(crmKpiData?.pipelineValue)} icon={Users} isLoading={isLoading} description="Suma de presupuestos activos."/>
-        <KpiCard title="Tasa de Conversión CRM" value={`${(crmKpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
-        <KpiCard title="Saldo Pendiente Total" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto total por cobrar."/>
-      </div>
+       {loadError && (
+        <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="font-semibold text-destructive">No se pudieron cargar los datos contables</p>
+              <p className="text-sm text-muted-foreground">{loadError}</p>
+            </div>
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={() => fetchData()}>
+            Reintentar
+          </Button>
+        </div>
+       )}
 
-       <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+       {!(loadError && !kpiData && !crmKpiData) && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <KpiCard title="Ventas comprometidas" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados."/>
+            <KpiCard title="Valor en Propuestas" value={formatCurrency(crmKpiData?.pipelineValue)} icon={Users} isLoading={isLoading} description="Suma de presupuestos activos."/>
+            <KpiCard title="Tasa de Conversión CRM" value={`${(crmKpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
+            <KpiCard title="Saldo Pendiente Total" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto total por cobrar."/>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
             <div className="lg:col-span-4">
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
             </div>
             <div className="lg:col-span-3">
                 <PaymentStatusPieChart data={pieChartData} />
             </div>
-        </div>
+          </div>
+        </>
+       )}
 
       <Separator />
 

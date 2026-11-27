@@ -141,7 +141,7 @@ function ProveedoresPageInner() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Listado ({filteredProveedores.length})</CardTitle>
+          <CardTitle className="font-headline">Listado{!isLoading && !error ? ` (${filteredProveedores.length})` : ''}</CardTitle>
           <CardDescription>Consulta y gestiona la información de tus proveedores y colaboradores.</CardDescription>
         </CardHeader>
         <CardContent>

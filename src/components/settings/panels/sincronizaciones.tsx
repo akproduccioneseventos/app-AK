@@ -71,7 +71,15 @@ export default function SincronizacionesPage() {
     try {
       setSincronizandoHistorial(true);
       const res = await sincronizarHistorialRedesAction({ forceFull: true });
-      if (res.success) {
+      const erroresRed = (res.detallesPorRed || [])
+        .filter((d) => Boolean(d.error))
+        .map((d) => `${d.red}: ${d.error}`)
+        .join(' | ');
+      const huboErrorSinDatos =
+        !res.success ||
+        ((res.totalLeidas || 0) === 0 && (res.totalImportadas || 0) === 0 && erroresRed.length > 0);
+
+      if (!huboErrorSinDatos) {
         setResultadoInstagram({
           probado: true,
           success: true,
@@ -87,7 +95,7 @@ export default function SincronizacionesPage() {
           success: false,
           estado: 'fallando',
           motivo: 'No se pudo completar la sincronización del historial.',
-          detalle: res.mensaje,
+          detalle: erroresRed || res.error || res.mensaje,
         });
       }
     } catch (err: any) {
@@ -295,6 +303,7 @@ export default function SincronizacionesPage() {
         <CardHeader className="bg-slate-50/70 border-b border-slate-200 py-4 px-6">
           <div className="flex items-center justify-between">
             <div>
+              {/* no pasa nada si falla: la lista se muestra recién con datos cargados (!sinDatos). */}
               <CardTitle className="text-base font-bold text-slate-800">
                 Plataformas e Integraciones Externas ({filtradas.length})
               </CardTitle>

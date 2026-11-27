@@ -10,10 +10,13 @@ import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos',
+  title: 'Consejos para organizar fiestas',
   description: 'Guías prácticas para organizar fiestas de 15, bodas, comida gourmet, discoteca y presupuestos en Salto, Uruguay.',
   alternates: {
     canonical: '/public/blog',
@@ -75,6 +78,9 @@ export default async function BlogPage() {
                 <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl">
                   Consejos claros para decidir mejor tu evento.
                 </h1>
+                <div>
+                  <BotonComoFunciona clave="blog-consejos" variant="dark" />
+                </div>
                 <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
                   Guías para elegir salón, menú, presupuesto, tiempos y servicios antes de contratar.
                 </p>

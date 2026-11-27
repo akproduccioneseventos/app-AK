@@ -1,6 +1,7 @@
 import type { SuggestPaletteInput, SuggestPaletteOutput } from '@/ai/types/suggest-palette-types';
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 
 const FALLBACK_PALETTES: Record<string, SuggestPaletteOutput> = {
   quince: {
@@ -59,12 +60,6 @@ function getFallback(input: SuggestPaletteInput): SuggestPaletteOutput {
 export async function suggestPalette(input: SuggestPaletteInput): Promise<SuggestPaletteOutput> {
   const fallback = getFallback(input);
 
-  // Regla Bloque 12 / Caso 12: Sin tope de IA, no llama al modelo
-  const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-  if (!canUseAI) {
-    return fallback;
-  }
-
   try {
     const model = getGeminiModelForAgent('fiesta');
     const prompt = `Sos un diseñador experto en ambientación y colorimetría para eventos en AK Producciones (Salto, Uruguay).
@@ -85,13 +80,18 @@ Devolvé SOLO un objeto JSON válido con esta estructura exacta:
   "rationale": "Breve explicación de 1 o 2 oraciones del por qué combina con el evento"
 }`;
 
-    const res = await generateWithGeminiFallback({ model, prompt });
-    const raw = res?.text?.trim() || '';
+    const res = await pedirTexto({
+      prompt,
+      quien: 'sugerir-paleta',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
+    });
+    if (!res.ok) return fallback;
+    const raw = res.texto.trim();
     const match = raw.match(/\{[\s\S]*\}/);
     if (match) {
       const parsed = JSON.parse(match[0]);
       if (parsed.paletteName && Array.isArray(parsed.colors) && parsed.colors.length >= 3) {
-        await registrarConsumoIA('sugerir-paleta').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           paletteName: parsed.paletteName,
           colors: parsed.colors,

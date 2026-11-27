@@ -1,4 +1,6 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { z } from 'zod';
 
 export const GenerateDjProfileSchema = z.object({
@@ -31,12 +33,15 @@ Por favor genera un reporte profesional y estructurado con:
 Responde directamente con el texto en formato legible (usando saltos de línea y viñetas). NO devuelvas JSON.`;
 
     const model = getGeminiModelForAgent('fiestas_general');
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'perfil-dj',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
     });
+    if (!result.ok) throw new Error(result.error || 'La IA devolvió el perfil vacío.');
 
-    const texto = (result.text || '').trim();
+    const texto = result.texto.trim();
     if (!texto) throw new Error('La IA devolvió el perfil vacío.');
     return texto;
   } catch (error) {

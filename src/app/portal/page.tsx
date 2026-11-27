@@ -67,6 +67,7 @@ import { CompanyLogo } from '@/components/company-logo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -688,6 +689,7 @@ function ClientPortalContent() {
               >
                 <KeyRound className="w-3.5 h-3.5" /> Cambiar de cuenta
               </button>
+              <BotonComoFunciona clave="portal-cliente" variant="dark" />
             </div>
 
             <div className="space-y-2">

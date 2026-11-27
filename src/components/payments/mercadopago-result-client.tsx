@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 type PaymentStatus =
   | 'creating'
@@ -28,6 +29,8 @@ type PaymentResult = {
   surchargeAmount: number;
   purpose: 'deposit' | 'balance';
   requiresReview: boolean;
+  refundedAmount?: number;
+  netAmount?: number;
 };
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', {
@@ -103,6 +106,16 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
       };
     }
     if (result.status === 'refunded') {
+      const refunded = Number(result.refundedAmount ?? 0);
+      const net = Number(result.netAmount ?? 0);
+      if (net > 0 && refunded > 0) {
+        return {
+          icon: AlertTriangle,
+          iconClass: 'text-amber-600',
+          title: 'Devolucion parcial registrada',
+          description: `Mercado Pago devolvio ${formatCurrency(refunded)}; siguen cobrados ${formatCurrency(net)}.`,
+        };
+      }
       return {
         icon: AlertTriangle,
         iconClass: 'text-amber-600',
@@ -152,6 +165,9 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
           <Icon className={`h-9 w-9 ${content.iconClass}`} />
         </div>
         <h1 className="mt-5 text-2xl font-bold text-slate-950">{content.title}</h1>
+        <div className="mt-2 flex justify-center">
+          <BotonComoFunciona clave="mercado-pago" />
+        </div>
         <p className="mt-3 text-sm leading-6 text-slate-600">{content.description}</p>
         <div className="mt-6 border-y border-slate-100 py-5">
           <p className="text-xs font-bold uppercase text-slate-500">

@@ -16,9 +16,9 @@ import { getSalonesPublicos } from '@/app/actions/salones';
 import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 import {
   geminiCommercialModel,
-  generateWithGeminiFallback,
-  isRecoverableGeminiModelError,
 } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import type { CrmLead } from '@/types/crm';
 
 import {
@@ -415,18 +415,6 @@ async function responderPreguntaConCatalogo(params: {
   const { texto: contexto, fallback } = await armarContextoRealParaPregunta();
   const enlaceSimulador = enlaceAlSimuladorDelProspecto(params.datos);
 
-  let reserva: { liberar(): Promise<void> } | null = null;
-  try {
-    const consumo = await import('@/lib/ai/consumo-servidor');
-    reserva = await consumo.reservarConsumoIA('vendedor-virtual');
-  } catch {
-    reserva = null;
-  }
-
-  if (!reserva) {
-    return { respuesta: fallback };
-  }
-
   const systemPrompt = `Sos el asistente virtual de AK Producciones (Salto, Uruguay). Hablás en español rioplatense ("vos", amable, directo y corto).
 
 CATÁLOGO Y PREGUNTAS REALES DEL NEGOCIO (ÚNICA FUENTE DE VERDAD):
@@ -454,24 +442,19 @@ REGLAS INQUEBRANTABLES:
     { role: 'user' as const, content: [{ text: params.texto }] },
   ];
 
-  try {
-    const res = await generateWithGeminiFallback({
-      model: geminiCommercialModel,
-      system: systemPrompt,
-      messages,
-    });
-    const raw = (res?.text || '').trim();
-    if (!raw) return { respuesta: fallback };
-    if (raw.includes('[PASAR_A_PERSONA]')) {
-      return { respuesta: '', noSabe: true };
-    }
-    return { respuesta: sanitizarRespuestaProspecto(raw) };
-  } catch (err) {
-    if (isRecoverableGeminiModelError(err)) {
-      await reserva.liberar().catch((e) => console.warn('[asistente-de-prospectos] Paso secundario sin completar:', e));
-    }
-    return { respuesta: fallback };
+  const res = await pedirTexto({
+    system: systemPrompt,
+    messages,
+    quien: 'vendedor-virtual',
+    incluirReglas: false,
+    modelos: [geminiCommercialModel, ...MODELOS_GEMINI.texto],
+  });
+  const raw = res.ok ? res.texto.trim() : '';
+  if (!raw) return { respuesta: fallback };
+  if (raw.includes('[PASAR_A_PERSONA]')) {
+    return { respuesta: '', noSabe: true };
   }
+  return { respuesta: sanitizarRespuestaProspecto(raw) };
 }
 
 export async function devolverCharlaAlAsistentePorClave(

@@ -47,6 +47,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'cupones.json', defaultValue: [] },
   { file: 'cupones-usage.json', defaultValue: [] },
   { file: 'ai-assistant-settings.json', defaultValue: {} },
+  { file: 'asistente-settings.json', defaultValue: {} },
   { file: 'armado-rapido-config.json', defaultValue: {} },
   { file: 'budget-display-settings.json', defaultValue: {} },
   { file: 'invoice-template-settings.json', defaultValue: {} },
@@ -92,6 +93,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'personal-recibos.json', defaultValue: [] },
   { file: 'notification-preferences.json', defaultValue: {} },
   { file: 'reglas-de-la-ia.json', defaultValue: {} },
+  { file: 'tutoriales-settings.json', defaultValue: {} },
 ];
 
 export const BACKUP_METADATA_FILES = new Set([

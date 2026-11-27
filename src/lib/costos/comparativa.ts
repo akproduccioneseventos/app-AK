@@ -1,7 +1,9 @@
 import { calcularGananciaDeEvento, type GananciaDeEvento } from '@/lib/costos/ganancia-evento';
+import { resolverIngresoRentabilidad } from '@/lib/costos/ingreso-rentabilidad';
+import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { PagoCliente } from '@/types/presupuesto';
+import type { PagoCliente, Presupuesto } from '@/types/presupuesto';
 
 /**
  * Comparar la ganancia entre todas las fiestas.
@@ -56,8 +58,9 @@ function mesDe(fecha?: string): string {
 
 function resumir(clave: string, fiestas: FiestaConGanancia[]): ResumenDeGrupo {
   const ingreso = fiestas.reduce((s, f) => s + f.ganancia.ingreso, 0);
+  const recargosCobrados = fiestas.reduce((s, f) => s + f.ganancia.recargosCobrados, 0);
   const costoReal = fiestas.reduce((s, f) => s + f.ganancia.costoReal, 0);
-  const gananciaReal = ingreso - costoReal;
+  const gananciaReal = ingreso + recargosCobrados - costoReal;
 
   return {
     clave,
@@ -98,11 +101,26 @@ export function compararGanancias(
   cobrosPorPresupuesto?: ReadonlyMap<string, PagoCliente[]>,
   /** Los puestos, para sumar los aportes del personal asignado (auditoría del 18/11/2026, C18-01). */
   roles?: Array<{ id: string; porcentajeAportesPatronales?: number }>,
+  /** Presupuestos por ID para resolver ingresos oficiales con ajuste anual. */
+  presupuestosPorId?: ReadonlyMap<string, Presupuesto>,
 ): Comparativa {
   const conGanancia: FiestaConGanancia[] = (fiestas ?? [])
     .map((fiesta) => {
+      const presupuesto = fiesta?.presupuestoId ? presupuestosPorId?.get(fiesta.presupuestoId) : undefined;
+      const presupuestoNormalizado = presupuesto
+        ? normalizePresupuestoFinancials(presupuesto, { preserveStoredTotal: true })
+        : undefined;
+      const ingresoResuelto = resolverIngresoRentabilidad({
+        presupuestoId: fiesta?.presupuestoId,
+        presupuesto: presupuestoNormalizado,
+        ingresosGuardados: fiesta?.gestionCostos?.ingresosTotalesEstimados,
+      });
+      const gestionParaCalculo =
+        ingresoResuelto.hayPresupuesto && ingresoResuelto.ingreso !== null
+          ? { costosItems: [], ...fiesta?.gestionCostos, ingresosTotalesEstimados: ingresoResuelto.ingreso }
+          : fiesta?.gestionCostos;
       const ganancia = calcularGananciaDeEvento(
-        fiesta?.gestionCostos,
+        gestionParaCalculo,
         fiesta?.pagosProveedores,
         fiesta?.presupuestoId ? cobrosPorPresupuesto?.get(fiesta.presupuestoId) : undefined,
         fiesta?.personalAsignado,

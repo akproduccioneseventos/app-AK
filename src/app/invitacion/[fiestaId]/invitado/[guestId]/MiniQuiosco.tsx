@@ -93,7 +93,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
     const clientRequestId = currentClientRequestIdRef.current;
     try {
       const result = drinkToChange
-        ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken, selectedVersion)
+        ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken, selectedVersion, clientRequestId)
         : await createBarDrinkOrder({
           fiestaId,
           drinkId,

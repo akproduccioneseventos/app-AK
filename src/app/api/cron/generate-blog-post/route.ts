@@ -21,10 +21,12 @@ async function handleCron(request: Request) {
 
     const result = await runMarketingAutomation({
       source: 'cron',
-      force: searchParams.get('force') === '1',
+      force: Boolean(puerta.conClave) && searchParams.get('force') === '1',
+      includeInstagram: false,
+      includeRecontacto: false,
     });
 
-    const fallo = !result.success || Boolean(result.seoError) || result.seoSucceeded === false || Boolean(result.error);
+    const fallo = Boolean(result.seoError) || result.seoSucceeded === false || (!result.skipped && (!result.success || Boolean(result.error)));
     if (fallo) {
       return NextResponse.json(
         respuestaDeLaTarea(puerta, {
@@ -34,6 +36,10 @@ async function handleCron(request: Request) {
         }),
         { status: 500 }
       );
+    }
+
+    if (result.skipped || !result.ranSeo) {
+      return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, ...result }));
     }
 
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si

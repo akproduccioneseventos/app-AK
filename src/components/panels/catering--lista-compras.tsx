@@ -29,6 +29,8 @@ import { Badge } from '@/components/ui/badge';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
+import { getGuestCountForItem } from '@/lib/calculations';
+import { esMesaBuffetBase } from '@/lib/simulator/catalog';
 import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
 import { normalizarUnidad, convertir } from '@/lib/compras/unidades';
 import { comprasDelMenuAsignado } from '@/lib/compras/compras-del-menu-asignado';
@@ -48,7 +50,13 @@ interface ShoppingListItem {
   origen: string;
   origenId?: string;
   isOrder?: boolean; // If true, it's an order to a provider (like pastry)
+  stockInconvertibleAviso?: string;
 }
+
+const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) => {
+  if (a.proveedorId && b.proveedorId) return a.proveedorId === b.proveedorId;
+  return Boolean(a.proveedor && b.proveedor && a.proveedor === b.proveedor);
+};
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -125,19 +133,20 @@ function ListaDeComprasContent() {
           presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
       }
 
-      const adultos = presupuestoData?.invitadosAdultos ?? (Number(fiestaData.configuracion.invitadosEstimados) || 0);
-      const ninos = (presupuestoData?.invitadosNinos || 0) + (presupuestoData?.invitadosAdolescentes || 0);
+      const ninos =
+        presupuestoData
+          ? (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0)
+          : (fiestaData.configuracion.invitadosNinos || 0) + (fiestaData.configuracion.invitadosAdolescentes || 0);
+      const adultos =
+        presupuestoData?.invitadosAdultos ??
+        fiestaData.configuracion.invitadosAdultos ??
+        Math.max(0, (Number(fiestaData.configuracion.invitadosEstimados) || 0) - ninos);
       const totalInvitados = adultos + ninos;
 
       let rawList: any[] = [];
 
-      const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
-          const cat = (item.categoriaServicio || '').toLowerCase();
-          const name = (item.nombreServicio || '').toLowerCase();
-          if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
-          if (cat.includes('plato principal') || name.includes('principal')) return adultos;
-          return totalInvitados;
-      };
+      const getTargetGuests = (item: { categoriaServicio?: string; subcategoria?: string; nombreServicio: string }) =>
+        getGuestCountForItem(item, adultos, 0, ninos);
 
       const esInsumoPorEvento = (
           itemPorEvento?: boolean,
@@ -165,20 +174,37 @@ function ListaDeComprasContent() {
           );
 
           const allDishesInCatalog = allMenus.flatMap(m => m.items);
-          budgetDishes.forEach(b => platosYaContados.add(b.idServicioCatalogo));
+          budgetDishes.forEach((b) => {
+              platosYaContados.add(b.idServicioCatalogo);
+              platosYaContados.add(b.idServicioCatalogo.replace(/_virtual_buffet$/, ''));
+          });
 
           budgetDishes.forEach(budgetItem => {
-              const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
+              const idSinSufijo = budgetItem.idServicioCatalogo.replace(/_virtual_buffet$/, '');
+              const catalogDish = allDishesInCatalog.find(
+                  (d) => d.id === budgetItem.idServicioCatalogo || d.id === idSinSufijo,
+              );
               if (!catalogDish) {
                   sinIngredientes.push(`${budgetItem.nombreServicio} (ya no está en el menú)`);
                   return;
               }
-              if (!catalogDish.ingredients?.length) {
+              const ingredientesDelPlato = [...(catalogDish.ingredients || [])];
+              if (budgetItem.idServicioCatalogo.endsWith('_virtual_buffet')) {
+                  const mesaBuffetBase = allDishesInCatalog.find(
+                      (d) => esMesaBuffetBase(d.name) && d.id !== catalogDish.id,
+                  );
+                  mesaBuffetBase?.ingredients?.forEach((buffetIng) => {
+                      if (!ingredientesDelPlato.some((existing) => existing.name.toLowerCase() === buffetIng.name.toLowerCase())) {
+                          ingredientesDelPlato.push(buffetIng);
+                      }
+                  });
+              }
+              if (!ingredientesDelPlato.length) {
                   sinIngredientes.push(catalogDish.name);
                   return;
               }
               const targetGuests = getTargetGuests(budgetItem);
-              (catalogDish.ingredients || []).forEach(ing => {
+              ingredientesDelPlato.forEach(ing => {
                   const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
                   if (qtyPerPerson > 0) {
                       const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
@@ -207,7 +233,7 @@ function ListaDeComprasContent() {
           ? allMenus.find(m => m.id === fiestaData.menuAsignadoId)
           : undefined;
       // Fuera del bloque del presupuesto: corre también sin presupuesto (auditoría del 18/11/2026, N26).
-      const delMenu = comprasDelMenuAsignado(menuAsignado, platosYaContados, totalInvitados, catalogoInsumos);
+      const delMenu = comprasDelMenuAsignado(menuAsignado, platosYaContados, { adultos, chicos: ninos }, catalogoInsumos);
       rawList.push(...delMenu.compras);
       sinIngredientes.push(...delMenu.sinIngredientes);
 
@@ -346,11 +372,16 @@ function ListaDeComprasContent() {
       // litros) y en la practica se compran botellas y paquetes enteros:
       // anotar 20,75 y comprar 20 es quedarse sin bebida en la fiesta. De mas
       // sobra un poco; de menos no hay como resolverlo a las dos de la manana.
+      const avisosStock: string[] = [];
       const finalList: ShoppingListItem[] = consolidarCompras(crudos, {
           redondeo: 'arriba',
           plataEntera: true,
           juntarOrigenes: true,
+          avisosConversion: avisosStock,
       }).sort((a, b) => a.proveedor.localeCompare(b.proveedor));
+      if (avisosStock.length > 0) {
+          setUnidadesIncompatibles(Array.from(new Set([...incompatibles, ...avisosStock])));
+      }
 
       setShoppingList(finalList);
       setTotalInvestment(finalList.reduce((sum, item) => sum + item.costoTotalFaltante, 0));
@@ -422,7 +453,7 @@ function ListaDeComprasContent() {
     if (!fiestaId || !nuevo.proveedorId) return;
     setIsSavingStatus(nuevo.proveedorId);
     const siguientes = [
-      ...estadosCompra.filter(e => e.proveedorId !== nuevo.proveedorId && e.proveedor !== nuevo.proveedor),
+      ...estadosCompra.filter(e => !mismoProveedor(e, nuevo)),
       nuevo,
     ];
     setEstadosCompra(siguientes);
@@ -705,7 +736,12 @@ function ListaDeComprasContent() {
                                                 </div>
                                                 <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter mt-0.5">Ref: {item.origen}</p>
                                             </TableCell>
-                                            <TableCell className="text-right font-black text-slate-800">{item.cantidadNecesaria.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <p className="font-black text-slate-800">{item.cantidadAComprar.toFixed(2)}</p>
+                                                <p className="text-[10px] font-medium text-slate-400">
+                                                    Necesario {item.cantidadNecesaria.toFixed(2)} · Se compran {item.cantidadAComprar.toFixed(2)}
+                                                </p>
+                                            </TableCell>
                                             <TableCell className="text-[10px] font-black text-slate-400 uppercase">{item.unit}</TableCell>
                                             <TableCell className="text-right pr-8 font-black text-primary">{item.costoTotalFaltante > 0 ? formatCurrency(item.costoTotalFaltante) : '-'}</TableCell>
                                         </TableRow>

@@ -33,8 +33,17 @@ async function correrTarea(request: Request) {
     }
     try {
       const resultado = await procesarPosteosProgramados();
-      // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
-      // una tarea automatica esta funcionando o solo esta escrita.
+      if (Array.isArray(resultado.fallados) && resultado.fallados.length > 0) {
+        return NextResponse.json(
+          respuestaDeLaTarea(puerta, {
+            ...resultado,
+            ok: false,
+            error: `Fallaron ${resultado.fallados.length} publicación(es) programada(s).`,
+          }),
+          { status: 500 },
+        );
+      }
+      // Deja constancia de que corrio de verdad solo cuando todos los intentos pasaron.
       await marcarCorrida('publicar-programados');
 
       return NextResponse.json(respuestaDeLaTarea(puerta, resultado));

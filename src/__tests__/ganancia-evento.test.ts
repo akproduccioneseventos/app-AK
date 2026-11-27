@@ -154,20 +154,19 @@ describe('cuánta plata dejó una fiesta', () => {
   // Bloque 1 — fix doble conteo en bloques automáticos (23-ago-2026)
   // -------------------------------------------------------------------
 
-  it('un pago contra catering automático NO duplica el gasto (bug principal)', () => {
+  it('un pago contra catering automático NO duplica el gasto (usa máximo entre pagado y estimado)', () => {
     // Catering estimado: $40.000. Se carga un pago de $25.000.
-    // Antes: costoReal = itemsEstimado + $25.000 (pagosSueltos) + $40.000 (bloque) = itemsEstimado + $65.000
-    // Ahora: costoReal = itemsEstimado + $25.000 (lo pagado, no el estimado)
+    // Orden 367 B2.2: misma lógica que renglones manuales → Math.max(25.000, 40.000) = 40.000 y suma $15.000 sin rendir.
     const base = costos({
       others: { totalCateringCost: 40000 },
     });
 
     const r = calcularGananciaDeEvento(base, [pago('cat_catering', 25000)]);
 
-    // 30.000 de items (sin pago) + 25.000 del catering pagado = 55.000
-    expect(r.costoReal).toBe(55000);
-    // Antes con el bug habría dado 95.000 (25.000 + 40.000 + 30.000)
-    expect(r.gananciaReal).toBe(45000);
+    // 30.000 de items (sin pago) + 40.000 del bloque catering (25.000 pagado + 15.000 sin rendir) = 70.000
+    expect(r.costoReal).toBe(70000);
+    expect(r.gananciaReal).toBe(30000);
+    expect(r.sinRendir).toBe(45000);
   });
 
   it('sin pagos contra el bloque, el estimado del bloque se usa normalmente', () => {
@@ -183,16 +182,17 @@ describe('cuánta plata dejó una fiesta', () => {
     expect(r.sinRendir).toBe(60000);
   });
 
-  it('pago parcial contra bloque automático usa lo pagado, no el estimado', () => {
-    // Personal estimado $30.000, pago de $15.000 → usa $15.000, no $30.000
+  it('pago parcial contra bloque automático conserva Math.max(pagado, estimado) y suma lo pendiente a sinRendir', () => {
+    // Orden 367 B2.2: Personal estimado $30.000, pago de $15.000 → costo $30.000 y $15.000 sin rendir.
     const base = costos({
       others: { totalPersonalCost: 30000 },
     });
 
     const r = calcularGananciaDeEvento(base, [pago('cat_personal', 15000)]);
 
-    // 20.000 (salón est.) + 10.000 (fotógrafo est.) + 15.000 (personal pagado) = 45.000
-    expect(r.costoReal).toBe(45000);
-    expect(r.gananciaReal).toBe(55000);
+    // 20.000 (salón est.) + 10.000 (fotógrafo est.) + 30.000 (personal: 15.000 pagado + 15.000 sin rendir) = 60.000
+    expect(r.costoReal).toBe(60000);
+    expect(r.gananciaReal).toBe(40000);
+    expect(r.sinRendir).toBe(45000);
   });
 });

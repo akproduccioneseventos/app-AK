@@ -224,8 +224,21 @@ export function getBudgetCollectibleTotal(
     return baseTotal;
   }
 
-  return buildAnnualAdjustmentProjection({
+  // Las multas de cancelación ya se calcularon ajustadas al año de cancelación:
+  // volver a aplicarles el ajuste anual infla el saldo frente al contrato firmado.
+  const multasYaAjustadas = Math.min(
     baseTotal,
+    (presupuesto.itemsPresupuestados ?? [])
+      .filter((item) => !item.esRegalo && String(item.idServicioCatalogo ?? '').startsWith('multa_cancelacion'))
+      .reduce((sum, item) => sum + roundMoney(item.costoTotalItem), 0),
+  );
+  const baseAjustable = Math.max(0, baseTotal - multasYaAjustadas);
+  if (baseAjustable === 0) {
+    return multasYaAjustadas;
+  }
+
+  const adjustedServices = buildAnnualAdjustmentProjection({
+    baseTotal: baseAjustable,
     eventDate: presupuesto.eventoFecha,
     currentYear: contractYear,
     adjustmentPct:
@@ -234,6 +247,8 @@ export function getBudgetCollectibleTotal(
       ?? undefined,
     tipoAjusteAnual: presupuesto.tipoAjusteAnual,
   }).adjustedTotal;
+
+  return adjustedServices + multasYaAjustadas;
 }
 
 /**

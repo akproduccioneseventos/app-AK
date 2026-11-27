@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { getTutorialesSettings } from '@/app/actions/settings';
+import { TEMAS_TUTORIAL } from '@/lib/tutoriales/temas';
 import { cn } from '@/lib/utils';
 
 type PanelComponent = React.ComponentType<any>;
@@ -158,6 +160,7 @@ const PANELS: Record<string, PanelComponent> = {
   'backup-final': lazyPanel(() => import('@/components/settings/panels/backup-final')),
   'instalar-app': lazyPanel(() => import('@/components/settings/panels/instalar-app')),
   'videos-de-ayuda': lazyPanel(() => import('@/components/settings/panels/videos-de-ayuda')),
+  tutoriales: lazyPanel(() => import('@/components/settings/panels/tutoriales')),
   feedback: lazyPanel(() => import('@/components/settings/panels/feedback')),
   'feature-flags': lazyPanel(() => import('@/components/settings/panels/feature-flags')),
 };
@@ -253,6 +256,7 @@ const SECCIONES: SeccionDef[] = [
       { id: 'backup-final', label: 'Respaldo completo' },
       { id: 'instalar-app', label: 'Instalar app' },
       { id: 'videos-de-ayuda', label: 'Videos de ayuda' },
+      { id: 'tutoriales', label: 'Tutoriales en video' },
       { id: 'feedback', label: 'Sugerencias' },
       { id: 'feature-flags', label: 'Opciones avanzadas' },
       { id: 'datos', label: 'Administración de Datos' },
@@ -366,6 +370,7 @@ const SEARCH_SECTIONS: SearchSectionDef[] = [
       { title: 'Estilo de fotos AK', description: 'Calibración de color, luz y suavizado automático para las fotos de invitados.', href: '/settings?seccion=empresa&sub=estilo-fotos' },
       { title: 'Contenido Público', description: 'Textos, testimonios y portafolio visible en la web.', href: '/settings?seccion=empresa&sub=contenido-publico' },
       { title: 'Videos de Ayuda por Pantalla', description: 'Explicaciones en video de YouTube para invitado, cliente y simulador.', href: '/settings?seccion=sistema&sub=videos-de-ayuda' },
+      { title: 'Tutoriales en video', description: 'Enlaces de YouTube para el botón "¿Cómo funciona?" en toda pantalla pública.', href: '/settings?seccion=sistema&sub=tutoriales' },
     ],
   },
   {
@@ -405,10 +410,27 @@ function SettingsHubContent() {
   const subValida = Boolean(rawSub && PANELS[rawSub]);
   const tieneSeleccionExplicita = seccionValida || subValida;
   const [query, setQuery] = useState('');
+  const [tutorialesActivos, setTutorialesActivos] = useState<number | null>(null);
 
   useEffect(() => {
     setQuery('');
   }, [rawSeccion, rawSub]);
+
+  useEffect(() => {
+    let alive = true;
+    getTutorialesSettings()
+      .then((data) => {
+        if (!alive) return;
+        const count = TEMAS_TUTORIAL.filter((t) => Boolean(data?.[t.clave]?.videoId)).length;
+        setTutorialesActivos(count);
+      })
+      .catch(() => {
+        if (alive) setTutorialesActivos(null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [rawSub]);
 
   const seccionActiva = useMemo(() => {
     if (rawSub) {

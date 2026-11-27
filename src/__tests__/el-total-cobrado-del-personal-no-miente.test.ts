@@ -55,4 +55,22 @@ describe('El total cobrado del personal no miente', () => {
       /totalCobrado = useMemo\(\s*\(\) => filteredRows\.reduce/,
     );
   });
+
+  it('el reporte general del personal tampoco suma sueldos pactados pendientes como cobrados', () => {
+    const { totalCobradoDelPersonal } = require('@/lib/personal/desglose-recibo');
+    const recibos = [
+      { empleadoId: 'e1', monto: 4500, estado: 'pagado' },
+      { empleadoId: 'e1', monto: 3000, estado: 'pendiente' },
+      { empleadoId: 'e1', monto: 2000, estado: 'firmado_subido' },
+      { empleadoId: 'e2', monto: 9000, estado: 'pagado' },
+    ];
+    expect(totalCobradoDelPersonal(recibos, 'e1')).toBe(6500);
+
+    const reporte = fs.readFileSync(
+      path.join(process.cwd(), 'src', 'components', 'panels', 'empleados--reporte.tsx'),
+      'utf-8',
+    );
+    expect(reporte).toContain('totalCobradoDelPersonal');
+    expect(reporte).toContain('esReciboCobrado');
+  });
 });

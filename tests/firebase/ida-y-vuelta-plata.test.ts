@@ -27,6 +27,9 @@ jest.mock('@/app/actions/google-workspace', () => ({
   syncFiestaToGoogleWorkspace: async () => ({ success: true }),
   syncAppointmentToGoogleWorkspace: async () => undefined,
 }));
+jest.mock('@/app/actions/google-workspace-extended', () => ({
+  notifyClientPaymentApproved: async () => undefined,
+}));
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -41,6 +44,7 @@ import {
 } from '@/app/actions/presupuestos';
 import { saveInvoice, deleteInvoice, resetAllInvoices, registerBookingDeposit } from '@/app/actions/invoices';
 import { saveSalon, addSalonPago, deleteSalonPago, deleteSalonFoto, deleteSalon } from '@/app/actions/salones';
+import { updateCuotaEstado } from '@/app/actions/payment-plans';
 
 const conEmuladores = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 const hoy = new Date().toISOString().slice(0, 10);
@@ -309,5 +313,37 @@ describe('ida y vuelta contra la base: la plata', () => {
 
     expect((await deleteSalon(id)).success).toBe(true);
     expect((await lista<any>('salones.json')).find((x) => x.id === id)).toBeUndefined();
+  });
+
+  it('cuotas: updateCuotaEstado sincroniza cobro en pagosCliente ida y vuelta', async () => {
+    const pres = await savePresupuesto({
+      clienteNombre: 'Cliente cuota 293', eventoTipo: 'Cumpleaños', eventoFecha: '2031-03-10',
+      invitadosCantidad: 20, invitadosAdultos: 20, invitadosNinos: 0, invitadosAdolescentes: 0,
+      itemsPresupuestados: [{
+        idServicioCatalogo: 'x', nombreServicio: 'Item cuota', cantidad: 1, precioUnitario: 0,
+        precioUnitarioPresupuesto: 10000, costoTotalItem: 10000, tipoItem: 'Servicio', calculationMethod: 'fijo',
+      }],
+      costoTotalEstimado: 10000, totalConDescuento: 10000, estado: 'Enviado', timestamp: new Date().toISOString(),
+    } as any);
+    expect(pres.success).toBe(true);
+    const fiestaId = `fiesta-cuota-293-${Date.now()}`;
+    await writeData(`fiestas/${fiestaId}.json`, {
+      id: fiestaId, presupuestoId: pres.id, estado: 'En Planificación',
+      configuracion: { nombreEvento: 'Fiesta cuota 293', clienteNombre: 'Cliente cuota 293', fechaEvento: '2031-03-10' },
+      planDePagos: {
+        id: 'plan_293',
+        cuotas: [{ id: 'c1', descripcion: 'Cuota 1', monto: 5000, fechaVencimiento: '2031-02-01', estado: 'pendiente' }],
+      },
+    }, undefined, { skipAutoBackup: true });
+
+    const paid = await updateCuotaEstado(fiestaId, 'c1', { estado: 'pagado', montoPagado: 5000, fechaPago: hoy });
+    expect(paid.success).toBe(true);
+    let presActual = (await lista<any>('presupuestos.json')).find((x) => x.id === pres.id);
+    expect(presActual.pagosCliente.some((p: any) => p.id === 'cuota_c1' && p.monto === 5000)).toBe(true);
+
+    const rev = await updateCuotaEstado(fiestaId, 'c1', { estado: 'pendiente' });
+    expect(rev.success).toBe(true);
+    presActual = (await lista<any>('presupuestos.json')).find((x) => x.id === pres.id);
+    expect(presActual.pagosCliente.some((p: any) => p.id === 'cuota_c1')).toBe(false);
   });
 });

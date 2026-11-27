@@ -2227,8 +2227,15 @@ async function procesarNotificacionesTandaFotos(
         apiToken,
         phoneNumberId,
       });
-      if (waRes.success) {
-        whatsappEnviados += 1;
+      if (waRes.success || waRes.delivery === 'uncertain') {
+        if (waRes.success) {
+          whatsappEnviados += 1;
+        } else {
+          logger.warn(
+            '[social-gallery] Entrega incierta de WhatsApp de fotos nuevas; se registra para no reenviar:',
+            waRes.error,
+          );
+        }
         waNuevosPorGuest.set(invitado.id, {
           fotoIds: nuevasWa,
           enviadoAt: new Date(ahoraMs).toISOString(),
@@ -2240,36 +2247,43 @@ async function procesarNotificacionesTandaFotos(
   }
 
   if (pushNuevosPorGuest.size > 0 || waNuevosPorGuest.size > 0) {
-    const saveRes = await actualizarFiesta(
-      fiestaId,
-      (actual) => ({
-        ...actual,
-        invitados: (actual.invitados || []).map((inv) => {
-          const pNuevas = pushNuevosPorGuest.get(inv.id);
-          const wInfo = waNuevosPorGuest.get(inv.id);
-          if (!pNuevas && !wInfo) return inv;
-          return {
-            ...inv,
-            ...(pNuevas
-              ? {
-                  fotosYaNotificadasPush: Array.from(
-                    new Set([...(inv.fotosYaNotificadasPush || []), ...pNuevas]),
-                  ),
-                }
-              : {}),
-            ...(wInfo
-              ? {
-                  fotosYaNotificadasWhatsapp: Array.from(
-                    new Set([...(inv.fotosYaNotificadasWhatsapp || []), ...wInfo.fotoIds]),
-                  ),
-                  ultimoWhatsappFotosAt: wInfo.enviadoAt,
-                }
-              : {}),
-          };
-        }),
+    const aplicarHistorialAvisos = (actual: FiestaEnPlanificacion): FiestaEnPlanificacion => ({
+      ...actual,
+      invitados: (actual.invitados || []).map((inv) => {
+        const pNuevas = pushNuevosPorGuest.get(inv.id);
+        const wInfo = waNuevosPorGuest.get(inv.id);
+        if (!pNuevas && !wInfo) return inv;
+        return {
+          ...inv,
+          ...(pNuevas
+            ? {
+                fotosYaNotificadasPush: Array.from(
+                  new Set([...(inv.fotosYaNotificadasPush || []), ...pNuevas]),
+                ),
+              }
+            : {}),
+          ...(wInfo
+            ? {
+                fotosYaNotificadasWhatsapp: Array.from(
+                  new Set([...(inv.fotosYaNotificadasWhatsapp || []), ...wInfo.fotoIds]),
+                ),
+                ultimoWhatsappFotosAt: wInfo.enviadoAt,
+              }
+            : {}),
+        };
       }),
-      { publicRsvp: true },
-    );
+    });
+
+    let saveRes = await actualizarFiesta(fiestaId, aplicarHistorialAvisos, { publicRsvp: true })
+      .catch((err: any) => ({ success: false as const, error: err?.message || 'Error al guardar historial' }));
+    for (let intento = 1; intento < 3 && !saveRes.success; intento += 1) {
+      logger.warn(
+        `[social-gallery] Reintentando guardar historial de avisos de fotos (intento ${intento + 1}):`,
+        saveRes.error,
+      );
+      saveRes = await actualizarFiesta(fiestaId, aplicarHistorialAvisos, { publicRsvp: true })
+        .catch((err: any) => ({ success: false as const, error: err?.message || 'Error al guardar historial' }));
+    }
     if (!saveRes.success) {
       logger.warn('[social-gallery] No se pudo guardar historial de avisos de fotos:', saveRes.error);
     }
@@ -2278,7 +2292,90 @@ async function procesarNotificacionesTandaFotos(
   return { pushEnviados, whatsappEnviados };
 }
 
+export async function buscarmeEnLaGaleria(
+  fiestaId: string,
+  vectorDeLaSelfie: number[] | number[][],
+): Promise<{
+  success: boolean;
+  seguras: string[];
+  dudosas: string[];
+  fotoIds: string[];
+  error?: string;
+}> {
+  try {
+    if (!fiestaId) {
+      return { success: false, seguras: [], dudosas: [], fotoIds: [], error: 'Falta el evento.' };
+    }
+
+    await enforcePublicRateLimit({
+      scope: 'social-buscarme-galeria',
+      identity: fiestaId,
+      limit: 30,
+      windowMs: 60_000,
+    });
+
+    const candidatos = Array.isArray(vectorDeLaSelfie) && Array.isArray(vectorDeLaSelfie[0])
+      ? (vectorDeLaSelfie as number[][])
+      : [vectorDeLaSelfie as number[]];
+    const vectoresValidos = candidatos.filter((v) => esVectorFacialValido(v)).slice(0, 3);
+    if (vectoresValidos.length === 0) {
+      return {
+        success: false,
+        seguras: [],
+        dudosas: [],
+        fotoIds: [],
+        error: 'No pudimos leer los rasgos faciales. Intentá de nuevo.',
+      };
+    }
+
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) {
+      return { success: false, seguras: [], dudosas: [], fotoIds: [], error: 'Fiesta no encontrada.' };
+    }
+    if (fiesta.socialGallerySettings?.modoCaras === 'apagado') {
+      return { success: true, seguras: [], dudosas: [], fotoIds: [] };
+    }
+    if (!fiesta.socialGallerySettings?.carasPreparadas && !fiesta.carasIndexadas?.length) {
+      return { success: true, seguras: [], dudosas: [], fotoIds: [] };
+    }
+
+    const baseCaras =
+      fiesta.carasIndexadas && fiesta.carasIndexadas.length > 0
+        ? fiesta.carasIndexadas
+        : (await readData<CaraEnFoto[]>(`caras/${fiestaId}.json`, [])) || [];
+
+    const posts = await getAllEventPosts(fiestaId).catch((err) => {
+      logger.warn('[social-gallery] Error leyendo posts al buscar cara en galería:', err);
+      return [] as SocialGalleryPost[];
+    });
+    const noAprobados = new Set(
+      posts.filter((p) => !esAprobadoParaMostrar(p)).map((p) => p.id),
+    );
+    const carasValidas = baseCaras.filter(
+      (c) => Boolean(c?.fotoId) && Array.isArray(c?.vector) && !noAprobados.has(c.fotoId),
+    );
+
+    const resultado = buscarFotosDeUnaCara(vectoresValidos, carasValidas);
+    return {
+      success: true,
+      seguras: resultado.seguras,
+      dudosas: resultado.dudosas,
+      fotoIds: [...resultado.seguras, ...resultado.dudosas],
+    };
+  } catch (err: any) {
+    logger.warn('[social-gallery] Error buscando cara en galería:', err);
+    return {
+      success: false,
+      seguras: [],
+      dudosas: [],
+      fotoIds: [],
+      error: err?.message || 'No se pudo buscar tus fotos.',
+    };
+  }
+}
+
 export async function getCarasDeFiesta(fiestaId: string): Promise<CaraEnFoto[]> {
+  await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
   try {
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return [];

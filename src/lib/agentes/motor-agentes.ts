@@ -10,7 +10,8 @@ import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
 import { mutarDocumento, mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
-import { hoyEnUruguay } from '@/lib/utils';
+import { diasHastaEnUruguay, hoyEnUruguay } from '@/lib/utils';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { getFiestaTimeRange, localDateTimeToUtcMs } from '@/lib/staff-agenda-conflicts';
 import { applyAutomaticStaffByGuests, createLiveBudgetState } from '@/lib/commercial/live-budget-editor';
 import { buscarRol } from '@/lib/fiesta/personal-por-invitados';
@@ -150,6 +151,21 @@ export async function ejecutarVigilanteFiestas(ahora = new Date()): Promise<Regi
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<DescarteAlerta[]>('alertas-descartadas.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(presupuestos) || esLecturaFallida(descartes)) {
+    const motivo = 'No se pudieron leer las fiestas o presupuestos desde la base de datos.';
+    return {
+      id: `reg_vigilante_${Date.now()}`,
+      agenteId: 'vigilante_fiestas',
+      agenteNombre: 'Vigilante de Fiestas',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const alertas = detectarErroresHumanos(fiestas, presupuestos, descartes, ahora);
@@ -195,6 +211,21 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     readData<CrmLead[]>('crm-leads.json', []),
     readData<Record<string, string>>(SEGUIMIENTOS_ENVIADOS_FILE, {}).catch(() => ({} as Record<string, string>)),
   ]);
+  if (esLecturaFallida(presupuestos) || esLecturaFallida(scheduledMessages) || esLecturaFallida(leads)) {
+    const motivo = 'No se pudieron leer los presupuestos o seguimientos desde la base de datos.';
+    return {
+      id: `reg_perseguidor_${Date.now()}`,
+      agenteId: 'perseguidor_presupuestos',
+      agenteNombre: 'Perseguidor de Presupuestos',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
 
   const ahoraMs = ahora.getTime();
   const pendientes = scheduledMessages || [];
@@ -348,6 +379,21 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(presupuestos) || esLecturaFallida(scheduledMessages)) {
+    const motivo = 'No se pudieron leer fiestas o cobros desde la base de datos.';
+    return {
+      id: `reg_cobrador_${Date.now()}`,
+      agenteId: 'cobrador',
+      agenteNombre: 'Agente Cobrador',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: [motivo],
+      accionesPreparadas: [],
+      estado: 'error',
+      lecturaFallida: true,
+      ok: false,
+      error: motivo,
+    };
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
 
   const presupuestosMap = new Map(presupuestos.map((p) => [p.id, p]));
@@ -362,7 +408,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     const fechaStr = fiesta.configuracion?.fechaEvento || (fiesta.configuracion as any)?.fecha;
     if (!fechaStr) continue;
 
-    const diffDias = Math.ceil((new Date(fechaStr).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDias = diasHastaEnUruguay(fechaStr, ahora);
     const pagos = (p.pagosCliente || []).filter(isConfirmedClientPayment).reduce((s, pg) => s + (Number(pg.monto) || 0), 0);
     const total = getBudgetCollectibleTotal(p);
     const saldo = total - pagos;
@@ -559,6 +605,19 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<ServicioEmpresa[]>('insumos.json', []),
   ]);
+  if (esLecturaFallida(fiestasTodas) || esLecturaFallida(inventario)) {
+    const registroError: RegistroEjecucionAgente = {
+      id: `reg_noche_${Date.now()}`,
+      agenteId: 'vigilante_noche',
+      agenteNombre: 'Operador de la Noche',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: ['No se pudo leer la agenda de fiestas o el inventario de barra desde la base de datos.'],
+      accionesPreparadas: ['Lectura fallida al auditar la noche; reintentar más tarde.'],
+      estado: 'error',
+    };
+    await registrarEjecucionAgente(registroError);
+    return registroError;
+  }
   const horaLocal = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'America/Montevideo',
     hour: '2-digit',
@@ -680,6 +739,24 @@ export async function ejecutarAnticipador(ahora = new Date()): Promise<RegistroE
     readData<Array<{ id: string; nombre: string }>>('roles.json', []),
     readData<Invoice[]>('invoices.json', []),
   ]);
+  if (
+    esLecturaFallida(fiestasTodas)
+    || esLecturaFallida(presupuestos)
+    || esLecturaFallida(roles)
+    || esLecturaFallida(invoices)
+  ) {
+    const registroError: RegistroEjecucionAgente = {
+      id: `reg_anticipador_${ahora.getTime()}`,
+      agenteId: 'anticipador',
+      agenteNombre: 'Anticipador',
+      ejecutadoEn: ahora.toISOString(),
+      hallazgos: ['No se pudieron leer las fiestas, presupuestos, roles o facturas desde la base de datos.'],
+      accionesPreparadas: ['Lectura fallida; reintentar antes de evaluar faltantes o cuotas.'],
+      estado: 'error',
+    };
+    await registrarEjecucionAgente(registroError);
+    return registroError;
+  }
   const fiestas = fiestasTodas.filter((f) => !f.esMuestra && !esFiestaDemo(f));
   const presupuestosPorId = new Map(presupuestos.map((presupuesto) => [presupuesto.id, presupuesto]));
   const facturasPorId = new Map(invoices.filter(isFirmSalesInvoice).map((invoice) => [invoice.id, invoice]));
@@ -840,12 +917,19 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
 // ─────────────────────────────────────────────────────────────────────────────
 // EJECUTOR GLOBAL RESPETANDO CONFIGURACIÓN Y LIMITES
 // ─────────────────────────────────────────────────────────────────────────────
+export type ResultadoEjecucionAgentes = RegistroEjecucionAgente[] & {
+  agentesFallidos?: string[];
+  errores?: string[];
+};
+
 export async function ejecutarAgentesAutonomos(
   ahora = new Date(),
   opciones: { ignorarIntervalo?: boolean } = {},
-): Promise<RegistroEjecucionAgente[]> {
+): Promise<ResultadoEjecucionAgentes> {
   const config = await getConfiguracionAgentes();
   const resultados: RegistroEjecucionAgente[] = [];
+  const agentesFallidos: string[] = [];
+  const errores: string[] = [];
 
   for (const agente of config) {
     if (!agente.activo) continue;
@@ -886,16 +970,23 @@ export async function ejecutarAgentesAutonomos(
       }
       if (reg) {
         resultados.push(reg);
-        if (modo === 'sola') {
+        const falloAgente = reg.estado === 'error' || reg.lecturaFallida === true || reg.ok === false;
+        if (falloAgente) {
+          agentesFallidos.push(agente.id);
+          errores.push(`${agente.nombre}: ${reg.error || reg.hallazgos?.[0] || 'Error de ejecución'}`);
+        } else if (modo === 'sola') {
           await registrarAccionSola({ tareaId: agente.id, que: `Ejecutó automáticamente: ${agente.nombre}` });
         }
       }
     } catch (err) {
+      const mensaje = err instanceof Error ? err.message : String(err || 'Error desconocido');
       console.error(`[Agentes] Error ejecutando ${agente.id}:`, err);
+      agentesFallidos.push(agente.id);
+      errores.push(`${agente.nombre}: ${mensaje}`);
     }
   }
 
-  return resultados;
+  return Object.assign(resultados, { agentesFallidos, errores });
 }
 
 

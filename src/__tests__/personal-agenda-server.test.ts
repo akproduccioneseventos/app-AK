@@ -24,6 +24,18 @@ jest.mock('@/lib/staff-agenda-lock', () => ({
   acquireStaffAgendaLocks: jest.fn(async () => jest.fn(async () => undefined)),
 }));
 
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (fiestaId: string, updater: (f: any) => any) => {
+    const { getFiestaById: leer, updateFiestaPartial: guardar } = require('@/app/actions/fiesta/fiesta.actions');
+    const actual = await leer(fiestaId);
+    if (!actual) return { success: false, error: 'Fiesta no encontrada' };
+    const updatedFiesta = await updater(JSON.parse(JSON.stringify(actual)));
+    const partialRes = await guardar(fiestaId, { personalAsignado: updatedFiesta.personalAsignado });
+    if (partialRes && partialRes.success === false) return partialRes;
+    return { success: true, updatedFiesta };
+  }),
+}));
+
 jest.mock('@/lib/staff-agenda-data', () => ({
   readActiveFiestasForStaffAgenda: jest.fn(),
 }));

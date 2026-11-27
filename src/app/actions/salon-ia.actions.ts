@@ -20,24 +20,20 @@ export async function autoAssignTables(
     // 1. Clonar lista para no mutar original
     const newInvitados = [...invitados].map(i => ({ ...i }));
 
-    // 2. Extraer mesas y su capacidad
-    const availableTables = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
+    // 2. Extraer mesas y su capacidad real o fallback
+    const tableSeats = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
       t.category?.toLowerCase().includes('mesa') === true &&
       typeof t.width === 'number' &&
       typeof t.height === 'number'
-    )).map(t => ({
-      name: t.name,
-      capacity: ((t.width || 0) / 40) * 2 + ((t.height || 0) / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
-      seatsOccupied: 0,
-      tags: new Set<string>()
-    }));
-
-    // Mejorar la capacidad: si el elemento tiene maxCapacity, usarlo, si no, asumir 8 o 10.
-    // Como el tipo LayoutElement en este proyecto tiene width/height pero capaz no 'capacity' explicita, fijaremos 10 genéricamente
-    const tableSeats = availableTables.map(t => ({
-      ...t,
-      capacity: 10 // Mock capacity for now
-    }));
+    )).map(t => {
+      const capacidadReal = (t as any).seats ?? (t as any).capacidad ?? 10;
+      return {
+        name: t.name,
+        capacity: Number(capacidadReal) || 10,
+        seatsOccupied: 0,
+        tags: new Set<string>()
+      };
+    });
 
     // 3. Contar ocupación actual (para mantener a los que YA tienen mesa)
     newInvitados.forEach(inv => {
@@ -175,22 +171,19 @@ export async function chatWithGuestBot(
       return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
     }
 
-    // Lo que se paga pasa por el contador, siempre. Sin esto el gasto de este chat
-    // no aparecia en ningun lado y el tope mensual no lo frenaba.
-    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
-    if (!(await hayPresupuestoParaIA())) {
-      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
-    }
-
-    const { generateWithGeminiFallback, geminiModel } = await import('@/ai/genkit');
+    const { pedirTexto } = await import('@/ai/cerebro');
+    const { geminiModel } = await import('@/ai/genkit');
+    const { MODELOS_GEMINI } = await import('@/ai/modelos');
 
     const historyText = (Array.isArray(history) ? history : [])
       .slice(-10)
       .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${String(h.text || '').slice(0, MAX_GUEST_BOT_MESSAGE_CHARS)}`)
       .join('\n');
 
-    const response = await generateWithGeminiFallback({
-      model: geminiModel,
+    const response = await pedirTexto({
+      quien: 'chat-de-la-fiesta',
+      incluirReglas: false,
+      modelos: [geminiModel, ...MODELOS_GEMINI.texto],
       system: `Sos el Asistente Virtual IA de la fiesta de ${fiestaSegura.configuracion.nombreAgasajado || 'nuestro anfitrión'}.
 Tu objetivo es responder de forma amable, alegre y festiva a los invitados sobre los detalles de la fiesta.
 Usá el dialecto rioplatense (uruguayo: vos, che, ta, dale) de forma sutil y amigable.
@@ -210,9 +203,11 @@ REGLA QUE NO SE ROMPE: si un dato de arriba dice NO CARGADO, **no lo inventes ni
       prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${cleanMessage}`].filter(Boolean).join('\n\n'),
     });
 
-    await registrarConsumoIA('chat-de-la-fiesta');
+    if (!response.ok) {
+      return { success: true, response: getMockBotResponse(cleanMessage, fiestaSegura) };
+    }
 
-    return { success: true, response: response.text };
+    return { success: true, response: response.texto };
   } catch (error: any) {
     console.error("Error in chatWithGuestBot:", error);
     return { success: false, response: getMockBotResponse(cleanMessage, fiestaSegura) };

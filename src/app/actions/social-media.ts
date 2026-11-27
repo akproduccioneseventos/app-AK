@@ -295,6 +295,15 @@ export async function syncInstagramPosts(
     let addedPhotosCount = 0;
     let addedVideosCount = 0;
     let addedPlannerCount = 0;
+    const fotosNuevasParaClasificar: Array<{
+      id: string;
+      url: string;
+      titulo: string;
+      descripcion: string;
+      categoria: string;
+      createdAt: string;
+      orden: number;
+    }> = [];
 
     const publicFeed = await getPublicInstagramFeed(instagramConn?.profileUrl);
     const graphFeed: InstagramFeedPost[] | null = publicFeed.length
@@ -368,7 +377,7 @@ export async function syncInstagramPosts(
         const syncedPhoto = {
           id: post.id,
           url: post.mediaUrl,
-          titulo: `Instagram: ${category}`,
+          titulo: category,
           descripcion: post.text,
           categoriaServicio: category,
           destacada: true,
@@ -386,6 +395,15 @@ export async function syncInstagramPosts(
         } else {
           catalogoFotos.push({
             ...syncedPhoto,
+          });
+          fotosNuevasParaClasificar.push({
+            id: syncedPhoto.id,
+            url: syncedPhoto.url,
+            titulo: syncedPhoto.titulo,
+            descripcion: syncedPhoto.descripcion,
+            categoria: category,
+            createdAt: syncedPhoto.createdAt,
+            orden: syncedPhoto.orden,
           });
           addedPhotosCount++;
         }
@@ -488,6 +506,58 @@ export async function syncInstagramPosts(
       writeData('catalogo-fotos.json', catalogoFotos),
       writeData(POSTS_FILE, socialPosts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()),
     ]);
+
+    // 6. Clasificar fotos nuevas de Instagram con IA en segundo plano (no bloqueante)
+    if (fotosNuevasParaClasificar.length > 0) {
+      try {
+        const { clasificarFotoDeGaleria } = await import('@/lib/galeria/clasificar-foto');
+        const cambiosPorId = new Map<string, { servicioId?: string; servicio?: string; tipoFiesta?: string; titulo?: string }>();
+        for (const fotoNueva of fotosNuevasParaClasificar) {
+          try {
+            const res = await clasificarFotoDeGaleria({
+              id: fotoNueva.id,
+              tipo: 'foto',
+              url: fotoNueva.url,
+              titulo: fotoNueva.titulo,
+              descripcion: fotoNueva.descripcion,
+              categoria: fotoNueva.categoria,
+              destacada: true,
+              orden: fotoNueva.orden,
+              createdAt: fotoNueva.createdAt,
+              source: 'instagram',
+            });
+            if (res.actualizada) {
+              cambiosPorId.set(fotoNueva.id, {
+                servicioId: res.cambios.servicioId,
+                servicio: res.cambios.servicio,
+                tipoFiesta: res.cambios.tipoFiesta,
+                titulo: res.cambios.titulo,
+              });
+            }
+          } catch {
+            // No bloqueante por foto individual
+          }
+        }
+
+        if (cambiosPorId.size > 0) {
+          const catalogoActualizado = catalogoFotos.map((item) => {
+            const c = cambiosPorId.get(item.id);
+            if (!c || item.clasificadaPor === 'persona') return item;
+            return {
+              ...item,
+              ...(c.servicioId ? { servicioId: c.servicioId } : {}),
+              ...(c.servicio ? { servicioNombre: c.servicio } : {}),
+              ...(c.tipoFiesta ? { tipoFiesta: c.tipoFiesta } : {}),
+              ...(c.titulo ? { titulo: c.titulo } : {}),
+              clasificadaPor: 'ia',
+            };
+          });
+          await writeData('catalogo-fotos.json', catalogoActualizado);
+        }
+      } catch {
+        // No bloqueante: las fotos de Instagram ya quedaron guardadas aunque la IA falle.
+      }
+    }
 
     console.log(`[Instagram Sync] Proceso de sincronización completado. Fotos: +${addedPhotosCount}, Reels/Videos: +${addedVideosCount}, Planner: +${addedPlannerCount}`);
     return { success: true, photosCount: addedPhotosCount, videosCount: addedVideosCount, plannerCount: addedPlannerCount };

@@ -67,6 +67,7 @@ import {
 } from '@/lib/entretenimiento/animaciones-con-locucion';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -928,7 +929,7 @@ export default function EspejoMagicoPage() {
         colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d4a574',
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
-        textoDeMarca: 'AK Producciones',
+        textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
       });
       const resultado = imprimirRecuerdo(tiraPersonalizada);
       if (!resultado.ok) {
@@ -1303,6 +1304,7 @@ export default function EspejoMagicoPage() {
         <div className="flex items-center gap-2">
           {localStatus === 'idle' && !capturedImage && !errorMsg && fiesta && (
             <>
+              <BotonComoFunciona clave="espejo-magico" variant="dark" />
               <button
                 type="button"
                 onClick={() => setVoiceEnabled(v => !v)}

@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FiestaThermometer } from '@/components/fiesta/FiestaThermometer';
 import { parsearEntradaMusica, unificarListaMusica } from '@/lib/musica/bandeja-musica';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 const REFRESH_INTERVAL_MS = 5000;
 
@@ -135,6 +136,7 @@ export default function DJPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <BotonComoFunciona clave="pedir-cancion" variant="dark" />
             <button
               onClick={() => setShowPlayed(v => !v)}
               className={cn(

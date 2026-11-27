@@ -4,8 +4,9 @@ import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, ClientPaymentRevisionIA, TipoComprobanteIA, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, ClientPaymentRevisionIA, TipoComprobanteIA, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente, ClienteDebeLlevarItem } from '@/types/fiesta';
 export type { MensajePortalCliente };
+import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
@@ -362,7 +363,32 @@ export async function getFiestaForPortalSession(fiestaId: string): Promise<Fiest
   const fiesta = await getFiestaByIdRaw(fiestaId);
   if (!fiesta) return null;
   if (!esEquipoOAuditor && !fiesta?.clientPortalSettings?.enabled) return null;
-  return mapFiestaToClientPortal(fiesta);
+  if (fiesta.videoVida?.galleryEnabled && typeof fiesta.videoVida.uploadedCount !== 'number') {
+    const { getLifeStoryVideoPhotos } = await import('@/app/actions/fiesta/video-vida.actions');
+    const lectura = await getLifeStoryVideoPhotos(fiesta.id).catch(() => null);
+    if (lectura && lectura.estado !== 'error') {
+      fiesta.videoVida = { ...fiesta.videoVida, uploadedCount: lectura.urls.length };
+    }
+  }
+  const mapped = mapFiestaToClientPortal(fiesta) as any;
+  if (fiesta.presupuestoId) {
+    try {
+      const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+      const { normalizePresupuestoFinancials, getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+      const pres = await getPresupuestoById(fiesta.presupuestoId);
+      if (pres) {
+        const norm = normalizePresupuestoFinancials(pres);
+        const summary = getBudgetPaymentSummary(norm, { includeAnnualAdjustment: true });
+        mapped.resumenPresupuesto = {
+          total: summary.total,
+          paid: summary.paid,
+          balance: summary.balance,
+          paidPercent: summary.paidPercent,
+        };
+      }
+    } catch { /* ignore */ }
+  }
+  return mapped;
 }
 
 export async function updateClientGuestTable(
@@ -381,12 +407,127 @@ export async function updateClientGuestTable(
   }));
 }
 
+export type ClientPackingListChange =
+  | {
+      op: 'toggle';
+      itemId: string;
+      completado?: boolean;
+      llevado?: boolean;
+      estado?: ClienteDebeLlevarItem['estado'];
+    }
+  | {
+      op: 'add';
+      item: ClienteDebeLlevarItem;
+    }
+  | {
+      op: 'remove';
+      itemId: string;
+    }
+  | {
+      op: 'update';
+      itemId: string;
+      patch: Partial<Pick<ClienteDebeLlevarItem, 'texto' | 'notas' | 'obligatorio' | 'fechaLimite' | 'completado' | 'estado'>>;
+    };
+
+function isPackingListChange(value: unknown): value is ClientPackingListChange {
+  return Boolean(value && typeof value === 'object' && 'op' in (value as Record<string, unknown>));
+}
+
+function applyPackingListChanges(
+  currentRaw: ClienteDebeLlevarItem[] | undefined,
+  input: ClientPackingListChange | ClientPackingListChange[] | ClienteDebeLlevarItem[],
+): ClienteDebeLlevarItem[] {
+  const changes: ClientPackingListChange[] = Array.isArray(input)
+    ? input.every(isPackingListChange)
+      ? input
+      : []
+    : [input];
+
+  let nextList: ClienteDebeLlevarItem[] = Array.isArray(currentRaw) && currentRaw.length > 0
+    ? currentRaw.map(item => ({ ...item }))
+    : [];
+
+  // Compatibilidad con llamadas viejas que pasan un arreglo entero de ClienteDebeLlevarItem:
+  // si hay items nuevos/modificados se fusionan sobre la lista actual sin pisar altas concurrentes.
+  if (Array.isArray(input) && !input.every(isPackingListChange)) {
+    const incoming = input as ClienteDebeLlevarItem[];
+    const byId = new Map(nextList.map(item => [item.id, item]));
+    for (const item of incoming) {
+      byId.set(item.id, { ...(byId.get(item.id) || {}), ...item });
+    }
+    return Array.from(byId.values());
+  }
+
+  for (const change of changes) {
+    if (change.op === 'toggle') {
+      if (nextList.length === 0 && defaultClienteDebeLlevar.some(item => item.id === change.itemId)) {
+        nextList = defaultClienteDebeLlevar.map(item => ({ ...item }));
+      }
+      const targetEstado = change.estado;
+      nextList = nextList.map(item => {
+        if (item.id !== change.itemId) return item;
+        const completado = typeof change.completado === 'boolean'
+          ? change.completado
+          : typeof change.llevado === 'boolean'
+            ? change.llevado
+            : !item.completado;
+        return {
+          ...item,
+          completado,
+          estado: targetEstado ?? (completado ? 'listo' : 'pendiente'),
+        };
+      });
+    } else if (change.op === 'add') {
+      if (!nextList.some(item => item.id === change.item.id)) {
+        nextList = [...nextList, { ...change.item }];
+      }
+    } else if (change.op === 'remove') {
+      if (nextList.length === 0 && defaultClienteDebeLlevar.some(item => item.id === change.itemId)) {
+        nextList = defaultClienteDebeLlevar.map(item => ({ ...item }));
+      }
+      nextList = nextList.filter(item => item.id !== change.itemId);
+    } else if (change.op === 'update') {
+      if (nextList.length === 0 && defaultClienteDebeLlevar.some(item => item.id === change.itemId)) {
+        nextList = defaultClienteDebeLlevar.map(item => ({ ...item }));
+      }
+      nextList = nextList.map(item =>
+        item.id === change.itemId
+          ? { ...item, ...change.patch }
+          : item
+      );
+    }
+  }
+
+  return nextList;
+}
+
 export async function updateClientPackingList(
   fiestaId: string,
-  items: import('@/types/fiesta').ClienteDebeLlevarItem[],
-): Promise<{ success: boolean; error?: string }> {
+  changeOrItems: ClientPackingListChange | ClientPackingListChange[] | ClienteDebeLlevarItem[],
+): Promise<{ success: boolean; items?: ClienteDebeLlevarItem[]; error?: string }> {
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
-  return updateFiestaData(fiestaId, data => ({ ...data, clienteDebeLlevar: items }));
+  let resultItems: ClienteDebeLlevarItem[] = [];
+  const res = await actualizarFiesta(fiestaId, data => {
+    const nextItems = applyPackingListChanges(data.clienteDebeLlevar, changeOrItems);
+    resultItems = nextItems;
+    return { ...data, clienteDebeLlevar: nextItems };
+  }, { publicRsvp: true });
+  if (!res.success) return { success: false, error: res.error };
+  return { success: true, items: res.updatedFiesta?.clienteDebeLlevar ?? resultItems };
+}
+
+export async function updateTeamPackingListChanges(
+  fiestaId: string,
+  changes: ClientPackingListChange[],
+): Promise<{ success: boolean; items?: ClienteDebeLlevarItem[]; error?: string }> {
+  let resultItems: ClienteDebeLlevarItem[] = [];
+  const res = await actualizarFiesta(fiestaId, data => {
+    const nextItems = applyPackingListChanges(data.clienteDebeLlevar, changes);
+    resultItems = nextItems;
+    return { ...data, clienteDebeLlevar: nextItems };
+  });
+  if (!res.success) return { success: false, error: res.error };
+  return { success: true, items: res.updatedFiesta?.clienteDebeLlevar ?? resultItems };
 }
 
 
@@ -551,7 +692,26 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
       }
     }
 
-    return mapFiestaToClientPortal(fiesta);
+    if (!fiesta) return null;
+    const mapped = mapFiestaToClientPortal(fiesta) as any;
+  if (fiesta.presupuestoId) {
+    try {
+      const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+      const { normalizePresupuestoFinancials, getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+      const pres = await getPresupuestoById(fiesta.presupuestoId);
+      if (pres) {
+        const norm = normalizePresupuestoFinancials(pres);
+        const summary = getBudgetPaymentSummary(norm, { includeAnnualAdjustment: true });
+        mapped.resumenPresupuesto = {
+          total: summary.total,
+          paid: summary.paid,
+          balance: summary.balance,
+          paidPercent: summary.paidPercent,
+        };
+      }
+    } catch { /* ignore */ }
+  }
+  return mapped;
   } catch (error) {
     // "No existe" (null, arriba) es distinto de "no se pudo leer": una falla de lectura
     // se lanza para que la pantalla no le diga al cliente que su enlace expiró.
@@ -1631,6 +1791,11 @@ export async function checkDateAvailability(
   }
 }
 
+function fechaSolicitudEnUruguay(ahora: Date = new Date()): string {
+  const [year, month, day] = hoyEnUruguay(ahora).split('-');
+  return `${day}/${month}/${year}`;
+}
+
 export async function cancelServicesOrParty(
   fiestaId: string,
   payload: {
@@ -1727,7 +1892,7 @@ export async function cancelServicesOrParty(
 CLIENTE: ${presupuesto.clienteNombre}
 ID EVENTO: ${fiestaId}
 FECHA ORIGINAL: ${fiesta.configuracion?.fechaEvento || 'A confirmar'}
-FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+FECHA DE SOLICITUD: ${fechaSolicitudEnUruguay()}
 
 ------------------------------------------------------------
 DETALLE DE LA CANCELACIÓN:
@@ -1809,7 +1974,16 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       updatedItems = remainingItems;
 
       // Nuevo total: con TODAS las multas guardadas, no sólo la de esta vez (orden 210, A5).
-      nuevoTotal = totalTrasCancelar(remainingItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
+      const nuevoTotalBase = totalTrasCancelar(remainingItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
+      // Cifra cobrable real (multas ya ajustadas sin doble ajuste; servicios vigentes conservan ajuste).
+      nuevoTotal = getBudgetPaymentSummary(
+        {
+          ...presupuesto,
+          itemsPresupuestados: remainingItems,
+          totalConDescuento: nuevoTotalBase,
+        },
+        { includeAnnualAdjustment: true },
+      ).total;
 
       docContent = `============================================================
            AK PRODUCCIONES - CONTRATO DE CANCELACIÓN PARCIAL
@@ -1818,7 +1992,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
 CLIENTE: ${presupuesto.clienteNombre}
 ID EVENTO: ${fiestaId}
 FECHA ORIGINAL: ${fiesta.configuracion?.fechaEvento || 'A confirmar'}
-FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+FECHA DE SOLICITUD: ${fechaSolicitudEnUruguay()}
 
 ------------------------------------------------------------
 SERVICIOS CANCELADOS:
@@ -1863,13 +2037,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // descuento, que ya estaba en el total del que sale. En cancelación total, penaltyTotal
     // ya incluye el ajuste inflacionario al año de cancelación: no se re-aplica sobre la multa.
     presupuesto.totalConDescuento = totalTrasCancelar(updatedItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
-    nuevoTotal = presupuesto.totalConDescuento;
     if (payload.cancelAll) {
       presupuesto.ajusteAnualActivo = false;
       presupuesto.ajusteAnualPorcentaje = 0;
     }
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
-    presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
+    const summaryFinal = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true });
+    nuevoTotal = summaryFinal.total;
+    presupuesto.saldo = summaryFinal.balance;
 
     presupuesto.ajustesAplicados = [
       ...marcasPrevias,
@@ -1886,6 +2061,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       return armado.yaEstaba ? null : armado.presupuesto;
     });
     if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
+    if (armado && (armado as { cancelada?: boolean }).cancelada) {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
     if (!armado || (armado as any).yaEstaba) {
       return { success: true, yaEstaba: true, refundAmount: 0, pendingDue: 0 };
     }
@@ -1937,14 +2115,18 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     }
     fiestaGuardada = true;
 
-    // Create system notification
-    const { createNotification } = await import('@/lib/notifications/create-notification');
-    // no-mira-el-resultado: aviso interno al panel; la cancelacion ya quedo guardada
-    await createNotification({
-      mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
-      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
-      icono: 'AlertTriangle',
-    });
+    // Create system notification (best-effort: la cancelación ya quedó guardada)
+    try {
+      const { createNotification } = await import('@/lib/notifications/create-notification');
+      // no-mira-el-resultado: aviso interno al panel; la cancelacion ya quedo guardada
+      await createNotification({
+        mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
+        href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+        icono: 'AlertTriangle',
+      });
+    } catch {
+      // No fallar la respuesta al cliente si falla el aviso interno
+    }
 
     const refundAmount = totalPagado > nuevoTotal ? (totalPagado - nuevoTotal) : 0;
     const pendingDue = nuevoTotal > totalPagado ? (nuevoTotal - totalPagado) : 0;
@@ -1982,6 +2164,9 @@ export async function changeEventDate(
     if (payload.passwordInput.trim() !== expectedPassword.trim()) {
       return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
     }
+    if ((fiesta as { estado?: string }).estado === 'Cancelada') {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
 
     // Check date availability
     const availRes = await checkDateAvailability(fiestaId, payload.newDate);
@@ -2001,6 +2186,9 @@ export async function changeEventDate(
     const armar = (original: any) => {
     const presupuesto = JSON.parse(JSON.stringify(original));
     const marcasPrevias: string[] = Array.isArray(presupuesto.ajustesAplicados) ? presupuesto.ajustesAplicados : [];
+    if (marcasPrevias.includes('cancelacion-total')) {
+      return { yaEstaba: false as const, cancelada: true as const };
+    }
     if (presupuesto.eventoFecha && String(presupuesto.eventoFecha).slice(0, 10) === String(payload.newDate).slice(0, 10)) {
       return { yaEstaba: true as const };
     }
@@ -2010,8 +2198,12 @@ export async function changeEventDate(
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 
-    // Calculate 10% penalty for date change
-    const penaltyAmount = Math.round(totalOriginal * 0.1);
+    // La multa del 10% va sobre el total contratado, sin sumar multas de cambios de fecha anteriores.
+    const multasCambioFechaAnteriores = (presupuesto.itemsPresupuestados || [])
+      .filter((i: any) => !i?.esRegalo && String(i?.idServicioCatalogo || '').startsWith('multa_cambio_fecha_'))
+      .reduce((sum: number, i: any) => sum + (Number(i?.costoTotalItem) || 0), 0);
+    const totalContratadoSinMultasFecha = Math.max(0, totalOriginal - multasCambioFechaAnteriores);
+    const penaltyAmount = Math.round(totalContratadoSinMultasFecha * 0.1);
     const nuevoTotal = totalOriginal + penaltyAmount;
 
     // Create penalty item
@@ -2042,7 +2234,7 @@ CLIENTE: ${presupuesto.clienteNombre}
 ID EVENTO: ${fiestaId}
 FECHA ORIGINAL: ${originalDateFmt}
 NUEVA FECHA SOLICITADA: ${newDateFmt}
-FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+FECHA DE SOLICITUD: ${fechaSolicitudEnUruguay()}
 
 ------------------------------------------------------------
 DETALLE DEL CAMBIO (CLÁUSULA 4):
@@ -2104,14 +2296,20 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     let antes: any = null;
     const mutado = await mutarPresupuesto(fiesta.presupuestoId, (actual) => {
       antes = actual;
-      armado = armar(actual);
-      return armado.yaEstaba ? null : armado.presupuesto;
+      const calculado = armar(actual);
+      armado = calculado;
+      if (calculado.yaEstaba || ('cancelada' in calculado && calculado.cancelada)) return null;
+      return calculado.presupuesto;
     });
+    const armadoFinal: any = armado;
     if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
-    if (!armado || (armado as any).yaEstaba) {
+    if (armadoFinal && armadoFinal.cancelada) {
+      return { success: false, error: 'La fiesta está cancelada: no se puede cambiar la fecha.' };
+    }
+    if (!armadoFinal || armadoFinal.yaEstaba) {
       return { success: true, yaEstaba: true, penaltyAmount: 0, newBalance: (mutado.presupuesto ?? antes)?.saldo };
     }
-    const { presupuesto, docContent, filename, docId, penaltyAmount } = armado as Extract<ReturnType<typeof armar>, { yaEstaba: false }>;
+    const { presupuesto, docContent, filename, docId, penaltyAmount } = armadoFinal;
 
     // Orden: primero el presupuesto (adentro de la transaccion), despues el documento y la fiesta.
     // Si lo de despues falla, se DEVUELVE el presupuesto a como estaba: el recargo no puede quedar
@@ -2332,6 +2530,68 @@ export async function enviarMensajeCliente(
 }
 
 /**
+ * Envía una consulta privada desde Preguntas Frecuentes del portal del cliente.
+ * Nunca escribe en el chat público de invitados: guarda en la fiesta y avisa al equipo.
+ */
+export async function enviarConsultaPrivadaPortal(
+  fiestaId: string,
+  pregunta: string,
+  options?: { idIntento?: string; autorNombre?: string }
+): Promise<{ success: boolean; mensaje?: MensajePortalCliente; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  const limpio = String(pregunta ?? '').trim();
+  if (!limpio) {
+    return { success: false, error: 'La consulta no puede estar vacía.' };
+  }
+
+  const idConsulta = options?.idIntento
+    ? `consulta_${options.idIntento}`
+    : createRequestId('consulta');
+
+  const nuevaConsulta: MensajePortalCliente = {
+    id: idConsulta,
+    autor: 'cliente',
+    remitenteNombre: options?.autorNombre?.trim() || 'Cliente Portal FAQ',
+    mensaje: `❓ Consulta del portal: ${limpio}`,
+    fecha: new Date().toISOString(),
+  };
+
+  let yaEstaba = false;
+  const res = await actualizarFiesta(fiestaId, data => {
+    const previos = data.mensajesCliente || [];
+    if (options?.idIntento && previos.some(m => m.id === idConsulta)) {
+      yaEstaba = true;
+      return data;
+    }
+    return {
+      ...data,
+      mensajesCliente: [...previos, nuevaConsulta],
+    };
+  }, { publicRsvp: true });
+
+  if (!res.success) {
+    return { success: false, error: res.error || 'No se pudo guardar la consulta.' };
+  }
+
+  if (!yaEstaba) {
+    try {
+      // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
+      await createNotification({
+        mensaje: `❓ Consulta privada del cliente en el portal: "${limpio.slice(0, 60)}${limpio.length > 60 ? '...' : ''}"`,
+        href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+        icono: 'HelpCircle',
+      });
+    } catch {
+      // La consulta ya quedó guardada en la fiesta
+    }
+  }
+
+  return { success: true, mensaje: nuevaConsulta };
+}
+
+/**
  * Devuelve el hilo de mensajes entre el cliente y el equipo para este evento.
  */
 export async function getMensajesCliente(
@@ -2348,6 +2608,65 @@ export async function getMensajesCliente(
  * Guarda las fotos de referencia o ideas de decoración que sube el cliente (hasta 6),
  * y avisa al equipo con createNotification.
  */
+export async function agregarIdeaDecoracionCliente(
+  fiestaId: string,
+  fotoUrl: string
+): Promise<{ success: boolean; error?: string; updatedList?: string[] }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  let resultadoLista: string[] = [];
+  const res = await updateFiestaData(fiestaId, data => {
+    const deco = data.decoracion || {};
+    const actuales = [...(deco.fotosIdeasCliente || [])];
+    if (fotoUrl && !actuales.includes(fotoUrl) && actuales.length < 6) {
+      actuales.push(fotoUrl);
+    }
+    resultadoLista = actuales;
+    return {
+      ...data,
+      decoracion: {
+        ...deco,
+        fotosIdeasCliente: actuales,
+      },
+    };
+  });
+
+  if (res.success) {
+    // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
+    await createNotification({
+      mensaje: `🎨 El cliente agregó una foto de ideas para la decoración.`,
+      href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,
+      icono: 'Palette',
+    });
+  }
+  return { ...res, updatedList: resultadoLista };
+}
+
+export async function eliminarIdeaDecoracionCliente(
+  fiestaId: string,
+  fotoUrl: string
+): Promise<{ success: boolean; error?: string; updatedList?: string[] }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  let resultadoLista: string[] = [];
+  const res = await updateFiestaData(fiestaId, data => {
+    const deco = data.decoracion || {};
+    const actuales = [...(deco.fotosIdeasCliente || [])];
+    const filtradas = actuales.filter(url => url !== fotoUrl);
+    resultadoLista = filtradas;
+    return {
+      ...data,
+      decoracion: {
+        ...deco,
+        fotosIdeasCliente: filtradas,
+      },
+    };
+  });
+  return { ...res, updatedList: resultadoLista };
+}
+
 export async function subirIdeasDecoracionCliente(
   fiestaId: string,
   fotos: string[]
@@ -2358,11 +2677,17 @@ export async function subirIdeasDecoracionCliente(
   const fotosValidas = (fotos || []).slice(0, 6);
   const res = await updateFiestaData(fiestaId, data => {
     const deco = data.decoracion || {};
+    // Mantener compatibilidad si se llama con formato antiguo combinando de forma segura
+    const byUrl = new Set(deco.fotosIdeasCliente || []);
+    for (const f of fotosValidas) {
+      byUrl.add(f);
+    }
+    const finalFotos = Array.from(byUrl).slice(0, 6);
     return {
       ...data,
       decoracion: {
         ...deco,
-        fotosIdeasCliente: fotosValidas,
+        fotosIdeasCliente: finalFotos,
       },
     };
   });
@@ -2370,7 +2695,7 @@ export async function subirIdeasDecoracionCliente(
   if (res.success) {
     // no-mira-el-resultado: aviso interno al panel; las ideas de decoracion ya quedaron guardadas
     await createNotification({
-      mensaje: `🎨 El cliente subió ${fotosValidas.length} foto(s) de ideas para la decoración.`,
+      mensaje: `🎨 El cliente actualizó sus fotos de ideas para la decoración.`,
       href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,
       icono: 'Palette',
     });

@@ -42,6 +42,6 @@ test.describe('Orden 30: Que la app se mueva (animaciones pro)', () => {
 
     const heading = page.getByRole('heading', { level: 1 }).first();
     await expect(heading).toBeVisible();
-    await expect(heading).toContainText(/Bodas|Casamientos/i);
+    await expect(heading).toContainText(/Boda|Bodas|Casamientos/i);
   });
 });

@@ -63,7 +63,7 @@ const POR_DEFECTO = {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { tipo } = await props.params;
   const tarjeta = TARJETAS[tipo] ?? POR_DEFECTO;
-  const titulo = `${tarjeta.titulo} | AK Producciones`;
+  const titulo = tarjeta.titulo;
 
   return {
     title: titulo,

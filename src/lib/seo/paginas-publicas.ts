@@ -25,16 +25,16 @@ export const PAGINAS_PARA_GOOGLE = [
   '/bodas',
   '/quinceaneras',
   '/cumpleanos',
+  '/fiestas',
+  '/fiestas-empresariales',
+  '/fiestas-infantiles',
   '/club-uruguay',
   '/catalogo',
   '/experiencia-ak',
   '/simulador-de-presupuesto',
   '/simulador-ak',
   '/privacidad',
-  '/public/bodas',
-  '/public/xv-anos',
   '/public/fiestas',
-  '/public/cumpleanos',
   '/public/corporativos',
   '/public/aniversarios',
   '/public/blog',
@@ -62,13 +62,16 @@ export const ARCHIVOS_QUE_GOOGLE_LEE = [
 
 /**
  * Cada cuánto conviene que Google vuelva a mirar, y qué peso tiene cada página.
- * La portada y las tres páginas de tipo de evento son las que venden.
+ * La portada y las páginas de tipo de evento son las que venden.
  */
 const PRIORIDAD: Record<string, number> = {
   '/': 1,
   '/bodas': 0.9,
   '/quinceaneras': 0.9,
   '/cumpleanos': 0.9,
+  '/fiestas': 0.9,
+  '/fiestas-empresariales': 0.9,
+  '/fiestas-infantiles': 0.9,
   '/catalogo': 0.8,
   '/club-uruguay': 0.8,
   '/simulador-de-presupuesto': 0.8,

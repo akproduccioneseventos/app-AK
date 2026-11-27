@@ -68,7 +68,8 @@ describe('release security boundaries', () => {
   it('allows individual client documents only through a scoped portal session', () => {
     const route = readSource('src/app/api/documentos-fiesta/[...parts]/route.ts');
     expect(route).toContain('await verifyPortalSession(fiestaId)');
-    expect(route).toContain('allowedDocuments.some');
+    expect(route).toContain('esDocumentoDelCliente');
+    expect(route).toContain('PERMISOS.CONTABILIDAD');
     expect(route).toContain("filename === 'download-all.zip'");
   });
 

@@ -79,12 +79,19 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'audit-logs.json': 'audit_logs',
   'aprobaciones.json': 'aprobaciones',
   'incidentes.json': 'incidentes',
-  'personal-recibos.json': 'personal_recibos',
+  // NOTA: personal-recibos.json vive en json_documents via mutateGenericJsonArray;
+  // mapearlo a coleccion hacia que readData leyera de personal_recibos mientras saveReciboFirmado escribia en json_documents.
   // NOTE: social-gallery/metadata.json, social-interactive/*, social-chat/* are
   // intentionally absent.  Those actions now write directly to Firestore using
   // the Admin SDK (see social-gallery.ts, social-interactive.ts) to guarantee
   // atomicity under 200 concurrent users without a read-modify-write race.
 };
+
+/** Indica si un archivo JSON vive en su propia colección o config de Firestore en vez de `json_documents`. */
+export function esArchivoConColeccionPropia(filePath: string): boolean {
+  const key = filePath.replace(/\\/g, '/');
+  return Boolean(FILE_TO_COLLECTION[key] || CONFIG_FILES[key]);
+}
 
 const CONFIG_FILES: Record<string, string> = {
   'app-settings.json': 'app-settings',
@@ -319,6 +326,9 @@ export async function syncToFirestore(
           const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
 
           if (data.length === 0 && existingIds.size > 0) {
+            if (opciones.lecturaFallida) {
+              throw new Error('No se guardó la lista vacía porque la última lectura falló.');
+            }
             if (ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath)) {
               if (querySnapshot.docs.length > batchSize) {
                 throw new ExceedsTransactionLimitError(querySnapshot.docs.length);
@@ -379,6 +389,9 @@ export async function syncToFirestore(
       const existingIds = new Set<string>(existingSnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
       const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
       if (data.length === 0 && existingIds.size > 0) {
+        if (opciones.lecturaFallida) {
+          throw new Error('No se guardó la lista vacía porque la última lectura falló.');
+        }
         if (ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath)) {
           const existingIdList = [...existingIds];
           for (let i = 0; i < existingIdList.length; i += batchSize) {

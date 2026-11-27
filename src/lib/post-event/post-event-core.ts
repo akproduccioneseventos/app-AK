@@ -1,5 +1,6 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import {
   postEventInputSchema,
   postEventMaterialSchema,
@@ -44,19 +45,6 @@ export async function generateAiPostEventMaterial(params: unknown): Promise<{
 
   const input = parsedInput.data;
 
-  if (!(await hayPresupuestoParaIA())) {
-    const respaldo = buildMessages(
-      { configuracion: { clienteNombre: input.clientName, nombreEvento: input.eventName, tipoEvento: input.eventType } },
-      input.score ?? 100,
-      input.pendingTasks ?? 0,
-    );
-    return {
-      success: false,
-      ...respaldo,
-      error: 'Se llego al tope de gasto de inteligencia artificial del mes. Quedan los textos de siempre.',
-    };
-  }
-
   try {
     const model = getGeminiModelForAgent('marketing');
     const prompt = `Sos el Agente de Marketing de AK Producciones (Salto, Uruguay).
@@ -71,16 +59,31 @@ Devolve un objeto con estas tres claves:
 3. "socialPostIdea": Copy completo y atractivo para un post de Instagram/Facebook sobre el evento (con emojis y hashtags relevantes).
 No inventes nombres, resultados, promociones ni autorizaciones.`;
 
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt,
+      quien: 'material-post-evento',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
       output: { schema: postEventMaterialSchema },
     });
 
+    if (!result.ok) {
+      const respaldo = buildMessages(
+        { configuracion: { clienteNombre: input.clientName, nombreEvento: input.eventName, tipoEvento: input.eventType } },
+        input.score ?? 100,
+        input.pendingTasks ?? 0,
+      );
+      return {
+        success: false,
+        ...respaldo,
+        error: result.topeAlcanzado
+          ? 'Se llego al tope de gasto de inteligencia artificial del mes. Quedan los textos de siempre.'
+          : 'La IA no respondio; se uso el material seguro de respaldo.',
+      };
+    }
+
     const material = postEventMaterialSchema.safeParse(result.output);
     if (!material.success) throw new Error('Respuesta estructurada invalida de Gemini.');
-
-    await registrarConsumoIA('material-post-evento');
 
     return { success: true, ...material.data };
   } catch (error: unknown) {

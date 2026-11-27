@@ -1,62 +1,82 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
+import { EVENT_TIMEZONE, parseEventDateTimeUruguay, parseEventHourParts } from '@/lib/public-experience/event-date';
 
-interface AddToCalendarButtonProps {
+export interface AddToCalendarButtonProps {
   eventName: string;
-  startDate: string; // ISO string
+  startDate: string; // Fecha ISO o calendario (YYYY-MM-DD / DD/MM/YYYY / ISO)
+  horaEvento?: string;
+  durationHours?: number;
   location?: string;
   description?: string;
   primaryColor?: string;
 }
 
-function toCalDate(iso: string): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    const ymd = `${match[1]}${match[2]}${match[3]}`;
-    const d = new Date(iso);
-    if (iso.includes('T') && !Number.isNaN(d.getTime())) {
-      return `${ymd}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-    }
-    return `${ymd}T000000`;
-  }
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = pad(d.getMonth() + 1);
-  const day = pad(d.getDate());
-  return `${y}${m}${day}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+const uyFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: EVENT_TIMEZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+});
+
+function formatCalDateUruguay(date: Date): string {
+  const parts = uyFormatter.formatToParts(date);
+  const find = (type: string) => parts.find((p) => p.type === type)?.value || '00';
+  const rawHour = find('hour');
+  const hour = rawHour === '24' ? '00' : rawHour.padStart(2, '0');
+  return `${find('year')}${find('month').padStart(2, '0')}${find('day').padStart(2, '0')}T${hour}${find('minute').padStart(2, '0')}${find('second').padStart(2, '0')}`;
 }
 
-function addHours(iso: string, hours: number): string {
-  const d = new Date(iso);
-  d.setHours(d.getHours() + hours);
-  return d.toISOString();
+function resolveStartAndEnd(props: Pick<AddToCalendarButtonProps, 'startDate' | 'horaEvento' | 'durationHours'>): { start: string; end: string } {
+  const rawDate = String(props.startDate || '').trim();
+  const hasValidHour = Boolean(parseEventHourParts(props.horaEvento));
+  const hasExplicitNonMidnightTime = /T(\d{2}):(\d{2})/.test(rawDate) && !/T00:00/.test(rawDate);
+  const effectiveHour = hasValidHour
+    ? props.horaEvento
+    : hasExplicitNonMidnightTime
+      ? undefined
+      : '20:00';
+
+  const parsedStart = parseEventDateTimeUruguay(rawDate, effectiveHour) ?? new Date(rawDate);
+  const safeStart = Number.isNaN(parsedStart.getTime()) ? new Date() : parsedStart;
+  const durationHours = Number.isFinite(props.durationHours) && (props.durationHours ?? 0) > 0
+    ? Number(props.durationHours)
+    : 4;
+  const safeEnd = new Date(safeStart.getTime() + durationHours * 60 * 60 * 1000);
+
+  return {
+    start: formatCalDateUruguay(safeStart),
+    end: formatCalDateUruguay(safeEnd),
+  };
 }
 
-function buildGoogleCalUrl(props: AddToCalendarButtonProps): string {
-  const start = toCalDate(props.startDate);
-  const end = toCalDate(addHours(props.startDate, 4));
+export function buildGoogleCalUrl(props: AddToCalendarButtonProps): string {
+  const { start, end } = resolveStartAndEnd(props);
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: props.eventName,
     dates: `${start}/${end}`,
+    ctz: EVENT_TIMEZONE,
   });
   if (props.description) params.set('details', props.description);
   if (props.location) params.set('location', props.location);
-  return `https://www.google.com/calendar/render?${params.toString()}`;
+  return `https://www.google.com/calendar/render?${params.toString()}`.replace(`${start}%2F${end}`, `${start}/${end}`);
 }
 
-function downloadIcs(props: AddToCalendarButtonProps) {
-  const start = toCalDate(props.startDate);
-  const end = toCalDate(addHours(props.startDate, 4));
-  const ics = [
+export function buildIcsContent(props: AddToCalendarButtonProps): string {
+  const { start, end } = resolveStartAndEnd(props);
+  return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//AK Producciones//AK App//ES',
     'BEGIN:VEVENT',
-    `DTSTART:${start}`,
-    `DTEND:${end}`,
+    `DTSTART;TZID=${EVENT_TIMEZONE}:${start}`,
+    `DTEND;TZID=${EVENT_TIMEZONE}:${end}`,
     `SUMMARY:${props.eventName}`,
     props.location ? `LOCATION:${props.location}` : '',
     props.description ? `DESCRIPTION:${props.description}` : '',
@@ -65,6 +85,10 @@ function downloadIcs(props: AddToCalendarButtonProps) {
   ]
     .filter(Boolean)
     .join('\r\n');
+}
+
+function downloadIcs(props: AddToCalendarButtonProps) {
+  const ics = buildIcsContent(props);
 
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);

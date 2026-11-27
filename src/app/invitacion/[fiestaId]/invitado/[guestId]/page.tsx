@@ -5,6 +5,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { ordenarPorHoraDelEvento } from '@/lib/fiesta/orden-del-cronograma';
 import Link from 'next/link';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import { ImagenConRespaldo } from '@/components/ui/imagen-con-respaldo';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -41,6 +42,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import {
+  getPublicGuestEvent,
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
@@ -231,6 +233,7 @@ function GuestPortalContent() {
   const [videoPersonal, setVideoPersonal] = useState<{ url: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [fallbackEventName, setFallbackEventName] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
 
@@ -240,6 +243,10 @@ function GuestPortalContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId || !guestAccessToken) {
+      if (fiestaId) {
+        const publicEvent = await getPublicGuestEvent(fiestaId).catch(() => null);
+        setFallbackEventName(publicEvent?.configuracion?.nombreEvento || null);
+      }
       setLoadError('Enlace invalido.');
       setIsLoading(false);
       return;
@@ -252,12 +259,17 @@ function GuestPortalContent() {
         getSocialConnectionsPublicas().catch(() => [] as SocialConnection[]),
       ]);
       if (!data) throw new Error('Evento o invitado no encontrado.');
+      setFallbackEventName(null);
       setFiesta(data.fiesta);
       setGuest(data.guest);
       setVideoPersonal(data.videoPersonal || null);
       setEntertainmentLinks(data.entertainmentLinks);
       setSocialConnections(connections);
     } catch {
+      if (fiestaId) {
+        const publicEvent = await getPublicGuestEvent(fiestaId).catch(() => null);
+        setFallbackEventName(publicEvent?.configuracion?.nombreEvento || null);
+      }
       setLoadError('No pudimos cargar tu invitación.');
     } finally {
       setIsLoading(false);
@@ -289,6 +301,11 @@ function GuestPortalContent() {
           <h1 className="mt-5 text-2xl font-black text-white" style={{ color: '#ffffff' }}>
             No pudimos abrir tu invitación
           </h1>
+          {fallbackEventName && (
+            <p className="text-sm font-semibold text-amber-300">
+              {`Evento: ${fallbackEventName}`}
+            </p>
+          )}
           <p className="mt-3 text-sm text-slate-300">
             {loadError || 'Verificá el enlace o contactá al organizador del evento.'}
           </p>
@@ -435,6 +452,9 @@ function GuestPortalContent() {
             <span>Portal del invitado // Acceso Exclusivo</span>
           </div>
           <h1 className="mt-3 text-4xl font-black text-white sm:text-6xl drop-shadow-sm">{config?.nombreEvento || 'Tu evento'}</h1>
+          <div className="mt-3">
+            <BotonComoFunciona clave="portal-invitado" variant="dark" />
+          </div>
           <p className="mt-3 text-xl font-medium text-slate-200">Hola, <span className="font-black text-white">{guest.nombre}</span></p>
           {gps.welcomeMessage && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300/90">{gps.welcomeMessage}</p>}
           {(fecha || config?.nombreLugar) && (

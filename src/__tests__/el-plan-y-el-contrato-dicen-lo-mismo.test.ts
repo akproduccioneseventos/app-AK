@@ -9,6 +9,7 @@ import { generarPlanPagos, PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO } from '@/lib/pla
 import { calcularHitosDeContrato, completarMarcadoresPendientes, reemplazosDeFechasDelContrato } from '@/lib/contratos/hitos';
 import { CONTRACT_TEMPLATE } from '@/lib/contract-template';
 import { cobrosDelRecibo } from '@/lib/budget/cobros-del-recibo';
+import { hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 
 const UN_DIA = 24 * 60 * 60 * 1000;
 
@@ -26,27 +27,29 @@ describe('el plan de pagos sigue la cláusula 3 del contrato', () => {
 
   it('el saldo vence treinta días antes del evento, como dice el contrato', () => {
     expect(CONTRACT_TEMPLATE).toContain('treinta (30) días antes del evento');
-    const evento = new Date(Date.now() + 400 * UN_DIA);
-    const plan = generarPlanPagos(evento.toISOString(), 200000);
+    const eventoDate = new Date(Date.now() + 400 * UN_DIA);
+    const eventoDia = parseUruguayDate(hoyEnUruguay(eventoDate));
+    const plan = generarPlanPagos(eventoDate.toISOString(), 200000);
     const saldo = plan.cuotas.find(c => c.id === 'cuota_saldo_final')!;
-    const dias = Math.round((evento.getTime() - new Date(saldo.fechaVencimiento).getTime()) / UN_DIA);
+    const dias = Math.round((eventoDia.getTime() - parseUruguayDate(saldo.fechaVencimiento).getTime()) / UN_DIA);
     expect(dias).toBe(30);
     expect(saldo.descripcion).toContain('30 días');
   });
 
   it('el 30% vence al primer tercio y el 50% a la mitad, los mismos días que imprime el contrato', () => {
     const evento = new Date(Date.now() + 300 * UN_DIA);
+    const hoyDia = parseUruguayDate(hoyEnUruguay());
     const plan = generarPlanPagos(evento.toISOString(), 300000);
     const clave = plan.cuotas.find(c => c.esCuotaClave)!;
     const mitad = plan.cuotas.find(c => c.id === 'cuota_mitad')!;
-    const diasClave = Math.round((new Date(clave.fechaVencimiento).getTime() - Date.now()) / UN_DIA);
-    const diasMitad = Math.round((new Date(mitad.fechaVencimiento).getTime() - Date.now()) / UN_DIA);
+    const diasClave = Math.round((parseUruguayDate(clave.fechaVencimiento).getTime() - hoyDia.getTime()) / UN_DIA);
+    const diasMitad = Math.round((parseUruguayDate(mitad.fechaVencimiento).getTime() - hoyDia.getTime()) / UN_DIA);
     expect(diasClave).toBe(100);
     expect(diasMitad).toBe(150);
     expect(mitad.montoObjetivo).toBe(150000);
     // Lo programado hasta la mitad alcanza el 50%, y el total cierra exacto.
     const hastaMitad = plan.cuotas
-      .filter(c => new Date(c.fechaVencimiento) <= new Date(mitad.fechaVencimiento))
+      .filter(c => parseUruguayDate(c.fechaVencimiento) <= parseUruguayDate(mitad.fechaVencimiento))
       .reduce((s, c) => s + c.montoMinimo, 0);
     expect(hastaMitad).toBe(150000);
     expect(plan.cuotas.reduce((s, c) => s + c.montoMinimo, 0)).toBe(300000);
@@ -116,6 +119,12 @@ describe('el sueldo cargado a mano entra en la ganancia aunque no haya presupues
   it('si lo sincronizado es mayor, manda lo sincronizado', () => {
     const g = calcularGananciaDeEvento({ costosItems: [], others: { totalPersonalCost: 5000 } }, [], [], [{ rolId: 'coord', eventSalary: 1 }], []);
     expect(g.personalEstimado).toBe(5000);
+  });
+  it('calcula los hitos desde una fecha civil AAAA-MM-DD sin correrse por UTC', () => {
+    const h = calcularHitosDeContrato('2027-03-15', '2026-12-01');
+    expect(h.fechaSaldoTotal).toBe('13 de febrero de 2027');
+    expect(h.hito30).not.toBe('');
+    expect(h.hito50).not.toBe('');
   });
 });
 

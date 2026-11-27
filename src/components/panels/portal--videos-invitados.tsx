@@ -23,6 +23,7 @@ import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { guardarVideoParaInvitados, borrarVideoParaInvitados } from '@/app/actions/videos-invitados';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 function VideosInvitadosContent() {
   const params = useParams();
@@ -293,13 +294,14 @@ function VideosInvitadosContent() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-rose-400" />
             Videos para Invitados
           </h1>
           <p className="text-xs text-slate-400">Dedicatorias personales que verán al llegar</p>
         </div>
+        <BotonComoFunciona clave="cliente-fotos-video" variant="dark" />
       </header>
       <AvisoDeDatos para="invitado" />
 
@@ -478,6 +480,7 @@ function VideosInvitadosContent() {
         {videosGuardados.length > 0 && (
           <Card className="bg-slate-900 border-white/10 text-white">
             <CardHeader className="pb-3">
+              {/* no pasa nada si falla: la tarjeta sólo se muestra con videos ya cargados (length > 0). */}
               <CardTitle className="text-base font-bold">Videos Grabados ({videosGuardados.length})</CardTitle>
               <CardDescription className="text-slate-400 text-xs">
                 Dedicatorias listas para mostrarse en el evento.

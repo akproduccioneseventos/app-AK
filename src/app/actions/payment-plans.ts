@@ -5,6 +5,9 @@ import { getFiestaById } from './fiesta/fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { notifyClientPaymentApproved } from './google-workspace-extended';
 import { roundMoney } from '@/lib/budget/financial-guardrails';
+import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
+import { esCuotaDeSena, yaTieneSenaEnPagos } from '@/lib/contabilidad/cuotas-pagos';
+import type { PagoCliente } from '@/types/presupuesto';
 
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -130,18 +133,62 @@ export async function updateCuotaEstado(
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    /**
-     * PRIMERO SE GUARDA, DESPUES SE AVISA. Y SI NO SE GUARDO, NO SE AVISA.
-     *
-     * Hasta el 8 de septiembre de 2026 esto no miraba el resultado de guardar y le mandaba al
-     * cliente el mail de pago aprobado con la cuota impaga. Y el aviso sale **una sola vez**:
-     * sólo cuando la cuota pasa de no-pagada a pagada.
-     *
-     * **Y la cuota se cambia adentro del turno de la fiesta (Codex, 2/10/2026, COB-02).** Antes
-     * se leía la fiesta, se armaba la lista entera de cuotas y se guardaba: dos cuotas marcadas a
-     * la vez daban "cobrada" las dos, con dos mails, y quedaba pagada una sola. Ahora cada una se
-     * relee en el momento de guardar, y "recién pagada" se mide contra lo que había ahí.
-     */
+    const fiestaPrevia = await getFiestaById(fiestaId);
+    if (!fiestaPrevia) return { success: false, error: 'Fiesta no encontrada.' };
+    const planPrevio = fiestaPrevia.planDePagos;
+    if (!planPrevio) return { success: false, error: 'Plan de pagos no encontrado' };
+    const cuotaAntes = planPrevio.cuotas.find((c) => c.id === cuotaId);
+    if (!cuotaAntes) return { success: false, error: 'La cuota no existe en este plan.' };
+
+    const cuotaProyectada = normalizeCuotaPlanPago({ ...cuotaAntes, ...updates });
+    const paidAmountProyectado = cuotaProyectada.estado === 'pagado'
+      ? cuotaProyectada.monto
+      : cuotaProyectada.estado === 'parcial'
+        ? (cuotaProyectada.montoPagado ?? 0)
+        : 0;
+    const pagoIdFijo = `cuota_${cuotaId}`;
+    const fechaPagoIso = buildMontevideoPaymentTimestamp(updates.fechaPago ?? cuotaProyectada.fechaPago);
+
+    // Lo que este guardado le hizo a pagosCliente, para deshacer SÓLO eso si falla la fiesta.
+    // Volver a poner la lista entera vieja borraba un cobro que otro anotó en el medio (pregunta 22).
+    let cambioEnPagos: { tipo: 'agregado' } | { tipo: 'quitado'; pago: PagoCliente } | null = null;
+    if (fiestaPrevia.presupuestoId) {
+      const mut = await mutarPresupuesto(fiestaPrevia.presupuestoId, (presupuesto) => {
+        const pagos = Array.isArray(presupuesto.pagosCliente) ? [...presupuesto.pagosCliente] : [];
+        cambioEnPagos = null;
+
+        if (cuotaProyectada.estado === 'pendiente') {
+          const quitado = pagos.find((p) => p.id === pagoIdFijo);
+          if (!quitado) return null;
+          cambioEnPagos = { tipo: 'quitado', pago: quitado };
+          return { ...presupuesto, pagosCliente: pagos.filter((p) => p.id !== pagoIdFijo) };
+        }
+
+        if ((cuotaProyectada.estado === 'pagado' || cuotaProyectada.estado === 'parcial') && paidAmountProyectado > 0) {
+          if (pagos.some((p) => p.id === pagoIdFijo)) {
+            return null; // Un reintento no cobra dos veces la misma cuota
+          }
+          if (esCuotaDeSena(cuotaProyectada) && yaTieneSenaEnPagos(pagos, paidAmountProyectado)) {
+            return null; // La seña ya figura en pagosCliente desde el recibo del contrato
+          }
+          const nuevoPago: PagoCliente = {
+            id: pagoIdFijo,
+            fecha: fechaPagoIso,
+            monto: paidAmountProyectado,
+            metodoPago: ((updates.metodoPago as any) || (cuotaProyectada as any).metodoPago || 'Transferencia Bancaria'),
+            referencia: cuotaProyectada.descripcion || `Cuota ${cuotaId}`,
+            estadoPago: 'confirmado',
+          };
+          cambioEnPagos = { tipo: 'agregado' };
+          return { ...presupuesto, pagosCliente: [...pagos, nuevoPago] };
+        }
+        return null;
+      });
+      if (!mut.encontrado) {
+        return { success: false, error: 'No se pudo encontrar o guardar el presupuesto asociado para sincronizar el cobro.' };
+      }
+    }
+
     let cuotaOriginal: CuotaPlanPago | undefined;
     let updatedCuota: CuotaPlanPago | undefined;
     const guardado = await actualizarFiesta(fiestaId, (fiesta) => {
@@ -156,6 +203,18 @@ export async function updateCuotaEstado(
       return { ...fiesta, planDePagos: { ...plan, cuotas: updatedCuotas, updatedAt: new Date().toISOString() } };
     });
     if (!guardado.success) {
+      const deshacer = cambioEnPagos as { tipo: 'agregado' } | { tipo: 'quitado'; pago: PagoCliente } | null;
+      if (fiestaPrevia.presupuestoId && deshacer) {
+        await mutarPresupuesto(fiestaPrevia.presupuestoId, (presupuesto) => {
+          const pagos = Array.isArray(presupuesto.pagosCliente) ? presupuesto.pagosCliente : [];
+          if (deshacer.tipo === 'agregado') {
+            const sinEste = pagos.filter((p) => p.id !== pagoIdFijo);
+            return sinEste.length === pagos.length ? null : { ...presupuesto, pagosCliente: sinEste };
+          }
+          if (pagos.some((p) => p.id === pagoIdFijo)) return null;
+          return { ...presupuesto, pagosCliente: [...pagos, deshacer.pago] };
+        }).catch((e) => console.error('[plan de pagos] no se pudo deshacer el cobro en el presupuesto', e));
+      }
       return { success: false, error: guardado.error || 'No se pudo guardar la cuota.' };
     }
 
@@ -163,10 +222,10 @@ export async function updateCuotaEstado(
     const recienPagada = updatedCuota?.estado === 'pagado' && cuotaOriginal?.estado !== 'pagado';
     if (recienPagada && paidAmount > 0) {
       notifyClientPaymentApproved(fiestaId, {
-        id: `cuota_${cuotaId}`,
+        id: pagoIdFijo,
         monto: paidAmount,
         estado: 'aprobado',
-        timestamp: buildMontevideoPaymentTimestamp(updates.fechaPago),
+        timestamp: fechaPagoIso,
         approvedAt: new Date().toISOString(),
         notas: updates.notas || updatedCuota?.descripcion,
       }).catch((error) => {

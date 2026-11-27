@@ -7,6 +7,7 @@ import { ArrowLeft, Sparkles, Check, Loader2, Palette, Smartphone } from 'lucide
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 import {
   getFiestaForPortalSession,
   verificarSesionPortalCliente,
@@ -123,6 +124,7 @@ export default function TuWebPortalPage() {
               <p className="text-xs text-slate-400">Elegí la versión que más te guste para tu fiesta</p>
             </div>
           </div>
+          <BotonComoFunciona clave="cliente-pagina-publica" variant="dark" />
         </div>
       </header>
 

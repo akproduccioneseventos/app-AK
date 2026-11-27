@@ -202,11 +202,18 @@ function AlergiasContent() {
                       })),
                     );
                     if (res.success) {
-                      setAvisoCocinaEnviado(true);
-                      toast({
-                        title: "Aviso enviado a Cocina",
-                        description: `Se dejó el aviso para el equipo con ${choquesMenuAlergias.length} choques de ingredientes.`,
-                      });
+                      if ((res as { enviado?: boolean }).enviado === false) {
+                        toast({
+                          title: "Guardado, pero los avisos de esta clase están apagados en Ajustes",
+                          description: "Revisá las preferencias de notificaciones si querés avisos automáticos a cocina.",
+                        });
+                      } else {
+                        setAvisoCocinaEnviado(true);
+                        toast({
+                          title: "Aviso enviado a Cocina",
+                          description: `Se dejó el aviso para el equipo con ${choquesMenuAlergias.length} choques de ingredientes.`,
+                        });
+                      }
                     } else {
                       toast({ title: "No se pudo avisar a cocina", description: res.error || 'Probá de nuevo.', variant: 'destructive' });
                     }

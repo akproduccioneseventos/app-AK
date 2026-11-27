@@ -111,8 +111,9 @@ export default function EditarInsumoPage() {
     try {
       const result = await saveInsumo(itemDataToSave);
       if (result.success && result.servicio) {
+        setItem(result.servicio);
+        setFormData({ ...result.servicio });
         toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
-        router.push(backUrl);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el ítem.");
       }
@@ -191,7 +192,7 @@ export default function EditarInsumoPage() {
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              Guardar Cambios
+              {isSaving ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>

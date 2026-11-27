@@ -12,8 +12,8 @@ import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
-import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { getBudgetPaymentSummary, normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
+import { resolverIngresoRentabilidad } from '@/lib/costos/ingreso-rentabilidad';
 import { getMisPermisos } from '@/app/actions/sesion';
 import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
 import { esFiestaDemo } from '@/lib/events/event-ordering';
@@ -39,25 +39,28 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoClien
   return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores, pagosCliente, fiesta.personalAsignado).costoReal;
 }
 
-function calcularIngresos(fiesta: FiestaEnPlanificacion, pagosCliente?: PagoCliente[]): number {
-  if (pagosCliente && pagosCliente.length > 0) {
-    return sumConfirmedClientPayments(pagosCliente);
-  }
-  if (fiesta.planDePagos?.cuotas) {
-    const paymentSummary = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
-    return paymentSummary.paid;
-  }
-  return 0;
-}
+function resumenPresupuestoDeFiesta(fiesta: FiestaEnPlanificacion, presupuesto?: any): { ingresos: number; totalPactado: number; pagosCliente?: PagoCliente[] } {
+  const normalizado = presupuesto ? normalizePresupuestoFinancials(presupuesto) : null;
+  const summary = normalizado ? getBudgetPaymentSummary(normalizado, { includeAnnualAdjustment: true }) : null;
+  const ingresoResuelto = resolverIngresoRentabilidad({
+    presupuestoId: fiesta.presupuestoId,
+    presupuesto: normalizado,
+    ingresosGuardados: fiesta.gestionCostos?.ingresosTotalesEstimados ?? fiesta.configuracion.presupuestoEstimado ?? 0,
+    resumenPresupuesto: summary,
+  });
 
-function calcularTotalPactado(fiesta: FiestaEnPlanificacion): number {
-  if (fiesta.planDePagos?.cuotas && fiesta.planDePagos.cuotas.length > 0) {
-    const s = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
-    if (s.total > 0) return s.total;
+  if (normalizado && summary) {
+    return {
+      ingresos: summary.paid,
+      totalPactado: ingresoResuelto.ingreso ?? summary.total,
+      pagosCliente: normalizado.pagosCliente,
+    };
   }
-  return fiesta.gestionCostos?.ingresosTotalesEstimados
-    ?? fiesta.configuracion.presupuestoEstimado
-    ?? 0;
+  return {
+    ingresos: 0,
+    totalPactado: ingresoResuelto.ingresoGuardado,
+    pagosCliente: (fiesta as any).pagosCliente,
+  };
 }
 
 export default function FinanzasPage() {
@@ -96,24 +99,23 @@ export default function FinanzasPage() {
       const veGanancias = pList.includes(PERMISOS.GANANCIAS) || pList.includes(PERMISOS.ADMINISTRACION);
       setPuedeVerGanancias(veGanancias);
 
-      const cobrosPorPresupuesto = new Map(
-        (presupuestos as any[]).map((p: any) => [p.id, p.pagosCliente ?? []])
+      const presupuestosPorId = new Map(
+        (presupuestos as any[]).map((p: any) => [p.id, p])
       );
       const fiestasFiltradas = (Array.isArray(data) ? data : []).filter(f => !esFiestaDemo(f));
       const calculados: FiestaFinanzas[] = fiestasFiltradas.map(f => {
-        const pagosCliente = (f as any).pagosCliente || (f.presupuestoId ? cobrosPorPresupuesto.get(f.presupuestoId) : undefined);
-        const ingresos = calcularIngresos(f, pagosCliente);
-        const totalPactado = calcularTotalPactado(f);
-        const egresos = calcularEgresos(f, pagosCliente);
+        const presupuesto = f.presupuestoId ? presupuestosPorId.get(f.presupuestoId) : undefined;
+        const fin = resumenPresupuestoDeFiesta(f, presupuesto);
+        const egresos = calcularEgresos(f, fin.pagosCliente);
         return {
           id: f.id,
           nombre: f.configuracion.nombreEvento || '(Sin nombre)',
           fecha: f.configuracion.fechaEvento || '',
           estado: f.estado || '—',
-          ingresos,
-          totalPactado,
+          ingresos: fin.ingresos,
+          totalPactado: fin.totalPactado,
           egresos,
-          ganancia: ingresos - egresos,
+          ganancia: fin.ingresos - egresos,
         };
       });
       // Sort by date descending

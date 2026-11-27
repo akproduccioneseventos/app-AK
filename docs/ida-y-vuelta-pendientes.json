@@ -47,7 +47,6 @@
     "fiesta/invitados.actions.ts:deleteInvitado",
     "fiesta/invitados.actions.ts:handleRsvpSubmission",
     "fiesta/invitados.actions.ts:submitPublicRsvp",
-    "fiesta/invitados.actions.ts:updateGuestDetails",
     "fiesta/personal.actions.ts:updatePersonal",
     "fiesta/reuniones.actions.ts:deleteReunion",
     "fiesta/video-vida.actions.ts:deleteAllVideoVidaPhotos",

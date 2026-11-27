@@ -1,6 +1,7 @@
 import type { PlanPagos, CuotaPlanPagoContrato } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
 import { isConfirmedClientPayment, roundMoney } from '@/lib/budget/financial-guardrails';
+import { hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 
 /**
  * Calcula cuántos meses completos hay entre dos fechas.
@@ -59,18 +60,22 @@ export function generarPlanPagos(
   pagoMinimoTrimestral = PAGO_MINIMO_TRIMESTRAL_DEL_CONTRATO,
   porcentajeMinimo = 30,
 ): PlanPagos {
-  const hoy = new Date();
-  const evento = new Date(fechaEvento);
-  if (!Number.isFinite(evento.getTime())) {
+  if (!fechaEvento || Number.isNaN(new Date(fechaEvento).getTime())) {
     throw new Error('La fecha del evento no es valida.');
   }
+  const hoyStr = hoyEnUruguay();
+  const hoy = parseUruguayDate(hoyStr);
+  const eventoDiaStr = /^\d{4}-\d{2}-\d{2}$/.test(fechaEvento.trim())
+    ? fechaEvento.trim()
+    : hoyEnUruguay(parseUruguayDate(fechaEvento));
+  const evento = parseUruguayDate(eventoDiaStr);
 
   const totalContratoSeguro = Math.max(0, roundMoney(totalContrato));
   const pagoMinimoSeguro = Math.max(0, roundMoney(pagoMinimoTrimestral));
   const porcentajeMinimoSeguro = Math.min(100, Math.max(0, porcentajeMinimo));
   const porcentajeMitad = Math.max(50, porcentajeMinimoSeguro);
 
-  const diasHastaEvento = Math.max(0, Math.floor((evento.getTime() - hoy.getTime()) / UN_DIA));
+  const diasHastaEvento = Math.max(0, Math.round((evento.getTime() - hoy.getTime()) / UN_DIA));
   const manana = new Date(hoy.getTime() + UN_DIA);
   const enDias = (dias: number) => {
     const fecha = new Date(hoy.getTime() + dias * UN_DIA);
@@ -127,7 +132,7 @@ export function generarPlanPagos(
       cuotas.push({
         id: `cuota_${indice}`,
         descripcion: `Pago mínimo trimestral #${indice}`,
-        fechaVencimiento: paso.fecha.toISOString(),
+        fechaVencimiento: formatDateISO(paso.fecha),
         montoMinimo: monto,
         esCuotaClave: false,
         estado: 'pendiente',
@@ -142,7 +147,7 @@ export function generarPlanPagos(
       cuotas.push({
         id: 'cuota_clave',
         descripcion: `Cuota clave ${porcentajeMinimoSeguro}% — ${formatDateISO(paso.fecha)}`,
-        fechaVencimiento: paso.fecha.toISOString(),
+        fechaVencimiento: formatDateISO(paso.fecha),
         montoMinimo: monto,
         montoObjetivo: montoObjetivo30,
         esCuotaClave: true,
@@ -157,7 +162,7 @@ export function generarPlanPagos(
       cuotas.push({
         id: 'cuota_mitad',
         descripcion: `${porcentajeMitad}% a la mitad del plazo — ${formatDateISO(paso.fecha)}`,
-        fechaVencimiento: paso.fecha.toISOString(),
+        fechaVencimiento: formatDateISO(paso.fecha),
         montoMinimo: monto,
         montoObjetivo: montoObjetivo50,
         esCuotaClave: false,
@@ -170,7 +175,7 @@ export function generarPlanPagos(
       cuotas.push({
         id: 'cuota_saldo_final',
         descripcion: `Saldo Final (${DIAS_SALDO_ANTES_DEL_EVENTO} días antes del evento)`,
-        fechaVencimiento: paso.fecha.toISOString(),
+        fechaVencimiento: formatDateISO(paso.fecha),
         montoMinimo: falta,
         esCuotaClave: false,
         estado: 'pendiente',
@@ -207,7 +212,7 @@ export function recalcularEstadoCuotas(
   plan: PlanPagos,
   pagos: PagoCliente[],
 ): PlanPagos {
-  const hoy = new Date();
+  const hoyStr = hoyEnUruguay();
   const pagosOrdenados = [...pagos]
     .filter(isConfirmedClientPayment)
     .map(p => ({ ...p, monto: roundMoney(p.monto) }))
@@ -251,7 +256,14 @@ export function recalcularEstadoCuotas(
       pagosAplicados.push(pago.id);
     }
 
-    const vencida = new Date(cuota.fechaVencimiento) < hoy && montoAplicado < montoObjetivo;
+    const rawVenc = String(cuota.fechaVencimiento || '').trim();
+    const soloDia = rawVenc.match(/^(\d{4}-\d{2}-\d{2})$/);
+    const vencStr = soloDia
+      ? hoyEnUruguay(parseUruguayDate(soloDia[1]))
+      : Number.isNaN(new Date(rawVenc).getTime())
+      ? ''
+      : hoyEnUruguay(parseUruguayDate(rawVenc));
+    const vencida = Boolean(vencStr) && vencStr < hoyStr && montoAplicado < montoObjetivo;
 
     let estado: CuotaPlanPagoContrato['estado'];
     if (montoAplicado >= montoObjetivo) {
@@ -303,5 +315,5 @@ export function getPorcentajePagado(
 // ─── Internal helpers ──────────────────────────────────────────────────────────
 
 function formatDateISO(date: Date): string {
-  return date.toISOString().split('T')[0];
+  return hoyEnUruguay(date);
 }

@@ -275,6 +275,6 @@ describe('Bloque 6 (Orden 96) — El blog tampoco promete', () => {
     };
 
     await expect(generateBlogPostAndSocialDraft({ tipo: 'consejo' })).rejects.toThrow(/seguras para interiores/i);
-    expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockWriteData.mock.calls.filter(([file]) => file !== 'ai-consumo.json')).toHaveLength(0);
   });
 });

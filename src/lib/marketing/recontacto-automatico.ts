@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { readData, writeData } from '@/lib/data-service';
+import { mutateDataItem, readData, writeData } from '@/lib/data-service';
+import { esLecturaFallida } from '@/lib/marca-de-lectura';
 import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
 import {
   elegirCandidatosDeRecontacto,
@@ -12,6 +13,7 @@ import type { CrmLead, CrmStage } from '@/types/crm';
 export type { PasoRecontactoConfig };
 
 const LEADS_FILE = 'crm-leads.json';
+const CRM_LEADS_COLLECTION = 'prospectos';
 const STAGES_FILE = 'crm-stages.json';
 const AJUSTES_FILE = 'marketing-recontacto.json';
 
@@ -53,6 +55,28 @@ export interface ResultadoDeRecontacto {
   descartados: number;
 }
 
+function aplicarMarcaDeRecontacto(
+  actual: CrmLead,
+  pasoEnviado: number,
+  marcaDeTiempo: string,
+): CrmLead {
+  const recontactosEnviados = [...(actual.recontactosEnviados || [])];
+  if (actual.recontactoAutomaticoAt && !recontactosEnviados.some((r) => r.paso === 1)) {
+    recontactosEnviados.push({ paso: 1, at: actual.recontactoAutomaticoAt });
+  }
+  recontactosEnviados.push({ paso: pasoEnviado, at: marcaDeTiempo });
+
+  return {
+    ...actual,
+    recontactosEnviados,
+    recontactoAutomaticoAt:
+      pasoEnviado === 1 ? marcaDeTiempo : (actual.recontactoAutomaticoAt ?? marcaDeTiempo),
+    lastContactedAt: marcaDeTiempo,
+    lastContactMethod: 'whatsapp' as const,
+    updatedAt: marcaDeTiempo,
+  };
+}
+
 export async function correrRecontactoAutomatico(
   ahora: Date = new Date(),
 ): Promise<ResultadoDeRecontacto> {
@@ -73,6 +97,9 @@ export async function correrRecontactoAutomatico(
     readData<CrmLead[]>(LEADS_FILE, []),
     readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES),
   ]);
+  if (esLecturaFallida(leads)) {
+    return { ...vacio, corrio: false, motivo: 'no se pudieron leer los prospectos desde la base de datos' };
+  }
   const stages = stagesGuardadas.length > 0 ? stagesGuardadas : DEFAULT_CRM_STAGES;
 
   const { candidatos, descartados } = elegirCandidatosDeRecontacto(
@@ -96,29 +123,61 @@ export async function correrRecontactoAutomatico(
 
   if (enviadosOk.size > 0) {
     const marcaDeTiempo = ahora.toISOString();
-    const candidatosPorId = new Map(candidatos.map((c: any) => [c.id, c]));
-    const actualizados = leads.map((lead) => {
-      if (!enviadosOk.has(lead.id)) return lead;
+    const candidatosPorId = new Map(candidatos.map((c) => [c.id, c]));
 
-      const cand = candidatosPorId.get(lead.id);
-      const pasoEnviado = cand?.paso ?? 1;
-      const recontactosEnviados = [...(lead.recontactosEnviados || [])];
-      if (lead.recontactoAutomaticoAt && !recontactosEnviados.some((r) => r.paso === 1)) {
-        recontactosEnviados.push({ paso: 1, at: lead.recontactoAutomaticoAt });
+    if (typeof mutateDataItem === 'function') {
+      // Guardar de a un prospecto sobre su registro fresco en base para nunca pisar
+      // lastInboundAt ni prospectos creados en el medio.
+      for (const leadId of enviadosOk) {
+        const cand = candidatosPorId.get(leadId);
+        const pasoEnviado = cand?.paso ?? 1;
+        await mutateDataItem<CrmLead>(
+          LEADS_FILE,
+          CRM_LEADS_COLLECTION,
+          leadId,
+          (actual) => aplicarMarcaDeRecontacto(actual, pasoEnviado, marcaDeTiempo),
+        );
       }
-      recontactosEnviados.push({ paso: pasoEnviado, at: marcaDeTiempo });
+    } else {
+      // Compatibilidad únicamente con mocks unitarios sin mutateDataItem
+      const actualizados = leads.map((lead) => {
+        if (!enviadosOk.has(lead.id)) return lead;
+        const cand = candidatosPorId.get(lead.id);
+        return aplicarMarcaDeRecontacto(lead, cand?.paso ?? 1, marcaDeTiempo);
+      });
+      await writeData(LEADS_FILE, actualizados);
+    }
+  }
 
-      return {
-        ...lead,
-        recontactosEnviados,
-        recontactoAutomaticoAt:
-          pasoEnviado === 1 ? marcaDeTiempo : (lead.recontactoAutomaticoAt ?? marcaDeTiempo),
-        lastContactedAt: marcaDeTiempo,
-        lastContactMethod: 'whatsapp' as const,
-        updatedAt: marcaDeTiempo,
-      };
-    });
-    await writeData(LEADS_FILE, actualizados);
+  if (resultado.sentCount === 0) {
+    const primerError = resultado.details.find((d) => d.error)?.error;
+    const motivo = primerError
+      ? `No se pudo enviar ningún recontacto (${primerError})`
+      : 'Había prospectos elegibles para recontactar, pero no se pudo enviar ningún mensaje';
+
+    try {
+      const { createNotification } = await import('@/lib/notifications/create-notification');
+      // no-mira-el-resultado: aviso interno al panel; lo importante ya quedó guardado o registrado.
+      await createNotification({
+        titulo: 'Recontacto automático sin envíos',
+        mensaje: `Había ${candidatos.length} ${candidatos.length === 1 ? 'prospecto elegible' : 'prospectos elegibles'} para recontactar por WhatsApp, pero no se pudo enviar ninguno. Motivo: ${primerError || 'credenciales faltantes/vencidas o error de envío'}.`,
+        tipo: 'alerta',
+        rolDestino: 'admin',
+        href: '/settings/whatsapp',
+        icono: 'AlertTriangle',
+      }).catch(() => null);
+    } catch {
+      // Aviso secundario al dueño: nunca impide devolver corrio: false con el motivo
+    }
+
+    return {
+      corrio: false,
+      motivo,
+      elegidos: candidatos.length,
+      enviados: resultado.sentCount,
+      fallados: resultado.failedCount,
+      descartados: descartados.length,
+    };
   }
 
   return {

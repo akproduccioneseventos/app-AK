@@ -6,6 +6,7 @@ import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,9 @@ export default async function VideoVidaHubPage() {
               <h1 className="mt-5 max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-6xl">
                 Elegi una fiesta para armar o mostrar su Video de Vida.
               </h1>
+              <div className="mt-4">
+                <BotonComoFunciona clave="video-vida" />
+              </div>
               <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg">
                 Esta pagina evita que el acceso general de Centro de Control termine en una pantalla vacia. El Video de Vida siempre necesita una fiesta concreta para cargar fotos, ordenar material y abrir la experiencia publica.
               </p>

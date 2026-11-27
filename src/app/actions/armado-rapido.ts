@@ -101,6 +101,20 @@ export async function saveArmadoRapidoConfig(
   }
 }
 
+async function getConnectionKeyForShield(): Promise<string> {
+  try {
+    const { headers } = await import('next/headers');
+    const requestHeaders = await headers();
+    return (
+      requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      requestHeaders.get('x-real-ip') ||
+      'simulator-connection'
+    );
+  } catch {
+    return 'simulator-connection';
+  }
+}
+
 export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items?: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options?: {
@@ -111,7 +125,8 @@ export async function generateBudgetAndLeadFromSimulator(
   }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; presupuesto?: Presupuesto; error?: string }> {
   try {
-    const shield = checkBotShield(data.clienteContacto || data.clienteNombre || 'simulator-user', { maxRequests: 20, windowSeconds: 60 });
+    const connectionKey = await getConnectionKeyForShield();
+    const shield = checkBotShield(connectionKey, { maxRequests: 20, windowSeconds: 60 });
     if (!shield.allowed) {
       return { success: false, error: 'Demasiadas solicitudes seguidas. Por favor intentá en unos segundos.' };
     }

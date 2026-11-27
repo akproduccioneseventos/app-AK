@@ -11,6 +11,29 @@ import { convertir, normalizarUnidad } from '@/lib/compras/unidades';
 
 const PESO_CHICO = new Set(['g', 'gr', 'grs', 'gramo', 'gramos']);
 const VOLUMEN_CHICO = new Set(['ml', 'cc', 'mililitro', 'mililitros']);
+const UNIDAD_CONTABLE = new Set(['u', 'ud', 'uds', 'unidad', 'unidades']);
+// Docena equivale a 12 unidades en recetas y catálogo (Orden 368 B5.3).
+const DOCENA_CONTABLE = new Set(['doc', 'docena', 'docenas', 'media docena', 'media-docena']);
+
+function factorContable(unidad: string): number | null {
+  if (UNIDAD_CONTABLE.has(unidad)) return 1;
+  if (unidad === 'docena' || unidad === 'doc' || unidad === 'docenas') return 12;
+  if (unidad === 'media docena' || unidad === 'media-docena') return 6;
+  return null;
+}
+
+function convertirCatering(cantidad: number, de?: string | null, a?: string | null): number | null {
+  const base = convertir(cantidad, de, a);
+  if (base !== null) return base;
+  const origen = (de || '').toLowerCase().trim().replace(/\.$/, '');
+  const destino = (a || '').toLowerCase().trim().replace(/\.$/, '');
+  const fOrigen = factorContable(origen);
+  const fDestino = factorContable(destino);
+  if (fOrigen !== null && fDestino !== null) {
+    return (cantidad * fOrigen) / fDestino;
+  }
+  return null;
+}
 
 function esUnidadReconocida(unidad: string): boolean {
   const { unidad: base } = normalizarUnidad(unidad);
@@ -19,7 +42,9 @@ function esUnidadReconocida(unidad: string): boolean {
 
 /**
  * Calcula el costo de un ingrediente en una receta convirtiendo entre la unidad
- * de la receta (ej. gr, grs, g, kg, mililitros, ml, l) y la del catálogo.
+ * de la receta (ej. gr, grs, g, kg, mililitros, ml, l, Unidad, Docena) y la del catálogo.
+ * Si ambas unidades están definidas y siguen sin poder convertirse, devuelve 0
+ * para no inventar costos (queda reflejado en `unidadesQueNoSePuedenConvertir`).
  */
 export function calcularCostoIngredienteEnReceta(
   quantity: number,
@@ -32,30 +57,32 @@ export function calcularCostoIngredienteEnReceta(
   const recipeUnit = (recipeUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
   const catalogUnit = (catalogUnitRaw || '').toLowerCase().trim().replace(/\.$/, '');
 
-  // Lo que no se puede convertir se calcula como siempre: gramos o mililitros contra
-  // cualquier unidad grande se dividen por mil. Multiplicar directo daba platos mil
-  // veces más caros (receta en gramos con el insumo en litros o por unidad).
   const recetaChica = PESO_CHICO.has(recipeUnit) || VOLUMEN_CHICO.has(recipeUnit) || recipeUnit === 'no definido';
   const catalogoChico = PESO_CHICO.has(catalogUnit) || VOLUMEN_CHICO.has(catalogUnit);
   const comoAntes = () => (recetaChica && !catalogoChico ? quantity / 1000 : quantity) * unitCost;
 
   if (!recipeUnit || recipeUnit === 'no definido') return comoAntes();
 
+  const sinCantidad = new Set(['caja', 'pack', 'rollo', 'bolsa', 'lata', 'botella', 'bidon', 'frasco', 'blister', 'pote']);
+  if (sinCantidad.has(recipeUnit) || (catalogUnit && sinCantidad.has(catalogUnit))) {
+    const converted = convertirCatering(quantity, recipeUnit, catalogUnit || recipeUnit);
+    if (converted === null) return 0;
+  }
+
   // Si el catálogo no especifica unidad pero la receta está en gramos/mililitros, se asume kg/l.
   let targetUnit = catalogUnit;
   if (!targetUnit) {
     if (PESO_CHICO.has(recipeUnit)) targetUnit = 'kg';
     else if (VOLUMEN_CHICO.has(recipeUnit)) targetUnit = 'l';
+    else return quantity * unitCost;
   }
 
-  if (targetUnit) {
-    const converted = convertir(quantity, recipeUnit, targetUnit);
-    if (converted !== null) {
-      return converted * unitCost;
-    }
+  const converted = convertirCatering(quantity, recipeUnit, targetUnit);
+  if (converted !== null) {
+    return converted * unitCost;
   }
 
-  return comoAntes();
+  return 0;
 }
 
 /**
@@ -76,7 +103,7 @@ export function unidadesQueNoSePuedenConvertir(
   if (unidadReceta === unidadCatalogo) return null;
   if (unidadReceta === 'no definido') return null;
 
-  if (convertir(1, unidadReceta, unidadCatalogo) !== null) return null;
+  if (convertirCatering(1, unidadReceta, unidadCatalogo) !== null) return null;
 
   const baseReceta = normalizarUnidad(unidadReceta).unidad;
   const baseCatalogo = normalizarUnidad(unidadCatalogo).unidad;

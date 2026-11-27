@@ -29,9 +29,10 @@ describe('Orden 106 + Orden 321 — Páginas /experiencia y /tecnologia', () => 
     expect(content).not.toContain('cero fallas');
     expect(content).not.toContain('precios congelados');
 
-    // Debe contener las credenciales comerciales aprobadas
-    expect(content).toContain('+7 años');
-    expect(content).toContain('+200 eventos');
+    // Debe contener las credenciales comerciales calculadas dinámicamente desde cifras-de-ak
+    expect(content).toContain('cifras-de-ak');
+    expect(content).toContain('años de experiencia');
+    expect(content).toContain('eventos realizados');
   });
 
   test('/experiencia cubre los 6 pasos y tiene enlace a simulador y WhatsApp', () => {

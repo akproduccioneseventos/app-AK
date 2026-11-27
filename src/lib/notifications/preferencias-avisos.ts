@@ -1,5 +1,6 @@
 import 'server-only';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import { initialNotificationPreferences, type NotificationPreferences } from '@/types/preferencias-avisos';
 
 export const NOTIFICATION_PREFERENCES_FILE = 'notification-preferences.json';
@@ -39,15 +40,14 @@ export async function guardarPreferenciasUsuario(
   userId: string,
   prefs: NotificationPreferences
 ): Promise<void> {
-  const allPrefs = await readData<Record<string, NotificationPreferences>>(
+  await mutarDocumento<Record<string, NotificationPreferences>>(
     NOTIFICATION_PREFERENCES_FILE,
-    {}
+    {},
+    (allPrefs) => ({
+      ...(allPrefs || {}),
+      [userId]: prefs,
+    })
   );
-  const updated = {
-    ...(allPrefs || {}),
-    [userId]: prefs,
-  };
-  await writeData(NOTIFICATION_PREFERENCES_FILE, updated);
 }
 
 export async function debeEnviarAvisoInterno(

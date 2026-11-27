@@ -29,6 +29,11 @@ export function normalizarUnidad(unidad?: string | null): UnidadBase {
   if (PESO_BASE.has(limpia)) return { unidad: 'kg', factor: 1 };
   if (VOLUMEN.has(limpia)) return { unidad: 'l', factor: 1 / 1000 };
   if (VOLUMEN_BASE.has(limpia)) return { unidad: 'l', factor: 1 };
+  if (limpia === 'docena' || limpia === 'doc' || limpia === 'docenas') return { unidad: 'unidad', factor: 12 };
+  if (limpia === 'media docena' || limpia === 'media-docena') return { unidad: 'unidad', factor: 6 };
+  if (limpia === 'unidad' || limpia === 'unidades' || limpia === 'u' || limpia === 'ud' || limpia === 'uds') return { unidad: 'unidad', factor: 1 };
+  const sinCantidad = new Set(['caja', 'pack', 'rollo', 'bolsa', 'lata', 'botella', 'bidon', 'frasco', 'blister', 'pote']);
+  if (sinCantidad.has(limpia)) return { unidad: limpia, factor: 0 };
   return { unidad: limpia, factor: 1 };
 }
 
@@ -71,6 +76,7 @@ export function mostrarCantidad(cantidad: number, unidadBase: string): string {
 export function convertir(cantidad: number, de?: string | null, a?: string | null): number | null {
   const origen = normalizarUnidad(de);
   const destino = normalizarUnidad(a);
+  if (origen.factor <= 0 || destino.factor <= 0) return null;
   if (origen.unidad !== destino.unidad) return null;
   return (cantidad * origen.factor) / destino.factor;
 }

@@ -8,6 +8,9 @@ export interface GaleriaFoto {
   tipoFiesta?: string;
   subCategoria?: string;
   servicio?: string;
+  servicioId?: string;
+  clasificadaPor?: 'ia' | 'persona';
+  tituloIA?: string;
   eventoId?: string;
   destacada: boolean;
   orden: number;

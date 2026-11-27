@@ -9,7 +9,9 @@ export type NombreReglaRobot =
   | 'volver-no-pierde'
   | 'descargas-pdf'
   | 'publico-sin-borradores'
-  | 'lectura-fallida-no-es-cero';
+  | 'lectura-fallida-no-es-cero'
+  | 'nada-de-prueba-en-lo-publico'
+  | 'mismo-numero-en-dos-lugares';
 
 export const REGLAS_ROBOT: NombreReglaRobot[] = [
   'contexto',
@@ -20,6 +22,8 @@ export const REGLAS_ROBOT: NombreReglaRobot[] = [
   'descargas-pdf',
   'publico-sin-borradores',
   'lectura-fallida-no-es-cero',
+  'nada-de-prueba-en-lo-publico',
+  'mismo-numero-en-dos-lugares',
 ];
 
 export interface ResultadoRegla {
@@ -291,6 +295,46 @@ export function evaluarLecturaFallidaNoEsCero(params: {
   return { estado: 'verde' };
 }
 
+const TEXTO_PRUEBA_PUBLICO_RE = /(?:^|[\s|•·—\-/()])(?:PRUEBA|TEST)(?=[\s:_-]+[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ]|$)/;
+
+/** Regla 9 (pura): En lo público nunca puede aparecer un texto que empiece por "PRUEBA" o "TEST". */
+export function evaluarNadaDePruebaEnLoPublico(params: {
+  textoVisible: string;
+}): ResultadoRegla {
+  const lineas = String(params.textoVisible || '').split(/\r?\n/);
+  for (const linea of lineas) {
+    const limpia = normalizarTexto(linea);
+    if (!limpia) continue;
+    const match = limpia.match(TEXTO_PRUEBA_PUBLICO_RE);
+    if (match) {
+      return {
+        estado: 'rojo',
+        elemento: match[0].trim(),
+        motivo: `Apareció texto de prueba visible en pantalla pública: "${limpia.slice(0, 80)}".`,
+      };
+    }
+  }
+  return { estado: 'verde' };
+}
+
+/** Regla 10 (pura): Si la barra superior muestra un contador de alertas, el Centro de Alertas debe mostrar la misma cantidad. */
+export function evaluarMismoNumeroEnDosLugares(params: {
+  contadorBarraSuperior: number | null;
+  contadorCentroAlertas: number | null;
+}): ResultadoRegla {
+  if (params.contadorBarraSuperior === null || params.contadorCentroAlertas === null) {
+    return { estado: 'verde' };
+  }
+  if (params.contadorBarraSuperior !== params.contadorCentroAlertas) {
+    return {
+      estado: 'rojo',
+      elemento: 'campana-alertas',
+      motivo: `La barra superior muestra ${params.contadorBarraSuperior} alerta(s) pero el Centro de Alertas muestra ${params.contadorCentroAlertas}.`,
+    };
+  }
+  return { estado: 'verde' };
+}
+
 // =============================================================================
 // Ejecutores de Playwright sobre pantalla real
 // =============================================================================
@@ -340,6 +384,12 @@ export async function ejecutarReglaIdaYVuelta(page: Page, rutaUrl: string): Prom
   await campo.fill(marca, { timeout: 5_000 });
   await botonGuardar.click({ timeout: 5_000 });
   await page.waitForLoadState('networkidle', { timeout: 2_000 }).catch(() => {});
+  // Se espera a que el guardado TERMINE (el botón vuelve y no dice "Guardando"), no un tiempo fijo:
+  // guardar un insumo recalcula los menús y tarda más de 700 ms; recargar antes cortaba el guardado.
+  await page
+    .waitForFunction(() => !/Guardando|Actualizando/i.test(document.body.innerText), undefined, { timeout: 15_000 })
+    .catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
   await page.waitForTimeout(700);
 
   // Recarga real para comprobar que quedó guardado en la base.
@@ -653,4 +703,86 @@ export async function ejecutarReglaLecturaFallidaNoEsCero(
   } finally {
     await page.unroute('**/*', handler).catch(() => {});
   }
+}
+
+export async function ejecutarReglaNadaDePruebaEnLoPublico(
+  browser: Browser,
+  baseURL: string,
+  testUrl: string,
+  pathname: string,
+): Promise<ResultadoRegla> {
+  const esPublicaObjetivo =
+    pathname === '/' ||
+    pathname === '/presentacion-led' ||
+    pathname === '/simulador-de-presupuesto' ||
+    pathname === '/bodas' ||
+    pathname === '/quinceaneras' ||
+    pathname === '/cumpleanos' ||
+    pathname === '/empresas' ||
+    pathname === '/infantiles' ||
+    pathname === '/fiestas' ||
+    pathname === '/catalogo' ||
+    pathname === '/experiencia' ||
+    pathname === '/experiencia-ak' ||
+    pathname.startsWith('/public');
+
+  if (!esPublicaObjetivo) {
+    return { estado: 'verde' };
+  }
+
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const page = await context.newPage();
+  try {
+    await page.goto(`${baseURL}${testUrl}`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+    await page.waitForLoadState('networkidle', { timeout: 2_000 }).catch(() => {});
+    await page.waitForTimeout(400);
+    const { textoVisible } = await leerTextoYLinks(page);
+    return evaluarNadaDePruebaEnLoPublico({ textoVisible });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      estado: 'rojo',
+      elemento: 'navegacion',
+      motivo: `Error abriendo vista pública ${testUrl}: ${msg}`,
+    };
+  } finally {
+    await context.close().catch(() => {});
+  }
+}
+
+export async function ejecutarReglaMismoNumeroEnDosLugares(
+  page: Page,
+  baseURL: string,
+  pathname: string,
+): Promise<ResultadoRegla> {
+  if (pathname !== '/mi-dia' && pathname !== '/admin') {
+    return { estado: 'verde' };
+  }
+
+  const campana = page.locator('header[data-app-shell-header] button[aria-label="Abrir notificaciones"]').first();
+  if ((await campana.count()) === 0) {
+    return { estado: 'verde' };
+  }
+
+  await page.waitForTimeout(500);
+  const badge = campana.locator('[data-testid="campana-alertas-badge"]').first();
+  let contadorBarraSuperior = 0;
+  if ((await badge.count()) > 0) {
+    const raw = ((await badge.innerText().catch(() => '0')) || '0').replace(/\+/g, '').trim();
+    const parsed = Number.parseInt(raw, 10);
+    if (Number.isFinite(parsed)) contadorBarraSuperior = parsed;
+  }
+
+  await page.goto(`${baseURL}/mi-dia?tab=alertas`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+  await page.waitForLoadState('networkidle', { timeout: 2_500 }).catch(() => {});
+  const urgentesNode = page.locator('[data-testid="centro-alertas-urgentes"]').first();
+  await urgentesNode.waitFor({ state: 'visible', timeout: 8_000 }).catch(() => {});
+  const rawCentro = ((await urgentesNode.innerText().catch(() => '')) || '').trim();
+  const parsedCentro = Number.parseInt(rawCentro, 10);
+  const contadorCentroAlertas = Number.isFinite(parsedCentro) ? parsedCentro : null;
+
+  return evaluarMismoNumeroEnDosLugares({
+    contadorBarraSuperior,
+    contadorCentroAlertas,
+  });
 }

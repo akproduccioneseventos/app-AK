@@ -4,6 +4,7 @@ import { getFiestas, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fies
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { readData } from '@/lib/data-service';
+import { diasHastaEnUruguay } from '@/lib/utils';
 import type { FeedbackSubmission } from '@/types/feedback';
 
 export interface FiestaSeguimientoResena {
@@ -49,22 +50,17 @@ export async function getFiestasSeguimientoResenas(): Promise<ResenasSeguimiento
     feedbacksMap.set(fb.fiestaId, list);
   }
 
-  const ahora = new Date();
-  const hace30Dias = new Date();
-  hace30Dias.setDate(ahora.getDate() - 30);
-
   const fiestasRecientes: FiestaSeguimientoResena[] = [];
 
   for (const fiesta of allFiestas) {
     const fechaStr = fiesta.configuracion?.fechaEvento;
     if (!fechaStr) continue;
 
-    const fechaEvento = new Date(fechaStr);
-    if (isNaN(fechaEvento.getTime())) continue;
+    const diasHasta = diasHastaEnUruguay(fechaStr);
+    if (Number.isNaN(diasHasta)) continue;
 
     // Solo eventos pasados en los últimos 30 días (o hasta hoy)
-    const diffTime = ahora.getTime() - fechaEvento.getTime();
-    const diasDesdeEvento = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diasDesdeEvento = diasHasta === 0 ? 0 : -diasHasta;
 
     if (diasDesdeEvento < 0 || diasDesdeEvento > 30) continue;
 

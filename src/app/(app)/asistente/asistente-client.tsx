@@ -104,7 +104,7 @@ const INTERRUPTORES_IA_EN_AJUSTES = [
   },
 ];
 
-function AsistenteBandejaInner() {
+export function AsistenteBandejaInner() {
   const { toast } = useToast();
   const [areaFiltro, setAreaFiltro] = useState<AsistenteArea | 'todas'>('todas');
   const [propuestas, setPropuestas] = useState<AsistentePropuesta[]>([]);
@@ -221,7 +221,15 @@ function AsistenteBandejaInner() {
 
   const handleVistoResumen = async () => {
     if (!resumen) return;
-    await marcarResumenVistoAction(resumen.id);
+    const res = await marcarResumenVistoAction(resumen.id);
+    if (!res?.success) {
+      toast({
+        title: 'No se pudo marcar como visto',
+        description: res?.error || 'Probá de nuevo en unos segundos.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setResumen(null);
     toast({
       title: 'Resumen visto',
@@ -231,20 +239,29 @@ function AsistenteBandejaInner() {
 
   const handleGuardarMeta = async () => {
     setGuardandoMeta(true);
-    const res = await guardarMetaMesAction(metaInput);
-    if (res.success) {
-      toast({
-        title: 'Meta guardada',
-        description: 'Meta del mes guardada con éxito.',
-      });
-    } else {
+    try {
+      const res = await guardarMetaMesAction(metaInput);
+      if (res.success) {
+        toast({
+          title: 'Meta guardada',
+          description: 'Meta del mes guardada con éxito.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Error al guardar meta.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al guardar meta.',
         variant: 'destructive',
       });
+    } finally {
+      setGuardandoMeta(false);
     }
-    setGuardandoMeta(false);
   };
 
   const badgeColorArea = (area: AsistenteArea) => {
@@ -372,7 +389,7 @@ function AsistenteBandejaInner() {
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
             >
-              Guardar meta
+              Guardar
             </Button>
           </div>
         </CardContent>
@@ -388,7 +405,7 @@ function AsistenteBandejaInner() {
             </Badge>
           </h3>
           <Button variant="ghost" size="sm" onClick={cargarDatos} className="text-xs text-slate-500">
-            Actualizar
+            Refrescar
           </Button>
         </div>
 
@@ -551,11 +568,37 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
   const handlePonerAlDia = async () => {
     setSyncingAll(true);
     try {
-      const res = await dispararTareasVencidasDeFondo();
-      if (res.ejecutadas.length > 0) {
-        toast({ title: 'Listo', description: `Se pusieron al día ${res.ejecutadas.length} tareas atrasadas.` });
+      const res = (await dispararTareasVencidasDeFondo()) as {
+        ejecutadas?: string[];
+        errores?: string[];
+        success?: boolean;
+        error?: string;
+      };
+      const ejecutadas = Array.isArray(res?.ejecutadas) ? res.ejecutadas : [];
+      const errores = Array.isArray(res?.errores) ? res.errores : [];
+
+      if (res?.success === false || res?.error) {
+        toast({
+          title: 'No se pudo poner al día',
+          description: res.error || errores.join(' | ') || 'No tenés permiso o ocurrió un error.',
+          variant: 'destructive',
+        });
+      } else if (errores.length > 0 && ejecutadas.length === 0) {
+        toast({
+          title: 'No se pudieron ejecutar las tareas',
+          description: errores.join(' | '),
+          variant: 'destructive',
+        });
+      } else if (errores.length > 0) {
+        toast({
+          title: 'Se ejecutó con errores',
+          description: `Se pusieron al día ${ejecutadas.length} tarea(s), pero fallaron ${errores.length}: ${errores.join(' | ')}`,
+          variant: 'destructive',
+        });
+      } else if (ejecutadas.length > 0) {
+        toast({ title: 'Listo', description: `Se pusieron al día ${ejecutadas.length} tareas atrasadas.` });
       } else {
-        toast({ title: 'Todo al día', description: 'Las tareas automáticas desatendidas ya están al día.' });
+        toast({ title: 'Sin tareas pendientes', description: 'No se ejecutó ninguna tarea atrasada.' });
       }
       await cargar();
     } catch (err: any) {
@@ -651,7 +694,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <CardTitle className="text-base font-bold text-slate-900">
-                Tareas automáticas ({tareas.length})
+                Tareas automáticas{loading && tareas.length === 0 ? '' : ` (${tareas.length})`}
               </CardTitle>
               <CardDescription className="text-xs">
                 Todas las tareas declaradas en el sistema, con su última corrida y qué pasa si se frenan.
@@ -762,7 +805,7 @@ function AsistenteAutomaticoPanel({ initialTareas }: { initialTareas: EstadoDeTa
           <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos ({agentes.length})</CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900">Agentes autónomos{loading ? '' : ` (${agentes.length})`}</CardTitle>
                 <CardDescription className="text-xs">
                   Prendé o pausá cada agente directamente desde acá.
                 </CardDescription>

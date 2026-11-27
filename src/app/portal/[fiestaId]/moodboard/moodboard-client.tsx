@@ -10,11 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Wand2, Heart, UploadCloud, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { updateDecoracion } from '@/app/actions/fiesta/decoracion.actions';
+import { mutarDecoracion, updateDecoracion } from '@/app/actions/fiesta/decoracion.actions';
 import type { FiestaEnPlanificacion, MoodboardItem } from '@/types/fiesta';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 export default function ClientMoodboardPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
@@ -57,7 +58,7 @@ export default function ClientMoodboardPage() {
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
 
     try {
-        const res = await updateDecoracion(fiestaId, updatedDecoracion);
+        const res = await mutarDecoracion(fiestaId, { moodboardToggleLikeId: itemId });
         if (!res.success) {
           throw new Error(res.error || "No se pudo guardar la preferencia.");
         }
@@ -84,18 +85,15 @@ export default function ClientMoodboardPage() {
         timestamp: new Date().toISOString()
     };
 
-    const updatedDecoracion = {
-        ...baseDecoracion,
-        moodboardItems: [...(baseDecoracion.moodboardItems || []), newItem]
-    };
+    const newMoodboardItems = [...(baseDecoracion.moodboardItems || []), newItem];
 
     setIsProcessing(true);
     try {
-        const res = await updateDecoracion(fiestaId, updatedDecoracion);
+        const res = await mutarDecoracion(fiestaId, { moodboardAdd: newItem });
         if (!res.success) {
           throw new Error(res.error || "No se pudo añadir la foto.");
         }
-        setFiesta({ ...fiesta, decoracion: res.updatedData ?? updatedDecoracion });
+        setFiesta({ ...fiesta, decoracion: res.updatedData ?? { ...baseDecoracion, moodboardItems: newMoodboardItems } });
         toast({ title: "¡Foto añadida!", description: "Tu organizador verá esta sugerencia." });
         await loadData();
     } catch (e) {
@@ -128,7 +126,10 @@ export default function ClientMoodboardPage() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tablero de Inspiración del Evento</p>
                     </div>
                 </div>
-                <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
+                <div className="flex items-center gap-2">
+                  <BotonComoFunciona clave="moodboard" />
+                  <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
+                </div>
             </header>
 
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">

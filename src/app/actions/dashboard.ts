@@ -133,7 +133,10 @@ export async function getDashboardKpiData() {
     }
 
     const now = new Date();
-    const today = startOfToday();
+    const hoyStr = hoyEnUruguay(now);
+    const tomorrowStr = hoyEnUruguay(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+    const diaDeTexto = (raw: string) => (raw.includes('T') ? hoyEnUruguay(new Date(raw)) : raw.slice(0, 10));
+    const today = parseUruguayDate(hoyStr) || now;
     const tomorrow = addDays(today, 1);
 
     const ledger = calculateFinancialLedger(presupuestosData, invoicesData);
@@ -169,8 +172,8 @@ export async function getDashboardKpiData() {
     fiestasData.forEach(fiesta => {
       fiesta.tareas?.forEach(tarea => {
         if (!tarea.completada && tarea.fechaLimite) {
-          const dueDate = new Date(tarea.fechaLimite);
-          if (isBefore(dueDate, today)) {
+          const dueDia = diaDeTexto(tarea.fechaLimite);
+          if (dueDia && dueDia < hoyStr) {
             alerts.push({
               id: tarea.id,
               type: 'task',
@@ -185,15 +188,18 @@ export async function getDashboardKpiData() {
     });
 
     invoicesData.forEach(inv => {
-      if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
-        alerts.push({
-          id: inv.id,
-          type: 'payment',
-          title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
-          description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
-          severity: 'high',
-          href: `/invoices/${inv.id}`,
-        });
+      if (inv.status !== 'Paid' && inv.dueDate) {
+        const dueDia = diaDeTexto(inv.dueDate);
+        if (dueDia && dueDia < hoyStr) {
+          alerts.push({
+            id: inv.id,
+            type: 'payment',
+            title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
+            description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
+            severity: 'high',
+            href: `/invoices/${inv.id}`,
+          });
+        }
       }
     });
 
@@ -217,14 +223,16 @@ export async function getDashboardKpiData() {
     leadsData.forEach(lead => {
       if (!lead.followUpDate) return;
       const meetingDate = new Date(lead.followUpDate);
-      if (isSameDay(meetingDate, today) || isSameDay(meetingDate, tomorrow)) {
+      const meetingDia = diaDeTexto(lead.followUpDate);
+      if (meetingDia === hoyStr || meetingDia === tomorrowStr) {
+        const esHoy = meetingDia === hoyStr;
         alerts.push({
           id: `meet_${lead.id}`,
           type: 'meeting',
-          title: `Reunión ${isSameDay(meetingDate, today) ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
-          description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs`,
-          severity: isSameDay(meetingDate, today) ? 'high' : 'medium',
-          href: `/contabilidad/crm/agenda?date=${hoyEnUruguay(meetingDate)}`,
+          title: `Reunión ${esHoy ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
+          description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo' })}hs`,
+          severity: esHoy ? 'high' : 'medium',
+          href: `/contabilidad/crm/agenda?date=${meetingDia}`,
         });
       }
     });
@@ -232,8 +240,8 @@ export async function getDashboardKpiData() {
     presupuestosData.forEach(pres => {
       if (pres.estado !== 'Enviado') return;
       const createdDate = new Date(pres.timestamp);
-      const expiryDate = addDays(createdDate, 30);
-      if (isBefore(expiryDate, today)) {
+      const expiryDia = hoyEnUruguay(addDays(createdDate, 30));
+      if (expiryDia < hoyStr) {
         alerts.push({
           id: `expire_${pres.id}`,
           type: 'budget',

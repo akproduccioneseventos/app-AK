@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
+import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
 /** sha256 en hexadecimal, igual que la huella que guarda el servidor en la constancia. */
 async function huellaDelTexto(texto: string): Promise<string> {
@@ -151,7 +152,14 @@ export default function ClientContractPage() {
         const huellaVista = await huellaDelTexto(fiesta.contratoServicioTexto || '');
         const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos, huellaVista);
         if (result.success) {
-            toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
+            if (result.yaEstabaFirmado) {
+                toast({
+                    title: "Este contrato ya figura firmado",
+                    description: "Ya teníamos registrada una firma vigente para este evento.",
+                });
+            } else {
+                toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
+            }
             await loadData();
         } else throw new Error(result.error);
     } catch (e: any) {
@@ -225,7 +233,10 @@ export default function ClientContractPage() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate">Revisión y Firma Digital</p>
                     </div>
                 </div>
-                <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-5 h-5"/></Link></Button>
+                <div className="flex items-center gap-2">
+                  <BotonComoFunciona clave="contrato-y-pagos" />
+                  <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-5 h-5"/></Link></Button>
+                </div>
             </header>
 
             {firma?.isSigned && (

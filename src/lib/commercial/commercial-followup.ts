@@ -1,6 +1,7 @@
-import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { getGeminiModelForAgent } from '@/ai/genkit';
+import { MODELOS_GEMINI } from '@/ai/modelos';
+import { pedirTexto } from '@/ai/cerebro';
 import { aprenderDeLoAprobado, resumirGuiaDeEstilo } from '@/lib/ia/aprender-de-lo-aprobado';
-import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import {
   commercialFollowupInputSchema,
   serializeUntrustedPromptData,
@@ -25,16 +26,6 @@ export async function generateAiCommercialFollowup(
 
   const input = parsedInput.data;
 
-  if (!(await hayPresupuestoParaIA())) {
-    return {
-      success: false,
-      message: input.source === 'crm'
-        ? messageForLead(input.name, input.reason)
-        : messageForBudget(input.name, input.eventType),
-      error: 'Se llego al tope de gasto de inteligencia artificial del mes. Queda el mensaje de siempre.',
-    };
-  }
-
   try {
     const model = getGeminiModelForAgent('comercial');
     const ejemplosEstilo = await aprenderDeLoAprobado('seguimiento-comercial');
@@ -50,17 +41,29 @@ Reglas:
 - Inclui un llamado a coordinar una llamada o reunion sin costo.
 - Devolve solo el texto final para WhatsApp, sin comillas.`;
 
-    const result = await generateWithGeminiFallback({
-      model,
+    const result = await pedirTexto({
       prompt: ejemplosEstilo.length
         ? `${prompt}\n\nGuía abstracta de estilo aprobada por el dueño: ${resumirGuiaDeEstilo(ejemplosEstilo)}. No reutilices nombres, datos, frases, ofertas ni promesas de decisiones anteriores.`
         : prompt,
+      quien: 'seguimiento-comercial',
+      incluirReglas: false,
+      modelos: [model, ...MODELOS_GEMINI.texto],
     });
 
-    const message = result.text.trim();
-    if (!message) throw new Error('Gemini devolvio un mensaje vacio.');
+    if (!result.ok) {
+      return {
+        success: false,
+        message: input.source === 'crm'
+          ? messageForLead(input.name, input.reason)
+          : messageForBudget(input.name, input.eventType),
+        error: result.topeAlcanzado
+          ? 'Se llego al tope de gasto de inteligencia artificial del mes. Queda el mensaje de siempre.'
+          : 'La IA no respondio; se uso el mensaje seguro de respaldo.',
+      };
+    }
 
-    await registrarConsumoIA('seguimiento-comercial');
+    const message = result.texto.trim();
+    if (!message) throw new Error('Gemini devolvio un mensaje vacio.');
 
     return {
       success: true,
