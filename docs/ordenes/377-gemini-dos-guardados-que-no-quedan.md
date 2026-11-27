@@ -11,3 +11,13 @@ Primero medí si pasa también en `origin/main` (si pasa, es viejo; igual se arr
 ```comprobar
 prueba: src/__tests__/el-insumo-y-el-activo-guardan.test.ts
 ```
+
+## También frenan (fallan solas, medido por Claude el 27/11)
+- `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts`: en el paso 1 el pie no aparece (`toBeVisible`, elemento no encontrado).
+- `tests/e2e/89-ia-no-frena-la-fila.spec.ts`: con la IA fallando no se sube la foto original con efecto local (desktop y mobile), y "B puede sacar foto antes de que vuelva la IA" (mobile).
+Corrélas con `node scripts/run-playwright-production.mjs <archivo>`. Si una prueba pide algo que una orden sacó a propósito, adaptala y decilo; si no, arreglá la app.
+
+```comprobar
+prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
+```
