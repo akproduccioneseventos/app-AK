@@ -14,6 +14,8 @@ import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImag
 import { CompartirArticulo } from '@/components/public/CompartirArticulo';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

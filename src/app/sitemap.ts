@@ -8,6 +8,8 @@ import { getBlogPosts } from '@/app/actions/blog';
 import { blogPosts as staticBlogPosts } from '@/data/blog-posts';
 import { hoyEnUruguay } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 function esNotaPublicableEnSitemap(
   nota: { status?: string; publishedAt?: string },
   hoy: string,

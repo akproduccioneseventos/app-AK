@@ -2091,7 +2091,7 @@ export default function TouchpixPage() {
               className="absolute bottom-4 left-4 right-4 z-40 mx-auto max-w-sm rounded-xl border border-white/10 bg-zinc-900/90 p-3 text-center text-xs font-medium text-zinc-200 shadow-xl backdrop-blur-md"
             >
               {avisoFinalizado.destino === 'subida' && avisoFinalizado.esperaAprobacion
-                ? 'Tu foto quedó esperando la aprobación del equipo para salir en el muro.'
+                ? `${avisoFinalizado.fueIA ? 'Tu foto con IA' : 'Tu foto (con efecto local, la IA no respondió)'} quedó esperando la aprobación del equipo para salir en el muro.`
                 : avisoDelDestino(avisoFinalizado.destino, avisoFinalizado.fueIA)}
               {avisoFinalizado.destino === 'no-guardada' && fotoSinGuardar?.id === avisoFinalizado.id && (
                 <a

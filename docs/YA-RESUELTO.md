@@ -2,6 +2,28 @@
 
 
 
+## 27/11/2026 - Orden 377 (robot insumos/activos + Touchpix) y publicación automática del blog (Rama `gemini/orden-346`)
+
+- **Guardado de insumos y activos fijos en `/empresa/insumos/[id]/editar` y `/empresa/activos-fijos/[id]/editar`**:
+  * El sembrador del robot (`tests/robot/sembrar.ts`) no cargaba `insumos` (`ing-harina`) ni `activos_fijos` (`lc_psitio`) en el emulador; al editarlos sobre la base vacía, `readData` leía la copia local y `mutateDataItem` devolvía no encontrado al no existir el documento en Firestore. Se sembraron ambos ítems en `tests/robot/sembrar.ts` sin reintroducir reescrituras de lista completa.
+  * Además, ambas pantallas de edición mostraban `"Guardar Cambios"` también mientras `isSaving === true` (confundiendo al usuario y a la espera `!/Guardando|Actualizando/i` de `tests/robot/reglas.ts`), y `activos-fijos/[id]/editar` redirigía fuera de la ficha tras guardar. Ahora ambos botones muestran `"Guardando..."` durante el guardado y la ficha de activo permanece en su pantalla tras guardar como la de insumos.
+  * Agregada prueba aislada `src/__tests__/el-insumo-y-el-activo-guardan.test.ts` (sin escribir en `data/` ni `src/data/`) que verifica persistencia y limpieza de caché en `saveInsumo`/`getInsumoById` y `saveActivoFijo`/`getActivoFijoById`.
+- **Touchpix con IA lenta o caída (`89-ia-no-frena-la-fila`)**:
+  * En `src/app/evento/touchpix/[fiestaId]/page.tsx`, cuando una foto con efecto local (por fallo de IA) se subía en modo con aprobación pendiente (`esperaAprobacion`), el cartel ocultaba `(con efecto local, la IA no respondió)` y decía solo `"Tu foto quedó esperando..."`. Ahora conserva el origen (`Tu foto (con efecto local, la IA no respondió) quedó esperando...` o `Tu foto con IA quedó esperando...`).
+  * En `tests/e2e/89-ia-no-frena-la-fila.spec.ts`, agregado `afterEach` con `page.unrouteAll({ behavior: 'ignoreErrors' })` para no colgar el cierre del contexto con el sondeo periódico en curso.
+- **Publicación automática del blog y visibilidad inmediata**:
+  * `src/app/public/blog/page.tsx`, `src/app/public/blog/[slug]/page.tsx` y `src/app/sitemap.ts` pasaron a `dynamic = 'force-dynamic'` para mostrar las notas nuevas de Firestore sin esperar un redespliegue.
+  * En `src/lib/marketing-automation.ts`, `seoSucceeded` queda `undefined` (y `ranSeo` en `boolean`) cuando `seoDue` es falso en una corrida parcial de Instagram, evitando falsos fallos en `al-entrar-a-la-app.ts`, `cron/generate-blog-post/route.ts` y `tareas-automaticas.actions.ts`, que ahora pasan `includeInstagram: false` para no mezclar relojes.
+  * En `tareas-automaticas.ts` y `tareas-automaticas.actions.ts`, `generate-blog-post` queda alineado a 48 hs (`cadaHoras: 48` igual que `SEO_INTERVAL_MS`), `dispararTareasVencidasDeFondo` no llama a `marcarCorrida` si `ranSeo` es falso (antes reseteaba `ultimaCorrida.blog` sin publicar nota), `ejecutarTareaManual` fuerza la nota y `al-entrar-a-la-app.ts` también fuerza la generación si no hay notas con fecha o pasaron más de 48 hs.
+
+```comprobar
+prueba: src/__tests__/el-insumo-y-el-activo-guardan.test.ts
+prueba: src/__tests__/el-blog-publica-solo.test.ts
+prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
+usa: force-dynamic en src/app/public/blog/page.tsx
+```
+
 ## 25/11/2026 - Revisión de la entrega 346-349 de Gemini (propuesta 1475)
 
 - **"Pedile a la IA" de la presentación LED pedía sólo un tope por dirección**: la presentación es pública, así que un

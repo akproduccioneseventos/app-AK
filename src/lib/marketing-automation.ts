@@ -283,8 +283,8 @@ async function correrMarketingAutomation(options?: {
 
   const instagramFailed = instagramDue && instagramResult?.success === false;
   const instagramSucceeded = instagramDue && instagramResult?.success === true;
-  const seoSucceeded = seoDue && Boolean(blogResult);
-  const completedJobs = Number(instagramSucceeded) + Number(seoSucceeded);
+  const seoSucceeded = seoDue ? Boolean(blogResult) : undefined;
+  const completedJobs = Number(instagramSucceeded) + Number(Boolean(seoSucceeded));
   const errors = [
     instagramFailed ? instagramResult?.error : undefined,
     seoError,
@@ -300,7 +300,7 @@ async function correrMarketingAutomation(options?: {
     success,
     skipped: false,
     source,
-    ranSeo: seoSucceeded,
+    ranSeo: Boolean(seoSucceeded),
     seoSucceeded,
     seoError,
     ranInstagram: instagramSucceeded,

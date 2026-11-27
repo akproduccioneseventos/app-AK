@@ -258,10 +258,14 @@ export async function ponerAlDiaAlEntrar(
           }
 
           const cantPostsAntes = posts?.length ?? 0;
-          const tocabaPublicar = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
+          const tocabaPorAntiguedad = ultimaFechaMs > 0 && ahora.getTime() - ultimaFechaMs > 48 * 60 * 60 * 1000;
 
           const { runMarketingAutomation } = await import('@/lib/marketing-automation');
-          const res = await runMarketingAutomation({ includeRecontacto: false });
+          const res = await runMarketingAutomation({
+            includeInstagram: false,
+            includeRecontacto: false,
+            ...(tocabaPorAntiguedad || cantPostsAntes === 0 ? { force: true } : {}),
+          });
           if ((res as any)?.seoError || (res as any)?.seoSucceeded === false) {
             throw new Error((res as any)?.seoError || (res as any)?.motivo || (res as any)?.error || 'No se pudo publicar la nota del blog.');
           }
@@ -269,7 +273,8 @@ export async function ponerAlDiaAlEntrar(
             return res;
           }
 
-          if (tocabaPublicar) {
+          const debeVerificarNotaNueva = tocabaPorAntiguedad || (res as any)?.ranSeo === true;
+          if (debeVerificarNotaNueva) {
             const postsDespues = await readDataBlog<any[]>('blog-posts.json', []);
             const fechasDespues = (postsDespues || [])
               .map((p: any) => (p.publishedAt ? new Date(p.publishedAt).getTime() : 0))

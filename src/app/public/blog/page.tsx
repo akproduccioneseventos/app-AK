@@ -12,6 +12,8 @@ import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from '@/l
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 import { BotonComoFunciona } from '@/components/tutorial/BotonComoFunciona';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
   title: 'Consejos para organizar fiestas',

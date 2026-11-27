@@ -33,6 +33,18 @@ test.beforeAll(() => guardarFiesta(fiesta));
 test.afterAll(() => borrarFiesta(fiesta.id));
 
 test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () => {
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => undefined);
+    await page.evaluate(() => {
+      document.querySelectorAll('video').forEach((v) => {
+        const stream = (v as HTMLVideoElement).srcObject as MediaStream | null;
+        stream?.getTracks().forEach((t) => t.stop());
+        (v as HTMLVideoElement).srcObject = null;
+      });
+    }).catch(() => undefined);
+    await page.goto('about:blank', { waitUntil: 'domcontentloaded' }).catch(() => undefined);
+  });
+
   test('invitado A captura en faceswap y B puede sacar foto antes de que vuelva la IA', async ({ page }) => {
     test.setTimeout(120_000);
     await enchufarCamaraFalsa(page);
