@@ -42,14 +42,27 @@ Tecnología": pasarlo a un título de catálogo de servicios con "Salto".
 propias de AK (las de la galería real; regla del dueño del 7/10: si no hay una propia que sirva, una de ejemplo del tema
 correcto, sin preguntarle). En 15 años, una foto sin nombre visible.
 
-## Bloque 8 — "Últimas notas" de Blogger y WordPress, y suscripción por mail
-- En la portada y en `/blog`: las 3 últimas notas (título, imagen, fecha) leyendo en el servidor los feeds
-  `https://akproduccionessalto.blogspot.com/feeds/posts/default` y `https://akproduccionessalto.wordpress.com/feed/`, caché
-  de 1 hora; si el feed falla, el bloque no se muestra (sin error en pantalla). Enlaces a cada nota y a los dos blogs.
-- Formulario de suscripción en `/blog` y en el pie: email + casilla de consentimiento obligatoria + texto de privacidad en
-  español; guarda en la base propia (no en terceros); baja con un enlace. **El mail de cada nota nueva queda preparado y lo
-  manda el dueño con un botón** (regla: los mensajes a personas no salen solos). Con tope de envíos por persona y sin
-  servicio pago.
+## Bloque 8 — Enlace a los otros blogs, suscripción por mail y la lista de prospectos (decisión del dueño, 27/11)
+**El blog de la app es aparte de Blogger y WordPress: NO se muestran sus notas en la web.** Sólo un enlace a cada uno
+(`https://akproduccionessalto.blogspot.com/` y `https://akproduccionessalto.wordpress.com/`) en `/blog` y en el pie.
+
+Suscripción al blog de la app, en `/blog` y en el pie: nombre opcional + email + casilla de consentimiento obligatoria +
+texto de privacidad en español. Se guarda en la base propia. **Estos mails salen solos (excepción que eligió el dueño a
+"preparar sí, mandar no", con interruptor en Ajustes, igual que el recontacto de prospectos):**
+1. **Bienvenida** apenas se suscribe.
+2. **Un mail por mes a cada suscriptor**, contado desde el día en que se anotó, con las notas nuevas del blog de la app de ese
+   mes (si no hubo notas, no se manda). Lo dispara el despertador de tareas, una vez por persona por mes (marca de envío por
+   persona para que un reintento no mande dos).
+3. Cada mail lleva el enlace de baja; darse de baja deja de mandar todo.
+Se manda con la cuenta de Gmail ya conectada (gratis); nada de servicios pagos. Con tope diario de envíos.
+
+**Cada suscriptor entra al CRM como prospecto** (origen "Suscripción al blog", con su email), sin duplicar si ya existe
+por email o teléfono.
+
+**En la configuración del CRM, una sección "Mandar publicidad por mail":** elegir a quién (suscriptores, prospectos con
+email, o un filtro), escribir o pedirle a la IA el texto (por el cerebro de la IA), ver la vista previa y tocar "Enviar".
+Esto lo manda una persona con el botón: no sale solo. Sólo a quien dejó su consentimiento y no se dio de baja; con el mismo
+tope diario. Nada de precios ni promesas prohibidas (garantía, 24/7, congelar).
 
 ## Lo que NO hay que hacer
 - No cambiar las direcciones `/bodas`, `/quinceaneras`, `/cumpleanos`, `/club-uruguay`.
@@ -60,16 +73,16 @@ correcto, sin preguntarle). En 15 años, una foto sin nombre visible.
   sitemap incluye `/blog`; el logo de `/bodas` es una imagen con alt "AK Producciones" y ancho mayor a 0; `/bodas` tiene H1
   "Wedding planner y organizador de bodas en Salto" y un JSON-LD `FAQPage`; el title de `/quinceaneras` tiene la marca una
   vez; a 390 px nada se desborda.
-- `src/__tests__/las-ultimas-notas-no-rompen.test.ts`: con el feed caído el bloque devuelve vacío; la suscripción sin la
-  casilla no guarda.
+- `src/__tests__/la-suscripcion-al-blog.test.ts`: sin la casilla no guarda; al suscribirse sale una bienvenida y el email
+  queda como prospecto en el CRM (una sola vez); el mensual sale una vez por persona por mes y no a quien se dio de baja.
 
 ```comprobar
 no-usa: canonical: '/public/blog', en src/app/public/blog/page.tsx
 no-usa: ruta.startsWith('/public/blog/') en src/app/sitemap.ts
 usa: Wedding planner y organizador de bodas en Salto en src/app/bodas/page.tsx
-usa: akproduccionessalto.wordpress.com/feed en src/lib/blog/ultimas-notas.ts
+usa: akproduccionessalto.wordpress.com en src/app/public/blog/page.tsx
+prueba: src/__tests__/la-suscripcion-al-blog.test.ts
 prueba: tests/e2e/la-web-y-el-blog-del-27-11.spec.ts
-prueba: src/__tests__/las-ultimas-notas-no-rompen.test.ts
 ```
 
 ## Barrido en toda la app

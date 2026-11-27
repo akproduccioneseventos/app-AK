@@ -1596,6 +1596,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Suscripción al blog y publicidad por mail (27 de noviembre de 2026).** El blog de la app es aparte de Blogger y
+  WordPress: la web sólo los enlaza. Los suscriptores reciben solos una bienvenida y un mail por mes con las notas nuevas
+  (excepción que eligió el dueño, con interruptor), entran al CRM como prospectos, y desde la configuración del CRM se
+  manda publicidad por mail con un botón. Orden 378, bloque 8.
 - **El robot va y viene hasta cero errores (25 de noviembre de 2026).** Palabras suyas: *"el robot va a trabajar yendo y
   viniendo hasta que venga sin errores; si encuentra los mismos errores no cuentan; no podés parar hasta que sea así; vos le
   das las indicaciones todo el tiempo"*. Una vuelta por hora **en la sesión de trabajo** (tarea "Robot AK hasta cero
