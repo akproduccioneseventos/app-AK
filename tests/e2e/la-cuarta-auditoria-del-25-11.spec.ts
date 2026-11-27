@@ -138,7 +138,7 @@ test.describe('Orden 355 - Cuarta auditoría externa del 25/11', () => {
       guardarFiesta(fiestaHoy as any);
 
       await page.goto('/eventos', { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText('Fiesta De Hoy Orden 359')).toBeVisible({ timeout: 25_000 });
+      await expect(page.getByText('Fiesta De Hoy Orden 359').first()).toBeVisible({ timeout: 25_000 });
       const pasadasTab = page.getByRole('tab', { name: /Pasadas/i });
       if (await pasadasTab.count()) {
         await pasadasTab.first().click();
