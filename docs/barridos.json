@@ -1566,6 +1566,10 @@
     "orden-377": {
       "fecha": "2026-11-27",
       "resultado": "Revisión 1475: insumo y activo fijo 'no persisten' en el robot; con base de prueba guardan bien (src/__tests__/el-insumo-y-el-activo-guardan.test.ts). El robot recargaba antes de que el guardado terminara; ahora espera. Gemini confirma con la puerta."
+    },
+    "orden-378": {
+      "fecha": "2026-11-27",
+      "resultado": "Informe de la web del 27/11: blog en /public/blog, logo vacío, títulos repetidos, falta Service/FAQPage. El barrido de títulos, direcciones /public/blog y logos va en la orden 378."
     }
   }
 }
