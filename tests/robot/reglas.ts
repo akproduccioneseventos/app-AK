@@ -384,6 +384,12 @@ export async function ejecutarReglaIdaYVuelta(page: Page, rutaUrl: string): Prom
   await campo.fill(marca, { timeout: 5_000 });
   await botonGuardar.click({ timeout: 5_000 });
   await page.waitForLoadState('networkidle', { timeout: 2_000 }).catch(() => {});
+  // Se espera a que el guardado TERMINE (el botón vuelve y no dice "Guardando"), no un tiempo fijo:
+  // guardar un insumo recalcula los menús y tarda más de 700 ms; recargar antes cortaba el guardado.
+  await page
+    .waitForFunction(() => !/Guardando|Actualizando/i.test(document.body.innerText), undefined, { timeout: 15_000 })
+    .catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
   await page.waitForTimeout(700);
 
   // Recarga real para comprobar que quedó guardado en la base.
