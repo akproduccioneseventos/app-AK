@@ -1570,6 +1570,10 @@
     "orden-378": {
       "fecha": "2026-11-27",
       "resultado": "Informe de la web del 27/11: blog en /public/blog, logo vacío, títulos repetidos, falta Service/FAQPage. El barrido de títulos, direcciones /public/blog y logos va en la orden 378."
+    },
+    "orden-379": {
+      "fecha": "2026-11-28",
+      "resultado": "Auditoría /bodas 28/11: teléfono distinto en el pie, 'Imagen ilustrativa', formulario antes de los botones. El barrido de teléfonos y etiquetas va en la orden 379."
     }
   }
 }

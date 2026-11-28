@@ -84,6 +84,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       `claude/app-debug-stabilize-m70e6z`; arreglá los dos guardados y corré la puerta entera hasta verde.
   29. **Orden 378 (`docs/ordenes/378-gemini-la-web-y-el-blog-del-27-11.md`), junto con la 377:** el blog en `/blog`,
       sitemap, logo, "wedding planner y organizador de bodas", datos para Google, portadas de AK y últimas notas.
+  30. **Orden 379 (`docs/ordenes/379-gemini-bodas-28-11-y-ajuste-378.md`), AHORA:** sacá los feeds de Blogger/WordPress
+      (sólo enlaces) y arreglá /bodas según el informe del 28/11.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
