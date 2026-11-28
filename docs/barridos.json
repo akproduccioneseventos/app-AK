@@ -1574,6 +1574,10 @@
     "orden-379": {
       "fecha": "2026-11-28",
       "resultado": "Auditoría /bodas 28/11: teléfono distinto en el pie, 'Imagen ilustrativa', formulario antes de los botones. El barrido de teléfonos y etiquetas va en la orden 379."
+    },
+    "orden-380": {
+      "fecha": "2026-11-28",
+      "resultado": "Auditoría SEO 28/11: robots.txt bloquea por defecto, URL inexistente da 200, no-store en lo público, LCP 13 s. El barrido de no-store y redirecciones a /login va en la orden 380."
     }
   }
 }

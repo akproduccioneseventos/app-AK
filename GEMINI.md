@@ -86,6 +86,8 @@ propuesta `claude/robot-…` abierta para ella: si la hay, no la toques.
       sitemap, logo, "wedding planner y organizador de bodas", datos para Google, portadas de AK y últimas notas.
   30. **Orden 379 (`docs/ordenes/379-gemini-bodas-28-11-y-ajuste-378.md`), AHORA:** sacá los feeds de Blogger/WordPress
       (sólo enlaces) y arreglá /bodas según el informe del 28/11.
+  31. **Orden 380 (`docs/ordenes/380-gemini-seo-28-11.md`), junto con la 379:** robots.txt, 404 de verdad, indexación de
+      /bodas y /quinceaneras, y velocidad en el celular.
   - **Y de ahora en más, cada orden nueva que salga del robot (351 en adelante) aparece en esta lista: hacela en la
     misma propuesta.**
   - Si una se traba, entregá las otras en la misma propuesta y avisá cuál faltó y por qué.
