@@ -1596,6 +1596,8 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Páginas por servicio, sólo Salto (28 de noviembre de 2026).** Una página por servicio, todas "en Salto"; ninguna de
+  otras ciudades. Orden 380, bloque 5.
 - **Suscripción al blog y publicidad por mail (27 de noviembre de 2026).** El blog de la app es aparte de Blogger y
   WordPress: la web sólo los enlaza. Los suscriptores reciben solos una bienvenida y un mail por mes con las notas nuevas
   (excepción que eligió el dueño, con interruptor), entran al CRM como prospectos, y desde la configuración del CRM se

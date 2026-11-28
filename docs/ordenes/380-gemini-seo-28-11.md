@@ -28,11 +28,21 @@ Portada con LCP 13,3 s y 2,5 MB. Sin gastar plata por mes:
 - Menos JavaScript de terceros en lo público (cargar diferido lo que no se ve al abrir).
 Medir con Lighthouse móvil antes y después en portada y /bodas y anotar los números en `docs/YA-RESUELTO.md`.
 
+## Bloque 5 — Una página por servicio, sólo para Salto (decisión del dueño, 28/11)
+Páginas nuevas, todas "en Salto" (ninguna de otras ciudades): `/fotocabina-salto`, `/plataforma-360-salto`,
+`/dj-e-iluminacion-salto`, `/barra-de-tragos-salto`, `/catering-salto`, `/decoracion-salto` y `/salon-de-fiestas-salto`
+(esta última enlaza a `/club-uruguay`). Cada una con H1 claro, 300 a 500 palabras propias, fotos reales de AK (regla del 7/10:
+si no hay una propia, una de ejemplo del tema), FAQPage y Service en JSON-LD, botón al simulador y a WhatsApp, enlaces a
+`/bodas`, `/quinceaneras` y `/cumpleanos`. Sumarlas al sitemap y al menú/pie. Sólo datos ya publicados: sin precios, plazos ni
+capacidades inventadas; nada de "garantía", "24/7" ni "congelar".
+
 ## Lo que NO hay que hacer
-- No crear páginas nuevas por servicio ni por ciudad: lo decide el dueño aparte.
+- No crear páginas de otras ciudades.
 - No cambiar textos comerciales, precios ni el reloj del simulador.
 
 ## Qué tiene que comprobar la prueba
+- `tests/e2e/las-paginas-de-servicio-en-salto.spec.ts`: las siete páginas abren a 390 px, tienen H1 con "Salto", un
+  JSON-LD FAQPage y figuran en el sitemap.
 - `src/__tests__/robots-permite-por-defecto.test.ts`: `robots()` no tiene `disallow: '/'`; `/bodas` y una ruta nueva
   cualquiera quedan permitidas; `/api` y el panel, no.
 - `tests/e2e/una-direccion-inexistente-da-404.spec.ts`: `/no-existe-xyz` responde 404 y muestra los enlaces; `/login`
@@ -41,6 +51,8 @@ Medir con Lighthouse móvil antes y después en portada y /bodas y anotar los n�
 ```comprobar
 no-usa: disallow: '/', en src/app/robots.ts
 prueba: src/__tests__/robots-permite-por-defecto.test.ts
+archivo: src/app/fotocabina-salto/page.tsx
+prueba: tests/e2e/las-paginas-de-servicio-en-salto.spec.ts
 prueba: tests/e2e/una-direccion-inexistente-da-404.spec.ts
 usa: Simular mi presupuesto en src/app/not-found.tsx
 ```
